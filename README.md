@@ -17,7 +17,8 @@ reference implementation, a browser runtime and compiler, lives in
 
 - **About a draft's text** — a question, an ambiguity, a problem, or a suggestion:
   [open an issue](https://github.com/nextwebwg/specs/issues/new/choose) with the form for that
-  proposal. Choosing a chapter labels the issue, so the people working on that chapter see it.
+  proposal. Choosing a chapter and a type (editorial, substantive, or a question) labels the
+  issue, so the people working on that chapter see it.
 - **About something new** — an idea for a proposal, or a direction no draft covers yet:
   [start a discussion](https://github.com/nextwebwg/specs/discussions).
 - **About the tooling** — a bug in the runtime, compiler, unplugin, or converter:
@@ -39,6 +40,9 @@ corepack pnpm verify:pr
 
 `verify:pr` compiles every chapter with the site's own compiler ([`tools/compile.ts`](./tools/compile.ts))
 and runs the content tests that guard decisions the drafts have made.
+
+Then open a pull request; its template asks which proposal and chapters the change touches and
+whether it is editorial or substantive.
 
 ## License
 

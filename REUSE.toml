@@ -3,7 +3,7 @@
 version = 1
 
 [[annotations]]
-path = ["html-next/**", "html-forms/**", "*.md", ".github/ISSUE_TEMPLATE/**"]
+path = ["html-next/**", "html-forms/**", "*.md", ".github/ISSUE_TEMPLATE/**", ".github/DISCUSSION_TEMPLATE/**", ".github/pull_request_template.md"]
 SPDX-FileCopyrightText = "2026 Next Web Working Group"
 SPDX-License-Identifier = "CC-BY-4.0"
 

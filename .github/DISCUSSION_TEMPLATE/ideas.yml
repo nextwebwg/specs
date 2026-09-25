@@ -1,0 +1,32 @@
+body:
+  - type: dropdown
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The draft this idea would extend, or a new proposal.
+      options:
+        - Declarative HTML Components
+        - HTML Forms
+        - A new proposal
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What authors cannot do, or do badly, with the web platform today.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: The direction you have in mind, with an example of the markup if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: prior-art
+    attributes:
+      label: Prior art
+      description: Optional. Frameworks, libraries, earlier proposals, or standards discussions that address it.

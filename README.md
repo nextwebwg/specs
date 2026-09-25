@@ -39,3 +39,10 @@ corepack pnpm verify:pr
 
 `verify:pr` compiles every chapter with the site's own compiler ([`tools/compile.ts`](./tools/compile.ts))
 and runs the content tests that guard decisions the drafts have made.
+
+## License
+
+The specification text (the chapters and the documentation) is licensed under
+[CC BY 4.0](./LICENSES/CC-BY-4.0.txt); the code that builds and checks it (`tools/`, the workflow
+scripts) under the [MIT License](./LICENSES/MIT.txt). [`REUSE.toml`](./REUSE.toml) records which
+applies to each file, following the [REUSE](https://reuse.software) convention.

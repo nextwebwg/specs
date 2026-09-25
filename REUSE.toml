@@ -1,0 +1,13 @@
+# Licensing follows the REUSE convention (https://reuse.software): the specification text is
+# CC-BY-4.0 and the code that builds and checks it is MIT. License texts are in LICENSES/.
+version = 1
+
+[[annotations]]
+path = ["html-next/**", "html-forms/**", "*.md", ".github/ISSUE_TEMPLATE/**"]
+SPDX-FileCopyrightText = "2026 Next Web Working Group"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+[[annotations]]
+path = ["tools/**", ".github/scripts/**", ".github/workflows/**", ".github/labeler.yml", "package.json", "pnpm-lock.yaml", "REUSE.toml", "threadlabs.config.json", ".threadlabs.lock.json", ".gitignore"]
+SPDX-FileCopyrightText = "2026 Next Web Working Group"
+SPDX-License-Identifier = "MIT"

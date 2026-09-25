@@ -164,6 +164,45 @@ Scoping constrains **selector matching**, not the cascade. Inherited properties 
 > [!note] Selector scoping preserves the cascade
 > Vue and Svelte scoped styles, and Angular ViewEncapsulation.Emulated as the shipped default,[^3] won in practice over Shadow DOM because most authors want *scoping* (my selectors do not leak) and not *isolation* (nothing gets in or out). Shadow DOM, and Lit built on it, forces both.[^4] HTML Next makes scoping the default and treats isolation as the special case.
 
+## Compared with Vue and Svelte scoped styles
+
+If you have written Vue's `<style scoped>` or a Svelte component's `<style>`, most of what you know carries over: a component's selectors match its own markup, and inherited properties and custom properties still cross into everything it renders. Four things work differently. Each keeps an element answerable to one stylesheet, its own component's, so refactoring one component never silently changes what another component's rules match.
+
+The difference you meet first is a parent sizing a child. In Vue, a parent's scoped rules also match a child component's root, so this works:
+
+```html
+<!-- Vue: the parent's scoped rule reaches the child's root -->
+<template><div class="toolbar"><SearchBox class="search" /></div></template>
+<style scoped>.search { flex: 1; }</style>
+```
+
+In HTML Next the nested component is out of the parent's scope, root included, so the same rule matches nothing. Lay the child out from your own markup, or style it through the class you put on its invocation from a stylesheet that owns that class:
+
+```html
+<template component="x-toolbar">
+  <div class="toolbar"><x-search-box></x-search-box></div>
+  <style>
+    .toolbar { display: grid; grid-template-columns: 1fr auto; }  /* the parent lays out its own container */
+  </style>
+</template>
+```
+
+| | HTML Next | Vue `<style scoped>` | Svelte |
+| --- | --- | --- | --- |
+| A nested component's root | Out of scope. Lay it out from your own markup, or give the invocation a `class` | In scope: a child's root takes both the parent's scoped rules and its own | Out of scope |
+| Inside a nested component | Never. There is no `:deep()`; use the component's custom properties | `:deep()` reaches in | `:global()` reaches in |
+| The component's own root | `:host`, and `:host-state()` to style by a resolved prop or state | A class the author puts on the root element | A class the author puts on an element; a component may have several top-level elements |
+| Content passed in through a slot | Opt in with `:slotted()`: a full selector, matching at any depth, stopping at nested components, and losing ties to the consumer's own rules | Opt in with `:slotted()` | Not matched; `:global()` reaches it |
+
+Why HTML Next draws the lines this way:
+
+- **One owner per element.** Vue lets a child's root answer to two stylesheets as a convenience for layout. The cost is that a child renaming or restructuring its root changes what the parent's rules hit, with no error. Here a parent's rules never match another component's elements, so that coupling cannot form.
+- **A public surface instead of a way in.** `:deep()` and `:global()` let a caller depend on another component's private markup. HTML Next gives components [custom properties](#customization-custom-properties) as their styling contract and no selector into someone else's internals.
+- **State without attributes.** Vue and Svelte style a component's state through classes or attributes the component writes on itself. `:host-state()` tests resolved props and state directly, defaults included, so nothing is written just so a stylesheet can see it.
+- **Defined by the platform.** The region, a root with a lower limit at nested components and projected content, is the shape of CSS [`@scope`](https://www.w3.org/TR/css-cascade-6/#scoped-styles) with its range form, rather than a selector rewrite particular to one build tool. An implementation may still rewrite selectors, for example when it compiles to Vue, but what matches is what this page defines.
+
+Porting a component: move a parent's rules for a child's root into layout on the parent's own container, or into a class on the invocation; turn each `:deep()` into a custom property the child reads; replace classes toggled for styling with `:host-state()`. For how a lowered component looks in the page, see [Rendered form](/html-next/rendered-form).
+
 ## Isolation: opt-in, later
 
 Full isolation via a real shadow boundary [may]{.kw} be requested explicitly; it is never the default cost. A **later Level** specifies it as an *extension of Declarative Shadow DOM* driven by the template, closing the styling and form-participation gaps that kept authors away from Shadow DOM, rather than inheriting them.

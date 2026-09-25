@@ -1,0 +1,18 @@
+{
+  "artifacts": {
+    ".github/workflows/ci.yml": "0cc1702cea6bb4d695d547a47cef1e0ad9426ae4ee33e5f896ade44abf5758e1",
+    ".gitignore": "51e0142fd08c85a2da9e468606de67498092c6eea092b34bde9acfc81b61e5ad",
+    "AGENTS.md": "d784165814a67ed61cb4097a8a4a95abb1f97e8cf2fbe582cdfa38eb6cdc9fe6",
+    "CLAUDE.md": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+    "LICENSE": "d36b9fbad64a5eb046f984d62952c14ec989c49f4f9c61aee775eb4d4c258053",
+    "README.md": "2628068125e24674420f49c7cc161dcb7e407c4b0fab71aed7928ff37c49d79b",
+    "threadlabs.config.json": "26eb2b80857adb033544478c476f27341c335195043a1a36edb0728e5c191bd8"
+  },
+  "modules": {
+    "agents": "1.0.0",
+    "core": "1.0.0",
+    "github": "1.0.0"
+  },
+  "schemaVersion": "1.0",
+  "standardVersion": "1.0.0"
+}

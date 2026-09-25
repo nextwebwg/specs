@@ -1,0 +1,57 @@
+{
+  "bundles": [],
+  "documentation": {
+    "hotspots": []
+  },
+  "exceptions": [],
+  "modules": [
+    "agents",
+    "core",
+    "github"
+  ],
+  "ownership": [
+    {
+      "mode": "managed",
+      "path": ".github/workflows/ci.yml"
+    },
+    {
+      "mode": "managed",
+      "path": ".gitignore"
+    },
+    {
+      "mode": "managed",
+      "path": ".threadlabs.lock.json"
+    },
+    {
+      "mode": "managed",
+      "path": "AGENTS.md"
+    },
+    {
+      "mode": "managed",
+      "path": "CLAUDE.md"
+    },
+    {
+      "mode": "managed",
+      "path": "LICENSE"
+    },
+    {
+      "mode": "managed",
+      "path": "README.md"
+    },
+    {
+      "mode": "managed",
+      "path": "threadlabs.config.json"
+    }
+  ],
+  "release": {
+    "strategy": "single-package"
+  },
+  "schemaVersion": "1.0",
+  "settings": {
+    "description": "Specifications for the HTML Next proposals: Declarative HTML Components and HTML Forms.",
+    "licenseHolder": "Next Web Working Group",
+    "licenseYear": 2026,
+    "projectName": "specs"
+  },
+  "standardVersion": "1.0.0"
+}

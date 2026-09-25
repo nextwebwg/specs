@@ -1,0 +1,25 @@
+{
+  "name": "specs",
+  "private": true,
+  "type": "module",
+  "description": "Specifications for the HTML Next proposals: Declarative HTML Components and HTML Forms.",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=22.13 <23 || >=24 <25"
+  },
+  "scripts": {
+    "check": "node --experimental-strip-types --disable-warning=ExperimentalWarning tools/check.ts",
+    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test tools/*.test.ts",
+    "verify:inner": "pnpm check && pnpm test",
+    "verify:pr": "pnpm verify:inner"
+  },
+  "dependencies": {
+    "markdown-it": "15.0.2",
+    "markdown-it-container": "4.0.0",
+    "markdown-it-deflist": "4.0.0",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@vue/compiler-sfc": "3.5.42"
+  }
+}

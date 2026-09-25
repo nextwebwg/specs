@@ -15,6 +15,18 @@ body:
         - Several parts or not sure
     validations:
       required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: Editorial feedback leaves what the proposal requires unchanged; substantive feedback changes it.
+      options:
+        - Editorial (wording, a typo, a link, or an example)
+        - Substantive (what the proposal requires, allows, or defines)
+        - Question
+        - Not sure
+    validations:
+      required: true
   - type: textarea
     id: feedback
     attributes:

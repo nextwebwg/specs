@@ -1,7 +1,7 @@
 name: Chapter labels
 
-# Labels feedback by chapter: an issue by its form's "Chapter" answer, a pull request by the
-# chapter files it changes. Neither job checks out or runs code from the issue or pull request.
+# Labels feedback by chapter: an issue by its form's "Chapter" and "Type" answers, a pull request by
+# the chapter files it changes. Neither job checks out or runs code from the issue or pull request.
 on:
   issues:
     types: [opened, edited]
@@ -20,7 +20,7 @@ jobs:
       issues: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Apply the chapter label
+      - name: Apply the chapter and type labels
         env:
           GH_TOKEN: ${{ github.token }}
           NUMBER: ${{ github.event.issue.number }}

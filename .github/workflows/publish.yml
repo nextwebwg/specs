@@ -1,0 +1,32 @@
+name: Publish
+
+# The site renders these drafts from main. After a change lands, start the site's deploy.
+# SITE_DEPLOY_TOKEN is a fine-grained token limited to nextwebwg/site with Actions: read and write,
+# which can start its deploy workflow but cannot change its code. Until it exists, the job only
+# reports that the deploy must be started by hand.
+on:
+  push:
+    branches: [main]
+    paths: ["html-next/**", "html-forms/**", "tools/compile.ts"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: true
+
+jobs:
+  deploy-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start the site deploy
+        env:
+          GH_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::notice::SITE_DEPLOY_TOKEN is not set; run the nextwebwg/site deploy workflow by hand."
+            exit 0
+          fi
+          gh workflow run deploy.yml --repo nextwebwg/site --ref main

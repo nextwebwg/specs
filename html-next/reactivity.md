@@ -176,7 +176,7 @@ In a reactive component most of what framework lifecycle callbacks did is absorb
 
 ### What the graph already handles
 
-- **Prop / attribute changes**: the bindings, `<computed>`, and `<data>` that read a prop re-run automatically. This is `attributeChangedCallback`, and you never write it.
+- **Prop changes**: when a prop changes, through a parent template's binding on the invocation or a framework passing a new value, the bindings, `<computed>`, and `<data>` that read it re-run automatically, so you never write `attributeChangedCallback`. A literal attribute on an invocation is the prop's initial configuration: the invocation is replaced when it lowers, and the root's `data-*` record is output, not observed (see [Lowering, provenance & hydration](/html-next/components)).
 - **Fetch on mount, refetch on change**: declare a `<data>`; it runs when its params resolve and again when they change. This is the `connectedCallback` fetch.
 - **Initial and derived state**: `<state :value>` and `<computed>`; initial focus is `autofocus`.
 
@@ -200,7 +200,7 @@ For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a 
 | `constructor` | none, the `<template component>` declaration *is* the definition |
 | `connectedCallback` | `on:connect` (declarative) · the JS behavior's connect (imperative, below) |
 | `disconnectedCallback` | `on:disconnect` · the JS behavior's teardown |
-| `attributeChangedCallback` | not written, reactivity re-runs the dependents |
+| `attributeChangedCallback` | not written: a prop changes through a binding or a framework, and reactivity re-runs its dependents |
 | `adoptedCallback` | `on:adopt` (rare, cross-document moves) |
 | form-associated callbacks | the forms & validation story (see [Validation](/html-next/validation)) |
 

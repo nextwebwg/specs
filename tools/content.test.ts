@@ -65,6 +65,19 @@ test("polymorphic roots use explicit native branches", () => {
   assert.match(components, /The prop does not retag an element/);
 });
 
+test("props are initial configuration and the data-* record is output", () => {
+  const components = chapter("components");
+  const reactivity = chapter("reactivity");
+
+  assert.match(components, /The record is \*\*output\*\*/);
+  assert.match(components, /does not change the prop/);
+  assert.doesNotMatch(components, /effective value \(passed or default\)/);
+  assert.doesNotMatch(reactivity, /This is `attributeChangedCallback`/);
+  // A parent's binding also changes a prop; the record is not limited to framework updates.
+  assert.match(components, /a parent template's `:name` on the invocation/);
+  assert.match(chapter("types"), /every serializable prop the author supplied/);
+});
+
 test("the baseline component contract includes the complete slot model", () => {
   const components = chapter("components");
   const slotEntryStart = components.indexOf('{.entry name="<slot>"');

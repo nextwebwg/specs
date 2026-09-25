@@ -149,7 +149,7 @@ A type either has a lossless string form or it does not, and that single fact de
 
 | Family | Types | Behaviour |
 | --- | --- | --- |
-| **Scalar & list**<br>[L1]{.pill .l1} [L2]{.pill .soon} | `string`, `number`, `integer`, `boolean`, `email`, `url`, HTML date/time types, and keyword enums (L1); CSS types such as `<length>`, `<percentage>`, `<color>`, `<angle>`, `<time>`, `<url>`, and composite values (L2) | A single value token. Reflects to `data-*`, survives SSR, round-trips losslessly via the declared type. |
+| **Scalar & list**<br>[L1]{.pill .l1} [L2]{.pill .soon} | `string`, `number`, `integer`, `boolean`, `email`, `url`, HTML date/time types, and keyword enums (L1); CSS types such as `<length>`, `<percentage>`, `<color>`, `<angle>`, `<time>`, `<url>`, and composite values (L2) | A single value token. Recorded as `data-*`, survives SSR, round-trips losslessly via the declared type. |
 | **Structured**<br>[L2]{.pill .soon} | `object`, `array`; shape via nested `<prop>` or a referenced JSON Schema | Authored as an [object expression](/html-next/expressions), bound **by reference** for reactivity, and serialized as **JSON** only when it crosses a boundary (SSR payload, interop). Not reflected per-attribute. [Must]{.kw} be declared, since it cannot fall back to `string`. |
 
 > [!warn] Prop contracts contain serializable values
@@ -157,7 +157,7 @@ A type either has a lossless string form or it does not, and that single fact de
 
 ## Serialization: the string plus the type is the value
 
-Because a serializable value has a string form and its type is declared, lowering can **record every serializable prop on the native root as `data-<name>`**. The invocation is then fully reconstructable from the DOM, replacement loses no information, and reading a value back is unambiguous: take the attribute string, parse it per the contract's type.
+Because a serializable value has a string form and its type is declared, lowering can **record every serializable prop the author supplied on the native root as `data-<name>`**. The invocation is then fully reconstructable from the DOM, replacement loses no information, and reading a value back is unambiguous: take the attribute string, parse it per the contract's type.
 
 ```html
 <x-badge variant="solid" count="3">New</x-badge>

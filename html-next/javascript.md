@@ -35,7 +35,7 @@ A component that needs imperative behavior gets a **controller**: the default-ex
 </template>
 ```
 
-```html title="x-map.js"
+```js title="x-map.js"
 // x-map.js: an ordinary ES module, the imperative controller for <x-map>.
 // No HTML Next package import is required: the definition already names this module.
 export default function controller(host) {
@@ -59,27 +59,42 @@ The controller is written against the small `host` interface and exported as the
 
 The controller receives one argument, `host`, its window onto the instance. The name is the platform's: Shadow DOM already calls the component element seen from inside `:host`[^3]. Every capability on it is a thin, framework-neutral surface with a native anchor, which is precisely what makes it portable across compile targets.
 
-```html
+```ts
 type EffectCallback = () => void | (() => void);
 
 interface ComponentHost<State extends object = Record<string, unknown>> {
-  readonly element: Element;  // the connected component invocation
-  readonly state: State;      // live values; only declared <state> paths are writable
-  readonly refs: Readonly<Record<string, Element>>;
-  readonly elements: Readonly<Record<string, Element | RadioNodeList>>;
+  /** The component's root element. Its connection owns this controller's lifetime. */
+  readonly root: Element;
 
+  /** Every value declared in <defs>: props, state, computed, data. Only paths
+   *  rooted at a declared <state> are writable; a write flows through the graph. */
+  readonly state: State;
+
+  /** Elements the definition marked with $ref, by name. A name inside $each is the
+   *  list that iteration produced; a name on a <slot> is that slot's live range. */
+  readonly refs: Readonly<Record<string, Element | readonly Element[] | Range>>;
+
+  /** Elements a consumer projected, by slot name, in order. Empty while the slot
+   *  shows its fallback. The only way to enumerate projected content. */
+  readonly slots: Readonly<Record<string, readonly Element[]>>;
+
+  /** Run callback on a lifecycle or component event. Returns an unsubscribe. */
   on(type: string, callback: EventListener): () => void;
+
+  /** Run while connected, re-running when a state path it read changes. */
   effect(callback: EffectCallback): () => void;
+
+  /** Raise a component event a parent catches with on:event. */
   dispatch(type: string, detail?: unknown): boolean;
 }
 ```
 
 | On `host` | Does | Native anchor |
 | --- | --- | --- |
-| `host.element` | The component invocation element whose connection owns this controller's lifetime. | `:host` / the custom-element instance |
+| `host.root` | The component's root element, whose connection owns this controller's lifetime. | `:host` / the custom-element instance |
 | `host.state` | Read the instance's props, state, computed values, and resources. Only paths rooted at a declared `<state>` are writable; a valid write flows through the dependency graph. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
-| <code>host.refs.<var>name</var></code> | The element declared with <code>$ref="<var>name</var>"</code>. | captured at lowering (see below) |
-| <code>host.elements.<var>name</var></code> | A native form control by its `name`. | `form.elements`[^9] |
+| <code>host.refs.<var>name</var></code> | The element declared with <code>$ref="<var>name</var>"</code>, or the list of them when that name sits inside an iteration. | captured at lowering (see below) |
+| <code>host.slots.<var>name</var></code> | The elements a consumer projected into that slot, in order; empty while the slot shows its fallback. | `assignedElements()`[^9] |
 | <code>host.on(<var>event</var>, fn)</code> | Run `fn` on a lifecycle or component event; `connect`/`disconnect` included. | `connectedCallback`/`disconnectedCallback`[^1] |
 | `host.effect(fn)` | Run `fn` while connected and re-run it whenever a state path it read changes. Returns an early-stop function; connection also owns cleanup. | TC39 Signals `Watcher`[^4] plus DOM connection |
 | <code>host.dispatch(<var>event</var>, detail)</code> | Raise a component event a parent can catch with `on:event`. | `CustomEvent` / `dispatchEvent`[^8] |
@@ -100,7 +115,7 @@ Teardown is either a disposer returned from an `host.on("connect", …)` callbac
 > The contract exposes values through `host.state` and lifetime-bound reactions through `host.effect`; it does not expose an instance's backing `Signal.State`, `Signal.Computed`, or `Watcher` objects. Raw handles would let code retain observations beyond the element's lifetime, bypass declared writability and type rules, and couple HTML Next to a Stage&nbsp;1 API shape. A browser runtime may use TC39 Signals internally, but that choice is not observable. Page code outside the controller uses the component's declared attributes and properties and listens for DOM events; it cannot retrieve the private `host`. The raw-signal question can be reopened if cross-system signal identity proves to be a real interoperability requirement.
 
 > [!note] Grounded in the platform, not a framework
-> The surface reads like userland (`state`, `effect`, `refs`), but each name has a standards anchor: the carrier's module reference ↔ declarative module loading, `host` ↔ `:host`, connect/disconnect ↔ the custom-element reactions, `effect` ↔ the Signals proposal, `host.elements` ↔ `form.elements`. The overall shape, a controller bound to a host with connect and disconnect callbacks, is Lit's Reactive Controller[^5], adapted to a script-free definition.
+> The surface reads like userland (`state`, `effect`, `refs`), but each name has a standards anchor: the carrier's module reference ↔ declarative module loading, `host` ↔ `:host`, connect/disconnect ↔ the custom-element reactions, `effect` ↔ the Signals proposal. The overall shape, a controller bound to a host with connect and disconnect callbacks, is Lit's Reactive Controller[^5], adapted to a script-free definition.
 
 ## Element handles: $ref
 
@@ -111,36 +126,48 @@ A controller often needs a specific element, the node a library mounts into. Rat
 <div $ref="canvas"></div>
 <canvas $ref="surface" width="640" height="480"></canvas>
 
-<!-- in the controller -->
-host.refs.canvas    // the <div>
-host.refs.surface   // the <canvas>
+<!-- inside an iteration, one name covers every element that iteration produced -->
+<li $each="o of options" $key="o.id" $ref="rows"></li>
 
-<!-- native form controls are also reachable by their real name, like form.elements -->
-<input name="email" type="email">
-host.elements.email // the <input></input>
+<!-- on a slot, the name records the range the slot leaves behind -->
+<slot name="list" $ref="list"></slot>
 ```
 
-`$ref` is a **directive**, part of the `$` family (`$if`, `$each`, `$value`): the runtime reads it, records the node for the controller, and **strips it at lowering**. So the final DOM carries no `ref` attribute, which matters because a literal `ref` (or a `name` on a non-form element) would be non-conforming HTML. A consumed directive sidesteps that entirely. Native form controls need no `$ref`: their real `name` already identifies them, and `host.elements` reaches them the way `form.elements` does[^9].
+```js
+host.refs.canvas    // the <div>
+host.refs.surface   // the <canvas>
+host.refs.rows      // [<li>, <li>, ...] in rendered order
+host.refs.list      // the slot's live range
+```
+
+`$ref` is a **directive**, part of the `$` family (`$if`, `$each`, `$value`): the runtime reads it, records the node for the controller, and **strips it at lowering**. So the final DOM carries no `ref` attribute, which matters because a literal `ref` (or a `name` on a non-form element) would be non-conforming HTML. A consumed directive sidesteps that entirely. It is the **only** way a controller reaches an element: there is no second path for elements that happen to carry a `name`, so an author never has to know which kind of element they are holding.
+
+A name's **multiplicity is inferred from where the `$ref` sits**, the way a binding's type is inferred from what it reads. Outside any iteration a name is one element; inside `$each` it is the list that iteration produced, in rendered order, and it grows and shrinks with the iteration. Both cases are statically known, because the analysis that reads dependencies off the parsed markup already knows which regions iterate. Repeating one name outside an iteration is a **diagnostic**, exactly like a duplicate `<prop>`: two elements answering to one handle is an authoring mistake, not a collection.
+
+A `$ref` on a `<slot>` is the exception that proves the rule. The slot element is **consumed at lowering** like the directive itself, so there is no slot node left to hand back; what the name yields is the **live range** the lowered form already delimits, the `<?start slot?>` and `<?end?>` marks defined in [Rendered form](/html-next/rendered-form). That is what a controller actually wants it for, measuring or positioning the region, since the assigned elements come from `host.slots` and content changes arrive through the graph rather than a `slotchange` event.
 
 > [!note] $ref names a JavaScript handle
 > `$ref` is consumed at lowering and gives the controller a JavaScript handle to a named element. Shadow DOM's `part` / `::part()`[^3] remains the CSS mechanism for exposing a theming surface across a shadow boundary. The two names serve separate APIs.
 
 ## Finding elements: the root, and what is inside it
 
-`host.element` is the component's root element. Everything a controller works with is reached from it with the DOM the platform already has: `host.refs` for the component's own named parts, `host.elements` for its named form controls, `root.querySelector` / `querySelectorAll` for content projected into it, and `root.closest` for the component or form it sits in.
+`host.root` is the component's root element. Everything a controller works with is reached from it with the DOM the platform already has: `host.refs` for the component's own named parts, whether one element or the list an iteration produced, `host.slots` for the elements a consumer projected, and `root.closest` for the component or form it sits in.
 
-```html title="x-listbox.js"
+```js title="x-listbox.js"
 // x-listbox.js
 export default function controller(host) {
-  const root = host.element;                 // the component's root element
+  const root = host.root;                    // the component's root element
 
   // Its own parts: declared in the template with $ref, read as host.refs.
   const panel = host.refs.panel;
 
-  // Content projected into it (its options), found by their public semantics.
-  const options = () => [...root.querySelectorAll('[role="option"]')];
+  // What the consumer projected: the assigned elements, in order.
+  const options = () => host.slots.default;
 
-  // The component it sits in, found the same way, walking up from its root.
+  // The slot is consumed at lowering, so $ref on it names the live range instead.
+  const region = host.refs.list;
+
+  // The component it sits in, found by public contract, walking up from its root.
   const form = root.closest("form");
   const group = root.closest('[role="group"]');
 
@@ -156,12 +183,15 @@ export default function controller(host) {
 }
 ```
 
-Query by the **public contract** an element already carries: its ARIA role (`[role="option"]`, `[role="treeitem"]`), its native element and type (`input[type="radio"]`, `form`), its `name`, and attributes the author wrote. That contract is the one assistive technology reads, so a controller that follows it finds exactly the parts a user perceives, including an item a consumer supplied by hand with the right role.
+Where a controller does query, outward with `root.closest` or to resolve an event target upward, it goes by the **public contract** an element already carries: its ARIA role (`[role="option"]`, `[role="treeitem"]`), its native element and type (`input[type="radio"]`, `form`), its `name`, and attributes the author wrote. That contract is the one assistive technology reads, so a controller that follows it resolves exactly the parts a user perceives.
+
+> [!norm] Projected content is reached through its slot, never by query
+> A component lowers into **one tree with no shadow boundary**, so a query rooted at `host.root` cannot tell an element a consumer projected from one the component's own template rendered: both are ordinary descendants, and both match the same selector. Shadow DOM gets that distinction free from keeping two trees, and a controller there asks `assignedElements()`[^9] rather than querying. Here the slot restores it. A controller [must]{.kw} enumerate projected content through <code>host.slots.<var>name</var></code>, and [must not]{.kw} discover it by searching its own subtree.
 
 > [!norm] Never select by runtime markers
 > The markers the runtime writes for styling (`data-component`, `data-<tag>-state`, `data-slotted`; see [Styling](/html-next/styling)) are implementation details. They exist so scoped CSS can find a root, they differ by target, and a framework target that scopes styles its own way need not emit them. A controller that selects by them couples its behavior to one target's output and breaks on another.
 
-```html
+```js
 // Wrong: selects by markers the runtime writes for styling.
 root.querySelectorAll('[data-component~="x-option"]');
 root.closest('[data-x-select-state~="open"]');
@@ -175,7 +205,7 @@ root.closest('[role="listbox"]');
 
 Because a component lowers to **real DOM with no shadow boundary**, a controller *could* reach in and mutate bound nodes, and if it did, two writers, the controller and the runtime, would fight over the same DOM and thrash. The rule that prevents this is a single sentence:
 
-```html
+```js
 // The controller drives STATE. The runtime reflects state to the DOM.
 host.state.center = [51.5, -0.1];   // a write; the graph updates every binding that reads center
 host.state.center;                  // a read
@@ -191,7 +221,7 @@ The runtime owns the subtree it lowered and every bound attribute and text node 
 
 Communication upward is an event, not a mutated ancestor: `host.dispatch` raises a component event the parent catches declaratively.
 
-```html
+```js
 // Raise a component event; a parent listens with on:event, exactly like a <handler> dispatch.
 host.dispatch("locationchange", { lat, lng });
 
@@ -246,7 +276,7 @@ A definition names its controller module directly on the carrier with `controlle
 
 **Normally**, the browser resolves the definition's `controller` specifier and imports it when the first instance connects. An application can fetch a known critical controller earlier with ordinary `modulepreload`; the definition remains the sole binding. CSP, CORS, and any application-generated integrity metadata apply through the standard module loader. There is no controller namespace, permission attribute, manifest, or second list:
 
-```html
+```js
 // Inside /htmlnext.js. URL-like values resolve from the definition;
 // bare values resolve through the application's ordinary import map.
 const specifier = definition.getAttribute("controller");
@@ -312,7 +342,7 @@ A declares its dependency on B with `<link rel="component">` and mentions no scr
 
 B remains declarative markup. Its `controller="./b.js"` attribute declares the one module that supplies its imperative behavior, and the definition exposes a `$ref` for that controller to use. The specifier resolves relative to `b.html`, so the component remains self-contained when served live, installed from a package, or moved by a build.
 
-```html title="/components/b.js"
+```js title="/components/b.js"
 // /components/b.js — an ordinary ES module: the ONLY JavaScript in the whole tree.
 import { Chart } from "chart-lib";                  // a bare specifier; the import map resolves it
 
@@ -353,7 +383,7 @@ The controller is the sole piece of component JavaScript in the tree, an ordinar
 5. The `<x-chart>` instance **connects**. Only now does the runtime run:
 {.algo}
 
-```html
+```js
 // Inside /htmlnext.js. URL-like values resolve from the definition;
 // bare values resolve through the application's ordinary import map.
 const specifier = definition.getAttribute("controller");
@@ -451,8 +481,8 @@ Value
 Semantics
 : a `$` directive, consumed at lowering; no attribute ships
 
-Form controls
-: use their native `name` via `host.elements` instead
+Multiplicity
+: one element, or the list an enclosing `$each` produced; inferred, never declared
 
 Level
 : [L2+]{.pill .soon} reserved
@@ -468,4 +498,4 @@ Level
 [^6]: W3C, [HTML Imports](https://www.w3.org/TR/webcomponents/#imports) (discontinued): the approach this layer deliberately avoids, fusing markup, style, and executing script into one imported document.
 [^7]: WHATWG HTML, [module-script fetching](https://html.spec.whatwg.org/multipage/webappapis.html#fetch-a-single-module-script), [Content Security Policy](https://developer.mozilla.org/docs/Web/HTTP/Guides/CSP), and [Subresource Integrity](https://developer.mozilla.org/docs/Web/Security/Defenses/Subresource_Integrity): the existing loading and deployment controls used by controllers.
 [^8]: WHATWG DOM, [CustomEvent](https://dom.spec.whatwg.org/#interface-customevent) and [dispatchEvent](https://dom.spec.whatwg.org/#dom-eventtarget-dispatchevent): what `host.dispatch` lowers to.
-[^9]: WHATWG HTML, [form.elements](https://html.spec.whatwg.org/multipage/forms.html#dom-form-elements) named access: the native precedent for reaching a control within a container by its `name`, echoed by `host.elements`.
+[^9]: WHATWG HTML, [`HTMLSlotElement.assignedElements()`](https://html.spec.whatwg.org/multipage/scripting.html#dom-slot-assignedelements): the native way a component reads what a consumer projected, rather than searching its own subtree for it.

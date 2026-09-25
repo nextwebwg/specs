@@ -11,6 +11,10 @@
   ],
   "ownership": [
     {
+      "mode": "local",
+      "path": "README.md"
+    },
+    {
       "mode": "managed",
       "path": ".github/workflows/ci.yml"
     },
@@ -33,10 +37,6 @@
     {
       "mode": "managed",
       "path": "LICENSE"
-    },
-    {
-      "mode": "managed",
-      "path": "README.md"
     },
     {
       "mode": "managed",

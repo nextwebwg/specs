@@ -71,8 +71,8 @@ interface ComponentHost<State extends object = Record<string, unknown>> {
   readonly state: State;
 
   /** Elements the definition marked with $ref, by name. A name inside $each is the
-   *  list that iteration produced; a name on a <slot> is that slot's live range. */
-  readonly refs: Readonly<Record<string, Element | readonly Element[] | Range>>;
+   *  list that iteration produced. */
+  readonly refs: Readonly<Record<string, Element | readonly Element[]>>;
 
   /** Elements a consumer projected, by slot name, in order. Empty while the slot
    *  shows its fallback. The only way to enumerate projected content. */
@@ -129,22 +129,18 @@ A controller often needs a specific element, the node a library mounts into. Rat
 <!-- inside an iteration, one name covers every element that iteration produced -->
 <li $each="o of options" $key="o.id" $ref="rows"></li>
 
-<!-- on a slot, the name records the range the slot leaves behind -->
-<slot name="list" $ref="list"></slot>
 ```
 
 ```js
 host.refs.canvas    // the <div>
 host.refs.surface   // the <canvas>
 host.refs.rows      // [<li>, <li>, ...] in rendered order
-host.refs.list      // the slot's live range
 ```
 
 `$ref` is a **directive**, part of the `$` family (`$if`, `$each`, `$value`): the runtime reads it, records the node for the controller, and **strips it at lowering**. So the final DOM carries no `ref` attribute, which matters because a literal `ref` (or a `name` on a non-form element) would be non-conforming HTML. A consumed directive sidesteps that entirely. It is the **only** way a controller reaches an element: there is no second path for elements that happen to carry a `name`, so an author never has to know which kind of element they are holding.
 
 A name's **multiplicity is inferred from where the `$ref` sits**, the way a binding's type is inferred from what it reads. Outside any iteration a name is one element; inside `$each` it is the list that iteration produced, in rendered order, and it grows and shrinks with the iteration. Both cases are statically known, because the analysis that reads dependencies off the parsed markup already knows which regions iterate. Repeating one name outside an iteration is a **diagnostic**, exactly like a duplicate `<prop>`: two elements answering to one handle is an authoring mistake, not a collection.
 
-A `$ref` on a `<slot>` is the exception that proves the rule. The slot element is **consumed at lowering** like the directive itself, so there is no slot node left to hand back; what the name yields is the **live range** the lowered form already delimits, the `<?start slot?>` and `<?end?>` marks defined in [Rendered form](/html-next/rendered-form). That is what a controller actually wants it for, measuring or positioning the region, since the assigned elements come from `host.slots` and content changes arrive through the graph rather than a `slotchange` event.
 
 > [!note] $ref names a JavaScript handle
 > `$ref` is consumed at lowering and gives the controller a JavaScript handle to a named element. Shadow DOM's `part` / `::part()`[^3] remains the CSS mechanism for exposing a theming surface across a shadow boundary. The two names serve separate APIs.
@@ -164,8 +160,6 @@ export default function controller(host) {
   // What the consumer projected: the assigned elements, in order.
   const options = () => host.slots.default;
 
-  // The slot is consumed at lowering, so $ref on it names the live range instead.
-  const region = host.refs.list;
 
   // The component it sits in, found by public contract, walking up from its root.
   const form = root.closest("form");

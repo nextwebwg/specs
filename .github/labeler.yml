@@ -1,0 +1,52 @@
+# Pull requests are labeled by the chapter files they change (.github/workflows/chapter-labels.yml).
+"proposal: components":
+- changed-files:
+  - any-glob-to-any-file: "html-next/**"
+"proposal: forms":
+- changed-files:
+  - any-glob-to-any-file: "html-forms/**"
+"chapter: bindings":
+- changed-files:
+  - any-glob-to-any-file: "html-next/bindings.md"
+"chapter: components":
+- changed-files:
+  - any-glob-to-any-file: "html-next/components.md"
+"chapter: examples":
+- changed-files:
+  - any-glob-to-any-file: "html-next/examples.md"
+"chapter: expressions":
+- changed-files:
+  - any-glob-to-any-file: "html-next/expressions.md"
+"chapter: front-page":
+- changed-files:
+  - any-glob-to-any-file: "html-next/index.md"
+"chapter: javascript":
+- changed-files:
+  - any-glob-to-any-file: "html-next/javascript.md"
+"chapter: overview":
+- changed-files:
+  - any-glob-to-any-file: "html-next/overview.md"
+"chapter: reactivity":
+- changed-files:
+  - any-glob-to-any-file: "html-next/reactivity.md"
+"chapter: rendered-form":
+- changed-files:
+  - any-glob-to-any-file: "html-next/rendered-form.md"
+"chapter: security":
+- changed-files:
+  - any-glob-to-any-file: "html-next/security.md"
+"chapter: styling":
+- changed-files:
+  - any-glob-to-any-file: "html-next/styling.md"
+"chapter: targets":
+- changed-files:
+  - any-glob-to-any-file: "html-next/targets.md"
+"chapter: templating":
+- changed-files:
+  - any-glob-to-any-file: "html-next/templating.md"
+"chapter: types":
+- changed-files:
+  - any-glob-to-any-file: "html-next/types.md"
+"chapter: validation":
+- changed-files:
+  - any-glob-to-any-file: "html-next/validation.md"

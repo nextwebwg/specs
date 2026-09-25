@@ -1,0 +1,40 @@
+name: Declarative HTML Components feedback
+description: A question, problem, or suggestion about the Declarative HTML Components draft.
+labels: ["proposal: components"]
+body:
+  - type: dropdown
+    id: chapter
+    attributes:
+      label: Chapter
+      description: The chapter your feedback is about. Choose the closest one; editors can relabel.
+      options:
+        - Declarative HTML Components
+        - Overview
+        - Templating
+        - Expressions & Formatting
+        - Bindings & Events
+        - Components & Composition
+        - Rendered Form & Hydration
+        - Reactivity & Data
+        - The JavaScript Layer
+        - Type System
+        - Validation
+        - Style Scoping
+        - Targets & Equivalence
+        - Security
+        - Examples
+        - Several chapters or not sure
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Feedback
+      description: What is unclear, wrong, missing, or worth changing? Quote or link the passage when you can.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested change
+      description: Optional. Proposed wording, an example, or the behavior you expected.

@@ -1,0 +1,38 @@
+name: Chapter labels
+
+# Labels feedback by chapter: an issue by its form's "Chapter" answer, a pull request by the
+# chapter files it changes. Neither job checks out or runs code from the issue or pull request.
+on:
+  issues:
+    types: [opened, edited]
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  issue:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Apply the chapter label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          label=$(node .github/scripts/chapter-label.mjs)
+          if [ -n "$label" ]; then gh issue edit "$NUMBER" --repo "$GITHUB_REPOSITORY" --add-label "$label"; fi
+
+  pull-request:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7.0.0

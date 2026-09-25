@@ -1,0 +1,29 @@
+name: HTML Forms feedback
+description: A question, problem, or suggestion about the HTML Forms draft.
+labels: ["proposal: forms"]
+body:
+  - type: dropdown
+    id: chapter
+    attributes:
+      label: Chapter
+      description: The part of the proposal your feedback is about. Choose the closest one; editors can relabel.
+      options:
+        - Expanded request methods
+        - QUERY forms
+        - Composable submission scopes
+        - Constraint validation on any element
+        - Several parts or not sure
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Feedback
+      description: What is unclear, wrong, missing, or worth changing? Quote or link the passage when you can.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested change
+      description: Optional. Proposed wording, an example, or the behavior you expected.

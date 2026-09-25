@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Propose something new
+    url: https://github.com/nextwebwg/specs/discussions/new?category=ideas
+    about: An idea for a new proposal, or a direction not yet in a draft, starts as a discussion.
+  - name: Report a tooling bug
+    url: https://github.com/nextwebwg/html-next/issues/new
+    about: Bugs in the runtime, compiler, unplugin, or converter belong in the html-next repository.

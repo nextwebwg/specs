@@ -1,5 +1,10 @@
 # Writing a chapter
 
+Every contribution is made under the group's
+[contribution terms](https://github.com/nextwebwg/.github/blob/main/CONTRIBUTING.md): sign off each
+commit with `git commit -s`. How the group decides and how contributors become editors is in
+[GOVERNANCE.md](https://github.com/nextwebwg/.github/blob/main/GOVERNANCE.md).
+
 Chapters are CommonMark with GitHub tables, plus a small set of conventions borrowed from
 GitHub, Obsidian, Pandoc, and markdown-it. Every construct below becomes one element or
 component on the published page, so what you write is what readers see. Raw HTML is not

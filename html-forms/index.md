@@ -1,7 +1,7 @@
 ---
 title: HTML Forms
 eyebrow: HTML Next · independent proposal
-status: Unofficial Editor's Draft · Stage 0
+status: "Unofficial Editor's Draft · Stage 0 · Editor: [Matthew Dean](https://github.com/matthew-dean)"
 pager: false
 ---
 

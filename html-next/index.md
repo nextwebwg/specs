@@ -15,7 +15,10 @@ A markup-first component model that compiles to, and polyfills on, the web platf
 - [Browse Chapters ↓](#chapters)
 
 Editors
-: Next Web Working Group
+: [Matthew Dean](https://github.com/matthew-dean)
+
+Feedback
+: [GitHub issues](https://github.com/nextwebwg/specs/issues) · [contribution terms](https://github.com/nextwebwg/.github/blob/main/CONTRIBUTING.md)
 
 Reference implementation
 : `html-next` repo · polyfill & component bridge

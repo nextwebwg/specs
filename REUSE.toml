@@ -8,6 +8,6 @@ SPDX-FileCopyrightText = "2026 Next Web Working Group"
 SPDX-License-Identifier = "CC-BY-4.0"
 
 [[annotations]]
-path = ["tools/**", ".github/scripts/**", ".github/workflows/**", ".github/labeler.yml", "package.json", "pnpm-lock.yaml", "REUSE.toml", "threadlabs.config.json", ".threadlabs.lock.json", ".gitignore"]
+path = ["tools/**", ".github/scripts/**", ".github/workflows/**", ".github/labeler.yml", ".github/CODEOWNERS", "package.json", "pnpm-lock.yaml", "REUSE.toml", "threadlabs.config.json", ".threadlabs.lock.json", ".gitignore"]
 SPDX-FileCopyrightText = "2026 Next Web Working Group"
 SPDX-License-Identifier = "MIT"

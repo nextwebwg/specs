@@ -19,7 +19,7 @@ What that looks like in practice: expressions never run as code, dangerous sinks
 
 <!-- Safe sinks are explicit -->
 <h2 $value="post.title">             <!-- textContent: markup stays text -->
-<article $html="post.body">          <!-- Sanitizer API or a conforming equivalent -->
+<article $html="post.body">          <!-- deterministic HTML parsing + the standard safe-default policy -->
 ```
 
 ## Secure by construction
@@ -30,7 +30,7 @@ The source language is deliberately less powerful than JavaScript. The compiler 
 | --- | --- |
 | HTML Next expression | Parse with the closed expression grammar and evaluate against declared scope. No global lookup, prototype traversal, `eval()`, or generated function. |
 | Text via `$value` | Write through `textContent` or the target framework's text node operation, so markup is never interpreted. |
-| Markup via `$html` | Use the HTML Sanitizer API with the HTML Next safe configuration, or a conforming equivalent, before nodes become live. |
+| Markup via `$html` | Parse as an inert HTML fragment in a `<template>` context and apply the versioned HTML Sanitizer safe-default policy before nodes become live. Do not dispatch to native `setHTML()`, whose parsing currently differs between engines. |
 | URL-valued attribute | Parse and validate for that attribute's URL policy. Reject executable schemes and fail closed on an unparseable value. |
 | DOM property binding | Resolve through the generated allowlist for the element interface. Raw-code and raw-markup sinks are not bindable. |
 | Literal executable syntax | Reject inline `on*` handlers and target-framework directives rather than copying them through. |

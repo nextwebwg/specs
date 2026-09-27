@@ -137,6 +137,12 @@ A slot may expose data to the content projected into it. The definition binds sl
 </x-list>
 ```
 
+### Component ancestry for shared state
+
+Each nested component has a logical parent: the component whose markup or slot outlet renders it. A component projected into a slot therefore sees the receiving component in its ancestry for [shared state](/html-next/reactivity); if content passes through more slots, each receiving component is in that chain. Its ordinary expressions still use the consumer's lexical scope, and its projected nodes keep their existing provenance rather than receiving the slot owner's `data-component` stamp. Context lookup and expression scope answer different questions.
+
+Moving a component's rendered nodes with `<portal>` keeps that logical ancestry. Moving the DOM nodes alone does not select a different state provider. The nearest ancestor that exposes the requested state cell supplies it, whether or not its native root is a DOM ancestor.
+
 ## Composition
 
 ### <template src>: import a component or partial
@@ -282,7 +288,7 @@ Level
 
 ::: {.entry name="<defs>" role="non-rendered declarations"}
 Contains
-: `<prop>`, `<state>`, `<computed>`, `<data>`, `<handler>` as flat siblings — everything that renders nothing.
+: `<prop>`, `<state>`, `<computed>`, `<data>`, `<handler>`, and `<context>` as flat siblings — everything that renders nothing.
 
 Semantics
 : Separates behavior/data/interface from visible markup; borrowed from SVG `<defs>`. Survives the template fragment parser where `<head>`/`<body>` do not.

@@ -36,6 +36,8 @@ Template output and projected content share one light-DOM tree (see [Components]
 
 A rendered form plus the definition [must]{.kw} build the same instance that the authored form plus the definition builds: the same prop values and the same set of *explicit* props, the same projected nodes for every slot (including slots not currently rendered), and the same state. The same later change, whether a prop write, a handler or controller changing state, or a new `$each` row, then produces the same DOM in both.
 
+For [shared state](/html-next/reactivity), this also means a hydrated reader must resolve to the same provider instance. Slot ranges recover which component received projected content. A portal can move a reader away from its provider in the serialized DOM, so the current rendered form does not yet specify enough to hydrate that relationship; the required owner record remains open below.
+
 > [!note] Content no slot renders is part of the instance
 > An instance holds projected content that no slot renders yet. Recovering the markup that is visible, and nothing else, would build a different instance, one that shows fallback where the authored one shows the consumer's content.
 
@@ -103,6 +105,7 @@ A root that a framework rendered is owned by that framework, which hydrates from
 
 ## Open questions
 
+- **Context through a server-rendered portal.** A deterministic record must connect each relocated reader to its logical component owner. DOM ancestry and `data-component` tag lineage cannot identify the providing instance when several instances share a tag.
 - **Explicit props a template binds.** When a template binds `data-<name>` for one of its own props, the rendered form cannot distinguish an explicit prop from its default, and an explicit prop is controlling. Either `data-<prop>` is reserved for the record, or explicitness is recorded separately.
 - **Structural anchors.** `$if`, `$each`, and `$match` regions should use the same range grammar.
 - **Consumer attributes.** Merge rules for `class` and `style` between template and consumer are unspecified, so their origin cannot be recovered.

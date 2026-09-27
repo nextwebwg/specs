@@ -142,6 +142,8 @@ From there the result is ordinary reactive data: `search.pending` was true while
 > This is distinct from absence. A property that is not there is absence, which renders as empty text and is a normal state for data that has not arrived. A property that is present but breaks its declared type is a broken contract: rather than rendering a value the declaration forbids, or discarding a response a page may be mid-way through using, the offending reference goes quiet and the violation is reported to the author.
 >
 > A declaration with no type constrains nothing, and `unknown` is the type every value satisfies. A closed object shape states that an undeclared field is not there, so a reference to one is a violation; an open shape (`...`) says nothing about fields it does not name, which is what a payload that may grow should declare.
+>
+> A direct value argument to `format(pattern, value, …)` is an explicit text-conversion position. `format('%s!', results[0].title)` can therefore render `42!` even when `title` is declared `string` and currently holds the number `42`. The declaration and payload do not change: an unformatted read of that same reference remains inert, and an expression nested inside the argument must satisfy its own operators before `format` can convert its result.
 
 The outbound half is symmetrical. A body param of a synchronized write is serialized as request content rather than a query parameter, while a param consumed by the `src` template identifies the resource:
 

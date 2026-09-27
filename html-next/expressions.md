@@ -119,7 +119,9 @@ Reading a property that is not present at runtime, `order.error.message` when `e
 
 Comparison is **typed**. Two values of different types are not equal, and comparing operands whose types are statically known to be disjoint, a `number` against a string literal, is a **conformance error**, a caught bug rather than a silent `false`. Where a type mismatch can only be known at runtime, the result is simply `false`; it never throws.
 
-Arithmetic is **numeric only**. `+` adds numbers; it is *not* overloaded for string concatenation, so `"1" + 1` can never silently become `"11"`. A non-numeric operand is a type error where that is statically known, and absent otherwise. There is no cross-type coercion anywhere: values are converted at **typed edges**, a `number` prop coerces its incoming string once, on the way in, the way `<input>` exposes both `value` and `valueAsNumber`, never mid-expression.
+Arithmetic is **numeric only**. `+` adds numbers; it is *not* overloaded for string concatenation, so `"1" + 1` can never silently become `"11"`. A non-numeric operand is a type error where that is statically known, and absent otherwise. Operators never coerce across types. Conversion happens at **typed edges**: a `number` prop converts its incoming string once, on the way in, the way `<input>` exposes both `value` and `valueAsNumber`, never mid-expression.
+
+`format(pattern, value, …)` is one such explicit conversion edge: each `%s` substitutes the next value argument's text form, and the result is a string. A direct reference passed as a value argument may be formatted even if its current value breaks its declared input type; this does not make an unformatted read conforming. The pattern must still be a string, and a compound value argument must satisfy its own operators before formatting.
 
 ### Fallback for absence
 

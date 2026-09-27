@@ -24,7 +24,7 @@ Expressions appear in bindings (`:x`, `bind:x`), in language-element attributes 
 ::: two
 
 > [!ex] Included
-> literals, reads & safe indexed access, comparisons, boolean and arithmetic operators, parentheses, and a **fixed set of typed functions** (CSS-style: `round`, `clamp`, `min`, `max`, `abs`).
+> literals, reads & safe indexed access, comparisons, boolean and arithmetic operators, conditional selection (`test ? yes : no`), parentheses, and a **fixed set of typed functions** (CSS-style: `round`, `clamp`, `min`, `max`, `abs`).
 
 > [!warn] Excluded by construction
 > assignment, mutation, statements, a filter pipeline (`|`), arbitrary function/method calls, constructors, lambdas, dynamic evaluation, and access to `window`/`document`/network.
@@ -37,7 +37,7 @@ A bare identifier resolves through the template's declared scope, never an ambie
 
 ### The component layer is flat, and collisions are errors
 
-A component's own declarations, `<prop>`, `<state>`, `<computed>`, and `<data>`, share **one flat namespace**, each introduced by its `name`. Two declaring the same name is a **conformance error**, not a silent precedence: the author disambiguates rather than memorizing which kind wins. Each `<data>` is named, so datasets are referenced individually (`search.value`, `orders.pending`).
+A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, and `<context>`, share **one flat namespace**. Each uses its `name`, except `<context>` uses `as` when supplied. Two declarations introducing the same local name are a **conformance error**, not a silent precedence: the author disambiguates rather than memorizing which kind wins. Each `<data>` is named, so datasets are referenced individually (`search.value`, `orders.pending`). A context name reads the provider's state with the same type and reactive behavior, but is read-only in this scope (see [Reactivity](/html-next/reactivity)).
 
 ### Inner layers are lexical, and they shadow
 
@@ -56,7 +56,8 @@ A component's own declarations, `<prop>`, `<state>`, `<computed>`, and `<data>`,
 ## Grammar
 
 ```text
-expr      := or                                 (* no pipeline: there is no "|" filter *)
+expr      := conditional                        (* no pipeline: there is no "|" filter *)
+conditional := or ("?" expr ":" conditional)?    (* lowest precedence; associates right *)
 or        := and ("or" and)*
 and       := eq ("and" eq)*
 eq        := cmp (("=" | "!=" | "^=" | "$=" | "*=") cmp)*
@@ -67,13 +68,15 @@ unary     := ("not" | "-") unary | access
 access    := primary (("." id) | ("[" expr "]"))*
 primary   := literal | id | call | "(" expr ")" | object | array
 call      := fn "(" (expr ("," expr)*)? ")"    (* fixed, typed, CSS-style — not arbitrary calls *)
-fn        := "round" | "clamp" | "min" | "max" | "abs"
+fn        := "round" | "clamp" | "min" | "max" | "abs" | "format"
 object    := "{" (pair ("," pair)* ","?)? "}"
 pair      := (id | string) ":" expr
 array     := "[" (expr ("," expr)* ","?)? "]"
 ```
 
 Conventional precedence with parentheses. Equality, missing data, truthiness, and coercion are specified explicitly (see **Value semantics**, next) rather than inherited from JavaScript or any template language.
+
+`test ? yes : no` tests the same truthiness as `$if`, evaluates only the selected branch, and returns that branch's value without coercion. It is for a small inline value choice, such as `:aria-current="activeStep = number ? 'step' : null"`; use `$match` when whole markup differs. All three branches participate in static name and dependency checks.
 
 Equality and string matching are spelled the way **CSS attribute selectors** already spell them. The language is assignment-free, so a single `=` means *equal* with nothing to disambiguate it from, and the selector match family carries over directly:
 
@@ -108,7 +111,7 @@ Reading a property that is not present at runtime, `order.error.message` when `e
 | string | `""` | any non-empty |
 | number | `0` | any non-zero |
 | list | `[]` | any non-empty |
-| object | — | any present value |
+| object | `{}` | any object with an own key |
 
 *Empty* values are false: no characters, no count, no items. This makes ordinary guards work without a length check: `$if="cart.items"` hides on `[]`, and `$if="unread.count"` hides on `0`. `and`, `or`, and `not` return a **boolean** rather than one of their operands. Fallback for absence is explicit (below), never a side effect of `or`.
 
@@ -120,7 +123,7 @@ Arithmetic is **numeric only**. `+` adds numbers; it is *not* overloaded for str
 
 ### Fallback for absence
 
-Because `or` returns a boolean, and absence is not the same as empty, fallback has its own explicit form, the direct analog of CSS `var(--x, fallback)`[^7], which substitutes only when the variable is *missing*, not when it is `0`. For text, `<value>` carries a `default`: `<value of="user.name" default="friend">` shows the fallback only when `user.name` is absent. A presentation choice among several states is a `$match`, not an operator.
+Because `or` returns a boolean, and absence is not the same as empty, fallback has its own explicit form, the direct analog of CSS `var(--x, fallback)`[^7], which substitutes only when the variable is *missing*, not when it is `0`. For text, `<value>` carries a `default`: `<value of="user.name" default="friend">` shows the fallback only when `user.name` is absent. A whole-markup choice among several states is a `$match`; a small value choice can use `? :`.
 
 > [!norm] Fault tolerance is a platform requirement
 > A conforming **runtime**, the polyfill or a future native implementation, [must not]{.kw} throw on a data condition: absent data yields the absent value and rendering continues, exactly as the HTML parser[^8] recovers from malformed markup rather than aborting the page. Anything less violates the platform. A **compiler** [may]{.kw} reject author mistakes, undeclared names, disjoint-type comparisons, non-numeric arithmetic, at build time as static analysis, the way a validator or a type checker does; but this is optional, and every construct a compiler could reject still has a defined runtime behaviour (absent, empty, or logged), so a permissive implementation stays conformant. Diagnostics are recommended; compile-time rejection is optional; runtime throwing is forbidden.

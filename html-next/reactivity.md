@@ -35,6 +35,41 @@ A `<state>` may declare a `type` in the same type syntax props use (see [Types](
 > [!note] The colon carries the type
 > `<set>` mirrors `<state>` exactly: same `name`, same `:value`. A plain attribute is a string; the `:` prefix makes the value a typed expression. `:value="false"` is the boolean, `value="false"` the five-character string.
 
+## Share state with descendant components
+
+A component can share a state value with components rendered inside it, including components supplied through a slot. This lets independently authored parts of a widget react to the same value without passing a prop through every component between them. The `context` attribute on `<state>` makes that one cell available; a descendant declares which cell it reads in its own `<defs>`.
+
+```html
+<template component="x-steps">
+  <defs>
+    <state name="current" :value="1" context>
+  </defs>
+  <ol><slot></slot></ol>
+</template>
+
+<template component="x-step">
+  <defs>
+    <prop name="number" type="number" required>
+    <context name="current" from="x-steps" as="activeStep">
+  </defs>
+  <li :aria-current="activeStep = number ? 'step' : null"><slot></slot></li>
+</template>
+
+<x-steps>
+  <x-step number="1">Account</x-step>
+  <x-step number="2">Payment</x-step>
+</x-steps>
+```
+
+`name` identifies the published state cell; `from` names its provider's component tag. Optional `as` names the value in the reader's expressions and defaults to `name`, so the example could use `current` directly. The reader sees the provider cell's current value and type, not a new cell or a synthetic `x-steps.current` object. When an existing `<set>` or `bind:` changes the provider's state, bindings that read the context update through the same reactive graph.
+
+The nearest matching provider in the [logical component tree](/html-next/components) supplies the value, including when another instance of the same component is nested inside it. A provider matches only if it has a `<state>` with that `name` and `context`; a missing provider or an unexposed cell is a conformance error when the reader is instantiated. The imported name shares the reader's flat declaration namespace. A context read is read-only: `<set>` and `bind:` cannot write through it. These rules add no event or command channel.
+
+This is an HTML Next declaration, not a native HTML element. The Web Components [Context Protocol](https://github.com/webcomponents-cg/community-protocols/blob/main/proposals/context.md) provides a useful event-based way for JavaScript components to exchange values, but its request follows DOM event propagation. HTML Next's lookup follows component ownership so projection and portals retain the same provider even when physical DOM ancestry differs. The browser runtime may use native observation primitives underneath; no authored callback is needed.
+
+> [!note] Level placement
+> This feature is part of the current proposal and its reference implementation. It could move to Level&nbsp;2 if the Level&nbsp;1 scope is narrowed later.
+
 ## <data>: a declared, reactive resource
 
 This is HTML Next's standards-shaped answer to htmx[^1]: instead of `hx-get`/`hx-trigger`/`hx-target` string attributes swapping opaque HTML, a `<data>` element declares a **typed, reactive resource** whose parameters are visible right where it lives. For a read, each `<param :value>` subscribes to the state it binds, so the set of params *is* the dependency graph: change one and the resource refetches, and bindings that read it re-render. Nothing triggers it imperatively. This is the surface Solid `createResource` already ships[^6], a resource whose fetch re-runs on source change and exposes loading and error; TanStack and Vue Query are the same idea with a params-keyed cache.
@@ -251,13 +286,24 @@ If an implementation chooses TC39 Signals, HTML Next needs the semantics of `Sta
 
 ::: {.entry name="<state> · <computed>" role="local reactive values"}
 Attributes
-: `<state name :value>` · `<computed name from>`
+: `<state name :value context?>` · `<computed name from>`
 
 Semantics
 : state is mutated only by `<set>`/`bind:`; computed is pure and recomputed from dependencies.
 
 Level
 : [L1]{.pill .l1}
+:::
+
+::: {.entry name="<context>" role="read-only descendant state"}
+Attributes
+: `name`: published state cell · `from`: provider component tag · `as?`: local name (defaults to `name`)
+
+Semantics
+: Reads the nearest matching provider's state reactively; cannot be written through `<set>` or `bind:`. A matching `<state>` has the boolean `context` attribute.
+
+Level
+: [L1]{.pill .l1} · could move to Level&nbsp;2
 :::
 
 ::: {.entry name="<data> · <param>" role="declared reactive resource"}

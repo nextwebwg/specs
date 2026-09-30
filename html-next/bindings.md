@@ -47,6 +47,16 @@ Replacing an element's content is not a binding but a [templating](/html-next/te
 
 The `:name="expr"` shorthand could become a named form that reads alongside `bind:name="path"`. The name remains open. `from:aria-label="label"` is one candidate. If adopted, `from` could explicitly mean a tracked dependency in both places: the attribute updates from its expression, and a dependent `<type from="type">` selects its type from the prop as that prop changes. `set:aria-label="label"` is another candidate, though `set:` might imply a single assignment. Whatever its spelling, this form would keep the current one-way reactive behavior: evaluate the expression when the element is created and update the target whenever its dependencies change. `bind:value="draft"` would continue to write user edits back to state as well. A one-time assignment would be a different behavior. No named one-way form is defined at Level 1.
 
+### Future exploration: transformed two-way binding
+
+If `from:` names the one-way form, a paired `to:` could describe the inverse when a component reports an updated prop:
+
+```html
+<x-stepper from:value="count + 1" to:value="count: $value - 1"></x-stepper>
+```
+
+Here `from:value` would follow `count` reactively. In `to:value`, `count:` names the writable destination and `$value` would be the new value reported by the component; the expression computes the value written to `count`. The colon inside the attribute value would belong to this binding's grammar, without adding assignment to general expressions. `bind:value="count"` would remain the simpler identity form. This syntax and behavior are not defined at Level 1. Further design must settle which writable paths are allowed, which component event supplies `$value`, how the result is checked, and how to avoid a feedback loop when the write updates `from:value`.
+
 ## How a bound value serializes
 
 A binding evaluates to a typed value, and how that value lands depends on the value and the attribute's kind (the generated manifest carries each attribute's kind). One default rule covers almost everything:

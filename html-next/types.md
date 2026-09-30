@@ -210,7 +210,7 @@ The same name lookup can select from state:
       <option value="number" type="number"></option>
     </type>
   </prop>
-  <handler name="useNumber"><set name="mode" :value="'number'"></set></handler>
+  <handler name="useNumber"><set name="mode" value="number"></set></handler>
 </defs>
 ```
 

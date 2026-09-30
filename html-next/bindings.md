@@ -43,6 +43,10 @@ The first invocation supplies fixed values. The second evaluates expressions tha
 
 Replacing an element's content is not a binding but a [templating](/html-next/templating) directive: escaped text is `$value`, sanitized markup is `$html`. Raw, unsanitized HTML is available only through the dedicated trusted-HTML type (see [Types](/html-next/types)), never an ordinary string.
 
+### Future exploration: a named one-way form
+
+The `:name="expr"` shorthand could become a named, verb-led form that reads alongside `bind:name="path"`. The verb remains open. One candidate is `set:aria-label="label"`, but `set:` might imply a single assignment. Whatever its spelling, this form would keep the current one-way reactive behavior: evaluate the expression when the element is created and update the target whenever its dependencies change. `bind:value="draft"` would continue to write user edits back to state as well. A one-time assignment would be a different behavior. No named one-way form is defined at Level 1.
+
 ## How a bound value serializes
 
 A binding evaluates to a typed value, and how that value lands depends on the value and the attribute's kind (the generated manifest carries each attribute's kind). One default rule covers almost everything:

@@ -10,12 +10,18 @@ const forms = () => readFileSync("html-forms/index.md", "utf8");
 const chapters = readdirSync("html-next").filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
 const modules = chapters.filter((name) => name !== "index");
 
-test("the type system has plain base names and explicit constructors", () => {
+test("the type system separates base types, permitted values, and selected types", () => {
   const types = chapter("types");
 
-  assert.match(types, /Base types have plain keyword names; type constructors combine or constrain them/);
-  assert.match(types, /`enum\(\.\.\.\)` accepts exactly its listed non-null literal values/);
-  assert.match(types, /enum\(true, false, 'page', 'step', 'location'\)/);
+  assert.match(types, /Base types have plain keyword names/);
+  assert.match(types, /The `values` attribute limits a prop to a comma-separated set of values of its declared type/);
+  assert.match(types, /<prop name="size" type="keyword" values="sm, md, lg"/);
+  assert.match(types, /<type from="type">/);
+  assert.match(types, /<event name="change" type="object">[\s\S]*?<prop name="trigger" type="keyword" values="keyboard, pointer, programmatic"/);
+  assert.doesNotMatch(types, /type="enum\(/);
+  for (const section of ["components", "examples", "styling"]) {
+    assert.doesNotMatch(chapter(section), /type="enum\(/, section);
+  }
   assert.match(types, /A declared prop that is omitted and has no default resolves to `null`/);
   assert.ok(types.indexOf("| `string` |") < types.indexOf("| `length` |"));
   assert.doesNotMatch(types, /^### (?:Combinators|Multipliers|Precedence)$/m);
@@ -56,7 +62,7 @@ test("proposal callouts name their contract and review requests demand attention
 test("polymorphic roots use explicit native branches", () => {
   const components = chapter("components");
 
-  assert.match(components, /<prop name="as" type="enum\('button', 'a'\)" default="button">/);
+  assert.match(components, /<prop name="as" type="keyword" values="button, a" default="button">/);
   assert.match(components, /<a \$when="as = 'a'">/);
   assert.match(components, /<button \$else>/);
   assert.doesNotMatch(components, /<button as="button \| a">/);

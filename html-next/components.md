@@ -19,7 +19,7 @@ A component is defined by a native `<template component="tag">`. There is no cus
           summary="A native button with custom presentation.">
   <!-- <defs>: renders nothing. interface + behavior + data live here -->
   <defs>
-    <prop name="variant" type="enum('outline', 'solid', 'destructive', 'ghost')"
+    <prop name="variant" type="keyword" values="outline, solid, destructive, ghost"
           default="outline">Visual treatment.</prop>
 
     <state name="pending" :value="false">
@@ -36,7 +36,7 @@ A component is defined by a native `<template component="tag">`. There is no cus
 The interface is **declarative HTML**, not a data island. A `<prop>` states only what markup cannot already say: type, default, requiredness, description; its *target* is read from the `:attribute`/`.property` binding and the native element from the markup root, so neither is restated. The invocation tag comes from the `component` attribute; a single hyphen keeps it collision-safe against native elements without registering a custom element. A compiler lowers all of this to a normalized JSON contract as build output (CSP-safe, no `eval()`, inspectable by docs and tooling), but JSON is the compiled artifact, never the authoring form.
 
 > [!note] Prop declarations follow platform precedents
-> `enum()` follows JSON Schema's finite-value constraint[^1]; `default` follows XML Schema's `default` attribute[^2]; `required` is the HTML boolean attribute of the same name[^3]; and a prop's description is its element text, as with `<option>`.
+> `values` follows JSON Schema's finite-value constraint[^1]; `default` follows XML Schema's `default` attribute[^2]; `required` is the HTML boolean attribute of the same name[^3]; and a prop's description is its element text, as with `<option>`.
 
 ## Two regions: <defs> and the markup
 
@@ -51,12 +51,12 @@ This mirrors the document's own `<head>`/`<body>` split, declarations and resour
 
 A component [should]{.kw} lower to the native element named by `nativeElement`: a button component *is* a real `<button>`, so form association, focus, and accessibility are the browser's. Undeclared invocation attributes pass through to that root; owned template attributes and prop targets take precedence.
 
-A polymorphic component declares `as` as an enum prop constrained to its supported roots and selects between explicit native roots with `$match`. The prop does not retag an element: the definition contains the actual `<button>` and `<a>` branches that it may render. Like any `$match`, the selection follows the prop: when it changes, the newly selected branch's element takes the previous root's place, keeping the instance's state, the consumer's projected content, and the attributes the consumer supplied.
+A polymorphic component declares `as` as a keyword prop constrained to its supported roots and selects between explicit native roots with `$match`. The prop does not retag an element: the definition contains the actual `<button>` and `<a>` branches that it may render. Like any `$match`, the selection follows the prop: when it changes, the newly selected branch's element takes the previous root's place, keeping the instance's state, the consumer's projected content, and the attributes the consumer supplied.
 
 ```html
 <template component="x-button">
   <defs>
-    <prop name="as" type="enum('button', 'a')" default="button">Native root.</prop>
+    <prop name="as" type="keyword" values="button, a" default="button">Native root.</prop>
   </defs>
 
   <!-- Both possible native roots are visible in the definition. -->

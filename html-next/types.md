@@ -7,7 +7,11 @@ eyebrow: Declarative HTML Components
 
 # Types
 
-A type names the kind of value a component accepts or produces. Base types have plain keyword names; type constructors combine or constrain them. A declaration such as `type="number"` determines how a prop's value is parsed and validated.
+A type names the kind of value a component accepts or produces. Base types have plain keyword names. A declaration such as `type="number"` determines how a prop's value is parsed and validated. Constraints such as `values` and `pattern` can further restrict that type.
+
+HTML already applies rules like these inside its elements: an attribute can select a control mode, and that mode changes which values are valid and how the control handles them. Declarative Components lets authors state comparable rules for their own components. The declaration makes the parsing, permitted values, and dependencies available to the browser runtime, build tools, and generated TypeScript APIs instead of leaving them implicit in component code. A component's parsed JavaScript prop value follows its declared type; this does not change the native DOM definition of properties such as `HTMLInputElement.value`.
+
+Component authors have often put missing behavior in JavaScript because code can implement any rule. That leaves rules such as permitted keywords, dates, colors, and lengths inside each component's code. HTML already defines many value formats and parsing rules; CSS defines a broad vocabulary of typed values and property grammars.[^1][^16] These declarative vocabularies describe domain values more precisely than JavaScript's built-in primitive types alone. This proposal gives component authors a way to declare those rules where tools and other authors can inspect them, while JavaScript remains available for behavior that needs code.
 
 ```html
 <defs>
@@ -47,19 +51,17 @@ In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop va
 
 ## Finite choices
 
-`enum(...)` accepts exactly its listed non-null literal values. It takes one or more distinct quoted strings, booleans, or finite numbers; quoted words are values, not type names. String comparison is case-sensitive, so `SM` does not match `'sm'`. The parsed JavaScript value keeps the member's type, and a TypeScript target can expose the corresponding literal union. Like every prop, an enum prop also accepts `null` as no value. This constructor follows JSON Schema's `enum` constraint, which allows members of different types.[^14]
+The `values` attribute limits a prop to a comma-separated set of values of its declared type. Each item is parsed and checked against `type` before the constraint is applied. The prop keeps one type; `values` does not convert a value into another type. A TypeScript target can expose the allowed values as a literal union within that type. This follows HTML's enumerated attributes, whose permitted keywords are defined separately from the attribute's value syntax, and JSON Schema's `enum` constraint.[^14][^15]
 
 ```html
-<prop name="size" type="enum('sm', 'md', 'lg')" default="md"></prop>
+<prop name="size" type="keyword" values="sm, md, lg" default="md"></prop>
 <x-button size="sm">Save</x-button>
 
-<prop name="current" type="enum(true, false, 'page', 'step', 'location')" default="false"></prop>
-<x-nav-item current="false">Not current</x-nav-item>
-<x-nav-item current="step">Current step</x-nav-item>
-<x-nav-item :current="false">Also not current</x-nav-item>
+<prop name="level" type="integer" values="1, 2, 3" default="2"></prop>
+<x-meter level="3"></x-meter>
 ```
 
-For a plain HTML attribute, the enum serializes each member to its attribute spelling and selects the one whose spelling exactly matches the written string. The attribute value is converted to that member's type: `current="false"` becomes JavaScript `false`, while `current="step"` becomes the string `"step"`. The non-null JavaScript value is a boolean or one of the named strings. A TypeScript target exposes `boolean | 'page' | 'step' | 'location' | null`, preserving those literal choices and the universal absence value. The match must be unique: `enum(false, 'false')` is invalid because both members have the HTML spelling `"false"`. A `:` binding already supplies a typed value, so `:current="false"` is valid while `:current="'false'"` is invalid; bound values are checked by type and value without string conversion.
+Whitespace around commas is ignored. An item that does not conform to `type` invalidates the whole `values` constraint, as though `values` were absent. Build tools, including the unplugin, report this as a declaration error. The live browser parser warns and ignores the constraint. A bound value must have the declared JavaScript type and match a permitted value. For `type="integer" values="1, 2, 3"`, `level="3"` and `:level="3"` produce the number `3`; `:level="'3'"` is invalid. All declared props still accept `null` unless required.
 
 ## Pattern constraints
 
@@ -95,7 +97,7 @@ The separator is part of the written value; a component receives an array of par
 <prop name="rows" type="list(object({ id: number, name: string }))"></prop>
 ```
 
-These values are JavaScript objects and arrays, not delimited strings. The same shapes can be declared with nested `<prop>` elements when fields need their own declarations. In that form, `object` contains named fields and `array` contains one item declaration:
+These values are JavaScript objects and arrays, not delimited strings. The same shapes can be declared with nested `<prop>` elements when fields need their own declarations. In that form, `object` contains named fields and `array` contains one item declaration. A nested scalar field can use `values` to restrict that field without changing its base type:
 
 ```html
 <prop name="point" type="object">
@@ -110,6 +112,24 @@ These values are JavaScript objects and arrays, not delimited strings. The same 
   </prop>
 </prop>
 ```
+
+The same field declarations describe event details and structured state values:
+
+```html
+<event name="change" type="object">
+  <prop name="value" type="number" required></prop>
+  <prop name="trigger" type="keyword" values="keyboard, pointer, programmatic" required></prop>
+  <prop name="previous" type="string" required nullable></prop>
+</event>
+
+<state name="history" type="array" :value="[]">
+  <prop type="object">
+    <prop name="trigger" type="keyword" values="keyboard, pointer, programmatic" required></prop>
+  </prop>
+</state>
+```
+
+Each nested field is checked when the object or array is checked. `required` means the field must be present; `nullable` permits an explicitly present `null` value, as in `previous` above. The same `nullable` attribute permits a declared state to hold `null`. An `open` object permits additional fields; a field with `type="unknown"` accepts any JavaScript value, but `unknown` cannot be a top-level prop because it has no HTML attribute form. A build tool reports a malformed nested `values` constraint as an error; the live browser parser warns and ignores that constraint. Generated TypeScript uses the closest literal types, so the event detail above has `trigger: 'keyboard' | 'pointer' | 'programmatic'`.
 
 A shared or external schema can instead be referenced with `schema`, using JSON Schema:[^13]
 
@@ -140,9 +160,46 @@ Structured values use the object and array literal syntax of [HTML Next expressi
 
 Bare keys, single-quoted strings, and trailing commas are allowed in both forms. A plain attribute contains only literal values; `point="{ x: currentX }"` is invalid because `currentX` is a reference. Use `:point="{ x: currentX }"` to read it, or `:point="point"` to pass an existing object from `<state>` or `<data>`. The `:` marks a binding, not an object. These expressions are pure and typed, not arbitrary JavaScript. JSON is used only as a wire format when structured data crosses an SSR, network, or interop boundary.
 
+## Types selected by a prop
+
+A component can declare one prop whose type depends on the value of another declared prop. The selecting prop has one base type and a finite `values` constraint. Each permitted value selects one type for the dependent prop. The dependent prop remains declared in every case, and, like other props, its value is `null` when omitted without a default.
+
+An inline `<type>` belongs to the prop whose type varies:
+
+```html
+<defs>
+  <prop name="type" type="keyword" values="text, number" default="text">The control mode.</prop>
+  <prop name="value">The control value.
+    <type from="type">
+      <option value="text" type="string"></option>
+      <option value="number" type="number"></option>
+    </type>
+  </prop>
+</defs>
+```
+
+The same type can be named once under `<defs>` and referenced by a declaration's `type` attribute. A named type is local to that component:
+
+```html
+<defs>
+  <type name="input-value" from="type">
+    <option value="text" type="string"></option>
+    <option value="number" type="number"></option>
+  </type>
+  <prop name="type" type="keyword" values="text, number" default="text">The control mode.</prop>
+  <prop name="value" type="input-value">The control value.</prop>
+</defs>
+```
+
+`from` names one declared prop, not a state value or expression. Each `<option value>` is parsed through the selecting prop's declared type and must match one of its permitted values. Every permitted value must have exactly one option. An invalid `values` constraint cannot serve as a selector, so this declaration is an error. The selecting prop must be required or have a default; its effective value selects the type before any dependent value is parsed, regardless of attribute order. An explicit `null` selector permits only `null` for the dependent prop, because no option is selected. A dependent prop can declare a default only when the selecting prop has a default; that value must satisfy the selected type.
+
+Plain HTML attributes are parsed against the selected type. Thus `type="number" value="2.5"` gives the component a JavaScript number, while `type="text" value="2.5"` gives it a string. Bound values retain their JavaScript type and must satisfy the selected option. Changing the selecting prop and its dependent prop together checks the resulting pair; a previously supplied dependent value that does not satisfy a newly selected type is invalid.
+
+Generated TypeScript types preserve the relationship: a numeric `type` accepts a number or `null` as `value`, and the default text type accepts a string or `null`. A named type reference and an inline `<type>` produce the same contract.
+
 ## Null and missing values
 
-`null` means **no value**. It is distinct from the empty string, zero, and false. Every declared prop accepts `null`, regardless of whether its type is `string`, `number`, `enum(...)`, `list(...)`, or `object(...)`. The declared type constrains non-null values; `required` makes `null` invalid.
+`null` means **no value**. It is distinct from the empty string, zero, and false. Every declared prop accepts `null`, regardless of whether its type is `string`, `number`, `list(...)`, or `object(...)`. The declared type constrains non-null values; `required` makes `null` invalid.
 
 A declared prop that is omitted and has no default resolves to `null`, consistent with DOM `getAttribute()` returning `null` for a missing attribute.[^11] An explicit bound `null` also gives the prop a null value. An explicit empty string remains a string value.
 
@@ -155,7 +212,7 @@ A declared prop that is omitted and has no default resolves to `null`, consisten
 
 ## Future exploration
 
-Unions could allow more than one base type. An untagged union of `string` and `number` needs a parsing rule: a written value of `2.5` could produce either a string or a number. A component's `type` prop could discriminate the types of `value` and other props, but the declaration syntax and behavior remain open.
+Unions could allow more than one base type. An untagged union of `string` and `number` needs a parsing rule: a written value of `2.5` could produce either a string or a number.
 
 ## Sources
 
@@ -173,3 +230,5 @@ Unions could allow more than one base type. An untagged union of `string` and `n
 [^12]: CSS Values and Units Level 4, [value definition syntax multipliers](https://drafts.csswg.org/css-values-4/#component-multipliers).
 [^13]: JSON Schema, [specification](https://json-schema.org/specification).
 [^14]: JSON Schema Validation, [the `enum` keyword](https://json-schema.org/draft/2020-12/json-schema-validation#name-enum).
+[^15]: WHATWG HTML, [keywords and enumerated attributes](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#keywords-and-enumerated-attributes).
+[^16]: CSS Values and Units Level 4, [value definition syntax](https://drafts.csswg.org/css-values-4/#value-defs).

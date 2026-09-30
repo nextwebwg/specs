@@ -81,7 +81,7 @@ Styling the page itself (its `<body>`, other components, or unrelated elements) 
 ```html
 <template component="x-container">
   <defs>
-    <prop name="measure" type="enum('narrow', 'normal', 'wide')" default="normal">Maximum line length.</prop>
+    <prop name="measure" type="keyword" values="narrow, normal, wide" default="normal">Maximum line length.</prop>
   </defs>
   <div><slot></slot></div>
   <style>

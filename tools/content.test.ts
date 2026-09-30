@@ -78,7 +78,7 @@ test("props are initial configuration and the data-* record is output", () => {
   assert.doesNotMatch(components, /effective value \(passed or default\)/);
   assert.doesNotMatch(reactivity, /This is `attributeChangedCallback`/);
   // A parent's binding also changes a prop; the record is not limited to framework updates.
-  assert.match(components, /a parent template's `:name` on the invocation/);
+  assert.match(components, /a parent template's `from:name` on the invocation/);
   assert.match(components, /every \*\*serializable prop\*\* the author supplied/);
 });
 

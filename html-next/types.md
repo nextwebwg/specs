@@ -61,7 +61,7 @@ The `values` attribute limits a prop to a comma-separated set of values of its d
 <x-meter level="3"></x-meter>
 ```
 
-Whitespace around commas is ignored. An item that does not conform to `type` invalidates the whole `values` constraint, as though `values` were absent. Build tools, including the unplugin, report this as a declaration error. The live browser parser warns and ignores the constraint. A bound value must have the declared JavaScript type and match a permitted value. For `type="integer" values="1, 2, 3"`, `level="3"` and `:level="3"` produce the number `3`; `:level="'3'"` is invalid. All declared props still accept `null` unless required.
+Whitespace around commas is ignored. An item that does not conform to `type` invalidates the whole `values` constraint, as though `values` were absent. Build tools, including the unplugin, report this as a declaration error. The live browser parser warns and ignores the constraint. A bound value must have the declared JavaScript type and match a permitted value. For `type="integer" values="1, 2, 3"`, `level="3"` and `from:level="3"` produce the number `3`; `from:level="'3'"` is invalid. All declared props still accept `null` unless required.
 
 ## Pattern constraints
 
@@ -150,19 +150,19 @@ JSON Schema also has `enum` for a fixed set of values. An object schema can use 
 
 ### Writing structured values
 
-Structured values use the object and array literal syntax of [HTML Next expressions](/html-next/expressions), **not JSON**. A plain attribute supplies a fixed value, parsed according to the declared prop type. A `:` binding evaluates an expression that may read other values and change with them:
+Structured values use the object and array literal syntax of [HTML Next expressions](/html-next/expressions), **not JSON**. A plain attribute supplies a fixed value, parsed according to the declared prop type. A `from:` binding evaluates an expression that may read other values and change with them:
 
 ```html
 <x-plot point="{ x: 3, y: 5 }"></x-plot>
 <x-table rows="[{ id: 1, name: 'Ada' }, { id: 2, name: 'Lin' }]"></x-table>
-<x-plot :point="{ x: currentX, y: 5 }"></x-plot>
+<x-plot from:point="{ x: currentX, y: 5 }"></x-plot>
 ```
 
-Bare keys, single-quoted strings, and trailing commas are allowed in both forms. A plain attribute contains only literal values; `point="{ x: currentX }"` is invalid because `currentX` is a reference. Use `:point="{ x: currentX }"` to read it, or `:point="point"` to pass an existing object from `<state>` or `<data>`. The `:` marks a binding, not an object. These expressions are pure and typed, not arbitrary JavaScript. JSON is used only as a wire format when structured data crosses an SSR, network, or interop boundary.
+Bare keys, single-quoted strings, and trailing commas are allowed in both forms. A plain attribute contains only literal values; `point="{ x: currentX }"` is invalid because `currentX` is a reference. Use `from:point="{ x: currentX }"` to read it, or `from:point="point"` to pass an existing object from `<state>` or `<data>`. The `from:` prefix marks a binding, not an object. These expressions are pure and typed, not arbitrary JavaScript. JSON is used only as a wire format when structured data crosses an SSR, network, or interop boundary.
 
-## Types selected by a prop
+## Types selected by a prop or state value
 
-A component can declare one prop whose type depends on the value of another declared prop. The selecting prop has one base type and a finite `values` constraint. Each permitted value selects one type for the dependent prop. The dependent prop remains declared in every case, and, like other props, its value is `null` when omitted without a default.
+A component can declare a prop whose type depends on the value of a declared prop or state value. The selector has one base type and a finite `values` constraint. Each permitted value selects one type for the dependent prop. The dependent prop remains declared in every case and resolves to `null` when omitted without a default.
 
 An inline `<type>` belongs to the prop whose type varies:
 
@@ -191,15 +191,30 @@ The same type can be named once under `<defs>` and referenced by a declaration's
 </defs>
 ```
 
-`from` names one declared prop, not a state value or expression. Each `<option value>` is parsed through the selecting prop's declared type and must match one of its permitted values. Every permitted value must have exactly one option. An invalid `values` constraint cannot serve as a selector, so this declaration is an error. The selecting prop must be required or have a default; its effective value selects the type before any dependent value is parsed, regardless of attribute order. An explicit `null` selector permits only `null` for the dependent prop, because no option is selected. A dependent prop can declare a default only when the selecting prop has a default; that value must satisfy the selected type.
+`from` looks up one declared prop or state value by name; it does not evaluate an expression. Each `<option value>` is parsed through the selector's declared type and must match one of its permitted values. Every permitted value must have exactly one option. An invalid `values` constraint cannot serve as a selector, so this declaration is an error. A selecting prop must be required or have a default; its effective value selects the type before any dependent value is parsed, regardless of attribute order. A selecting state uses its initialized value. A `null` selector permits only `null` for the dependent prop, because no option is selected. A dependent prop can declare a default only when its selector is a prop with a default; that value must satisfy the selected type.
 
-Plain HTML attributes are parsed against the selected type. Thus `type="number" value="2.5"` gives the component a JavaScript number, while `type="text" value="2.5"` gives it a string. Bound values retain their JavaScript type and must satisfy the selected option. A selecting prop can itself be bound, as in `<x-input :type="mode" :value="entry"></x-input>`; when `mode` changes, the dependent type is selected again. Changing the selecting prop and its dependent prop together checks the resulting pair; a previously supplied dependent value that does not satisfy a newly selected type is invalid.
+Plain HTML attributes are parsed against the selected type. Thus `type="number" value="2.5"` gives the component a JavaScript number, while `type="text" value="2.5"` gives it a string. Bound values retain their JavaScript type and must satisfy the selected option. A selecting prop can itself be bound, as in `<x-input from:type="mode" from:value="entry"></x-input>`; when `mode` changes, the dependent type is selected again. Changing the selecting prop and its dependent prop together checks the resulting pair; a previously supplied dependent value that does not satisfy a newly selected type is invalid.
 
-Generated TypeScript types preserve the relationship: a numeric `type` accepts a number or `null` as `value`, and the default text type accepts a string or `null`. A named type reference and an inline `<type>` produce the same contract.
+Generated TypeScript types preserve the relationship when the selector is a public prop: a numeric `type` accepts a number or `null` as `value`, and the default text type accepts a string or `null`. A named type reference and an inline `<type>` produce the same contract.
 
-### Future exploration: state as the source
+### Selecting from state
 
-`<type from="…">` could also name a declared state value. In that design, the selected type must follow the state whenever it changes. Before defining it, the proposal needs a rule for an existing dependent value that no longer matches the selected type, and for a public prop whose type depends on internal state that its caller cannot see. Level 1 defines prop-selected types only.
+The same name lookup can select from state:
+
+```html
+<defs>
+  <state name="mode" type="keyword" values="text, number" :value="'text'"></state>
+  <prop name="value">The current value.
+    <type from="mode">
+      <option value="text" type="string"></option>
+      <option value="number" type="number"></option>
+    </type>
+  </prop>
+  <handler name="useNumber"><set name="mode" :value="'number'"></set></handler>
+</defs>
+```
+
+When a selecting prop or state value changes, the type is selected again. A non-null dependent value that does not satisfy the new type is invalid; the component reports a type error rather than changing that value. A caller cannot know an internal state selector from the invocation alone, so generated TypeScript exposes the JavaScript representations of all its options while runtime validation checks the active option. Here that public type is `string | number | null`.
 
 ## Null and missing values
 
@@ -210,7 +225,7 @@ A declared prop that is omitted and has no default resolves to `null`, consisten
 ```html
 <!-- Given <prop name="label" type="string"></prop> -->
 <x-note></x-note>             <!-- label is null -->
-<x-note :label="null"></x-note> <!-- label is null -->
+<x-note from:label="null"></x-note> <!-- label is null -->
 <x-note label=""></x-note>    <!-- label is the empty string -->
 ```
 

@@ -20,7 +20,7 @@ The same validation that already works on a form `<input>` works on any typed va
 
 <!-- a typed component prop validates the same way, with no forms library -->
 <!-- x-age-field declares its value prop as number -->
-<x-age-field :value="draft.age" min="0" max="120">
+<x-age-field from:value="draft.age" min="0" max="120">
 
 <!-- structured data validates against a schema; failures carry a path -->
 <data name="profile" src="/api/me" schema="/schemas/profile.json">

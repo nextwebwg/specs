@@ -52,7 +52,7 @@ A component can share a state value with components rendered inside it, includin
     <prop name="number" type="number" required>
     <context name="current" from="x-steps" as="activeStep">
   </defs>
-  <li :aria-current="activeStep = number ? 'step' : null"><slot></slot></li>
+  <li from:aria-current="activeStep = number ? 'step' : null"><slot></slot></li>
 </template>
 
 <x-steps>
@@ -72,12 +72,12 @@ This is an HTML Next declaration, not a native HTML element. The Web Components 
 
 ## <data>: a declared, reactive resource
 
-This is HTML Next's standards-shaped answer to htmx[^1]: instead of `hx-get`/`hx-trigger`/`hx-target` string attributes swapping opaque HTML, a `<data>` element declares a **typed, reactive resource** whose parameters are visible right where it lives. For a read, each `<param :value>` subscribes to the state it binds, so the set of params *is* the dependency graph: change one and the resource refetches, and bindings that read it re-render. Nothing triggers it imperatively. This is the surface Solid `createResource` already ships[^6], a resource whose fetch re-runs on source change and exposes loading and error; TanStack and Vue Query are the same idea with a params-keyed cache.
+This is HTML Next's standards-shaped answer to htmx[^1]: instead of `hx-get`/`hx-trigger`/`hx-target` string attributes swapping opaque HTML, a `<data>` element declares a **typed, reactive resource** whose parameters are visible right where it lives. For a read, each `<param from:value>` subscribes to the state or prop it reads, so the set of params *is* the dependency graph: change one and the resource refetches, and bindings that read it re-render. Nothing triggers it imperatively. This is the surface Solid `createResource` already ships[^6], a resource whose fetch re-runs on source change and exposes loading and error; TanStack and Vue Query are the same idea with a params-keyed cache.
 
 ```html
 <data name="search" src="/api/search" type="object" debounce="200ms">
-  <param name="q" :value="query">     <!-- subscribes to query: refetches when it changes -->
-  <param name="page" :value="page">
+  <param name="q" from:value="query">     <!-- subscribes to query: refetches when it changes -->
+  <param name="page" from:value="page">
 </data>
 ```
 
@@ -168,9 +168,9 @@ A synchronized write is the outbound half of the same reactive resource model. A
         src="/api/posts/{id}"
         send="change"
         debounce="500ms">
-    <param name="id" :value="post.id">        <!-- resource identity -->
-    <param name="title" :value="draft.title"> <!-- reactive body field -->
-    <param name="tags" :value="draft.tags">
+    <param name="id" from:value="post.id">        <!-- resource identity -->
+    <param name="title" from:value="draft.title"> <!-- reactive body field -->
+    <param name="tags" from:value="draft.tags">
   </data>
 
   <!-- An explicit command stays an event for the owner to handle. -->
@@ -249,7 +249,7 @@ For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a 
 
 ## The dependency graph
 
-Every expression exposes the paths it reads, and every `<param :value>` names a subscription, so the graph is known statically. This buys type-checkable expressions, predictable invalidation, ahead-of-time generation for any reactive framework, and a browser runtime that needs no dynamic code.
+Every expression exposes the paths it reads, and every `<param from:value>` names a subscription, so the graph is known statically. This buys type-checkable expressions, predictable invalidation, ahead-of-time generation for any reactive framework, and a browser runtime that needs no dynamic code.
 
 | Target | Lowers reactivity to |
 | --- | --- |
@@ -310,7 +310,7 @@ Level
 
 ::: {.entry name="<data> · <param>" role="declared reactive resource"}
 Attributes
-: `name`, `src`, `method?`, `type?`, `send?`, `debounce?`, `poll?`, `enctype?` · `<param name :value>`
+: `name`, `src`, `method?`, `type?`, `send?`, `debounce?`, `poll?`, `enctype?` · `<param name from:value>`
 
 Methods
 : `get`, `query`, `post`, `put`, `patch`, and `delete`; parsed ASCII-case-insensitively and mapped to uppercase HTTP methods before request construction.

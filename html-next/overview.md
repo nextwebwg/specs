@@ -34,7 +34,7 @@ Declarative HTML Components is one specification, in chapters that each define p
 | [Components](/html-next/components) | Define a reusable tag with `<template component>`. Its interface (props) and non-visual declarations live in a `<defs>` region; below that is the markup it renders. |
 | [Templating](/html-next/templating) | Control flow as attributes that survive the HTML parser: `$if` (show or not), `$each` (repeat), `$match` (pick one), `$value`/`$html` (output text or safe markup). |
 | [Expressions](/html-next/expressions) | A small, typed, no-JavaScript expression language for the values in those attributes, with predictable rules for missing data and equality (it never throws). |
-| [Bindings & events](/html-next/bindings) | Set values with `:attr`, two-way with `bind:`, react to events with `on:`, toggle a class or style with `class:`/`style:`. |
+| [Bindings & events](/html-next/bindings) | Set reactive values with `from:attr`, two-way with `bind:`, react to events with `on:`, toggle a class or style with `class:`/`style:`. |
 | [Reactivity](/html-next/reactivity) | Declare local `<state>`, derived `<computed>` values, and external `<data>` resources. Reads refetch and synchronized writes send according to their declared change policy. |
 | [Types](/html-next/types) | Plain-keyword value types cover strings, numbers, HTML value formats, and selected CSS values. An omitted prop with no default is `null`. |
 | [Validation](/html-next/validation) | A declared type is a constraint: a typed prop or data value that fails its type is invalid, through the validity model [HTML Forms](/html-forms) extends to every element, and styled with the native `:user-invalid`. |

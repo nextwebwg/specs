@@ -45,7 +45,7 @@ Replacing an element's content is not a binding but a [templating](/html-next/te
 
 ### Future exploration: a named one-way form
 
-The `:name="expr"` shorthand could become a named, verb-led form that reads alongside `bind:name="path"`. The verb remains open. One candidate is `set:aria-label="label"`, but `set:` might imply a single assignment. Whatever its spelling, this form would keep the current one-way reactive behavior: evaluate the expression when the element is created and update the target whenever its dependencies change. `bind:value="draft"` would continue to write user edits back to state as well. A one-time assignment would be a different behavior. No named one-way form is defined at Level 1.
+The `:name="expr"` shorthand could become a named form that reads alongside `bind:name="path"`. The name remains open. `from:aria-label="label"` is one candidate: the attribute gets its value from an expression, much as a dependent `<type from="type">` gets its selected type from a prop. `set:aria-label="label"` is another, though `set:` might imply a single assignment. Whatever its spelling, this form would keep the current one-way reactive behavior: evaluate the expression when the element is created and update the target whenever its dependencies change. `bind:value="draft"` would continue to write user edits back to state as well. A one-time assignment would be a different behavior. No named one-way form is defined at Level 1.
 
 ## How a bound value serializes
 

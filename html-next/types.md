@@ -193,9 +193,13 @@ The same type can be named once under `<defs>` and referenced by a declaration's
 
 `from` names one declared prop, not a state value or expression. Each `<option value>` is parsed through the selecting prop's declared type and must match one of its permitted values. Every permitted value must have exactly one option. An invalid `values` constraint cannot serve as a selector, so this declaration is an error. The selecting prop must be required or have a default; its effective value selects the type before any dependent value is parsed, regardless of attribute order. An explicit `null` selector permits only `null` for the dependent prop, because no option is selected. A dependent prop can declare a default only when the selecting prop has a default; that value must satisfy the selected type.
 
-Plain HTML attributes are parsed against the selected type. Thus `type="number" value="2.5"` gives the component a JavaScript number, while `type="text" value="2.5"` gives it a string. Bound values retain their JavaScript type and must satisfy the selected option. Changing the selecting prop and its dependent prop together checks the resulting pair; a previously supplied dependent value that does not satisfy a newly selected type is invalid.
+Plain HTML attributes are parsed against the selected type. Thus `type="number" value="2.5"` gives the component a JavaScript number, while `type="text" value="2.5"` gives it a string. Bound values retain their JavaScript type and must satisfy the selected option. A selecting prop can itself be bound, as in `<x-input :type="mode" :value="entry"></x-input>`; when `mode` changes, the dependent type is selected again. Changing the selecting prop and its dependent prop together checks the resulting pair; a previously supplied dependent value that does not satisfy a newly selected type is invalid.
 
 Generated TypeScript types preserve the relationship: a numeric `type` accepts a number or `null` as `value`, and the default text type accepts a string or `null`. A named type reference and an inline `<type>` produce the same contract.
+
+### Future exploration: state as the source
+
+`<type from="…">` could also name a declared state value. In that design, the selected type must follow the state whenever it changes. Before defining it, the proposal needs a rule for an existing dependent value that no longer matches the selected type, and for a public prop whose type depends on internal state that its caller cannot see. Level 1 defines prop-selected types only.
 
 ## Null and missing values
 

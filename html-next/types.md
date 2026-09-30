@@ -1,275 +1,175 @@
 ---
 title: Type System
 order: 7
-blurb: web-native value & content types
-eyebrow: Declarative HTML Components Level 1 · richer types in Level 3
-status: Core types Level 1 · dimension types & lists Level 2 · content models & trusted content Level 3
+blurb: value types and absence
+eyebrow: Declarative HTML Components
 ---
 
-# A web-native type system
+# Types
 
-HTML Next types are **wider than JavaScript's**; the web already has richer value domains than `string`/`number`/`boolean`, and the type system reuses them rather than inventing look-alikes. A type does two jobs at once: it **validates** an incoming value and tells a reader **how to parse the serialized string back**.
-
-## Types are declared, and default to string
-
-Every HTML attribute is already a string, so an **undeclared prop is a `string`**, no ceremony, and string-to-string round-trips for free. A `type` is opt-in: you declare one only to get something other than a string. This is the same line the platform already draws, an unregistered CSS custom property is the universal `*` syntax (any token stream) until `@property` gives it `syntax: "<length>"`.[^3][^7]
+A type names the kind of value a component accepts or produces. Base types have plain keyword names; type constructors combine or constrain them. A declaration such as `type="number"` determines how a prop's value is parsed and validated.
 
 ```html
 <defs>
-  <prop name="label">Any string (the default when no type is given).</prop>
-  <prop name="count"   type="number">A parsed number.</prop>
-  <prop name="loading" type="boolean">Presence means true.</prop>
-  <prop name="replyTo" type="email" required>A syntactically valid email address.</prop>
-  <prop name="variant" type="outline | solid | ghost" default="outline">A keyword set.</prop>
-  <prop name="gap"     type="<length>">A CSS length: 8px, 1rem, 2ch.</prop>
-  <prop name="accent"  type="<color>">A CSS color.</prop>
-  <prop name="tags"    type="<string>#">A comma-separated list of strings.</prop>
-  <prop name="rows"    type="array" required>Structured data, bound by reference (shape below).</prop>
+  <prop name="label" type="string"></prop>
+  <prop name="tag" type="keyword"></prop>
+  <prop name="count" type="integer"></prop>
+  <prop name="ratio" type="number"></prop>
 </defs>
 ```
 
-## The type-expression syntax
+## Base value types
 
-A `type` attribute is a grammar for one value. HTML Next adopts CSS's readable operators, but defines its own profile: it adds HTML-derived and structured types, does not import CSS property references or implicit CSS-wide keywords, and uses `required` to control whether the prop itself may be absent.
+The basic value types come first, followed by values defined by HTML and CSS. Each type has one name and one meaning.
+
+| Type | Example | Description |
+| --- | --- | --- |
+| `string` | `"Save"`, `""` | Any string, including the empty string.[^1] |
+| `keyword` | `compact`, `size-2` | One or more ASCII letters, digits, underscores, or hyphens (`^[A-Za-z0-9_-]+$`), represented as a JavaScript string.[^2] |
+| `boolean` | `true`, `false` | A truth value.[^3] |
+| `integer` | `3`, `-2` | A whole number, parsed using HTML's integer syntax.[^4] |
+| `number` | `2.5` | A finite number, parsed using HTML's floating-point number syntax.[^4] |
+| `url` | `https://example.org/` | A valid absolute URL string.[^5] |
+| `email` | `ada@example.org` | A valid email address string.[^5] |
+| `date` | `2026-09-29` | A calendar date without a time zone, written year-month-day: at least four year digits and exactly two digits each for month and day.[^6] |
+| `month` | `2026-09` | A year and month without a time zone: at least four year digits, a hyphen, and a two-digit month.[^6] |
+| `week` | `2026-W40` | A week-year and week number: at least four year digits, `-W`, and a two-digit week.[^6] |
+| `time` | `13:45` | A time of day without a time zone: `HH:mm`, optionally followed by seconds and up to three fractional-second digits.[^6] |
+| `datetime-local` | `2026-09-29T13:45` | HTML's ISO 8601-derived local date and time format, without a time zone: a valid date, `T` or a space, then a valid time (`YYYY-MM-DDTHH:mm` for the example shown).[^6] |
+| `datetime` | `2026-09-29T13:45Z`, `2026-09-29T13:45-07:00` | HTML's global date and time format: a valid date and time followed by `Z` or a numeric UTC offset.[^6] |
+| `color` | `rebeccapurple`, `#663399`, `rgb(102 51 153)` | A CSS color literal: recognized color keywords, hex notation, or numeric `rgb()`, `rgba()`, `hsl()`, `hsla()`, `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()`, and `color()` forms. The value stays a string.[^7] |
+| `color-hex` | `#639`, `#663399`, `#663399cc` | A CSS hex color: `#` followed by 3, 4, 6, or 8 hexadecimal digits.[^8] |
+| `length` | `8px`, `1rem` | A CSS length value, kept in its serialized string form.[^9] |
+| `percentage` | `25%` | A CSS percentage value, kept in its serialized string form.[^9] |
+| `duration` | `200ms`, `1.5s` | A CSS time value, kept in its serialized string form.[^9] |
+
+In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop values are JavaScript `Number` values. For a component invoked with `ratio="0.3"` and declaring `<prop name="ratio" type="number">`, a controller reads `host.state.ratio` as `0.3`.
+
+## Finite choices
+
+`enum(...)` accepts exactly its listed non-null literal values. It takes one or more distinct quoted strings, booleans, or finite numbers; quoted words are values, not type names. String comparison is case-sensitive, so `SM` does not match `'sm'`. The parsed JavaScript value keeps the member's type, and a TypeScript target can expose the corresponding literal union. Like every prop, an enum prop also accepts `null` as no value. This constructor follows JSON Schema's `enum` constraint, which allows members of different types.[^14]
 
 ```html
-<prop name="size" type="small | medium | large">
-<prop name="inset" type="<length>{1,4}">
-<prop name="stops" type="<color>#">
-<prop name="placement" type="[ block-start | block-end ] && [ inline-start | inline-end ]?">
+<prop name="size" type="enum('sm', 'md', 'lg')" default="md"></prop>
+<x-button size="sm">Save</x-button>
+
+<prop name="current" type="enum(true, false, 'page', 'step', 'location')" default="false"></prop>
+<x-nav-item current="false">Not current</x-nav-item>
+<x-nav-item current="step">Current step</x-nav-item>
+<x-nav-item :current="false">Also not current</x-nav-item>
 ```
 
-### Component forms
+For a plain HTML attribute, the enum serializes each member to its attribute spelling and selects the one whose spelling exactly matches the written string. The attribute value is converted to that member's type: `current="false"` becomes JavaScript `false`, while `current="step"` becomes the string `"step"`. The non-null JavaScript value is a boolean or one of the named strings. A TypeScript target exposes `boolean | 'page' | 'step' | 'location' | null`, preserving those literal choices and the universal absence value. The match must be unique: `enum(false, 'false')` is invalid because both members have the HTML spelling `"false"`. A `:` binding already supplies a typed value, so `:current="false"` is valid while `:current="'false'"` is invalid; bound values are checked by type and value without string conversion.
 
-| Form | Meaning | Example |
-| --- | --- | --- |
-| `string` | An HTML Next built-in type. Built-in names are bare and reserved. | `type="number"` |
-| `keyword` | A literal keyword. Following CSS and HTML enumerated attributes, matching is ASCII case-insensitive. A keyword that spells a built-in name is quoted, so it reads as the literal rather than the type. | `solid`, `'unknown'` |
-| `<css-type>` | A named CSS value type parsed according to the specification that defines it. | `<length>`, `<color>` |
-| `[ … ]` | A group. Brackets change precedence or let one multiplier apply to several components. | `[ <length> \| auto ]#` |
+## Pattern constraints
 
-### Combinators
-
-| Form | Meaning | Accepts |
-| --- | --- | --- |
-| juxtaposition | Every component, once, in the written order. | `<length> <color>` → `1rem red` |
-| `&&` | Every component, once, in any order. | `inset && round` → either keyword order |
-| `\|\|` | One or more components, once each, in any order. | `compact \|\| bordered` → either or both |
-| `\|` | Exactly one alternative. | `small \| medium \| large` |
-
-### Multipliers
-
-| Suffix | Count and separator | Example |
-| --- | --- | --- |
-| `?` | Zero or one. | `<color>?` |
-| `*` | Zero or more, space-separated. | `<length>*` |
-| `+` | One or more, space-separated. | `<length>+` |
-| `#` | One or more, comma-separated. | `<color>#` |
-| `{A}`, `{A,B}`, `{A,}` | Exactly A, from A through B, or at least A, space-separated. | `<length>{1,4}` |
-| `#{A,B}` | The same bounded count, comma-separated. | `<string>#{1,8}` |
-| `!` | The group must produce at least one value, even when every component inside it is optional. | `[ <length>? <color>? ]!` |
-
-### Precedence
-
-From strongest to weakest: multipliers, juxtaposition, `&&`, `||`, then `|`. Thus `small | <length>+` means either the keyword `small` or a non-empty list of lengths. Brackets override that order. A parser must consume the entire value; an unmatched token makes the value invalid.
-
-```text
-type-expression = alternative
-alternative     = options [ "|" options ]*
-options         = any-order [ "||" any-order ]*
-any-order       = sequence [ "&&" sequence ]*
-sequence        = term+
-term            = atom multiplier? | group [ multiplier | "!" ]
-atom            = built-in | keyword | css-type
-group           = "[" type-expression "]"
-css-type        = "<" css-type-name ">"
-multiplier      = "?" | "*" | "+" | "#" | range | "#" range
-range           = "{" integer [ "," integer? ] "}"
-```
-
-### HTML Next profile
-
-- **Level 1** includes the bare scalar types, literal keyword alternatives, and `|`.
-- **Level 2** adds angle-bracketed CSS types, grouping, the remaining combinators, and all multipliers.
-- `?` makes a component inside a composite value optional. It does not make the prop optional; absence is controlled by the `required` attribute.
-- CSS property references such as `<'border-width'>` are excluded because a component prop is not a CSS property. CSS-wide keywords such as `inherit` are accepted only when written as explicit alternatives.
-- A CSS type name is available only when this specification lists it. HTML Next uses that type's token grammar and value semantics, not the set of properties on which CSS happens to use it.
-- A literal `default` must satisfy the declared type. A literal prop value that fails is a conformance error; a bound value that fails produces the validity result defined by the [Validation chapter](/html-next/validation).
-
-The operators and their precedence come from CSS Value Definition Syntax.[^1][^6] The profile above is HTML Next's definition; referring to CSS does not add unlisted CSS grammar or types.
-
-### CSS value types included by this level
-
-Angle brackets select one of the CSS token grammars listed here. They do not mean “any CSS type,” and they do not turn the value into a CSS declaration. Parsing uses CSS tokenization, must consume the complete attribute value, and preserves the original serialization for reflection.
-
-| Type | Accepted syntax and value |
-| --- | --- |
-| `<string>` | One CSS quoted string token. This differs from bare `string`, which accepts the complete HTML attribute string without CSS quotes. |
-| `<custom-ident>` | A CSS custom identifier, excluding CSS-wide keywords, `default`, and any keyword reserved by the enclosing type expression. |
-| `<length>` | A CSS length dimension or a permitted zero, resolved as a typed length rather than a number. |
-| `<percentage>` | A CSS percentage token. |
-| `<length-percentage>` | A value accepted by either `<length>` or `<percentage>`, including CSS calculations valid for that combined type. |
-| `<angle>` | A CSS angle, including its unit or a permitted zero. |
-| `<time>` | A CSS time dimension such as `200ms` or `1.5s`. This is unrelated to bare HTML `time`, which is a clock-time string. |
-| `<resolution>` | A CSS resolution dimension such as `2dppx`. |
-| `<color>` | Any value in the CSS Color `<color>` grammar, including named, functional, system, and current color values. |
-| `<url>` | A CSS URL token or `url()` value. This differs from bare `url`, which is an HTML absolute-URL string and has no CSS wrapper. |
-
-## HTML-native types and constraints
-
-CSS does not define every useful web value. HTML already specifies parsers and intrinsic validity rules for email addresses, absolute URLs, numbers, and date/time strings. HTML Next exposes those as bare types and applies the same rules to component props and data values.[^15][^16][^17]
+HTML's `pattern` attribute provides a regular-expression constraint for text values. A declaration writes the pattern without `/` delimiters; the pattern must match the entire nonempty value. The value remains a string in JavaScript. `required` determines whether an empty or omitted value is allowed.[^10]
 
 ```html
-<defs>
-  <prop name="replyTo" type="email" required>
-  <prop name="website" type="url">
-  <prop name="starts" type="datetime-local" min="2026-01-01T00:00">
-  <prop name="quantity" type="number" min="1" max="100" step="1">
-  <prop name="handle" type="string" minlength="3" maxlength="32" pattern="[a-z0-9-]+">
-</defs>
+<prop name="sku" type="string" pattern="[A-Z]{3}-[0-9]{4}"></prop>
+<!-- Accepts ABC-1234. -->
 ```
 
-| Type | Accepted value | Applicable constraints |
+## Lists
+
+A `+` suffix declares one or more space-separated values. A `#` suffix declares one or more comma-separated values, following CSS value definition syntax.[^12] Each item must satisfy the named base type. For `keyword`, the declarations are:
+
+| Type | Written value | JavaScript value |
 | --- | --- | --- |
-| `email` | An HTML-valid email address. Empty is allowed unless `required`; `multiple` permits HTML's comma-separated email list. | `required`, `multiple`, `pattern`, `minlength`, `maxlength` |
-| `url` | An HTML-valid absolute URL. This is distinct from CSS `<url>`, which accepts CSS URL-token syntax. | `required`, `pattern`, `minlength`, `maxlength` |
-| `date`, `month`, `week`, `time`, `datetime-local` | The corresponding HTML valid date or time string.[^18] | `required`, `min`, `max`, `step` |
-| `number` | An HTML valid floating-point number, returned as a number rather than a string. | `required`, `min`, `max`, `step` |
-| `integer` | A base-10 integer with no fractional part. | `required`, `min`, `max`, `step` |
-| `string` | Any string. | `required`, `pattern`, `minlength`, `maxlength` |
-
-> [!note] Use native validation where it exists
-> These are the platform's parsers and constraints, not look-alike replacements. They produce the same reason categories as native controls: missing value, type mismatch, pattern mismatch, range underflow or overflow, step mismatch, and length errors. HTML Next adds no `tel` type because HTML itself does not define one worldwide telephone-number grammar; a telephone number remains `string` with an explicit `pattern` when a product has a narrower format.
-
-Constraint attributes narrow a type; they never replace it. Their values are themselves parsed according to the declared type, and incompatible constraints are conformance errors. The [Validation chapter](/html-next/validation) defines when validity is recomputed, how failures are reported, and how native form controls interoperate.
-
-## Two families: serializable and reference
-
-A type either has a lossless string form or it does not, and that single fact decides everything about how it behaves.
-
-| Family | Types | Behaviour |
-| --- | --- | --- |
-| **Scalar & list**<br>[L1]{.pill .l1} [L2]{.pill .soon} | `string`, `number`, `integer`, `boolean`, `email`, `url`, HTML date/time types, and keyword enums (L1); CSS types such as `<length>`, `<percentage>`, `<color>`, `<angle>`, `<time>`, `<url>`, and composite values (L2) | A single value token. Recorded as `data-*`, survives SSR, round-trips losslessly via the declared type. |
-| **Structured**<br>[L2]{.pill .soon} | `object`, `array`; shape via nested `<prop>` or a referenced JSON Schema | Authored as an [object expression](/html-next/expressions), bound **by reference** for reactivity, and serialized as **JSON** only when it crosses a boundary (SSR payload, interop). Not reflected per-attribute. [Must]{.kw} be declared, since it cannot fall back to `string`. |
-
-> [!warn] Prop contracts contain serializable values
-> A prop contract contains values that can cross an HTML or JSON boundary. A component communicates upward with `<dispatch>` and `on:event`. Functions, callbacks, DOM nodes, and promises therefore stay outside the prop type grammar.
-
-## Serialization: the string plus the type is the value
-
-Because a serializable value has a string form and its type is declared, lowering can **record every serializable prop the author supplied on the native root as `data-<name>`**. The invocation is then fully reconstructable from the DOM, replacement loses no information, and reading a value back is unambiguous: take the attribute string, parse it per the contract's type.
+| `keyword+` | `red blue` | `["red", "blue"]` |
+| `keyword#` | `red, blue` | `["red", "blue"]` |
 
 ```html
-<x-badge variant="solid" count="3">New</x-badge>
-
-<!-- lowers to: each serializable prop recorded as data-*, so the invocation
-     is fully reconstructable from the DOM -->
-<span data-component="x-badge" data-variant="solid" data-count="3">New</span>
-
-<!-- data-count="3" + the contract (count is a number) reads back as the number 3.
-     the string plus the declared type is the value; nothing is lost. -->
+<prop name="space-tags" type="keyword+"></prop>
+<prop name="comma-tags" type="keyword#"></prop>
 ```
 
-| DOM | Declared type | Reads back as |
-| --- | --- | --- |
-| `data-label="Save"` | `string` | `"Save"` |
-| `data-count="5"` | `number` | `5` |
-| `data-loading` (present / absent) | `boolean` | `true` / `false` |
-| `data-gap="1rem"` | `<length>` | a length |
-| `data-variant="solid"` | `outline \| solid \| ghost` | `"solid"` |
+The separator is part of the written value; a component receives an array of parsed items in JavaScript. A comma-separated list may have whitespace around each comma. An empty item is invalid.
 
-> [!note] This is the platform's own pattern
-> Typed values carried in strings are everywhere in HTML and CSS already: `<time datetime="2026-09-08">`, `<input type="number" value="5">`, `<meter value>`, and a registered `@property` custom property. HTML Next reuses the idea rather than inventing a parallel primitive-preservation channel. Reflection is **uniform**: a prop is recorded as `data-*` even when it also maps to a native attribute, so `data-*` is always the complete provenance record. Structured props are the one exception, they are carried as JSON rather than reflected. See [lowering & provenance](/html-next/components).
+## Structured values
 
-## Structured data: shape, authoring, wire
-
-CSS has no object or array type, so structured data steps outside CSS to the web's other data standards. Three concerns stay separate, and each has its own well-defined form:
-
-- **Shape** is declared in HTML, recursively, with nested `<prop>` (the contract's own vocabulary, no data island), or by referencing a **JSON Schema** for shared or external shapes.
-- **Authoring** a value uses an [object expression](/html-next/expressions) (`{ id: 1, name: 'Ada' }`), lighter than JSON and pure, not a JS object. In practice most structured values are a *reference* to `<state>` or `<data>` rather than an inline literal.
-- **Wire** form is **JSON**: the mandatory-double-quote serialization is a machine concern, used when a value must cross a boundary (SSR payload, network, interop), never the authoring syntax.
+`object({ ... })` describes named fields and `list(T)` describes an array whose items have type `T`:
 
 ```html
-<!-- shape described in HTML, recursively, with nested <prop> -->
-<prop name="rows" type="array">
-  <prop type="object">
-    <prop name="id"   type="number">
-    <prop name="name" type="string">
-  </prop>
+<prop name="point" type="object({ x: number, y: number })"></prop>
+<prop name="rows" type="list(object({ id: number, name: string }))"></prop>
+```
+
+These values are JavaScript objects and arrays, not delimited strings. The same shapes can be declared with nested `<prop>` elements when fields need their own declarations. In that form, `object` contains named fields and `array` contains one item declaration:
+
+```html
+<prop name="point" type="object">
+  <prop name="x" type="number" required></prop>
+  <prop name="y" type="number" required></prop>
 </prop>
 
-<!-- or reference a JSON Schema for shared / external shapes -->
-<prop name="rows" type="array" schema="/schemas/rows.json">
+<prop name="rows" type="array">
+  <prop type="object">
+    <prop name="id" type="number"></prop>
+    <prop name="name" type="string"></prop>
+  </prop>
+</prop>
 ```
 
----
-
-> [!norm] Zod and Valibot, but in the platform
-> A declared type already does what a userland schema validator does: **parse** an input, **validate** it against a shape, and hand back a **typed** value. Libraries like [Zod](https://zod.dev/) and [Valibot](https://valibot.dev/) exist precisely because neither HTML nor JavaScript offers that natively. Get the type layer right here, and the interop with the JavaScript layer above it, and schema validation becomes a **DOM-native capability**: a component prop, a form field, or a data source carries its own schema and the platform enforces it, with no bundled validator. **The contract is the schema.**
-
-## Keywords and the quoting rule
-
-An enum is just `string` constrained to a set of keywords. It is written with **bare keywords** (`outline | solid | ghost`, never `"outline" | "solid"`) because in **attribute position** an unquoted identifier and a quoted string are the same token: `<foo bar=quiz>` equals `<foo bar="quiz">`, and `[bar=quiz]` equals `[bar="quiz"]`. So the string value `"solid"` satisfies `outline | solid | ghost`.
-
-One exception keeps the bare form unambiguous. Because built-in type names are reserved, a keyword that spells one is written **quoted**: `'unknown' | known` is a two-member enum, while `unknown | known` reads `unknown` as the type that accepts any value, which makes the whole union accept anything. Quoting is the only way to say the literal, and it is confined to those reserved spellings; every other enum member stays bare. The canonical form of a type expression preserves that quoting for the same reason.
-
-That equivalence **flips in expression position**, which is not attribute position. In the assignment-free expression language a bare word is an *identifier* (a binding) and quotes make a *string literal*, exactly as in a CSS selector value versus a scripting expression:
+A shared or external schema can instead be referenced with `schema`, using JSON Schema:[^13]
 
 ```html
-<!-- ATTRIBUTE position: bare and quoted are the same token (as in HTML/CSS) -->
-<x-button variant=solid>   is identical to   <x-button variant="solid">
-<!-- and the enum type is written bare: outline | solid | ghost -->
-
-<!-- EXPRESSION position: bare is a reference, quotes make a string literal -->
-<button class:active="variant = 'solid'">   <!-- 'solid' is the string -->
-<button class:active="variant = solid">      <!-- WRONG: solid read as a binding name -->
+<prop name="rows" type="array" schema="/schemas/rows.json"></prop>
 ```
 
-> [!note] One line, two sides
-> Attribute / type / selector land: bare equals quoted (both the string). Expression land: bare is a reference, quotes are a literal. Both are where HTML and CSS already put the line, so neither needs a new rule to learn.
+JSON Schema also has `enum` for a fixed set of values. An object schema can use it to constrain one field, and an enum can contain values of different JSON types.[^14] This JSON document is a schema, not an authored component value:
 
-## Web value types
+```json
+{
+  "type": "object",
+  "properties": {
+    "size": { "enum": ["sm", "md", "lg"] }
+  }
+}
+```
 
-The dimension family is only part of a larger set of value domains the web already defines, which a markup type system should name rather than collapse to `string`.[^1][^2][^5]
+### Writing structured values
 
-| Domain | Examples |
-| --- | --- |
-| Attribute value spaces | boolean & enumerated attributes, token lists, sets |
-| Web value types | URLs, MIME types, IDs & ID references, colors, lengths, percentages, times, angles |
-| Constrained values | numeric ranges, element references, selectors |
-| Content models | permitted / required / repeated / mutually exclusive children (e.g. tabs constraining their panels) |
-| Trusted content | a dedicated trusted-HTML type: the only value `$html` places without sanitizing (an ordinary string is sanitized) |
+Structured values use the object and array literal syntax of [HTML Next expressions](/html-next/expressions), **not JSON**. A plain attribute supplies a fixed value, parsed according to the declared prop type. A `:` binding evaluates an expression that may read other values and change with them:
 
-## Beyond values: layered identity, content, and trust
+```html
+<x-plot point="{ x: 3, y: 5 }"></x-plot>
+<x-table rows="[{ id: 1, name: 'Ada' }, { id: 2, name: 'Lin' }]"></x-table>
+<x-plot :point="{ x: currentX, y: 5 }"></x-plot>
+```
 
-These are Level&nbsp;3 directions that a value-only type system does not reach, and where "web-native" means structural, not just scalar.
+Bare keys, single-quoted strings, and trailing commas are allowed in both forms. A plain attribute contains only literal values; `point="{ x: currentX }"` is invalid because `currentX` is a reference. Use `:point="{ x: currentX }"` to read it, or `:point="point"` to pass an existing object from `<state>` or `<data>`. The `:` marks a binding, not an object. These expressions are pure and typed, not arbitrary JavaScript. JSON is used only as a wire format when structured data crosses an SSR, network, or interop boundary.
 
-> [!note] Layered value identity
-> The same author-facing attribute can parse to a value, reflect to a DOM property under a different name, and participate in the reactive graph as a third thing. CSS Typed OM already exposes the distinction between serialized CSS and typed values.[^4][^8] Naming those layers explicitly is what lets one source lower correctly to React props, Vue refs, and native attributes without guessing. Lit `@property` converters are prior art for the attribute-to-property half of this, typed reflection with a declared converter.[^14]
+## Null and missing values
 
-> [!note] Content models
-> A type can constrain *markup*, not only values: which children are permitted, required, repeated, or mutually exclusive (a tab list constraining its panels). This is the XML-Schema-shaped half of the system, applied to component composition.
+`null` means **no value**. It is distinct from the empty string, zero, and false. Every declared prop accepts `null`, regardless of whether its type is `string`, `number`, `enum(...)`, `list(...)`, or `object(...)`. The declared type constrains non-null values; `required` makes `null` invalid.
 
-> [!norm] Trusted content
-> Placing raw, *unsanitized* markup accepts **only** a dedicated trusted-HTML type, never an ordinary string. There is no `.innerHTML` authoring syntax: markup goes through the `$html` directive, which **sanitizes an ordinary string** and places a **trusted-HTML value** as-is. The platform sinks a target ultimately lowers onto (`innerHTML`, `outerHTML`, `srcdoc`) are governed by the platform's [Trusted Types](https://www.w3.org/TR/trusted-types/); a bare string reaching them is a conformance error, which is what keeps the language `eval()`-free end to end.
+A declared prop that is omitted and has no default resolves to `null`, consistent with DOM `getAttribute()` returning `null` for a missing attribute.[^11] An explicit bound `null` also gives the prop a null value. An explicit empty string remains a string value.
 
-## References
+```html
+<!-- Given <prop name="label" type="string"></prop> -->
+<x-note></x-note>             <!-- label is null -->
+<x-note :label="null"></x-note> <!-- label is null -->
+<x-note label=""></x-note>    <!-- label is the empty string -->
+```
 
-[^1]: W3C CSS Values and Units Level 4, [value definition syntax](https://www.w3.org/TR/css-values-4/#value-defs) and [component value types](https://www.w3.org/TR/css-values-4/#component-types), including numeric and dimension types such as `<length>`, `<percentage>`, `<angle>`, and `<time>`.
-[^2]: W3C CSS Color Module Level 4, [the `<color>` type](https://www.w3.org/TR/css-color-4/#color-type).
-[^3]: W3C CSS Properties and Values API Level 1, [registered custom properties](https://www.w3.org/TR/css-properties-values-api-1/#at-property-rule) and [their type syntax strings](https://www.w3.org/TR/css-properties-values-api-1/#syntax-strings).
-[^4]: W3C CSS Typed OM Level 1, [typed representations of CSS values](https://www.w3.org/TR/css-typed-om-1/#stylevalue-objects).
-[^5]: MDN, [CSS data types](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/Data_types) (an index spanning quantities, colors, images, positions, and other value domains).
-[^6]: MDN, [CSS value definition syntax](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Values_and_units/Value_definition_syntax) (keywords, data types, combinators, and multipliers).
-[^7]: MDN, [the `@property` `syntax` descriptor](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40property/syntax) (typed custom properties, lists, keywords, and the universal `*` syntax).
-[^8]: MDN, [CSS Typed Object Model API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Typed_OM_API) (CSS values exposed as typed objects rather than undifferentiated strings).
-[^9]: IETF, [JSON Schema](https://json-schema.org/) (the standard shape language for structured data).
-[^10]: WHATWG HTML, [`data-*` attributes](https://html.spec.whatwg.org/multipage/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes) and [boolean attributes](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#boolean-attributes).
-[^11]: W3C XML Schema Part 1, [attribute defaulting](https://www.w3.org/TR/xmlschema11-1/#cvc-au) (the `default` attribute).
-[^12]: W3C, [Trusted Types](https://www.w3.org/TR/trusted-types/) (the trusted-content type model HTML Next mirrors for raw markup via `$html`).
-[^13]: [Zod](https://zod.dev/) and [Valibot](https://valibot.dev/) (userland schema validation, the parse/validate/infer pattern this makes DOM-native).
-[^14]: Lit [@property converters](https://lit.dev/docs/components/properties/#conversion): typed attribute-to-property reflection with a declared converter, prior art for the three-layer model where an author-facing attribute, a reflected DOM property, and the value it parses to are named separately.
-[^15]: WHATWG HTML, [states of the `input` `type` attribute](https://html.spec.whatwg.org/multipage/input.html#states-of-the-type-attribute), including the email, URL, numeric, and date/time value syntaxes.
-[^16]: WHATWG HTML, [the Constraint Validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) and its required, type, pattern, length, range, and step constraints.
-[^17]: MDN, [Using HTML form validation and the Constraint Validation API](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Constraint_validation) (native type and constraint behavior with examples).
-[^18]: MDN, [Date and time formats used in HTML](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Date_and_time_formats).
+## Future exploration
+
+Unions could allow more than one base type. An untagged union of `string` and `number` needs a parsing rule: a written value of `2.5` could produce either a string or a number. A component's `type` prop could discriminate the types of `value` and other props, but the declaration syntax and behavior remain open.
+
+## Sources
+
+[^1]: WHATWG HTML, [attribute values](https://html.spec.whatwg.org/multipage/dom.html#attributes); Web IDL, [`DOMString`](https://webidl.spec.whatwg.org/#idl-DOMString).
+[^2]: This proposal's ASCII rule is informed by WHATWG HTML's [space-separated tokens](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#space-separated-tokens) and CSS's [custom identifiers](https://drafts.csswg.org/css-values-4/#custom-idents).
+[^3]: Web IDL, [the `boolean` type](https://webidl.spec.whatwg.org/#idl-boolean).
+[^4]: WHATWG HTML, [integers](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#signed-integers) and [floating-point numbers](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#floating-point-numbers).
+[^5]: WHATWG HTML, [URL](https://html.spec.whatwg.org/multipage/input.html#url-state-(type=url)) and [email](https://html.spec.whatwg.org/multipage/input.html#e-mail-state-(type=email)) value formats.
+[^6]: WHATWG HTML, [dates](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#dates), [months](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#months), [weeks](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#weeks), [times](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#times), [local dates and times](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#local-dates-and-times), and [global dates and times](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#global-dates-and-times).
+[^7]: CSS Color Module Level 4, [color values](https://drafts.csswg.org/css-color-4/#color-type).
+[^8]: CSS Color Module Level 4, [hexadecimal color notation](https://drafts.csswg.org/css-color-4/#hex-notation).
+[^9]: CSS Values and Units Level 4, [lengths](https://drafts.csswg.org/css-values-4/#lengths), [percentages](https://drafts.csswg.org/css-values-4/#percentages), and [time values](https://drafts.csswg.org/css-values-4/#time).
+[^10]: WHATWG HTML, [the `pattern` attribute](https://html.spec.whatwg.org/multipage/input.html#the-pattern-attribute); this proposal's [Validation chapter](/html-next/validation) applies pattern constraints to typed props.
+[^11]: DOM Standard, [`getAttribute()`](https://dom.spec.whatwg.org/#dom-element-getattribute).
+[^12]: CSS Values and Units Level 4, [value definition syntax multipliers](https://drafts.csswg.org/css-values-4/#component-multipliers).
+[^13]: JSON Schema, [specification](https://json-schema.org/specification).
+[^14]: JSON Schema Validation, [the `enum` keyword](https://json-schema.org/draft/2020-12/json-schema-validation#name-enum).

@@ -19,7 +19,7 @@ One prop, one native root, a scoped style. It lowers to a real `<button>`, no wr
 <!-- button.html — a minimal component: one prop, one native root, scoped style. -->
 <template component="x-button">
   <defs>
-    <prop name="variant" type="outline | solid" default="outline">Visual treatment.</prop>
+    <prop name="variant" type="enum('outline', 'solid')" default="outline">Visual treatment.</prop>
   </defs>
   <button><slot></slot></button>
   <style>

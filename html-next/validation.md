@@ -19,7 +19,8 @@ The same validation that already works on a form `<input>` works on any typed va
 <input bind:value="email" type="email" required>
 
 <!-- a typed component prop validates the same way, with no forms library -->
-<x-field :value="draft.age" type="<number>" min="0" max="120">
+<!-- x-age-field declares its value prop as number -->
+<x-age-field :value="draft.age" min="0" max="120">
 
 <!-- structured data validates against a schema; failures carry a path -->
 <data name="profile" src="/api/me" schema="/schemas/profile.json">
@@ -36,7 +37,7 @@ This chapter does not define a validity model of its own. [HTML Forms Level&nbsp
 That model leaves open where an element's constraints come from. A native `<input>` takes them from its attributes. A component takes them from its declared types, which is what this chapter defines.
 
 > [!note] Included in the reference implementation
-> The [`html-next` implementation repository](https://github.com/nextwebwg/html-next) includes this validation layer today. Its `validate(value, constraint)` function checks required values, scalar types, keyword enums, ranges, lengths, patterns, and steps, and it returns the reason list HTML Forms defines. Authors use the proposed surface; the implementation handles browser compatibility.
+> The [`html-next` implementation repository](https://github.com/nextwebwg/html-next) includes this validation layer today. Its `validate(value, constraint)` function checks required values, scalar types, finite choices, ranges, lengths, patterns, and steps, and it returns the reason list HTML Forms defines. Authors use the proposed surface; the implementation handles browser compatibility.
 
 ## The type is the constraint
 
@@ -45,7 +46,7 @@ A prop's declared type and its constraint attributes (see [Types](/html-next/typ
 | Declared | A value fails when | Reason |
 | --- | --- | --- |
 | `required` | it is empty | `missing` |
-| the type (`number`, `<color>`, an enum…) | it is the wrong kind of value | `type` |
+| the type (`number`, `color`, etc.) | it is the wrong kind of value | `type` |
 | `min` / `max` | it is out of range | `range` |
 | `minlength` / `maxlength` | it is too short or too long | `length` |
 | `pattern` | it does not match | `pattern` |

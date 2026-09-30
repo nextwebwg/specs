@@ -10,17 +10,15 @@ const forms = () => readFileSync("html-forms/index.md", "utf8");
 const chapters = readdirSync("html-next").filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
 const modules = chapters.filter((name) => name !== "index");
 
-test("the type system explains its CSS grammar and links its sources", () => {
+test("the type system has plain base names and explicit constructors", () => {
   const types = chapter("types");
 
-  for (const phrase of [/Component forms/, /Combinators/, /Multipliers/, /Precedence/, /HTML Next profile/,
-    /css-values-4\/#value-defs/, /css-color-4\/#color-type/, /css-typed-om-1\/#stylevalue-objects/,
-    /developer\.mozilla\.org\/en-US\/docs\/Web\/CSS\/Reference\/Values\/Data_types/,
-    /developer\.mozilla\.org\/en-US\/docs\/Web\/CSS\/Guides\/Values_and_units\/Value_definition_syntax/,
-    /type="email" required/, /states-of-the-type-attribute/, /HTML-native types and constraints/, /This is distinct from CSS/]) {
-    assert.match(types, phrase);
-  }
-  assert.match(chapter("validation"), /Included in the reference implementation/);
+  assert.match(types, /Base types have plain keyword names; type constructors combine or constrain them/);
+  assert.match(types, /`enum\(\.\.\.\)` accepts exactly its listed non-null literal values/);
+  assert.match(types, /enum\(true, false, 'page', 'step', 'location'\)/);
+  assert.match(types, /A declared prop that is omitted and has no default resolves to `null`/);
+  assert.ok(types.indexOf("| `string` |") < types.indexOf("| `length` |"));
+  assert.doesNotMatch(types, /^### (?:Combinators|Multipliers|Precedence)$/m);
 });
 
 test("validation keeps polyfill details behind the platform surface", () => {
@@ -58,7 +56,7 @@ test("proposal callouts name their contract and review requests demand attention
 test("polymorphic roots use explicit native branches", () => {
   const components = chapter("components");
 
-  assert.match(components, /<prop name="as" type="button \| a" default="button">/);
+  assert.match(components, /<prop name="as" type="enum\('button', 'a'\)" default="button">/);
   assert.match(components, /<a \$when="as = 'a'">/);
   assert.match(components, /<button \$else>/);
   assert.doesNotMatch(components, /<button as="button \| a">/);
@@ -75,7 +73,7 @@ test("props are initial configuration and the data-* record is output", () => {
   assert.doesNotMatch(reactivity, /This is `attributeChangedCallback`/);
   // A parent's binding also changes a prop; the record is not limited to framework updates.
   assert.match(components, /a parent template's `:name` on the invocation/);
-  assert.match(chapter("types"), /every serializable prop the author supplied/);
+  assert.match(components, /every \*\*serializable prop\*\* the author supplied/);
 });
 
 test("the baseline component contract includes the complete slot model", () => {

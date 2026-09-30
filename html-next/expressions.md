@@ -137,11 +137,13 @@ The grammar includes literal **object** and **array** expressions for structured
 ```html
 <state name="draft" :value="{ title: '', tags: [], done: false }">
 
-<x-list :rows="[{ id: 1, name: 'Ada' }, { id: 2, name: 'Lin' }]">
+<x-list rows="[{ id: 1, name: 'Ada' }, { id: 2, name: 'Lin' }]">
 
 <!-- key is attribute-position (bare = string); value is expression-position -->
 <state name="filter" :value="{ status: currentStatus, limit: 10 }">
 ```
+
+A declared structured prop can parse a fixed object or array from a plain attribute, as `rows` does above. A `:` binding evaluates an expression and may read other values, as `:value` does. The plain attribute accepts literal contents; use `:` when a value comes from a binding.
 
 Two rules keep them unambiguous, and both reuse positions defined elsewhere rather than inventing new ones:
 

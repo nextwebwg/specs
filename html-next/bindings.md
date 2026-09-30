@@ -12,18 +12,27 @@ One consistent family of attribute bindings, all ordinary attribute names under 
 
 ## The binding family
 
-An unprefixed attribute is a literal. A prefix marks a binding. The colon is verified across Chromium, Firefox, and WebKit to be an ordinary attribute-name character (not an XML namespace), so every form survives the parser and round-trips through `outerHTML`.
+An unprefixed attribute supplies a fixed literal. A declared component prop parses that literal according to its type; an undeclared or native attribute keeps its ordinary HTML meaning. A prefix marks a binding. The colon is verified across Chromium, Firefox, and WebKit to be an ordinary attribute-name character (not an XML namespace), so every form survives the parser and round-trips through `outerHTML`.
 
 The shapes have direct framework precedent[^3]: the `:attr` one-way form echoes Vue `v-bind`, while `bind:` (two-way) and `on:` (event) match Svelte verbatim. Angular `[(ngModel)]`, its banana-in-a-box, is the canonical one-way-in-plus-event-out two-way model that the `bind:` writability rules follow.
 
 | Form | Meaning |
 | --- | --- |
-| `attr="…"` | Literal attribute (a string). |
-| `:attr="expr"` | One-way expression binding, resolved by the element contract. This is also how a non-string value is supplied: `:value="0"` is the number, `value="0"` the string. |
+| `attr="…"` | Fixed literal. A declared component prop parses it using its type; an undeclared or native attribute follows HTML's attribute rules. |
+| `:attr="expr"` | One-way expression binding, evaluated and checked against the element contract. The expression may read changing values. |
 | `bind:prop="path"` | Two-way binding to a writable path. |
 | `on:event="handler"` | Event binding to a declared handler. |
 | `class:token="expr"` / `style:prop="expr"` | Toggle one class, or set one style property, from a single expression. |
 | `$key="expr"` | List identity for reactive reconciliation (a `$each` modifier). |
+
+For example, when a component declares `count` as `number` and `point` as `object`, both plain attributes produce typed values without a colon:
+
+```html
+<x-plot count="3" point="{ x: 3, y: 5 }"></x-plot>
+<x-plot :count="nextCount" :point="{ x: currentX, y: 5 }"></x-plot>
+```
+
+The first invocation supplies fixed values. The second evaluates expressions that read `nextCount` and `currentX`. A plain structured value uses HTML Next's [object literal syntax](/html-next/types), not JSON; references such as `currentX` require `:`. The colon selects expression evaluation, not a data type.
 
 > [!note] The one shape
 > `:x` one-way, `bind:x` two-way, `on:x` event, `class:x` / `style:x` keyed presentation. `from={count * 2}` does not survive the parser (spaces split it into three attributes); `:from="count * 2"` does.

@@ -36,7 +36,7 @@ Declarative HTML Components is one specification, in chapters that each define p
 | [Expressions](/html-next/expressions) | A small, typed, no-JavaScript expression language for the values in those attributes, with predictable rules for missing data and equality (it never throws). |
 | [Bindings & events](/html-next/bindings) | Set values with `:attr`, two-way with `bind:`, react to events with `on:`, toggle a class or style with `class:`/`style:`. |
 | [Reactivity](/html-next/reactivity) | Declare local `<state>`, derived `<computed>` values, and external `<data>` resources. Reads refetch and synchronized writes send according to their declared change policy. |
-| [Types](/html-next/types) | Props default to strings but can borrow richer web-native types from CSS (`<length>`, `<color>`, enums, lists, structured JSON). |
+| [Types](/html-next/types) | Plain-keyword value types cover strings, numbers, HTML value formats, and selected CSS values. An omitted prop with no default is `null`. |
 | [Validation](/html-next/validation) | A declared type is a constraint: a typed prop or data value that fails its type is invalid, through the validity model [HTML Forms](/html-forms) extends to every element, and styled with the native `:user-invalid`. |
 | [Style scoping](/html-next/styling) | A component's `<style>` applies to that component, using CSS `@scope`, scoping without the isolation cost of a shadow root. |
 | [The JavaScript layer](/html-next/javascript) | The escape hatch. When behavior genuinely needs code (a timer, a chart library), a separate ES-module *controller* attaches to the component. Definitions stay script-free. |

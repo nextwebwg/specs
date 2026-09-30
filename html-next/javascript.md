@@ -313,7 +313,7 @@ Take a dashboard, `<x-dashboard>` (component A), that reads metrics and renders 
     <h1 $value="title"></h1>
     <template $match>
       <p $when="metrics.pending">Loading…</p>
-      <x-chart $else :series="metrics.value.series"></x-chart>
+      <x-chart $else from:series="metrics.value.series"></x-chart>
     </template>
   </section>
 </template>

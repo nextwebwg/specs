@@ -12,7 +12,7 @@ Control flow is a family of **marked directives on ordinary elements**: `$each`,
 
 ## Structural directives
 
-A structural directive is a `$`-prefixed attribute. It goes on the element it applies to, or on a `<template>` to apply to a group of siblings. The `$` is deliberate: bindings (`:x`, `bind:x`, `on:x`) set or wire *values*; a `$` directive changes *whether, how many times, or in what scope* markup is produced. At lowering the directive is evaluated and **removed**, so it never appears in the output (rendered DOM, compiled component, or serialized HTML alike), which is why its attribute name is free to be a directive.
+A structural directive is a `$`-prefixed attribute. It goes on the element it applies to, or on a `<template>` to apply to a group of siblings. The `$` is deliberate: bindings (`from:x`, `bind:x`, `on:x`) set or wire *values*; a `$` directive changes *whether, how many times, or in what scope* markup is produced. At lowering the directive is evaluated and **removed**, so it never appears in the output (rendered DOM, compiled component, or serialized HTML alike), which is why its attribute name is free to be a directive.
 
 ```html
 <li $each="p of products">…</li>          <!-- iterate this element -->
@@ -192,7 +192,7 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 </tbody></table>
 
 <select>
-  <option $each="o of opts" :value="o.id" $value="o.label"></option>
+  <option $each="o of opts" from:value="o.id" $value="o.label"></option>
 </select>
 
 <!-- a fragment (several siblings) rides a <template> -->

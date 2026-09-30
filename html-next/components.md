@@ -33,7 +33,7 @@ A component is defined by a native `<template component="tag">`. There is no cus
 </template>
 ```
 
-The interface is **declarative HTML**, not a data island. A `<prop>` states only what markup cannot already say: type, default, requiredness, description; its *target* is read from the `:attribute`/`.property` binding and the native element from the markup root, so neither is restated. The invocation tag comes from the `component` attribute; a single hyphen keeps it collision-safe against native elements without registering a custom element. A compiler lowers all of this to a normalized JSON contract as build output (CSP-safe, no `eval()`, inspectable by docs and tooling), but JSON is the compiled artifact, never the authoring form.
+The interface is **declarative HTML**, not a data island. A `<prop>` states only what markup cannot already say: type, default, requiredness, description; its *target* is read from the `from:attribute`/`.property` binding and the native element from the markup root, so neither is restated. The invocation tag comes from the `component` attribute; a single hyphen keeps it collision-safe against native elements without registering a custom element. A compiler lowers all of this to a normalized JSON contract as build output (CSP-safe, no `eval()`, inspectable by docs and tooling), but JSON is the compiled artifact, never the authoring form.
 
 > [!note] Prop declarations follow platform precedents
 > `values` follows JSON Schema's finite-value constraint[^1]; `default` follows XML Schema's `default` attribute[^2]; `required` is the HTML boolean attribute of the same name[^3]; and a prop's description is its element text, as with `<option>`.
@@ -97,7 +97,7 @@ Every lowered root carries one provenance attribute, `data-component`, injected 
 
 Alongside `data-component`, every **serializable prop** the author supplied is recorded on the root as `data-<name>`. Defaults are not recorded, except where the template binds `data-<name>` itself (see [Rendered form](/html-next/rendered-form), open questions). The two together make the invocation **fully reconstructable from the DOM**: `data-component` names which component, the `data-*` attributes carry what it was invoked with, so replacing `<x-button>` with a native `<button>` loses no information. The attribute string plus the prop's declared type round-trips losslessly, so no separate value channel is needed; structured (object/array) props are bound by reference and carried as JSON in the payload instead of reflected per-attribute. Reflection is uniform even when a prop also maps to a native attribute, so `data-*` is always the complete record. See [Types](/html-next/types).
 
-The record is **output**. The invocation is replaced when it lowers, so no element remains whose attributes could change: a literal attribute on the invocation is the prop's **initial configuration**. Afterwards a prop changes only through a binding, a parent template's `:name` on the invocation or the props a framework passes, and the record follows it. Only hydration reads the record back; once a root is lowered or hydrated, writing a `data-<name>` attribute does not change the prop. What a component renders also changes through its own state and `<data>`.
+The record is **output**. The invocation is replaced when it lowers, so no element remains whose attributes could change: a literal attribute on the invocation is the prop's **initial configuration**. Afterwards a prop changes only through a binding, a parent template's `from:name` on the invocation or the props a framework passes, and the record follows it. Only hydration reads the record back; once a root is lowered or hydrated, writing a `data-<name>` attribute does not change the prop. What a component renders also changes through its own state and `<data>`.
 
 The stamp is also what makes hydration an **adopt-in-place**, not a rebuild. An implementation lowers where it finds an `<x-button>` invocation, and *adopts* where it finds an already-lowered `[data-component]` root: it binds reactivity and events onto the existing node instead of recreating it. An SSR'd tree therefore hydrates with no replacement and no flicker, and a client-only page lowers to the same result. The only difference is a pre-lowering moment that exists only client-side, where the unknown `<x-button>` shows its children inline; SSR skips it.
 
@@ -129,10 +129,10 @@ A slot may expose data to the content projected into it. The definition binds sl
 
 ```html
 <!-- definition: a list that owns iteration, slots each row out -->
-<slot $each="row of rows" $key="row.id" name="row" :item="row" :index="loop.index"></slot>
+<slot $each="row of rows" $key="row.id" name="row" from:item="row" from:index="loop.index"></slot>
 
 <!-- use: the template's scope is { item, index } -->
-<x-list :rows="people">
+<x-list from:rows="people">
   <template slot="row"><td $value="item.name"></td></template>
 </x-list>
 ```
@@ -159,7 +159,7 @@ Native `<template>` has no `src`, so HTML Next defines it: `<template src="…">
 When the component to render is decided at runtime, `<component is="expr">` resolves the tag from an expression, the name and syntax taken verbatim from Vue `<component :is>` (Svelte `<svelte:component>` and Angular `NgComponentOutlet` are the same idea).[^8] Props and children pass through as with a literal invocation.
 
 ```html
-<component is="block.type" :data="block"></component>
+<component is="block.type" from:data="block"></component>
 ```
 
 ### <portal to>: render elsewhere
@@ -310,7 +310,7 @@ Placement
 : a flat child of `<defs>` (no `<props>` wrapper); the public interface is the set of `<prop>` elements there
 
 Inferred
-: target from the first `:attribute`/`.property` binding; not restated on the prop. A prop may be bound in more places; those only render it.
+: target from the first `from:attribute`/`.property` binding; not restated on the prop. A prop may be bound in more places; those only render it.
 
 Level
 : [L1]{.pill .l1}

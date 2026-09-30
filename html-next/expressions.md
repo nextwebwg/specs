@@ -12,12 +12,12 @@ A small, pure, typed expression language (**not JavaScript in a string**) plus s
 
 ## The expression language
 
-Expressions appear in bindings (`:x`, `bind:x`), in language-element attributes (`test`, `of`, `each`), and in `<value of>`. Every root identifier [must]{.kw} resolve through the template's declared binding scope: props, state, computed values, data, imports, loop locals. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
+Expressions appear in bindings (`from:x`, `bind:x`), in language-element attributes (`test`, `of`, `each`), and in `<value of>`. Every root identifier [must]{.kw} resolve through the template's declared binding scope: props, state, computed values, data, imports, loop locals. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
 
 ```html
 <!-- Expressions look like this: plain reads, comparisons, and arithmetic. -->
 <p $if="user.isAdmin">…</p>                        <!-- a boolean guard -->
-<progress :value="cart.items.length"></progress>  <!-- a bound value -->
+<progress from:value="cart.items.length"></progress>  <!-- a bound value -->
 <value of="(price - discount) * 1.08"></value>     <!-- arithmetic, no filters -->
 ```
 
@@ -76,7 +76,7 @@ array     := "[" (expr ("," expr)* ","?)? "]"
 
 Conventional precedence with parentheses. Equality, missing data, truthiness, and coercion are specified explicitly (see **Value semantics**, next) rather than inherited from JavaScript or any template language.
 
-`test ? yes : no` tests the same truthiness as `$if`, evaluates only the selected branch, and returns that branch's value without coercion. It is for a small inline value choice, such as `:aria-current="activeStep = number ? 'step' : null"`; use `$match` when whole markup differs. All three branches participate in static name and dependency checks.
+`test ? yes : no` tests the same truthiness as `$if`, evaluates only the selected branch, and returns that branch's value without coercion. It is for a small inline value choice, such as `from:aria-current="activeStep = number ? 'step' : null"`; use `$match` when whole markup differs. All three branches participate in static name and dependency checks.
 
 Equality and string matching are spelled the way **CSS attribute selectors** already spell them. The language is assignment-free, so a single `=` means *equal* with nothing to disambiguate it from, and the selector match family carries over directly:
 
@@ -95,7 +95,7 @@ Equality, missing data, truthiness, and coercion are defined here explicitly, so
 
 ### The absent value
 
-Reading a property that is not present at runtime, `order.error.message` when `error` is null, yields a single first-class **absent value** rather than an error, and further access on it is absent too, safe navigation everywhere. The absent value behaves consistently in every position: it renders as **empty text**, reads as **false** in a condition, and **removes the attribute** in `:attr` position, exactly the serialization already defined for `null`/`undefined` (see [Bindings](/html-next/bindings)). It also **propagates**: any operation with an absent operand is itself absent, the way an invalid value invalidates a whole CSS declaration[^7] and a SQL `NULL` propagates through an expression.
+Reading a property that is not present at runtime, `order.error.message` when `error` is null, yields a single first-class **absent value** rather than an error, and further access on it is absent too, safe navigation everywhere. The absent value behaves consistently in every position: it renders as **empty text**, reads as **false** in a condition, and **removes the attribute** in `from:attr` position, exactly the serialization already defined for `null`/`undefined` (see [Bindings](/html-next/bindings)). It also **propagates**: any operation with an absent operand is itself absent, the way an invalid value invalidates a whole CSS declaration[^7] and a SQL `NULL` propagates through an expression.
 
 > [!note] Absent is runtime; undeclared is an error
 > The absent value covers *data* gaps, a field a fetch did not return. It is distinct from an *undeclared root identifier*, a name that resolves to nothing in the component scope: that is a typo or a reach for an ambient global, and it is a conformance error (see Scope & name resolution above), never silently absent. Structure is checked; data is tolerated.
@@ -143,7 +143,7 @@ The grammar includes literal **object** and **array** expressions for structured
 <state name="filter" :value="{ status: currentStatus, limit: 10 }">
 ```
 
-A declared structured prop can parse a fixed object or array from a plain attribute, as `rows` does above. A `:` binding evaluates an expression and may read other values, as `:value` does. The plain attribute accepts literal contents; use `:` when a value comes from a binding.
+A declared structured prop can parse a fixed object or array from a plain attribute, as `rows` does above. A `from:` binding evaluates an expression and updates when the values it reads change. The plain attribute accepts literal contents; use `from:` when a value comes from a binding.
 
 Two rules keep them unambiguous, and both reuse positions defined elsewhere rather than inventing new ones:
 

@@ -325,7 +325,7 @@ A declares its dependency on B with `<link rel="component">` and mentions no scr
 <!-- /components/b.html — declarative markup plus its controller dependency. -->
 <template component="x-chart" controller="./b.js">
   <defs>
-    <prop name="series" type="array" required>The data to plot.</prop>
+    <prop name="series" type="list" required>The data to plot.</prop>
   </defs>
 
   <figure>

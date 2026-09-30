@@ -7,24 +7,18 @@ eyebrow: Declarative HTML Components
 
 # Types
 
-A type names the kind of value a component accepts or produces. Base types have plain keyword names. A declaration such as `type="number"` determines how a prop's value is parsed and validated. Constraints such as `values` and `pattern` can further restrict that type.
-
-HTML already applies rules like these inside its elements: an attribute can select a control mode, and that mode changes which values are valid and how the control handles them. Declarative Components lets authors state comparable rules for their own components. The declaration makes the parsing, permitted values, and dependencies available to the browser runtime, build tools, and generated TypeScript APIs instead of leaving them implicit in component code. A component's parsed JavaScript prop value follows its declared type; this does not change the native DOM definition of properties such as `HTMLInputElement.value`.
-
-Component authors have often put missing behavior in JavaScript because code can implement any rule. That leaves rules such as permitted keywords, dates, colors, and lengths inside each component's code. HTML already defines many value formats and parsing rules; CSS defines a broad vocabulary of typed values and property grammars.[^1][^16] These declarative vocabularies describe domain values more precisely than JavaScript's built-in primitive types alone. This proposal gives component authors a way to declare those rules where tools and other authors can inspect them, while JavaScript remains available for behavior that needs code.
+A declared type tells Declarative Components how to read a value written in HTML and what JavaScript value to give the component.
 
 ```html
-<defs>
-  <prop name="label" type="string"></prop>
-  <prop name="tag" type="keyword"></prop>
-  <prop name="count" type="integer"></prop>
-  <prop name="ratio" type="number"></prop>
-</defs>
+<prop name="count" type="integer"></prop>
+<x-counter count="3"></x-counter>
 ```
+
+Here the written `count="3"` becomes the number `3` in `host.state.count`. Type names are plain keywords; `values` and `pattern` can further limit what the component accepts.
 
 ## Base value types
 
-The basic value types come first, followed by values defined by HTML and CSS. Each type has one name and one meaning.
+Each type has one name and one meaning.
 
 | Type | Example | Description |
 | --- | --- | --- |
@@ -47,7 +41,10 @@ The basic value types come first, followed by values defined by HTML and CSS. Ea
 | `percentage` | `25%` | A CSS percentage value, kept in its serialized string form.[^9] |
 | `duration` | `200ms`, `1.5s` | A CSS time value, kept in its serialized string form.[^9] |
 
-In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop values are JavaScript `Number` values. For a component invoked with `ratio="0.3"` and declaring `<prop name="ratio" type="number">`, a controller reads `host.state.ratio` as `0.3`.
+> [!note] Declared type rules
+> HTML already parses formats such as dates and URLs, and control modes change which values are valid. CSS defines colors, lengths, and other value grammars.[^1][^16] JavaScript can implement these rules, but putting them only in component code hides them from the browser runtime, build tools, and generated TypeScript. Declarations expose the rules without changing native DOM properties such as `HTMLInputElement.value`.
+
+In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop values are JavaScript `Number` values. A written `ratio="0.3"` therefore becomes the number `0.3` in `host.state.ratio` when `ratio` is declared as `number`.
 
 ## Finite choices
 
@@ -72,43 +69,34 @@ HTML's `pattern` attribute provides a regular-expression constraint for text val
 <!-- Accepts ABC-1234. -->
 ```
 
-## Lists
+## Lists and their written forms
 
-A `+` suffix declares one or more space-separated values. A `#` suffix declares one or more comma-separated values, following CSS value definition syntax.[^12] Each item must satisfy the named base type. For `keyword`, the declarations are:
+Every list has one item type. These three declarations all produce a JavaScript array of keywords; they differ in how the value is written in an HTML attribute:
 
-| Type | Written value | JavaScript value |
+| Declared type | Written value | JavaScript value |
 | --- | --- | --- |
+| `list(keyword)` | `['red', 'blue']` | `["red", "blue"]` |
 | `keyword+` | `red blue` | `["red", "blue"]` |
 | `keyword#` | `red, blue` | `["red", "blue"]` |
 
-```html
-<prop name="space-tags" type="keyword+"></prop>
-<prop name="comma-tags" type="keyword#"></prop>
-```
-
-The separator is part of the written value; a component receives an array of parsed items in JavaScript. A comma-separated list may have whitespace around each comma. An empty item is invalid.
+`list(T)` uses a bracketed value, accepts an empty list (`[]`), and can give its items a structured type such as `object({ id: number })`. `keyword+` and `keyword#` are shorter written forms for **one or more keywords**: space-separated and comma-separated, respectively, following CSS value definition syntax.[^12] They do not change the JavaScript representation. Whitespace around a comma is allowed; an empty item is invalid.
 
 ## Structured values
 
-`object({ ... })` describes named fields and `list(T)` describes an array whose items have type `T`:
+`object({ ... })` describes named fields; `list(T)` requires every list item to have type `T`:
 
 ```html
 <prop name="point" type="object({ x: number, y: number })"></prop>
 <prop name="rows" type="list(object({ id: number, name: string }))"></prop>
 ```
 
-These values are JavaScript objects and arrays, not delimited strings. The same shapes can be declared with nested `<prop>` elements when fields need their own declarations. In that form, `object` contains named fields and `array` contains one item declaration. A nested scalar field can use `values` to restrict that field without changing its base type:
+These values are written as object and bracketed list literals and become JavaScript objects and arrays. When a field needs its own `values`, `required`, `nullable`, or description, expand the shape into nested `<prop>` declarations. Write `type="list"` with one unnamed child `<prop>` for its item type. This expanded declaration describes the same `rows` type as `list(object({ id: number, name: string }))` above:
 
 ```html
-<prop name="point" type="object">
-  <prop name="x" type="number" required></prop>
-  <prop name="y" type="number" required></prop>
-</prop>
-
-<prop name="rows" type="array">
+<prop name="rows" type="list">
   <prop type="object">
-    <prop name="id" type="number"></prop>
-    <prop name="name" type="string"></prop>
+    <prop name="id" type="number" required></prop>
+    <prop name="name" type="string" required></prop>
   </prop>
 </prop>
 ```
@@ -122,7 +110,7 @@ The same field declarations describe event details and structured state values:
   <prop name="previous" type="string" required nullable></prop>
 </event>
 
-<state name="history" type="array" :value="[]">
+<state name="history" type="list" :value="[]">
   <prop type="object">
     <prop name="trigger" type="keyword" values="keyboard, pointer, programmatic" required></prop>
   </prop>
@@ -134,7 +122,7 @@ Each nested field is checked when the object or array is checked. `required` mea
 A shared or external schema can instead be referenced with `schema`, using JSON Schema:[^13]
 
 ```html
-<prop name="rows" type="array" schema="/schemas/rows.json"></prop>
+<prop name="rows" type="list" schema="/schemas/rows.json"></prop>
 ```
 
 JSON Schema also has `enum` for a fixed set of values. An object schema can use it to constrain one field, and an enum can contain values of different JSON types.[^14] This JSON document is a schema, not an authored component value:
@@ -162,7 +150,7 @@ Bare keys, single-quoted strings, and trailing commas are allowed in both forms.
 
 ## Types selected by a prop or state value
 
-A component can declare a prop whose type depends on the value of a declared prop or state value. The selector has one base type and a finite `values` constraint. Each permitted value selects one type for the dependent prop. The dependent prop remains declared in every case and resolves to `null` when omitted without a default.
+A component can select a prop's type from the current value of another declared prop or state value. For example, a `type` prop can select whether `value` is a string or a number.
 
 An inline `<type>` belongs to the prop whose type varies:
 
@@ -191,11 +179,23 @@ The same type can be named once under `<defs>` and referenced by a declaration's
 </defs>
 ```
 
-`from` looks up one declared prop or state value by name; it does not evaluate an expression. Each `<option value>` is parsed through the selector's declared type and must match one of its permitted values. Every permitted value must have exactly one option. An invalid `values` constraint cannot serve as a selector, so this declaration is an error. A selecting prop must be required or have a default; its effective value selects the type before any dependent value is parsed, regardless of attribute order. A selecting state uses its initialized value. A `null` selector permits only `null` for the dependent prop, because no option is selected. A dependent prop can declare a default only when its selector is a prop with a default; that value must satisfy the selected type.
+### Selection rules
 
-Plain HTML attributes are parsed against the selected type. Thus `type="number" value="2.5"` gives the component a JavaScript number, while `type="text" value="2.5"` gives it a string. Bound values retain their JavaScript type and must satisfy the selected option. A selecting prop can itself be bound, as in `<x-input from:type="mode" from:value="entry"></x-input>`; when `mode` changes, the dependent type is selected again. Changing the selecting prop and its dependent prop together checks the resulting pair; a previously supplied dependent value that does not satisfy a newly selected type is invalid.
+The selector has one base type and a finite `values` constraint:
 
-Generated TypeScript types preserve the relationship when the selector is a public prop: a numeric `type` accepts a number or `null` as `value`, and the default text type accepts a string or `null`. A named type reference and an inline `<type>` produce the same contract.
+- `from` names one declared prop or state value. It is a name lookup, not an expression.
+- Each permitted selector value needs exactly one `<option>`. The option's `value` is parsed as the selector's base type. An invalid `values` constraint makes the type declaration invalid.
+- A selecting prop must be `required` or have a default. Its effective value selects the type before the dependent attribute is parsed, regardless of attribute order. A selecting state uses its initialized value.
+- The dependent prop exists for every option. It is `null` when omitted without a default. A `null` selector also permits only a `null` dependent value because it selects no option.
+- A dependent prop may have a default only when its selector is a prop with a default. That dependent default must satisfy the selected type.
+
+### Reading and changing values
+
+Plain attributes are parsed using the selected type. With the declaration above, `type="number" value="2.5"` produces the JavaScript number `2.5`; `type="text" value="2.5"` produces the string `"2.5"`.
+
+- Bound values keep their JavaScript type and must satisfy the selected option. For example, `<x-input from:type="mode" from:value="entry"></x-input>` can read two reactive values.
+- When the selector changes, the dependent type is selected again. Changing both values together checks the resulting pair. A previously supplied non-null dependent value that fails the new type is invalid; the component reports a type error instead of converting it.
+- Generated TypeScript preserves the relationship for a public prop selector: `type="number"` accepts a number or `null` for `value`, while `type="text"` accepts a string or `null`. Inline and named `<type>` declarations produce the same contract.
 
 ### Selecting from state
 
@@ -214,7 +214,7 @@ The same name lookup can select from state:
 </defs>
 ```
 
-When a selecting prop or state value changes, the type is selected again. A non-null dependent value that does not satisfy the new type is invalid; the component reports a type error rather than changing that value. A caller cannot know an internal state selector from the invocation alone, so generated TypeScript exposes the JavaScript representations of all its options while runtime validation checks the active option. Here that public type is `string | number | null`.
+The same selection rules apply as `mode` changes. A caller cannot know an internal state selector from the invocation alone, so generated TypeScript exposes all option types while runtime validation checks the active one. Here `value` has the public type `string | number | null`.
 
 ## Null and missing values
 

@@ -15,6 +15,16 @@ runs it over every chapter and fails on anything it cannot place.
 
 ## Page structure
 
+Write for someone scanning the rendered page:
+
+- Open a section with one short sentence that states its rule or purpose.
+- Show the smallest concrete example before explaining edge cases.
+- Put independent rules in bullets, and compare parallel forms in a table.
+- Use subheadings when a section covers distinct tasks or stages. Avoid stacking long paragraphs after a code sample.
+- Keep normative behavior in the chapter; use callouts for context, examples, or unresolved questions.
+
+The [Types chapter](/html-next/types) demonstrates the pattern with a type table, side-by-side written forms, and separate selection and update rules.
+
 Each file starts with YAML frontmatter, then its title and lede:
 
 ```md

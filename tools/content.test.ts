@@ -13,7 +13,7 @@ const modules = chapters.filter((name) => name !== "index");
 test("the type system separates base types, permitted values, and selected types", () => {
   const types = chapter("types");
 
-  assert.match(types, /Base types have plain keyword names/);
+  assert.match(types, /Type names are plain keywords/);
   assert.match(types, /The `values` attribute limits a prop to a comma-separated set of values of its declared type/);
   assert.match(types, /<prop name="size" type="keyword" values="sm, md, lg"/);
   assert.match(types, /<type from="type">/);

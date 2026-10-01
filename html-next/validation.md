@@ -57,9 +57,13 @@ A prop's declared type and its constraint attributes (see [Types](/html-next/typ
 | the type's parser | it cannot be parsed as the type | `badInput` or `typeMismatch` |
 | a JSON Schema rule | a rule with no reason above fails | the schema keyword, with the failing value's `path` |
 
-A definition's `default` is checked when the definition is compiled. A malformed constraint is a declaration error in build tools; the live parser warns and ignores that constraint. A supplied value that has the declared type but fails a constraint, such as a number above `max`, becomes the current value and sets validity. It does **not** produce a console warning, whether it came from a literal or a reactive binding.
+Invalid declarations and supplied values have different effects:
 
-An invalid **directly supplied** value is also retained at its source. If `amount="oops"` cannot be parsed as a number, the component retains that written value, reports `badInput` or `typeMismatch`, and still mounts so the author can correct it. A user's edit stays in the native control's editing surface and its validity reports the failure. A later typed binding that reads either source is a separate operation: if its evaluated result fails its destination's type, it does not write to that destination. See [Invalid reactive results](/html-next/reactivity#invalid-reactive-results).
+- **Definition:** A `default` must satisfy its type and constraints when the definition is compiled. Build tools reject a malformed constraint; the live parser warns and ignores that constraint.
+- **Value outside a constraint:** A supplied number above `max` is still a number. It becomes the prop's current value and sets `rangeOverflow`. Ordinary constraint failures do not produce console warnings, whether the value is literal or comes from a reactive binding.
+- **Value that cannot be parsed:** If a number prop is supplied as `amount="oops"`, it keeps `"oops"` as its current invalid value and reports `badInput` or `typeMismatch`. The component still mounts, but its template decides what appears; the invalid text is not automatically displayed. A user's edit in a native control likewise remains in that control's editing surface, where its validity reports the failure.
+
+Reading either invalid source in a typed binding is a separate operation. If the result fails the destination's type, the binding does not write to that destination. See [Invalid reactive results](/html-next/reactivity#invalid-reactive-results).
 
 Validity at a destination describes its **current value**, not an attempted value that a binding skipped. For example, if a number prop currently holds `2` and a binding next evaluates to the string `"oops"`, the prop stays `2`; that attempt does not make the destination's `validity` fail. The source's own invalidity remains observable. A statically provable mismatch in an authored expression is a build error; a live implementation may warn about a malformed authored expression, but ordinary invalid data must not generate repeated console warnings.
 

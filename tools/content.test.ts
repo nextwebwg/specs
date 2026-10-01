@@ -57,8 +57,9 @@ test("invalid reactive results keep the last accepted destination value", () => 
   assert.doesNotMatch(reactivity, /items\[0\]\.name|results\[0\]\.title/);
   assert.match(chapter("expressions"), /\$items\.0\.name[\s\S]*?items\.0\.name/);
   assert.match(chapter("expressions"), /\$items\[0\]\.name` is invalid/);
-  assert.match(validation, /value that has the declared type but fails a constraint[\s\S]*?becomes the current value/);
-  assert.match(validation, /invalid \*\*directly supplied\*\* value is also retained at its source/);
+  assert.match(validation, /supplied number above `max`[\s\S]*?becomes the prop's current value/);
+  assert.match(validation, /number prop is supplied as `amount="oops"`[\s\S]*?keeps `"oops"` as its current invalid value/);
+  assert.match(validation, /template decides what appears; the invalid text is not automatically displayed/);
   assert.match(validation, /Validity at a destination describes its \*\*current value\*\*/);
   assert.match(bindings, /function call[\s\S]*?full sequence/);
 });

@@ -33,6 +33,45 @@ A `<state>` uses the same type syntax as a prop (see [Types](/html-next/types)).
 
 `value` supplies a constant initial state value, parsed through the declared type. It does not establish the type when `type` is omitted. A handler's `<set value>` likewise writes a typed constant, while `<set expr:value>` evaluates an expression when the handler runs. A `<computed from>` is different: it stays subscribed to the values it reads. [Bindings & Events](/html-next/bindings#constant-action-time-and-computed-values) compares all three value forms.
 
+## Invalid reactive results
+
+A live expression evaluates when its dependencies change. Each evaluation proposes a value for its destination. If the value does not have the destination's declared type, the evaluation **does not write**. The destination keeps the value from its most recent successful write. If no evaluation has written successfully, it keeps its declared default, or `null` when there is no default. The invalid evaluation does not notify dependents of a value change or trigger an effect that requires that new value. The binding stays subscribed: a later valid result writes normally.
+
+For an object or list, the immediate type check asks whether the result is an object or list. Nested fields are checked when expressions read those fields. A wrong-typed `items.0.name` therefore leaves that particular binding at its last value while another binding can still read a valid `items.0.id` from the same new list. This matches the typed-reference rule for `<data>` below; one bad field does not discard its siblings.
+
+The source is not rolled back. A form control keeps the user's edit under its native rules, a component retains a directly supplied invalid prop for correction, and a `<data>` resource keeps the response it received. Only the attempted downstream write is skipped. This is different from a **well-typed** result that fails `min`, `max`, `values`, or another value constraint: that result is written, and the destination reports its invalidity (see [Validation](/html-next/validation)). A missing value is also different from a present value of the wrong type; [absence](/html-next/expressions#the-absent-value) has its ordinary empty/removal behavior.
+
+For example, the outer component accepts a directly supplied value. The inner component has a number prop with a default, and its invocation binds that prop to the outer value:
+
+```html
+<template component="x-reading">
+  <defs><prop name="amount" type="number" default="5">Reading.</prop></defs>
+  <output from:data-amount="$amount"></output>
+</template>
+
+<template component="x-reading-owner">
+  <defs><prop name="incoming" type="number">Source value.</prop></defs>
+  <x-reading from:amount="$incoming"></x-reading>
+</template>
+
+<x-reading-owner incoming="oops"></x-reading-owner>
+```
+
+The authored invocation supplies the first value. The owner then updates its `incoming` prop through its framework adapter. `"oops"` is shown in quotation marks to make clear that it is a string, not a number:
+
+| Action | Outer `incoming` | Inner `amount` | What runs |
+| --- | --- | --- | --- |
+| Create the owner with `incoming="oops"` | `"oops"` | `5` | The outer prop keeps the invalid literal and reports validity. The binding's first evaluation is invalid, so the inner default remains. |
+| Supply `2` | `2` | `2` | The binding writes; dependents of `amount` update. |
+| Supply `"oops"` | `"oops"` | `2` | The outer prop retains the invalid direct value and reports validity; the binding skips its write, so inner dependents do not update. |
+| Supply `7` | `7` | `7` | The binding writes; inner dependents update again. |
+
+If `"oops"` is the **first** evaluation, the inner `amount` stays at `5`. Remove `default="5"` from the inner declaration and it stays at `null` instead. An invalid evaluation never resets a destination that already accepted a value: after `2`, it stays at `2`, not `5` or `null`. The same sequence applies when an expression function returns a string for this number destination, or when a typed reference into a `<data>` response supplies the wrong kind of value.
+
+For a separate `string` prop named `label`, `from:label="abs($incoming)"` proposes a **number** when `incoming` is `2`. It does not write `2` into `label`: that prop keeps its last valid string, or its default. A build tool can flag this authored mismatch before the page runs; a permissive live implementation must still skip the write rather than throw. The source `incoming` stays `2`.
+
+For a one-time `<set expr:value>`, a result that fails the destination's immediate type skips that handler step's write; the state remains at its current value. A new list can still be written when one nested item has a wrong-typed field: references to that field become inert, while conforming fields remain readable. A `<computed from>` that reads a nonconforming typed reference keeps its last successfully computed value and does not publish a change. Before its first successful evaluation, the computed value is `null`. A directly edited control is different: its displayed input and native validity continue to reflect what the user entered even while a downstream typed destination keeps its last accepted value.
+
 ## Share state with descendant components
 
 A component can share a state value with components rendered inside it, including components supplied through a slot. This lets independently authored parts of a widget react to the same value without passing a prop through every component between them. A descendant declares which ancestor state it reads in its own `<defs>`; the ancestor's `<state>` needs no additional marker.
@@ -135,13 +174,33 @@ The endpoint answers with JSON. The payload becomes `search.value` as it arrived
 From there the result is ordinary reactive data: `search.pending` was true while the request was in flight, `search.value.results` now feeds the `$each` above, and `search.ok` is true. The last resolved value stays bound while the next read runs, so a refetch does not blank what the page already shows. Editing `query` again cancels the in-flight read before starting the next one, so a fast typist never renders an earlier answer over a later one.
 
 > [!norm] A reference conforms or it is inert
-> A declared type is checked where a reference is read, not where its value arrived. If `results[0].title` holds a number where the declaration says `string`, that reference cannot participate in reactivity: a binding reading it does not update and keeps what it last rendered, and a `<computed>` reading it does not recompute, so nothing downstream of it moves either. The payload is left exactly as the endpoint sent it, and references into its conforming parts keep working.
+> A declared type is checked where a reference is read, not where its value arrived. If `results.0.title` holds a number where the declaration says `string`, that reference cannot participate in reactivity: a binding reading it does not update and keeps what it last rendered, and a `<computed>` reading it does not recompute, so nothing downstream of it moves either. The payload is left exactly as the endpoint sent it, and references into its conforming parts keep working.
 >
 > This is distinct from absence. A property that is not there is absence, which renders as empty text and is a normal state for data that has not arrived. A property that is present but breaks its declared type is a broken contract: rather than rendering a value the declaration forbids, or discarding a response a page may be mid-way through using, the offending reference goes quiet and the violation is reported to the author.
 >
 > A declaration with no type constrains nothing, and `unknown` is the type every value satisfies. A closed object shape states that an undeclared field is not there, so a reference to one is a violation; an open shape (`...`) says nothing about fields it does not name, which is what a payload that may grow should declare.
 >
-> A direct value argument to `format(pattern, value, …)` is an explicit text-conversion position. `format('%s!', results[0].title)` can therefore render `42!` even when `title` is declared `string` and currently holds the number `42`. The declaration and payload do not change: an unformatted read of that same reference remains inert, and an expression nested inside the argument must satisfy its own operators before `format` can convert its result.
+> A direct value argument to `format(pattern, value, …)` is an explicit text-conversion position. `format('%s!', $results.0.title)` can therefore render `42!` even when `title` is declared `string` and currently holds the number `42`. The declaration and payload do not change: an unformatted read of that same reference remains inert, and an expression nested inside the argument must satisfy its own operators before `format` can convert its result.
+
+Here is the effect across three responses when `record.value.label` is declared `string`. The resource always keeps the latest payload; each binding decides separately whether its read conforms:
+
+```html
+<template component="x-record">
+  <defs><data name="record" src="/api/record" type="object({ label: string, note: string })"></data></defs>
+  <section>
+    <output class="label" $value="$record.value.label"></output>
+    <output class="note" $value="$record.value.note"></output>
+  </section>
+</template>
+```
+
+| Response | `.label` output | `.note` output |
+| --- | --- | --- |
+| `{ label: 'first', note: 'a' }` | `first` | `a` |
+| `{ label: 42, note: 'b' }` | `first` (last valid result) | `b` |
+| `{ label: 'third', note: 'c' }` | `third` | `c` |
+
+The second response does not turn the whole resource back to its first payload. It changes `record.value.note` to `b` and leaves only the invalid `label` read without a new output. When the third response restores a string label, that binding updates again.
 
 The outbound half is symmetrical. A body param of a synchronized write is serialized as request content rather than a query parameter, while a param consumed by the `src` template identifies the resource:
 

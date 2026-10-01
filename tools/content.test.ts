@@ -36,6 +36,33 @@ test("validation keeps polyfill details behind the platform surface", () => {
   assert.doesNotMatch(validation, /polyfilled as `\[data-invalid\]/);
 });
 
+test("invalid reactive results keep the last accepted destination value", () => {
+  const reactivity = chapter("reactivity");
+  const validation = chapter("validation");
+  const bindings = chapter("bindings");
+
+  assert.match(reactivity, /^## Invalid reactive results$/m);
+  assert.match(reactivity, /does not write[\s\S]*?most recent successful write/);
+  assert.match(reactivity, /declared default, or `null` when there is no default/);
+  assert.match(reactivity, /\| Supply `2` \| `2` \| `2` \|/);
+  assert.match(reactivity, /\| Supply `"oops"` \| `"oops"` \| `2` \|/);
+  assert.match(reactivity, /\| Supply `7` \| `7` \| `7` \|/);
+  assert.match(reactivity, /after `2`, it stays at `2`, not `5` or `null`/);
+  assert.match(reactivity, /\| `\{ label: 42, note: 'b' \}` \| `first` \(last valid result\) \| `b` \|/);
+  assert.match(reactivity, /\| `\{ label: 'third', note: 'c' \}` \| `third` \| `c` \|/);
+  assert.match(reactivity, /one-time `<set expr:value>`[\s\S]*?skips that handler step's write/);
+  assert.match(reactivity, /<computed from>[\s\S]*?last successfully computed value/);
+  assert.match(reactivity, /`items\.0\.name`/);
+  assert.match(reactivity, /\$results\.0\.title/);
+  assert.doesNotMatch(reactivity, /items\[0\]\.name|results\[0\]\.title/);
+  assert.match(chapter("expressions"), /\$items\.0\.name[\s\S]*?items\.0\.name/);
+  assert.match(chapter("expressions"), /\$items\[0\]\.name` is invalid/);
+  assert.match(validation, /value that has the declared type but fails a constraint[\s\S]*?becomes the current value/);
+  assert.match(validation, /invalid \*\*directly supplied\*\* value is also retained at its source/);
+  assert.match(validation, /Validity at a destination describes its \*\*current value\*\*/);
+  assert.match(bindings, /function call[\s\S]*?full sequence/);
+});
+
 test("reactivity defines the Signals boundary and lifecycle-owned JavaScript API", () => {
   const reactivity = chapter("reactivity");
   const javascript = chapter("javascript");

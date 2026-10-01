@@ -69,17 +69,16 @@ test("polymorphic roots use explicit native branches", () => {
   assert.match(components, /The prop does not retag an element/);
 });
 
-test("props are initial configuration and the data-* record is output", () => {
+test("props are initial configuration without required data-* reflection", () => {
   const components = chapter("components");
   const reactivity = chapter("reactivity");
 
-  assert.match(components, /The record is \*\*output\*\*/);
-  assert.match(components, /does not change the prop/);
+  assert.match(components, /A prop is input to that rendering; it is not automatically exposed as `data-<name>`/);
+  assert.match(components, /A literal attribute on the invocation supplies the prop's \*\*initial configuration\*\*/);
   assert.doesNotMatch(components, /effective value \(passed or default\)/);
   assert.doesNotMatch(reactivity, /This is `attributeChangedCallback`/);
-  // A parent's binding also changes a prop; the record is not limited to framework updates.
-  assert.match(components, /a parent template's `from:name` on the invocation/);
-  assert.match(components, /every \*\*serializable prop\*\* the author supplied/);
+  assert.match(components, /a parent template's `from:name` binding/);
+  assert.doesNotMatch(components, /data-variant="solid"/);
 });
 
 test("the baseline component contract includes the complete slot model", () => {

@@ -22,8 +22,8 @@ A component is defined by a native `<template component="tag">`. There is no cus
     <prop name="variant" type="keyword" values="outline, solid, destructive, ghost"
           default="outline">Visual treatment.</prop>
 
-    <state name="pending" :value="false">
-    <handler name="press"><dispatch event="press"></handler>
+    <event name="press"></event>
+    <handler name="press"><dispatch event="press"></dispatch></handler>
   </defs>
 
   <!-- the visible markup: one native root, referencing the defs by name -->
@@ -87,7 +87,7 @@ Lowering is **destructive and directional**. The `<template component>` is the d
 <x-button variant="solid">Save</x-button>
 
 <!-- output: identical whether lowered on the server or in the browser -->
-<button data-component="x-button" data-variant="solid">Save</button>
+<button data-component="x-button">Save</button>
 ```
 
 > [!norm] Determinism: one DOM, either path
@@ -95,9 +95,9 @@ Lowering is **destructive and directional**. The `<template component>` is the d
 
 Every lowered root carries one provenance attribute, `data-component`, injected by the implementation rather than authored. Its value is a **space-separated token list**, outermost invocation first, exactly like `class` or `rel`: a component that lowers straight to a native element carries a single token (`data-component="x-button"`), and one whose root is another component carries the whole lineage (`data-component="x-primary x-button"`). Each token is a component tag, so it resolves through the ordinary component registry, the loaded `<template component>` definitions keyed by tag, exactly the way `customElements` resolves a custom-element tag to its definition; no separate provenance format exists or is needed. Because it is deterministic, the stamp is identical under SSR and in-browser, and it composes across nested components and imported partials. How server output records slot boundaries and content no slot renders yet, so hydration rebuilds the same instance, is defined in [Rendered form & hydration](/html-next/rendered-form). Content projected through a `<slot>` is the consumer's, not the component's, so it keeps whatever provenance it already had and is never re-stamped as the enclosing component.
 
-Alongside `data-component`, every **serializable prop** the author supplied is recorded on the root as `data-<name>`. Defaults are not recorded, except where the template binds `data-<name>` itself (see [Rendered form](/html-next/rendered-form), open questions). The two together make the invocation **fully reconstructable from the DOM**: `data-component` names which component, the `data-*` attributes carry what it was invoked with, so replacing `<x-button>` with a native `<button>` loses no information. The attribute string plus the prop's declared type round-trips losslessly, so no separate value channel is needed; structured (object/array) props are bound by reference and carried as JSON in the payload instead of reflected per-attribute. Reflection is uniform even when a prop also maps to a native attribute, so `data-*` is always the complete record. See [Types](/html-next/types).
+The root's visible attributes come from the template, its bindings, and invocation attributes that pass through. A prop is input to that rendering; it is not automatically exposed as `data-<name>`. The reference runtime may carry prop data for hydration, but its storage format is not an authored or observable component contract. Recovering explicit prop values after server rendering remains a [rendered-form question](/html-next/rendered-form). See [Types](/html-next/types) for how authored values are parsed.
 
-The record is **output**. The invocation is replaced when it lowers, so no element remains whose attributes could change: a literal attribute on the invocation is the prop's **initial configuration**. Afterwards a prop changes only through a binding, a parent template's `from:name` on the invocation or the props a framework passes, and the record follows it. Only hydration reads the record back; once a root is lowered or hydrated, writing a `data-<name>` attribute does not change the prop. What a component renders also changes through its own state and `<data>`.
+A literal attribute on the invocation supplies the prop's **initial configuration**. Afterwards a prop changes through a parent template's `from:name` binding or the props a framework passes. Such a change updates bindings and state derived from that prop; it does not require a visible `data-<name>` attribute on the root.
 
 The stamp is also what makes hydration an **adopt-in-place**, not a rebuild. An implementation lowers where it finds an `<x-button>` invocation, and *adopts* where it finds an already-lowered `[data-component]` root: it binds reactivity and events onto the existing node instead of recreating it. An SSR'd tree therefore hydrates with no replacement and no flicker, and a client-only page lowers to the same result. The only difference is a pre-lowering moment that exists only client-side, where the unknown `<x-button>` shows its children inline; SSR skips it.
 
@@ -141,7 +141,7 @@ A slot may expose data to the content projected into it. The definition binds sl
 
 Each nested component has a logical parent: the component whose markup or slot outlet renders it. A component projected into a slot therefore sees the receiving component in its ancestry for [shared state](/html-next/reactivity); if content passes through more slots, each receiving component is in that chain. Its ordinary expressions still use the consumer's lexical scope, and its projected nodes keep their existing provenance rather than receiving the slot owner's `data-component` stamp. Context lookup and expression scope answer different questions.
 
-Moving a component's rendered nodes with `<portal>` keeps that logical ancestry. Moving the DOM nodes alone does not select a different state provider. The nearest ancestor that exposes the requested state cell supplies it, whether or not its native root is a DOM ancestor.
+Moving a component's rendered nodes with `<portal>` keeps that logical ancestry. Moving the DOM nodes alone does not select a different state ancestor. The nearest ancestor with the requested state cell supplies it, whether or not its native root is a DOM ancestor.
 
 ## Composition
 
@@ -262,7 +262,7 @@ Delegation still resolves to a single native element, transitively through the c
 <x-primary>Save</x-primary>
 
 <!-- lowers to a single native button, with the lineage preserved -->
-<button data-component="x-primary x-button" data-variant="solid">Save</button>
+<button data-component="x-primary x-button">Save</button>
 ```
 
 A delegating component forwards like any other lowering: its own declared props are applied through the bindings in its markup, template-owned attributes (here `variant="solid"`) take precedence, and any undeclared invocation attributes pass through to the delegated root and continue down the chain. Its `nativeElement` and native attribute surface are whatever the chain ultimately resolves to, so its generated types inherit that surface.

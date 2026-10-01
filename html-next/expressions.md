@@ -12,7 +12,7 @@ A small, pure, typed expression language (**not JavaScript in a string**) plus s
 
 ## The expression language
 
-Expressions appear in bindings (`from:x`, `bind:x`), in language-element attributes (`test`, `of`, `each`), and in `<value of>`. Every root identifier [must]{.kw} resolve through the template's declared binding scope: props, state, computed values, data, imports, loop locals. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
+Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`), language-element attributes (`test`, `of`, `each`), and `<value of>`. A handler evaluates `expr:value` only when that step runs; `from:x` and `<computed from>` keep their dependencies live. Every root identifier [must]{.kw} resolve through the template's declared binding scope: props, state, computed values, data, imports, loop locals. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
 
 ```html
 <!-- Expressions look like this: plain reads, comparisons, and arithmetic. -->
@@ -76,7 +76,7 @@ array     := "[" (expr ("," expr)* ","?)? "]"
 
 Conventional precedence with parentheses. Equality, missing data, truthiness, and coercion are specified explicitly (see **Value semantics**, next) rather than inherited from JavaScript or any template language.
 
-`test ? yes : no` tests the same truthiness as `$if`, evaluates only the selected branch, and returns that branch's value without coercion. It is for a small inline value choice, such as `from:aria-current="activeStep = number ? 'step' : null"`; use `$match` when whole markup differs. All three branches participate in static name and dependency checks.
+`test ? yes : no` tests the same truthiness as `$if`, evaluates only the selected branch, and returns that branch's value without coercion. It is for a small inline value choice, such as `from:aria-current="activeStep = index ? 'step' : null"`; use `$match` when whole markup differs. All three branches participate in static name and dependency checks.
 
 Equality and string matching are spelled the way **CSS attribute selectors** already spell them. The language is assignment-free, so a single `=` means *equal* with nothing to disambiguate it from, and the selector match family carries over directly:
 
@@ -132,23 +132,24 @@ Because `or` returns a boolean, and absence is not the same as empty, fallback h
 
 ## Object & array expressions
 
-The grammar includes literal **object** and **array** expressions for structured values, initializing state, passing structured data to a component. They resemble JSON and a JS object but are **neither**: an object expression is a production of this pure, typed language, evaluated deterministically with no `eval()`, whose values are ordinary expressions from this same grammar, not arbitrary JavaScript. In shape they are simply `{ [key: string]: Expression }` and `[...Expression]`, so they **nest recursively**: any value may itself be another object or array expression.
+The grammar includes **object** and **array** expressions for structured values. They resemble JSON and a JS object but are **neither**: an object expression is a production of this pure, typed language, evaluated deterministically with no `eval()`, whose values are ordinary expressions from this same grammar, not arbitrary JavaScript. In shape they are simply `{ [key: string]: Expression }` and `[...Expression]`, so they **nest recursively**: any value may itself be another object or array expression.
 
 ```html
-<state name="draft" :value="{ title: '', tags: [], done: false }">
+<state name="draft" type="object({ title: string, tags: list(string), done: boolean })"
+       value="{ title: '', tags: [], done: false }">
 
 <x-list rows="[{ id: 1, name: 'Ada' }, { id: 2, name: 'Lin' }]">
 
-<!-- key is attribute-position (bare = string); value is expression-position -->
-<state name="filter" :value="{ status: currentStatus, limit: 10 }">
+<!-- A computed object can read another declaration. -->
+<computed name="filter" from="{ status: currentStatus, limit: 10 }">
 ```
 
-A declared structured prop can parse a fixed object or array from a plain attribute, as `rows` does above. A `from:` binding evaluates an expression and updates when the values it reads change. The plain attribute accepts literal contents; use `from:` when a value comes from a binding.
+A declared structured prop or state can parse a fixed object or array from a plain attribute, as `rows` and `draft` do above. A `from:` binding or `<computed from>` evaluates an expression and updates when the values it reads change. A plain `value` attribute accepts literal contents.
 
 Two rules keep them unambiguous, and both reuse positions defined elsewhere rather than inventing new ones:
 
 - a **key** is *attribute-position*: a bare identifier and a quoted string are the same string key, so `{ open: … }` equals `{ 'open': … }`;
-- a **value** is *expression-position*: a bare word is a reference and quotes make a string literal, so `{ label: name }` reads state `name` while `{ label: 'name' }` is the literal string.
+- a **value inside an expression** may be a reference or a literal: `{ label: name }` reads `name`, while `{ label: 'name' }` contains the literal string. A plain typed attribute, including `<state value>`, accepts only literal values, so `{ label: name }` is invalid there.
 
 > [!note] Object expressions are the authoring syntax
 > **JSON** is the *wire* format: it mandates double quotes because it is for machines. A **JS object** literal would imply arbitrary JavaScript. An **object expression** is the *authoring* form, lighter than JSON (bare keys, single-quoted strings, trailing commas) and safer than JS (pure, typed, no calls). Structured values are authored as object expressions and serialized to JSON only when they cross a boundary (see [Types](/html-next/types)).

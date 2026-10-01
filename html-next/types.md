@@ -14,7 +14,7 @@ A declared type tells Declarative Components how to read a value written in HTML
 <x-counter count="3"></x-counter>
 ```
 
-Here the written `count="3"` becomes the number `3` in `host.state.count`. Type names are plain keywords; `values` and `pattern` can further limit what the component accepts.
+Here the written `count="3"` becomes the number `3` in `host.state.count`. Type names are plain keywords. A prop can also declare constraints on values of its type.
 
 ## Base value types
 
@@ -46,7 +46,21 @@ Each type has one name and one meaning.
 
 In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop values are JavaScript `Number` values. A written `ratio="0.3"` therefore becomes the number `0.3` in `host.state.ratio` when `ratio` is declared as `number`.
 
-## Finite choices
+## Value constraints
+
+Constraints narrow a declared type. They apply to `<prop>` declarations, including fields nested in an object or list. They do not change the JavaScript type of a valid value.
+
+| Attribute | Applicable types | Effect when the value fails |
+| --- | --- | --- |
+| `required` | Every type | A missing, `null`, or empty value sets `valueMissing`. |
+| `values` | Scalar types | A value outside the permitted set sets `typeMismatch`. |
+| `pattern` | `string`, `keyword`, `url`, `email` | A nonempty value that does not match sets `patternMismatch`. |
+| `minlength`, `maxlength` | `string`, `keyword`, `url`, `email` | A nonempty value outside the inclusive length bounds sets `tooShort` or `tooLong`. Length counts UTF-16 code units, as in HTML.[^17] |
+| `min`, `max` | `integer`, `number`, `date`, `month`, `week`, `time`, `datetime-local`, `datetime` | A nonempty value outside the inclusive bounds sets `rangeUnderflow` or `rangeOverflow`. Bounds use the declared type's written form. |
+
+An omitted optional prop resolves to `null`; constraints other than `required` do not reject it. An empty string also skips those constraints. A constraint that does not apply to its declared type, or has an invalid value, is ignored by the live parser with a declaration warning; build tools report a declaration error. A `default` must satisfy every applicable constraint. See [Validation](/html-next/validation) for the resulting validity state.
+
+### Finite choices
 
 The `values` attribute limits a prop to a comma-separated set of values of its declared type. Each item is parsed and checked against `type` before the constraint is applied. The prop keeps one type; `values` does not convert a value into another type. A TypeScript target can expose the allowed values as a literal union within that type. This follows HTML's enumerated attributes, whose permitted keywords are defined separately from the attribute's value syntax, and JSON Schema's `enum` constraint.[^14][^15]
 
@@ -60,14 +74,27 @@ The `values` attribute limits a prop to a comma-separated set of values of its d
 
 Whitespace around commas is ignored. An item that does not conform to `type` invalidates the whole `values` constraint, as though `values` were absent. Build tools, including the unplugin, report this as a declaration error. The live browser parser warns and ignores the constraint. A bound value must have the declared JavaScript type and match a permitted value. For `type="integer" values="1, 2, 3"`, `level="3"` and `from:level="3"` produce the number `3`; `from:level="'3'"` is invalid. All declared props still accept `null` unless required.
 
-## Pattern constraints
+### Text patterns and lengths
 
 HTML's `pattern` attribute provides a regular-expression constraint for text values. A declaration writes the pattern without `/` delimiters; the pattern must match the entire nonempty value. The value remains a string in JavaScript. `required` determines whether an empty or omitted value is allowed.[^10]
 
 ```html
 <prop name="sku" type="string" pattern="[A-Z]{3}-[0-9]{4}"></prop>
 <!-- Accepts ABC-1234. -->
+
+<prop name="handle" type="keyword" minlength="3" maxlength="24"></prop>
 ```
+
+### Ranges
+
+`min` and `max` compare values of the declared type. Neither attribute supplies a default or changes a value outside the range.
+
+```html
+<prop name="quantity" type="integer" min="1" max="100"></prop>
+<prop name="starts" type="datetime-local" min="2026-01-01T00:00"></prop>
+```
+
+An authored numeric bound is parsed as a number. Date and time bounds follow their type's written format. A date compares by calendar order; `datetime` compares instants using its UTC offset, while `datetime-local` compares local date and time without a time zone. The CSS dimension types (`length`, `percentage`, `duration`) have no `min` or `max` constraint here: comparing their written values would require unit conversion rules that these declarations do not define.
 
 ## Lists and their written forms
 
@@ -110,7 +137,7 @@ The same field declarations describe event details and structured state values:
   <prop name="previous" type="string" required nullable></prop>
 </event>
 
-<state name="history" type="list" :value="[]">
+<state name="history" type="list" value="[]">
   <prop type="object">
     <prop name="trigger" type="keyword" values="keyboard, pointer, programmatic" required></prop>
   </prop>
@@ -203,7 +230,7 @@ The same name lookup can select from state:
 
 ```html
 <defs>
-  <state name="mode" type="keyword" values="text, number" :value="'text'"></state>
+  <state name="mode" type="keyword" values="text, number" value="text"></state>
   <prop name="value">The current value.
     <type from="mode">
       <option value="text" type="string"></option>
@@ -251,3 +278,4 @@ Unions could allow more than one base type. An untagged union of `string` and `n
 [^14]: JSON Schema Validation, [the `enum` keyword](https://json-schema.org/draft/2020-12/json-schema-validation#name-enum).
 [^15]: WHATWG HTML, [keywords and enumerated attributes](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#keywords-and-enumerated-attributes).
 [^16]: CSS Values and Units Level 4, [value definition syntax](https://drafts.csswg.org/css-values-4/#value-defs).
+[^17]: WHATWG HTML, [the `minlength` and `maxlength` attributes](https://html.spec.whatwg.org/multipage/input.html#the-minlength-and-maxlength-attributes).

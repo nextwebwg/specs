@@ -43,7 +43,7 @@ This document specifies the component-authoring proposal in the [HTML Next colle
 <x-button variant="solid">Save</x-button>
 
 <!-- It becomes a real native button — no wrapper, no shadow root -->
-<button data-component="x-button" data-variant="solid">Save</button>
+<button data-component="x-button">Save</button>
 ```
 
 You author a component once, as literal browser-parseable HTML with an inert typed contract. A conforming implementation lowers it into idiomatic Vanilla&nbsp;DOM, React, Vue, and Svelte, or interprets the same source directly in Chromium, Firefox, and WebKit. One semantics, many backends.
@@ -123,7 +123,7 @@ A dependency graph you can read, type, and lower, not a runtime you're married t
 
 ##### This proposal's answer
 
-- Reactivity is a **declarative dependency graph** in markup: `<state>`, `<computed>`, `<data>`, and `:`/`bind:` bindings over a small pure expression language.
+- Reactivity is a **declarative dependency graph** in markup: `<state>`, `<computed>`, `<data>`, and `from:`/`bind:` bindings over a small pure expression language.
 - The graph is **statically analyzable**: dependencies are read off the parsed expression, not discovered at runtime.
 - One semantics, many backends: it lowers to React state, Vue refs, Svelte runes, or a signal-based browser runtime. **No `eval`**, CSP-clean.
 

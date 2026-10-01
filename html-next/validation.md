@@ -18,9 +18,12 @@ The same validation that already works on a form `<input>` works on any typed va
 <!-- a form control validates against its constraints, exactly as today -->
 <input bind:value="email" type="email" required>
 
-<!-- a typed component prop validates the same way, with no forms library -->
-<!-- x-age-field declares its value prop as number -->
-<x-age-field from:value="draft.age" min="0" max="120">
+<!-- a component definition declares the bounds on its own prop -->
+<template component="x-age-field">
+  <defs><prop name="age" type="integer" min="0" max="120">Age.</prop></defs>
+  <div from:data-age="age"></div>
+</template>
+<x-age-field from:age="draft.age"></x-age-field>
 
 <!-- structured data validates against a schema; failures carry a path -->
 <data name="profile" src="/api/me" schema="/schemas/profile.json">
@@ -30,14 +33,14 @@ The same validation that already works on a form `<input>` works on any typed va
 
 This chapter does not define a validity model of its own. [HTML Forms Level&nbsp;1](/html-forms#constraint-validation-on-any-element) defines one for any element with a value:
 
-- `el.validity` as a list of reasons (`missing`, `type`, `range`, …), each with a message and optionally a path;
+- `el.validity` with named flags such as `valueMissing`, `rangeOverflow`, and `tooShort`, plus a list of errors with messages and optional paths;
 - `el.validate()` and `el.setValidity(errors)`;
 - the `invalid` event, `validationMessage`, and `:valid`, `:invalid`, and `:user-invalid`.
 
 That model leaves open where an element's constraints come from. A native `<input>` takes them from its attributes. A component takes them from its declared types, which is what this chapter defines.
 
 > [!note] Included in the reference implementation
-> The [`html-next` implementation repository](https://github.com/nextwebwg/html-next) includes this validation layer today. Its `validate(value, constraint)` function checks required values, scalar types, finite choices, ranges, lengths, patterns, and steps, and it returns the reason list HTML Forms defines. Authors use the proposed surface; the implementation handles browser compatibility.
+> The [`html-next` implementation repository](https://github.com/nextwebwg/html-next) includes a pure `validate(value, constraint)` helper and a generalized validity surface. Authored prop constraints use the same named failures as HTML's `ValidityState`.[^2] Authors use the proposed surface; the implementation handles browser compatibility.
 
 ## The type is the constraint
 
@@ -45,16 +48,18 @@ A prop's declared type and its constraint attributes (see [Types](/html-next/typ
 
 | Declared | A value fails when | Reason |
 | --- | --- | --- |
-| `required` | it is empty | `missing` |
-| the type (`number`, `color`, etc.) | it is the wrong kind of value | `type` |
-| `min` / `max` | it is out of range | `range` |
-| `minlength` / `maxlength` | it is too short or too long | `length` |
-| `pattern` | it does not match | `pattern` |
-| `step` | it is off the step grid | `step` |
-| the type's parser | it cannot be parsed as the type | `unparseable` |
+| `required` | it is empty | `valueMissing` |
+| the type (`number`, `color`, etc.) | it is the wrong kind of value | `typeMismatch` |
+| `values` | it is outside the permitted set | `typeMismatch` |
+| `min` / `max` | it is below or above the bound | `rangeUnderflow` / `rangeOverflow` |
+| `minlength` / `maxlength` | it is too short or too long | `tooShort` / `tooLong` |
+| `pattern` | it does not match | `patternMismatch` |
+| the type's parser | it cannot be parsed as the type | `badInput` or `typeMismatch` |
 | a JSON Schema rule | a rule with no reason above fails | the schema keyword, with the failing value's `path` |
 
-A literal value is checked when the definition is compiled: a literal prop value or `default` that fails its type is a conformance error. A bound value is checked at run time and produces validity.
+A definition's `default` is checked when the definition is compiled. A malformed constraint is a declaration error in build tools; the live parser warns and ignores that constraint. A supplied value that fails a well-defined constraint is ordinary invalid data: it sets validity and does **not** produce a console warning. This includes values supplied through a reactive binding. If a written value cannot be parsed as its declared type, the component retains the written value and reports `badInput` or `typeMismatch`; it still mounts so the author can correct the value.
+
+On a component with a non-native root, `el.validity` exposes the corresponding `ValidityState` flags and `el.validity.errors` gives each failure's prop path. `checkValidity()` reports whether the current values pass. When a component renders a native form control, the control retains its native `ValidityState`; the compatibility layer combines additional component failures with native validity. The [Types chapter](/html-next/types#value-constraints) defines which constraints apply to each type.
 
 > [!norm] This is the schema, made native
 > This is the mechanism behind “the contract is the schema” (see [Types](/html-next/types)). A typed prop, a `bind:` input, or a `<data>` value that fails its declared type produces a native validity error, one that form controls, components, and data sources all share.
@@ -66,8 +71,7 @@ A literal value is checked when the definition is compiled: a literal prop value
 - **The pure helper** `validate(value, type | schema)` validates raw data attached to no element and returns the same result.
 
 ```ts
-// validity recomputes when the value changes: usually you read it, not call it
-el.validity            // { valid: false, errors: [{ reason: "range", message: "…" }] }
+el.validity            // { valid: false, rangeOverflow: true, errors: [{ reason: "rangeOverflow", path: "age", message: "…" }] }
 
 // a failure the type cannot know about, such as a server's answer
 el.setValidity([{ reason: "taken", message: "That email is in use." }])

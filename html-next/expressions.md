@@ -65,8 +65,10 @@ cmp       := add (("<" | "<=" | ">" | ">=") add)*
 add       := mul (("+" | "-") mul)*
 mul       := unary (("*" | "/" | "%") unary)*
 unary     := ("not" | "-") unary | access
-access    := primary (("." id) | ("[" expr "]"))*
-primary   := literal | id | call | "(" expr ")" | object | array
+access    := primary (("." id) | ("." integer) | ("[" expr "]"))*
+primary   := literal | reference | id | call | "(" expr ")" | object | array
+reference := "$" id
+integer   := digit+
 call      := fn "(" (expr ("," expr)*)? ")"    (* fixed, typed, CSS-style — not arbitrary calls *)
 fn        := "round" | "clamp" | "min" | "max" | "abs" | "format"
 object    := "{" (pair ("," pair)* ","?)? "}"
@@ -75,6 +77,8 @@ array     := "[" (expr ("," expr)* ","?)? "]"
 ```
 
 Conventional precedence with parentheses. Equality, missing data, truthiness, and coercion are specified explicitly (see **Value semantics**, next) rather than inherited from JavaScript or any template language.
+
+A `$`-prefixed name reads a declared value. A list index in a path is a dotted integer: `$items.0.name` reads the first item's `name`. The corresponding dependency path is `items.0.name`, without the expression's `$` reference marker. Numeric path segments retain their exact spelling, so `$byId.9007199254740993` reads that object key without rounding it. Write a numeric literal index with a dot, not brackets: `$items[0].name` is invalid. Bracket access remains available when the key is computed, such as `$items[$index]`, or is a quoted object key that cannot be written as a dot segment.
 
 `test ? yes : no` tests the same truthiness as `$if`, evaluates only the selected branch, and returns that branch's value without coercion. It is for a small inline value choice, such as `from:aria-current="activeStep = index ? 'step' : null"`; use `$match` when whole markup differs. All three branches participate in static name and dependency checks.
 

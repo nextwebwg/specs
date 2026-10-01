@@ -34,6 +34,8 @@ For example, when a component declares `count` as `number` and `point` as `objec
 
 The first invocation supplies fixed values. The second evaluates expressions that read `nextCount` and `currentX`. A plain structured value uses HTML Next's [object literal syntax](/html-next/types), not JSON; references such as `currentX` require `from:`. The prefix selects reactive expression evaluation, not a data type.
 
+A live binding writes only a result that has its destination's declared type. If one evaluation has the wrong type, it leaves the destination at its last successfully written value; before the first successful write, the destination retains its default or `null`. The binding still watches its dependencies and can write again when the result becomes valid. This rule applies equally when the expression is a direct reference or a function call. A value of the right type that fails `min`, `max`, or another value constraint **does** get written and sets validity. [Reactivity](/html-next/reactivity#invalid-reactive-results) shows the full sequence.
+
 > [!note] Prefixes name the operation
 > `from:x`, `class:x`, and `style:x` all subscribe to the values their expressions read and recompute when those values change. `bind:x` also writes changes back; `on:x` invokes a handler. The suffix names the affected attribute, property, event, class, or style property.
 
@@ -46,6 +48,8 @@ These forms answer two separate questions: **is the supplied text a literal or a
 | `value="2"` | Constant literal; a `number` destination receives JavaScript `2`, while a `string` destination receives `"2"`. | A declaration initializes, or a handler uses the constant when it runs. |
 | `expr:value="count + 1"` | Expression evaluated against the component's current values. Its result must satisfy the destination's declared type. | Once each time a `<set>` or `<dispatch>` step runs. It creates no subscription. |
 | `from:value="draft.title"` | Computed value with a live dependency on `draft.title`. | Recomputed when that dependency changes; the receiving element's effect then runs. |
+
+For a `<set expr:value>` handler step, a wrong-typed result skips that state write. The handler can run again later; there is no subscription. A `from:` binding, by contrast, re-evaluates on every dependency change and leaves its previous value in place during an invalid evaluation.
 
 ```html
 <state name="count" type="number" value="1"></state>

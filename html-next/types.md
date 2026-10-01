@@ -72,7 +72,7 @@ The `values` attribute limits a prop to a comma-separated set of values of its d
 <x-meter level="3"></x-meter>
 ```
 
-Whitespace around commas is ignored. An item that does not conform to `type` invalidates the whole `values` constraint, as though `values` were absent. Build tools, including the unplugin, report this as a declaration error. The live browser parser warns and ignores the constraint. A bound value must have the declared JavaScript type and match a permitted value. For `type="integer" values="1, 2, 3"`, `level="3"` and `from:level="3"` produce the number `3`; `from:level="'3'"` is invalid. All declared props still accept `null` unless required.
+Whitespace around commas is ignored. An item that does not conform to `type` invalidates the whole `values` constraint, as though `values` were absent. Build tools, including the unplugin, report this as a declaration error. The live browser parser warns and ignores the constraint. A bound result must have the declared JavaScript type to be written; a result outside `values` is still written and sets `typeMismatch`. For `type="integer" values="1, 2, 3"`, `level="3"` and `from:level="3"` produce the number `3`; a bound result of `4` becomes `4` with `typeMismatch`, while `from:level="'3'"` skips its write because the expression produces a string. All declared props still accept `null` unless required.
 
 ### Text patterns and lengths
 

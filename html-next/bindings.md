@@ -22,7 +22,7 @@ The shapes have direct framework precedent[^3]: `from:attr` supplies values to a
 | `from:attr="expr"` | One-way expression binding, evaluated and checked against the element contract. The target updates when a prop, state value, or other dependency changes. |
 | `bind:prop="path"` | Two-way binding to a writable path. |
 | `on:event="handler"` | Event binding to a declared handler. |
-| `class:token="expr"` / `style:prop="expr"` | Toggle one class, or set one style property, from a single expression. |
+| `class:token="expr"` / `style:prop="expr"` | Live bindings: toggle one class or set one style property, then update it whenever the expression's dependencies change. |
 | `$key="expr"` | List identity for reactive reconciliation (a `$each` modifier). |
 
 For example, when a component declares `count` as `number` and `point` as `object`, both plain attributes produce typed values without a colon:
@@ -34,8 +34,35 @@ For example, when a component declares `count` as `number` and `point` as `objec
 
 The first invocation supplies fixed values. The second evaluates expressions that read `nextCount` and `currentX`. A plain structured value uses HTML Next's [object literal syntax](/html-next/types), not JSON; references such as `currentX` require `from:`. The prefix selects reactive expression evaluation, not a data type.
 
-> [!note] The one shape
-> `from:x` one-way, `bind:x` two-way, `on:x` event, `class:x` / `style:x` keyed presentation. `from={count * 2}` does not survive the parser (spaces split it into three attributes); `from:value="count * 2"` does. The bare `:x` form is not part of Declarative Components.
+> [!note] Prefixes name the operation
+> `from:x`, `class:x`, and `style:x` all subscribe to the values their expressions read and recompute when those values change. `bind:x` also writes changes back; `on:x` invokes a handler. The suffix names the affected attribute, property, event, class, or style property.
+
+### Constant, action-time, and computed values
+
+These forms answer two separate questions: **is the supplied text a literal or an expression, and when is it used?** A literal is parsed through the destination's declared type; it is not necessarily a JavaScript string.
+
+| Form | Interpretation | When it takes effect |
+| --- | --- | --- |
+| `value="2"` | Constant literal; a `number` destination receives JavaScript `2`, while a `string` destination receives `"2"`. | A declaration initializes, or a handler uses the constant when it runs. |
+| `expr:value="count + 1"` | Expression evaluated against the component's current values. Its result must satisfy the destination's declared type. | Once each time a `<set>` or `<dispatch>` step runs. It creates no subscription. |
+| `from:value="draft.title"` | Computed value with a live dependency on `draft.title`. | Recomputed when that dependency changes; the receiving element's effect then runs. |
+
+```html
+<state name="count" type="number" value="1"></state>
+<state name="post" type="object({ id: string })" value="{ id: '42' }"></state>
+<state name="draft" type="object({ title: string })" value="{ title: '' }"></state>
+<state name="revision" type="integer" value="0"></state>
+<handler name="increment"><set name="count" expr:value="count + 1"></set></handler>
+<event name="publish" type="object({ title: string })"></event>
+<handler name="publish"><dispatch event="publish" expr:value="draft"></dispatch></handler>
+<data name="saveDraft" method="patch" src="/api/drafts/{id}" send="change">
+  <param name="id" from:value="post.id"></param>
+  <param name="title" from:value="draft.title"></param>
+  <param name="clientRevision" expr:value="revision"></param>
+</data>
+```
+
+The `title` parameter recomputes as the draft changes. The data resource's `send="change"` policy turns a changed `from:value` body parameter into a write; a read resource instead refetches. `clientRevision` is sampled for that write but changing `revision` alone does not schedule one. The dispatch runs only when its handler is invoked. `from:` on a dispatch would mean a live effect and would send on a dependency change, so handler steps use `expr:value` for expressions.
 
 ## One-way bindings
 
@@ -43,15 +70,21 @@ The first invocation supplies fixed values. The second evaluates expressions tha
 
 Replacing an element's content is not a binding but a [templating](/html-next/templating) directive: escaped text is `$value`, sanitized markup is `$html`. Raw, unsanitized HTML is available only through the dedicated trusted-HTML type (see [Types](/html-next/types)), never an ordinary string.
 
-### Future exploration: transformed two-way binding
+### Future exploration: writable computed values
 
-A paired `to:` could describe the inverse of `from:` when a component reports an updated prop:
+A computed value could declare both its live read and the action to take when a binding writes to it:
 
 ```html
-<x-stepper from:value="count + 1" to:value="count: $value - 1"></x-stepper>
+<state name="fraction" type="number" value="0.25"></state>
+<computed name="percentage"
+          read="fraction * 100"
+          write="fraction: $value / 100"></computed>
+<x-stepper bind:value="percentage"></x-stepper>
 ```
 
-Here `from:value` follows `count` reactively. In `to:value`, `count:` names the writable destination and `$value` would be the new value reported by the component; the expression computes the value written to `count`. The colon inside the attribute value would belong to this binding's grammar, without adding assignment to general expressions. `bind:value="count"` remains the simpler identity form. The `to:` syntax and behavior are not defined at Level 1. Further design must settle which writable paths are allowed, which component event supplies `$value`, how the result is checked, and how to avoid a feedback loop when the write updates `from:value`.
+The read expression would recompute when `fraction` changes. When the component reports a new numeric value through `bind:value`, the write expression would set the writable `fraction` state. This keeps the inverse mapping in one declaration and reuses `bind:` at the call site, instead of pairing `from:value` and `to:value` on each invocation. The `fraction:` part is a proposed writable destination, not general expression assignment.
+
+This syntax is exploratory. Design still needs to choose `read` versus the existing `<computed from>` spelling, define the component event that supplies `$value`, check the write result against the destination type, and prevent feedback loops. A read expression need not have an inverse: for `hasQuery = query != ''`, writing `false` can clear the query, but writing `true` cannot reconstruct text that was never supplied. Level&nbsp;1 computeds remain read-only and cannot be `bind:` destinations.
 
 ## How a bound value serializes
 
@@ -103,12 +136,12 @@ Writability flows from the root: a `$each` local or `$with` alias is writable ex
 
 ## Class & style bindings
 
-Conditional presentation uses **keyed bindings**, one class token or style property at a time, joining the same family as `on:` and `bind:`. `class:btn--busy="saving"` adds the class when the expression is truthy; `style:--progress="pct + '%'"` sets that property to the expression's value. The **key is the attribute name** (a literal class token or CSS property) and the **value is a single pure expression**, so nothing packs a key/value list into one attribute value,[^4] and the only `:` is the family prefix while the only `=` is equality inside the expression. Both compose with any literal `class` or `style`. Purely visual transforms remain CSS's job (see [Styling](/html-next/styling)); these only toggle which classes and custom properties apply.
+Conditional presentation uses **keyed live bindings**, one class token or style property at a time. Like `from:`, each binding runs when the element is created and again when a prop, state value, or other dependency read by its expression changes. `class:btn--busy="saving"` adds or removes the class as `saving` changes; `style:--progress="format('%s%', pct)"` updates that property as `pct` changes. The [expression language](/html-next/expressions) defines `+` for numbers only; `format` produces a string. The **key is the attribute name** (a literal class token or CSS property) and the **value is a single pure expression**, so nothing packs a key/value list into one attribute value.[^4] Both compose with any literal `class` or `style`. Purely visual transforms remain CSS's job (see [Styling](/html-next/styling)); these bindings update presentation keys.
 
 ```html
 <!-- one class or style property per keyed binding; the value is a single pure expression -->
 <button class="btn" class:btn--busy="saving" class:btn--danger="variant = 'destructive'">
-<div style:--progress="upload.percent + '%'"></div>
+<div style:--progress="format('%s%', upload.percent)"></div>
 ```
 
 ## Events & handlers
@@ -125,11 +158,11 @@ Conditional presentation uses **keyed bindings**, one class token or style prope
 <!-- behavior lives in the definition's <defs> region -->
 <defs>
   <handler name="startEdit">
-    <set name="editing" :value="true">
+    <set name="editing" value="true">
   </handler>
 
   <handler name="requestPublish">
-    <dispatch event="publish" :value="draft">
+    <dispatch event="publish" expr:value="draft">
   </handler>
 </defs>
 ```
@@ -140,8 +173,8 @@ A handler is an ordered, enumerable list of declarative steps. The vocabulary is
 
 | Step | Effect |
 | --- | --- |
-| `<set name :value>` | Write a local state cell. Mirrors `<state name :value>`: `name` is the cell, `:value` the new value evaluated when the handler runs. |
-| `<dispatch event :value?>` | Dispatch a component event to the consumer, with an optional typed payload. |
+| `<set name value>` or `<set name expr:value>` | Write a local state cell. `value` is a typed constant; `expr:value` is evaluated when the handler runs. |
+| `<dispatch event value?>` or `<dispatch event expr:value?>` | Dispatch a component event with an optional typed constant or action-time expression as its payload. |
 | `$if` (on a step) | Guard a step; it runs only when the expression is truthy, the same `$if` directive used in templating. |
 
 > [!norm] Handlers-only, by design

@@ -20,7 +20,7 @@ Take the good parts of modern component frameworks, components, reactive data, s
 <x-button variant="solid">Save</x-button>
 
 <!-- It becomes a real native button (no wrapper, no shadow root) -->
-<button data-component="x-button" data-variant="solid">Save</button>
+<button data-component="x-button">Save</button>
 ```
 
 A component is not a class or a function. It is a **piece of markup, treated as data**. The browser (or the polyfill) reads it and produces real elements, so what ships is a plain `<button>` with native focus, forms, and accessibility intact, plus a `data-component` stamp saying where it came from.

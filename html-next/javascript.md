@@ -29,7 +29,7 @@ A component that needs imperative behavior gets a **controller**: the default-ex
 <!-- x-map.html: declarative data plus its optional controller dependency. -->
 <template component="x-map" controller="./x-map.js">
   <defs>
-    <state name="center" :value="[0, 0]">
+    <state type="list(number)" name="center" value="[0, 0]">
   </defs>
   <div $ref="canvas"></div>
 </template>

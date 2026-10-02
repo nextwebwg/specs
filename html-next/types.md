@@ -46,6 +46,8 @@ Each type has one name and one meaning.
 
 In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop values are JavaScript `Number` values. A written `ratio="0.3"` therefore becomes the number `0.3` in `host.props.ratio.value` when `ratio` is declared as `number`.
 
+`length`, `percentage`, and `duration` remain serialized strings at that JavaScript boundary. An [expression math function](/html-next/expressions#values-with-units) can calculate with their typed quantities and returns their written form; for example `round(8.8px, 1px)` produces `9px` for a `length` destination.
+
 ## Value constraints
 
 Constraints narrow a declared type. They apply to `<prop>` declarations, including fields nested in an object or list. They do not change the JavaScript type of a valid value.

@@ -180,7 +180,7 @@ From there the result is ordinary reactive data: `search.pending` was true while
 >
 > A declaration with no type constrains nothing, and `unknown` is the type every value satisfies. A closed object shape states that an undeclared field is not there, so a reference to one is a violation; an open shape (`...`) says nothing about fields it does not name, which is what a payload that may grow should declare.
 >
-> A direct value argument to `format(pattern, value, …)` is an explicit text-conversion position. `format('%s!', $results.0.title)` can therefore render `42!` even when `title` is declared `string` and currently holds the number `42`. The declaration and payload do not change: an unformatted read of that same reference remains inert, and an expression nested inside the argument must satisfy its own operators before `format` can convert its result.
+> `format(pattern, value, …)` converts an accepted scalar value to text; it does not bypass a declaration's type check. If `title` is declared `string` but the payload currently holds the number `42`, `format('%s!', $results.0.title)` is inert like any other read of that reference. The payload remains available for inspection and conforming fields continue to update. See [Functions](/html-next/expressions#functions).
 
 Here is the effect across three responses when `record.value.label` is declared `string`. The resource always keeps the latest payload; each binding decides separately whether its read conforms:
 

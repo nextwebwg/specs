@@ -14,7 +14,7 @@ A declared type tells Declarative Components how to read a value written in HTML
 <x-counter count="3"></x-counter>
 ```
 
-Here the written `count="3"` becomes the number `3` in `host.state.count`. Type names are plain keywords. A prop can also declare constraints on values of its type.
+Here the written `count="3"` becomes the number `3` in `host.props.count.value`. Type names are plain keywords. A prop can also declare constraints on values of its type.
 
 ## Base value types
 
@@ -44,7 +44,7 @@ Each type has one name and one meaning.
 > [!note] Declared type rules
 > HTML already parses formats such as dates and URLs, and control modes change which values are valid. CSS defines colors, lengths, and other value grammars.[^1][^16] JavaScript can implement these rules, but putting them only in component code hides them from the browser runtime, build tools, and generated TypeScript. Declarations expose the rules without changing native DOM properties such as `HTMLInputElement.value`.
 
-In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop values are JavaScript `Number` values. A written `ratio="0.3"` therefore becomes the number `0.3` in `host.state.ratio` when `ratio` is declared as `number`.
+In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop values are JavaScript `Number` values. A written `ratio="0.3"` therefore becomes the number `0.3` in `host.props.ratio.value` when `ratio` is declared as `number`.
 
 ## Value constraints
 

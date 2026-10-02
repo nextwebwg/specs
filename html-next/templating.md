@@ -142,7 +142,11 @@ Plain dynamic text is a directive: `$value="expr"` sets an element's whole text 
 ```
 
 > [!norm] Aligned with the HTML Sanitizer API
-> For markup, `$html="expr"` is the bypass, and it **does not raw-inject**: it is defined in terms of the platform's **HTML Sanitizer API**[^5]. The string is parsed and run through the sanitizer's safe default configuration, dropping `<script>`, inline `on*` handlers, and `javascript:` URLs, matching `Element.setHTML()`. It reuses the **platform's** sanitizer rather than inventing a bespoke blocklist, and the reference library ships a lazy-loaded **polyfill of the Sanitizer API** where the browser does not yet provide it, so behavior tracks the standard and evolves with it. The result renders markup but cannot execute code, the same script-free guarantee a `<template component>` import receives. Raw, *unsanitized* HTML is not available here; it requires the dedicated trusted-HTML type (see [Types](/html-next/types)), the only path that can carry script and therefore the only one gated.
+> `$html="expr"` renders markup, but **does not raw-inject** it. The string is parsed as an inert HTML fragment in a `<template>` context, then filtered with one versioned copy of the **HTML Sanitizer API's safe-default policy**[^5] before insertion. The filter drops `<script>`, inline `on*` handlers, and `javascript:` URLs. Browsers and servers must use the same policy.
+>
+> `$html` must **not** call native `Element.setHTML()`, even when it exists. Firefox currently reorders malformed table content differently from Chromium, WebKit, and the reference HTML parser. Using native `setHTML()` would make the result depend on the browser and could break server-rendered hydration. It remains useful for comparing sanitizer policies, not for rendering `$html`.
+>
+> The result renders markup but cannot execute code, the same script-free guarantee a `<template component>` import receives. Raw, *unsanitized* HTML is not available here; it requires the dedicated trusted-HTML type (see [Types](/html-next/types)), the only path that can carry script and therefore the only one gated.
 
 ## Whitespace & mixed content
 
@@ -287,7 +291,7 @@ Level
 [^2]: JSON:API, [sorting](https://jsonapi.org/format/#fetching-sorting) (the `sort=a,-b` convention).
 [^3]: Django, [QuerySet.order_by](https://docs.djangoproject.com/en/stable/ref/models/querysets/#order-by) (the same `-`-prefix descending convention).
 [^4]: Shopify [Liquid](https://shopify.github.io/liquid/tags/control-flow/) and [Twig](https://twig.symfony.com/doc/3.x/tags/if.html) (the `unless` tag HTML Next omits).
-[^5]: WHATWG HTML, [the HTML Sanitizer API](https://html.spec.whatwg.org/multipage/dynamic-markup-insertion.html#dom-element-sethtml) (parse-and-sanitize, the basis for `$html`).
+[^5]: WHATWG HTML, [the HTML Sanitizer API](https://html.spec.whatwg.org/multipage/dynamic-markup-insertion.html#the-sanitizer-api) (the safe-default policy on which `$html` is based).
 [^6]: W3C, [CSS Text Module Level 3](https://www.w3.org/TR/css-text-3/#white-space-processing) (the white-space processing and collapsing model HTML Next defers to at render).
 [^7]: Angular [structural directives](https://angular.dev/guide/directives/structural-directives) (`*ngIf`/`*ngFor`): control flow expressed as a directive on the context-valid element rather than a wrapper element, the same parser-survival property argued here. Contrast: Svelte [`{#if}`](https://svelte.dev/docs/svelte/if)/`{#each}` and Solid [`Show`](https://docs.solidjs.com/reference/components/show)/`For` are wrapper or block forms that do not survive `<table>`/`<select>` foster-parenting.
 [^8]: Angular [`@switch`/`@case`/`@default`](https://angular.dev/guide/templates/control-flow) blocks: a near-exact twin of `$match`/`$when`/`$else`, alongside the XSLT `xsl:choose` unit.

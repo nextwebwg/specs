@@ -56,9 +56,13 @@ For a `<set expr:value>` handler step, a wrong-typed result skips that state wri
 <state name="post" type="object({ id: string })" value="{ id: '42' }"></state>
 <state name="draft" type="object({ title: string })" value="{ title: '' }"></state>
 <state name="revision" type="integer" value="0"></state>
-<handler name="increment"><set name="count" expr:value="count + 1"></set></handler>
+<handler name="increment">
+  <set name="count" expr:value="count + 1"></set>
+</handler>
 <event name="publish" type="object({ title: string })"></event>
-<handler name="publish"><dispatch event="publish" expr:value="draft"></dispatch></handler>
+<handler name="publish">
+  <dispatch event="publish" expr:value="draft"></dispatch>
+</handler>
 <data name="saveDraft" method="patch" src="/api/drafts/{id}" send="change">
   <param name="id" from:value="post.id"></param>
   <param name="title" from:value="draft.title"></param>
@@ -81,12 +85,12 @@ A computed value could declare both its live read and the action to take when a 
 ```html
 <state name="fraction" type="number" value="0.25"></state>
 <computed name="percentage"
-          read="fraction * 100"
+          read="$fraction * 100"
           write="fraction: $value / 100"></computed>
 <x-stepper bind:value="percentage"></x-stepper>
 ```
 
-The read expression would recompute when `fraction` changes. When the component reports a new numeric value through `bind:value`, the write expression would set the writable `fraction` state. This keeps the inverse mapping in one declaration and reuses `bind:` at the call site, instead of pairing `from:value` and `to:value` on each invocation. The `fraction:` part is a proposed writable destination, not general expression assignment.
+The read expression would recompute when `$fraction` changes. The `bind:value` target is the concrete writable path `percentage`; it is not an expression. When the component reports a new numeric value through `bind:value`, the write expression would set the writable `fraction` state. This keeps the inverse mapping in one declaration and reuses `bind:` at the call site, instead of pairing `from:value` and `to:value` on each invocation. The `fraction:` part is a proposed writable destination, not general expression assignment.
 
 This syntax is exploratory. Design still needs to choose `read` versus the existing `<computed from>` spelling, define the component event that supplies `$value`, check the write result against the destination type, and prevent feedback loops. A read expression need not have an inverse: for `hasQuery = query != ''`, writing `false` can clear the query, but writing `true` cannot reconstruct text that was never supplied. Level&nbsp;1 computeds remain read-only and cannot be `bind:` destinations.
 

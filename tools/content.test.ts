@@ -56,7 +56,7 @@ test("invalid reactive results keep the last accepted destination value", () => 
   assert.match(reactivity, /\$results\.0\.title/);
   assert.doesNotMatch(reactivity, /items\[0\]\.name|results\[0\]\.title/);
   assert.match(chapter("expressions"), /\$items\.0\.name[\s\S]*?items\.0\.name/);
-  assert.match(chapter("expressions"), /\$items\[0\]\.name` is invalid/);
+  assert.match(chapter("expressions"), /`\$items\.0\.name` and `\$items\[0\]\.name` both read the first item's `name`/);
   assert.match(validation, /supplied number above `max`[\s\S]*?becomes the prop's current value/);
   assert.match(validation, /number prop is supplied as `amount="oops"`[\s\S]*?remains its `inputValue`/);
   assert.match(validation, /Template expressions and `host\.props\.amount\.value` read that accepted value/);

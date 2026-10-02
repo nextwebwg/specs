@@ -81,7 +81,7 @@ Styling the page itself (its `<body>`, other components, or unrelated elements) 
 ```html
 <template component="x-container">
   <defs>
-    <prop name="measure" type="narrow | normal | wide" default="normal">Maximum line length.</prop>
+    <prop name="measure" type="keyword" values="narrow, normal, wide" default="normal">Maximum line length.</prop>
   </defs>
   <div><slot></slot></div>
   <style>
@@ -110,7 +110,7 @@ State works the same way as props, so a component styles what its controller cha
 <template component="x-disclosure">
   <defs>
     <prop name="summary" type="string" default="">Visible heading.</prop>
-    <state name="open" :value="false"></state>
+    <state type="boolean" name="open" value="false"></state>
   </defs>
   <details>…</details>
   <style>
@@ -121,7 +121,7 @@ State works the same way as props, so a component styles what its controller cha
 ```
 
 > [!note] Resolved values, not reflected attributes
-> A lowered root records only the props an author wrote, as `data-*` attributes (see [Rendered form](/html-next/rendered-form)), so a selector on them cannot see defaults. `:host-state()` sees the resolved value, so default styling is written like any other.
+> `:host-state()` sees a prop's resolved value, including its default. Styling does not depend on whether an implementation happens to reflect that prop as a `data-*` attribute.
 
 ## Styling projected content: :slotted() {#slotted}
 

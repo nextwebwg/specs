@@ -29,7 +29,7 @@ A component that needs imperative behavior gets a **controller**: the default-ex
 <!-- x-map.html: declarative data plus its optional controller dependency. -->
 <template component="x-map" controller="./x-map.js">
   <defs>
-    <state name="center" :value="[0, 0]">
+    <state type="list(number)" name="center" value="[0, 0]">
   </defs>
   <div $ref="canvas"></div>
 </template>
@@ -62,13 +62,23 @@ The controller receives one argument, `host`, its window onto the instance. The 
 ```ts
 type EffectCallback = () => void | (() => void);
 
-interface ComponentHost<State extends object = Record<string, unknown>> {
+interface PropHandle<Value> {
+  readonly value: Value;
+  readonly inputValue: unknown;
+  readonly validity: ValidityState;
+  validate(): ValidityState;
+}
+
+interface ComponentHost<State extends object = Record<string, unknown>, Props extends object = Record<string, unknown>> {
   /** The component's root element. Its connection owns this controller's lifetime. */
   readonly root: Element;
 
-  /** Every value declared in <defs>: props, state, computed, data. Only paths
-   *  rooted at a declared <state> are writable; a write flows through the graph. */
+  /** Local <state>, <computed>, <data>, and inherited <context> values.
+   *  Only paths rooted at a declared <state> are writable. */
   readonly state: State;
+
+  /** One handle per declared <prop>. No <state>, <computed>, or <data> entries. */
+  readonly props: { readonly [Name in keyof Props]: PropHandle<Props[Name]> };
 
   /** Elements the definition marked with $ref, by name. A name inside $each is the
    *  list that iteration produced. */
@@ -92,7 +102,8 @@ interface ComponentHost<State extends object = Record<string, unknown>> {
 | On `host` | Does | Native anchor |
 | --- | --- | --- |
 | `host.root` | The component's root element, whose connection owns this controller's lifetime. | `:host` / the custom-element instance |
-| `host.state` | Read the instance's props, state, computed values, and resources. Only paths rooted at a declared `<state>` are writable; a valid write flows through the dependency graph. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
+| `host.state` | Read local `<state>`, `<computed>`, `<data>`, and inherited `<context>` values. Only declared `<state>` entries are writable. Props are absent. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
+| <code>host.props.<var>name</var></code> | Inspect a caller-supplied prop's accepted value, latest direct input, and validity. This is the controller's only path to a declared prop. | An HTML control separates its input and validity from the value its consumers read[^10] |
 | <code>host.refs.<var>name</var></code> | The element declared with <code>$ref="<var>name</var>"</code>, or the list of them when that name sits inside an iteration. | captured at lowering (see below) |
 | <code>host.slots.<var>name</var></code> | The elements a consumer projected into that slot, in order; empty while the slot shows its fallback. | `assignedElements()`[^9] |
 | <code>host.on(<var>event</var>, fn)</code> | Run `fn` on a lifecycle or component event; `connect`/`disconnect` included. | `connectedCallback`/`disconnectedCallback`[^1] |
@@ -101,18 +112,32 @@ interface ComponentHost<State extends object = Record<string, unknown>> {
 
 Teardown is either a disposer returned from an `host.on("connect", …)` callback or an explicit `host.on("disconnect", …)`; `host.effect` cleans itself up. This is the same connect-and-return-a-disposer shape used across the platform and userland alike.
 
+### Accepted values and prop inputs
+
+`host.props.amount.value` reads the prop's **accepted value**. Template expressions such as `$amount` read that value too; `host.state.amount` is absent. A declared `<state name="count">` is read and written through `host.state.count`, and `host.props.count` is absent. Derived `<computed>` values, `<data>` resources, and inherited `<context>` values are also read through `host.state`, but they are read-only. State has no `inputValue` or `validity`; a failed `<set>` or `bind:` write does not replace it. When the attempted value came from a native control, that control retains its edit and owns its validity.
+
+`host.props.amount.inputValue` is the latest value supplied **directly to that prop before conversion**. An HTML attribute supplies a string; a framework prop may supply a JavaScript value. It is not an alias for DOM `getAttribute()`, which reads an attribute string and may describe a default rather than the current input. `host.props.amount.validity` checks that input against the declaration. `validate()` explicitly recomputes and returns the same per-prop validity shape. The component root exposes the aggregate validity with a path for each failing prop (see [Validation](/html-next/validation)). Reads through `host.props.amount.value` and `host.state.count` both participate in `host.effect` dependency tracking.
+
+```js
+// <prop name="amount" type="number" default="5">; invoked with amount="oops"
+host.props.amount.inputValue      // "oops"
+host.props.amount.value           // 5
+host.state.amount                 // undefined: props are absent from state
+host.props.amount.validity.badInput // true
+```
+
 ### The companion JavaScript / DOM API
 
 `host.effect(callback)` is the deliberately small JavaScript companion to declarative bindings. It exists for effects on systems outside the runtime-owned DOM, such as updating a chart, observer, or media object from component state. It is not required to make template bindings reactive; those are wired directly from their declared paths.
 
-- **Connection:** an effect registered by the controller runs once when the instance is connected. Reads through `host.state` during its last successful run are its dependencies.
+- **Connection:** an effect registered by the controller runs once when the instance is connected. Reads through `host.state` or `host.props` during its last successful run are its dependencies.
 - **Update:** a dependency change marks the effect dirty. The runtime coalesces repeated changes and runs it in the same ordered microtask flush as affected bindings, after state and computed values have settled.
 - **Rerun:** if the callback returned a disposer, that disposer runs before the next callback. The next run replaces the tracked dependency set, so conditional JavaScript reads remain precise without an authored `untrack`.
 - **Disconnection:** the current disposer runs and every observation owned by the effect is removed. It does no work while detached; reconnection runs it once and establishes a fresh dependency set.
 - **Early stop:** the function returned by `host.effect` performs the same cleanup permanently and is idempotent.
 
 > [!norm] The reactive API is instance-scoped
-> The contract exposes values through `host.state` and lifetime-bound reactions through `host.effect`; it does not expose an instance's backing `Signal.State`, `Signal.Computed`, or `Watcher` objects. Raw handles would let code retain observations beyond the element's lifetime, bypass declared writability and type rules, and couple HTML Next to a Stage&nbsp;1 API shape. A browser runtime may use TC39 Signals internally, but that choice is not observable. Page code outside the controller uses the component's declared attributes and properties and listens for DOM events; it cannot retrieve the private `host`. The raw-signal question can be reopened if cross-system signal identity proves to be a real interoperability requirement.
+> The contract exposes non-prop declarations through `host.state`, caller-supplied props through `host.props`, and lifetime-bound reactions through `host.effect`; it does not expose an instance's backing `Signal.State`, `Signal.Computed`, or `Watcher` objects. Raw handles would let code retain observations beyond the element's lifetime, bypass declared writability and type rules, and couple HTML Next to a Stage&nbsp;1 API shape. A browser runtime may use TC39 Signals internally, but that choice is not observable. Page code outside the controller uses the component's declared attributes and properties and listens for DOM events; it cannot retrieve the private `host`. The raw-signal question can be reopened if cross-system signal identity proves to be a real interoperability requirement.
 
 > [!note] Grounded in the platform, not a framework
 > The surface reads like userland (`state`, `effect`, `refs`), but each name has a standards anchor: the carrier's module reference ↔ declarative module loading, `host` ↔ `:host`, connect/disconnect ↔ the custom-element reactions, `effect` ↔ the Signals proposal. The overall shape, a controller bound to a host with connect and disconnect callbacks, is Lit's Reactive Controller[^5], adapted to a script-free definition.
@@ -313,7 +338,7 @@ Take a dashboard, `<x-dashboard>` (component A), that reads metrics and renders 
     <h1 $value="title"></h1>
     <template $match>
       <p $when="metrics.pending">Loading…</p>
-      <x-chart $else :series="metrics.value.series"></x-chart>
+      <x-chart $else from:series="metrics.value.series"></x-chart>
     </template>
   </section>
 </template>
@@ -325,7 +350,7 @@ A declares its dependency on B with `<link rel="component">` and mentions no scr
 <!-- /components/b.html — declarative markup plus its controller dependency. -->
 <template component="x-chart" controller="./b.js">
   <defs>
-    <prop name="series" type="array" required>The data to plot.</prop>
+    <prop name="series" type="list" required>The data to plot.</prop>
   </defs>
 
   <figure>
@@ -343,7 +368,7 @@ import { Chart } from "chart-lib";                  // a bare specifier; the imp
 export default function controller(host) {          // native HTML Next and build targets use this
   let chart;
   host.effect(() => {
-    const series = host.state.series;
+    const series = host.props.series.value;
     if (chart) chart.update(series);                 // re-plot when series changes
     else chart = new Chart(host.refs.surface, { data: series });
   });
@@ -418,7 +443,7 @@ import { adaptVue } from "@nextwebwg/html/vue";
 
 const props = defineProps({ center: { type: Array, default: () => [0, 0] } });
 const canvas = ref();
-adaptVue(controller, { refs: { canvas }, state: props });
+adaptVue(controller, { refs: { canvas }, props });
 </script>
 
 <template>
@@ -426,7 +451,7 @@ adaptVue(controller, { refs: { canvas }, state: props });
 </template>
 ```
 
-This works because `host` is deliberately tiny, and every target already has all of it natively: lifecycle (Vue `onMounted`/`onUnmounted`, Svelte `onMount`/`onDestroy`, Solid `onMount`/`onCleanup`, React `useEffect`), effects (Vue `watchEffect`, Svelte `$effect`, Solid `createEffect`), refs (Vue `ref`, Svelte `bind:this`, React `useRef`), and props-or-state for `host.state`. `$ref="name"` maps to each target's ref idiom; `host.dispatch` to its event mechanism.
+This works because `host` is deliberately tiny, and every target already has all of it natively: lifecycle (Vue `onMounted`/`onUnmounted`, Svelte `onMount`/`onDestroy`, Solid `onMount`/`onCleanup`, React `useEffect`), effects (Vue `watchEffect`, Svelte `$effect`, Solid `createEffect`), refs (Vue `ref`, Svelte `bind:this`, React `useRef`), props for `host.props`, and state, derived values, data, and context for `host.state`. `$ref="name"` maps to each target's ref idiom; `host.dispatch` to its event mechanism.
 
 > [!note] React is the one that needs a bridge
 > React has no native fine-grained reactivity, so its adapter backs `host.effect` and `host.state` with an external store (via `useSyncExternalStore`) rather than a signal. That wart is contained to the React adapter; the controller and every other target are unaffected.
@@ -493,3 +518,4 @@ Level
 [^7]: WHATWG HTML, [module-script fetching](https://html.spec.whatwg.org/multipage/webappapis.html#fetch-a-single-module-script), [Content Security Policy](https://developer.mozilla.org/docs/Web/HTTP/Guides/CSP), and [Subresource Integrity](https://developer.mozilla.org/docs/Web/Security/Defenses/Subresource_Integrity): the existing loading and deployment controls used by controllers.
 [^8]: WHATWG DOM, [CustomEvent](https://dom.spec.whatwg.org/#interface-customevent) and [dispatchEvent](https://dom.spec.whatwg.org/#dom-eventtarget-dispatchevent): what `host.dispatch` lowers to.
 [^9]: WHATWG HTML, [`HTMLSlotElement.assignedElements()`](https://html.spec.whatwg.org/multipage/scripting.html#dom-slot-assignedelements): the native way a component reads what a consumer projected, rather than searching its own subtree for it.
+[^10]: WHATWG HTML, [the input element's value, content attribute, and dirty value flag](https://html.spec.whatwg.org/multipage/input.html#the-input-element) and [bad input](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#suffering-from-bad-input): separate written input, current value, and validity inform this prop handle; the API is not identical to an `<input>`.

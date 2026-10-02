@@ -10,17 +10,21 @@ const forms = () => readFileSync("html-forms/index.md", "utf8");
 const chapters = readdirSync("html-next").filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
 const modules = chapters.filter((name) => name !== "index");
 
-test("the type system explains its CSS grammar and links its sources", () => {
+test("the type system separates base types, permitted values, and selected types", () => {
   const types = chapter("types");
 
-  for (const phrase of [/Component forms/, /Combinators/, /Multipliers/, /Precedence/, /HTML Next profile/,
-    /css-values-4\/#value-defs/, /css-color-4\/#color-type/, /css-typed-om-1\/#stylevalue-objects/,
-    /developer\.mozilla\.org\/en-US\/docs\/Web\/CSS\/Reference\/Values\/Data_types/,
-    /developer\.mozilla\.org\/en-US\/docs\/Web\/CSS\/Guides\/Values_and_units\/Value_definition_syntax/,
-    /type="email" required/, /states-of-the-type-attribute/, /HTML-native types and constraints/, /This is distinct from CSS/]) {
-    assert.match(types, phrase);
+  assert.match(types, /Type names are plain keywords/);
+  assert.match(types, /The `values` attribute limits a prop to a comma-separated set of values of its declared type/);
+  assert.match(types, /<prop name="size" type="keyword" values="sm, md, lg"/);
+  assert.match(types, /<type from="type">/);
+  assert.match(types, /<event name="change" type="object">[\s\S]*?<prop name="trigger" type="keyword" values="keyboard, pointer, programmatic"/);
+  assert.doesNotMatch(types, /type="enum\(/);
+  for (const section of ["components", "examples", "styling"]) {
+    assert.doesNotMatch(chapter(section), /type="enum\(/, section);
   }
-  assert.match(chapter("validation"), /Included in the reference implementation/);
+  assert.match(types, /A declared prop that is omitted and has no default resolves to `null`/);
+  assert.ok(types.indexOf("| `string` |") < types.indexOf("| `length` |"));
+  assert.doesNotMatch(types, /^### (?:Combinators|Multipliers|Precedence)$/m);
 });
 
 test("validation keeps polyfill details behind the platform surface", () => {
@@ -30,6 +34,36 @@ test("validation keeps polyfill details behind the platform surface", () => {
   assert.match(validation, /Authors use the proposed surface/);
   assert.doesNotMatch(validation, /style polyfilled validity with/);
   assert.doesNotMatch(validation, /polyfilled as `\[data-invalid\]/);
+});
+
+test("invalid reactive results keep the last accepted destination value", () => {
+  const reactivity = chapter("reactivity");
+  const validation = chapter("validation");
+  const bindings = chapter("bindings");
+
+  assert.match(reactivity, /^## Invalid reactive results$/m);
+  assert.match(reactivity, /does not write[\s\S]*?most recent successful write/);
+  assert.match(reactivity, /declared default, or `null` when there is no default/);
+  assert.match(reactivity, /\| Supply `2` \| `2` \| `2` \| `2` \|/);
+  assert.match(reactivity, /\| Supply `"oops"` \| `"oops"` \| `2` \| `2` \|/);
+  assert.match(reactivity, /\| Supply `7` \| `7` \| `7` \| `7` \|/);
+  assert.match(reactivity, /after `2`, it stays at `2`, not `5` or `null`/);
+  assert.match(reactivity, /\| `\{ label: 42, note: 'b' \}` \| `first` \(last valid result\) \| `b` \|/);
+  assert.match(reactivity, /\| `\{ label: 'third', note: 'c' \}` \| `third` \| `c` \|/);
+  assert.match(reactivity, /one-time `<set expr:value>`[\s\S]*?skips that handler step's write/);
+  assert.match(reactivity, /<computed from>[\s\S]*?last successfully computed value/);
+  assert.match(reactivity, /`items\.0\.name`/);
+  assert.match(reactivity, /\$results\.0\.title/);
+  assert.doesNotMatch(reactivity, /items\[0\]\.name|results\[0\]\.title/);
+  assert.match(chapter("expressions"), /\$items\.0\.name[\s\S]*?items\.0\.name/);
+  assert.match(chapter("expressions"), /`\$items\.0\.name` and `\$items\[0\]\.name` both read the first item's `name`/);
+  assert.match(validation, /supplied number above `max`[\s\S]*?becomes the prop's current value/);
+  assert.match(validation, /number prop is supplied as `amount="oops"`[\s\S]*?remains its `inputValue`/);
+  assert.match(validation, /Template expressions and `host\.props\.amount\.value` read that accepted value/);
+  assert.match(validation, /Validity for a directly supplied prop describes its current \*\*input\*\*/);
+  assert.match(chapter("javascript"), /`host\.props\.amount\.value` reads the prop's \*\*accepted value\*\*/);
+  assert.match(chapter("javascript"), /State has no `inputValue` or `validity`/);
+  assert.match(bindings, /function call[\s\S]*?full sequence/);
 });
 
 test("reactivity defines the Signals boundary and lifecycle-owned JavaScript API", () => {
@@ -58,24 +92,23 @@ test("proposal callouts name their contract and review requests demand attention
 test("polymorphic roots use explicit native branches", () => {
   const components = chapter("components");
 
-  assert.match(components, /<prop name="as" type="button \| a" default="button">/);
+  assert.match(components, /<prop name="as" type="keyword" values="button, a" default="button">/);
   assert.match(components, /<a \$when="as = 'a'">/);
   assert.match(components, /<button \$else>/);
   assert.doesNotMatch(components, /<button as="button \| a">/);
   assert.match(components, /The prop does not retag an element/);
 });
 
-test("props are initial configuration and the data-* record is output", () => {
+test("props are initial configuration without required data-* reflection", () => {
   const components = chapter("components");
   const reactivity = chapter("reactivity");
 
-  assert.match(components, /The record is \*\*output\*\*/);
-  assert.match(components, /does not change the prop/);
+  assert.match(components, /A prop is input to that rendering; it is not automatically exposed as `data-<name>`/);
+  assert.match(components, /A literal attribute on the invocation supplies the prop's \*\*initial configuration\*\*/);
   assert.doesNotMatch(components, /effective value \(passed or default\)/);
   assert.doesNotMatch(reactivity, /This is `attributeChangedCallback`/);
-  // A parent's binding also changes a prop; the record is not limited to framework updates.
-  assert.match(components, /a parent template's `:name` on the invocation/);
-  assert.match(chapter("types"), /every serializable prop the author supplied/);
+  assert.match(components, /a parent template's `from:name` binding/);
+  assert.doesNotMatch(components, /data-variant="solid"/);
 });
 
 test("the baseline component contract includes the complete slot model", () => {

@@ -16,33 +16,70 @@ HTML Next keeps a few concepts separate rather than overloading one element, bec
 
 | Element | Is | Changes when |
 | --- | --- | --- |
-| `<state name :value>` | a local mutable value | `<set>` runs in a handler, or `bind:` writes it |
-| `<computed name from>` | a pure value derived from others | nothing, recomputed from its dependencies |
+| `<state name type value>` | a local mutable value | `<set>` runs in a handler, or `bind:` writes it |
+| `<computed name from>` | a pure value derived from others | a dependency changes |
 | `<data name src>` | a remote resource: a read source or write sink | its params; fetched or synchronized reactively |
 
 ```html
-<state name="query" value="">        <!-- literal string -->
-<state name="page" :value="1">        <!-- number, via the colon -->
-<state name="rows" type="list(object({ id: string, label: string }))" :value="[]">
-                                      <!-- declared type, as a prop's -->
+<state name="query" type="string" value="">        <!-- empty string -->
+<state name="page" type="number" value="1">        <!-- number -->
+<state name="rows" type="list(object({ id: string, label: string }))" value="[]">
 <computed name="hasQuery" from="query != ''">  <!-- derived boolean -->
 ```
 
 The design, a declared dependency graph that can be analyzed statically rather than traced at runtime, has deep prior art in signals and fine-grained reactivity[^5]: Solid signals and `createMemo` and Angular signals are its closest current relatives, with Knockout observables as the historical ancestor. RxJS is a deliberate contrast, it models push streams, not the settled value cells `<state>` and `<computed>` are.
 
-A `<state>` may declare a `type` in the same type syntax props use (see [Types](/html-next/types)). Without one, its type is its initial value's: `:value="false"` is a boolean, `:value="[]"` a list whose items are unknown. Declare the type when the initial value cannot say what the state will hold, such as an empty list of records; tools and converters then know each item's fields.
+A `<state>` uses the same type syntax as a prop (see [Types](/html-next/types)). When `type` is omitted, the state has type `unknown`; its initial value does not establish a type. For example, `value="1"` is a string, while `type="number" value="1"` is the number `1`. Declare the type of a state whose values need to be checked or used as numbers, booleans, or structured data.
 
-> [!note] The colon carries the type
-> `<set>` mirrors `<state>` exactly: same `name`, same `:value`. A plain attribute is a string; the `:` prefix makes the value a typed expression. `:value="false"` is the boolean, `value="false"` the five-character string.
+`value` supplies a constant initial state value, parsed through the declared type. It does not establish the type when `type` is omitted. A handler's `<set value>` likewise writes a typed constant, while `<set expr:value>` evaluates an expression when the handler runs. A `<computed from>` is different: it stays subscribed to the values it reads. [Bindings & Events](/html-next/bindings#constant-action-time-and-computed-values) compares all three value forms.
+
+## Invalid reactive results
+
+A live expression evaluates when its dependencies change. Each evaluation proposes a value for its destination. If the value does not have the destination's declared type, the evaluation **does not write**. The destination keeps the value from its most recent successful write. If no evaluation has written successfully, it keeps its declared default, or `null` when there is no default. The invalid evaluation does not notify dependents of a value change or trigger an effect that requires that new value. The binding stays subscribed: a later valid result writes normally.
+
+For an object or list, the immediate type check asks whether the result is an object or list. Nested fields are checked when expressions read those fields. A wrong-typed `items.0.name` therefore leaves that particular binding at its last value while another binding can still read a valid `items.0.id` from the same new list. This matches the typed-reference rule for `<data>` below; one bad field does not discard its siblings.
+
+The source is not rolled back. A form control keeps the user's edit under its native rules; a component prop keeps its latest direct `inputValue` even when its accepted `value` stays at the last good/default/null value; and a `<data>` resource keeps the response it received. A failed downstream binding does not supply the destination prop. This is different from a **well-typed** result that fails `min`, `max`, `values`, or another value constraint: that result is written, and the destination reports its invalidity (see [Validation](/html-next/validation)). A missing value is also different from a present value of the wrong type; [absence](/html-next/expressions#the-absent-value) has its ordinary empty/removal behavior.
+
+For example, the outer component accepts a directly supplied value. The inner component has a number prop with a default, and its invocation binds that prop to the outer value:
+
+```html
+<template component="x-reading">
+  <defs><prop name="amount" type="number" default="5">Reading.</prop></defs>
+  <output from:data-amount="$amount"></output>
+</template>
+
+<template component="x-reading-owner">
+  <defs><prop name="incoming" type="number">Source value.</prop></defs>
+  <x-reading from:amount="$incoming"></x-reading>
+</template>
+
+<x-reading-owner incoming="oops"></x-reading-owner>
+```
+
+The authored invocation supplies the first value. The owner then updates its `incoming` prop through its framework adapter. Its `incoming` declaration has no default, so the accepted value is initially `null`; the invalid input remains separately readable through `host.props.incoming.inputValue`. `"oops"` is shown in quotation marks to make clear that it is a string, not a number:
+
+| Action | Outer `inputValue` | Outer accepted value | Inner accepted `amount` | What runs |
+| --- | --- | --- | --- | --- |
+| Create the owner with `incoming="oops"` | `"oops"` | `null` | `5` | The outer prop reports `badInput`. The inner binding has no conforming number to supply, so its default remains. |
+| Supply `2` | `2` | `2` | `2` | Both accepted values change; dependents update. |
+| Supply `"oops"` | `"oops"` | `2` | `2` | The outer prop reports `badInput`, but its accepted value does not change, so inner dependents do not update. |
+| Supply `7` | `7` | `7` | `7` | Both accepted values change; dependents update again. |
+
+If `"oops"` is the **first** evaluation, the inner `amount` stays at `5`. Remove `default="5"` from the inner declaration and it stays at `null` instead. An invalid evaluation never resets a destination that already accepted a value: after `2`, it stays at `2`, not `5` or `null`. The same sequence applies when an expression function returns a string for this number destination, or when a typed reference into a `<data>` response supplies the wrong kind of value.
+
+For a separate `string` prop named `label`, `from:label="abs($incoming)"` proposes a **number** when `incoming` is `2`. It does not write `2` into `label`: that prop keeps its last valid string, or its default. A build tool can flag this authored mismatch before the page runs; a permissive live implementation must still skip the write rather than throw. The source `incoming` stays `2`.
+
+For a one-time `<set expr:value>`, a result that fails the destination's immediate type skips that handler step's write; the state remains at its current value. A new list can still be written when one nested item has a wrong-typed field: references to that field become inert, while conforming fields remain readable. A `<computed from>` that reads a nonconforming typed reference keeps its last successfully computed value and does not publish a change. Before its first successful evaluation, the computed value is `null`. A directly edited control is different: its displayed input and native validity continue to reflect what the user entered even while a downstream typed destination keeps its last accepted value.
 
 ## Share state with descendant components
 
-A component can share a state value with components rendered inside it, including components supplied through a slot. This lets independently authored parts of a widget react to the same value without passing a prop through every component between them. The `context` attribute on `<state>` makes that one cell available; a descendant declares which cell it reads in its own `<defs>`.
+A component can share a state value with components rendered inside it, including components supplied through a slot. This lets independently authored parts of a widget react to the same value without passing a prop through every component between them. A descendant declares which ancestor state it reads in its own `<defs>`; the ancestor's `<state>` needs no additional marker.
 
 ```html
 <template component="x-steps">
   <defs>
-    <state name="current" :value="1" context>
+    <state type="number" name="current" value="1">
   </defs>
   <ol><slot></slot></ol>
 </template>
@@ -52,18 +89,18 @@ A component can share a state value with components rendered inside it, includin
     <prop name="number" type="number" required>
     <context name="current" from="x-steps" as="activeStep">
   </defs>
-  <li :aria-current="activeStep = number ? 'step' : null"><slot></slot></li>
+  <li from:aria-current="activeStep = index ? 'step' : null"><slot></slot></li>
 </template>
 
 <x-steps>
-  <x-step number="1">Account</x-step>
-  <x-step number="2">Payment</x-step>
+  <x-step index="1">Account</x-step>
+  <x-step index="2">Payment</x-step>
 </x-steps>
 ```
 
-`name` identifies the published state cell; `from` names its provider's component tag. Optional `as` names the value in the reader's expressions and defaults to `name`, so the example could use `current` directly. The reader sees the provider cell's current value and type, not a new cell or a synthetic `x-steps.current` object. When an existing `<set>` or `bind:` changes the provider's state, bindings that read the context update through the same reactive graph.
+`name` identifies the ancestor state cell; `from` names its component tag. Optional `as` names the value in the reader's expressions and defaults to `name`, so the example could use `current` directly. The reader sees the ancestor cell's current value and type, not a new cell or a synthetic `x-steps.current` object. When an existing `<set>` or `bind:` changes that state, bindings that read the context update through the same reactive graph.
 
-The nearest matching provider in the [logical component tree](/html-next/components) supplies the value, including when another instance of the same component is nested inside it. A provider matches only if it has a `<state>` with that `name` and `context`; a missing provider or an unexposed cell is a conformance error when the reader is instantiated. The imported name shares the reader's flat declaration namespace. A context read is read-only: `<set>` and `bind:` cannot write through it. These rules add no event or command channel.
+The nearest matching ancestor in the [logical component tree](/html-next/components) supplies the value, including when another instance of the same component is nested inside it. An ancestor matches if it has the component tag named by `from` and a `<state>` named by `name`; no state export declaration is required. If no ancestor matches, the reader has a conformance error when instantiated. The imported name shares the reader's flat declaration namespace. A context read is read-only: `<set>` and `bind:` cannot write through it. These rules add no event or command channel.
 
 This is an HTML Next declaration, not a native HTML element. The Web Components [Context Protocol](https://github.com/webcomponents-cg/community-protocols/blob/main/proposals/context.md) provides a useful event-based way for JavaScript components to exchange values, but its request follows DOM event propagation. HTML Next's lookup follows component ownership so projection and portals retain the same provider even when physical DOM ancestry differs. The browser runtime may use native observation primitives underneath; no authored callback is needed.
 
@@ -72,12 +109,12 @@ This is an HTML Next declaration, not a native HTML element. The Web Components 
 
 ## <data>: a declared, reactive resource
 
-This is HTML Next's standards-shaped answer to htmx[^1]: instead of `hx-get`/`hx-trigger`/`hx-target` string attributes swapping opaque HTML, a `<data>` element declares a **typed, reactive resource** whose parameters are visible right where it lives. For a read, each `<param :value>` subscribes to the state it binds, so the set of params *is* the dependency graph: change one and the resource refetches, and bindings that read it re-render. Nothing triggers it imperatively. This is the surface Solid `createResource` already ships[^6], a resource whose fetch re-runs on source change and exposes loading and error; TanStack and Vue Query are the same idea with a params-keyed cache.
+This is HTML Next's standards-shaped answer to htmx[^1]: instead of `hx-get`/`hx-trigger`/`hx-target` string attributes swapping opaque HTML, a `<data>` element declares a **typed, reactive resource** whose parameters are visible right where it lives. For a read, each `<param from:value>` subscribes to the state or prop it reads: change one and the resource refetches, and bindings that read it re-render. A `<param expr:value>` supplies a request-time expression without subscribing to it; its inputs alone do not refetch. This is the surface Solid `createResource` already ships[^6], a resource whose fetch re-runs on source change and exposes loading and error; TanStack and Vue Query are the same idea with a params-keyed cache.
 
 ```html
 <data name="search" src="/api/search" type="object" debounce="200ms">
-  <param name="q" :value="query">     <!-- subscribes to query: refetches when it changes -->
-  <param name="page" :value="page">
+  <param name="q" from:value="query">     <!-- subscribes to query: refetches when it changes -->
+  <param name="page" from:value="page">
 </data>
 ```
 
@@ -137,13 +174,33 @@ The endpoint answers with JSON. The payload becomes `search.value` as it arrived
 From there the result is ordinary reactive data: `search.pending` was true while the request was in flight, `search.value.results` now feeds the `$each` above, and `search.ok` is true. The last resolved value stays bound while the next read runs, so a refetch does not blank what the page already shows. Editing `query` again cancels the in-flight read before starting the next one, so a fast typist never renders an earlier answer over a later one.
 
 > [!norm] A reference conforms or it is inert
-> A declared type is checked where a reference is read, not where its value arrived. If `results[0].title` holds a number where the declaration says `string`, that reference cannot participate in reactivity: a binding reading it does not update and keeps what it last rendered, and a `<computed>` reading it does not recompute, so nothing downstream of it moves either. The payload is left exactly as the endpoint sent it, and references into its conforming parts keep working.
+> A declared type is checked where a reference is read, not where its value arrived. If `results.0.title` holds a number where the declaration says `string`, that reference cannot participate in reactivity: a binding reading it does not update and keeps what it last rendered, and a `<computed>` reading it does not recompute, so nothing downstream of it moves either. The payload is left exactly as the endpoint sent it, and references into its conforming parts keep working.
 >
 > This is distinct from absence. A property that is not there is absence, which renders as empty text and is a normal state for data that has not arrived. A property that is present but breaks its declared type is a broken contract: rather than rendering a value the declaration forbids, or discarding a response a page may be mid-way through using, the offending reference goes quiet and the violation is reported to the author.
 >
 > A declaration with no type constrains nothing, and `unknown` is the type every value satisfies. A closed object shape states that an undeclared field is not there, so a reference to one is a violation; an open shape (`...`) says nothing about fields it does not name, which is what a payload that may grow should declare.
 >
-> A direct value argument to `format(pattern, value, …)` is an explicit text-conversion position. `format('%s!', results[0].title)` can therefore render `42!` even when `title` is declared `string` and currently holds the number `42`. The declaration and payload do not change: an unformatted read of that same reference remains inert, and an expression nested inside the argument must satisfy its own operators before `format` can convert its result.
+> `concat(value, value, …)` converts accepted scalar values to text; it does not bypass a declaration's type check. If `title` is declared `string` but the payload currently holds the number `42`, `concat($results.0.title, '!')` is inert like any other read of that reference. The payload remains available for inspection and conforming fields continue to update. See [Functions](/html-next/expressions#functions).
+
+Here is the effect across three responses when `record.value.label` is declared `string`. The resource always keeps the latest payload; each binding decides separately whether its read conforms:
+
+```html
+<template component="x-record">
+  <defs><data name="record" src="/api/record" type="object({ label: string, note: string })"></data></defs>
+  <section>
+    <output class="label" $value="$record.value.label"></output>
+    <output class="note" $value="$record.value.note"></output>
+  </section>
+</template>
+```
+
+| Response | `.label` output | `.note` output |
+| --- | --- | --- |
+| `{ label: 'first', note: 'a' }` | `first` | `a` |
+| `{ label: 42, note: 'b' }` | `first` (last valid result) | `b` |
+| `{ label: 'third', note: 'c' }` | `third` | `c` |
+
+The second response does not turn the whole resource back to its first payload. It changes `record.value.note` to `b` and leaves only the invalid `label` read without a new output. When the third response restores a string label, that binding updates again.
 
 The outbound half is symmetrical. A body param of a synchronized write is serialized as request content rather than a query parameter, while a param consumed by the `src` template identifies the resource:
 
@@ -151,31 +208,37 @@ The outbound half is symmetrical. A body param of a synchronized write is serial
 PATCH /api/posts/42
 Content-Type: application/json
 
-{ "title": "Draft title", "tags": ["design", "docs"] }
+{ "title": "Draft title", "tags": ["design", "docs"], "clientRevision": 0 }
 ```
 
-`id` filled the `{id}` placeholder and therefore does not repeat in the body; `title` and `tags` are the body. The same rule decides both directions, so an author reading a declaration can tell what the request will look like without reading any JavaScript.
+`id` filled the `{id}` placeholder and therefore does not repeat in the body; `title`, `tags`, and the sampled `clientRevision` are the body. The same rule decides both directions, so an author reading a declaration can tell what the request will look like without reading any JavaScript.
 
 ## Writes: reactive data effects
 
-A synchronized write is the outbound half of the same reactive resource model. A `<data>` with a modifying `method` and `send="change"` observes its body parameters and sends their latest snapshot when they change. This mode represents state synchronization: each body is the latest state, never a request to perform a one-shot command. `debounce` controls the quiet period before the effect runs, so autosave does not mean one request per keystroke. The declaration lives in `<defs>` and exposes `.dirty`, `.pending`, `.value`, `.error`, and `.ok`.
+A synchronized write is the outbound half of the same reactive resource model. A `<data>` with a modifying `method` and `send="change"` observes its `from:value` body parameters and sends their latest snapshot when they change. An `expr:value` parameter is sampled when another parameter causes the resource to prepare a request; changing only that expression's inputs does not queue a request. This mode represents state synchronization: each body is the latest state, never a request to perform a one-shot command. `debounce` controls the quiet period before the effect runs, so autosave does not mean one request per keystroke. The declaration lives in `<defs>` and exposes `.dirty`, `.pending`, `.value`, `.error`, and `.ok`.
 
 ```html
 <defs>
+  <state name="post" type="object({ id: string })" value="{ id: '42' }"></state>
+  <state name="draft" type="object({ title: string, tags: list(string) })"
+         value="{ title: 'Draft title', tags: ['design', 'docs'] }"></state>
+  <state name="revision" type="integer" value="0"></state>
+  <event name="publish" type="object({ title: string, tags: list(string) })"></event>
   <!-- A modifying <data> is a reactive sink, not a hidden form. -->
   <data name="saveDraft"
         method="patch"
         src="/api/posts/{id}"
         send="change"
         debounce="500ms">
-    <param name="id" :value="post.id">        <!-- resource identity -->
-    <param name="title" :value="draft.title"> <!-- reactive body field -->
-    <param name="tags" :value="draft.tags">
+    <param name="id" from:value="post.id"></param>        <!-- resource identity -->
+    <param name="title" from:value="draft.title"></param> <!-- reactive body field -->
+    <param name="tags" from:value="draft.tags"></param>
+    <param name="clientRevision" expr:value="revision"></param> <!-- sampled on a write; does not trigger one -->
   </data>
 
   <!-- An explicit command stays an event for the owner to handle. -->
   <handler name="requestPublish">
-    <dispatch event="publish" :value="draft">
+    <dispatch event="publish" expr:value="draft"></dispatch>
   </handler>
 </defs>
 
@@ -213,9 +276,9 @@ In a reactive component most of what framework lifecycle callbacks did is absorb
 
 ### What the graph already handles
 
-- **Prop changes**: when a prop changes, through a parent template's binding on the invocation or a framework passing a new value, the bindings, `<computed>`, and `<data>` that read it re-run automatically, so you never write `attributeChangedCallback`. A literal attribute on an invocation is the prop's initial configuration: the invocation is replaced when it lowers, and the root's `data-*` record is output, not observed (see [Lowering, provenance & hydration](/html-next/components)).
+- **Prop changes**: when a prop changes, through a parent template's binding on the invocation or a framework passing a new value, the bindings, `<computed>`, and `<data>` that read it re-run automatically, so you never write `attributeChangedCallback`. A literal attribute on an invocation is the prop's initial configuration; the invocation is replaced when it lowers (see [Lowering, provenance & hydration](/html-next/components)).
 - **Fetch on mount, refetch on change**: declare a `<data>`; it runs when its params resolve and again when they change. This is the `connectedCallback` fetch.
-- **Initial and derived state**: `<state :value>` and `<computed>`; initial focus is `autofocus`.
+- **Initial and derived state**: `<state type value>` declares a writable cell and its literal initial value; `<computed from>` derives a read-only value. Initial focus is `autofocus`.
 
 ### Declarative lifecycle events
 
@@ -223,9 +286,9 @@ For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a 
 
 ```html
 <defs>
-  <state name="visible" :value="false">
-  <handler name="show"><set name="visible" :value="true"></handler>
-  <handler name="hide"><set name="visible" :value="false"></handler>
+  <state type="boolean" name="visible" value="false"></state>
+  <handler name="show"><set name="visible" value="true"></set></handler>
+  <handler name="hide"><set name="visible" value="false"></set></handler>
 </defs>
 
 <!-- lifecycle events run handlers; client-only (SSR never connects) -->
@@ -249,7 +312,7 @@ For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a 
 
 ## The dependency graph
 
-Every expression exposes the paths it reads, and every `<param :value>` names a subscription, so the graph is known statically. This buys type-checkable expressions, predictable invalidation, ahead-of-time generation for any reactive framework, and a browser runtime that needs no dynamic code.
+Every expression exposes the paths it reads, and every `<param from:value>` names a subscription, so the graph is known statically. This buys type-checkable expressions, predictable invalidation, ahead-of-time generation for any reactive framework, and a browser runtime that needs no dynamic code.
 
 | Target | Lowers reactivity to |
 | --- | --- |
@@ -288,7 +351,7 @@ If an implementation chooses TC39 Signals, HTML Next needs the semantics of `Sta
 
 ::: {.entry name="<state> · <computed>" role="local reactive values"}
 Attributes
-: `<state name :value context?>` · `<computed name from>`
+: `<state name type? value?>` · `<computed name from>`
 
 Semantics
 : state is mutated only by `<set>`/`bind:`; computed is pure and recomputed from dependencies.
@@ -299,10 +362,10 @@ Level
 
 ::: {.entry name="<context>" role="read-only descendant state"}
 Attributes
-: `name`: published state cell · `from`: provider component tag · `as?`: local name (defaults to `name`)
+: `name`: ancestor state cell · `from`: ancestor component tag · `as?`: local name (defaults to `name`)
 
 Semantics
-: Reads the nearest matching provider's state reactively; cannot be written through `<set>` or `bind:`. A matching `<state>` has the boolean `context` attribute.
+: Reads the nearest matching ancestor's state reactively; cannot be written through `<set>` or `bind:`. The ancestor's `<state>` needs no marker.
 
 Level
 : [L1]{.pill .l1} · could move to Level&nbsp;2
@@ -310,7 +373,7 @@ Level
 
 ::: {.entry name="<data> · <param>" role="declared reactive resource"}
 Attributes
-: `name`, `src`, `method?`, `type?`, `send?`, `debounce?`, `poll?`, `enctype?` · `<param name :value>`
+: `name`, `src`, `method?`, `type?`, `send?`, `debounce?`, `poll?`, `enctype?` · `<param name from:value>` or `<param name expr:value>`
 
 Methods
 : `get`, `query`, `post`, `put`, `patch`, and `delete`; parsed ASCII-case-insensitively and mapped to uppercase HTTP methods before request construction.
@@ -319,7 +382,7 @@ Exposes
 : `.dirty`, `.pending`, `.value`, `.error`, `.ok`
 
 Reads
-: GET runs on connection and when a bound param changes; stale reads are cancelled and results are keyed by resolved params.
+: GET runs on connection and when a `from:value` param changes; `expr:value` params are sampled for each resulting request without triggering one. Stale reads are cancelled and results are keyed by resolved params.
 
 Writes
 : `send="change"` observes body params after the initial no-send baseline; `debounce` delays and coalesces the effect. Queued work captures an immutable identity and body, and sent writes are not cancelled.

@@ -8,7 +8,7 @@ status: Level 1 · experimental in the reference implementation
 
 # Rendered form & hydration
 
-Lowering replaces an invocation with its native root, so after a server round trip only the lowered markup remains. The **rendered form** is that markup, defined precisely enough that server output plus the definition rebuilds **the same component instance** the authored markup would, using constructs already on the web platform's standards track.
+Lowering replaces an invocation with its native root, so after a server round trip only the lowered markup remains. The **rendered form** is that markup. It must let server output plus the definition rebuild **the same component instance** the authored markup would. Slot boundaries are specified below; the format for recovering explicit props is still open.
 
 ## Two forms of one instance
 
@@ -23,8 +23,8 @@ A component instance can be written two ways. The **authored form** is the invoc
 ```
 
 ```html
-<!-- rendered form: the lowered native DOM, as a server sends it -->
-<article data-component="x-card" data-tone="warn">
+<!-- rendered form: visible slot structure; prop hydration data is not shown -->
+<article data-component="x-card">
   <header><?start slot="title"?><b slot="title">Quarterly report</b><?end?></header>
   <div><?start slot=""?>Body text<?end?></div>
 </article>
@@ -66,8 +66,8 @@ A slot under a false `$if`, content for an `$each` row that does not exist yet, 
 <!-- definition -->
 <template component="x-disclosure">
   <defs>
-    <state name="open" :value="false"></state>
-    <handler name="toggle"><set name="open" :value="not open"></set></handler>
+    <state type="boolean" name="open" value="false"></state>
+    <handler name="toggle"><set name="open" expr:value="not open"></set></handler>
   </defs>
   <div>
     <button type="button" on:click="toggle">More</button>
@@ -95,7 +95,7 @@ The carrier is marked by a `<?carrier?>` instruction immediately before it, read
 
 ## How hydration rebuilds the instance
 
-1. Read explicit props from the root's `data-<name>` attributes.
+1. Recover explicit props from the server-rendered instance's hydration data. The proposal has not fixed a wire format for that data; visible `data-<name>` attributes are not required.
 2. Collect the root's own slot ranges in document order: its subtree, minus its own ranges' contents (consumer content), minus nested components' own regions, plus the contents of nested components' ranges (what this component projected into them).
 3. The projected nodes are the contents of every range without `fallback`, each assigned that range's slot, followed by the carrier's nodes, which keep their own `slot` attribute. The carrier is removed.
 4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes or the fallback nodes, adopted in place so their bindings attach.
@@ -106,7 +106,7 @@ A root that a framework rendered is owned by that framework, which hydrates from
 ## Open questions
 
 - **Context through a server-rendered portal.** A deterministic record must connect each relocated reader to its logical component owner. DOM ancestry and `data-component` tag lineage cannot identify the providing instance when several instances share a tag.
-- **Explicit props a template binds.** When a template binds `data-<name>` for one of its own props, the rendered form cannot distinguish an explicit prop from its default, and an explicit prop is controlling. Either `data-<prop>` is reserved for the record, or explicitness is recorded separately.
+- **Explicit prop recovery.** The rendered form needs the values and explicitness of props supplied to the invocation, including structured values. The hydration data format and how it is associated with the root remain open; ordinary visible attributes cannot be assumed to carry it.
 - **Structural anchors.** `$if`, `$each`, and `$match` regions should use the same range grammar.
 - **Consumer attributes.** Merge rules for `class` and `style` between template and consumer are unspecified, so their origin cannot be recovered.
 - **Vendor support.** Chrome parses processing instructions in HTML; Gecko and WebKit have not yet taken a position.[^8] The comment form keeps the design working everywhere in the meantime.

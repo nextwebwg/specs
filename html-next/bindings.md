@@ -1,7 +1,7 @@
 ---
 title: Bindings & Events
 order: 3
-blurb: ": · bind: · on: · class: · <handler>"
+blurb: "from: · bind: · on: · class: · <handler>"
 eyebrow: Declarative HTML Components Level 1
 status: Level 1 · reserved direction
 ---
@@ -12,27 +12,87 @@ One consistent family of attribute bindings, all ordinary attribute names under 
 
 ## The binding family
 
-An unprefixed attribute is a literal. A prefix marks a binding. The colon is verified across Chromium, Firefox, and WebKit to be an ordinary attribute-name character (not an XML namespace), so every form survives the parser and round-trips through `outerHTML`.
+An unprefixed attribute supplies a fixed literal. A declared component prop parses that literal according to its type; an undeclared or native attribute keeps its ordinary HTML meaning. A prefix marks a binding. The colon is verified across Chromium, Firefox, and WebKit to be an ordinary attribute-name character (not an XML namespace), so every form survives the parser and round-trips through `outerHTML`.
 
-The shapes have direct framework precedent[^3]: the `:attr` one-way form echoes Vue `v-bind`, while `bind:` (two-way) and `on:` (event) match Svelte verbatim. Angular `[(ngModel)]`, its banana-in-a-box, is the canonical one-way-in-plus-event-out two-way model that the `bind:` writability rules follow.
+The shapes have direct framework precedent[^3]: `from:attr` supplies values to an element as Vue's `v-bind` does, while `bind:` (two-way) and `on:` (event) match Svelte verbatim. Angular `[(ngModel)]`, its banana-in-a-box, is the canonical one-way-in-plus-event-out two-way model that the `bind:` writability rules follow.
 
 | Form | Meaning |
 | --- | --- |
-| `attr="…"` | Literal attribute (a string). |
-| `:attr="expr"` | One-way expression binding, resolved by the element contract. This is also how a non-string value is supplied: `:value="0"` is the number, `value="0"` the string. |
+| `attr="…"` | Fixed literal. A declared component prop parses it using its type; an undeclared or native attribute follows HTML's attribute rules. |
+| `from:attr="expr"` | One-way expression binding, evaluated and checked against the element contract. The target updates when a prop, state value, or other dependency changes. |
 | `bind:prop="path"` | Two-way binding to a writable path. |
 | `on:event="handler"` | Event binding to a declared handler. |
-| `class:token="expr"` / `style:prop="expr"` | Toggle one class, or set one style property, from a single expression. |
+| `class:token="expr"` / `style:prop="expr"` | Live bindings: toggle one class or set one style property, then update it whenever the expression's dependencies change. |
 | `$key="expr"` | List identity for reactive reconciliation (a `$each` modifier). |
 
-> [!note] The one shape
-> `:x` one-way, `bind:x` two-way, `on:x` event, `class:x` / `style:x` keyed presentation. `from={count * 2}` does not survive the parser (spaces split it into three attributes); `:from="count * 2"` does.
+For example, when a component declares `count` as `number` and `point` as `object`, both plain attributes produce typed values without a colon:
+
+```html
+<x-plot count="3" point="{ x: 3, y: 5 }"></x-plot>
+<x-plot from:count="nextCount" from:point="{ x: currentX, y: 5 }"></x-plot>
+```
+
+The first invocation supplies fixed values. The second evaluates expressions that read `nextCount` and `currentX`. A plain structured value uses HTML Next's [object literal syntax](/html-next/types), not JSON; references such as `currentX` require `from:`. The prefix selects reactive expression evaluation, not a data type.
+
+A live binding writes only a result that has its destination's declared type. If one evaluation has the wrong type, it leaves the destination at its last successfully written value; before the first successful write, the destination retains its default or `null`. The binding still watches its dependencies and can write again when the result becomes valid. This rule applies equally when the expression is a direct reference or a function call. A value of the right type that fails `min`, `max`, or another value constraint **does** get written and sets validity. [Reactivity](/html-next/reactivity#invalid-reactive-results) shows the full sequence.
+
+> [!note] Prefixes name the operation
+> `from:x`, `class:x`, and `style:x` all subscribe to the values their expressions read and recompute when those values change. `bind:x` also writes changes back; `on:x` invokes a handler. The suffix names the affected attribute, property, event, class, or style property.
+
+### Constant, action-time, and computed values
+
+These forms answer two separate questions: **is the supplied text a literal or an expression, and when is it used?** A literal is parsed through the destination's declared type; it is not necessarily a JavaScript string.
+
+| Form | Interpretation | When it takes effect |
+| --- | --- | --- |
+| `value="2"` | Constant literal; a `number` destination receives JavaScript `2`, while a `string` destination receives `"2"`. | A declaration initializes, or a handler uses the constant when it runs. |
+| `expr:value="count + 1"` | Expression evaluated against the component's current values. Its result must satisfy the destination's declared type. | Once each time a `<set>` or `<dispatch>` step runs. It creates no subscription. |
+| `from:value="draft.title"` | Computed value with a live dependency on `draft.title`. | Recomputed when that dependency changes; the receiving element's effect then runs. |
+
+For a `<set expr:value>` handler step, a wrong-typed result skips that state write. The handler can run again later; there is no subscription. A `from:` binding, by contrast, re-evaluates on every dependency change and leaves its previous value in place during an invalid evaluation.
+
+```html
+<state name="count" type="number" value="1"></state>
+<state name="post" type="object({ id: string })" value="{ id: '42' }"></state>
+<state name="draft" type="object({ title: string })" value="{ title: '' }"></state>
+<state name="revision" type="integer" value="0"></state>
+<handler name="increment">
+  <set name="count" expr:value="count + 1"></set>
+</handler>
+<event name="publish" type="object({ title: string })"></event>
+<handler name="publish">
+  <dispatch event="publish" expr:value="draft"></dispatch>
+</handler>
+<data name="saveDraft" method="patch" src="/api/drafts/{id}" send="change">
+  <param name="id" from:value="post.id"></param>
+  <param name="title" from:value="draft.title"></param>
+  <param name="clientRevision" expr:value="revision"></param>
+</data>
+```
+
+The `title` parameter recomputes as the draft changes. The data resource's `send="change"` policy turns a changed `from:value` body parameter into a write; a read resource instead refetches. `clientRevision` is sampled for that write but changing `revision` alone does not schedule one. The dispatch runs only when its handler is invoked. `from:` on a dispatch would mean a live effect and would send on a dependency change, so handler steps use `expr:value` for expressions.
 
 ## One-way bindings
 
-`:name="expr"` binds an attribute or a contract-declared property. It normalizes before resolving: strip the marker, ASCII-lowercase the remainder, look the key up in the generated platform manifest, and assign using the returned canonical spelling, **which may be an attribute or a DOM property**. There is deliberately **no separate raw-property syntax**: the manifest is authoritative, so an author never hand-picks an exact IDL name, and no binding reaches an arbitrary DOM property outside the contract.
+`from:name="expr"` binds an attribute or a contract-declared property. It normalizes before resolving: strip `from:`, ASCII-lowercase the remainder, look the key up in the generated platform manifest, and assign using the returned canonical spelling, **which may be an attribute or a DOM property**. The expression is evaluated when the element is created and again whenever its dependencies change. A dependency can be a prop or a state value. There is deliberately **no separate raw-property syntax**: the manifest is authoritative, so an author never hand-picks an exact IDL name, and no binding reaches an arbitrary DOM property outside the contract.
 
 Replacing an element's content is not a binding but a [templating](/html-next/templating) directive: escaped text is `$value`, sanitized markup is `$html`. Raw, unsanitized HTML is available only through the dedicated trusted-HTML type (see [Types](/html-next/types)), never an ordinary string.
+
+### Future exploration: writable computed values
+
+A computed value could declare both its live read and the action to take when a binding writes to it:
+
+```html
+<state name="fraction" type="number" value="0.25"></state>
+<computed name="percentage"
+          read="$fraction * 100"
+          write="fraction: $value / 100"></computed>
+<x-stepper bind:value="percentage"></x-stepper>
+```
+
+The read expression would recompute when `$fraction` changes. The `bind:value` target is the concrete writable path `percentage`; it is not an expression. When the component reports a new numeric value through `bind:value`, the write expression would set the writable `fraction` state. This keeps the inverse mapping in one declaration and reuses `bind:` at the call site, instead of pairing `from:value` and `to:value` on each invocation. The `fraction:` part is a proposed writable destination, not general expression assignment.
+
+This syntax is exploratory. Design still needs to choose `read` versus the existing `<computed from>` spelling, define the component event that supplies `$value`, check the write result against the destination type, and prevent feedback loops. A read expression need not have an inverse: for `hasQuery = query != ''`, writing `false` can clear the query, but writing `true` cannot reconstruct text that was never supplied. Level&nbsp;1 computeds remain read-only and cannot be `bind:` destinations.
 
 ## How a bound value serializes
 
@@ -46,10 +106,10 @@ A binding evaluates to a typed value, and how that value lands depends on the va
 | a number | stringified |
 | a list | space-joined, for token-list attributes |
 
-The `false`/`null` → removed rule is what makes boolean attributes work with no special case: `:disabled="isDisabled"` adds `disabled` when true and removes it when false, never the `disabled="false"` trap (which is actually disabled). When you want the *characters* "false", bind a string, `:data-state="'false'"`, or an identifier that resolves to one.
+The `false`/`null` → removed rule is what makes boolean attributes work with no special case: `from:disabled="isDisabled"` adds `disabled` when true and removes it when false, never the `disabled="false"` trap (which is actually disabled). When you want the *characters* "false", bind a string, `from:data-state="'false'"`, or an identifier that resolves to one.
 
 > [!note] Two kinds get specific wiring
-> **URL attributes** (`href`, `src`, `action`, …) are stringified and then have dangerous schemes stripped, the same posture the sanitizer applies to `$html`, so a bound `javascript:` URL is dropped. **Enumerated true/false attributes** (the `aria-*` family, `contenteditable`) take the literal strings `"true"`/`"false"` rather than presence, so a bound boolean coerces to that string: `:aria-expanded="isOpen"` yields `aria-expanded="false"` when closed rather than removing it. Both are the manifest doing the work; the author writes the same `:attr` either way.
+> **URL attributes** (`href`, `src`, `action`, …) are stringified and then have dangerous schemes stripped, the same posture the sanitizer applies to `$html`, so a bound `javascript:` URL is dropped. **Enumerated true/false attributes** (the `aria-*` family, `contenteditable`) take the literal strings `"true"`/`"false"` rather than presence, so a bound boolean coerces to that string: `from:aria-expanded="isOpen"` yields `aria-expanded="false"` when closed rather than removing it. Both are the manifest doing the work; the author writes the same `from:attr` either way.
 
 Because the mapping is fixed and manifest-driven, every target serializes identically, the equivalence contract applied to attribute writes: the polyfill and the React/Vue/Svelte outputs each compile to their own idiom while producing the same observable attribute.
 
@@ -80,16 +140,16 @@ Writability flows from the root: a `$each` local or `$with` alias is writable ex
 > A GET `<data>` result is read-only, so you do not `bind:` to it. Copy the fetched value into a `<state>` draft and bind controls to the draft. If that draft should autosave, a writable [`<data method="patch" send="change">`](/html-next/reactivity) observes the fields it sends. The fetched value, in-progress edit, and write effect remain distinct.
 
 > [!note] Attribute vs. property
-> Binding distinguishes an input's initial `value` attribute (serialized/default state) from its live `value` property (current control state). `:value` sets the initial attribute; `bind:value` tracks the live property.
+> Binding distinguishes an input's initial `value` attribute (serialized/default state) from its live `value` property (current control state). `from:value` updates the attribute from an expression; `bind:value` tracks the live property.
 
 ## Class & style bindings
 
-Conditional presentation uses **keyed bindings**, one class token or style property at a time, joining the same family as `on:` and `bind:`. `class:btn--busy="saving"` adds the class when the expression is truthy; `style:--progress="pct + '%'"` sets that property to the expression's value. The **key is the attribute name** (a literal class token or CSS property) and the **value is a single pure expression**, so nothing packs a key/value list into one attribute value,[^4] and the only `:` is the family prefix while the only `=` is equality inside the expression. Both compose with any literal `class` or `style`. Purely visual transforms remain CSS's job (see [Styling](/html-next/styling)); these only toggle which classes and custom properties apply.
+Conditional presentation uses **keyed live bindings**, one class token or style property at a time. Like `from:`, each binding runs when the element is created and again when a prop, state value, or other dependency read by its expression changes. `class:btn--busy="$saving"` adds or removes the class as `saving` changes; `style:--progress="concat($pct, '%')"` updates that property as `pct` changes. The [expression language](/html-next/expressions) defines `+` for numbers only; `concat` produces a string. The **key is the attribute name** (a literal class token or CSS property) and the **value is a single pure expression**, so nothing packs a key/value list into one attribute value.[^4] Both compose with any literal `class` or `style`. Purely visual transforms remain CSS's job (see [Styling](/html-next/styling)); these bindings update presentation keys.
 
 ```html
 <!-- one class or style property per keyed binding; the value is a single pure expression -->
-<button class="btn" class:btn--busy="saving" class:btn--danger="variant = 'destructive'">
-<div style:--progress="upload.percent + '%'"></div>
+<button class="btn" class:btn--busy="$saving" class:btn--danger="$variant = 'destructive'">
+<div style:--progress="concat($upload.percent, '%')"></div>
 ```
 
 ## Events & handlers
@@ -106,11 +166,11 @@ Conditional presentation uses **keyed bindings**, one class token or style prope
 <!-- behavior lives in the definition's <defs> region -->
 <defs>
   <handler name="startEdit">
-    <set name="editing" :value="true">
+    <set name="editing" value="true">
   </handler>
 
   <handler name="requestPublish">
-    <dispatch event="publish" :value="draft">
+    <dispatch event="publish" expr:value="draft">
   </handler>
 </defs>
 ```
@@ -121,8 +181,8 @@ A handler is an ordered, enumerable list of declarative steps. The vocabulary is
 
 | Step | Effect |
 | --- | --- |
-| `<set name :value>` | Write a local state cell. Mirrors `<state name :value>`: `name` is the cell, `:value` the new value as a bound expression. |
-| `<dispatch event :value?>` | Dispatch a component event to the consumer, with an optional typed payload. |
+| `<set name value>` or `<set name expr:value>` | Write a local state cell. `value` is a typed constant; `expr:value` is evaluated when the handler runs. |
+| `<dispatch event value?>` or `<dispatch event expr:value?>` | Dispatch a component event with an optional typed constant or action-time expression as its payload. |
 | `$if` (on a step) | Guard a step; it runs only when the expression is truthy, the same `$if` directive used in templating. |
 
 > [!norm] Handlers-only, by design
@@ -206,6 +266,6 @@ Level
 
 [^1]: WHATWG HTML, [invoker commands](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-commandfor-attribute) (`command`/`commandfor`); see also [MDN: Invoker Commands API](https://developer.mozilla.org/en-US/docs/Web/API/Invoker_Commands_API).
 [^2]: WHATWG DOM, [dispatching events](https://dom.spec.whatwg.org/#dispatching-events) (the `dispatch` verb behind `<dispatch>`).
-[^3]: Binding-family prior art: Vue [v-bind](https://vuejs.org/api/built-in-directives.html#v-bind) (the `:attr` one-way shorthand HTML Next borrows); Svelte [bind:](https://svelte.dev/docs/svelte/bind) and [on:](https://svelte.dev/docs/svelte/on) element directives (two-way and event, matched here verbatim); Angular [two-way binding](https://angular.dev/guide/templates/two-way-binding) (the `[(ngModel)]` banana-in-a-box: one-way-in plus event-out, the model behind the `bind:` writability rules).
+[^3]: Binding-family prior art: Vue [v-bind](https://vuejs.org/api/built-in-directives.html#v-bind) (one-way values, expressed here with `from:attr`); Svelte [bind:](https://svelte.dev/docs/svelte/bind) and [on:](https://svelte.dev/docs/svelte/on) element directives (two-way and event, matched here verbatim); Angular [two-way binding](https://angular.dev/guide/templates/two-way-binding) (the `[(ngModel)]` banana-in-a-box: one-way-in plus event-out, the model behind the `bind:` writability rules).
 [^4]: Keyed presentation prior art: Svelte [class:](https://svelte.dev/docs/svelte/class) and [style:](https://svelte.dev/docs/svelte/style) directives (the exact keyed syntax adopted here). Contrast: Vue [object `:class="{ open: x }"`](https://vuejs.org/guide/essentials/class-and-style.html) and Lit [`classMap`](https://lit.dev/docs/templates/directives/#classmap)/`styleMap` pack a key/value map into one attribute value; Angular `[class.x]`/`[style.x]`/`ngClass` and Solid [`classList`](https://docs.solidjs.com/reference/jsx-attributes/classlist) are the same keyed idea.
 [^5]: Keyed iteration prior art: React [key](https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key) (the origin of list identity), Vue [:key](https://vuejs.org/api/built-in-special-attributes.html#key), Svelte [keyed each](https://svelte.dev/docs/svelte/each), Angular [@for with track](https://angular.dev/guide/templates/control-flow) (and the older `trackBy`), and Lit [repeat with a key function](https://lit.dev/docs/templates/lists/#the-repeat-directive).

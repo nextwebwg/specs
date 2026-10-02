@@ -19,7 +19,7 @@ One prop, one native root, a scoped style. It lowers to a real `<button>`, no wr
 <!-- button.html — a minimal component: one prop, one native root, scoped style. -->
 <template component="x-button">
   <defs>
-    <prop name="variant" type="outline | solid" default="outline">Visual treatment.</prop>
+    <prop name="variant" type="keyword" values="outline, solid" default="outline">Visual treatment.</prop>
   </defs>
   <button><slot></slot></button>
   <style>
@@ -31,7 +31,7 @@ One prop, one native root, a scoped style. It lowers to a real `<button>`, no wr
 <!-- use -->
 <x-button variant="solid">Save</x-button>
 <!-- lowers to -->
-<button data-component="x-button" data-variant="solid">Save</button>
+<button data-component="x-button">Save</button>
 ```
 
 ## Control flow, as attributes
@@ -64,15 +64,16 @@ The definition declares `<state>`, exposes a `$ref`, and names its controller on
 <template component="x-counter" controller="./counter.js">
   <defs>
     <prop name="start" type="number" default="0"></prop>
-    <state name="count" :value="start"></state>
+    <state name="count" type="number" value="0"></state>
   </defs>
   <button $ref="btn" type="button">count: <span $value="count"></span></button>
 </template>
 ```
 
-```html title="counter.js"
+```js title="counter.js"
 // counter.js — the definition names this module; no library import is required.
 export default function controller(host) {
+  host.state.count = host.props.start.value;
   host.refs.btn.addEventListener("click", () => {
     // Drive STATE, never the DOM directly. The runtime reflects count to the <span>.
     host.state.count = host.state.count + 1;
@@ -91,7 +92,7 @@ export default function controller(host) {
 <!-- chart.html — wraps a foreign drawing library through a $ref to a canvas. -->
 <template component="x-chart" controller="./chart.js">
   <defs>
-    <state name="bars" :value="[3, 7, 2, 5, 8, 4]"></state>
+    <state type="list(integer)" name="bars" value="[3, 7, 2, 5, 8, 4]"></state>
   </defs>
   <figure>
     <canvas $ref="surface" width="260" height="90" role="img" aria-label="chart"></canvas>
@@ -99,7 +100,7 @@ export default function controller(host) {
 </template>
 ```
 
-```html title="chart.js"
+```js title="chart.js"
 // chart.js — the library owns its own (unbound) canvas; an effect re-runs if data changes.
 import { Chart } from "chart-lib";               // a bare specifier; the import map resolves it
 

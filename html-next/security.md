@@ -14,7 +14,7 @@ What that looks like in practice: expressions never run as code, dangerous sinks
 
 ```html
 <!-- Blocked: no expression is ever eval'd; a bound javascript: URL is dropped -->
-<a :href="user.website">…</a>       <!-- javascript:… as the value → attribute removed -->
+<a from:href="user.website">…</a>       <!-- javascript:… as the value → attribute removed -->
 <button onclick="…">                 <!-- inline handler → non-conforming, rejected -->
 
 <!-- Safe sinks are explicit -->

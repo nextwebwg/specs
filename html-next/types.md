@@ -1,6 +1,6 @@
 ---
 title: Type System
-order: 7
+order: 1.5
 blurb: value types and absence
 eyebrow: Declarative HTML Components
 ---

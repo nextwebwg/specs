@@ -71,7 +71,7 @@ reference := "$" id
 dimension := css-number css-unit | css-number "%" (* units from Types; no whitespace *)
 integer   := digit+
 call      := fn "(" (expr ("," expr)*)? ")"    (* fixed, typed, CSS-style — not arbitrary calls *)
-fn        := "round" | "clamp" | "min" | "max" | "abs" | "default" | "concat"
+fn        := "round" | "clamp" | "min" | "max" | "abs" | "default" | "concat" | "join"
 object    := "{" (pair ("," pair)* ","?)? "}"
 pair      := (id | string) ":" expr
 array     := "[" (expr ("," expr)* ","?)? "]"
@@ -177,6 +177,7 @@ Functions cover operations that an operator or an existing HTML/CSS feature does
 | `abs(value)` | `abs(-2rem)` → `2rem` | Return the magnitude with the same type.[^6] | CSS `abs()`[^6] |
 | `default(value, fallback)` | `default($count, 0)` | Return the fallback only for absent or `null`; otherwise return the original value. It does not replace `0`, `false`, `''`, or an empty list.[^7][^10] | CSS `var()` fallback; Jinja `default`[^7][^10] |
 | `concat(value, …)` | `concat($progress, '%')` → `'40%'` | Convert one accepted scalar to text, or join several in order; return a string. This is text assembly, not locale formatting.[^11] | XPath `concat()`[^11] |
+| `join(list, separator)` | `join($tags, ', ')` → `'red, blue'` | Convert a list of accepted scalar items to text, placing the string separator between items; return a string.[^16] | XPath `string-join()`; Liquid and Twig `join`[^16] |
 
 `round` uses CSS's default *nearest* strategy: an exact halfway case goes toward positive infinity. Thus `round(2.5)` is `3`, `round(-2.5)` is `-2`, and `round(8.8px, 1px)` is `9px`. A negative step has the same multiples as its positive magnitude; a step of zero has no result. Other CSS rounding strategies (`up`, `down`, `to-zero`) are not included in this level; adding them later will use CSS's leading strategy argument rather than changing the meaning of these calls.[^6]
 
@@ -201,7 +202,9 @@ Unitless `0` is a number, so `round(8px, 0)` is a type error; use `0px` (which t
 
 `default` is lazy: it evaluates `value` first, and evaluates `fallback` only if that result is absent or `null`. Both arms must have the same declared type, or satisfy the same expected destination type; it does not create a mixed-type union. A present but invalid typed reference is **not** absence and cannot be rescued by `default`; the invalid result follows the [live-binding rule](/html-next/reactivity): the destination keeps its last accepted value, or its default/`null` if it has never accepted one. The function does not use truthiness.
 
-`concat` requires at least one argument. Each must be a scalar (`string`, `keyword`, `boolean`, `integer`, `number`, or a serialized scalar type such as `length`). It uses that type's normal attribute text: for example `concat(true)` returns `'true'` and `concat(8px)` returns `'8px'`. A value keeps its normal type checks until it reaches this explicit text conversion. Missing data propagates as absent; `null` contributes an empty string. Objects and lists need their own presentation, such as `<value format="list">`. Locale-sensitive number, date, currency, and list presentation uses `<value format>` below. XPath supplies the function's name and ordered concatenation, but Declarative Components also permits one argument so the same function can replace `format('%s', value)` without another conversion function.[^11]
+`concat` requires at least one argument. Each must be a scalar (`string`, `keyword`, `boolean`, `integer`, `number`, or a serialized scalar type such as `length`). It uses that type's normal attribute text: for example `concat(true)` returns `'true'` and `concat(8px)` returns `'8px'`. A value keeps its normal type checks until it reaches this explicit text conversion. Missing data propagates as absent; `null` contributes an empty string. Lists and objects are not `concat` arguments. Locale-sensitive number, date, currency, and list presentation uses `<value format>` below. XPath supplies the function's name and ordered concatenation, but Declarative Components also permits one argument so the same function can replace `format('%s', value)` without another conversion function.[^11]
+
+`join` requires exactly two arguments: a list and a string separator. The list may be empty and must have one scalar item type, as described in [Types](/html-next/types#lists-and-their-written-forms). Items use the same text conversion as `concat`; a `null` item contributes an empty string, but still occupies its position between separators. An empty list returns `''`, and a one-item list returns that item's text without a separator. An absent list, separator, or item propagates as absent. An object item or a separator of another type makes the call invalid. For example, `join(['red', null, 'blue'], ', ')` returns `'red, , blue'`, while `join([], ', ')` returns `''`. This function assembles an attribute or computed string; `<value format="list">` remains the locale-sensitive way to present a list to readers.[^16]
 
 ### Invalid calls and live bindings
 
@@ -215,9 +218,12 @@ Wrong argument counts, incompatible types, an unresolvable unit comparison, a ze
 | `default(null, 0)` / `default(false, true)` | `0` / `false` |
 | `concat(40, '%')` | `'40%'` (`string`) |
 | `concat(true)` | `'true'` (`string`) |
+| `join(['red', 'blue'], ', ')` | `'red, blue'` (`string`) |
+| `join([], ', ')` | `''` (`string`) |
 | `max(1rem, 12px)` | invalid without a font context; no destination write |
 | `round(8px, 0px)` | invalid zero step; no destination write |
 | `concat()` | invalid argument count; no destination write |
+| `join(['red'], 1)` | invalid separator type; no destination write |
 
 ```html
 <prop name="amount" type="number" default="5"></prop>
@@ -228,7 +234,7 @@ Wrong argument counts, incompatible types, an unresolvable unit comparison, a ze
 
 ### Why this set
 
-The admission test for a built-in is concrete: it must express a recurring typed operation that an operator, element, or CSS property does not already express at that use site; it must be pure; and both the browser interpreter and compiled targets must be able to give it the same result. `round($width, 1px)` passes because a computed length may feed a prop or attribute, not just a CSS property. `concat($progress, '%')` passes because `+` is numeric-only and a live attribute may need a string. A `currency()` function fails because `<value format="currency">` already owns displayed currency.
+The admission test for a built-in is concrete: it must express a recurring typed operation that an operator, element, or CSS property does not already express at that use site; it must be pure; and both the browser interpreter and compiled targets must be able to give it the same result. `round($width, 1px)` passes because a computed length may feed a prop or attribute, not just a CSS property. `concat($progress, '%')` passes because `+` is numeric-only and a live attribute may need a string. `join($tags, ', ')` assembles a list for an attribute with a chosen separator. Displayed currency is assigned to `<value format="currency">` below, so it does not need a `currency()` expression function.
 
 Template languages show a need for transformations but disagree on what a broad library should contain. Liquid and Twig supply dozens of filters, including arithmetic and formatting; Jinja supplies a configurable filter library. Angular pipes cover locale formatting and arbitrary presentation transformations, while Vue 3 removed its template filters.[^14] Handlebars and Mustache show a smaller expression surface but rely on helpers or lambdas for custom work.[^15] Declarative Components places the recurring jobs where its existing syntax already puts them:
 
@@ -237,12 +243,13 @@ Template languages show a need for transformations but disagree on what a broad 
 | Arithmetic and comparisons | Operators; `min`, `max`, `clamp`, `round`, `abs` for math that needs a name |
 | Missing-value fallback | `default()` in an expression; `<value default>` for displayed text |
 | Attribute text assembled from typed values | `concat()` |
+| List items assembled with a chosen separator | `join()` |
 | Locale presentation | `<value format>` and the globalization standard |
 | Uppercase or truncation for display | CSS `text-transform`, `text-overflow`, or `line-clamp` |
 | Sort, filter, or limit repeated items | `$sort`, `$where`, `$limit` on `$each` |
 | Split, replace, regex, or application-specific computation | Component JavaScript and the reactive graph, not a callable template library |
 
-`join(list, separator)` is the next plausible string operation, with prior art in XPath and the surveyed template languages, but the current components have no authored case that needs it.[^16] Lists used for display already have `<value format="list">`; space- and comma-separated typed attributes have their own written forms. It stays outside this function set until a concrete attribute or computed value needs a different separator.
+`join` and `<value format="list">` serve different sites: `join` creates a string for a typed destination or attribute with an author-chosen separator, while the `<value>` element presents a list to readers using locale rules. Space- and comma-separated typed attributes also have their own written forms, so they do not need `join` just to parse a list.
 
 This keeps the browser interpreter and generated Vue/React expressions deterministic. It also avoids silently choosing a different fallback rule from Liquid or Twig, both of which replace some present false or empty values.[^10]
 

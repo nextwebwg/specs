@@ -1,6 +1,6 @@
 ---
 title: Type System
-order: 7
+order: 1.5
 blurb: value types and absence
 eyebrow: Declarative HTML Components
 ---
@@ -45,6 +45,8 @@ Each type has one name and one meaning.
 > HTML already parses formats such as dates and URLs, and control modes change which values are valid. CSS defines colors, lengths, and other value grammars.[^1][^16] JavaScript can implement these rules, but putting them only in component code hides them from the browser runtime, build tools, and generated TypeScript. Declarations expose the rules without changing native DOM properties such as `HTMLInputElement.value`.
 
 In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop values are JavaScript `Number` values. A written `ratio="0.3"` therefore becomes the number `0.3` in `host.props.ratio.value` when `ratio` is declared as `number`.
+
+`length`, `percentage`, and `duration` remain serialized strings at that JavaScript boundary. An [expression math function](/html-next/expressions#values-with-units) can calculate with their typed quantities and returns their written form; for example `round(8.8px, 1px)` produces `9px` for a `length` destination.
 
 ## Value constraints
 

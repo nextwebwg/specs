@@ -140,12 +140,12 @@ Writability flows from the root: a `$each` local or `$with` alias is writable ex
 
 ## Class & style bindings
 
-Conditional presentation uses **keyed live bindings**, one class token or style property at a time. Like `from:`, each binding runs when the element is created and again when a prop, state value, or other dependency read by its expression changes. `class:btn--busy="saving"` adds or removes the class as `saving` changes; `style:--progress="format('%s%', pct)"` updates that property as `pct` changes. The [expression language](/html-next/expressions) defines `+` for numbers only; `format` produces a string. The **key is the attribute name** (a literal class token or CSS property) and the **value is a single pure expression**, so nothing packs a key/value list into one attribute value.[^4] Both compose with any literal `class` or `style`. Purely visual transforms remain CSS's job (see [Styling](/html-next/styling)); these bindings update presentation keys.
+Conditional presentation uses **keyed live bindings**, one class token or style property at a time. Like `from:`, each binding runs when the element is created and again when a prop, state value, or other dependency read by its expression changes. `class:btn--busy="$saving"` adds or removes the class as `saving` changes; `style:--progress="concat($pct, '%')"` updates that property as `pct` changes. The [expression language](/html-next/expressions) defines `+` for numbers only; `concat` produces a string. The **key is the attribute name** (a literal class token or CSS property) and the **value is a single pure expression**, so nothing packs a key/value list into one attribute value.[^4] Both compose with any literal `class` or `style`. Purely visual transforms remain CSS's job (see [Styling](/html-next/styling)); these bindings update presentation keys.
 
 ```html
 <!-- one class or style property per keyed binding; the value is a single pure expression -->
-<button class="btn" class:btn--busy="saving" class:btn--danger="variant = 'destructive'">
-<div style:--progress="format('%s%', upload.percent)"></div>
+<button class="btn" class:btn--busy="$saving" class:btn--danger="$variant = 'destructive'">
+<div style:--progress="concat($upload.percent, '%')"></div>
 ```
 
 ## Events & handlers

@@ -77,7 +77,7 @@ pair      := (id | string) ":" expr
 array     := "[" (expr ("," expr)* ","?)? "]"
 ```
 
-`css-number` is a finite CSS number token; `css-unit` is a unit accepted by `length` or `duration` in [Types](/html-next/types). A numeric token immediately followed by a known unit or `%` forms one dimensional literal before the parser considers the `%` remainder operator. Thus `25%` is a percentage; `25 % 4` is remainder. Unary `-` negates a number or dimensional literal, so `-2rem` is a length. Binary arithmetic operators remain numeric-only. Conventional precedence with parentheses applies. Equality, missing data, truthiness, and coercion are specified explicitly (see **Value semantics**, next) rather than inherited from JavaScript or any template language.
+`css-number` is a finite CSS number token; `css-unit` is a unit accepted by `length` or `duration` in [Types](/html-next/types). A numeric token immediately followed by a known unit or `%` forms one dimensional literal before the parser considers the `%` remainder operator. Thus `25%` is a percentage; `25 % 4` is remainder. Unary `-` negates a number or dimensional literal, so `-2rem` is a length. Binary operators follow the [typed arithmetic rules](#arithmetic-with-units) below. Conventional precedence with parentheses applies. Equality, missing data, truthiness, and coercion are specified explicitly (see **Value semantics**, next) rather than inherited from JavaScript or any template language.
 
 A `$`-prefixed name reads a declared value. A literal list index can be dotted or bracketed: `$items.0.name` and `$items[0].name` both read the first item's `name` and have the dependency path `items.0.name`, without the expression's `$` reference marker. Directly written integer keys retain their exact spelling in either form, so `$byId.9007199254740993` and `$byId[9007199254740993]` read the same object key without rounding it. Brackets also accept a computed key, such as `$items[$index]`, or a quoted object key that cannot be written as a dot segment.
 
@@ -124,7 +124,7 @@ Reading a property that is not present at runtime, `order.error.message` when `e
 
 Comparison is **typed**. Two values of different types are not equal, and comparing operands whose types are statically known to be disjoint, a `number` against a string literal, is a **conformance error**, a caught bug rather than a silent `false`. Where a type mismatch can only be known at runtime, the result is simply `false`; it never throws.
 
-Arithmetic is **numeric only**. `+` adds numbers; it is *not* overloaded for string concatenation, so `"1" + 1` can never silently become `"11"`. A non-numeric operand is a type error where that is statically known, and absent otherwise. Operators never coerce across types. Conversion happens at **typed edges**: a `number` prop converts its incoming string once, on the way in, the way `<input>` exposes both `value` and `valueAsNumber`, never mid-expression.
+Arithmetic follows the operand types. `+` is *not* overloaded for string concatenation, so `"1" + 1` can never silently become `"11"`. An incompatible combination is a type error where it is statically known, and absent otherwise. Operators never coerce across types. Conversion happens at **typed edges**: a `number` prop converts its incoming string once, on the way in, the way `<input>` exposes both `value` and `valueAsNumber`, never mid-expression. The [rules for dimensions](#arithmetic-with-units) give each valid operation a result type.
 
 `concat(value, …)` is an explicit conversion edge for constructing a string. One argument converts an accepted scalar value to text; further arguments append their text in order. It does not bypass a declaration's type check. Its arguments and errors are defined under [Functions](#functions).
 
@@ -133,7 +133,7 @@ Arithmetic is **numeric only**. `+` adds numbers; it is *not* overloaded for str
 Because `or` returns a boolean, fallback has an explicit form. `default($user.name, 'friend')` uses `'friend'` when the value is absent or `null`; it preserves `false`, `0`, and `''`. The fallback is evaluated only when needed. This resembles CSS `var(--x, fallback)`[^7] and Jinja's undefined-only `default`[^10], with `null` included because an omitted optional prop resolves to `null`. `<value of="$user.name" default="friend">` is the shorter text-only form with the same absent-or-`null` trigger. A whole-markup choice among several states is a `$match`; a small value choice can use `? :`.
 
 > [!norm] Fault tolerance is a platform requirement
-> A conforming **runtime**, the polyfill or a future native implementation, [must not]{.kw} throw on a data condition: absent data yields the absent value and rendering continues, exactly as the HTML parser[^8] recovers from malformed markup rather than aborting the page. Anything less violates the platform. A **compiler** [may]{.kw} reject author mistakes, undeclared names, disjoint-type comparisons, non-numeric arithmetic, at build time as static analysis, the way a validator or a type checker does; but this is optional, and every construct a compiler could reject still has a defined runtime behaviour (absent, empty, or logged), so a permissive implementation stays conformant. Diagnostics are recommended; compile-time rejection is optional; runtime throwing is forbidden.
+> A conforming **runtime**, the polyfill or a future native implementation, [must not]{.kw} throw on a data condition: absent data yields the absent value and rendering continues, exactly as the HTML parser[^8] recovers from malformed markup rather than aborting the page. Anything less violates the platform. A **compiler** [may]{.kw} reject author mistakes, undeclared names, disjoint-type comparisons, incompatible arithmetic, at build time as static analysis, the way a validator or a type checker does; but this is optional, and every construct a compiler could reject still has a defined runtime behaviour (absent, empty, or logged), so a permissive implementation stays conformant. Diagnostics are recommended; compile-time rejection is optional; runtime throwing is forbidden.
 
 ## Object & array expressions
 
@@ -183,7 +183,7 @@ Functions cover operations that an operator or an existing HTML/CSS feature does
 
 ### Values with units
 
-The `length`, `percentage`, and `duration` types are strings at the JavaScript boundary, but they are **typed quantities** while an expression calculates with them. A literal such as `8.8px`, `25%`, or `200ms` has that type. A reference declared as one of those types is parsed from its accepted value before a math function runs. The result crosses back to a prop, state, or DOM binding in the [type's written form](/html-next/types), such as `9px`; it is not exposed as a JavaScript number. The HTML clock-time type `time` is not a CSS duration.
+The `length`, `percentage`, and `duration` types are strings at the JavaScript boundary, but they are **typed quantities** while an expression calculates with them. A literal such as `8.8px`, `25%`, or `200ms` has that type. A reference declared as one of those types supplies its accepted numeric part and written unit to a calculation. The result crosses back to a prop, state, or DOM binding in the [type's written form](/html-next/types), such as `9px`; it is not exposed as a JavaScript number. The HTML clock-time type `time` is not a CSS duration.
 
 For a function with more than one dimensional argument, every argument must have the same type **and the same written unit**. `min(1px, 2px)` and `min(1rem, 2rem)` work; `min(1in, 100px)` and `max(200ms, 0.5s)` are invalid, even though CSS defines conversion ratios for those units.[^12] The functions do not convert units or silently choose an output unit. `abs` has one argument, so `abs(-2rem)` simply returns `2rem`. Percentages compare with percentages, never with lengths. Calculations that need unit conversion or layout and font context belong in a [controller](/html-next/javascript); CSS math remains available in CSS properties where that context exists.
 
@@ -196,7 +196,29 @@ For a function with more than one dimensional argument, every argument must have
 <!-- If width is in px, no comparison is made: the written units differ. -->
 ```
 
-Unitless `0` is a number, so `round(8px, 0)` is a type error; use `0px` (which then fails as a zero step). The five math functions return `number` for numeric inputs, including `integer` inputs; an `integer` destination checks whether the result is whole at its typed edge. `+`, `-`, `*`, `/`, and `%` remain numeric-only binary operators in this level. A dimension can be passed to the functions above without making dimensional binary operator algebra part of the general expression language.
+Unitless `0` is a number, so `round(8px, 0)` is a type error; use `0px` (which then fails as a zero step). The five math functions return `number` for numeric inputs, including `integer` inputs; an `integer` destination checks whether the result is whole at its typed edge.
+
+### Arithmetic with units
+
+An `integer` or a fractional `number` is unitless. The result type follows the operands, then the destination checks whether that result is allowed. Each dimensional result retains its operand's **written unit**. CSS math's type checking is prior art, but these rules use only calculations that need no unit conversion.[^17]
+
+| Operation | Valid operands | Result | Example |
+| --- | --- | --- | --- |
+| `+`, `-` | Two numbers, or two dimensions of the same type **and written unit** | `number`, or that dimension | `1px + 2px` → `3px` |
+| `*` | Two numbers, or one dimension and one number in either order | `number`, or that dimension | `2.5 * 100px` → `250px` |
+| `/` | Two numbers, or a dimension divided by a number | `number`, or that dimension | `100px / 100` → `1px` |
+| `%` | Two numbers | `number` | `5 % 2` → `1` |
+
+`1px + 1` and `1px + 1ms` are invalid because their types differ. `1px + 1rem` is invalid because the written units differ. Multiplying two dimensions, dividing a number by a dimension, and dividing one dimension by another are not defined here, even when the written units match. A zero divisor or non-finite result from dimensional arithmetic is invalid. A compiler rejects a statically known invalid combination. At runtime, an invalid calculation does not write its destination: the destination keeps its last accepted value, or its default/`null` before any successful write, as described under [invalid reactive results](/html-next/reactivity#invalid-reactive-results). An absent operand still produces absence, with its ordinary empty/removal behavior. An `integer` destination accepts a result only when it is whole.
+
+```html
+<state name="width" type="length" value="100px"></state>
+<computed name="quarterWidth" from="$width / 4"></computed>
+<computed name="paddedWidth" from="$quarterWidth + 2px"></computed>
+<!-- quarterWidth is 25px; paddedWidth is 27px. -->
+```
+
+If `width` then changes to `100rem`, `quarterWidth` becomes `25rem`, but `paddedWidth` keeps `27px`: adding `25rem` and `2px` is invalid. When `width` changes back to `120px`, `paddedWidth` updates to `32px`.
 
 ### Fallback and text assembly
 
@@ -317,3 +339,4 @@ A parsed expression exposes exactly which paths it reads, so dependencies are st
 [^14]: [Liquid filters](https://shopify.github.io/liquid/filters/), [Twig filters](https://twig.symfony.com/doc/3.x/filters/index.html), [Jinja filters](https://jinja.palletsprojects.com/en/stable/templates/#list-of-builtin-filters), [Angular pipes](https://angular.dev/guide/templates/pipes), and the [Vue 3 filter removal](https://v3-migration.vuejs.org/breaking-changes/filters.html) show the range of template transformation designs.
 [^15]: [Handlebars built-in helpers](https://handlebarsjs.com/guide/builtin-helpers.html) and [Mustache sections and lambdas](https://mustache.github.io/mustache.5.html) show smaller core syntax with extension points for custom behavior.
 [^16]: XPath and XQuery Functions and Operators 3.1 defines [`string-join`](https://www.w3.org/TR/xpath-functions/#func-string-join); Twig [joins sequences](https://twig.symfony.com/doc/3.x/filters/join.html), and Liquid has a [join filter](https://shopify.github.io/liquid/filters/join/).
+[^17]: CSS Values and Units Level 4, [math function type checking](https://drafts.csswg.org/css-values-4/#calc-type-checking), derives calculation types from operands. Declarative Components adopts only the operations listed above and does not convert written units.

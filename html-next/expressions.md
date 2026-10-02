@@ -71,7 +71,7 @@ reference := "$" id
 dimension := css-number css-unit | css-number "%" (* units from Types; no whitespace *)
 integer   := digit+
 call      := fn "(" (expr ("," expr)*)? ")"    (* fixed, typed, CSS-style — not arbitrary calls *)
-fn        := "round" | "clamp" | "min" | "max" | "abs" | "default" | "format"
+fn        := "round" | "clamp" | "min" | "max" | "abs" | "default" | "concat"
 object    := "{" (pair ("," pair)* ","?)? "}"
 pair      := (id | string) ":" expr
 array     := "[" (expr ("," expr)* ","?)? "]"
@@ -126,7 +126,7 @@ Comparison is **typed**. Two values of different types are not equal, and compar
 
 Arithmetic is **numeric only**. `+` adds numbers; it is *not* overloaded for string concatenation, so `"1" + 1` can never silently become `"11"`. A non-numeric operand is a type error where that is statically known, and absent otherwise. Operators never coerce across types. Conversion happens at **typed edges**: a `number` prop converts its incoming string once, on the way in, the way `<input>` exposes both `value` and `valueAsNumber`, never mid-expression.
 
-`format(pattern, value, …)` is an explicit conversion edge for constructing a string. It converts accepted values to text; it does not bypass a declaration's type check. Its narrow `%s` syntax and errors are defined under [Functions](#functions).
+`concat(value, …)` is an explicit conversion edge for constructing a string. One argument converts an accepted scalar value to text; further arguments append their text in order. It does not bypass a declaration's type check. Its arguments and errors are defined under [Functions](#functions).
 
 ### Fallback for absence
 
@@ -176,7 +176,7 @@ Functions cover operations that an operator or an existing HTML/CSS feature does
 | `clamp(minimum, value, maximum)` | `clamp(0, $volume, 100)` | Return `max(minimum, min(value, maximum))`. The minimum wins when the bounds conflict. All arguments have one compatible type.[^6] | CSS `clamp()`[^6] |
 | `abs(value)` | `abs(-2rem)` → `2rem` | Return the magnitude with the same type.[^6] | CSS `abs()`[^6] |
 | `default(value, fallback)` | `default($count, 0)` | Return the fallback only for absent or `null`; otherwise return the original value. It does not replace `0`, `false`, `''`, or an empty list.[^7][^10] | CSS `var()` fallback; Jinja `default`[^7][^10] |
-| `format(pattern, value, …)` | `format('%s%', $progress)` → `'40%'` | Substitute one accepted scalar value for each `%s`; return a string. This is text assembly, not locale formatting.[^11] | printf-style substitution[^11] |
+| `concat(value, …)` | `concat($progress, '%')` → `'40%'` | Convert one accepted scalar to text, or join several in order; return a string. This is text assembly, not locale formatting.[^11] | XPath `concat()`[^11] |
 
 `round` uses CSS's default *nearest* strategy: an exact halfway case goes toward positive infinity. Thus `round(2.5)` is `3`, `round(-2.5)` is `-2`, and `round(8.8px, 1px)` is `9px`. A negative step has the same multiples as its positive magnitude; a step of zero has no result. Other CSS rounding strategies (`up`, `down`, `to-zero`) are not included in this level; adding them later will use CSS's leading strategy argument rather than changing the meaning of these calls.[^6]
 
@@ -201,7 +201,7 @@ Unitless `0` is a number, so `round(8px, 0)` is a type error; use `0px` (which t
 
 `default` is lazy: it evaluates `value` first, and evaluates `fallback` only if that result is absent or `null`. Both arms must have the same declared type, or satisfy the same expected destination type; it does not create a mixed-type union. A present but invalid typed reference is **not** absence and cannot be rescued by `default`; the invalid result follows the [live-binding rule](/html-next/reactivity): the destination keeps its last accepted value, or its default/`null` if it has never accepted one. The function does not use truthiness.
 
-`format` has a quoted string pattern containing `%s` placeholders. It requires exactly one value argument per placeholder; any other character, including `%` by itself, is literal. Each argument must be a scalar (`string`, `keyword`, `boolean`, `integer`, `number`, or a serialized scalar type such as `length`). It uses that type's normal attribute text: for example `true` becomes `true` and `8px` stays `8px`. A value keeps its normal type checks until it reaches this explicit text conversion. Missing data propagates as absent; `null` converts to an empty string. Objects and lists need their own presentation, such as `<value format="list">`. Locale-sensitive number, date, currency, and list presentation uses `<value format>` below, never `format()`.
+`concat` requires at least one argument. Each must be a scalar (`string`, `keyword`, `boolean`, `integer`, `number`, or a serialized scalar type such as `length`). It uses that type's normal attribute text: for example `concat(true)` returns `'true'` and `concat(8px)` returns `'8px'`. A value keeps its normal type checks until it reaches this explicit text conversion. Missing data propagates as absent; `null` contributes an empty string. Objects and lists need their own presentation, such as `<value format="list">`. Locale-sensitive number, date, currency, and list presentation uses `<value format>` below. XPath supplies the function's name and ordered concatenation, but Declarative Components also permits one argument so the same function can replace `format('%s', value)` without another conversion function.[^11]
 
 ### Invalid calls and live bindings
 
@@ -213,10 +213,11 @@ Wrong argument counts, incompatible types, an unresolvable unit comparison, a ze
 | `round(-2.5)` | `-2` (`number`) |
 | `min(1in, 100px)` | `1in` (`length`; `1in` is `96px`) |
 | `default(null, 0)` / `default(false, true)` | `0` / `false` |
-| `format('%s%', 40)` | `'40%'` (`string`) |
+| `concat(40, '%')` | `'40%'` (`string`) |
+| `concat(true)` | `'true'` (`string`) |
 | `max(1rem, 12px)` | invalid without a font context; no destination write |
 | `round(8px, 0px)` | invalid zero step; no destination write |
-| `format('%s %s', 40)` | invalid argument count; no destination write |
+| `concat()` | invalid argument count; no destination write |
 
 ```html
 <prop name="amount" type="number" default="5"></prop>
@@ -227,7 +228,7 @@ Wrong argument counts, incompatible types, an unresolvable unit comparison, a ze
 
 ### Why this set
 
-The admission test for a built-in is concrete: it must express a recurring typed operation that an operator, element, or CSS property does not already express at that use site; it must be pure; and both the browser interpreter and compiled targets must be able to give it the same result. `round($width, 1px)` passes because a computed length may feed a prop or attribute, not just a CSS property. A `currency()` function fails because `<value format="currency">` already owns displayed currency.
+The admission test for a built-in is concrete: it must express a recurring typed operation that an operator, element, or CSS property does not already express at that use site; it must be pure; and both the browser interpreter and compiled targets must be able to give it the same result. `round($width, 1px)` passes because a computed length may feed a prop or attribute, not just a CSS property. `concat($progress, '%')` passes because `+` is numeric-only and a live attribute may need a string. A `currency()` function fails because `<value format="currency">` already owns displayed currency.
 
 Template languages show a need for transformations but disagree on what a broad library should contain. Liquid and Twig supply dozens of filters, including arithmetic and formatting; Jinja supplies a configurable filter library. Angular pipes cover locale formatting and arbitrary presentation transformations, while Vue 3 removed its template filters.[^14] Handlebars and Mustache show a smaller expression surface but rely on helpers or lambdas for custom work.[^15] Declarative Components places the recurring jobs where its existing syntax already puts them:
 
@@ -235,10 +236,13 @@ Template languages show a need for transformations but disagree on what a broad 
 | --- | --- |
 | Arithmetic and comparisons | Operators; `min`, `max`, `clamp`, `round`, `abs` for math that needs a name |
 | Missing-value fallback | `default()` in an expression; `<value default>` for displayed text |
+| Attribute text assembled from typed values | `concat()` |
 | Locale presentation | `<value format>` and the globalization standard |
 | Uppercase or truncation for display | CSS `text-transform`, `text-overflow`, or `line-clamp` |
 | Sort, filter, or limit repeated items | `$sort`, `$where`, `$limit` on `$each` |
 | Split, replace, regex, or application-specific computation | Component JavaScript and the reactive graph, not a callable template library |
+
+`join(list, separator)` is the next plausible string operation, with prior art in XPath and the surveyed template languages, but the current components have no authored case that needs it.[^16] Lists used for display already have `<value format="list">`; space- and comma-separated typed attributes have their own written forms. It stays outside this function set until a concrete attribute or computed value needs a different separator.
 
 This keeps the browser interpreter and generated Vue/React expressions deterministic. It also avoids silently choosing a different fallback rule from Liquid or Twig, both of which replace some present false or empty values.[^10]
 
@@ -293,8 +297,9 @@ A parsed expression exposes exactly which paths it reads, so dependencies are st
 [^8]: WHATWG HTML, [parse errors and recovery](https://html.spec.whatwg.org/multipage/parsing.html#parse-errors) (the parser never aborts; the fault-tolerance model the runtime follows).
 [^9]: Angular [template expressions](https://angular.dev/guide/templates/expression-syntax): a deliberately restricted, AOT-compiled, non-`eval` subset, the closest mainstream precedent to an expression language that is not JavaScript in a string. Contrast (do not inherit): Alpine.js [`x-data`](https://alpinejs.dev/directives/data) expressions and Lit [template expressions](https://lit.dev/docs/templates/expressions/) both interpolate real JavaScript, the CSP hazard HTML Next avoids.
 [^10]: Jinja [default filter](https://jinja.palletsprojects.com/en/stable/templates/#jinja-filters.default) uses an undefined-only fallback unless explicitly told to include false values. Liquid [default](https://shopify.github.io/liquid/filters/default/) and Twig [default](https://twig.symfony.com/doc/3.x/filters/default.html) also replace some present false or empty values; Declarative Components does not.
-[^11]: The [POSIX `printf` conversion syntax](https://pubs.opengroup.org/onlinepubs/009604499/functions/fprintf.html) supplies the familiar `%s` spelling. `format()` uses only this placeholder, not its flags, widths, or locale behavior.
+[^11]: XPath and XQuery Functions and Operators 3.1 defines [string `concat()`](https://www.w3.org/TR/xpath-functions/#func-concat) for two or more atomic values. This proposal also permits one argument for explicit scalar-to-string conversion. Liquid's [different `concat` filter](https://shopify.github.io/liquid/filters/concat/) joins arrays; this proposal uses the XPath string meaning.
 [^12]: CSS Values and Units Level 4 defines [absolute length ratios](https://www.w3.org/TR/css-values-4/#absolute-lengths), [relative lengths](https://www.w3.org/TR/css-values-4/#relative-lengths), [percentages](https://www.w3.org/TR/css-values-4/#percentages), and [time units](https://www.w3.org/TR/css-values-4/#time).
 [^13]: [Reactivity](/html-next/reactivity) specifies that an invalid live expression leaves the destination at its last accepted value, or its initial default/`null`.
 [^14]: [Liquid filters](https://shopify.github.io/liquid/filters/), [Twig filters](https://twig.symfony.com/doc/3.x/filters/index.html), [Jinja filters](https://jinja.palletsprojects.com/en/stable/templates/#list-of-builtin-filters), [Angular pipes](https://angular.dev/guide/templates/pipes), and the [Vue 3 filter removal](https://v3-migration.vuejs.org/breaking-changes/filters.html) show the range of template transformation designs.
 [^15]: [Handlebars built-in helpers](https://handlebarsjs.com/guide/builtin-helpers.html) and [Mustache sections and lambdas](https://mustache.github.io/mustache.5.html) show smaller core syntax with extension points for custom behavior.
+[^16]: XPath and XQuery Functions and Operators 3.1 defines [`string-join`](https://www.w3.org/TR/xpath-functions/#func-string-join); Twig [joins sequences](https://twig.symfony.com/doc/3.x/filters/join.html), and Liquid has a [join filter](https://shopify.github.io/liquid/filters/join/).

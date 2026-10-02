@@ -44,9 +44,9 @@ test("invalid reactive results keep the last accepted destination value", () => 
   assert.match(reactivity, /^## Invalid reactive results$/m);
   assert.match(reactivity, /does not write[\s\S]*?most recent successful write/);
   assert.match(reactivity, /declared default, or `null` when there is no default/);
-  assert.match(reactivity, /\| Supply `2` \| `2` \| `2` \|/);
-  assert.match(reactivity, /\| Supply `"oops"` \| `"oops"` \| `2` \|/);
-  assert.match(reactivity, /\| Supply `7` \| `7` \| `7` \|/);
+  assert.match(reactivity, /\| Supply `2` \| `2` \| `2` \| `2` \|/);
+  assert.match(reactivity, /\| Supply `"oops"` \| `"oops"` \| `2` \| `2` \|/);
+  assert.match(reactivity, /\| Supply `7` \| `7` \| `7` \| `7` \|/);
   assert.match(reactivity, /after `2`, it stays at `2`, not `5` or `null`/);
   assert.match(reactivity, /\| `\{ label: 42, note: 'b' \}` \| `first` \(last valid result\) \| `b` \|/);
   assert.match(reactivity, /\| `\{ label: 'third', note: 'c' \}` \| `third` \| `c` \|/);
@@ -58,9 +58,11 @@ test("invalid reactive results keep the last accepted destination value", () => 
   assert.match(chapter("expressions"), /\$items\.0\.name[\s\S]*?items\.0\.name/);
   assert.match(chapter("expressions"), /\$items\[0\]\.name` is invalid/);
   assert.match(validation, /supplied number above `max`[\s\S]*?becomes the prop's current value/);
-  assert.match(validation, /number prop is supplied as `amount="oops"`[\s\S]*?keeps `"oops"` as its current invalid value/);
-  assert.match(validation, /template decides what appears; the invalid text is not automatically displayed/);
-  assert.match(validation, /Validity at a destination describes its \*\*current value\*\*/);
+  assert.match(validation, /number prop is supplied as `amount="oops"`[\s\S]*?remains its `inputValue`/);
+  assert.match(validation, /Template expressions and `host\.props\.amount\.value` read that accepted value/);
+  assert.match(validation, /Validity for a directly supplied prop describes its current \*\*input\*\*/);
+  assert.match(chapter("javascript"), /`host\.props\.amount\.value` reads the prop's \*\*accepted value\*\*/);
+  assert.match(chapter("javascript"), /State has no `inputValue` or `validity`/);
   assert.match(bindings, /function call[\s\S]*?full sequence/);
 });
 

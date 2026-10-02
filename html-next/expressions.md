@@ -171,21 +171,21 @@ Functions cover operations that an operator or an existing HTML/CSS feature does
 
 | Function | Example → result | Accepted inputs and result | Prior art |
 | --- | --- | --- | --- |
-| `round(value[, step])` | `round(8.8px)` → `9px` | Round to the nearest multiple of `step`. If omitted, the step is `1` for a number or one unit of the written value for a length, percentage, or duration. A numeric result is `number`; a dimensional result keeps its dimension type.[^6] | CSS `round()` strategy; this proposal also defaults dimensional steps[^6] |
-| `min(a, …)` / `max(a, …)` | `max(2, 5)` → `5` | At least one argument; return the smallest/largest value. Arguments must be compatible numbers or quantities of one dimension. A numeric result is `number`; a dimensional result keeps its dimension type.[^6] | CSS `min()` / `max()`[^6] |
-| `clamp(minimum, value, maximum)` | `clamp(0, $volume, 100)` | Return `max(minimum, min(value, maximum))`. The minimum wins when the bounds conflict. All arguments have one compatible type.[^6] | CSS `clamp()`[^6] |
+| `round(value[, step])` | `round(8.8px)` → `9px` | Round to the nearest multiple of `step`. If omitted, the step is `1` for a number or one unit of the written value for a length, percentage, or duration. A supplied dimensional step must use the value's written unit. A numeric result is `number`; a dimensional result keeps its dimension type.[^6] | CSS `round()` strategy; this proposal also defaults dimensional steps[^6] |
+| `min(a, …)` / `max(a, …)` | `max(2px, 5px)` → `5px` | At least one argument; return the smallest/largest value. Arguments must be numbers, or dimensional quantities with the same written unit. A numeric result is `number`; a dimensional result keeps its dimension type.[^6] | CSS `min()` / `max()`[^6] |
+| `clamp(minimum, value, maximum)` | `clamp(0, $volume, 100)` | Return `max(minimum, min(value, maximum))`. The minimum wins when the bounds conflict. Dimensional arguments must share one written unit.[^6] | CSS `clamp()`[^6] |
 | `abs(value)` | `abs(-2rem)` → `2rem` | Return a number's or a dimensional quantity's magnitude. A numeric result is `number`; a dimensional result keeps its dimension type.[^6] | CSS `abs()`[^6] |
 | `default(value, fallback)` | `default($count, 0)` | Return the fallback only for absent or `null`; otherwise return the original value. It does not replace `0`, `false`, `''`, or an empty list.[^7][^10] | CSS `var()` fallback; Jinja `default`[^7][^10] |
 | `concat(value, …)` | `concat($progress, '%')` → `'40%'` | Convert one accepted scalar to text, or join several in order; return a string. This is text assembly, not locale formatting.[^11] | XPath `concat()`[^11] |
 | `join(list, separator)` | `join($tags, ', ')` → `'red, blue'` | Convert a list of accepted scalar items to text, placing the string separator between items; return a string.[^16] | XPath `string-join()`; Liquid and Twig `join`[^16] |
 
-`round` uses CSS's default *nearest* strategy: an exact halfway case goes toward positive infinity. Thus `round(2.5)` is `3` and `round(-2.5)` is `-2`. An omitted step rounds the numeric part of a dimensional value to a whole number in its current unit: `round(8.8px)` is `9px`, `round(25.5%)` is `26%`, and `round(1.6s)` is `2s`. This default is deliberately based on the written unit: `round(1600ms)` remains `1600ms`, although `1600ms` and `1.6s` denote the same duration. Supply an explicit step, such as `round($elapsed, 1s)`, when equivalent unit spellings must round alike. CSS itself requires that step for dimensions; this proposal makes it optional.[^6] A negative step has the same multiples as its positive magnitude; a step of zero has no result. Other CSS rounding strategies (`up`, `down`, `to-zero`) are not included in this level; adding them later will use CSS's leading strategy argument rather than changing the meaning of these calls.[^6]
+`round` uses CSS's default *nearest* strategy: an exact halfway case goes toward positive infinity. Thus `round(2.5)` is `3` and `round(-2.5)` is `-2`. An omitted step rounds the numeric part of a dimensional value to a whole number in its current unit: `round(8.8px)` is `9px`, `round(25.5%)` is `26%`, and `round(1.6s)` is `2s`. `round(1600ms)` remains `1600ms`: the function rounds the value as written. CSS requires an explicit step for dimensions; this proposal makes it optional.[^6] A supplied step must use the same written unit, so `round(8.8px, 1px)` is valid and `round(8.8px, 1rem)` is invalid. A negative step has the same multiples as its positive magnitude; a step of zero has no result. Other CSS rounding strategies (`up`, `down`, `to-zero`) are not included in this level; adding them later will use CSS's leading strategy argument rather than changing the meaning of these calls.[^6]
 
 ### Values with units
 
 The `length`, `percentage`, and `duration` types are strings at the JavaScript boundary, but they are **typed quantities** while an expression calculates with them. A literal such as `8.8px`, `25%`, or `200ms` has that type. A reference declared as one of those types is parsed from its accepted value before a math function runs. The result crosses back to a prop, state, or DOM binding in the [type's written form](/html-next/types), such as `9px`; it is not exposed as a JavaScript number. The HTML clock-time type `time` is not a CSS duration.
 
-Two quantities are compatible when they have the same declared type and their magnitudes can be compared without a layout or font measurement. Identical units compare directly. CSS absolute lengths (`px`, `in`, `cm`, `mm`, `Q`, `pt`, `pc`) convert by their fixed CSS ratios; `s` and `ms` convert by their fixed time ratio.[^12] The result uses the first value argument's unit (`round(800ms, 0.5s)` → `1000ms`; `min(1in, 100px)` → `1in`). `abs` needs no comparison or conversion, so it accepts a single quantity in any supported unit and returns that unit. Percentages compare their numeric percentage points with other percentages, not with lengths: outside a CSS property there is no percentage basis. Different relative length units, such as `rem` and `vw`, need a layout context and cannot be compared by a general component expression. Use CSS math in the property that supplies that context.[^12]
+For a function with more than one dimensional argument, every argument must have the same type **and the same written unit**. `min(1px, 2px)` and `min(1rem, 2rem)` work; `min(1in, 100px)` and `max(200ms, 0.5s)` are invalid, even though CSS defines conversion ratios for those units.[^12] The functions do not convert units or silently choose an output unit. `abs` has one argument, so `abs(-2rem)` simply returns `2rem`. Percentages compare with percentages, never with lengths. Calculations that need unit conversion or layout and font context belong in a [controller](/html-next/javascript); CSS math remains available in CSS properties where that context exists.
 
 ```html
 <state name="width" type="length" value="8.8px"></state>
@@ -193,7 +193,7 @@ Two quantities are compatible when they have the same declared type and their ma
 <!-- snappedWidth has type length and written value 9px. -->
 
 <computed name="safeWidth" from="max($width, 1rem)"></computed>
-<!-- If width is in px, no comparison is made: the units need a font context. -->
+<!-- If width is in px, no comparison is made: the written units differ. -->
 ```
 
 Unitless `0` is a number, so `round(8px, 0)` is a type error; use `0px` (which then fails as a zero step). The five math functions return `number` for numeric inputs, including `integer` inputs; an `integer` destination checks whether the result is whole at its typed edge. `+`, `-`, `*`, `/`, and `%` remain numeric-only binary operators in this level. A dimension can be passed to the functions above without making dimensional binary operator algebra part of the general expression language.
@@ -208,7 +208,7 @@ Unitless `0` is a number, so `round(8px, 0)` is a type error; use `0px` (which t
 
 ### Invalid calls and live bindings
 
-Wrong argument counts, incompatible types, an unresolvable unit comparison, a zero rounding step, and a non-finite numeric result make the call invalid. A compiler reports a statically knowable mistake. The browser runtime reports an authored-definition mistake once, but does not throw or warn for an ordinary user edit that makes an input invalid. At runtime an invalid call does not write a bound destination: it keeps the last accepted result, or the declared default/`null` if no result was accepted. This is the same sequence as any other invalid live expression; it does not replace the destination with a string containing the invalid input.[^13]
+Wrong argument counts, incompatible types or units, a zero rounding step, and a non-finite numeric result make the call invalid. A compiler reports a statically knowable mistake. The browser runtime reports an authored-definition mistake once, but does not throw or warn for an ordinary user edit that makes an input invalid. At runtime an invalid call does not write a bound destination: it keeps the last accepted result, or the declared default/`null` if no result was accepted. This is the same sequence as any other invalid live expression; it does not replace the destination with a string containing the invalid input.[^13]
 
 | Expression | Result |
 | --- | --- |
@@ -216,8 +216,8 @@ Wrong argument counts, incompatible types, an unresolvable unit comparison, a ze
 | `round(8.8px)` | `9px` (`length`; omitted step is `1px`) |
 | `round(25.5%)` | `26%` (`percentage`; omitted step is `1%`) |
 | `round(-2.5)` | `-2` (`number`) |
-| `min(1in, 100px)` | `1in` (`length`; `1in` is `96px`) |
-| `max(200ms, 0.5s)` | `500ms` (`duration`) |
+| `min(1px, 2px)` | `1px` (`length`) |
+| `max(200ms, 500ms)` | `500ms` (`duration`) |
 | `abs(-2rem)` | `2rem` (`length`) |
 | `abs(-3)` | `3` (`number`) |
 | `default(null, 0)` / `default(false, true)` | `0` / `false` |
@@ -225,7 +225,9 @@ Wrong argument counts, incompatible types, an unresolvable unit comparison, a ze
 | `concat(true)` | `'true'` (`string`) |
 | `join(['red', 'blue'], ', ')` | `'red, blue'` (`string`) |
 | `join([], ', ')` | `''` (`string`) |
-| `max(1rem, 12px)` | invalid without a font context; no destination write |
+| `min(1in, 100px)` | invalid because units differ; no destination write |
+| `max(200ms, 0.5s)` | invalid because units differ; no destination write |
+| `round(8.8px, 1rem)` | invalid because units differ; no destination write |
 | `round(8px, 0px)` | invalid zero step; no destination write |
 | `concat()` | invalid argument count; no destination write |
 | `join(['red'], 1)` | invalid separator type; no destination write |

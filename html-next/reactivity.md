@@ -39,7 +39,7 @@ A live expression evaluates when its dependencies change. Each evaluation propos
 
 For an object or list, the immediate type check asks whether the result is an object or list. Nested fields are checked when expressions read those fields. A wrong-typed `items.0.name` therefore leaves that particular binding at its last value while another binding can still read a valid `items.0.id` from the same new list. This matches the typed-reference rule for `<data>` below; one bad field does not discard its siblings.
 
-The source is not rolled back. A form control keeps the user's edit under its native rules, a component retains a directly supplied invalid prop for correction, and a `<data>` resource keeps the response it received. Only the attempted downstream write is skipped. This is different from a **well-typed** result that fails `min`, `max`, `values`, or another value constraint: that result is written, and the destination reports its invalidity (see [Validation](/html-next/validation)). A missing value is also different from a present value of the wrong type; [absence](/html-next/expressions#the-absent-value) has its ordinary empty/removal behavior.
+The source is not rolled back. A form control keeps the user's edit under its native rules; a component prop keeps its latest direct `inputValue` even when its accepted `value` stays at the last good/default/null value; and a `<data>` resource keeps the response it received. A failed downstream binding does not supply the destination prop. This is different from a **well-typed** result that fails `min`, `max`, `values`, or another value constraint: that result is written, and the destination reports its invalidity (see [Validation](/html-next/validation)). A missing value is also different from a present value of the wrong type; [absence](/html-next/expressions#the-absent-value) has its ordinary empty/removal behavior.
 
 For example, the outer component accepts a directly supplied value. The inner component has a number prop with a default, and its invocation binds that prop to the outer value:
 
@@ -57,14 +57,14 @@ For example, the outer component accepts a directly supplied value. The inner co
 <x-reading-owner incoming="oops"></x-reading-owner>
 ```
 
-The authored invocation supplies the first value. The owner then updates its `incoming` prop through its framework adapter. `"oops"` is shown in quotation marks to make clear that it is a string, not a number:
+The authored invocation supplies the first value. The owner then updates its `incoming` prop through its framework adapter. Its `incoming` declaration has no default, so the accepted value is initially `null`; the invalid input remains separately readable through `host.props.incoming.inputValue`. `"oops"` is shown in quotation marks to make clear that it is a string, not a number:
 
-| Action | Outer `incoming` | Inner `amount` | What runs |
-| --- | --- | --- | --- |
-| Create the owner with `incoming="oops"` | `"oops"` | `5` | The outer prop keeps the invalid literal and reports validity. The binding's first evaluation is invalid, so the inner default remains. |
-| Supply `2` | `2` | `2` | The binding writes; dependents of `amount` update. |
-| Supply `"oops"` | `"oops"` | `2` | The outer prop retains the invalid direct value and reports validity; the binding skips its write, so inner dependents do not update. |
-| Supply `7` | `7` | `7` | The binding writes; inner dependents update again. |
+| Action | Outer `inputValue` | Outer accepted value | Inner accepted `amount` | What runs |
+| --- | --- | --- | --- | --- |
+| Create the owner with `incoming="oops"` | `"oops"` | `null` | `5` | The outer prop reports `badInput`. The inner binding has no conforming number to supply, so its default remains. |
+| Supply `2` | `2` | `2` | `2` | Both accepted values change; dependents update. |
+| Supply `"oops"` | `"oops"` | `2` | `2` | The outer prop reports `badInput`, but its accepted value does not change, so inner dependents do not update. |
+| Supply `7` | `7` | `7` | `7` | Both accepted values change; dependents update again. |
 
 If `"oops"` is the **first** evaluation, the inner `amount` stays at `5`. Remove `default="5"` from the inner declaration and it stays at `null` instead. An invalid evaluation never resets a destination that already accepted a value: after `2`, it stays at `2`, not `5` or `null`. The same sequence applies when an expression function returns a string for this number destination, or when a typed reference into a `<data>` response supplies the wrong kind of value.
 

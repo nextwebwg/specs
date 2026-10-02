@@ -61,11 +61,20 @@ Invalid declarations and supplied values have different effects:
 
 - **Definition:** A `default` must satisfy its type and constraints when the definition is compiled. Build tools reject a malformed constraint; the live parser warns and ignores that constraint.
 - **Value outside a constraint:** A supplied number above `max` is still a number. It becomes the prop's current value and sets `rangeOverflow`. Ordinary constraint failures do not produce console warnings, whether the value is literal or comes from a reactive binding.
-- **Value that cannot be parsed:** If a number prop is supplied as `amount="oops"`, it keeps `"oops"` as its current invalid value and reports `badInput` or `typeMismatch`. The component still mounts, but its template decides what appears; the invalid text is not automatically displayed. A user's edit in a native control likewise remains in that control's editing surface, where its validity reports the failure.
+- **Value that cannot be parsed:** If a number prop is supplied as `amount="oops"`, that string remains its `inputValue` and reports `badInput` or `typeMismatch`. It does not become the prop's accepted value. The accepted value stays at the last successfully parsed value, or the declared default, or `null` if neither exists. Template expressions and `host.props.amount.value` read that accepted value. A user's edit in a native control remains in that control's editing surface, where its validity reports the failure.
 
-Reading either invalid source in a typed binding is a separate operation. If the result fails the destination's type, the binding does not write to that destination. See [Invalid reactive results](/html-next/reactivity#invalid-reactive-results).
+The controller can inspect both sides through the [prop handle](/html-next/javascript#accepted-values-and-prop-inputs): `host.props.amount.inputValue` reads the latest direct input, `host.props.amount.value` reads the accepted value, and `host.props.amount.validity` describes that input. Declared props are absent from `host.state`. The component mounts even when the initial input cannot be parsed. Rendering follows the accepted value; the invalid input is never implicitly substituted into a template. A well-typed value outside `min`, `max`, `values`, or another value constraint **is** accepted and makes the prop invalid.
 
-Validity at a destination describes its **current value**, not an attempted value that a binding skipped. For example, if a number prop currently holds `2` and a binding next evaluates to the string `"oops"`, the prop stays `2`; that attempt does not make the destination's `validity` fail. The source's own invalidity remains observable. A statically provable mismatch in an authored expression is a build error; a live implementation may warn about a malformed authored expression, but ordinary invalid data must not generate repeated console warnings.
+| Direct supply to a number prop with `default="5"` | `inputValue` | `value` read by templates | `validity` |
+| --- | --- | --- | --- |
+| Initial `amount="oops"` | `"oops"` | `5` | `badInput` |
+| Supply `2` | `2` | `2` | valid |
+| Supply `"oops"` | `"oops"` | `2` | `badInput` |
+| Supply `7` | `7` | `7` | valid |
+
+A binding that evaluates to the wrong type does not supply the destination prop at all: its `inputValue`, accepted `value`, and `validity` remain unchanged. See [Invalid reactive results](/html-next/reactivity#invalid-reactive-results).
+
+Validity for a directly supplied prop describes its current **input**, even when conversion leaves the accepted value unchanged. Validity at a binding destination does not describe an attempt that the binding skipped. For example, if a number prop holds `2` and a binding next evaluates to the string `"oops"`, the destination stays at `2` and remains valid; a directly supplied `"oops"` would keep `2` but report `badInput`. A statically provable mismatch in an authored expression is a build error; a live implementation may warn about a malformed authored expression, but ordinary invalid data must not generate repeated console warnings.
 
 On a component with a non-native root, `el.validity` exposes the corresponding `ValidityState` flags and `el.validity.errors` gives each failure's prop path. `checkValidity()` reports whether the current values pass. When a component renders a native form control, the control retains its native `ValidityState`; the compatibility layer combines additional component failures with native validity. The [Types chapter](/html-next/types#value-constraints) defines which constraints apply to each type.
 

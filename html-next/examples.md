@@ -73,7 +73,7 @@ The definition declares `<state>`, exposes a `$ref`, and names its controller on
 ```js title="counter.js"
 // counter.js — the definition names this module; no library import is required.
 export default function controller(host) {
-  host.state.count = host.state.start;
+  host.state.count = host.props.start.value;
   host.refs.btn.addEventListener("click", () => {
     // Drive STATE, never the DOM directly. The runtime reflects count to the <span>.
     host.state.count = host.state.count + 1;

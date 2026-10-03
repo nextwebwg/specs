@@ -12,12 +12,12 @@ Almost everything is declarative, and a component definition holds **no script a
 
 ## Imperative behavior uses controllers
 
-The declarative layers, templating, bindings, and reactivity, cover the large majority of interface work with no script. But some behavior is irreducibly imperative: a `setInterval` clock, a Server-Sent-Events stream, an `IntersectionObserver`, wrapping a mapping or charting library, or computation too involved for a [pure expression](/html-next/expressions). That work needs JavaScript, and pretending otherwise would push authors back into inline handlers and `eval`-shaped escapes.
+The declarative layers, templating, bindings, and reactivity, cover the large majority of interface work with no script. But some behavior is irreducibly imperative: a `setInterval` clock, a Server-Sent-Events stream, an `IntersectionObserver`, wrapping a mapping or charting library, or computation too involved for a [pure expression](/declarative-components/expressions). That work needs JavaScript, and pretending otherwise would push authors back into inline handlers and `eval`-shaped escapes.
 
 So HTML Next draws a firm line. A **component definition is declarative data**: no `<script>`, no inline handlers, importable and inspectable without executing anything, and renderable on a server. Imperative JavaScript is a **separate concern** in an ordinary ES module. The two never fuse; they meet at a named seam.
 
 > [!norm] Server rendering supplies the declarative baseline
-> The JavaScript layer only *enhances*: a controller adds live imperative behavior on top and is never load-bearing for the first render. But be precise about what "no JS" delivers, because it depends on where the markup comes from. On a **server-rendered** page the first render is real HTML that displays, is accessible, and is indexable with no script; a controller failing to load leaves that baseline intact. On a **client-only** page there is no such baseline: an invocation like `<x-app>` is an unknown element, so without the runtime it renders *nothing* (its inline children, if any, are all that shows). So the guarantee is: **no-JS renders the declarative baseline when the HTML was server-rendered**; client-only pages need the runtime to produce first paint. Determinism and adopt-in-place hydration are likewise SSR properties (see [Components](/html-next/components)), not client-only ones.
+> The JavaScript layer only *enhances*: a controller adds live imperative behavior on top and is never load-bearing for the first render. But be precise about what "no JS" delivers, because it depends on where the markup comes from. On a **server-rendered** page the first render is real HTML that displays, is accessible, and is indexable with no script; a controller failing to load leaves that baseline intact. On a **client-only** page there is no such baseline: an invocation like `<x-app>` is an unknown element, so without the runtime it renders *nothing* (its inline children, if any, are all that shows). So the guarantee is: **no-JS renders the declarative baseline when the HTML was server-rendered**; client-only pages need the runtime to produce first paint. Determinism and adopt-in-place hydration are likewise SSR properties (see [Components](/declarative-components/components)), not client-only ones.
 
 ## The controller
 
@@ -53,7 +53,7 @@ export default function controller(host) {
 The controller is written against the small `host` interface and exported as the module's default. The platform already knows the tag from the definition that named the module, so the controller neither imports an HTML Next library nor repeats the tag in a registration call. That contract lets the same source run under a native implementation, today's polyfill, or a framework target (below). It is a portability contract, **not a security boundary**: an ES module can still use `window`, `document`, storage, network APIs, and anything else page JavaScript can reach.
 
 > [!note] Events stay declarative
-> Event markup references a declarative handler by name (`on:click="save"` → a [<handler>](/html-next/bindings)), never an imperative JavaScript function. When the component needs imperative behavior, the carrier names one controller *module*; functions remain inside that module. The definition therefore exposes one static file dependency without baking framework-specific callbacks into markup.
+> Event markup references a declarative handler by name (`on:click="save"` → a [<handler>](/declarative-components/bindings)), never an imperative JavaScript function. When the component needs imperative behavior, the carrier names one controller *module*; functions remain inside that module. The definition therefore exposes one static file dependency without baking framework-specific callbacks into markup.
 
 ## host: the ElementInternals of a data component
 
@@ -116,7 +116,7 @@ Teardown is either a disposer returned from an `host.on("connect", …)` callbac
 
 `host.props.amount.value` reads the prop's **accepted value**. Template expressions such as `$amount` read that value too; `host.state.amount` is absent. A declared `<state name="count">` is read and written through `host.state.count`, and `host.props.count` is absent. Derived `<computed>` values, `<data>` resources, and inherited `<context>` values are also read through `host.state`, but they are read-only. State has no `inputValue` or `validity`; a failed `<set>` or `bind:` write does not replace it. When the attempted value came from a native control, that control retains its edit and owns its validity.
 
-`host.props.amount.inputValue` is the latest value supplied **directly to that prop before conversion**. An HTML attribute supplies a string; a framework prop may supply a JavaScript value. It is not an alias for DOM `getAttribute()`, which reads an attribute string and may describe a default rather than the current input. `host.props.amount.validity` checks that input against the declaration. `validate()` explicitly recomputes and returns the same per-prop validity shape. The component root exposes the aggregate validity with a path for each failing prop (see [Validation](/html-next/validation)). Reads through `host.props.amount.value` and `host.state.count` both participate in `host.effect` dependency tracking.
+`host.props.amount.inputValue` is the latest value supplied **directly to that prop before conversion**. An HTML attribute supplies a string; a framework prop may supply a JavaScript value. It is not an alias for DOM `getAttribute()`, which reads an attribute string and may describe a default rather than the current input. `host.props.amount.validity` checks that input against the declaration. `validate()` explicitly recomputes and returns the same per-prop validity shape. The component root exposes the aggregate validity with a path for each failing prop (see [Validation](/declarative-components/validation)). Reads through `host.props.amount.value` and `host.state.count` both participate in `host.effect` dependency tracking.
 
 ```js
 // <prop name="amount" type="number" default="5">; invoked with amount="oops"
@@ -208,7 +208,7 @@ Where a controller does query, outward with `root.closest` or to resolve an even
 > A component lowers into **one tree with no shadow boundary**, so a query rooted at `host.root` cannot tell an element a consumer projected from one the component's own template rendered: both are ordinary descendants, and both match the same selector. Shadow DOM gets that distinction free from keeping two trees, and a controller there asks `assignedElements()`[^9] rather than querying. Here the slot restores it. A controller [must]{.kw} enumerate projected content through <code>host.slots.<var>name</var></code>, and [must not]{.kw} discover it by searching its own subtree.
 
 > [!norm] Never select by runtime markers
-> The markers the runtime writes for styling (`data-component`, `data-<tag>-state`, `data-slotted`; see [Styling](/html-next/styling)) are implementation details. They exist so scoped CSS can find a root, they differ by target, and a framework target that scopes styles its own way need not emit them. A controller that selects by them couples its behavior to one target's output and breaks on another.
+> The markers the runtime writes for styling (`data-component`, `data-<tag>-state`, `data-slotted`; see [Styling](/declarative-components/styling)) are implementation details. They exist so scoped CSS can find a root, they differ by target, and a framework target that scopes styles its own way need not emit them. A controller that selects by them couples its behavior to one target's output and breaks on another.
 
 ```js
 // Wrong: selects by markers the runtime writes for styling.
@@ -236,7 +236,7 @@ host.state.center;                  // a read
 The runtime owns the subtree it lowered and every bound attribute and text node in it. The controller writes **state**; the runtime reflects state to the DOM. That keeps one writer to the DOM and one source of truth. A controller only touches DOM directly in its own *foreign* subtree, the canvas a map library renders into, which is unbound and therefore no one else's. User- and browser-driven native state (`:checked`, `<details open>`, form values) is treated as input through `bind:`, not fought.
 
 > [!note] Updates are batched, so this is cheap
-> State changes are fine-grained (only the bindings that read a changed path update) and coalesced into one flush per microtask, so a controller setting several state values in a row produces a single DOM update, not a cascade. See [Reactivity](/html-next/reactivity) for the scheduling model.
+> State changes are fine-grained (only the bindings that read a changed path update) and coalesced into one flush per microtask, so a controller setting several state values in a row produces a single DOM update, not a cascade. See [Reactivity](/declarative-components/reactivity) for the scheduling model.
 
 Communication upward is an event, not a mutated ancestor: `host.dispatch` raises a component event the parent catches declaratively.
 
@@ -418,7 +418,7 @@ module.default(host);
 That is the entire lazy mechanism: resolve and import the controller entry when an instance first connects. Deduplication, one-time evaluation, caching, import-map integrity, CSP, and CORS are the platform loader's job. If metrics stay empty and the chart arm never renders, **neither `b.html` nor `b.js` is fetched**; and with no runtime at all, steps&nbsp;1–4 still produce the server-rendered declarative baseline, only the chart library is skipped.
 
 > [!norm] How the security model holds
-> The trust boundary stays where [Security](/html-next/security) puts it: at the root component package or live URL the application deliberately imports.
+> The trust boundary stays where [Security](/declarative-components/security) puts it: at the root component package or live URL the application deliberately imports.
 >
 > - **Definitions use a closed grammar.** Arbitrary `<script>` elements and inline handlers are rejected, expressions cannot `eval`, and `$html` is sanitized. Imperative behavior has one visible, inspectable edge: the carrier's `controller` attribute.
 > - **Application policy stays outside the component.** Installing a package and importing a concrete subpath trusts that package graph; the install/build resolves it without a browser import map. Live use is a separate application opt-in: its import map resolves a package prefix to a chosen remote root, and declarative definition edges cannot escape that mapped scope without another application-owned mapping. A running controller's imports remain ordinary ESM and are constrained by CSP origins, not by the directory prefix. Production tooling may generate import-map integrity metadata for resolved URLs. Component authors never add consumer approvals or hashes.
@@ -458,7 +458,7 @@ This works because `host` is deliberately tiny, and every target already has all
 
 ## Lifecycle and hydration
 
-A controller's `connect` fires when the instance connects, on first mount *and* on any later reconnection, matching the custom-element reaction rather than a once-only *mount*[^1]. On a server-rendered page, the markup arrives already lowered and inert; the controller attaches at **hydration**, where `connect` first runs in the browser. `disconnect` fires on removal, running teardown. Because the first render never depends on the controller, hydration is adopt-in-place: the controller binds to existing nodes rather than rebuilding them (see [Components](/html-next/components)).
+A controller's `connect` fires when the instance connects, on first mount *and* on any later reconnection, matching the custom-element reaction rather than a once-only *mount*[^1]. On a server-rendered page, the markup arrives already lowered and inert; the controller attaches at **hydration**, where `connect` first runs in the browser. `disconnect` fires on removal, running teardown. Because the first render never depends on the controller, hydration is adopt-in-place: the controller binds to existing nodes rather than rebuilding them (see [Components](/declarative-components/components)).
 
 ## Reference
 

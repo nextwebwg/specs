@@ -61,4 +61,4 @@ Hydration markers and development-only attributes are excluded from the comparis
 > html-next build button.html --out-dir dist
 > ```
 
-Next: see a full source in [Examples](/html-next/examples), or how targets fit the component model in the [Overview](/html-next/overview). {.lede}
+Next: see a full source in [Examples](/declarative-components/examples), or how targets fit the component model in the [Overview](/declarative-components/overview). {.lede}

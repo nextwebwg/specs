@@ -42,7 +42,7 @@ Structural `$`-directives ride on ordinary elements (or a `<template>`), so they
 <!-- templating: a filtered, sorted list and a three-way status, all as directives -->
 <ul>
   <li $each="p of products" $where="p.inStock" $sort="price,-name" $key="p.id">
-    <value of="p.price" format="currency" currency="USD"></value> — <span $value="p.name"></span>
+    {format(p.price, 'currency', { currency: 'USD' })} — <span $value="p.name"></span>
   </li>
 </ul>
 

@@ -144,9 +144,9 @@ To refetch with unchanged inputs (a manual refresh, polling) there is no imperat
 > <input bind:value="query" placeholder="Search…">
 > <template $match>
 >   <progress $when="search.pending"></progress>
->   <output $when="search.error"><value of="search.error.message"></value></output>
+>   <output $when="search.error">$search.error.message</output>
 >   <ul $else>
->     <li $each="r of search.value.results" $key="r.id"><value of="r.title"></value></li>
+>     <li $each="r of search.value.results" $key="r.id">$r.title</li>
 >   </ul>
 > </template>
 > ```

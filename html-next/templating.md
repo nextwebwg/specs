@@ -117,7 +117,7 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 
 ## $with: scope alias
 
-Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). It takes an explicit **alias** rather than spreading the value's members as bare names: spreading reproduces the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/html-next/expressions)).
+Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). It takes an explicit **alias** rather than spreading the value's members as bare names: spreading reproduces the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/declarative-components/expressions)).
 
 ```html
 <section $with="account.owner as owner">
@@ -127,7 +127,7 @@ Introducing a value under a name is a separate, *visible* operation. `$with="exp
 
 ## Output: $value, $html, and <value>
 
-Plain dynamic text is a directive: `$value="expr"` sets an element's whole text content, and `<template $value="expr">` places wrapper-free text inline among other content. The `<value>` element is kept for the one case a directive serves poorly, **locale-formatted** output, where the Intl options (`format`, `currency`, `datestyle`, …) need an attribute surface (see [Expressions](/html-next/expressions)). None use `{{…}}` interpolation, and all three **escape by default**: the expression becomes text, so a `<b>` in the data renders as literal characters.
+Plain dynamic text is a directive: `$value="expr"` sets an element's whole text content, and `<template $value="expr">` places wrapper-free text inline among other content. The `<value>` element is kept for the one case a directive serves poorly, **locale-formatted** output, where the Intl options (`format`, `currency`, `datestyle`, …) need an attribute surface (see [Expressions](/declarative-components/expressions)). None use `{{…}}` interpolation, and all three **escape by default**: the expression becomes text, so a `<b>` in the data renders as literal characters.
 
 ```html
 <!-- plain escaped text: on the element, or wrapper-free with a <template> -->
@@ -146,7 +146,7 @@ Plain dynamic text is a directive: `$value="expr"` sets an element's whole text 
 >
 > `$html` must **not** call native `Element.setHTML()`, even when it exists. Firefox currently reorders malformed table content differently from Chromium, WebKit, and the reference HTML parser. Using native `setHTML()` would make the result depend on the browser and could break server-rendered hydration. It remains useful for comparing sanitizer policies, not for rendering `$html`.
 >
-> The result renders markup but cannot execute code, the same script-free guarantee a `<template component>` import receives. Raw, *unsanitized* HTML is not available here; it requires the dedicated trusted-HTML type (see [Types](/html-next/types)), the only path that can carry script and therefore the only one gated.
+> The result renders markup but cannot execute code, the same script-free guarantee a `<template component>` import receives. Raw, *unsanitized* HTML is not available here; it requires the dedicated trusted-HTML type (see [Types](/declarative-components/types)), the only path that can carry script and therefore the only one gated.
 
 ## Whitespace & mixed content
 

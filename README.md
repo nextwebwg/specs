@@ -6,7 +6,7 @@ discussion, not a W3C or WHATWG deliverable.
 
 | Proposal | Source | Published |
 | --- | --- | --- |
-| Declarative HTML Components | [`html-next/`](./html-next) — one specification in chapters | [nextwebwg.org/html-next](https://nextwebwg.org/html-next/) |
+| Declarative HTML Components | [`html-next/`](./html-next) — one specification in chapters | [nextwebwg.org/declarative-components](https://nextwebwg.org/declarative-components/) |
 | HTML Forms | [`html-forms/`](./html-forms) | [nextwebwg.org/html-forms](https://nextwebwg.org/html-forms/) |
 
 The site renders these files as they are on `main`; dated snapshots are frozen copies. The

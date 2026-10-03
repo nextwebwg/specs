@@ -23,7 +23,7 @@ Write for someone scanning the rendered page:
 - Use subheadings when a section covers distinct tasks or stages. Avoid stacking long paragraphs after a code sample.
 - Keep normative behavior in the chapter; use callouts for context, examples, or unresolved questions.
 
-The [Types chapter](/html-next/types) demonstrates the pattern with a type table, side-by-side written forms, and separate selection and update rules.
+The [Types chapter](/declarative-components/types) demonstrates the pattern with a type table, side-by-side written forms, and separate selection and update rules.
 
 Each file starts with YAML frontmatter, then its title and lede:
 
@@ -99,7 +99,7 @@ Quote a name that contains `"` with single quotes: `name='<link rel="component">
 | Write | For |
 | --- | --- |
 | `` `code` ``, `**strong**`, `*emphasis*` | As usual. |
-| `[text](/html-next/types)` | A link. Site paths navigate within the site; `#name` and full URLs are ordinary links. |
+| `[text](/declarative-components/types)` | A link. Site paths navigate within the site; `#name` and full URLs are ordinary links. |
 | `[^3]` | A citation of reference 3. |
 | `[^3]: Author, [title](https://…).` | Reference 3. References are numbered from 1, in order, usually under `## Sources` or `## References`. |
 | `[must]{.kw}` | An RFC 2119 keyword (`must`, `must not`, `should`, `may`, …). |
@@ -129,7 +129,7 @@ stamp: Unofficial Editor's Draft · Stage&nbsp;0
 
 The tagline.
 
-- [Start with Overview →](/html-next/overview)
+- [Start with Overview →](/declarative-components/overview)
 
 Editors
 : Next Web Working Group

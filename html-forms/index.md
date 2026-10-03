@@ -111,7 +111,7 @@ HTML already has a real validation system, the **Constraint Validation API**. Ea
 
 | Today | Where it stops | This proposal |
 | --- | --- | --- |
-| **Declarative constraints**: `required`, `pattern`, `min`/`max`, `step`, `minlength`/`maxlength`, `type`. | Only on `<input>`, `<select>`, and `<textarea>`. | Any element with a value can have validity. Other specifications can define where its constraints come from; [Declarative HTML Components](/html-next/validation) derives them from declared types. |
+| **Declarative constraints**: `required`, `pattern`, `min`/`max`, `step`, `minlength`/`maxlength`, `type`. | Only on `<input>`, `<select>`, and `<textarea>`. | Any element with a value can have validity. Other specifications can define where its constraints come from; [Declarative HTML Components](/declarative-components/validation) derives them from declared types. |
 | **`ValidityState`**: `element.validity`, with flags such as `valueMissing`, `typeMismatch`, and `rangeOverflow`. | The set of flags is fixed. Every other failure goes into one catch-all flag, `customError`, with a single message. | An open list of reasons, each with a message and optionally a path to the failing part of the value. The native flags stay available for compatibility. |
 | **The validity surface**: `checkValidity()`, `reportValidity()`, `validationMessage`, the `invalid` event, and `:valid`, `:invalid`, and `:user-invalid`. | Only on form controls and form-associated custom elements. | The same surface on any element that has validity, with its invalid state exposed to assistive technology as `aria-invalid` is today. |
 | **Script-set errors**: `setCustomValidity(message)` on form controls, and `ElementInternals.setValidity(flags, message, anchor)` for form-associated custom elements. | An ARIA widget, a `contenteditable` region, or any element that is not a form control cannot set an error at all. | `el.setValidity(errors)` on any element with a value, for failures only the page knows about, such as a server reporting that a name is taken. |
@@ -169,7 +169,7 @@ These are different questions. **Computing** validity happens whenever the value
 > A form owns its listed controls. Whether an ARIA widget or a `contenteditable` region inside a form also blocks its submission, and how such an element contributes an entry to the form data, is open for review.
 
 > [!note] Used by Declarative HTML Components
-> [Declarative HTML Components](/html-next/validation) builds on this model: a component's declared prop types and a `<data>` source's schema become constraints, and their failures are reported through this validity surface.
+> [Declarative HTML Components](/declarative-components/validation) builds on this model: a component's declared prop types and a `<data>` source's schema become constraints, and their failures are reported through this validity surface.
 
 :::
 

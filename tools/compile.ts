@@ -429,7 +429,7 @@ class Compiler {
   // -------------------------------------------------------------------------------------------
   // Page layouts: the chapter header and pager, or the proposal's front-page masthead.
 
-  chapter(meta: ChapterMeta, nodes: Node[]): string {
+  chapter(meta: ChapterMeta, nodes: Node[], frame?: string): string {
     const [h1, ...rest] = nodes;
     if (h1?.token.tag !== "h1") throw new Error("A chapter's body starts with its # title.");
     const header: Record<string, string> = {};
@@ -440,7 +440,9 @@ class Compiler {
     const parts = [`<PageHeader v-bind="${this.bindData(header)}" />`, this.blocks(rest)];
     if (meta.pager !== false) parts.push("<Pager />");
     parts.push("<SiteFooter />");
-    return parts.join("\n");
+    return frame
+      ? `<${frame}>\n<template #header>\n${parts[0]}\n</template>\n${parts.slice(1).join("\n")}\n</${frame}>`
+      : parts.join("\n");
   }
 
   proposal(meta: ChapterMeta, nodes: Node[]): string {
@@ -478,6 +480,9 @@ class Compiler {
 }
 
 export interface CompileOptions {
+  // The publishing site owns its guide layout. Native slots separate header and body
+  // while the compiler remains the only renderer of the authored Markdown.
+  chapterFrame?: string;
   // The proposal front page's masthead reads the latest snapshot and carries a scoped stylesheet;
   // both belong to the publishing site, which supplies them.
   proposalImports?: string;
@@ -490,7 +495,7 @@ export function compileChapter(source: string, options: CompileOptions = {}): { 
   const nodes = toTree(compiler.md.parse(body, {}));
   resolveAttrs(nodes);
   const proposal = meta.layout === "proposal";
-  const template = proposal ? compiler.proposal(meta, nodes) : compiler.chapter(meta, nodes);
+  const template = proposal ? compiler.proposal(meta, nodes) : compiler.chapter(meta, nodes, options.chapterFrame);
   // Code samples contain </script> and </template>; escape "<" so they cannot end an SFC block.
   const literal = (value: unknown) => JSON.stringify(value).replace(/</g, "\\u003c");
   // Nuxt resolves components automatically only in .vue files, so a compiled chapter imports the

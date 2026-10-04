@@ -38,25 +38,22 @@ A structural directive is a `$`-prefixed attribute. It goes on the element it ap
 > [!note] Structural directives survive HTML parsing
 > An attribute on a context-valid element survives HTML parsing, and a group can use a `<template>`, which is valid everywhere and preserves its direct children (a `<tr>` stays a `<tr>`). A hyphenless wrapper such as `<for>` or `<match>` is instead foster-parented out of a `<table>` and dropped in a `<select>` (verified against the reference parser). Angular's structural directives `*ngIf`/`*ngFor` follow the same element-level approach.[^7] The `$` marks the attribute as a directive and stays clear of the native `for`/`as` attributes a bare name would shadow.
 
-## Inline text paths
+## Inline text expressions
 
-A `$`-prefixed path in authored template text reads a value with the same scope, reactive dependencies, escaped-text conversion, absent-value behavior, and invalid-result retention as `$value`. Each occurrence supplies text at its own position and preserves surrounding text and elements. No wrapper element is produced. For a sole read, `<td>$r.name</td>` and `<td $value="$r.name"></td>` have the same observable output.
+Authored template text inserts a value with `{expression}`. Every insertion has explicit opening and closing braces, including a simple path such as `{$user.name}`. Each expression uses the same scope, reactive dependencies, escaped-text conversion, absent-value behavior, and invalid-result retention as `$value`. Surrounding text and elements are preserved, with no wrapper element. For a sole read, `<td>{$r.name}</td>` and `<td $value="$r.name"></td>` have the same observable output.
 
 ```html
 <table><tbody>
-  <tr $each="r of $rows" $key="$r.id"><td>$r.name</td></tr>
+  <tr $each="r of $rows" $key="$r.id"><td>{$r.name}</td></tr>
 </tbody></table>
 
-<p>Total: $cart.total due today</p>
-<p>Hello, $user.name!</p>
-<p>Price: $1.15. Write \$ident to show a literal reference.</p>
+<p>Total: {$cart.total} due today</p>
+<p>Hello, {$user.name}!</p>
+<p>Download: {$file.name}.txt</p>
+<p>Price: $1.15. The text $ident stays literal.</p>
 ```
 
-A text path starts with `$` and an [identifier](/html-next/expressions#identifier-spelling-and-case), then consumes zero or more dot segments or brackets containing a literal integer or quoted key. Dot segments are identifiers or integer indexes, as in `$rows.0.name`; bracket forms include `$rows[0].name` and `$record['first-name']`. Each segment is contiguous. A period that does not start another segment remains literal punctuation, so `$user.name.` reads `user.name` followed by a period.
-
-`$` followed by a digit does not start a reference: `$1.15` remains ordinary text. In authored text, `\$` emits one literal dollar sign and `\\` emits one literal backslash; other backslashes remain literal. Escaping a dollar prevents it from starting a reference, so `\$ident` renders `$ident`. These are text escapes, not identifier escapes. Interpolation is confined to authored template text; attribute literals, CSS, projected plain text, and text produced by a value or sanitized HTML are not scanned again.
-
-An undeclared root in a text path is the same author error as an undeclared root in `$value`. Arithmetic, calls, conditional expressions, and computed bracket indexes use `{expression}` or `$value`; the dollar shorthand reads paths only. `$value` and `$html` continue to own their element's content when present.
+Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read values and need no escape. In authored text, `\{` emits a literal opening brace and `\\` emits a literal backslash; other backslashes remain literal, including `\$`. These are text escapes, not identifier escapes. `$value` and `$html` continue to own their element's content when present.
 
 ## $if: single guard
 
@@ -147,27 +144,27 @@ Introducing a value under a name is a separate, *visible* operation. `$with="exp
 
 ## Output: inline text, $value, and $html
 
-Authored text can read `$path` directly or evaluate a full `{expression}`. `$value="expr"` sets an element's whole text content, and `<template $value="expr">` places wrapper-free text among siblings. All text forms share the same expression scope, reactivity, absence behavior, invalid-value retention, and escaping. Formatting uses `format()` in any expression (see [Expressions](/html-next/expressions#formatting-intl-expressions)).
+Authored text evaluates expressions only inside `{expression}`. `$value="expr"` sets an element's whole text content, and `<template $value="expr">` places wrapper-free text among siblings. All text forms share the same expression scope, reactivity, absence behavior, invalid-value retention, and escaping. Formatting uses `format()` in any expression (see [Expressions](/html-next/expressions#formatting-intl-expressions)).
 
 ```html
-<td>$user.name</td>
-<p>Hello $user.name, welcome.</p>
+<td>{$user.name}</td>
+<p>Hello {$user.name}, welcome.</p>
 <p>Total: {format($cart.total, 'currency', { currency: 'USD' })}</p>
 <output $value="format($cart.total, 'currency', { currency: 'USD' })"></output>
 <article $html="post.body"></article>
 ```
 
-### Full text expressions
+### Expression boundaries and errors
 
-A single opening brace starts an expression; its matching closing brace ends it. String literals and nested object braces are part of the expression and do not terminate it. All ordinary expression syntax is available, including computed indexes, conditionals, and fixed function calls. Empty or unterminated expressions are conformance errors. Write `\{` for a literal opening brace. Interpolation applies to authored template text, not attributes, styles, plain projected content, returned strings, or dynamic HTML.
+A single opening brace starts an expression; its matching closing brace ends it. String literals and nested object braces are part of the expression and do not terminate it. All ordinary expression syntax is available, including computed indexes, conditionals, and fixed function calls. Empty, malformed, or unterminated expressions and undeclared roots are conformance errors. These author errors follow the same diagnostic and compile-time rejection policy as `$value` (see [expression fault tolerance](/html-next/expressions#fallback-for-absence)); braces never request a literal-text fallback. Write `\{` for a literal opening brace. Interpolation applies to authored template text, not attributes, styles, plain projected content, returned strings, or dynamic HTML.
 
 ```html
 <p>{format($amount, 'currency', { currency: $currency }, $locale)}</p>
 <p>{default($items[$selected].name, 'Unknown')}</p>
-<p>Literal: \{format(\$amount)} and \$amount</p>
+<p>Literal: \{format($amount)} and $amount</p>
 ```
 
-Mixed literal text and expression segments retain one native text node per authored text node. Each segment retains its own last accepted value when a typed read or built-in operation becomes invalid. Adjacent markup and text-node identity survive updates and hydration.
+Mixed literal text and expression segments retain one native text node per authored text node. Each segment retains its own last accepted value when a typed read or built-in operation becomes invalid; a segment with no accepted value remains empty. An absent or `null` result clears the segment, as it does for `$value`. Adjacent markup and text-node identity survive updates and hydration.
 
 > [!norm] Aligned with the HTML Sanitizer API
 > `$html="expr"` renders markup, but **does not raw-inject** it. The string is parsed as an inert HTML fragment in a `<template>` context, then filtered with one versioned copy of the **HTML Sanitizer API's safe-default policy**[^5] before insertion. The filter drops `<script>`, inline `on*` handlers, and `javascript:` URLs. Browsers and servers must use the same policy.
@@ -302,9 +299,9 @@ Level
 : [L1]{.pill .l1}
 :::
 
-::: {.entry name="$path · {expression}" role="inline escaped text"}
+::: {.entry name="{expression}" role="inline escaped text"}
 Value
-: A reference path, or any checked expression inside matching braces
+: Any checked expression inside matching braces
 
 Semantics
 : Reads the current lexical scope; escaped text; each segment retains its last accepted value on invalid input
@@ -313,7 +310,7 @@ Formatting
 : `format()` chooses an explicit Intl formatter or infers the default from the declared type
 
 Escapes
-: `\$` for a literal dollar, `\{` for a literal opening brace, `\\` for a literal backslash
+: `\{` for a literal opening brace, `\\` for a literal backslash; dollars are ordinary text outside expressions
 
 Level
 : [L1]{.pill .l1}

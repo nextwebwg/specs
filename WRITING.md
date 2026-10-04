@@ -75,7 +75,7 @@ These principles are distilled from established sources, not invented here:
 
 The site distinguishes the group from the documents it publishes. The root page describes
 the **Next Web Working Group** and lists proposals. Detailed HTML Next content belongs under
-`/html-next/`, where the module navigation is available.
+`/declarative-components/`, where the module navigation is available.
 
 Use the current publication fields from `app/data/publications.json`; do not improvise status
 labels on individual pages. Until a recognized standards venue adopts the work, call HTML
@@ -84,7 +84,7 @@ describes that module's maturity. A dated **Snapshot** identifies a frozen publi
 of those terms substitutes for another.
 
 Published snapshots are records, not pages to revise. Correct the current draft and publish
-a new date instead of editing anything under `public/html-next/YYYY-MM-DD/`.
+a new date instead of editing anything under `public/declarative-components/YYYY-MM-DD/` (or a legacy `public/html-next/YYYY-MM-DD/` snapshot).
 
 ## Before you publish: a quick check
 

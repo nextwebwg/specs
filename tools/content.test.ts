@@ -147,7 +147,7 @@ test("writes are reactive data effects and commands remain author-owned", () => 
     /Initial connection samples .* baseline and does not send a write/, /last acknowledged body/,
     /immutable resolved resource identity and body snapshot/, /preserves its dirty latest snapshot/, /old-key completion/,
     /For a read, a param change cancels/, /does not own controls or create a rendered `<form>`/,
-    /validation contract\]\(\/html-next\/validation\) applies the result to the field's validity/,
+    /validation contract\]\(\/declarative-components\/validation\) applies the result to the field's validity/,
     /native form submission, an imperative controller call, or a component event/]) {
     assert.match(reactivity, phrase);
   }
@@ -176,9 +176,9 @@ test("HTML Forms is an independent proposal with composable submission scopes", 
   // readers into the component model's reactivity chapter.
   const samples = [...source.matchAll(/^```[^\n]*\n([\s\S]*?)^```$/gm)].map((m) => m[1]).join("\n");
   assert.doesNotMatch(samples, /<data[\s>]|<defs>|template component/i);
-  assert.doesNotMatch(source, /\/html-next\/reactivity/i);
-  assert.doesNotMatch(chapter("overview"), /\]\(\/html-next\/forms\)/);
-  assert.doesNotMatch(chapter("reactivity"), /\]\(\/html-next\/forms\)/);
+  assert.doesNotMatch(source, /\/declarative-components\/reactivity/i);
+  assert.doesNotMatch(chapter("overview"), /\]\(\/declarative-components\/forms\)/);
+  assert.doesNotMatch(chapter("reactivity"), /\]\(\/declarative-components\/forms\)/);
 });
 
 test("current targets do not publish detached contract JSON", () => {

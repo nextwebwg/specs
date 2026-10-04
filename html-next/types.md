@@ -44,9 +44,9 @@ Each type has one name and one meaning.
 > [!note] Declared type rules
 > HTML already parses formats such as dates and URLs, and control modes change which values are valid. CSS defines colors, lengths, and other value grammars.[^1][^16] JavaScript can implement these rules, but putting them only in component code hides them from the browser runtime, build tools, and generated TypeScript. Declarations expose the rules without changing native DOM properties such as `HTMLInputElement.value`.
 
-In the [JavaScript layer](/html-next/javascript), `number` and `integer` prop values are JavaScript `Number` values. A written `ratio="0.3"` therefore becomes the number `0.3` in `host.props.ratio.value` when `ratio` is declared as `number`.
+In the [JavaScript layer](/declarative-components/javascript), `number` and `integer` prop values are JavaScript `Number` values. A written `ratio="0.3"` therefore becomes the number `0.3` in `host.props.ratio.value` when `ratio` is declared as `number`.
 
-`length`, `percentage`, and `duration` remain serialized strings at that JavaScript boundary. An [expression math function](/html-next/expressions#values-with-units) can calculate with their typed quantities and returns their written form; for example `round(8.8px, 1px)` produces `9px` for a `length` destination.
+`length`, `percentage`, and `duration` remain serialized strings at that JavaScript boundary. An [expression math function](/declarative-components/expressions#values-with-units) can calculate with their typed quantities and returns their written form; for example `round(8.8px, 1px)` produces `9px` for a `length` destination.
 
 ## Value constraints
 
@@ -60,7 +60,7 @@ Constraints narrow a declared type. They apply to `<prop>` declarations, includi
 | `minlength`, `maxlength` | `string`, `keyword`, `url`, `email` | A nonempty value outside the inclusive length bounds sets `tooShort` or `tooLong`. Length counts UTF-16 code units, as in HTML.[^17] |
 | `min`, `max` | `integer`, `number`, `date`, `month`, `week`, `time`, `datetime-local`, `datetime` | A nonempty value outside the inclusive bounds sets `rangeUnderflow` or `rangeOverflow`. Bounds use the declared type's written form. |
 
-An omitted optional prop resolves to `null`; constraints other than `required` do not reject it. An empty string also skips those constraints. A constraint that does not apply to its declared type, or has an invalid value, is ignored by the live parser with a declaration warning; build tools report a declaration error. A `default` must satisfy every applicable constraint. See [Validation](/html-next/validation) for the resulting validity state.
+An omitted optional prop resolves to `null`; constraints other than `required` do not reject it. An empty string also skips those constraints. A constraint that does not apply to its declared type, or has an invalid value, is ignored by the live parser with a declaration warning; build tools report a declaration error. A `default` must satisfy every applicable constraint. See [Validation](/declarative-components/validation) for the resulting validity state.
 
 ### Finite choices
 
@@ -167,7 +167,7 @@ JSON Schema also has `enum` for a fixed set of values. An object schema can use 
 
 ### Writing structured values
 
-Structured values use the object and array literal syntax of [HTML Next expressions](/html-next/expressions), **not JSON**. A plain attribute supplies a fixed value, parsed according to the declared prop type. A `from:` binding evaluates an expression that may read other values and change with them:
+Structured values use the object and array literal syntax of [HTML Next expressions](/declarative-components/expressions), **not JSON**. A plain attribute supplies a fixed value, parsed according to the declared prop type. A `from:` binding evaluates an expression that may read other values and change with them:
 
 ```html
 <x-plot point="{ x: 3, y: 5 }"></x-plot>
@@ -273,7 +273,7 @@ Unions could allow more than one base type. An untagged union of `string` and `n
 [^7]: CSS Color Module Level 4, [color values](https://drafts.csswg.org/css-color-4/#color-type).
 [^8]: CSS Color Module Level 4, [hexadecimal color notation](https://drafts.csswg.org/css-color-4/#hex-notation).
 [^9]: CSS Values and Units Level 4, [lengths](https://drafts.csswg.org/css-values-4/#lengths), [percentages](https://drafts.csswg.org/css-values-4/#percentages), and [time values](https://drafts.csswg.org/css-values-4/#time).
-[^10]: WHATWG HTML, [the `pattern` attribute](https://html.spec.whatwg.org/multipage/input.html#the-pattern-attribute); this proposal's [Validation chapter](/html-next/validation) applies pattern constraints to typed props.
+[^10]: WHATWG HTML, [the `pattern` attribute](https://html.spec.whatwg.org/multipage/input.html#the-pattern-attribute); this proposal's [Validation chapter](/declarative-components/validation) applies pattern constraints to typed props.
 [^11]: DOM Standard, [`getAttribute()`](https://dom.spec.whatwg.org/#dom-element-getattribute).
 [^12]: CSS Values and Units Level 4, [value definition syntax multipliers](https://drafts.csswg.org/css-values-4/#component-multipliers).
 [^13]: JSON Schema, [specification](https://json-schema.org/specification).

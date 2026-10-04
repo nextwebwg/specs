@@ -181,6 +181,39 @@ An `<x-button>` invocation has to resolve to a definition. There are three ways 
 3. a document-level `<link rel="component">` whose `href` is either a live URL or a package specifier.
 {.algo}
 
+### Resource metadata for application tooling
+
+A component resource may carry page metadata alongside its component definitions. This lets an application build use ordinary HTML for a page title, description, or application-specific configuration while keeping the same component usable through the regular loader.
+
+```html title="products.html"
+<meta name="example:layout" content="admin">
+<meta name="description" content="Manage your products.">
+<meta property="og:title" content="Product administration">
+<title>Products · Admin</title>
+
+<template component="products-page">
+  <section><h1>Products</h1></section>
+</template>
+```
+
+The metadata belongs to the resource, outside every `<template component>` carrier. A resource [may]{.kw} contain `<meta>` elements without `http-equiv`, `<title>`, and ordinary metadata `<link>` elements there. A conforming component loader [must]{.kw} accept and ignore this resource metadata: it [must not]{.kw} copy it into the consuming document, change the document title, load linked styles or other resources, evaluate its bindings, or interpret application-specific names. Component dependency links remain distinct: `<link rel="component">` still declares a component graph edge.
+
+This is a bounded allowance, not permission to put arbitrary HTML beside a component definition. A resource [must]{.kw} contain at least one component carrier. After HTML fragment parsing, its resource-level nodes are handled as follows:
+
+| Resource-level node | Component loader behavior |
+| --- | --- |
+| `<template component="…">` | Parse and register the component definition. |
+| `<link rel="component" href="…">` | Resolve the component dependency. |
+| `<meta>` without `http-equiv`, `<title>`, and other metadata `<link>` elements | Accept and ignore; do not evaluate bindings or activate the nodes. |
+| Comments and whitespace-only text | Ignore. |
+| `<style>`, any `<script>` (including import maps and data scripts), `<base>`, `<meta http-equiv>`, HTML Imports, ordinary body elements, plain non-component templates, and non-whitespace text | Reject as invalid resource content. |
+
+Executable event-handler attributes also remain invalid. A `<link rel="stylesheet">` outside a carrier is ignored metadata; a `<style>` outside a carrier is invalid. The optional `<style>` **inside** a component carrier still supplies its scoped component CSS. Imperative behavior still uses the carrier's declared `controller` module. These placement rules keep application metadata separate from the component's own styles and behavior.
+
+Application build systems [may]{.kw} consume resource metadata under their own documented conventions. For example, a build may interpret a namespaced metadata name as a layout choice and collect ordinary title and description declarations into the generated document's head. This proposal defines neither layout selection nor head merging, precedence, binding scope, or navigation updates. An application build owns those behaviors; they are not component registration or lowering effects. Metadata from an imported dependency does not acquire application authority merely because the component graph reaches it.
+
+This allowance does not change the carrier's grammar or its one-root rule. Resource metadata is ignored by the component loader, not generally inert HTML: when an author places those same elements directly in an active application document, their ordinary HTML behavior still applies. See [Security](/declarative-components/security) for the imported-resource boundary.
+
 ### One import form, live or packaged
 
 The application names the concrete component files it directly uses. A same-origin URL-like `href` (`./` or `/`) stays **live project source**: the runtime fetches that definition and follows its declared component and controller edges. A bare `href` is a **package subpath**: an install/build resolves that exact exported HTML file through package metadata, while a no-build live application resolves it through its own import map. Every path selects the same definition and preserves the same dependency graph:

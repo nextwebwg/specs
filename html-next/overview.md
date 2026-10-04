@@ -32,8 +32,8 @@ Declarative HTML Components is one specification, in chapters that each define p
 | Chapter | In plain terms |
 | --- | --- |
 | [Components](/declarative-components/components) | Define a reusable tag with `<template component>`. Its interface (props) and non-visual declarations live in a `<defs>` region; below that is the markup it renders. |
-| [Templating](/declarative-components/templating) | Control flow as attributes that survive the HTML parser: `$if` (show or not), `$each` (repeat), `$match` (pick one), `$value`/`$html` (output text or safe markup). |
-| [Expressions](/declarative-components/expressions) | A small, typed, no-JavaScript expression language for the values in those attributes, with predictable rules for missing data and equality (it never throws). |
+| [Templating](/declarative-components/templating) | Control flow uses attributes that survive the HTML parser: `$if` (show or not), `$each` (repeat), `$match` (pick one). Output uses `{expression}` for inline text and `$value`/`$html` to replace content with text or safe markup. |
+| [Expressions](/declarative-components/expressions) | A small, typed, no-JavaScript expression language for bindings and inline text, with predictable rules for missing data and equality (it never throws). |
 | [Bindings & events](/declarative-components/bindings) | Set reactive values with `from:attr`, two-way with `bind:`, react to events with `on:`, toggle a class or style with `class:`/`style:`. |
 | [Reactivity](/declarative-components/reactivity) | Declare local `<state>`, derived `<computed>` values, and external `<data>` resources. Reads refetch and synchronized writes send according to their declared change policy. |
 | [Types](/declarative-components/types) | Plain-keyword value types cover strings, numbers, HTML value formats, and selected CSS values. An omitted prop with no default is `null`. |

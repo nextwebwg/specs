@@ -8,17 +8,17 @@ status: Level 1 · reserved direction
 
 # Expressions & Formatting
 
-Declarative HTML Components uses a small expression language for live values and conditions. It can read declared values, calculate with them, and choose a fallback without running JavaScript from an HTML attribute. Formatting for readers belongs on `<value>`; the few expression functions below return typed values for use in bindings and computed values.
+Declarative HTML Components uses a small expression language for live values and conditions. It can read declared values, calculate with them, and choose a fallback without running JavaScript from an HTML attribute. Formatting is an expression operation, so the same formatted string can appear in template text, bindings, handler steps, and computed values.
 
 ## The expression language
 
-Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`), language-element attributes (`test`, `of`, `each`), and `<value of>`. A handler evaluates `expr:value` only when that step runs; `from:x` and `<computed from>` keep their dependencies live. Every root identifier [must]{.kw} resolve through the template's declared binding scope: props, state, computed values, data, imports, loop locals. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
+Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`), structural directives, and inline text expressions (`{expression}`). A handler evaluates `expr:value` only when that step runs; `from:x` and `<computed from>` keep their dependencies live. Every root identifier [must]{.kw} resolve through the template's declared binding scope: props, state, computed values, data, imports, loop locals. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
 
 ```html
 <!-- Expressions look like this: plain reads, comparisons, and arithmetic. -->
 <p $if="$user.isAdmin">…</p>                        <!-- a boolean guard -->
 <progress from:value="$cart.items.length"></progress>  <!-- a bound value -->
-<value of="($price - $discount) * 1.08"></value>     <!-- arithmetic, no filters -->
+{($price - $discount) * 1.08}     <!-- arithmetic, no filters -->
 ```
 
 ::: two
@@ -34,6 +34,12 @@ Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`
 ## Scope & name resolution
 
 A bare identifier resolves through the template's declared scope, never an ambient JavaScript global, and an identifier that resolves to nothing is a **conformance error**. Scope has two parts.
+
+### Identifier spelling and case
+
+Expression identifiers are **case-sensitive**. A reference in an expression or through the JavaScript interface [must]{.kw} use the declaration's exact spelling: `$count` and `$Count` read different names. Public props [must not]{.kw} differ only in ASCII casing, because the HTML parser lowercases attribute names; `<prop name="count">` and `<prop name="Count">` cannot both be declared. Other scope names retain their case-sensitive identity.
+
+An identifier starts with a CSS Syntax **ident-start code point** and continues with ident-start code points or ASCII digits.[^18] This reuses CSS's defined character repertoire, including `_` and permitted non-ASCII characters, but **not** CSS identifier tokenization: dashes are not allowed at any position, and names have no escape sequences. `$` is a reference marker, never part of a name. Thus `_name`, `first_name`, `firstName`, and `name2` are identifiers; `-name`, `--name`, `first-name`, `$name`, and `1name` are not identifier spellings. `$first-$name` is subtraction between two references. External keys outside this grammar remain accessible through a quoted bracket key, such as `$record['first-name']`.
 
 ### The component layer is flat, and collisions are errors
 
@@ -68,10 +74,11 @@ unary     := ("not" | "-") unary | access
 access    := primary (("." id) | ("." integer) | ("[" expr "]"))*
 primary   := literal | dimension | reference | id | call | "(" expr ")" | object | array
 reference := "$" id
+id        := ident-start (ident-start | digit)*  (* CSS ident-start; no dashes or escapes *)
 dimension := css-number css-unit | css-number "%" (* units from Types; no whitespace *)
 integer   := digit+
 call      := fn "(" (expr ("," expr)*)? ")"    (* fixed, typed, CSS-style — not arbitrary calls *)
-fn        := "round" | "clamp" | "min" | "max" | "abs" | "default" | "concat" | "join"
+fn        := "round" | "clamp" | "min" | "max" | "abs" | "default" | "concat" | "join" | "format" | "formatRange" | "formatParts"
 object    := "{" (pair ("," pair)* ","?)? "}"
 pair      := (id | string) ":" expr
 array     := "[" (expr ("," expr)* ","?)? "]"
@@ -130,7 +137,7 @@ Arithmetic follows the operand types. `+` is *not* overloaded for string concate
 
 ### Fallback for absence
 
-Because `or` returns a boolean, fallback has an explicit form. `default($user.name, 'friend')` uses `'friend'` when the value is absent or `null`; it preserves `false`, `0`, and `''`. The fallback is evaluated only when needed. This resembles CSS `var(--x, fallback)`[^7] and Jinja's undefined-only `default`[^10], with `null` included because an omitted optional prop resolves to `null`. `<value of="$user.name" default="friend">` is the shorter text-only form with the same absent-or-`null` trigger. A whole-markup choice among several states is a `$match`; a small value choice can use `? :`.
+Because `or` returns a boolean, fallback has an explicit form. `default($user.name, 'friend')` uses `'friend'` when the value is absent or `null`; it preserves `false`, `0`, and `''`. The fallback is evaluated only when needed. This resembles CSS `var(--x, fallback)`[^7] and Jinja's undefined-only `default`[^10], with `null` included because an omitted optional prop resolves to `null`. `{default($user.name, 'friend')}` inserts that fallback result in text with the same absent-or-`null` trigger. A whole-markup choice among several states is a `$match`; a small value choice can use `? :`.
 
 > [!norm] Fault tolerance is a platform requirement
 > A conforming **runtime**, the polyfill or a future native implementation, [must not]{.kw} throw on a data condition: absent data yields the absent value and rendering continues, exactly as the HTML parser[^8] recovers from malformed markup rather than aborting the page. Anything less violates the platform. A **compiler** [may]{.kw} reject author mistakes, undeclared names, disjoint-type comparisons, incompatible arithmetic, at build time as static analysis, the way a validator or a type checker does; but this is optional, and every construct a compiler could reject still has a defined runtime behaviour (absent, empty, or logged), so a permissive implementation stays conformant. Diagnostics are recommended; compile-time rejection is optional; runtime throwing is forbidden.
@@ -166,7 +173,7 @@ Functions cover operations that an operator or an existing HTML/CSS feature does
 ```html
 <computed name="snapped" from="round($width, 1px)"></computed>
 <computed name="shown" from="default($count, 0)"></computed>
-<value of="($price - $discount) * 1.08" format="currency" currency="USD"></value>
+{format(($price - $discount) * 1.08, 'currency', { currency: 'USD' })}
 ```
 
 | Function | Example → result | Accepted inputs and result | Prior art |
@@ -224,9 +231,9 @@ If `width` then changes to `100rem`, `quarterWidth` becomes `25rem`, but `padded
 
 `default` is lazy: it evaluates `value` first, and evaluates `fallback` only if that result is absent or `null`. Both arms must have the same declared type, or satisfy the same expected destination type; it does not create a mixed-type union. A present but invalid typed reference is **not** absence and cannot be rescued by `default`; the invalid result follows the [live-binding rule](/declarative-components/reactivity): the destination keeps its last accepted value, or its default/`null` if it has never accepted one. The function does not use truthiness.
 
-`concat` requires at least one argument. Each must be a scalar (`string`, `keyword`, `boolean`, `integer`, `number`, or a serialized scalar type such as `length`). It uses that type's normal attribute text: for example `concat(true)` returns `'true'` and `concat(8px)` returns `'8px'`. A value keeps its normal type checks until it reaches this explicit text conversion. Missing data propagates as absent; `null` contributes an empty string. Lists and objects are not `concat` arguments. Locale-sensitive number, date, currency, and list presentation uses `<value format>` below. XPath supplies the function's name and ordered concatenation, but Declarative Components also permits one argument so the same function can replace `format('%s', value)` without another conversion function.[^11]
+`concat` requires at least one argument. Each must be a scalar (`string`, `keyword`, `boolean`, `integer`, `number`, or a serialized scalar type such as `length`). It uses that type's normal attribute text: for example `concat(true)` returns `'true'` and `concat(8px)` returns `'8px'`. A value keeps its normal type checks until it reaches this explicit text conversion. Missing data propagates as absent; `null` contributes an empty string. Lists and objects are not `concat` arguments. Locale-sensitive number, date, currency, and list presentation uses the [Intl formatting functions](#formatting-intl-expressions) below. XPath supplies the function's name and ordered concatenation, but Declarative Components also permits one argument so the same function can replace `format('%s', value)` without another conversion function.[^11]
 
-`join` requires exactly two arguments: a list and a string separator. The list may be empty and must have one scalar item type, as described in [Types](/declarative-components/types#lists-and-their-written-forms). Items use the same text conversion as `concat`; a `null` item contributes an empty string, but still occupies its position between separators. An empty list returns `''`, and a one-item list returns that item's text without a separator. An absent list, separator, or item propagates as absent. An object item or a separator of another type makes the call invalid. For example, `join(['red', null, 'blue'], ', ')` returns `'red, , blue'`, while `join([], ', ')` returns `''`. This function assembles an attribute or computed string; `<value format="list">` remains the locale-sensitive way to present a list to readers.[^16]
+`join` requires exactly two arguments: a list and a string separator. The list may be empty and must have one scalar item type, as described in [Types](/declarative-components/types#lists-and-their-written-forms). Items use the same text conversion as `concat`; a `null` item contributes an empty string, but still occupies its position between separators. An empty list returns `''`, and a one-item list returns that item's text without a separator. An absent list, separator, or item propagates as absent. An object item or a separator of another type makes the call invalid. For example, `join(['red', null, 'blue'], ', ')` returns `'red, , blue'`, while `join([], ', ')` returns `''`. This function assembles an attribute or computed string; `format($items, 'list')` is the locale-sensitive way to present a list to readers.[^16]
 
 ### Invalid calls and live bindings
 
@@ -263,59 +270,127 @@ Wrong argument counts, incompatible types or units, a zero rounding step, and a 
 
 ### Why this set
 
-The admission test for a built-in is concrete: it must express a recurring typed operation that an operator, element, or CSS property does not already express at that use site; it must be pure; and both the browser interpreter and compiled targets must be able to give it the same result. `round($width, 1px)` passes because a computed length may feed a prop or attribute, not just a CSS property. `concat($progress, '%')` passes because `+` is numeric-only and a live attribute may need a string. `join($tags, ', ')` assembles a list for an attribute with a chosen separator. Displayed currency is assigned to `<value format="currency">` below, so it does not need a `currency()` expression function.
+The admission test for a built-in is concrete: it must express a recurring typed operation that an operator, element, or CSS property does not already express at that use site; it must be pure; and both the browser interpreter and compiled targets must be able to give it the same result. `round($width, 1px)` passes because a computed length may feed a prop or attribute, not just a CSS property. `concat($progress, '%')` passes because `+` is numeric-only and a live attribute may need a string. `join($tags, ', ')` assembles a list for an attribute with a chosen separator. Locale presentation uses `format()` below, so it works in computed values and bindings as well as displayed text.
 
 Template languages show a need for transformations but disagree on what a broad library should contain. Liquid and Twig supply dozens of filters, including arithmetic and formatting; Jinja supplies a configurable filter library. Angular pipes cover locale formatting and arbitrary presentation transformations, while Vue 3 removed its template filters.[^14] Handlebars and Mustache show a smaller expression surface but rely on helpers or lambdas for custom work.[^15] Declarative Components places the recurring jobs where its existing syntax already puts them:
 
 | Need | Existing place |
 | --- | --- |
 | Arithmetic and comparisons | Operators; `min`, `max`, `clamp`, `round`, `abs` for math that needs a name |
-| Missing-value fallback | `default()` in an expression; `<value default>` for displayed text |
+| Missing-value fallback | `default()` in any expression |
 | Attribute text assembled from typed values | `concat()` |
 | List items assembled with a chosen separator | `join()` |
-| Locale presentation | `<value format>` and the globalization standard |
+| Locale presentation | `format()` and the globalization standard |
 | Uppercase or truncation for display | CSS `text-transform`, `text-overflow`, or `line-clamp` |
 | Sort, filter, or limit repeated items | `$sort`, `$where`, `$limit` on `$each` |
 | Split, replace, regex, or application-specific computation | Component JavaScript and the reactive graph, not a callable template library |
 
-`join` and `<value format="list">` serve different sites: `join` creates a string for a typed destination or attribute with an author-chosen separator, while the `<value>` element presents a list to readers using locale rules. Space- and comma-separated typed attributes also have their own written forms, so they do not need `join` just to parse a list.
+`join()` uses an author-chosen separator; `format($names, 'list')` assembles a list using locale rules. Both return strings for any expression destination. Space- and comma-separated typed attributes also have their own written forms, so they do not need `join` just to parse a list.
 
 This keeps the browser interpreter and generated Vue/React expressions deterministic. It also avoids silently choosing a different fallback rule from Liquid or Twig, both of which replace some present false or empty values.[^10]
 
-## Formatting: delegated to a globalization standard
+## Formatting: Intl expressions
 
-Locale-aware presentation is the one transformation that genuinely earns first-class status: it is hard to do by hand, and the platform already standardized it. HTML Next exposes it as **typed attributes on `<value>`** (mirroring how `<time datetime>`, `<meter>`, and `<data value>` already carry typed value semantics), never a `| currency` pipe. The formatters bind to `Intl`[^4].
+Locale-aware formatting is a fixed expression operation backed by the Intl formatters.[^4] It returns escaped text when used in template output, and the same result can feed an attribute, prop, handler step, or computed value. Options use the native **case-sensitive camelCase names**, such as `currencyDisplay`, `timeStyle`, and `maximumFractionDigits`.
 
-| format | Backed by (JS binding) | Key attributes |
+```text
+format(value, options?, locale?)
+format(value, formatter, options?, locale?)
+formatRange(start, end, options?, locale?)
+formatRange(start, end, formatter, options?, locale?)
+formatParts(value, options?, locale?)
+formatParts(value, formatter, options?, locale?)
+```
+
+An object in the options position selects inferred formatting; a string in the formatter position selects an explicit formatter. To supply only a locale override, write an empty options object: `format($amount, {}, 'fr-CA')`. A locale is a BCP 47 language tag, with an optional region, and may itself be an expression. Omission uses the execution environment's default locale. Currency and time zone remain independent options. SSR must receive the same explicit locale and, for instants, time-zone options as the browser when identical initial text is required; a server cannot infer the browser's preferences.
+
+### Explicit formatters
+
+| Formatter | Native facility | Options and input |
 | --- | --- | --- |
-| `number` | `Intl.NumberFormat` | `notation`, `mindigits`, `maxdigits` |
-| `currency` | `Intl.NumberFormat` | `currency` (ISO 4217), `currencydisplay` |
-| `percent` | `Intl.NumberFormat` | `maxdigits` |
-| `unit` | `Intl.NumberFormat` | `unit`, `unitdisplay` |
-| `date` / `time` / `datetime` | `Intl.DateTimeFormat` | `datestyle`, `timestyle`, `timezone` |
-| `relativetime` | `Intl.RelativeTimeFormat` | `unit`, `numeric` |
-| `list` | `Intl.ListFormat` | `listtype` |
-| `plural` | `Intl.PluralRules` + MessageFormat | `zero` `one` `two` `few` `many` `other` |
+| `number` | `Intl.NumberFormat` | Decimal numbers; precision, grouping, signs, `notation` (`standard`, `compact`, `scientific`, `engineering`); native `style` may select currency, percent, or units |
+| `currency` | `Intl.NumberFormat` | Number; required `currency`, optional `currencyDisplay`, `currencySign`, precision; selects `style: 'currency'` |
+| `percent` | `Intl.NumberFormat` | Numeric ratio; selects `style: 'percent'`; `0.15` displays as 15% |
+| `unit` | `Intl.NumberFormat` | Number; required `unit`, optional `unitDisplay`; selects `style: 'unit'`; labels the supplied magnitude without converting it |
+| `date` | `Intl.DateTimeFormat` | Calendar date or instant; `dateStyle` or date fields; default medium date |
+| `time` | `Intl.DateTimeFormat` | Clock time or instant; `timeStyle` or time fields; default medium time |
+| `dateTime` | `Intl.DateTimeFormat` | Date and time; `dateStyle`, `timeStyle`, `timeZone`, calendar and field options; default medium date and time |
+| `relativeTime` | `Intl.RelativeTimeFormat` | Signed numeric offset; required `unit`, optional `numeric` and `style`; no implicit read of the current clock |
+| `duration` | `Intl.DurationFormat` | Duration record, or a typed CSS duration; `style` (`long`, `short`, `narrow`, `digital`), unit-display options, `fractionalDigits` |
+| `list` | `Intl.ListFormat` | List of strings; `type` (`conjunction`, `disjunction`, `unit`), `style` (`long`, `short`, `narrow`) |
+| `displayName` | `Intl.DisplayNames` | String code; required `type` (`language`, `region`, `script`, `currency`, `calendar`, `dateTimeField`), optional `style` and `fallback` |
+| `plural` | `Intl.PluralRules` plus message selection | Number; `type` (`cardinal`, `ordinal`), precision options, and required `forms` record described below |
+
+The explicit numeric presets set the native `style`; a conflicting authored `style` is invalid. Other options are delegated to the selected native constructor, including its defaults, accepted combinations, and treatment of unknown option names. HTML Next does not add a second options schema or rename the native options.
 
 ```html
-<value of="$price"       format="currency" currency="USD"></value>
-<value of="$ratio"       format="percent" maxdigits="1"></value>
-<value of="$publishedAt" format="date" datestyle="long"></value>
-<value of="$editedAgo"   format="relativetime" unit="minute"></value>
-<value of="$tags"        format="list" listtype="conjunction"></value>
+<p>Total: {format($cart.total, 'currency', { currency: 'USD' })}</p>
+<p>Published: {format($publishedAt, 'date', { dateStyle: 'long' })}</p>
+<p>Updated: {format($minutesAgo, 'relativeTime', { unit: 'minute' })}</p>
+<p>Guests: {format($names, 'list', { type: 'conjunction' }, $locale)}</p>
+<output>{format($elapsed, 'duration', { style: 'digital' })}</output>
+<computed name="priceLabel" from="format($price, 'currency', { currency: 'CAD' }, 'fr-CA')"></computed>
 ```
 
-### Plurals: CLDR categories
+### Inference follows the declared type
 
-The plural attributes are the CLDR plural *categories*: `zero`, `one`, `two`, `few`, `many`, `other`. The runtime selects the category for the value in the active locale (English uses `one`/`other`; Arabic uses all six; Polish uses `few`/`many`/`other`), then substitutes `#` with the formatted number, following Unicode MessageFormat.
+Each supported type has one default formatter. Inference never parses an ordinary string to guess its meaning, and never guesses a formatter from option names. Constraints do not change the underlying formatting identity. Nullable unions ignore absence; other union members must agree on one identity. A selected type can infer only when all possible selections agree. An ordinary string, unknown value, or conflicting union requires an explicit formatter.
+
+| Declared type | Inferred formatter |
+| --- | --- |
+| `number`, `integer` | `number` |
+| `percentage` | `percent` |
+| `date` | `date` |
+| `time` | `time` |
+| `datetime`, `datetime-local` | `dateTime` |
+| `duration` | `duration` |
+| List of strings or keywords | `list` |
+
+Numeric expression literals and arithmetic also have their numeric or dimensional identity. Known string-list literals infer `list`. Typed nested paths and lexical aliases retain their declared identity. An untyped computed declaration needs an explicit formatter when its result's identity is unavailable at the use site.
+
+```js
+// These pairs are equivalent for the corresponding declared types.
+format($clock, { timeStyle: 'long' })
+format($clock, 'time', { timeStyle: 'long' })
+
+format($amount, { style: 'currency', currency: 'USD' })
+format($amount, 'currency', { currency: 'USD' })
+
+// Generic options may be clearer with an explicit formatter.
+format($names, 'list', { style: 'long' })
+format($elapsed, 'duration', { style: 'long' })
+```
+
+Inference is a convenience, not a promise that every shorthand is readable without its declaration. Authors can always make intent visible with an explicit formatter.
+
+### Typed values and native input
+
+`date`, `time`, and `datetime-local` are civil values without a time zone. Formatting [must]{.kw} preserve their calendar and clock fields without shifting them to the machine's zone or inventing a zone label. The JavaScript adapter uses an internal UTC anchor and removes zone-name parts from long or full time styles. Explicit `timeZone` or `timeZoneName` options on those zone-free values are invalid. A `datetime` is an instant; it uses the selected native time zone. An explicit date/time formatter also accepts HTML date/time strings or numeric epoch milliseconds. A date-only input cannot supply clock fields, and a time-only input cannot supply calendar fields. Invalid dates [must not]{.kw} roll over into another calendar day.
+
+A typed CSS percentage such as `15%` supplies the ratio `0.15` to number formatting. A typed CSS duration such as `1500ms` supplies a balanced hours/minutes/seconds/subseconds record; signs are preserved. A structured duration record passes its fields to Intl unchanged. These adapters preserve type meaning rather than treating every serialized value as an ordinary string.
+
+### Plural messages
+
+`plural` selects one of the CLDR categories `zero`, `one`, `two`, `few`, `many`, or `other` using `Intl.PluralRules`, then selects the corresponding string from `forms`. `other` is required and supplies the fallback. Every `#` in that selected string is replaced with the number formatted in the same locale and precision. This is a small message-selection operation layered on Intl, rather than an assertion that Intl itself interpolates messages.[^5]
+
+```js
+format($count, 'plural', { forms: { one: '# item', other: '# items' } })
+format($position, 'plural', {
+  type: 'ordinal',
+  forms: { one: '#st', two: '#nd', few: '#rd', other: '#th' }
+}, 'en')
+```
+
+### Ranges, parts, and invalid results
+
+`formatRange()` uses native number or date/time range formatting. Both ends must be valid inputs for the selected formatter. `formatParts()` returns native structured parts for number, date/time, relative-time, list, or duration formatting, so markup can style individual pieces. It is not supported for display names or plural messages. Civil date/time parts omit invented zone names.
 
 ```html
-<value of="$count" format="plural" one="# item" other="# items"></value>
-<!-- count = 1 → "1 item";  count = 5 → "5 items" -->
+<p>{formatRange($minimum, $maximum, 'currency', { currency: 'USD' })}</p>
+<span $each="part of formatParts($price, 'currency', { currency: 'USD' })">{$part.value}</span>
 ```
 
-> [!note] CLDR and ICU define portable formatting
-> Formatting semantics are specified against **Unicode CLDR/ICU** and MessageFormat[^5], not against `Intl` specifically. `Intl` is merely the JavaScript *binding*; a .NET target binds the same behavior through `System.Globalization` (which runs on ICU), a JVM target through ICU4J. So a C#/Razor or Java compile target formats identically without reinventing `Intl`.
+Absence or null produces absence. An invalid input, formatter, argument count, native option combination, locale, or unsupported operation produces the existing invalid built-in result: no destination write, retaining the last accepted value. Formatted strings remain data, never a second round of HTML or template parsing. A JavaScript host without a selected Intl facility requires a conforming polyfill; an unavailable facility produces the same invalid result. Native locale data can vary across engine and ICU versions; the reference targets share the same adapter and preserve the selected platform semantics.
 
 ## Reactive dependencies
 
@@ -340,3 +415,5 @@ A parsed expression exposes exactly which paths it reads, so dependencies are st
 [^15]: [Handlebars built-in helpers](https://handlebarsjs.com/guide/builtin-helpers.html) and [Mustache sections and lambdas](https://mustache.github.io/mustache.5.html) show smaller core syntax with extension points for custom behavior.
 [^16]: XPath and XQuery Functions and Operators 3.1 defines [`string-join`](https://www.w3.org/TR/xpath-functions/#func-string-join); Twig [joins sequences](https://twig.symfony.com/doc/3.x/filters/join.html), and Liquid has a [join filter](https://shopify.github.io/liquid/filters/join/).
 [^17]: CSS Values and Units Level 4, [math function type checking](https://drafts.csswg.org/css-values-4/#calc-type-checking), derives calculation types from operands. Declarative Components adopts only the operations listed above and does not convert written units.
+
+[^18]: CSS Syntax Module Level 3, [ident-start code point](https://www.w3.org/TR/css-syntax-3/#ident-start-code-point). Only the character definition is reused; the leading-dash and escape rules of CSS identifier tokenization do not apply.

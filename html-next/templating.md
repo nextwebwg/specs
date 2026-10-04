@@ -1,7 +1,7 @@
 ---
 title: Templating
 order: 1
-blurb: $each · $if · $match · $with · value
+blurb: $each · $if · $match · $with · inline text
 eyebrow: Declarative HTML Components Level 1
 status: Level 1 · reserved direction · reference implementation pending
 ---
@@ -38,6 +38,23 @@ A structural directive is a `$`-prefixed attribute. It goes on the element it ap
 > [!note] Structural directives survive HTML parsing
 > An attribute on a context-valid element survives HTML parsing, and a group can use a `<template>`, which is valid everywhere and preserves its direct children (a `<tr>` stays a `<tr>`). A hyphenless wrapper such as `<for>` or `<match>` is instead foster-parented out of a `<table>` and dropped in a `<select>` (verified against the reference parser). Angular's structural directives `*ngIf`/`*ngFor` follow the same element-level approach.[^7] The `$` marks the attribute as a directive and stays clear of the native `for`/`as` attributes a bare name would shadow.
 
+## Inline text expressions
+
+Authored template text inserts a value with `{expression}`. Every insertion has explicit opening and closing braces, including a simple path such as `{$user.name}`. Each expression uses the same scope, reactive dependencies, escaped-text conversion, absent-value behavior, and invalid-result retention as `$value`. Surrounding text and elements are preserved, with no wrapper element. For a sole read, `<td>{$r.name}</td>` and `<td $value="$r.name"></td>` have the same observable output.
+
+```html
+<table><tbody>
+  <tr $each="r of $rows" $key="$r.id"><td>{$r.name}</td></tr>
+</tbody></table>
+
+<p>Total: {$cart.total} due today</p>
+<p>Hello, {$user.name}!</p>
+<p>Download: {$file.name}.txt</p>
+<p>Price: $1.15. The text $ident stays literal.</p>
+```
+
+Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read values and need no escape. In authored text, `\{` emits a literal opening brace and `\\` emits a literal backslash; other backslashes remain literal, including `\$`. These are text escapes, not identifier escapes. `$value` and `$html` continue to own their element's content when present.
+
 ## $if: single guard
 
 `$if="expr"` instantiates the element (or a `<template>`'s content) only when `expr` is truthy. It is a **single guard with no else**; multi-way branching is `$match`. The single-guard / multi-way split follows XSLT's `xsl:if` versus `xsl:choose`, rather than an imperative `if`/`else if`/`else`.[^1]
@@ -64,7 +81,7 @@ A structural directive is a `$`-prefixed attribute. It goes on the element it ap
 ```html
 <li $each="p of products"
     $where="p.inStock" $sort="p.price,-p.name" $limit="10" $key="p.id">
-  <value of="p.name"></value>
+  {$p.name}
 </li>
 
 <!-- index alias, when needed -->
@@ -81,7 +98,7 @@ A multi-way decision is a container carrying `$match` whose **direct children ar
 ```html
 <template $match>
   <progress $when="order.pending">Placing order…</progress>
-  <output   $when="order.error"><value of="order.error.message"></value></output>
+  <output   $when="order.error">{$order.error.message}</output>
   <p        $else>Thanks for your order.</p>
 </template>
 ```
@@ -93,7 +110,7 @@ A multi-way decision is a container carrying `$match` whose **direct children ar
 ```html
 <!-- optional scope: bind the subject once, for every arm -->
 <template $match="account.plan as plan">
-  <span $when="plan.tier = 'pro'"><value of="plan.seats"></value> seats</span>
+  <span $when="plan.tier = 'pro'">{$plan.seats} seats</span>
   <span $else>Free plan</span>
 </template>
 ```
@@ -106,8 +123,8 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 <!-- multi-way among rows: arms are direct <template> children, so they survive -->
 <table><tbody>
   <template $match>
-    <tr $when="row.error" class="err"><td $value="row.message"></td></tr>
-    <tr $else><td $value="row.name"></td></tr>
+    <tr $when="row.error" class="err"><td>{$row.message}</td></tr>
+    <tr $else><td>{$row.name}</td></tr>
   </template>
 </tbody></table>
 ```
@@ -121,25 +138,33 @@ Introducing a value under a name is a separate, *visible* operation. `$with="exp
 
 ```html
 <section $with="account.owner as owner">
-  <p><value of="owner.name"></value></p>   <!-- owner is in scope here -->
+  <p>{$owner.name}</p>   <!-- owner is in scope here -->
 </section>
 ```
 
-## Output: $value, $html, and <value>
+## Output: inline text, $value, and $html
 
-Plain dynamic text is a directive: `$value="expr"` sets an element's whole text content, and `<template $value="expr">` places wrapper-free text inline among other content. The `<value>` element is kept for the one case a directive serves poorly, **locale-formatted** output, where the Intl options (`format`, `currency`, `datestyle`, …) need an attribute surface (see [Expressions](/declarative-components/expressions)). None use `{{…}}` interpolation, and all three **escape by default**: the expression becomes text, so a `<b>` in the data renders as literal characters.
+Authored text evaluates expressions only inside `{expression}`. `$value="expr"` sets an element's whole text content, and `<template $value="expr">` places wrapper-free text among siblings. All text forms share the same expression scope, reactivity, absence behavior, invalid-value retention, and escaping. Formatting uses `format()` in any expression (see [Expressions](/declarative-components/expressions#formatting-intl-expressions)).
 
 ```html
-<!-- plain escaped text: on the element, or wrapper-free with a <template> -->
-<td $value="user.name"></td>
-<p>Hello <template $value="user.name"></template>, welcome.</p>
-
-<!-- locale-formatted output keeps the <value> element and its Intl attributes -->
-<p>Total: <value of="cart.total" format="currency" currency="USD"></value></p>
-
-<!-- markup: sanitized (parsed; <script>, on* handlers, javascript: URLs stripped) -->
+<td>{$user.name}</td>
+<p>Hello {$user.name}, welcome.</p>
+<p>Total: {format($cart.total, 'currency', { currency: 'USD' })}</p>
+<output $value="format($cart.total, 'currency', { currency: 'USD' })"></output>
 <article $html="post.body"></article>
 ```
+
+### Expression boundaries and errors
+
+A single opening brace starts an expression; its matching closing brace ends it. String literals and nested object braces are part of the expression and do not terminate it. All ordinary expression syntax is available, including computed indexes, conditionals, and fixed function calls. Empty, malformed, or unterminated expressions and undeclared roots are conformance errors. These author errors follow the same diagnostic and compile-time rejection policy as `$value` (see [expression fault tolerance](/declarative-components/expressions#fallback-for-absence)); braces never request a literal-text fallback. Write `\{` for a literal opening brace. Interpolation applies to authored template text, not attributes, styles, plain projected content, returned strings, or dynamic HTML.
+
+```html
+<p>{format($amount, 'currency', { currency: $currency }, $locale)}</p>
+<p>{default($items[$selected].name, 'Unknown')}</p>
+<p>Literal: \{format($amount)} and $amount</p>
+```
+
+Mixed literal text and expression segments retain one native text node per authored text node. Each segment retains its own last accepted value when a typed read or built-in operation becomes invalid; a segment with no accepted value remains empty. An absent or `null` result clears the segment, as it does for `$value`. Adjacent markup and text-node identity survive updates and hydration.
 
 > [!norm] Aligned with the HTML Sanitizer API
 > `$html="expr"` renders markup, but **does not raw-inject** it. The string is parsed as an inert HTML fragment in a `<template>` context, then filtered with one versioned copy of the **HTML Sanitizer API's safe-default policy**[^5] before insertion. The filter drops `<script>`, inline `on*` handlers, and `javascript:` URLs. Browsers and servers must use the same policy.
@@ -154,13 +179,13 @@ HTML Next does **not** transform the whitespace an author writes. A template is 
 
 ```html
 <!-- Whitespace is HTML's. The space around the value is significant and stays. -->
-<p>Total: <value of="cart.total"></value> due today</p>
+<p>Total: {$cart.total} due today</p>
 
 <!-- Indentation and line breaks are preserved as text nodes, then collapse at
      RENDER through CSS white-space — exactly as in a hand-written .html file,
      not through a template build step. -->
 <ul>
-  <li $each="t of tags"><value of="t"></value></li>
+  <li $each="t of tags">{$t}</li>
 </ul>
 
 <!-- Opt out the way any HTML page does: with CSS, not a template flag. -->
@@ -171,7 +196,7 @@ HTML Next does **not** transform the whitespace an author writes. A template is 
 <p $value="user.name">welcome</p>   <!-- ✗ text child + $value -->
 ```
 
-Text, elements, `<value>`, and `<template $value>` interleave as ordinary **mixed content**. The space in `Total: <value…>` is significant and is preserved; `$each` emits the whitespace inside and around it like any repeated markup, with no join or separator behaviour of its own. The one hard rule is the content-owning directives: `$value` and `$html` set an element's *entire* content, so authored children beside them are a **conformance error** rather than a silent merge, the same constraint a content-replacing property binding carries.
+Text expressions, elements, and `<template $value>` interleave as ordinary **mixed content**. The space in `Total: {$cart.total}` is significant and is preserved; `$each` emits the whitespace inside and around it like any repeated markup, with no join or separator behaviour of its own. The one hard rule is the content-owning directives: `$value` and `$html` set an element's *entire* content, so authored children beside them are a **conformance error** rather than a silent merge, the same constraint a content-replacing property binding carries.
 
 > [!note] Coming from a framework
 > This will surprise anyone migrating from React, Vue, or Svelte, which **condense** whitespace in a build step (collapsing runs, dropping whitespace-only nodes between elements). HTML Next does not, for one reason: **it is not a framework, it is a standard.** A framework owns its own runtime and may rewrite your markup on the way to it; HTML Next lowers to the *real* native DOM, and the browser already defines what template whitespace means. Condensing would make the same markup produce a different DOM through HTML Next than as plain HTML, and it would stop being HTML.
@@ -192,24 +217,24 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 ```html
 <!-- every $ directive is an attribute, so it survives every parser context -->
 <table><tbody>
-  <tr $each="r of rows" $key="r.id"><td $value="r.name"></td></tr>
+  <tr $each="r of rows" $key="r.id"><td>{$r.name}</td></tr>
 </tbody></table>
 
 <select>
-  <option $each="o of opts" from:value="o.id" $value="o.label"></option>
+  <option $each="o of opts" from:value="o.id">{$o.label}</option>
 </select>
 
 <!-- a fragment (several siblings) rides a <template> -->
 <table><tbody>
   <template $each="r of rows">
-    <tr class="head"><td $value="r.title"></td></tr>
-    <tr class="body"><td $value="r.detail"></td></tr>
+    <tr class="head"><td>{$r.title}</td></tr>
+    <tr class="body"><td>{$r.detail}</td></tr>
   </template>
 </tbody></table>
 ```
 
-> [!note] The one remaining element
-> The only templating *element* is `<value>` (locale-formatted output), and it is subject to the ordinary rules: fine inline in flow content, dropped directly in a `<select>`. Prefer `$value` on a cell or option, where formatting is not needed. See the empirical findings in `browser-findings.md`.
+> [!note] Context-safe formatting
+> Inline text expressions and `$value` attributes preserve their native parser context, so formatted output works in cells and options without a special output element.
 
 ## Reference
 
@@ -274,12 +299,18 @@ Level
 : [L1]{.pill .l1}
 :::
 
-::: {.entry name="<value>" role="formatted output (the one element)"}
-Attributes
-: `of`: expression; `format` and its Intl options.
+::: {.entry name="{expression}" role="inline escaped text"}
+Value
+: Any checked expression inside matching braces
 
 Semantics
-: Locale-formatted, escaped text; explicit end tag required. Plain text uses `$value` or `<template $value>`.
+: Reads the current lexical scope; escaped text; each segment retains its last accepted value on invalid input
+
+Formatting
+: `format()` chooses an explicit Intl formatter or infers the default from the declared type
+
+Escapes
+: `\{` for a literal opening brace, `\\` for a literal backslash; dollars are ordinary text outside expressions
 
 Level
 : [L1]{.pill .l1}

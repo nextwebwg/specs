@@ -260,7 +260,7 @@ Keywords follow RFC&nbsp;2119, scoped to HTML Next tooling. A tool [must]{.kw} e
 | **Components** | Typed native-root components; default, named, fallback, and scoped slots; explicit polymorphic roots. [Shipping]{.pill .l1} | [L2]{.pill .inc} external imports and dynamic composition |
 | **Targets** | Vanilla, React, Vue, Svelte, CSS, docs. [Shipping]{.pill .l1} | [L2]{.pill .inc} SSR, static/email |
 | **Browser runtime** | One-shot lowering, no Custom Elements, no eval. [Shipping]{.pill .l1} | [L2]{.pill .inc} reactive updates |
-| **Templating** | None yet | [L1]{.pill .l1} `$each`, `$if`, `$match`, `<value>` |
+| **Templating** | None yet | [L1]{.pill .l1} `$each`, `$if`, `$match`, `{expression}` |
 | **Reactivity** | None yet | [L1]{.pill .l1} state, computed, data |
 | **Forms** | Native ownership, validation, submission, and submitter overrides. | [L2]{.pill .inc} expanded methods and composable submission scopes |
 | **Types** | `string`, `boolean`, `number`, `enum`. | [L3]{.pill .soon} URLs, colors, refs, content models |

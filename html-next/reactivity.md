@@ -144,9 +144,9 @@ To refetch with unchanged inputs (a manual refresh, polling) there is no imperat
 > <input bind:value="query" placeholder="Search…">
 > <template $match>
 >   <progress $when="search.pending"></progress>
->   <output $when="search.error"><value of="search.error.message"></value></output>
+>   <output $when="search.error">$search.error.message</output>
 >   <ul $else>
->     <li $each="r of search.value.results" $key="r.id"><value of="r.title"></value></li>
+>     <li $each="r of search.value.results" $key="r.id">$r.title</li>
 >   </ul>
 > </template>
 > ```
@@ -188,8 +188,8 @@ Here is the effect across three responses when `record.value.label` is declared 
 <template component="x-record">
   <defs><data name="record" src="/api/record" type="object({ label: string, note: string })"></data></defs>
   <section>
-    <output class="label" $value="$record.value.label"></output>
-    <output class="note" $value="$record.value.note"></output>
+    <output class="label">{$record.value.label}</output>
+    <output class="note">{$record.value.note}</output>
   </section>
 </template>
 ```

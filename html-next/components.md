@@ -12,7 +12,7 @@ A component is **typed markup that lowers to a real native element**: no class, 
 
 ## Definition: <template component>
 
-A component is defined by a native `<template component="tag">`. There is no custom-element-shaped wrapper. The `<template>` is **inert** (browsers parse its contents into a `DocumentFragment` and render nothing), so a definition degrades to inert markup with no runtime today, and could be consumed natively if the shape were adopted, the way `<template shadowrootmode>` went from inert to browser-native for Declarative Shadow DOM.[^4] Inertness is the transition guarantee, not the end state. `template[component]` is also a cheap selector for the polyfill. Its direct children are an optional `<defs>` region (the interface and every non-rendered declaration), one markup root, and an optional `<style>`.
+A component is defined by a native `<template component="tag">`. There is no custom-element-shaped wrapper. The `<template>` is **inert** (browsers parse its contents into a `DocumentFragment` and render nothing), so a definition degrades to inert markup with no runtime today, and could be consumed natively if the shape were adopted, the way `<template shadowrootmode>` went from inert to browser-native for Declarative Shadow DOM.[^4] Inertness is the transition guarantee, not the end state. `template[component]` is also a cheap selector for the polyfill. Its direct children are an optional `<defs>` region (the interface and behavior declarations), one markup root, an optional `<style>`, and optional application-tooling metadata that the component runtime accepts and ignores. See [Resource metadata for application tooling](#resource-metadata-for-application-tooling).
 
 ```html title="button.html"
 <template component="x-button" status="early"
@@ -40,7 +40,7 @@ The interface is **declarative HTML**, not a data island. A `<prop>` states only
 
 ## Two regions: <defs> and the markup
 
-A definition has two visibly separate parts, so a reader can tell at a glance what renders and what only describes behavior. Everything that produces no output, the `<prop>` interface declarations, reactive `<state>` and `<computed>`, read and write `<data>` resources, and `<handler>` blocks, lives inside a single `<defs>` region as flat siblings. Everything after it is the visible markup: the one native root and its `<slot>`s. The content stays pure markup that points at behavior by name; the behavior stays a small labeled list above it.
+A definition has two visibly separate parts, so a reader can tell at a glance what renders and what only describes behavior. The `<prop>` interface declarations, reactive `<state>` and `<computed>`, read and write `<data>` resources, and `<handler>` blocks live inside a single `<defs>` region as flat siblings. The visible markup is the one native root and its `<slot>`s. Application-tooling metadata may appear directly inside the carrier as siblings of these regions; it does not render or enter the component's declarations or binding scope. The content stays pure markup that points at behavior by name; the behavior stays a small labeled list above it.
 
 This mirrors the document's own `<head>`/`<body>` split, declarations and resources versus rendered content, applied fractally to a component. The name is borrowed from SVG, where `<defs>` already means exactly this: definitions that render nothing and are referenced by name from elsewhere.[^5]
 
@@ -183,36 +183,45 @@ An `<x-button>` invocation has to resolve to a definition. There are three ways 
 
 ### Resource metadata for application tooling
 
-A component resource may carry page metadata alongside its component definitions. This lets an application build use ordinary HTML for a page title, description, or application-specific configuration while keeping the same component usable through the regular loader.
+A component carrier may carry application metadata for that component as direct children beside its declarations, markup root, and style. This lets a build use ordinary HTML for a page title, description, or application-specific configuration while keeping the same component usable through the regular runtime. When a resource contains several components, placing metadata inside its owning carrier makes that association explicit.
 
 ```html title="products.html"
-<meta name="example:layout" content="admin">
-<meta name="description" content="Manage your products.">
-<meta property="og:title" content="Product administration">
-<title>Products · Admin</title>
+<meta name="example:page" content="page-products">
 
-<template component="products-page">
-  <section><h1>Products</h1></section>
+<template component="page-products">
+  <meta name="example:layout" content="admin">
+  <meta name="description" content="Manage your products.">
+  <meta property="og:title" content="Product administration">
+  <title>Products · Admin</title>
+
+  <section><h1>Products</h1><product-summary></product-summary></section>
+</template>
+
+<template component="product-summary">
+  <title>Summary metadata belongs to this component</title>
+  <p>Your product summary.</p>
 </template>
 ```
 
-The metadata belongs to the resource, outside every `<template component>` carrier. A resource [may]{.kw} contain `<meta>` elements without `http-equiv`, `<title>`, and ordinary metadata `<link>` elements there. A conforming component loader [must]{.kw} accept and ignore this resource metadata: it [must not]{.kw} copy it into the consuming document, change the document title, load linked styles or other resources, evaluate its bindings, or interpret application-specific names. Component dependency links remain distinct: `<link rel="component">` still declares a component graph edge.
+A carrier [may]{.kw} contain `<meta>` elements without `http-equiv`, `<title>`, and ordinary metadata `<link>` elements as direct children. These elements [must not]{.kw} count as markup roots, enter the normalized component definition, or be rendered by lowering. A conforming runtime or compiler [must]{.kw} accept and ignore them: it [must not]{.kw} change the consuming document's title or head, load linked styles or other resources, evaluate metadata bindings, or interpret application-specific names. They are not interface or behavior declarations in `<defs>`, and this allowance does not apply inside the rendered root. The carrier still [must]{.kw} declare exactly one markup root; metadata alone is not a component body.
 
-This is a bounded allowance, not permission to put arbitrary HTML beside a component definition. A resource [must]{.kw} contain at least one component carrier. After HTML fragment parsing, its resource-level nodes are handled as follows:
+The same bounded metadata allowance applies at resource scope, outside every carrier, for build-system conventions associated with the file. Such metadata has no implicit component owner. In the example, `example:page` illustrates a file-level entry selector; its spelling and selection behavior belong to the build system. The component runtime ignores it. Component dependency links remain distinct: a resource-level `<link rel="component">` still declares a component graph edge and is not inert metadata. Neither component dependency links nor HTML Imports are carrier metadata.
+
+A resource [must]{.kw} contain at least one component carrier. After HTML fragment parsing, its resource-level nodes are handled as follows:
 
 | Resource-level node | Component loader behavior |
 | --- | --- |
-| `<template component="…">` | Parse and register the component definition. |
+| `<template component="…">` | Parse and register the component definition, ignoring its direct application metadata. |
 | `<link rel="component" href="…">` | Resolve the component dependency. |
 | `<meta>` without `http-equiv`, `<title>`, and other metadata `<link>` elements | Accept and ignore; do not evaluate bindings or activate the nodes. |
 | Comments and whitespace-only text | Ignore. |
 | `<style>`, any `<script>` (including import maps and data scripts), `<base>`, `<meta http-equiv>`, HTML Imports, ordinary body elements, plain non-component templates, and non-whitespace text | Reject as invalid resource content. |
 
-Executable event-handler attributes also remain invalid. A `<link rel="stylesheet">` outside a carrier is ignored metadata; a `<style>` outside a carrier is invalid. The optional `<style>` **inside** a component carrier still supplies its scoped component CSS. Imperative behavior still uses the carrier's declared `controller` module. These placement rules keep application metadata separate from the component's own styles and behavior.
+Executable event-handler attributes remain invalid in metadata at either scope. Scripts, `<base>`, policy metadata, and HTML Imports also remain invalid inside a carrier. A metadata `<link rel="stylesheet">` is ignored at resource scope or as a direct carrier child; the optional `<style>` **inside** a carrier still supplies its scoped component CSS. Imperative behavior still uses the carrier's declared `controller` module.
 
-Application build systems [may]{.kw} consume resource metadata under their own documented conventions. For example, a build may interpret a namespaced metadata name as a layout choice and collect ordinary title and description declarations into the generated document's head. This proposal defines neither layout selection nor head merging, precedence, binding scope, or navigation updates. An application build owns those behaviors; they are not component registration or lowering effects. Metadata from an imported dependency does not acquire application authority merely because the component graph reaches it.
+Application build systems [may]{.kw} consume file-level and component-owned metadata under their own documented conventions. For example, a build may select one component as a page, interpret that component's namespaced metadata as a layout choice, and collect its title and description into the generated document's head. This proposal defines neither page selection nor layout selection, head merging, precedence, binding scope, or navigation updates. An application build owns those behaviors; they are not component registration or lowering effects. Metadata from another component or an imported dependency does not acquire application authority merely because rendering or the component graph reaches it.
 
-This allowance does not change the carrier's grammar or its one-root rule. Resource metadata is ignored by the component loader, not generally inert HTML: when an author places those same elements directly in an active application document, their ordinary HTML behavior still applies. See [Security](/declarative-components/security) for the imported-resource boundary.
+Metadata is ignored by component processing, not generally inert HTML: when an author places those same elements directly in an active application document, their ordinary HTML behavior still applies. See [Security](/declarative-components/security) for the imported-resource boundary.
 
 ### One import form, live or packaged
 

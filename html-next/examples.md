@@ -11,7 +11,7 @@ status: Illustrative · pairs with the runnable proof of concept
 
 Complete, copy-pasteable code for the common shapes, a plain component, control flow, a stateful component with a controller, and a graph of components that load lazily. Everything here is runnable: the same set is a live, unbundled demo in the reference repository.
 
-Text inserts values with `{$name}` and full expressions with `{expression}`; see [inline text expressions](/html-next/templating#inline-text-expressions) for escaping and error behavior.
+Text inserts values with `{$name}` and full expressions with `{expression}`; see [inline text expressions](/declarative-components/templating#inline-text-expressions) for escaping and error behavior.
 
 ## A minimal component
 
@@ -38,7 +38,7 @@ One prop, one native root, a scoped style. It lowers to a real `<button>`, no wr
 
 ## Control flow, as attributes
 
-Structural `$`-directives ride on ordinary elements (or a `<template>`), so they survive restrictive parser contexts like `<table>` and `<select>`. Iteration shaping (`$where`, `$sort`, `$limit`, `$key`) lives on the loop. See [Templating](/html-next/templating).
+Structural `$`-directives ride on ordinary elements (or a `<template>`), so they survive restrictive parser contexts like `<table>` and `<select>`. Iteration shaping (`$where`, `$sort`, `$limit`, `$key`) lives on the loop. See [Templating](/declarative-components/templating).
 
 ```html
 <!-- templating: a filtered, sorted list and a three-way status, all as directives -->
@@ -57,7 +57,7 @@ Structural `$`-directives ride on ordinary elements (or a `<template>`), so they
 
 ## A stateful component, with a controller
 
-The definition declares `<state>`, exposes a `$ref`, and names its controller on the carrier with `controller="./counter.js"`. The module loads lazily when the first instance connects; its default export receives the instance host and drives state while the runtime reflects state to the DOM. It needs no library import or repeated tag registration. Importing the component means trusting that declared dependency graph under the application's loading policy. See [The JavaScript Layer](/html-next/javascript).
+The definition declares `<state>`, exposes a `$ref`, and names its controller on the carrier with `controller="./counter.js"`. The module loads lazily when the first instance connects; its default export receives the instance host and drives state while the runtime reflects state to the DOM. It needs no library import or repeated tag registration. Importing the component means trusting that declared dependency graph under the application's loading policy. See [The JavaScript Layer](/declarative-components/javascript).
 
 ::: two
 
@@ -117,7 +117,7 @@ export default function controller(host) {
 
 ## A graph of components
 
-A component declares its own component and controller dependencies; the page imports one concrete root and the complete graph remains statically discoverable. A package build resolves that graph through package exports. A live application resolves trusted URL prefixes through its own import map and CSP. The definitions are identical in both cases. See [the composition model](/html-next/javascript).
+A component declares its own component and controller dependencies; the page imports one concrete root and the complete graph remains statically discoverable. A package build resolves that graph through package exports. A live application resolves trusted URL prefixes through its own import map and CSP. The definitions are identical in both cases. See [the composition model](/declarative-components/javascript).
 
 ```html title="app.html"
 <!-- app.html — purely declarative composition. It declares ONLY the components it uses;

@@ -38,9 +38,9 @@ A component's subtree can contain markup that is not the component's to style. T
 | Boundary | Rule |
 | --- | --- |
 | Nested components | A nested component is its **own** scope, root included. The enclosing component's rules [must not]{.kw} match the nested component's root or anything inside it. The enclosing component lays its children out from its own markup (`gap`, grid, and flex on its container); a consumer that needs to adjust one child's box puts its own `class` on that invocation. |
-| Projected content | Content a consumer passes through a `<slot>` belongs to the consumer, not the component (see [Components](/html-next/components)). The component's rules [must not]{.kw} match projected nodes unless it opts in with [`:slotted()`](#slotted). |
+| Projected content | Content a consumer passes through a `<slot>` belongs to the consumer, not the component (see [Components](/declarative-components/components)). The component's rules [must not]{.kw} match projected nodes unless it opts in with [`:slotted()`](#slotted). |
 
-Content a component moves elsewhere with [`<portal>`](/html-next/components) stays logically owned by it, so it stays in the component's region: the component's rules keep matching it after the move, and the same two boundaries apply inside it.
+Content a component moves elsewhere with [`<portal>`](/declarative-components/components) stays logically owned by it, so it stays in the component's region: the component's rules keep matching it after the move, and the same two boundaries apply inside it.
 
 ```html
 <template component="x-menu">
@@ -201,7 +201,7 @@ Why HTML Next draws the lines this way:
 - **State without attributes.** Vue and Svelte style a component's state through classes or attributes the component writes on itself. `:host-state()` tests resolved props and state directly, defaults included, so nothing is written just so a stylesheet can see it.
 - **Defined by the platform.** The region, a root with a lower limit at nested components and projected content, is the shape of CSS [`@scope`](https://www.w3.org/TR/css-cascade-6/#scoped-styles) with its range form, rather than a selector rewrite particular to one build tool. An implementation may still rewrite selectors, for example when it compiles to Vue, but what matches is what this page defines.
 
-Porting a component: move a parent's rules for a child's root into layout on the parent's own container, or into a class on the invocation; turn each `:deep()` into a custom property the child reads; replace classes toggled for styling with `:host-state()`. For how a lowered component looks in the page, see [Rendered form](/html-next/rendered-form).
+Porting a component: move a parent's rules for a child's root into layout on the parent's own container, or into a class on the invocation; turn each `:deep()` into a custom property the child reads; replace classes toggled for styling with `:host-state()`. For how a lowered component looks in the page, see [Rendered form](/declarative-components/rendered-form).
 
 ## Isolation: opt-in, later
 

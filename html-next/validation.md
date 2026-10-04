@@ -44,7 +44,7 @@ That model leaves open where an element's constraints come from. A native `<inpu
 
 ## The type is the constraint
 
-A prop's declared type and its constraint attributes (see [Types](/html-next/types)) compile to validity. Each kind of failure produces one of HTML Forms' reasons:
+A prop's declared type and its constraint attributes (see [Types](/declarative-components/types)) compile to validity. Each kind of failure produces one of HTML Forms' reasons:
 
 | Declared | A value fails when | Reason |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ Invalid declarations and supplied values have different effects:
 - **Value outside a constraint:** A supplied number above `max` is still a number. It becomes the prop's current value and sets `rangeOverflow`. Ordinary constraint failures do not produce console warnings, whether the value is literal or comes from a reactive binding.
 - **Value that cannot be parsed:** If a number prop is supplied as `amount="oops"`, that string remains its `inputValue` and reports `badInput` or `typeMismatch`. It does not become the prop's accepted value. The accepted value stays at the last successfully parsed value, or the declared default, or `null` if neither exists. Template expressions and `host.props.amount.value` read that accepted value. A user's edit in a native control remains in that control's editing surface, where its validity reports the failure.
 
-The controller can inspect both sides through the [prop handle](/html-next/javascript#accepted-values-and-prop-inputs): `host.props.amount.inputValue` reads the latest direct input, `host.props.amount.value` reads the accepted value, and `host.props.amount.validity` describes that input. Declared props are absent from `host.state`. The component mounts even when the initial input cannot be parsed. Rendering follows the accepted value; the invalid input is never implicitly substituted into a template. A well-typed value outside `min`, `max`, `values`, or another value constraint **is** accepted and makes the prop invalid.
+The controller can inspect both sides through the [prop handle](/declarative-components/javascript#accepted-values-and-prop-inputs): `host.props.amount.inputValue` reads the latest direct input, `host.props.amount.value` reads the accepted value, and `host.props.amount.validity` describes that input. Declared props are absent from `host.state`. The component mounts even when the initial input cannot be parsed. Rendering follows the accepted value; the invalid input is never implicitly substituted into a template. A well-typed value outside `min`, `max`, `values`, or another value constraint **is** accepted and makes the prop invalid.
 
 | Direct supply to a number prop with `default="5"` | `inputValue` | `value` read by templates | `validity` |
 | --- | --- | --- | --- |
@@ -72,14 +72,14 @@ The controller can inspect both sides through the [prop handle](/html-next/javas
 | Supply `"oops"` | `"oops"` | `2` | `badInput` |
 | Supply `7` | `7` | `7` | valid |
 
-A binding that evaluates to the wrong type does not supply the destination prop at all: its `inputValue`, accepted `value`, and `validity` remain unchanged. See [Invalid reactive results](/html-next/reactivity#invalid-reactive-results).
+A binding that evaluates to the wrong type does not supply the destination prop at all: its `inputValue`, accepted `value`, and `validity` remain unchanged. See [Invalid reactive results](/declarative-components/reactivity#invalid-reactive-results).
 
 Validity for a directly supplied prop describes its current **input**, even when conversion leaves the accepted value unchanged. Validity at a binding destination does not describe an attempt that the binding skipped. For example, if a number prop holds `2` and a binding next evaluates to the string `"oops"`, the destination stays at `2` and remains valid; a directly supplied `"oops"` would keep `2` but report `badInput`. A statically provable mismatch in an authored expression is a build error; a live implementation may warn about a malformed authored expression, but ordinary invalid data must not generate repeated console warnings.
 
-On a component with a non-native root, `el.validity` exposes the corresponding `ValidityState` flags and `el.validity.errors` gives each failure's prop path. `checkValidity()` reports whether the current values pass. When a component renders a native form control, the control retains its native `ValidityState`; the compatibility layer combines additional component failures with native validity. The [Types chapter](/html-next/types#value-constraints) defines which constraints apply to each type.
+On a component with a non-native root, `el.validity` exposes the corresponding `ValidityState` flags and `el.validity.errors` gives each failure's prop path. `checkValidity()` reports whether the current values pass. When a component renders a native form control, the control retains its native `ValidityState`; the compatibility layer combines additional component failures with native validity. The [Types chapter](/declarative-components/types#value-constraints) defines which constraints apply to each type.
 
 > [!norm] This is the schema, made native
-> This is the mechanism behind “the contract is the schema” (see [Types](/html-next/types)). A typed prop, a `bind:` input, or a `<data>` value that fails its declared type produces a native validity error, one that form controls, components, and data sources all share.
+> This is the mechanism behind “the contract is the schema” (see [Types](/declarative-components/types)). A typed prop, a `bind:` input, or a `<data>` value that fails its declared type produces a native validity error, one that form controls, components, and data sources all share.
 
 ## Where the validity lives
 
@@ -101,7 +101,7 @@ validate(value, type | schema)   // → { valid, errors }
 
 A component's values are already reactive dependencies, so validity recomputes whenever a value changes; `el.validity` is always current, and nothing needs to trigger it. `el.validate()` is for an explicit check, such as at submit time. Showing an error follows HTML Forms: it waits for interaction, through `:user-invalid`.
 
-For an asynchronous rule, such as whether a name is taken, a `<data>` lookup keeps the answer current and `setValidity()` applies it (see [Reactivity](/html-next/reactivity)).
+For an asynchronous rule, such as whether a name is taken, a `<data>` lookup keeps the answer current and `setValidity()` applies it (see [Reactivity](/declarative-components/reactivity)).
 
 ## How it runs today
 

@@ -134,7 +134,7 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 
 ## $with: scope alias
 
-Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). It takes an explicit **alias** rather than spreading the value's members as bare names: spreading reproduces the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/html-next/expressions)).
+Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). It takes an explicit **alias** rather than spreading the value's members as bare names: spreading reproduces the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/declarative-components/expressions)).
 
 ```html
 <section $with="account.owner as owner">
@@ -144,7 +144,7 @@ Introducing a value under a name is a separate, *visible* operation. `$with="exp
 
 ## Output: inline text, $value, and $html
 
-Authored text evaluates expressions only inside `{expression}`. `$value="expr"` sets an element's whole text content, and `<template $value="expr">` places wrapper-free text among siblings. All text forms share the same expression scope, reactivity, absence behavior, invalid-value retention, and escaping. Formatting uses `format()` in any expression (see [Expressions](/html-next/expressions#formatting-intl-expressions)).
+Authored text evaluates expressions only inside `{expression}`. `$value="expr"` sets an element's whole text content, and `<template $value="expr">` places wrapper-free text among siblings. All text forms share the same expression scope, reactivity, absence behavior, invalid-value retention, and escaping. Formatting uses `format()` in any expression (see [Expressions](/declarative-components/expressions#formatting-intl-expressions)).
 
 ```html
 <td>{$user.name}</td>
@@ -156,7 +156,7 @@ Authored text evaluates expressions only inside `{expression}`. `$value="expr"` 
 
 ### Expression boundaries and errors
 
-A single opening brace starts an expression; its matching closing brace ends it. String literals and nested object braces are part of the expression and do not terminate it. All ordinary expression syntax is available, including computed indexes, conditionals, and fixed function calls. Empty, malformed, or unterminated expressions and undeclared roots are conformance errors. These author errors follow the same diagnostic and compile-time rejection policy as `$value` (see [expression fault tolerance](/html-next/expressions#fallback-for-absence)); braces never request a literal-text fallback. Write `\{` for a literal opening brace. Interpolation applies to authored template text, not attributes, styles, plain projected content, returned strings, or dynamic HTML.
+A single opening brace starts an expression; its matching closing brace ends it. String literals and nested object braces are part of the expression and do not terminate it. All ordinary expression syntax is available, including computed indexes, conditionals, and fixed function calls. Empty, malformed, or unterminated expressions and undeclared roots are conformance errors. These author errors follow the same diagnostic and compile-time rejection policy as `$value` (see [expression fault tolerance](/declarative-components/expressions#fallback-for-absence)); braces never request a literal-text fallback. Write `\{` for a literal opening brace. Interpolation applies to authored template text, not attributes, styles, plain projected content, returned strings, or dynamic HTML.
 
 ```html
 <p>{format($amount, 'currency', { currency: $currency }, $locale)}</p>
@@ -171,7 +171,7 @@ Mixed literal text and expression segments retain one native text node per autho
 >
 > `$html` must **not** call native `Element.setHTML()`, even when it exists. Firefox currently reorders malformed table content differently from Chromium, WebKit, and the reference HTML parser. Using native `setHTML()` would make the result depend on the browser and could break server-rendered hydration. It remains useful for comparing sanitizer policies, not for rendering `$html`.
 >
-> The result renders markup but cannot execute code, the same script-free guarantee a `<template component>` import receives. Raw, *unsanitized* HTML is not available here; it requires the dedicated trusted-HTML type (see [Types](/html-next/types)), the only path that can carry script and therefore the only one gated.
+> The result renders markup but cannot execute code, the same script-free guarantee a `<template component>` import receives. Raw, *unsanitized* HTML is not available here; it requires the dedicated trusted-HTML type (see [Types](/declarative-components/types)), the only path that can carry script and therefore the only one gated.
 
 ## Whitespace & mixed content
 

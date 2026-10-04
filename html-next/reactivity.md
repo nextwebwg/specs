@@ -12,7 +12,7 @@ Reactivity is a **declared dependency graph in markup**: local state, derived va
 
 ## Reactive values and resources
 
-HTML Next keeps a few concepts separate rather than overloading one element, because their lifecycles differ. All of them are declarations: they live in the definition's `<defs>` region, not in the visible markup (see [Components](/html-next/components)).
+HTML Next keeps a few concepts separate rather than overloading one element, because their lifecycles differ. All of them are declarations: they live in the definition's `<defs>` region, not in the visible markup (see [Components](/declarative-components/components)).
 
 | Element | Is | Changes when |
 | --- | --- | --- |
@@ -29,9 +29,9 @@ HTML Next keeps a few concepts separate rather than overloading one element, bec
 
 The design, a declared dependency graph that can be analyzed statically rather than traced at runtime, has deep prior art in signals and fine-grained reactivity[^5]: Solid signals and `createMemo` and Angular signals are its closest current relatives, with Knockout observables as the historical ancestor. RxJS is a deliberate contrast, it models push streams, not the settled value cells `<state>` and `<computed>` are.
 
-A `<state>` uses the same type syntax as a prop (see [Types](/html-next/types)). When `type` is omitted, the state has type `unknown`; its initial value does not establish a type. For example, `value="1"` is a string, while `type="number" value="1"` is the number `1`. Declare the type of a state whose values need to be checked or used as numbers, booleans, or structured data.
+A `<state>` uses the same type syntax as a prop (see [Types](/declarative-components/types)). When `type` is omitted, the state has type `unknown`; its initial value does not establish a type. For example, `value="1"` is a string, while `type="number" value="1"` is the number `1`. Declare the type of a state whose values need to be checked or used as numbers, booleans, or structured data.
 
-`value` supplies a constant initial state value, parsed through the declared type. It does not establish the type when `type` is omitted. A handler's `<set value>` likewise writes a typed constant, while `<set expr:value>` evaluates an expression when the handler runs. A `<computed from>` is different: it stays subscribed to the values it reads. [Bindings & Events](/html-next/bindings#constant-action-time-and-computed-values) compares all three value forms.
+`value` supplies a constant initial state value, parsed through the declared type. It does not establish the type when `type` is omitted. A handler's `<set value>` likewise writes a typed constant, while `<set expr:value>` evaluates an expression when the handler runs. A `<computed from>` is different: it stays subscribed to the values it reads. [Bindings & Events](/declarative-components/bindings#constant-action-time-and-computed-values) compares all three value forms.
 
 ## Invalid reactive results
 
@@ -39,7 +39,7 @@ A live expression evaluates when its dependencies change. Each evaluation propos
 
 For an object or list, the immediate type check asks whether the result is an object or list. Nested fields are checked when expressions read those fields. A wrong-typed `items.0.name` therefore leaves that particular binding at its last value while another binding can still read a valid `items.0.id` from the same new list. This matches the typed-reference rule for `<data>` below; one bad field does not discard its siblings.
 
-The source is not rolled back. A form control keeps the user's edit under its native rules; a component prop keeps its latest direct `inputValue` even when its accepted `value` stays at the last good/default/null value; and a `<data>` resource keeps the response it received. A failed downstream binding does not supply the destination prop. This is different from a **well-typed** result that fails `min`, `max`, `values`, or another value constraint: that result is written, and the destination reports its invalidity (see [Validation](/html-next/validation)). A missing value is also different from a present value of the wrong type; [absence](/html-next/expressions#the-absent-value) has its ordinary empty/removal behavior.
+The source is not rolled back. A form control keeps the user's edit under its native rules; a component prop keeps its latest direct `inputValue` even when its accepted `value` stays at the last good/default/null value; and a `<data>` resource keeps the response it received. A failed downstream binding does not supply the destination prop. This is different from a **well-typed** result that fails `min`, `max`, `values`, or another value constraint: that result is written, and the destination reports its invalidity (see [Validation](/declarative-components/validation)). A missing value is also different from a present value of the wrong type; [absence](/declarative-components/expressions#the-absent-value) has its ordinary empty/removal behavior.
 
 For example, the outer component accepts a directly supplied value. The inner component has a number prop with a default, and its invocation binds that prop to the outer value:
 
@@ -100,7 +100,7 @@ A component can share a state value with components rendered inside it, includin
 
 `name` identifies the ancestor state cell; `from` names its component tag. Optional `as` names the value in the reader's expressions and defaults to `name`, so the example could use `current` directly. The reader sees the ancestor cell's current value and type, not a new cell or a synthetic `x-steps.current` object. When an existing `<set>` or `bind:` changes that state, bindings that read the context update through the same reactive graph.
 
-The nearest matching ancestor in the [logical component tree](/html-next/components) supplies the value, including when another instance of the same component is nested inside it. An ancestor matches if it has the component tag named by `from` and a `<state>` named by `name`; no state export declaration is required. If no ancestor matches, the reader has a conformance error when instantiated. The imported name shares the reader's flat declaration namespace. A context read is read-only: `<set>` and `bind:` cannot write through it. These rules add no event or command channel.
+The nearest matching ancestor in the [logical component tree](/declarative-components/components) supplies the value, including when another instance of the same component is nested inside it. An ancestor matches if it has the component tag named by `from` and a `<state>` named by `name`; no state export declaration is required. If no ancestor matches, the reader has a conformance error when instantiated. The imported name shares the reader's flat declaration namespace. A context read is read-only: `<set>` and `bind:` cannot write through it. These rules add no event or command channel.
 
 This is an HTML Next declaration, not a native HTML element. The Web Components [Context Protocol](https://github.com/webcomponents-cg/community-protocols/blob/main/proposals/context.md) provides a useful event-based way for JavaScript components to exchange values, but its request follows DOM event propagation. HTML Next's lookup follows component ownership so projection and portals retain the same provider even when physical DOM ancestry differs. The browser runtime may use native observation primitives underneath; no authored callback is needed.
 
@@ -180,7 +180,7 @@ From there the result is ordinary reactive data: `search.pending` was true while
 >
 > A declaration with no type constrains nothing, and `unknown` is the type every value satisfies. A closed object shape states that an undeclared field is not there, so a reference to one is a violation; an open shape (`...`) says nothing about fields it does not name, which is what a payload that may grow should declare.
 >
-> `concat(value, value, …)` converts accepted scalar values to text; it does not bypass a declaration's type check. If `title` is declared `string` but the payload currently holds the number `42`, `concat($results.0.title, '!')` is inert like any other read of that reference. The payload remains available for inspection and conforming fields continue to update. See [Functions](/html-next/expressions#functions).
+> `concat(value, value, …)` converts accepted scalar values to text; it does not bypass a declaration's type check. If `title` is declared `string` but the payload currently holds the number `42`, `concat($results.0.title, '!')` is inert like any other read of that reference. The payload remains available for inspection and conforming fields continue to update. See [Functions](/declarative-components/expressions#functions).
 
 Here is the effect across three responses when `record.value.label` is declared `string`. The resource always keeps the latest payload; each binding decides separately whether its read conforms:
 
@@ -261,7 +261,7 @@ A writable data resource does not own controls or create a rendered `<form>`. Th
 > A `<data>` declaration lives in `<defs>` and owns request synchronization. It names parameters, selects a method, and serializes request data while producing no rendered or form-associated element. Visible controls keep their native form owner, validation, and submitter behavior. A component instance can therefore live inside an author-owned form without adding another submission scope.[^3]
 
 > [!ex] Async validity composes with native forms
-> Consider a slug field whose component declares a reactive `<data>` lookup to ask whether the current slug is reserved. The component's dependency graph keeps that lookup and its availability result current. The [validation contract](/html-next/validation) applies the result to the field's validity. If the component invocation lives inside a page author's native form, any native input produced by the component remains associated with that outer form after lowering, and the author-owned form decides whether and where the complete form is submitted. The same component may instead render a standalone control or no form control at all.
+> Consider a slug field whose component declares a reactive `<data>` lookup to ask whether the current slug is reserved. The component's dependency graph keeps that lookup and its availability result current. The [validation contract](/declarative-components/validation) applies the result to the field's validity. If the component invocation lives inside a page author's native form, any native input produced by the component remains associated with that outer form after lowering, and the author-owned form decides whether and where the complete form is submitted. The same component may instead render a standalone control or no form control at all.
 
 ### Commands remain explicit
 
@@ -276,13 +276,13 @@ In a reactive component most of what framework lifecycle callbacks did is absorb
 
 ### What the graph already handles
 
-- **Prop changes**: when a prop changes, through a parent template's binding on the invocation or a framework passing a new value, the bindings, `<computed>`, and `<data>` that read it re-run automatically, so you never write `attributeChangedCallback`. A literal attribute on an invocation is the prop's initial configuration; the invocation is replaced when it lowers (see [Lowering, provenance & hydration](/html-next/components)).
+- **Prop changes**: when a prop changes, through a parent template's binding on the invocation or a framework passing a new value, the bindings, `<computed>`, and `<data>` that read it re-run automatically, so you never write `attributeChangedCallback`. A literal attribute on an invocation is the prop's initial configuration; the invocation is replaced when it lowers (see [Lowering, provenance & hydration](/declarative-components/components)).
 - **Fetch on mount, refetch on change**: declare a `<data>`; it runs when its params resolve and again when they change. This is the `connectedCallback` fetch.
 - **Initial and derived state**: `<state type value>` declares a writable cell and its literal initial value; `<computed from>` derives a read-only value. Initial focus is `autofocus`.
 
 ### Declarative lifecycle events
 
-For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a [handler](/html-next/bindings) when the component is connected or disconnected, mirroring `connectedCallback`/`disconnectedCallback`[^7] and firing again on reconnect. Because handlers are declarative, they set state or `<dispatch>` an event, with no imperative code. They are **client-only**: SSR renders the static tree, and hydration is what connects, so nothing lifecycle-driven runs on the server.
+For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a [handler](/declarative-components/bindings) when the component is connected or disconnected, mirroring `connectedCallback`/`disconnectedCallback`[^7] and firing again on reconnect. Because handlers are declarative, they set state or `<dispatch>` an event, with no imperative code. They are **client-only**: SSR renders the static tree, and hydration is what connects, so nothing lifecycle-driven runs on the server.
 
 ```html
 <defs>
@@ -302,13 +302,13 @@ For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a 
 | `disconnectedCallback` | `on:disconnect` · the JS behavior's teardown |
 | `attributeChangedCallback` | not written: a prop changes through a binding or a framework, and reactivity re-runs its dependents |
 | `adoptedCallback` | `on:adopt` (rare, cross-document moves) |
-| form-associated callbacks | the forms & validation story (see [Validation](/html-next/validation)) |
+| form-associated callbacks | the forms & validation story (see [Validation](/declarative-components/validation)) |
 
 > [!note] Connection defines the lifecycle boundary
-> `on:connect` fires each time an element joins a live, interactive document, including after a move and re-insertion. That boundary also fits **SSR**: the server produces static markup, then client [hydration](/html-next/components) adopts and connects the node. Framework developers can read connect/disconnect as the platform-specific counterpart to mount/unmount, with repeated connection made explicit.
+> `on:connect` fires each time an element joins a live, interactive document, including after a move and re-insertion. That boundary also fits **SSR**: the server produces static markup, then client [hydration](/declarative-components/components) adopts and connects the node. Framework developers can read connect/disconnect as the platform-specific counterpart to mount/unmount, with repeated connection made explicit.
 
 > [!norm] Imperative lifecycle is the JavaScript layer
-> Timers, subscriptions (SSE/WebSocket), `IntersectionObserver`, third-party libraries, imperative animation: these are genuinely imperative, with setup and teardown, and have no declarative form. They live in the reserved **JavaScript layer** (see [The JavaScript Layer](/html-next/javascript)), at a later Level, where a component may attach an ES-module *controller* whose connect hook returns a disposer run on disconnect, the shape `connectedCallback`/`disconnectedCallback` and React/Svelte effects already established.[^8] The declarative layer stays free of lifecycle ceremony; the imperative layer is the only part with a real lifecycle, and it is opt-in.
+> Timers, subscriptions (SSE/WebSocket), `IntersectionObserver`, third-party libraries, imperative animation: these are genuinely imperative, with setup and teardown, and have no declarative form. They live in the reserved **JavaScript layer** (see [The JavaScript Layer](/declarative-components/javascript)), at a later Level, where a component may attach an ES-module *controller* whose connect hook returns a disposer run on disconnect, the shape `connectedCallback`/`disconnectedCallback` and React/Svelte effects already established.[^8] The declarative layer stays free of lifecycle ceremony; the imperative layer is the only part with a real lifecycle, and it is opt-in.
 
 ## The dependency graph
 
@@ -341,7 +341,7 @@ If an implementation chooses TC39 Signals, HTML Next needs the semantics of `Sta
 | `Signal.State` | A suitable backing cell for declared `<state>` and changing props. |
 | `Signal.Computed` | A suitable backing cell for `<computed>`; HTML Next additionally knows its dependency paths statically. |
 | `Signal.subtle.Watcher` | An internal invalidation hook. One instance-owned scheduler batches affected DOM work into a microtask and unwatches it on disconnect. |
-| built-in effects and scheduling | Not supplied by TC39 and not requested from it. The [`host.effect` DOM API](/html-next/javascript) supplies lifecycle, scheduling, and cleanup. |
+| built-in effects and scheduling | Not supplied by TC39 and not requested from it. The [`host.effect` DOM API](/declarative-components/javascript) supplies lifecycle, scheduling, and cleanup. |
 | `Signal.subtle.untrack`, graph introspection, subclassing, custom equality | Not required by HTML Next's authored model. An implementation may use them, but markup semantics never expose them. |
 
 > [!note] Signals can advance independently

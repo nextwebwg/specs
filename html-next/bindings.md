@@ -32,9 +32,9 @@ For example, when a component declares `count` as `number` and `point` as `objec
 <x-plot from:count="nextCount" from:point="{ x: currentX, y: 5 }"></x-plot>
 ```
 
-The first invocation supplies fixed values. The second evaluates expressions that read `nextCount` and `currentX`. A plain structured value uses HTML Next's [object literal syntax](/html-next/types), not JSON; references such as `currentX` require `from:`. The prefix selects reactive expression evaluation, not a data type.
+The first invocation supplies fixed values. The second evaluates expressions that read `nextCount` and `currentX`. A plain structured value uses HTML Next's [object literal syntax](/declarative-components/types), not JSON; references such as `currentX` require `from:`. The prefix selects reactive expression evaluation, not a data type.
 
-A live binding writes only a result that has its destination's declared type. If one evaluation has the wrong type, it leaves the destination at its last successfully written value; before the first successful write, the destination retains its default or `null`. The binding still watches its dependencies and can write again when the result becomes valid. This rule applies equally when the expression is a direct reference or a function call. A value of the right type that fails `min`, `max`, or another value constraint **does** get written and sets validity. [Reactivity](/html-next/reactivity#invalid-reactive-results) shows the full sequence.
+A live binding writes only a result that has its destination's declared type. If one evaluation has the wrong type, it leaves the destination at its last successfully written value; before the first successful write, the destination retains its default or `null`. The binding still watches its dependencies and can write again when the result becomes valid. This rule applies equally when the expression is a direct reference or a function call. A value of the right type that fails `min`, `max`, or another value constraint **does** get written and sets validity. [Reactivity](/declarative-components/reactivity#invalid-reactive-results) shows the full sequence.
 
 > [!note] Prefixes name the operation
 > `from:x`, `class:x`, and `style:x` all subscribe to the values their expressions read and recompute when those values change. `bind:x` also writes changes back; `on:x` invokes a handler. The suffix names the affected attribute, property, event, class, or style property.
@@ -76,7 +76,7 @@ The `title` parameter recomputes as the draft changes. The data resource's `send
 
 `from:name="expr"` binds an attribute or a contract-declared property. It normalizes before resolving: strip `from:`, ASCII-lowercase the remainder, look the key up in the generated platform manifest, and assign using the returned canonical spelling, **which may be an attribute or a DOM property**. The expression is evaluated when the element is created and again whenever its dependencies change. A dependency can be a prop or a state value. There is deliberately **no separate raw-property syntax**: the manifest is authoritative, so an author never hand-picks an exact IDL name, and no binding reaches an arbitrary DOM property outside the contract.
 
-Replacing an element's content is not a binding but a [templating](/html-next/templating) directive: escaped text is `$value`, sanitized markup is `$html`. Inline `{expression}` inserts escaped text among surrounding content without replacing the element's contents. Raw, unsanitized HTML is available only through the dedicated trusted-HTML type (see [Types](/html-next/types)), never an ordinary string.
+Replacing an element's content is not a binding but a [templating](/declarative-components/templating) directive: escaped text is `$value`, sanitized markup is `$html`. Inline `{expression}` inserts escaped text among surrounding content without replacing the element's contents. Raw, unsanitized HTML is available only through the dedicated trusted-HTML type (see [Types](/declarative-components/types)), never an ordinary string.
 
 ### Future exploration: writable computed values
 
@@ -137,14 +137,14 @@ A writable path is a member or index access chain rooted at a **`<state>`** cell
 Writability flows from the root: a `$each` local or `$with` alias is writable exactly when it aliases a writable path, an item of a `<state>` collection is, an item of a `<data>` collection is not. Writing a sub-path updates that path in the state cell and re-runs its dependents; the implementation may model state as mutable-with-tracking or as a structural update, the observable result is the same.
 
 > [!note] Editing fetched data
-> A GET `<data>` result is read-only, so you do not `bind:` to it. Copy the fetched value into a `<state>` draft and bind controls to the draft. If that draft should autosave, a writable [`<data method="patch" send="change">`](/html-next/reactivity) observes the fields it sends. The fetched value, in-progress edit, and write effect remain distinct.
+> A GET `<data>` result is read-only, so you do not `bind:` to it. Copy the fetched value into a `<state>` draft and bind controls to the draft. If that draft should autosave, a writable [`<data method="patch" send="change">`](/declarative-components/reactivity) observes the fields it sends. The fetched value, in-progress edit, and write effect remain distinct.
 
 > [!note] Attribute vs. property
 > Binding distinguishes an input's initial `value` attribute (serialized/default state) from its live `value` property (current control state). `from:value` updates the attribute from an expression; `bind:value` tracks the live property.
 
 ## Class & style bindings
 
-Conditional presentation uses **keyed live bindings**, one class token or style property at a time. Like `from:`, each binding runs when the element is created and again when a prop, state value, or other dependency read by its expression changes. `class:btn--busy="$saving"` adds or removes the class as `saving` changes; `style:--progress="concat($pct, '%')"` updates that property as `pct` changes. The [expression language](/html-next/expressions) defines `+` for numbers only; `concat` produces a string. The **key is the attribute name** (a literal class token or CSS property) and the **value is a single pure expression**, so nothing packs a key/value list into one attribute value.[^4] Both compose with any literal `class` or `style`. Purely visual transforms remain CSS's job (see [Styling](/html-next/styling)); these bindings update presentation keys.
+Conditional presentation uses **keyed live bindings**, one class token or style property at a time. Like `from:`, each binding runs when the element is created and again when a prop, state value, or other dependency read by its expression changes. `class:btn--busy="$saving"` adds or removes the class as `saving` changes; `style:--progress="concat($pct, '%')"` updates that property as `pct` changes. The [expression language](/declarative-components/expressions) defines `+` for numbers only; `concat` produces a string. The **key is the attribute name** (a literal class token or CSS property) and the **value is a single pure expression**, so nothing packs a key/value list into one attribute value.[^4] Both compose with any literal `class` or `style`. Purely visual transforms remain CSS's job (see [Styling](/declarative-components/styling)); these bindings update presentation keys.
 
 ```html
 <!-- one class or style property per keyed binding; the value is a single pure expression -->
@@ -154,7 +154,7 @@ Conditional presentation uses **keyed live bindings**, one class token or style 
 
 ## Events & handlers
 
-`on:event="handler"` wires a DOM event to a declared **handler**. The form echoes native `onclick` and joins the binding family, but the browser does *not* execute `on:click` as script: the value names a `<handler>`, it is not an expression. Behavior and visible markup stay cleanly separated, the handler lives in the definition's `<defs>` region (see [Components](/html-next/components)), the content just points at it by name.
+`on:event="handler"` wires a DOM event to a declared **handler**. The form echoes native `onclick` and joins the binding family, but the browser does *not* execute `on:click` as script: the value names a `<handler>`, it is not an expression. Behavior and visible markup stay cleanly separated, the handler lives in the definition's `<defs>` region (see [Components](/declarative-components/components)), the content just points at it by name.
 
 ```html
 <!-- content references behavior by name; no steps inline -->
@@ -186,7 +186,7 @@ A handler is an ordered, enumerable list of declarative steps. The vocabulary is
 | `$if` (on a step) | Guard a step; it runs only when the expression is truthy, the same `$if` directive used in templating. |
 
 > [!norm] Handlers-only, by design
-> State changes live in `<handler>` steps or `bind:`, never inline in the template. Assignment is absent from the expression language, so expressions stay pure. Reactive network synchronization belongs to a declared [`<data>` effect](/html-next/reactivity); a component that requests a one-shot command *dispatches an event*[^2] and lets its owner decide whether to submit a form or call imperative code. The payoff is that a component's entire declarative behavior is enumerable from its markup.
+> State changes live in `<handler>` steps or `bind:`, never inline in the template. Assignment is absent from the expression language, so expressions stay pure. Reactive network synchronization belongs to a declared [`<data>` effect](/declarative-components/reactivity); a component that requests a one-shot command *dispatches an event*[^2] and lets its owner decide whether to submit a form or call imperative code. The payoff is that a component's entire declarative behavior is enumerable from its markup.
 
 ### Platform verbs: native invoker commands
 
@@ -206,11 +206,11 @@ Opening a dialog or toggling a popover is not component logic, it is a platform 
 
 ### Modifiers & component events
 
-A handler runs as declarative steps, so the operations you would otherwise call on the event object, `preventDefault`, `stopPropagation`, and the `addEventListener` options, have no imperative place to live. They ride the event name as **dotted modifiers**, each naming a real DOM operation: `on:submit.prevent`, `on:click.stop`, `on:click.once`, `on:scroll.passive`, `on:click.capture`. The dotted syntax itself is Vue's prior art, not an HTML native; key filters such as `on:keydown.enter` are convenience layered on top. A component declares emitted events in its contract; a consumer listens with the same form: `<x-dialog on:saved="refresh">`, where `refresh` is one of its own handlers. The same `on:` family carries the **lifecycle events** `on:connect`/`on:disconnect` (see [Lifecycle](/html-next/reactivity)).
+A handler runs as declarative steps, so the operations you would otherwise call on the event object, `preventDefault`, `stopPropagation`, and the `addEventListener` options, have no imperative place to live. They ride the event name as **dotted modifiers**, each naming a real DOM operation: `on:submit.prevent`, `on:click.stop`, `on:click.once`, `on:scroll.passive`, `on:click.capture`. The dotted syntax itself is Vue's prior art, not an HTML native; key filters such as `on:keydown.enter` are convenience layered on top. A component declares emitted events in its contract; a consumer listens with the same form: `<x-dialog on:saved="refresh">`, where `refresh` is one of its own handlers. The same `on:` family carries the **lifecycle events** `on:connect`/`on:disconnect` (see [Lifecycle](/declarative-components/reactivity)).
 
 ## Keys
 
-`$key="expr"`, a modifier on `$each` (see [Templating](/html-next/templating)), gives each iterated item a stable identity, so reactive updates and reordering are correct rather than index-positional. Keyed reconciliation is well-trodden prior art[^5]: React introduced `key`, and Vue, Svelte, Angular, and Lit each carry their own form.
+`$key="expr"`, a modifier on `$each` (see [Templating](/declarative-components/templating)), gives each iterated item a stable identity, so reactive updates and reordering are correct rather than index-positional. Keyed reconciliation is well-trodden prior art[^5]: React introduced `key`, and Vue, Svelte, Angular, and Lit each carry their own form.
 
 ### Replacing ref
 

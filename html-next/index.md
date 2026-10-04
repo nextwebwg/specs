@@ -10,8 +10,8 @@ stamp: Unofficial Editor's Draft · Stage&nbsp;0
 
 A markup-first component model that compiles to, and polyfills on, the web platform.
 
-- [Start with Overview →](/html-next/overview)
-- [See Examples →](/html-next/examples)
+- [Start with Overview →](/declarative-components/overview)
+- [See Examples →](/declarative-components/examples)
 - [Browse Chapters ↓](#chapters)
 
 Editors

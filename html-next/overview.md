@@ -31,15 +31,15 @@ Declarative HTML Components is one specification, in chapters that each define p
 
 | Chapter | In plain terms |
 | --- | --- |
-| [Components](/html-next/components) | Define a reusable tag with `<template component>`. Its interface (props) and non-visual declarations live in a `<defs>` region; below that is the markup it renders. |
-| [Templating](/html-next/templating) | Control flow uses attributes that survive the HTML parser: `$if` (show or not), `$each` (repeat), `$match` (pick one). Output uses `{expression}` for inline text and `$value`/`$html` to replace content with text or safe markup. |
-| [Expressions](/html-next/expressions) | A small, typed, no-JavaScript expression language for bindings and inline text, with predictable rules for missing data and equality (it never throws). |
-| [Bindings & events](/html-next/bindings) | Set reactive values with `from:attr`, two-way with `bind:`, react to events with `on:`, toggle a class or style with `class:`/`style:`. |
-| [Reactivity](/html-next/reactivity) | Declare local `<state>`, derived `<computed>` values, and external `<data>` resources. Reads refetch and synchronized writes send according to their declared change policy. |
-| [Types](/html-next/types) | Plain-keyword value types cover strings, numbers, HTML value formats, and selected CSS values. An omitted prop with no default is `null`. |
-| [Validation](/html-next/validation) | A declared type is a constraint: a typed prop or data value that fails its type is invalid, through the validity model [HTML Forms](/html-forms) extends to every element, and styled with the native `:user-invalid`. |
-| [Style scoping](/html-next/styling) | A component's `<style>` applies to that component, using CSS `@scope`, scoping without the isolation cost of a shadow root. |
-| [The JavaScript layer](/html-next/javascript) | The escape hatch. When behavior genuinely needs code (a timer, a chart library), a separate ES-module *controller* attaches to the component. Definitions stay script-free. |
+| [Components](/declarative-components/components) | Define a reusable tag with `<template component>`. Its interface (props) and non-visual declarations live in a `<defs>` region; below that is the markup it renders. |
+| [Templating](/declarative-components/templating) | Control flow uses attributes that survive the HTML parser: `$if` (show or not), `$each` (repeat), `$match` (pick one). Output uses `{expression}` for inline text and `$value`/`$html` to replace content with text or safe markup. |
+| [Expressions](/declarative-components/expressions) | A small, typed, no-JavaScript expression language for bindings and inline text, with predictable rules for missing data and equality (it never throws). |
+| [Bindings & events](/declarative-components/bindings) | Set reactive values with `from:attr`, two-way with `bind:`, react to events with `on:`, toggle a class or style with `class:`/`style:`. |
+| [Reactivity](/declarative-components/reactivity) | Declare local `<state>`, derived `<computed>` values, and external `<data>` resources. Reads refetch and synchronized writes send according to their declared change policy. |
+| [Types](/declarative-components/types) | Plain-keyword value types cover strings, numbers, HTML value formats, and selected CSS values. An omitted prop with no default is `null`. |
+| [Validation](/declarative-components/validation) | A declared type is a constraint: a typed prop or data value that fails its type is invalid, through the validity model [HTML Forms](/html-forms) extends to every element, and styled with the native `:user-invalid`. |
+| [Style scoping](/declarative-components/styling) | A component's `<style>` applies to that component, using CSS `@scope`, scoping without the isolation cost of a shadow root. |
+| [The JavaScript layer](/declarative-components/javascript) | The escape hatch. When behavior genuinely needs code (a timer, a chart library), a separate ES-module *controller* attaches to the component. Definitions stay script-free. |
 
 ## How it fits together
 
@@ -49,7 +49,7 @@ Two ideas hold the whole thing up:
 - **Everything joins by tag.** A definition and, if it has one, a controller both register under the same tag name in a registry, the exact way the platform's own custom elements join a tag to a class. Nothing references anything else by file path; the tag is the join.
 
 > [!note] Two ways to run it
-> The same source has two honest execution paths: a **polyfill** that lowers it to native DOM in the browser today, and **converters** that compile it to idiomatic React, Vue, or Svelte. Both must produce the same observable result ([Targets & Equivalence](/html-next/targets)).
+> The same source has two honest execution paths: a **polyfill** that lowers it to native DOM in the browser today, and **converters** that compile it to idiomatic React, Vue, or Svelte. Both must produce the same observable result ([Targets & Equivalence](/declarative-components/targets)).
 
 ## How "done" is measured
 
@@ -65,10 +65,10 @@ Being plain also means being honest about maturity:
 > The component model, templating and control flow, the expression language and its value semantics, bindings, types, style scoping, and the shape of the JavaScript layer, all specified, and the browser-lowering and validation paths have a tested reference implementation.
 
 > [!warn] Still open
-> Live reactive updates in the browser (a later Level), real-time data (SSE/WebSocket), routing, demand-driven lazy loading gated on reactive state, and the full converter targets. These are named as open, not hidden ([details](/html-next/javascript)).
+> Live reactive updates in the browser (a later Level), real-time data (SSE/WebSocket), routing, demand-driven lazy loading gated on reactive state, and the full converter targets. These are named as open, not hidden ([details](/declarative-components/javascript)).
 
 :::
 
 ## See it working
 
-For complete, copy-pasteable code, one component, a component that uses another, and a JavaScript controller, see [Examples](/html-next/examples). Then read any chapter above for the precise rules.
+For complete, copy-pasteable code, one component, a component that uses another, and a JavaScript controller, see [Examples](/declarative-components/examples). Then read any chapter above for the precise rules.

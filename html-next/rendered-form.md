@@ -30,13 +30,13 @@ A component instance can be written two ways. The **authored form** is the invoc
 </article>
 ```
 
-Template output and projected content share one light-DOM tree (see [Components](/html-next/components)), so the rendered form must say where each slot's content begins and ends. Adjacent text is the forcing case: ` Hello  ` from a template followed by projected `world` serializes as `Hello world` and parses back as a single text node.
+Template output and projected content share one light-DOM tree (see [Components](/declarative-components/components)), so the rendered form must say where each slot's content begins and ends. Adjacent text is the forcing case: ` Hello  ` from a template followed by projected `world` serializes as `Hello world` and parses back as a single text node.
 
 ## The requirement: the same instance
 
 A rendered form plus the definition [must]{.kw} build the same instance that the authored form plus the definition builds: the same prop values and the same set of *explicit* props, the same projected nodes for every slot (including slots not currently rendered), and the same state. The same later change, whether a prop write, a handler or controller changing state, or a new `$each` row, then produces the same DOM in both.
 
-For [shared state](/html-next/reactivity), this also means a hydrated reader must resolve to the same provider instance. Slot ranges recover which component received projected content. A portal can move a reader away from its provider in the serialized DOM, so the current rendered form does not yet specify enough to hydrate that relationship; the required owner record remains open below.
+For [shared state](/declarative-components/reactivity), this also means a hydrated reader must resolve to the same provider instance. Slot ranges recover which component received projected content. A portal can move a reader away from its provider in the serialized DOM, so the current rendered form does not yet specify enough to hydrate that relationship; the required owner record remains open below.
 
 > [!note] Content no slot renders is part of the instance
 > An instance holds projected content that no slot renders yet. Recovering the markup that is visible, and nothing else, would build a different instance, one that shows fallback where the authored one shows the consumer's content.
@@ -101,7 +101,7 @@ The carrier is marked by a `<?carrier?>` instruction immediately before it, read
 4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes or the fallback nodes, adopted in place so their bindings attach.
 5. A nested component's server-rendered root is adopted, not re-rendered. The outer template's nodes inside it are matched against that component's slot ranges and carrier, where lowering placed them, and the nested root hydrates as its own instance.
 
-A root that a framework rendered is owned by that framework, which hydrates from its own state. Framework output need not carry slot ranges; its element tree remains subject to [target equivalence](/html-next/targets).
+A root that a framework rendered is owned by that framework, which hydrates from its own state. Framework output need not carry slot ranges; its element tree remains subject to [target equivalence](/declarative-components/targets).
 
 ## Open questions
 

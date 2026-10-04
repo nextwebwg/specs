@@ -335,7 +335,7 @@ Take a dashboard, `<x-dashboard>` (component A), that reads metrics and renders 
   </defs>
 
   <section>
-    <h1 $value="title"></h1>
+    <h1>{$title}</h1>
     <template $match>
       <p $when="metrics.pending">Loading…</p>
       <x-chart $else from:series="metrics.value.series"></x-chart>

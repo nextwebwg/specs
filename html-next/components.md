@@ -133,7 +133,7 @@ A slot may expose data to the content projected into it. The definition binds sl
 
 <!-- use: the template's scope is { item, index } -->
 <x-list from:rows="people">
-  <template slot="row"><td $value="item.name"></td></template>
+  <template slot="row"><td>{$item.name}</td></template>
 </x-list>
 ```
 

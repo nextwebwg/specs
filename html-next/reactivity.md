@@ -188,8 +188,8 @@ Here is the effect across three responses when `record.value.label` is declared 
 <template component="x-record">
   <defs><data name="record" src="/api/record" type="object({ label: string, note: string })"></data></defs>
   <section>
-    <output class="label" $value="$record.value.label"></output>
-    <output class="note" $value="$record.value.note"></output>
+    <output class="label">{$record.value.label}</output>
+    <output class="note">{$record.value.note}</output>
   </section>
 </template>
 ```

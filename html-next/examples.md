@@ -11,6 +11,8 @@ status: Illustrative · pairs with the runnable proof of concept
 
 Complete, copy-pasteable code for the common shapes, a plain component, control flow, a stateful component with a controller, and a graph of components that load lazily. Everything here is runnable: the same set is a live, unbundled demo in the reference repository.
 
+Text inserts values with `{$name}` and full expressions with `{expression}`; see [inline text expressions](/html-next/templating#inline-text-expressions) for escaping and error behavior.
+
 ## A minimal component
 
 One prop, one native root, a scoped style. It lowers to a real `<button>`, no wrapper, no shadow root, with a `data-component` provenance stamp.
@@ -42,7 +44,7 @@ Structural `$`-directives ride on ordinary elements (or a `<template>`), so they
 <!-- templating: a filtered, sorted list and a three-way status, all as directives -->
 <ul>
   <li $each="p of products" $where="p.inStock" $sort="price,-name" $key="p.id">
-    {format(p.price, 'currency', { currency: 'USD' })} — <span $value="p.name"></span>
+    {format($p.price, 'currency', { currency: 'USD' })} — {$p.name}
   </li>
 </ul>
 
@@ -66,7 +68,7 @@ The definition declares `<state>`, exposes a `$ref`, and names its controller on
     <prop name="start" type="number" default="0"></prop>
     <state name="count" type="number" value="0"></state>
   </defs>
-  <button $ref="btn" type="button">count: <span $value="count"></span></button>
+  <button $ref="btn" type="button">count: {$count}</button>
 </template>
 ```
 
@@ -75,7 +77,7 @@ The definition declares `<state>`, exposes a `$ref`, and names its controller on
 export default function controller(host) {
   host.state.count = host.props.start.value;
   host.refs.btn.addEventListener("click", () => {
-    // Drive STATE, never the DOM directly. The runtime reflects count to the <span>.
+    // Drive STATE, never the DOM directly. The runtime updates the button text.
     host.state.count = host.state.count + 1;
   });
 }
@@ -128,7 +130,7 @@ A component declares its own component and controller dependencies; the page imp
     <prop name="title" type="string" default="App"></prop>
   </defs>
   <main>
-    <h1 $value="title"></h1>
+    <h1>{$title}</h1>
     <x-counter start="3"></x-counter>
     <x-chart></x-chart>
   </main>

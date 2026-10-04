@@ -1,7 +1,7 @@
 ---
 title: Templating
 order: 1
-blurb: $each · $if · $match · $with · value
+blurb: $each · $if · $match · $with · inline text
 eyebrow: Declarative HTML Components Level 1
 status: Level 1 · reserved direction · reference implementation pending
 ---
@@ -81,7 +81,7 @@ Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read
 ```html
 <li $each="p of products"
     $where="p.inStock" $sort="p.price,-p.name" $limit="10" $key="p.id">
-  $p.name
+  {$p.name}
 </li>
 
 <!-- index alias, when needed -->
@@ -98,7 +98,7 @@ A multi-way decision is a container carrying `$match` whose **direct children ar
 ```html
 <template $match>
   <progress $when="order.pending">Placing order…</progress>
-  <output   $when="order.error">$order.error.message</output>
+  <output   $when="order.error">{$order.error.message}</output>
   <p        $else>Thanks for your order.</p>
 </template>
 ```
@@ -110,7 +110,7 @@ A multi-way decision is a container carrying `$match` whose **direct children ar
 ```html
 <!-- optional scope: bind the subject once, for every arm -->
 <template $match="account.plan as plan">
-  <span $when="plan.tier = 'pro'">$plan.seats seats</span>
+  <span $when="plan.tier = 'pro'">{$plan.seats} seats</span>
   <span $else>Free plan</span>
 </template>
 ```
@@ -123,8 +123,8 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 <!-- multi-way among rows: arms are direct <template> children, so they survive -->
 <table><tbody>
   <template $match>
-    <tr $when="row.error" class="err"><td $value="row.message"></td></tr>
-    <tr $else><td $value="row.name"></td></tr>
+    <tr $when="row.error" class="err"><td>{$row.message}</td></tr>
+    <tr $else><td>{$row.name}</td></tr>
   </template>
 </tbody></table>
 ```
@@ -138,7 +138,7 @@ Introducing a value under a name is a separate, *visible* operation. `$with="exp
 
 ```html
 <section $with="account.owner as owner">
-  <p>$owner.name</p>   <!-- owner is in scope here -->
+  <p>{$owner.name}</p>   <!-- owner is in scope here -->
 </section>
 ```
 
@@ -179,13 +179,13 @@ HTML Next does **not** transform the whitespace an author writes. A template is 
 
 ```html
 <!-- Whitespace is HTML's. The space around the value is significant and stays. -->
-<p>Total: $cart.total due today</p>
+<p>Total: {$cart.total} due today</p>
 
 <!-- Indentation and line breaks are preserved as text nodes, then collapse at
      RENDER through CSS white-space — exactly as in a hand-written .html file,
      not through a template build step. -->
 <ul>
-  <li $each="t of tags">$t</li>
+  <li $each="t of tags">{$t}</li>
 </ul>
 
 <!-- Opt out the way any HTML page does: with CSS, not a template flag. -->
@@ -196,7 +196,7 @@ HTML Next does **not** transform the whitespace an author writes. A template is 
 <p $value="user.name">welcome</p>   <!-- ✗ text child + $value -->
 ```
 
-Text expressions, elements, and `<template $value>` interleave as ordinary **mixed content**. The space in `Total: $cart.total` is significant and is preserved; `$each` emits the whitespace inside and around it like any repeated markup, with no join or separator behaviour of its own. The one hard rule is the content-owning directives: `$value` and `$html` set an element's *entire* content, so authored children beside them are a **conformance error** rather than a silent merge, the same constraint a content-replacing property binding carries.
+Text expressions, elements, and `<template $value>` interleave as ordinary **mixed content**. The space in `Total: {$cart.total}` is significant and is preserved; `$each` emits the whitespace inside and around it like any repeated markup, with no join or separator behaviour of its own. The one hard rule is the content-owning directives: `$value` and `$html` set an element's *entire* content, so authored children beside them are a **conformance error** rather than a silent merge, the same constraint a content-replacing property binding carries.
 
 > [!note] Coming from a framework
 > This will surprise anyone migrating from React, Vue, or Svelte, which **condense** whitespace in a build step (collapsing runs, dropping whitespace-only nodes between elements). HTML Next does not, for one reason: **it is not a framework, it is a standard.** A framework owns its own runtime and may rewrite your markup on the way to it; HTML Next lowers to the *real* native DOM, and the browser already defines what template whitespace means. Condensing would make the same markup produce a different DOM through HTML Next than as plain HTML, and it would stop being HTML.
@@ -217,18 +217,18 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 ```html
 <!-- every $ directive is an attribute, so it survives every parser context -->
 <table><tbody>
-  <tr $each="r of rows" $key="r.id"><td $value="r.name"></td></tr>
+  <tr $each="r of rows" $key="r.id"><td>{$r.name}</td></tr>
 </tbody></table>
 
 <select>
-  <option $each="o of opts" from:value="o.id" $value="o.label"></option>
+  <option $each="o of opts" from:value="o.id">{$o.label}</option>
 </select>
 
 <!-- a fragment (several siblings) rides a <template> -->
 <table><tbody>
   <template $each="r of rows">
-    <tr class="head"><td $value="r.title"></td></tr>
-    <tr class="body"><td $value="r.detail"></td></tr>
+    <tr class="head"><td>{$r.title}</td></tr>
+    <tr class="body"><td>{$r.detail}</td></tr>
   </template>
 </tbody></table>
 ```

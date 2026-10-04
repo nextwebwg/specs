@@ -76,7 +76,7 @@ The `title` parameter recomputes as the draft changes. The data resource's `send
 
 `from:name="expr"` binds an attribute or a contract-declared property. It normalizes before resolving: strip `from:`, ASCII-lowercase the remainder, look the key up in the generated platform manifest, and assign using the returned canonical spelling, **which may be an attribute or a DOM property**. The expression is evaluated when the element is created and again whenever its dependencies change. A dependency can be a prop or a state value. There is deliberately **no separate raw-property syntax**: the manifest is authoritative, so an author never hand-picks an exact IDL name, and no binding reaches an arbitrary DOM property outside the contract.
 
-Replacing an element's content is not a binding but a [templating](/html-next/templating) directive: escaped text is `$value`, sanitized markup is `$html`. Raw, unsanitized HTML is available only through the dedicated trusted-HTML type (see [Types](/html-next/types)), never an ordinary string.
+Replacing an element's content is not a binding but a [templating](/html-next/templating) directive: escaped text is `$value`, sanitized markup is `$html`. Inline `{expression}` inserts escaped text among surrounding content without replacing the element's contents. Raw, unsanitized HTML is available only through the dedicated trusted-HTML type (see [Types](/html-next/types)), never an ordinary string.
 
 ### Future exploration: writable computed values
 

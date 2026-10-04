@@ -231,9 +231,9 @@ If `width` then changes to `100rem`, `quarterWidth` becomes `25rem`, but `padded
 
 `default` is lazy: it evaluates `value` first, and evaluates `fallback` only if that result is absent or `null`. Both arms must have the same declared type, or satisfy the same expected destination type; it does not create a mixed-type union. A present but invalid typed reference is **not** absence and cannot be rescued by `default`; the invalid result follows the [live-binding rule](/html-next/reactivity): the destination keeps its last accepted value, or its default/`null` if it has never accepted one. The function does not use truthiness.
 
-`concat` requires at least one argument. Each must be a scalar (`string`, `keyword`, `boolean`, `integer`, `number`, or a serialized scalar type such as `length`). It uses that type's normal attribute text: for example `concat(true)` returns `'true'` and `concat(8px)` returns `'8px'`. A value keeps its normal type checks until it reaches this explicit text conversion. Missing data propagates as absent; `null` contributes an empty string. Lists and objects are not `concat` arguments. Locale-sensitive number, date, currency, and list presentation uses `<value format>` below. XPath supplies the function's name and ordered concatenation, but Declarative Components also permits one argument so the same function can replace `format('%s', value)` without another conversion function.[^11]
+`concat` requires at least one argument. Each must be a scalar (`string`, `keyword`, `boolean`, `integer`, `number`, or a serialized scalar type such as `length`). It uses that type's normal attribute text: for example `concat(true)` returns `'true'` and `concat(8px)` returns `'8px'`. A value keeps its normal type checks until it reaches this explicit text conversion. Missing data propagates as absent; `null` contributes an empty string. Lists and objects are not `concat` arguments. Locale-sensitive number, date, currency, and list presentation uses the [Intl formatting functions](#formatting-intl-expressions) below. XPath supplies the function's name and ordered concatenation, but Declarative Components also permits one argument so the same function can replace `format('%s', value)` without another conversion function.[^11]
 
-`join` requires exactly two arguments: a list and a string separator. The list may be empty and must have one scalar item type, as described in [Types](/html-next/types#lists-and-their-written-forms). Items use the same text conversion as `concat`; a `null` item contributes an empty string, but still occupies its position between separators. An empty list returns `''`, and a one-item list returns that item's text without a separator. An absent list, separator, or item propagates as absent. An object item or a separator of another type makes the call invalid. For example, `join(['red', null, 'blue'], ', ')` returns `'red, , blue'`, while `join([], ', ')` returns `''`. This function assembles an attribute or computed string; `<value format="list">` remains the locale-sensitive way to present a list to readers.[^16]
+`join` requires exactly two arguments: a list and a string separator. The list may be empty and must have one scalar item type, as described in [Types](/html-next/types#lists-and-their-written-forms). Items use the same text conversion as `concat`; a `null` item contributes an empty string, but still occupies its position between separators. An empty list returns `''`, and a one-item list returns that item's text without a separator. An absent list, separator, or item propagates as absent. An object item or a separator of another type makes the call invalid. For example, `join(['red', null, 'blue'], ', ')` returns `'red, , blue'`, while `join([], ', ')` returns `''`. This function assembles an attribute or computed string; `format($items, 'list')` is the locale-sensitive way to present a list to readers.[^16]
 
 ### Invalid calls and live bindings
 
@@ -328,7 +328,7 @@ The explicit numeric presets set the native `style`; a conflicting authored `sty
 <p>Published: {format($publishedAt, 'date', { dateStyle: 'long' })}</p>
 <p>Updated: {format($minutesAgo, 'relativeTime', { unit: 'minute' })}</p>
 <p>Guests: {format($names, 'list', { type: 'conjunction' }, $locale)}</p>
-<output $value="format($elapsed, 'duration', { style: 'digital' })"></output>
+<output>{format($elapsed, 'duration', { style: 'digital' })}</output>
 <computed name="priceLabel" from="format($price, 'currency', { currency: 'CAD' }, 'fr-CA')"></computed>
 ```
 
@@ -387,7 +387,7 @@ format($position, 'plural', {
 
 ```html
 <p>{formatRange($minimum, $maximum, 'currency', { currency: 'USD' })}</p>
-<span $each="part of formatParts($price, 'currency', { currency: 'USD' })">$part.value</span>
+<span $each="part of formatParts($price, 'currency', { currency: 'USD' })">{$part.value}</span>
 ```
 
 Absence or null produces absence. An invalid input, formatter, argument count, native option combination, locale, or unsupported operation produces the existing invalid built-in result: no destination write, retaining the last accepted value. Formatted strings remain data, never a second round of HTML or template parsing. A JavaScript host without a selected Intl facility requires a conforming polyfill; an unavailable facility produces the same invalid result. Native locale data can vary across engine and ICU versions; the reference targets share the same adapter and preserve the selected platform semantics.

@@ -483,7 +483,7 @@ adaptVue(controller, { refs: { canvas }, props });
 </template>
 ```
 
-This works because `host` is deliberately tiny, and every target already has all of it natively: lifecycle (Vue `onMounted`/`onUnmounted`, Svelte `onMount`/`onDestroy`, Solid `onMount`/`onCleanup`, React `useEffect`), effects (Vue `watchEffect`, Svelte `$effect`, Solid `createEffect`), refs (Vue `ref`, Svelte `bind:this`, React `useRef`), props for `host.props`, and state, derived values, data, and context for `host.state`. `$ref="name"` maps to each target's ref idiom; `host.dispatch` to its event mechanism.
+This works because `host` is deliberately tiny, and every target already has all of it natively: lifecycle (Vue `onMounted`/`onUnmounted`, Svelte `onMount`/`onDestroy`, Solid `onMount`/`onCleanup`, React `useEffect`), effects (Vue `watchEffect`, Svelte `$effect`, Solid `createEffect`), refs (Vue `ref`, Svelte `bind:this`, React `useRef`), props for `host.props`, and mutable and computed state and context for `host.state`, and resources for `host.data`. `$ref="name"` maps to each target's ref idiom; `host.dispatch` to its event mechanism.
 
 > [!note] React is the one that needs a bridge
 > React has no native fine-grained reactivity, so its adapter backs `host.effect` and `host.state` with an external store (via `useSyncExternalStore`) rather than a signal. That wart is contained to the React adapter; the controller and every other target are unaffected.

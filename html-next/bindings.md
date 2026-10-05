@@ -206,6 +206,33 @@ Nested dispatch invokes another handler with its own `$$event`; returning to the
 
 This follows native `CustomEvent`, Lit's component-event convention, and Svelte's earlier typed `createEventDispatcher` API.[^6][^7][^8] The `$$event` expression spelling is an HTML Next addition.
 
+### Dispatch to a component-local ref {#dispatch-target}
+
+A `<dispatch>` without `target` dispatches from the current component's root. Its optional `target` names a `$ref` declared in that same component definition. Each instance resolves its own refs; `target` is not a DOM ID, selector, or expression, and does not change native `id` or `commandfor` behavior.
+
+```html
+<defs>
+  <event name="validate" type="unknown"></event>
+  <event name="show-toast" type="object({ message: string, tone: string })"></event>
+  <handler name="checkCustomer">
+    <dispatch target="customer" event="validate"></dispatch>
+  </handler>
+  <handler name="notifySaved">
+    <dispatch target="notifications" event="show-toast"
+      expr:value="{ message: 'Changes saved', tone: 'success' }"></dispatch>
+  </handler>
+</defs>
+<button type="button" on:click="checkCustomer">Check customer</button>
+<ui-combobox $ref="customer"></ui-combobox>
+<ui-toast-region $ref="notifications"></ui-toast-region>
+```
+
+The targeted element receives a native `CustomEvent`. Its controller may listen with `host.on('validate', callback)`, or its root may bind `on:validate` to a declarative handler. Dispatch does not discover or invoke a JavaScript function by name. The dispatching component's event declaration supplies the payload type check and native event flags, just as for an untargeted dispatch.
+
+A ref inside `$each` identifies a collection. A targeted dispatch sends a separate native event to **every currently rendered element in that collection, in rendered order**. The payload expression is evaluated and checked against its declared type once for the handler step, including when the collection is empty; each event's `detail` holds that same value. A receiver may mutate a shared object payload; delivery to later receivers does not repeat the sender's type check. The target list is sampled before invoking the first listener: newly rendered targets do not join that step, and targets removed before their turn are skipped. Each event has independent propagation and cancellation; canceling one does not cancel dispatch to another target. The original triggering event remains `$$event` throughout the step.
+
+An undeclared ref name is an authoring error. A declared ref that currently renders no element, including an empty collection or a false `$if` branch, dispatches nothing. Props and context remain the channels for reactive inputs; targeted events request a discrete interaction, and ordinary component events can report its outcome.
+
 ### Handler steps
 
 A handler is an ordered, enumerable list of declarative steps. The vocabulary is deliberately tiny and never names a userland JavaScript function. A `<dispatch>` uses the native event channel, which a controller or another DOM listener can observe.
@@ -213,7 +240,7 @@ A handler is an ordered, enumerable list of declarative steps. The vocabulary is
 | Step | Effect |
 | --- | --- |
 | `<set name value>` or `<set name expr:value>` | Write a local state cell. `value` is a typed constant; `expr:value` is evaluated when the handler runs. |
-| `<dispatch event value?>` or `<dispatch event expr:value?>` | Dispatch a component event with an optional typed constant or action-time expression as its payload. |
+| `<dispatch event target? value?>` or `<dispatch event target? expr:value?>` | Dispatch a native component event from the current root or to a component-local ref, with an optional typed constant or action-time expression as its payload. |
 | `$if` (on a step) | Guard a step; it runs only when the expression is truthy, the same `$if` directive used in templating. |
 
 > [!norm] Handlers-only, by design

@@ -181,6 +181,8 @@ An `<x-button>` invocation has to resolve to a definition. There are three ways 
 3. a document-level `<link rel="component">` whose `href` is either a live URL or a package specifier.
 {.algo}
 
+For live loading, the loader [must]{.kw} fetch the HTML resource referenced by `<link rel="component">` and parse its contents as an inert HTML fragment in a `<template>` context. Build-time imports use the same parsing contract. A resource may contain sibling component carriers and dependency links, together with the metadata allowed below; it does not need a document-level `<html>`, `<head>`, or `<body>` wrapper.
+
 ### Resource metadata for application tooling
 
 A component carrier may carry application metadata for that component as direct children beside its declarations, markup root, and style. This lets a build use ordinary HTML for a page title, description, or application-specific configuration while keeping the same component usable through the regular runtime. When a resource contains several components, placing metadata inside its owning carrier makes that association explicit.
@@ -388,7 +390,7 @@ Attributes
 : `href`: URL-like live entry or bare package specifier · fetch vocabulary: `integrity`, `crossorigin`, `referrerpolicy`, `type`, `fetchpriority`
 
 Semantics
-: import one direct component file and its statically declared dependency closure; package specifiers resolve through ordinary package/import-map resolution
+: import a component resource as an inert HTML fragment and follow its statically declared dependency closure; package specifiers resolve through ordinary package/import-map resolution
 
 Level
 : [L1]{.pill .l1}

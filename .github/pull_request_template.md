@@ -18,6 +18,5 @@ differently. Link the issue or discussion it resolves (`Fixes #123`).
 
 ## Checklist
 
-- [ ] Every commit is signed off (`git commit -s`), making it under the [contribution terms](https://github.com/nextwebwg/.github/blob/main/CONTRIBUTING.md)
 - [ ] `corepack pnpm verify:pr` passes
 - [ ] The text follows [WRITING.md](https://github.com/nextwebwg/specs/blob/main/WRITING.md) and [CONTRIBUTING.md](https://github.com/nextwebwg/specs/blob/main/CONTRIBUTING.md)

@@ -175,9 +175,40 @@ Conditional presentation uses **keyed live bindings**, one class token or style 
 </defs>
 ```
 
+### The triggering event: $$event {#triggering-event}
+
+The event that invoked a handler is referenced through **`$$event`**. It is the native event supplied to the listener, with that event's ordinary properties: for example `$$event.key` for a keyboard event, or `$$event.detail` for a component `CustomEvent`. The name is reserved and read-only. It is available in that invocation's handler expressions and guards, not in a persistent template binding or computed state.
+
+```html
+<event name="activate" type="event"></event>
+<handler name="requestActivation">
+  <dispatch event="activate" expr:value="$$event"></dispatch>
+</handler>
+<button type="button" on:click="requestActivation">Activate</button>
+```
+
+Component dispatch creates a native `CustomEvent` whose `detail` is the dispatched value.[^6] The receiving handler's `$$event` is that component event, and `$$event.detail` is its payload. In this example the payload is the original click event, passed by reference. The `event` type checks that payload against the native `Event` interface; a payload of another type is still checked against its event declaration. See [Native event values](/declarative-components/types#native-event-values).
+
+The payload can also select incoming data or combine it with component state:
+
+```html
+<!-- Forward an incoming CustomEvent's payload. -->
+<dispatch event="selection" expr:value="$$event.detail"></dispatch>
+<!-- Combine the native event with the component's current selection. -->
+<dispatch event="selection-with-source" expr:value="{ source: $$event, item: $selectedItem }"></dispatch>
+<!-- Store selected event fields in mutable state. -->
+<set name="interaction.pointer" expr:value="{ x: $$event.clientX, y: $$event.clientY }"></set>
+```
+
+Each destination retains its declared type checks. A structure may explicitly retain the event itself, but that native object does not become reactive: state observes the assigned value, not changes to the event's internal fields. Selected scalar fields are sampled when the step runs. Native dispatch-time fields keep native behavior; for example `currentTarget` is cleared when dispatch finishes.[^6]
+
+Nested dispatch invokes another handler with its own `$$event`; returning to the outer handler restores its triggering event. Forwarding a payload does not redispatch the source event, automatically unwrap nested details, or couple cancellation of the new event to cancellation of the source. A controller that receives the source event can use its native operations during synchronous dispatch. The component event's `detail` is the payload itself, not a second `{ detail: payload }` object.
+
+This follows native `CustomEvent`, Lit's component-event convention, and Svelte's earlier typed `createEventDispatcher` API.[^6][^7][^8] The `$$event` expression spelling is an HTML Next addition.
+
 ### Handler steps
 
-A handler is an ordered, enumerable list of declarative steps. The vocabulary is deliberately tiny, and none of it reaches into userland code.
+A handler is an ordered, enumerable list of declarative steps. The vocabulary is deliberately tiny and never names a userland JavaScript function. A `<dispatch>` uses the native event channel, which a controller or another DOM listener can observe.
 
 | Step | Effect |
 | --- | --- |
@@ -269,3 +300,9 @@ Level
 [^3]: Binding-family prior art: Vue [v-bind](https://vuejs.org/api/built-in-directives.html#v-bind) (one-way values, expressed here with `from:attr`); Svelte [bind:](https://svelte.dev/docs/svelte/bind) and [on:](https://svelte.dev/docs/svelte/on) element directives (two-way and event, matched here verbatim); Angular [two-way binding](https://angular.dev/guide/templates/two-way-binding) (the `[(ngModel)]` banana-in-a-box: one-way-in plus event-out, the model behind the `bind:` writability rules).
 [^4]: Keyed presentation prior art: Svelte [class:](https://svelte.dev/docs/svelte/class) and [style:](https://svelte.dev/docs/svelte/style) directives (the exact keyed syntax adopted here). Contrast: Vue [object `:class="{ open: x }"`](https://vuejs.org/guide/essentials/class-and-style.html) and Lit [`classMap`](https://lit.dev/docs/templates/directives/#classmap)/`styleMap` pack a key/value map into one attribute value; Angular `[class.x]`/`[style.x]`/`ngClass` and Solid [`classList`](https://docs.solidjs.com/reference/jsx-attributes/classlist) are the same keyed idea.
 [^5]: Keyed iteration prior art: React [key](https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key) (the origin of list identity), Vue [:key](https://vuejs.org/api/built-in-special-attributes.html#key), Svelte [keyed each](https://svelte.dev/docs/svelte/each), Angular [@for with track](https://angular.dev/guide/templates/control-flow) (and the older `trackBy`), and Lit [repeat with a key function](https://lit.dev/docs/templates/lists/#the-repeat-directive).
+
+[^6]: WHATWG DOM, [CustomEvent](https://dom.spec.whatwg.org/#interface-customevent) and [dispatching events](https://dom.spec.whatwg.org/#concept-event-dispatch): payloads use `detail`; dispatch-time fields retain their native lifetime.
+
+[^7]: Lit, [using standard or custom events](https://lit.dev/docs/components/events/#using-standard-or-custom-events): custom component data is passed through `CustomEvent.detail`.
+
+[^8]: Svelte, [createEventDispatcher](https://svelte.dev/docs/svelte/svelte#createEventDispatcher): a typed event map narrows event names and `detail` payloads. This earlier API is deprecated in favor of callback props and the `$host()` rune; it is historical precedent, not a dependency of this proposal.

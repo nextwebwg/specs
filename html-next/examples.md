@@ -26,7 +26,7 @@ One prop, one native root, a scoped style. It lowers to a real `<button>`, no wr
   <button><slot></slot></button>
   <style>
     :host { font: inherit; }
-    :host-state([variant="solid"]) { background: CanvasText; color: Canvas; }
+    :host([variant="solid"]) { background: CanvasText; color: Canvas; }
   </style>
 </template>
 

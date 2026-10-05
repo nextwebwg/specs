@@ -177,6 +177,20 @@ Structured values use the object and array literal syntax of [HTML Next expressi
 
 Bare keys, single-quoted strings, and trailing commas are allowed in both forms. A plain attribute contains only literal values; `point="{ x: currentX }"` is invalid because `currentX` is a reference. Use `from:point="{ x: currentX }"` to read it, or `from:point="point"` to pass an existing object from `<state>` or `<data>`. The `from:` prefix marks a binding, not an object. These expressions are pure and typed, not arbitrary JavaScript. JSON is used only as a wire format when structured data crosses an SSR, network, or interop boundary.
 
+## Native event values
+
+The `event` type accepts a native DOM `Event`, including its subclasses such as `PointerEvent`, `KeyboardEvent`, and `CustomEvent`.[^18] It is a JavaScript value with no HTML literal form. A handler obtains its triggering event through `$$event` and may pass it as an event payload or place it in a typed structure. Type checking does not clone the event or turn a plain object with similar fields into an event.
+
+```html
+<event name="activate" type="event"></event>
+<event name="selection-with-source" type="object">
+  <prop name="source" type="event" required></prop>
+  <prop name="item" type="string" required></prop>
+</event>
+```
+
+In the first declaration the entire `CustomEvent.detail` must be a native event. In the second, `detail` is an object whose `source` is a native event and whose `item` is a string. A resource fetched as JSON cannot supply a native event. Mutable state can retain an event reference when its declaration permits it, but that reference does not make the native event's fields reactive or give it a serialized server representation. See [The triggering event](/declarative-components/bindings#triggering-event).
+
 ## Types selected by a prop or state value
 
 A component can select a prop's type from the current value of another declared prop or state value. For example, a `type` prop can select whether `value` is a string or a number.
@@ -281,3 +295,5 @@ Unions could allow more than one base type. An untagged union of `string` and `n
 [^15]: WHATWG HTML, [keywords and enumerated attributes](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#keywords-and-enumerated-attributes).
 [^16]: CSS Values and Units Level 4, [value definition syntax](https://drafts.csswg.org/css-values-4/#value-defs).
 [^17]: WHATWG HTML, [the `minlength` and `maxlength` attributes](https://html.spec.whatwg.org/multipage/input.html#the-minlength-and-maxlength-attributes).
+
+[^18]: WHATWG DOM, [Event](https://dom.spec.whatwg.org/#interface-event) and [CustomEvent](https://dom.spec.whatwg.org/#interface-customevent): native event interfaces and custom payloads.

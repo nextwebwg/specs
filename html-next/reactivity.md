@@ -8,7 +8,7 @@ status: Stage 0 · Level 1 proposal
 
 # Reactivity & Data
 
-Reactivity is a **declared dependency graph in markup**: local state, derived values, and external resources, each with a distinct lifecycle. The graph is statically analyzable, so it lowers to React state, Vue refs, Svelte runes, or a signal-based browser runtime: one semantics, many backends, no `eval()`.
+Reactivity is a **declared dependency graph in markup**: mutable state, computed state, and external resources, each with a distinct lifecycle. The graph is statically analyzable, so it lowers to React state, Vue refs, Svelte runes, or a signal-based browser runtime: one semantics, many backends, no `eval()`.
 
 ## Reactive values and resources
 
@@ -17,7 +17,7 @@ HTML Next keeps a few concepts separate rather than overloading one element, bec
 | Element | Is | Changes when |
 | --- | --- | --- |
 | `<state name type value>` | a local mutable value | `<set>` runs in a handler, or `bind:` writes it |
-| `<computed name from>` | a pure value derived from others | a dependency changes |
+| `<computed name from>` | read-only computed state, derived from other values | a dependency changes |
 | `<data name src>` | a remote resource: a read source or write sink | its params; fetched or synchronized reactively |
 
 ```html
@@ -31,7 +31,7 @@ The design, a declared dependency graph that can be analyzed statically rather t
 
 A `<state>` uses the same type syntax as a prop (see [Types](/declarative-components/types)). When `type` is omitted, the state has type `unknown`; its initial value does not establish a type. For example, `value="1"` is a string, while `type="number" value="1"` is the number `1`. Declare the type of a state whose values need to be checked or used as numbers, booleans, or structured data.
 
-`value` supplies a constant initial state value, parsed through the declared type. It does not establish the type when `type` is omitted. A handler's `<set value>` likewise writes a typed constant, while `<set expr:value>` evaluates an expression when the handler runs. A `<computed from>` is different: it stays subscribed to the values it reads. [Bindings & Events](/declarative-components/bindings#constant-action-time-and-computed-values) compares all three value forms.
+`value` supplies a constant initial state value, parsed through the declared type. It does not establish the type when `type` is omitted. A handler's `<set value>` likewise writes a typed constant, while `<set expr:value>` evaluates an expression when the handler runs. A `<computed from>` declares **computed state**: it stays subscribed to the values it reads and derives a read-only value. Controllers read both mutable and computed state through `host.state`; only mutable state is writable. [Bindings & Events](/declarative-components/bindings#constant-action-time-and-computed-values) compares all three value forms.
 
 ## Invalid reactive results
 
@@ -71,6 +71,8 @@ If `"oops"` is the **first** evaluation, the inner `amount` stays at `5`. Remove
 For a separate `string` prop named `label`, `from:label="abs($incoming)"` proposes a **number** when `incoming` is `2`. It does not write `2` into `label`: that prop keeps its last valid string, or its default. A build tool can flag this authored mismatch before the page runs; a permissive live implementation must still skip the write rather than throw. The source `incoming` stays `2`.
 
 For a one-time `<set expr:value>`, a result that fails the destination's immediate type skips that handler step's write; the state remains at its current value. A new list can still be written when one nested item has a wrong-typed field: references to that field become inert, while conforming fields remain readable. A `<computed from>` that reads a nonconforming typed reference keeps its last successfully computed value and does not publish a change. Before its first successful evaluation, the computed value is `null`. A directly edited control is different: its displayed input and native validity continue to reflect what the user entered even while a downstream typed destination keeps its last accepted value.
+
+Controller writes through `host.state` follow these same type and invalid-write rules. An authored type mismatch, or an attempt to write read-only computed state or context, leaves the destination unchanged and reports a runtime warning once per authored location. Authored binding and handler mistakes use that warning policy too; statically knowable mistakes may be reported by build tools. Ordinary invalid user input does not warn or throw. See [State writes](/declarative-components/javascript#state-writes-use-the-same-checks-as-bindings).
 
 ## Share state with descendant components
 
@@ -136,6 +138,8 @@ A `<data>` exposes a small, typed surface any binding can read:
 | `search.error` | the failure, if any |
 | `search.ok` | settled with a value and no error |
 | `saveDraft.dirty` | a write resource has body changes not yet acknowledged |
+
+Controllers read the same resource through `host.data.search`: for example `host.data.search.pending` and `host.data.search.value`. A resource is absent from `host.state`. Its response and status fields are read-only; reads participate in `host.effect` dependency tracking. A mutable local copy belongs in a declared `<state>`.
 
 To refetch with unchanged inputs (a manual refresh, polling) there is no imperative call: bump a state param the source depends on, or declare a `poll` interval. For a read, a param change cancels the stale in-flight GET request. Reads are keyed by their resolved params, giving a natural cache key.
 
@@ -278,7 +282,7 @@ In a reactive component most of what framework lifecycle callbacks did is absorb
 
 - **Prop changes**: when a prop changes, through a parent template's binding on the invocation or a framework passing a new value, the bindings, `<computed>`, and `<data>` that read it re-run automatically, so you never write `attributeChangedCallback`. A literal attribute on an invocation is the prop's initial configuration; the invocation is replaced when it lowers (see [Lowering, provenance & hydration](/declarative-components/components)).
 - **Fetch on mount, refetch on change**: declare a `<data>`; it runs when its params resolve and again when they change. This is the `connectedCallback` fetch.
-- **Initial and derived state**: `<state type value>` declares a writable cell and its literal initial value; `<computed from>` derives a read-only value. Initial focus is `autofocus`.
+- **Initial and derived state**: `<state type value>` declares a writable cell and its literal initial value; `<computed from>` declares read-only computed state. Initial focus is `autofocus`.
 
 ### Declarative lifecycle events
 
@@ -354,7 +358,7 @@ Attributes
 : `<state name type? value?>` · `<computed name from>`
 
 Semantics
-: state is mutated only by `<set>`/`bind:`; computed is pure and recomputed from dependencies.
+: mutable state is written by `<set>`, `bind:`, or a controller through `host.state`; computed state is read-only, pure, and recomputed from dependencies.
 
 Level
 : [L1]{.pill .l1}

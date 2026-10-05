@@ -74,9 +74,11 @@ A rule may be conditioned on context outside the component by placing that conte
 
 Styling the page itself (its `<body>`, other components, or unrelated elements) is never a component's to do. Page-wide rules belong in the page's stylesheets, or in a stylesheet a package ships alongside its components for the page to include. At-rules that are document-wide in CSS, such as `@font-face`, `@property`, and `@keyframes` names, keep that meaning inside a component's `<style>`.
 
-## Styling by state: :host-state()
+## Styling by props and state
 
-`:host-state()` selects the root while the component's **props and state have given values**. Its argument is a sequence of attribute-selector-shaped tests on declared names:
+Use `:host([prop])` for declared **props**, and `:host-state([state])` for mutable or computed **state**. Both select the component's root using resolved values, including defaults. Their arguments use attribute-selector-shaped tests; they do not require reflected DOM attributes.
+
+A prop is a caller-supplied part of the public interface, while state belongs to the component. Keeping the selector spellings separate makes that distinction visible in the stylesheet:
 
 ```html
 <template component="x-container">
@@ -90,21 +92,21 @@ Styling the page itself (its `<body>`, other components, or unrelated elements) 
       margin-inline: auto;
       max-inline-size: var(--x-container-measure, 65ch);
     }
-    :host-state([measure="narrow"]) { max-inline-size: var(--x-container-measure, 45ch); }
-    :host-state([measure="wide"])   { max-inline-size: var(--x-container-measure, 80ch); }
+    :host([measure="narrow"]) { max-inline-size: var(--x-container-measure, 45ch); }
+    :host([measure="wide"])   { max-inline-size: var(--x-container-measure, 80ch); }
   </style>
 </template>
 ```
 
 | Test | Matches while |
 | --- | --- |
-| `[name="value"]` | the prop or state `name` resolves to `value`, including when `value` is the declared default |
+| `[name="value"]` | the selected prop or state `name` resolves to `value`, including when `value` is the declared default |
 | `[name]` | `name` is truthy |
 | `[a="x"][b]` | every test holds |
 
-A test names a declared prop or state whose type is a string, number, boolean, or keyword union. Only equality and presence are supported; other attribute operators, and props of structured types, are diagnostics.
+A prop test inside `:host(...)` names a declared prop. A test inside `:host-state(...)` names mutable or computed state; a prop in `:host-state(...)` is a diagnostic. The selected value must be a string, number, boolean, or keyword union. Only equality and presence are supported for these declared-value tests; other attribute operators and structured values are diagnostics.
 
-State works the same way as props, so a component styles what its controller changes without writing attributes for its own stylesheet:
+State uses the same tests through `:host-state()`, so a component styles what its controller changes without writing attributes for its own stylesheet:
 
 ```html
 <template component="x-disclosure">
@@ -115,13 +117,13 @@ State works the same way as props, so a component styles what its controller cha
   <details>…</details>
   <style>
     :host-state([open]) .marker { rotate: 90deg; }
-    :host-state([summary=""]) .marker { display: none; }
+    :host([summary=""]) .marker { display: none; }
   </style>
 </template>
 ```
 
 > [!note] Resolved values, not reflected attributes
-> `:host-state()` sees a prop's resolved value, including its default. Styling does not depend on whether an implementation happens to reflect that prop as a `data-*` attribute.
+> `:host([prop])` sees the prop's resolved value, including its default; `:host-state([state])` sees mutable or computed state. Styling does not depend on whether an implementation reflects a value as a `data-*` attribute.
 
 ## Styling projected content: :slotted() {#slotted}
 
@@ -129,12 +131,13 @@ When a component *wants* to style what a consumer projects, such as a form contr
 
 ```html
 <template component="x-prose">
+  <defs><prop name="compact" type="boolean" default="false"></prop></defs>
   <article><slot></slot></article>
   <style>
     :slotted(h2)       { margin-block: 1.5em 0.5em; }
     :slotted(ul li)    { margin-block: 0.25em; }
     :slotted(p) { & + p { margin-block-start: 1em; } }
-    :host-state([compact]) :slotted(*) { margin-block: 0; }
+    :host([compact]) :slotted(*) { margin-block: 0; }
   </style>
 </template>
 ```
@@ -191,17 +194,17 @@ In HTML Next the nested component is out of the parent's scope, root included, s
 | --- | --- | --- | --- |
 | A nested component's root | Out of scope. Lay it out from your own markup, or give the invocation a `class` | In scope: a child's root takes both the parent's scoped rules and its own | Out of scope |
 | Inside a nested component | Never. There is no `:deep()`; use the component's custom properties | `:deep()` reaches in | `:global()` reaches in |
-| The component's own root | `:host`, and `:host-state()` to style by a resolved prop or state | A class the author puts on the root element | A class the author puts on an element; a component may have several top-level elements |
+| The component's own root | `:host`, `:host([prop])` for resolved props, and `:host-state([state])` for mutable or computed state | A class the author puts on the root element | A class the author puts on an element; a component may have several top-level elements |
 | Content passed in through a slot | Opt in with `:slotted()`: a full selector, matching at any depth, stopping at nested components, and losing ties to the consumer's own rules | Opt in with `:slotted()` | Not matched; `:global()` reaches it |
 
 Why HTML Next draws the lines this way:
 
 - **One owner per element.** Vue lets a child's root answer to two stylesheets as a convenience for layout. The cost is that a child renaming or restructuring its root changes what the parent's rules hit, with no error. Here a parent's rules never match another component's elements, so that coupling cannot form.
 - **A public surface instead of a way in.** `:deep()` and `:global()` let a caller depend on another component's private markup. HTML Next gives components [custom properties](#customization-custom-properties) as their styling contract and no selector into someone else's internals.
-- **State without attributes.** Vue and Svelte style a component's state through classes or attributes the component writes on itself. `:host-state()` tests resolved props and state directly, defaults included, so nothing is written just so a stylesheet can see it.
+- **State without attributes.** Vue and Svelte style a component's state through classes or attributes the component writes on itself. `:host([prop])` and `:host-state([state])` test resolved props and state directly, defaults included, so nothing is written just so a stylesheet can see it.
 - **Defined by the platform.** The region, a root with a lower limit at nested components and projected content, is the shape of CSS [`@scope`](https://www.w3.org/TR/css-cascade-6/#scoped-styles) with its range form, rather than a selector rewrite particular to one build tool. An implementation may still rewrite selectors, for example when it compiles to Vue, but what matches is what this page defines.
 
-Porting a component: move a parent's rules for a child's root into layout on the parent's own container, or into a class on the invocation; turn each `:deep()` into a custom property the child reads; replace classes toggled for styling with `:host-state()`. For how a lowered component looks in the page, see [Rendered form](/declarative-components/rendered-form).
+Porting a component: move a parent's rules for a child's root into layout on the parent's own container, or into a class on the invocation; turn each `:deep()` into a custom property the child reads; replace classes toggled for prop styling with `:host([prop])`, and state styling with `:host-state([state])`. For how a lowered component looks in the page, see [Rendered form](/declarative-components/rendered-form).
 
 ## Isolation: opt-in, later
 

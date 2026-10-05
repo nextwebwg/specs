@@ -69,13 +69,28 @@ interface PropHandle<Value> {
   validate(): ValidityState;
 }
 
-interface ComponentHost<State extends object = Record<string, unknown>, Props extends object = Record<string, unknown>> {
+interface DataResource<Value = unknown> {
+  readonly pending: boolean;
+  readonly value: Value;
+  readonly error: unknown;
+  readonly ok: boolean;
+  readonly dirty?: boolean; // write resources
+}
+
+interface ComponentHost<
+  State extends object = Record<string, unknown>,
+  Props extends object = Record<string, unknown>,
+  Data extends Record<string, DataResource> = Record<string, DataResource>,
+> {
   /** The component's root element. Its connection owns this controller's lifetime. */
   readonly root: Element;
 
-  /** Local <state>, <computed>, <data>, and inherited <context> values.
+  /** Local mutable <state>, read-only computed state, and inherited <context> values.
    *  Only paths rooted at a declared <state> are writable. */
   readonly state: State;
+
+  /** One read-only resource per <data>; resource changes participate in effects. */
+  readonly data: Readonly<Data>;
 
   /** One handle per declared <prop>. No <state>, <computed>, or <data> entries. */
   readonly props: { readonly [Name in keyof Props]: PropHandle<Props[Name]> };
@@ -102,7 +117,8 @@ interface ComponentHost<State extends object = Record<string, unknown>, Props ex
 | On `host` | Does | Native anchor |
 | --- | --- | --- |
 | `host.root` | The component's root element, whose connection owns this controller's lifetime. | `:host` / the custom-element instance |
-| `host.state` | Read local `<state>`, `<computed>`, `<data>`, and inherited `<context>` values. Only declared `<state>` entries are writable. Props are absent. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
+| `host.state` | Read local mutable state, read-only computed state, and inherited `<context>` values. Only declared `<state>` entries are writable. Props and data resources are absent. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
+| <code>host.data.<var>name</var></code> | Read a declared `<data>` resource, including its `.pending`, `.value`, `.error`, and `.ok` fields. The resource is read-only. | The declared resource and its native fetch lifetime |
 | <code>host.props.<var>name</var></code> | Inspect a caller-supplied prop's accepted value, latest direct input, and validity. This is the controller's only path to a declared prop. | An HTML control separates its input and validity from the value its consumers read[^10] |
 | <code>host.refs.<var>name</var></code> | The element declared with <code>$ref="<var>name</var>"</code>, or the list of them when that name sits inside an iteration. | captured at lowering (see below) |
 | <code>host.slots.<var>name</var></code> | The elements a consumer projected into that slot, in order; empty while the slot shows its fallback. | `assignedElements()`[^9] |
@@ -114,9 +130,9 @@ Teardown is either a disposer returned from an `host.on("connect", …)` callbac
 
 ### Accepted values and prop inputs
 
-`host.props.amount.value` reads the prop's **accepted value**. Template expressions such as `$amount` read that value too; `host.state.amount` is absent. A declared `<state name="count">` is read and written through `host.state.count`, and `host.props.count` is absent. Derived `<computed>` values, `<data>` resources, and inherited `<context>` values are also read through `host.state`, but they are read-only. State has no `inputValue` or `validity`; a failed `<set>` or `bind:` write does not replace it. When the attempted value came from a native control, that control retains its edit and owns its validity.
+`host.props.amount.value` reads the prop's **accepted value**. Template expressions such as `$amount` read that value too; `host.state.amount` is absent. A declared `<state name="count">` is read and written through `host.state.count`, and `host.props.count` is absent. A `<computed>` declares **computed state**: its value is derived from dependencies and read through `host.state`, but cannot be assigned. Inherited `<context>` values are also read-only under `host.state`. Each `<data>` resource is read through `host.data`, for example `host.data.search.value`; data resources are absent from `host.state`. State has no `inputValue` or `validity`; a failed `<set>` or `bind:` write does not replace it. When the attempted value came from a native control, that control retains its edit and owns its validity.
 
-`host.props.amount.inputValue` is the latest value supplied **directly to that prop before conversion**. An HTML attribute supplies a string; a framework prop may supply a JavaScript value. It is not an alias for DOM `getAttribute()`, which reads an attribute string and may describe a default rather than the current input. `host.props.amount.validity` checks that input against the declaration. `validate()` explicitly recomputes and returns the same per-prop validity shape. The component root exposes the aggregate validity with a path for each failing prop (see [Validation](/declarative-components/validation)). Reads through `host.props.amount.value` and `host.state.count` both participate in `host.effect` dependency tracking.
+`host.props.amount.inputValue` is the latest value supplied **directly to that prop before conversion**. An HTML attribute supplies a string; a framework prop may supply a JavaScript value. It is not an alias for DOM `getAttribute()`, which reads an attribute string and may describe a default rather than the current input. `host.props.amount.validity` checks that input against the declaration. `validate()` explicitly recomputes and returns the same per-prop validity shape. The component root exposes the aggregate validity with a path for each failing prop (see [Validation](/declarative-components/validation)). Reads through `host.props.amount.value`, `host.state.count`, computed state, and resource fields such as `host.data.search.value` participate in `host.effect` dependency tracking.
 
 ```js
 // <prop name="amount" type="number" default="5">; invoked with amount="oops"
@@ -125,6 +141,22 @@ host.props.amount.value           // 5
 host.state.amount                 // undefined: props are absent from state
 host.props.amount.validity.badInput // true
 ```
+
+### State writes use the same checks as bindings
+
+A controller assignment proposes a value to the declared state, just as `<set>` or `bind:` does. The destination's type rules apply before the write. A wrong-typed value is ignored, the state keeps its current value, and dependents are not notified. An attempt to assign computed state or an inherited context is likewise ignored because that destination is read-only.
+
+```js
+// <state name="count" type="number" value="1">
+// <computed name="doubled" from="$count * 2">
+host.state.count = 2;          // accepted; doubled becomes 4
+host.state.count = 'blah';     // warning; count stays 2, doubled stays 4
+host.state.doubled = 10;       // warning; computed state stays read-only
+```
+
+An invalid authored write reports the same runtime warning as an authored binding or handler write with the same defect. The warning identifies the destination and its expected type or read-only status; a repeated defect at the same authored location is reported once. These writes do not throw merely because their value is invalid. A build tool may report a statically knowable mistake before execution. An ordinary invalid user edit remains a validity concern and does not produce a warning. See [Invalid reactive results](/declarative-components/reactivity#invalid-reactive-results).
+
+The checks have the same depth as declarative writes: an object or list is checked at its immediate boundary, and nested fields are checked when read or written through their declared paths. Controller assignment does not introduce a separate coercion or validation policy. Resource fields under `host.data` are also read-only; a controller changes a resource's declared state parameters rather than assigning its response or status fields.
 
 ### The companion JavaScript / DOM API
 
@@ -137,7 +169,7 @@ host.props.amount.validity.badInput // true
 - **Early stop:** the function returned by `host.effect` performs the same cleanup permanently and is idempotent.
 
 > [!norm] The reactive API is instance-scoped
-> The contract exposes non-prop declarations through `host.state`, caller-supplied props through `host.props`, and lifetime-bound reactions through `host.effect`; it does not expose an instance's backing `Signal.State`, `Signal.Computed`, or `Watcher` objects. Raw handles would let code retain observations beyond the element's lifetime, bypass declared writability and type rules, and couple HTML Next to a Stage&nbsp;1 API shape. A browser runtime may use TC39 Signals internally, but that choice is not observable. Page code outside the controller uses the component's declared attributes and properties and listens for DOM events; it cannot retrieve the private `host`. The raw-signal question can be reopened if cross-system signal identity proves to be a real interoperability requirement.
+> The contract exposes mutable and computed state and inherited contexts through `host.state`, declared resources through `host.data`, caller-supplied props through `host.props`, and lifetime-bound reactions through `host.effect`; it does not expose an instance's backing `Signal.State`, `Signal.Computed`, or `Watcher` objects. Raw handles would let code retain observations beyond the element's lifetime, bypass declared writability and type rules, and couple HTML Next to a Stage&nbsp;1 API shape. A browser runtime may use TC39 Signals internally, but that choice is not observable. Page code outside the controller uses the component's declared attributes and properties and listens for DOM events; it cannot retrieve the private `host`. The raw-signal question can be reopened if cross-system signal identity proves to be a real interoperability requirement.
 
 > [!note] Grounded in the platform, not a framework
 > The surface reads like userland (`state`, `effect`, `refs`), but each name has a standards anchor: the carrier's module reference ↔ declarative module loading, `host` ↔ `:host`, connect/disconnect ↔ the custom-element reactions, `effect` ↔ the Signals proposal. The overall shape, a controller bound to a host with connect and disconnect callbacks, is Lit's Reactive Controller[^5], adapted to a script-free definition.
@@ -451,7 +483,7 @@ adaptVue(controller, { refs: { canvas }, props });
 </template>
 ```
 
-This works because `host` is deliberately tiny, and every target already has all of it natively: lifecycle (Vue `onMounted`/`onUnmounted`, Svelte `onMount`/`onDestroy`, Solid `onMount`/`onCleanup`, React `useEffect`), effects (Vue `watchEffect`, Svelte `$effect`, Solid `createEffect`), refs (Vue `ref`, Svelte `bind:this`, React `useRef`), props for `host.props`, and state, derived values, data, and context for `host.state`. `$ref="name"` maps to each target's ref idiom; `host.dispatch` to its event mechanism.
+This works because `host` is deliberately tiny, and every target already has all of it natively: lifecycle (Vue `onMounted`/`onUnmounted`, Svelte `onMount`/`onDestroy`, Solid `onMount`/`onCleanup`, React `useEffect`), effects (Vue `watchEffect`, Svelte `$effect`, Solid `createEffect`), refs (Vue `ref`, Svelte `bind:this`, React `useRef`), props for `host.props`, and mutable and computed state and context for `host.state`, and resources for `host.data`. `$ref="name"` maps to each target's ref idiom; `host.dispatch` to its event mechanism.
 
 > [!note] React is the one that needs a bridge
 > React has no native fine-grained reactivity, so its adapter backs `host.effect` and `host.state` with an external store (via `useSyncExternalStore`) rather than a signal. That wart is contained to the React adapter; the controller and every other target are unaffected.

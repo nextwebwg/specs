@@ -12,7 +12,7 @@ Declarative HTML Components uses a small expression language for live values and
 
 ## The expression language
 
-Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`), structural directives, and inline text expressions (`{expression}`). A handler evaluates `expr:value` only when that step runs; `from:x` and `<computed from>` keep their dependencies live. Every root identifier [must]{.kw} resolve through the template's declared binding scope: props, state, computed values, data, imports, loop locals. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
+Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`), structural directives, and inline text expressions (`{expression}`). A handler evaluates `expr:value` only when that step runs; `from:x` and `<computed from>` keep their dependencies live. Every root identifier [must]{.kw} resolve through the template's declared binding scope: props, mutable and computed state, data, imports, loop locals. Handler expressions may additionally read their reserved triggering-event reference, `$$event`. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
 
 ```html
 <!-- Expressions look like this: plain reads, comparisons, and arithmetic. -->
@@ -59,6 +59,10 @@ A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, and
 > [!note] $with binds one explicit alias
 > An explicit `as` binds one name whose members are reached with a dot, so every scope layer stays fixed and statically known. The reactive graph and type-checker can therefore resolve the whole scope. Spreading an object's members as bare names would make their origin ambiguous and their availability depend on a runtime shape.
 
+### Reserved handler reference
+
+`$$event` references the native event that invoked the current handler. It is reserved, cannot be declared or assigned, and is available only in that invocation's expressions and guards. Member access reads the native event's properties; it does not enable arbitrary method calls or ambient JavaScript access. Each nested handler invocation has its own event reference. See [The triggering event](/declarative-components/bindings#triggering-event) for typed payload forwarding and storing selected fields.
+
 ## Grammar
 
 ```text
@@ -72,7 +76,8 @@ add       := mul (("+" | "-") mul)*
 mul       := unary (("*" | "/" | "%") unary)*
 unary     := ("not" | "-") unary | access
 access    := primary (("." id) | ("." integer) | ("[" expr "]"))*
-primary   := literal | dimension | reference | id | call | "(" expr ")" | object | array
+primary   := literal | dimension | reference | handler-reference | id | call | "(" expr ")" | object | array
+handler-reference := "$$event"                  (* only within a handler invocation *)
 reference := "$" id
 id        := ident-start (ident-start | digit)*  (* CSS ident-start; no dashes or escapes *)
 dimension := css-number css-unit | css-number "%" (* units from Types; no whitespace *)

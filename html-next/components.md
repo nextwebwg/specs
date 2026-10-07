@@ -123,9 +123,39 @@ Content projection uses the native-shaped `<slot>`. Level&nbsp;1 includes defaul
 </x-card>
 ```
 
+### Content that renders on demand
+
+Projected elements belong to the consumer, so they exist as soon as the consumer renders. They load their resources and bind even while their slot is not rendered, for example under a false `$if`. To defer content until its slot renders, wrap it in a `<template slot="name">`:
+
+```html
+<!-- definition -->
+<template component="x-disclosure"> …
+  <div>
+    <button type="button" on:click="toggle">More</button>
+    <section $if="open"><slot name="details"></slot></section>
+  </div>
+</template>
+
+<!-- use: nothing inside the template exists until the section opens -->
+<x-disclosure>
+  <template slot="details">
+    <img src="chart.png" alt="Sales by month">
+    <x-chart from:rows="sales"></x-chart>
+  </template>
+</x-disclosure>
+```
+
+- A slot renders the children of a consumer's `<template slot>` only while the slot itself renders. Until then nothing inside the template is created, fetched, or bound, and no component inside it is set up.
+- The children render in the consumer's scope with the consumer's bindings, like an `$if` body. Each time the slot renders again they render afresh, so elements and component state inside them do not survive a close and reopen.
+- If a consumer supplies more than one `<template slot>` for the same slot, the slot renders the first. Other content assigned to that slot is not rendered with it.
+- Projection without a template stays eager: the elements keep their identity while the slot closes and reopens, and a controller can read them through [`host.slots`](/declarative-components/javascript) while the slot is hidden. A listbox that reads its options while its panel is closed relies on this.
+- Server output keeps the `<template slot>` itself in the [carrier](/declarative-components/rendered-form), unrendered, whether or not its slot renders. Hydration renders it when its slot renders.
+
+Use a template for content that is costly to create or load and only needed when shown. Project plain elements when the component must reach them while they are hidden.
+
 ### Scoped slots
 
-A slot may expose data to the content projected into it. The definition binds slot props on the `<slot>`; the consumer supplies a `<template slot="name">` whose **scope is those exposed props**: no new prefix, consistent with `$with`-style scoping.
+A slot may expose data to the content projected into it. The definition binds slot props on the `<slot>`; the consumer supplies a `<template slot="name">`, which renders [on demand](#content-that-renders-on-demand) as above. Its **scope adds those exposed props** to the consumer's own: no new prefix, consistent with `$with`-style scoping.
 
 ```html
 <!-- definition: a list that owns iteration, slots each row out -->

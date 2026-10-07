@@ -12,7 +12,7 @@ Declarative HTML Components uses a small expression language for live values and
 
 ## The expression language
 
-Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`), structural directives, and inline text expressions (`{expression}`). A handler evaluates `expr:value` only when that step runs; `from:x` and `<computed from>` keep their dependencies live. Every root identifier [must]{.kw} resolve through the template's declared binding scope: props, mutable and computed state, data, imports, loop locals. Handler expressions may additionally read their reserved triggering-event reference, `$$event`. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
+Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`), structural directives, and inline text expressions (`{expression}`). A handler evaluates `expr:value` only when that step runs; `from:x` and `<computed from>` keep their dependencies live. Every root reference [must]{.kw} resolve through the template's declared binding scope: props, mutable and computed state, data, imports, loop locals. Handler expressions may additionally read their reserved triggering-event reference, `$$event`. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
 
 ```html
 <!-- Expressions look like this: plain reads, comparisons, and arithmetic. -->
@@ -33,7 +33,7 @@ Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`
 
 ## Scope & name resolution
 
-A bare identifier resolves through the template's declared scope, never an ambient JavaScript global, and an identifier that resolves to nothing is a **conformance error**. Scope has two parts.
+A `$` reference resolves through the template's declared scope, never an ambient JavaScript global, and a reference that resolves to nothing is a **conformance error**. A bare word inside an expression is never a reference: it is a keyword literal, so `$mode = compact` compares the value of `mode` with the keyword `compact`. Scope has two parts.
 
 ### Identifier spelling and case
 
@@ -47,7 +47,7 @@ A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, and
 
 ### Inner layers are lexical, and they shadow
 
-`$each`, `$with`, `$match`, and scoped slots each **push a lexical layer** whose names are statically known. A bare identifier resolves in the nearest enclosing layer, walking outward to the component layer, so an inner layer *shadows* an outer one, because that is local and expected: a loop's `item` may shadow an outer `item`. Cross-layer shadowing is allowed; a collision *within* the flat component layer is not.
+`$each`, `$with`, `$match`, and scoped slots each **push a lexical layer** whose names are statically known. A reference resolves in the nearest enclosing layer, walking outward to the component layer, so an inner layer *shadows* an outer one, because that is local and expected: a loop's `item` may shadow an outer `item`. Cross-layer shadowing is allowed; a collision *within* the flat component layer is not.
 
 | Element | Adds to scope |
 | --- | --- |

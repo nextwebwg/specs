@@ -172,10 +172,10 @@ Structured values use the object and array literal syntax of [HTML Next expressi
 ```html
 <x-plot point="{ x: 3, y: 5 }"></x-plot>
 <x-table rows="[{ id: 1, name: 'Ada' }, { id: 2, name: 'Lin' }]"></x-table>
-<x-plot from:point="{ x: currentX, y: 5 }"></x-plot>
+<x-plot from:point="{ x: $currentX, y: 5 }"></x-plot>
 ```
 
-Bare keys, single-quoted strings, and trailing commas are allowed in both forms. A plain attribute contains only literal values; `point="{ x: currentX }"` is invalid because `currentX` is a reference. Use `from:point="{ x: currentX }"` to read it, or `from:point="point"` to pass an existing object from `<state>` or `<data>`. The `from:` prefix marks a binding, not an object. These expressions are pure and typed, not arbitrary JavaScript. JSON is used only as a wire format when structured data crosses an SSR, network, or interop boundary.
+Bare keys, single-quoted strings, and trailing commas are allowed in both forms. A plain attribute contains only literal values; `point="{ x: $currentX }"` is invalid because `$currentX` is a reference. Use `from:point="{ x: $currentX }"` to read it, or `from:point="$point"` to pass an existing object from `<state>` or `<data>`. The `from:` prefix marks a binding, not an object. These expressions are pure and typed, not arbitrary JavaScript. JSON is used only as a wire format when structured data crosses an SSR, network, or interop boundary.
 
 ## Native event values
 
@@ -236,7 +236,7 @@ The selector has one base type and a finite `values` constraint:
 
 Plain attributes are parsed using the selected type. With the declaration above, `type="number" value="2.5"` produces the JavaScript number `2.5`; `type="text" value="2.5"` produces the string `"2.5"`.
 
-- Bound values keep their JavaScript type and must satisfy the selected option. For example, `<x-input from:type="mode" from:value="entry"></x-input>` can read two reactive values.
+- Bound values keep their JavaScript type and must satisfy the selected option. For example, `<x-input from:type="$mode" from:value="$entry"></x-input>` can read two reactive values.
 - When the selector changes, the dependent type is selected again. Changing both values together checks the resulting pair. A previously supplied non-null dependent value that fails the new type is invalid; the component reports a type error instead of converting it.
 - Generated TypeScript preserves the relationship for a public prop selector: `type="number"` accepts a number or `null` for `value`, while `type="text"` accepts a string or `null`. Inline and named `<type>` declarations produce the same contract.
 

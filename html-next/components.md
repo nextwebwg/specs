@@ -61,7 +61,7 @@ A polymorphic component declares `as` as a keyword prop constrained to its suppo
 
   <!-- Both possible native roots are visible in the definition. -->
   <template $match>
-    <a $when="as = 'a'"><slot></slot></a>
+    <a $when="$as = 'a'"><slot></slot></a>
     <button $else><slot></slot></button>
   </template>
 </template>
@@ -129,10 +129,10 @@ A slot may expose data to the content projected into it. The definition binds sl
 
 ```html
 <!-- definition: a list that owns iteration, slots each row out -->
-<slot $each="row of rows" $key="row.id" name="row" from:item="row" from:index="loop.index"></slot>
+<slot $each="row of $rows" $key="$row.id" name="row" from:item="$row" from:index="$loop.index"></slot>
 
 <!-- use: the template's scope is { item, index } -->
-<x-list from:rows="people">
+<x-list from:rows="$people">
   <template slot="row"><td>{$item.name}</td></template>
 </x-list>
 ```
@@ -159,7 +159,7 @@ Native `<template>` has no `src`, so HTML Next defines it: `<template src="…">
 When the component to render is decided at runtime, `<component is="expr">` resolves the tag from an expression, the name and syntax taken verbatim from Vue `<component :is>` (Svelte `<svelte:component>` and Angular `NgComponentOutlet` are the same idea).[^8] Props and children pass through as with a literal invocation.
 
 ```html
-<component is="block.type" from:data="block"></component>
+<component is="$block.type" from:data="$block"></component>
 ```
 
 ### <portal to>: render elsewhere

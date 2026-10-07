@@ -29,7 +29,7 @@ For example, when a component declares `count` as `number` and `point` as `objec
 
 ```html
 <x-plot count="3" point="{ x: 3, y: 5 }"></x-plot>
-<x-plot from:count="nextCount" from:point="{ x: currentX, y: 5 }"></x-plot>
+<x-plot from:count="$nextCount" from:point="{ x: $currentX, y: 5 }"></x-plot>
 ```
 
 The first invocation supplies fixed values. The second evaluates expressions that read `nextCount` and `currentX`. A plain structured value uses HTML Next's [object literal syntax](/declarative-components/types), not JSON; references such as `currentX` require `from:`. The prefix selects reactive expression evaluation, not a data type.
@@ -46,8 +46,8 @@ These forms answer two separate questions: **is the supplied text a literal or a
 | Form | Interpretation | When it takes effect |
 | --- | --- | --- |
 | `value="2"` | Constant literal; a `number` destination receives JavaScript `2`, while a `string` destination receives `"2"`. | A declaration initializes, or a handler uses the constant when it runs. |
-| `expr:value="count + 1"` | Expression evaluated against the component's current values. Its result must satisfy the destination's declared type. | Once each time a `<set>` or `<dispatch>` step runs. It creates no subscription. |
-| `from:value="draft.title"` | Computed value with a live dependency on `draft.title`. | Recomputed when that dependency changes; the receiving element's effect then runs. |
+| `expr:value="$count + 1"` | Expression evaluated against the component's current values. Its result must satisfy the destination's declared type. | Once each time a `<set>` or `<dispatch>` step runs. It creates no subscription. |
+| `from:value="$draft.title"` | Computed value with a live dependency on `draft.title`. | Recomputed when that dependency changes; the receiving element's effect then runs. |
 
 For a `<set expr:value>` handler step, a wrong-typed result skips that state write. The handler can run again later; there is no subscription. A `from:` binding, by contrast, re-evaluates on every dependency change and leaves its previous value in place during an invalid evaluation.
 
@@ -57,16 +57,16 @@ For a `<set expr:value>` handler step, a wrong-typed result skips that state wri
 <state name="draft" type="object({ title: string })" value="{ title: '' }"></state>
 <state name="revision" type="integer" value="0"></state>
 <handler name="increment">
-  <set name="count" expr:value="count + 1"></set>
+  <set name="count" expr:value="$count + 1"></set>
 </handler>
 <event name="publish" type="object({ title: string })"></event>
 <handler name="publish">
-  <dispatch event="publish" expr:value="draft"></dispatch>
+  <dispatch event="publish" expr:value="$draft"></dispatch>
 </handler>
 <data name="saveDraft" method="patch" src="/api/drafts/{id}" send="change">
-  <param name="id" from:value="post.id"></param>
-  <param name="title" from:value="draft.title"></param>
-  <param name="clientRevision" expr:value="revision"></param>
+  <param name="id" from:value="$post.id"></param>
+  <param name="title" from:value="$draft.title"></param>
+  <param name="clientRevision" expr:value="$revision"></param>
 </data>
 ```
 
@@ -92,7 +92,7 @@ A computed value could declare both its live read and the action to take when a 
 
 The read expression would recompute when `$fraction` changes. The `bind:value` target is the concrete writable path `percentage`; it is not an expression. When the component reports a new numeric value through `bind:value`, the write expression would set the writable `fraction` state. This keeps the inverse mapping in one declaration and reuses `bind:` at the call site, instead of pairing `from:value` and `to:value` on each invocation. The `fraction:` part is a proposed writable destination, not general expression assignment.
 
-This syntax is exploratory. Design still needs to choose `read` versus the existing `<computed from>` spelling, define the component event that supplies `$value`, check the write result against the destination type, and prevent feedback loops. A read expression need not have an inverse: for `hasQuery = query != ''`, writing `false` can clear the query, but writing `true` cannot reconstruct text that was never supplied. Level&nbsp;1 computeds remain read-only and cannot be `bind:` destinations.
+This syntax is exploratory. Design still needs to choose `read` versus the existing `<computed from>` spelling, define the component event that supplies `$value`, check the write result against the destination type, and prevent feedback loops. A read expression need not have an inverse: for `hasQuery = $query != ''`, writing `false` can clear the query, but writing `true` cannot reconstruct text that was never supplied. Level&nbsp;1 computeds remain read-only and cannot be `bind:` destinations.
 
 ## How a bound value serializes
 
@@ -106,16 +106,16 @@ A binding evaluates to a typed value, and how that value lands depends on the va
 | a number | stringified |
 | a list | space-joined, for token-list attributes |
 
-The `false`/`null` → removed rule is what makes boolean attributes work with no special case: `from:disabled="isDisabled"` adds `disabled` when true and removes it when false, never the `disabled="false"` trap (which is actually disabled). When you want the *characters* "false", bind a string, `from:data-state="'false'"`, or an identifier that resolves to one.
+The `false`/`null` → removed rule is what makes boolean attributes work with no special case: `from:disabled="$isDisabled"` adds `disabled` when true and removes it when false, never the `disabled="false"` trap (which is actually disabled). When you want the *characters* "false", bind a string, `from:data-state="'false'"`, or an identifier that resolves to one.
 
 > [!note] Two kinds get specific wiring
-> **URL attributes** (`href`, `src`, `action`, …) are stringified and then have dangerous schemes stripped, the same posture the sanitizer applies to `$html`, so a bound `javascript:` URL is dropped. **Enumerated true/false attributes** (the `aria-*` family, `contenteditable`) take the literal strings `"true"`/`"false"` rather than presence, so a bound boolean coerces to that string: `from:aria-expanded="isOpen"` yields `aria-expanded="false"` when closed rather than removing it. Both are the manifest doing the work; the author writes the same `from:attr` either way.
+> **URL attributes** (`href`, `src`, `action`, …) are stringified and then have dangerous schemes stripped, the same posture the sanitizer applies to `$html`, so a bound `javascript:` URL is dropped. **Enumerated true/false attributes** (the `aria-*` family, `contenteditable`) take the literal strings `"true"`/`"false"` rather than presence, so a bound boolean coerces to that string: `from:aria-expanded="$isOpen"` yields `aria-expanded="false"` when closed rather than removing it. Both are the manifest doing the work; the author writes the same `from:attr` either way.
 
 Because the mapping is fixed and manifest-driven, every target serializes identically, the equivalence contract applied to attribute writes: the polyfill and the React/Vue/Svelte outputs each compile to their own idiom while producing the same observable attribute.
 
 ## Two-way binding: bind:
 
-`bind:prop="path"` reflects the value and writes user input back to `path`. It is the forms workhorse, and it requires a **writable path** plus an element contract that supports updates.
+`bind:prop="path"` reflects the value and writes user input back to `path`. It is the forms workhorse, and it requires a **writable path** plus an element contract that supports updates. Because a two-way binding must write back to a location, its value is a **path field, not an expression field**: write the path without `$`, as in `search.query`. A bracketed index inside the path is an ordinary expression, as in `rows[$i].done`.
 
 ```html
 <input bind:value="search.query">
@@ -128,11 +128,11 @@ A writable path is a member or index access chain rooted at a **`<state>`** cell
 
 | Path | `bind:` | Why |
 | --- | --- | --- |
-| `draft.title`, `rows[i].done` | writable | rooted at `<state>`; a plain access chain |
+| `draft.title`, `rows[$i].done` | writable | rooted at `<state>`; a plain access chain |
 | a `<computed>` | error | derived; write its inputs instead |
 | a `<data>` `.value` | error | a fetched resource is read-only |
 | a prop | error (inside the component) | props are one-way in; a component surfaces two-way by exposing a bindable prop and `<dispatch>`ing changes, which the consumer binds with `bind:` on the invocation |
-| `a + b`, `x \| filter` | error | an expression is not an assignable location |
+| `$a + $b`, `$x \| filter` | error | an expression is not an assignable location |
 
 Writability flows from the root: a `$each` local or `$with` alias is writable exactly when it aliases a writable path, an item of a `<state>` collection is, an item of a `<data>` collection is not. Writing a sub-path updates that path in the state cell and re-runs its dependents; the implementation may model state as mutable-with-tracking or as a structural update, the observable result is the same.
 
@@ -170,7 +170,7 @@ Conditional presentation uses **keyed live bindings**, one class token or style 
   </handler>
 
   <handler name="requestPublish">
-    <dispatch event="publish" expr:value="draft">
+    <dispatch event="publish" expr:value="$draft">
   </handler>
 </defs>
 ```
@@ -239,7 +239,7 @@ A handler is an ordered, enumerable list of declarative steps. The vocabulary is
 
 | Step | Effect |
 | --- | --- |
-| `<set name value>` or `<set name expr:value>` | Write a local state cell. `value` is a typed constant; `expr:value` is evaluated when the handler runs. |
+| `<set name value>` or `<set name expr:value>` | Write a local state cell. `name` is a path field written without `$`, like `bind:`. `value` is a typed constant; `expr:value` is evaluated when the handler runs. |
 | `<dispatch event target? value?>` or `<dispatch event target? expr:value?>` | Dispatch a native component event from the current root or to a component-local ref, with an optional typed constant or action-time expression as its payload. |
 | `$if` (on a step) | Guard a step; it runs only when the expression is truthy, the same `$if` directive used in templating. |
 

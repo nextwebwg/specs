@@ -105,6 +105,15 @@ There is no single umbrella version, no big-bang *HTML&nbsp;Next&nbsp;1.0*. The 
 
 **The worked example is Web Components.** The Level&nbsp;1 chapters (components, templating, reactivity, scoping) provide a practical component authoring model today. The parts a compiler cannot supply, including native-element extension and deeper Shadow DOM integration, belong in later upstream platform proposals.
 
+### Stability comes from pinning {#stability}
+
+The proposal is not stable, and will not be until a standards venue adopts it: the working draft can change on any day. Software built on it can be stable sooner, because a snapshot never changes. A tool that implements one snapshot can promise not to break that snapshot's syntax. A component library or an application built with that tool can then be stable for that tool's version, while the draft keeps moving.
+
+> [!norm] Name the snapshot you implement
+> An implementation [should]{.kw} state the snapshot it implements and the [extensions](#extensions) it supports, for example *Declarative HTML Components Level&nbsp;1, Stage&nbsp;0, snapshot of 25&nbsp;September&nbsp;2026, with no extensions*. The reference tools publish how their versions map to snapshots, and what they promise within a version, in [Versions and stability](/html-next/versions).
+
+When the proposal goes to a standards venue, what it submits is a snapshot. From then on, that venue's process decides what changes and how the work is staged, and the snapshots published here remain as records.
+
 ## What declarative components need
 
 A complete component-authoring model needs reactivity, style scoping, and reliable native semantics. This proposal addresses each in its own chapter. Components lower to real native elements **today**; live reactivity and style scoping build on that; deeper platform integration remains upstream standards work. {.lede}

@@ -76,7 +76,7 @@ Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read
 
 `$each="item of $items"` instantiates once per element of `items`, binding `item` in a fresh scope layer (with an optional index, `$each="item, i of $items"`). The value uses the `for…of` grammar, one bounded, familiar form, not a packed micro-syntax. Iteration *shaping* is expressed as sibling `$` modifiers, following XSLT's `xsl:sort` living inside `xsl:for-each` rather than a value pipeline.[^1]
 
-`$sort` takes a comma-separated list of keys, each optionally prefixed with `-` for descending, so `$sort="p.price,-p.name"` orders by price ascending then name descending, the convention JSON:API's `sort` parameter[^2] and Django's `order_by`[^3] use. Each key is a path, not an expression, so it is written without `$`; a leading `$` is accepted even though it is not required.
+`$sort` takes a comma-separated list of keys, each optionally prefixed with `-` for descending, so `$sort="p.price,-p.name"` orders by price ascending then name descending, the convention JSON:API's `sort` parameter[^2] and Django's `order_by`[^3] use. Each key is a path from the loop item, not an expression: it starts with the item's name, so `p.price` reads the item's `price` and `p` alone sorts by the item itself. A bare field such as `price` is an error, because it could not be told apart from the item when a field shares the item's name. A leading `$` is accepted even though it is not required.
 
 ```html
 <li $each="p of $products"
@@ -292,7 +292,7 @@ Value
 : the for-of grammar: `item of items`, or `item, i of items`
 
 Modifiers
-: `$where`, `$sort` (`a,-b`), `$limit`, `$key`
+: `$where`, `$sort` (`p.a,-p.b`), `$limit`, `$key`
 
 Scope
 : binds the alias (and index) in a lexical layer; `loop.index/first/last/count`

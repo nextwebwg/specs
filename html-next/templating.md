@@ -236,6 +236,55 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 > [!note] Context-safe formatting
 > Inline text expressions and `$value` attributes preserve their native parser context, so formatted output works in cells and options without a special output element.
 
+## Future exploration: transitions
+
+> [!future] Optional extension · outside Level 1
+> Structural directives could animate the markup they add, remove, and reorder. The browser already does the animating: the View Transitions API[^9] takes a picture of the page before and after a DOM change and animates between the two, including an element that exists on only one side. What it lacks is a declarative way in. Today an author wraps the change in `document.startViewTransition()`, gives each element a unique `view-transition-name`, and styles the `::view-transition-old()` and `::view-transition-new()` pseudo-elements. This extension would let a template say which elements take part and how they move, and leave the rest to the runtime.
+>
+> ```html
+> <aside $if="$open" $transition="fly 200ms ease-out">…</aside>
+>
+> <li $each="todo of $todos" $key="$todo.id" $transition="fade">{$todo.title}</li>
+>
+> <img $each="photo of $photos" $key="$photo.id" $transition-name="$photo.id">
+> <img $if="$selected" class="hero" $transition-name="$selected.id">
+> ```
+>
+> The panel flies in and out. Each todo fades in and out, and glides to its new place when the list reorders. When a photo is selected, its thumbnail grows into the hero image.
+>
+> **`$transition`** says how an element animates when a structural directive adds or removes it, or when it moves. The value is a literal in the form of the CSS `animation` shorthand[^10]: a keyframes name, then an optional duration, easing, and delay. It is not an expression, so, like `$sort`, it can never take references. The name is a built-in (`fade`, `fly`, `scale`, `blur`) or any `@keyframes` in the component's `<style>`. Keyframes describe *arriving*; leaving plays them in reverse. With no value, the element uses the browser's default crossfade.
+>
+> ```html
+> <p $if="$saved" $transition="pop 150ms">Saved</p>
+>
+> <style>
+>   @keyframes pop { from { scale: .5; opacity: 0; } }
+> </style>
+> ```
+>
+> **`$transition-name="expr"`** is the element's identity across the change, as `view-transition-name` is in CSS. It is an expression: `$photo.id` reads a value, and a bare word such as `hero` is a keyword (see [Expressions](/declarative-components/expressions)). When one element leaves and another with the same name arrives in the same update, the browser moves and resizes the first into the second. The runtime would turn any value into a valid CSS identifier. Names are page-wide, which is what lets a grid and a detail view in different components pair up. An element with only `$transition` gets a unique generated name.
+>
+> An element with either directive *participates*. The runtime would:
+>
+> - run an update inside a view transition only when a structural directive inserts, removes, or reorders a participating element, using `Element.startViewTransition()`[^11] on the nearest container where it is supported and `document.startViewTransition()` otherwise; every other update stays as it is;
+> - keep the rest of the page out of the transition, so it stays live and clickable;
+> - play each element's keyframes on its picture, forwards when it arrives and reversed when it leaves, and apply its timing to the browser's own move;
+> - skip the animation when the user prefers reduced motion.
+>
+> Authors can still write `::view-transition-*` rules; the extension removes the requirement, not the option.
+>
+> **Why pictures instead of delayed removal.** Svelte and Vue keep a leaving node in the DOM until its animation ends. Here the DOM always holds the true state: a removed `$if` branch is gone at once, so refs, keyed rows, focus, and form submission never see a node on its way out. A framework target only has to wrap its state update, rather than map onto that framework's own transition component. CSS alone cannot cover removal: `@starting-style`[^12] animates an element's arrival, but nothing animates an element leaving the DOM.
+>
+> **Still open.**
+>
+> - A second document-level view transition skips the first, so closing and reopening quickly jumps instead of reversing. Element-scoped transitions, which can run side by side, are in Chromium only.
+> - An animated update reaches the DOM one frame later, after the browser captures the old state.
+> - When a sibling leaves, content that does not participate moves to its new position at once; it glides only if it participates too.
+> - A leaving picture can draw outside an `overflow` container until element-scoped transitions are widely available.
+> - Two elements on screen with the same name abort the transition.
+> - A framework target can wrap the component's own state writes, but a parent's prop change re-renders the child before the old state can be captured.
+> - Naming: `$transition` versus `$view-transition`, the platform's own term. Separate enter and leave animations wait until a use needs them.
+
 ## Reference
 
 ::: {.entry name="$each" role="iteration directive"}
@@ -326,3 +375,7 @@ Level
 [^6]: W3C, [CSS Text Module Level 3](https://www.w3.org/TR/css-text-3/#white-space-processing) (the white-space processing and collapsing model HTML Next defers to at render).
 [^7]: Angular [structural directives](https://angular.dev/guide/directives/structural-directives) (`*ngIf`/`*ngFor`): control flow expressed as a directive on the context-valid element rather than a wrapper element, the same parser-survival property argued here. Contrast: Svelte [`{#if}`](https://svelte.dev/docs/svelte/if)/`{#each}` and Solid [`Show`](https://docs.solidjs.com/reference/components/show)/`For` are wrapper or block forms that do not survive `<table>`/`<select>` foster-parenting.
 [^8]: Angular [`@switch`/`@case`/`@default`](https://angular.dev/guide/templates/control-flow) blocks: a near-exact twin of `$match`/`$when`/`$else`, alongside the XSLT `xsl:choose` unit.
+[^9]: W3C, [CSS View Transitions Module Level 1](https://www.w3.org/TR/css-view-transitions-1/) (`startViewTransition()`, [`view-transition-name`](https://www.w3.org/TR/css-view-transitions-1/#view-transition-name-prop), and the `::view-transition-*` pseudo-elements).
+[^10]: W3C, [CSS Animations Level 1](https://www.w3.org/TR/css-animations-1/#animation) (the `animation` shorthand).
+[^11]: Chrome for Developers, [element-scoped view transitions](https://developer.chrome.com/docs/css-ui/view-transitions/element-scoped-view-transitions) (`Element.startViewTransition()`, which runs transitions side by side and keeps the rest of the page interactive).
+[^12]: W3C, [CSS Transitions Level 2](https://www.w3.org/TR/css-transitions-2/#defining-before-change-style) (`@starting-style`).

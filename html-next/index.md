@@ -283,7 +283,7 @@ An implementation [may]{.kw} omit any extension. One that does [must]{.kw} repor
 
 | Extension | Adds | Chapter | Stage |
 | --- | --- | --- | --- |
-| `transitions` | `$transition`, `$transition-name` | [Templating](/declarative-components/templating#transitions-extension) | [Proposal]{.pill .soon} |
+| `transitions` | `$transition`, `$transition-name` | [Templating](/declarative-components/templating#transitions-extension) | [Incubation]{.pill .inc} |
 
 A **future exploration** is different: it sketches a possible change to a Level, has no name, and no tool implements it.
 

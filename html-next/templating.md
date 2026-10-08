@@ -238,7 +238,7 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 
 ## Transitions extension {#transitions-extension}
 
-> [!future] Extension · transitions · Proposal
+> [!future] Extension · transitions · Incubation
 > Structural directives could animate the markup they add, remove, and reorder. The browser already does the animating: the View Transitions API[^9] takes a picture of the page before and after a DOM change and animates between the two, including an element that exists on only one side. What it lacks is a declarative way in. Today an author wraps the change in `document.startViewTransition()`, gives each element a unique `view-transition-name`, and styles the `::view-transition-old()` and `::view-transition-new()` pseudo-elements. This extension would let a template say which elements take part and how they move, and leave the rest to the runtime.
 >
 > ```html
@@ -266,7 +266,7 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 >
 > An element with either directive *participates*. The runtime would:
 >
-> - run an update inside a view transition only when a structural directive inserts, removes, or reorders a participating element, using `Element.startViewTransition()`[^11] on the nearest container where it is supported and `document.startViewTransition()` otherwise; every other update stays as it is;
+> - run an update inside `document.startViewTransition()` only when a structural directive inserts, removes, or reorders a participating element, and skip the transition when the update turns out to add, remove, and move nothing; every other update stays as it is;
 > - keep the rest of the page out of the transition, so it stays live and clickable;
 > - play each element's keyframes on its picture, forwards when it arrives and reversed when it leaves, and apply its timing to the browser's own move;
 > - skip the animation when the user prefers reduced motion.
@@ -279,7 +279,7 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 >
 > **Still open.**
 >
-> - A second document-level view transition skips the first, so closing and reopening quickly jumps instead of reversing. Element-scoped transitions, which can run side by side, are in Chromium only.
+> - A second document-level view transition skips the first, so closing and reopening quickly jumps instead of reversing. `Element.startViewTransition()`[^11], which runs transitions side by side, is in Chromium only.
 > - An animated update reaches the DOM one frame later, after the browser captures the old state.
 > - When a sibling leaves, content that does not participate moves to its new position at once; it glides only if it participates too.
 > - A leaving picture can draw outside an `overflow` container until element-scoped transitions are widely available.

@@ -266,6 +266,18 @@ Keywords follow RFC&nbsp;2119, scoped to HTML Next tooling. A tool [must]{.kw} e
 | **Types** | `string`, `boolean`, `number`, `enum`. | [L3]{.pill .soon} URLs, colors, refs, content models |
 | **Isolation** | None yet | [Upstream]{.pill .inc} Declarative-Shadow-DOM extension; native-element extension upstream |
 
+### Extensions {#extensions}
+
+An **extension** is an optional part of the language that sits outside every Level. Each one has a one-word name, so that tools and documentation can say exactly which extensions they support, and each moves through the proposal's own stages: **Proposal** (written down, not yet implemented), **Incubation** (implemented in the reference tools, still free to change), and finally adoption into a Level, or withdrawal.
+
+An implementation [may]{.kw} omit any extension. One that does [must]{.kw} report an unsupported-extension diagnostic that names the extension when it meets that syntax, under the same rule as any construct above its Level; each extension states what output, if any, such an implementation may still produce.
+
+| Extension | Adds | Chapter | Stage |
+| --- | --- | --- | --- |
+| `transitions` | `$transition`, `$transition-name` | [Templating](/declarative-components/templating#transitions-extension) | [Proposal]{.pill .soon} |
+
+A **future exploration** is different: it sketches a possible change to a Level, has no name, and no tool implements it.
+
 ::: {#chapters}
 
 ## Chapters

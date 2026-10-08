@@ -236,9 +236,9 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 > [!note] Context-safe formatting
 > Inline text expressions and `$value` attributes preserve their native parser context, so formatted output works in cells and options without a special output element.
 
-## Future exploration: transitions
+## Transitions extension {#transitions-extension}
 
-> [!future] Optional extension · outside Level 1
+> [!future] Extension · transitions · Proposal
 > Structural directives could animate the markup they add, remove, and reorder. The browser already does the animating: the View Transitions API[^9] takes a picture of the page before and after a DOM change and animates between the two, including an element that exists on only one side. What it lacks is a declarative way in. Today an author wraps the change in `document.startViewTransition()`, gives each element a unique `view-transition-name`, and styles the `::view-transition-old()` and `::view-transition-new()` pseudo-elements. This extension would let a template say which elements take part and how they move, and leave the rest to the runtime.
 >
 > ```html
@@ -270,6 +270,8 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 > - keep the rest of the page out of the transition, so it stays live and clickable;
 > - play each element's keyframes on its picture, forwards when it arrives and reversed when it leaves, and apply its timing to the browser's own move;
 > - skip the animation when the user prefers reduced motion.
+>
+> An implementation without this extension reports `$transition` and `$transition-name` as unsupported, as it does any construct above its Level (see [Extensions](/declarative-components/#extensions)). Because the extension only animates, such an implementation may still build the component, without animation.
 >
 > Authors can still write `::view-transition-*` rules; the extension removes the requirement, not the option.
 >

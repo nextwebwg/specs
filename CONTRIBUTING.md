@@ -59,7 +59,7 @@ an anchor with `{#name}`: `## Constraint validation {#validation}`.
 
 | Write | For |
 | --- | --- |
-| `> [!note] Title` | A callout. Kinds: `note`, `ex` (example), `norm` (normative), `warn` (open or cautionary). The body follows on `>` lines. |
+| `> [!note] Title` | A callout. Kinds: `note`, `ex` (example), `norm` (normative), `warn` (open or cautionary), `future` (an optional extension or future exploration, outside the current Level). The body follows on `>` lines. |
 | ```` ```html title="button.html" ```` | A code sample, optionally with its file name. HTML is the default language; others are `css`, `js`, `ts`, `json`, `bash`, `text`. |
 | A GitHub table | A table. |
 | `1. step` followed by `{.algo}` on the next line | Numbered algorithm steps. |

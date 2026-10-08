@@ -24,7 +24,7 @@ HTML Next keeps a few concepts separate rather than overloading one element, bec
 <state name="query" type="string" value="">        <!-- empty string -->
 <state name="page" type="number" value="1">        <!-- number -->
 <state name="rows" type="list(object({ id: string, label: string }))" value="[]">
-<computed name="hasQuery" from="query != ''">  <!-- derived boolean -->
+<computed name="hasQuery" from="$query != ''">  <!-- derived boolean -->
 ```
 
 The design, a declared dependency graph that can be analyzed statically rather than traced at runtime, has deep prior art in signals and fine-grained reactivity[^5]: Solid signals and `createMemo` and Angular signals are its closest current relatives, with Knockout observables as the historical ancestor. RxJS is a deliberate contrast, it models push streams, not the settled value cells `<state>` and `<computed>` are.
@@ -91,7 +91,7 @@ A component can share a state value with components rendered inside it, includin
     <prop name="number" type="number" required>
     <context name="current" from="x-steps" as="activeStep">
   </defs>
-  <li from:aria-current="activeStep = index ? 'step' : null"><slot></slot></li>
+  <li from:aria-current="$activeStep = $index ? 'step' : null"><slot></slot></li>
 </template>
 
 <x-steps>
@@ -115,8 +115,8 @@ This is HTML Next's standards-shaped answer to htmx[^1]: instead of `hx-get`/`hx
 
 ```html
 <data name="search" src="/api/search" type="object" debounce="200ms">
-  <param name="q" from:value="query">     <!-- subscribes to query: refetches when it changes -->
-  <param name="page" from:value="page">
+  <param name="q" from:value="$query">     <!-- subscribes to query: refetches when it changes -->
+  <param name="page" from:value="$page">
 </data>
 ```
 
@@ -147,10 +147,10 @@ To refetch with unchanged inputs (a manual refresh, polling) there is no imperat
 > ```html
 > <input bind:value="query" placeholder="Search…">
 > <template $match>
->   <progress $when="search.pending"></progress>
->   <output $when="search.error">$search.error.message</output>
+>   <progress $when="$search.pending"></progress>
+>   <output $when="$search.error">{$search.error.message}</output>
 >   <ul $else>
->     <li $each="r of search.value.results" $key="r.id">$r.title</li>
+>     <li $each="r of $search.value.results" $key="$r.id">{$r.title}</li>
 >   </ul>
 > </template>
 > ```
@@ -234,15 +234,15 @@ A synchronized write is the outbound half of the same reactive resource model. A
         src="/api/posts/{id}"
         send="change"
         debounce="500ms">
-    <param name="id" from:value="post.id"></param>        <!-- resource identity -->
-    <param name="title" from:value="draft.title"></param> <!-- reactive body field -->
-    <param name="tags" from:value="draft.tags"></param>
-    <param name="clientRevision" expr:value="revision"></param> <!-- sampled on a write; does not trigger one -->
+    <param name="id" from:value="$post.id"></param>        <!-- resource identity -->
+    <param name="title" from:value="$draft.title"></param> <!-- reactive body field -->
+    <param name="tags" from:value="$draft.tags"></param>
+    <param name="clientRevision" expr:value="$revision"></param> <!-- sampled on a write; does not trigger one -->
   </data>
 
   <!-- An explicit command stays an event for the owner to handle. -->
   <handler name="requestPublish">
-    <dispatch event="publish" expr:value="draft"></dispatch>
+    <dispatch event="publish" expr:value="$draft"></dispatch>
   </handler>
 </defs>
 
@@ -250,7 +250,7 @@ A synchronized write is the outbound half of the same reactive resource model. A
 <input bind:value="draft.title">
 <button type="button" on:click="requestPublish">Publish</button>
 
-<p aria-live="polite" $if="saveDraft.pending">Saving…</p>
+<p aria-live="polite" $if="$saveDraft.pending">Saving…</p>
 ```
 
 Initial connection samples the current body as that resource key's baseline and does not send a write. After the first acknowledged write, the baseline is the last acknowledged body for that key. A body-param change marks the resource dirty and queues a write. Every queued or in-flight write captures an immutable resolved resource identity and body snapshot. While a write is pending, further body changes for the same key replace one trailing queued snapshot with the latest one. A sent write is never cancelled because cancellation cannot undo a request the server may already have applied.

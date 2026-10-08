@@ -89,11 +89,16 @@ test("proposal callouts name their contract and review requests demand attention
   assert.doesNotMatch(proposal, /^(?:## |> \[!\w+\] )(?:No |Not |Why |Why not|There is no)/m);
 });
 
+test("expressions read declarations only through $ references; bind: takes a path", () => {
+  assert.match(chapter("expressions"), /A bare word inside an expression is never a reference: it is a keyword literal/);
+  assert.match(chapter("bindings"), /its value is a \*\*path field, not an expression field\*\*: write the path without `\$`/);
+});
+
 test("polymorphic roots use explicit native branches", () => {
   const components = chapter("components");
 
   assert.match(components, /<prop name="as" type="keyword" values="button, a" default="button">/);
-  assert.match(components, /<a \$when="as = 'a'">/);
+  assert.match(components, /<a \$when="\$as = 'a'">/);
   assert.match(components, /<button \$else>/);
   assert.doesNotMatch(components, /<button as="button \| a">/);
   assert.match(components, /The prop does not retag an element/);

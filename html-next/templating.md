@@ -15,20 +15,20 @@ Control flow is a family of **marked directives on ordinary elements**: `$each`,
 A structural directive is a `$`-prefixed attribute. It goes on the element it applies to, or on a `<template>` to apply to a group of siblings. The `$` is deliberate: bindings (`from:x`, `bind:x`, `on:x`) set or wire *values*; a `$` directive changes *whether, how many times, or in what scope* markup is produced. At lowering the directive is evaluated and **removed**, so it never appears in the output (rendered DOM, compiled component, or serialized HTML alike), which is why its attribute name is free to be a directive.
 
 ```html
-<li $each="p of products">…</li>          <!-- iterate this element -->
-<p  $if="cart.items.length">…</p>          <!-- guard this element -->
-<td $value="user.name"></td>               <!-- escaped text content -->
+<li $each="p of $products">…</li>          <!-- iterate this element -->
+<p  $if="$cart.items.length">…</p>          <!-- guard this element -->
+<td $value="$user.name"></td>               <!-- escaped text content -->
 
 <!-- multi-way and scope are directives too, on an element or a <template> -->
 <template $match>
-  <p $when="a">…</p>
+  <p $when="$a">…</p>
   <p $else>…</p>
 </template>
 ```
 
 | Directive | Effect |
 | --- | --- |
-| `$each="item of items"` | Instantiate once per element of `items`, binding `item`. |
+| `$each="item of $items"` | Instantiate once per element of `items`, binding `item`. |
 | `$if="expr"` | Instantiate only when `expr` is truthy. |
 | `$match` · `$when="expr"` · `$else` | Multi-way choice: on a container, its direct children are arms; the first `$when` that is truthy wins, `$else` is the fallback. |
 | `$with="expr as name"` | Bind `expr` to `name` in scope for the children. |
@@ -60,32 +60,32 @@ Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read
 `$if="expr"` instantiates the element (or a `<template>`'s content) only when `expr` is truthy. It is a **single guard with no else**; multi-way branching is `$match`. The single-guard / multi-way split follows XSLT's `xsl:if` versus `xsl:choose`, rather than an imperative `if`/`else if`/`else`.[^1]
 
 ```html
-<p $if="cart.items.length">You have items in your cart.</p>
+<p $if="$cart.items.length">You have items in your cart.</p>
 
 <!-- guard several siblings at once via a <template> -->
-<template $if="cart.items.length">
+<template $if="$cart.items.length">
   <h2>Your cart</h2>
   <ul>…</ul>
 </template>
 ```
 
 > [!note] Negation stays in the expression grammar
-> The expression language's `not` operator handles a negative condition directly: `$if="not cart.items.length"`. A separate `$unless` directive would duplicate that operation; Liquid and Twig are examples of template languages that provide both.[^4]
+> The expression language's `not` operator handles a negative condition directly: `$if="not $cart.items.length"`. A separate `$unless` directive would duplicate that operation; Liquid and Twig are examples of template languages that provide both.[^4]
 
 ## $each: iteration
 
-`$each="item of items"` instantiates once per element of `items`, binding `item` in a fresh scope layer (with an optional index, `$each="item, i of items"`). The value uses the `for…of` grammar, one bounded, familiar form, not a packed micro-syntax. Iteration *shaping* is expressed as sibling `$` modifiers, following XSLT's `xsl:sort` living inside `xsl:for-each` rather than a value pipeline.[^1]
+`$each="item of $items"` instantiates once per element of `items`, binding `item` in a fresh scope layer (with an optional index, `$each="item, i of $items"`). The value uses the `for…of` grammar, one bounded, familiar form, not a packed micro-syntax. Iteration *shaping* is expressed as sibling `$` modifiers, following XSLT's `xsl:sort` living inside `xsl:for-each` rather than a value pipeline.[^1]
 
-`$sort` takes a comma-separated list of keys, each optionally prefixed with `-` for descending, so `$sort="p.price,-p.name"` orders by price ascending then name descending, the convention JSON:API's `sort` parameter[^2] and Django's `order_by`[^3] use.
+`$sort` takes a comma-separated list of keys, each optionally prefixed with `-` for descending, so `$sort="p.price,-p.name"` orders by price ascending then name descending, the convention JSON:API's `sort` parameter[^2] and Django's `order_by`[^3] use. Each key is a path from the loop item, not an expression: it starts with the item's name, so `p.price` reads the item's `price` and `p` alone sorts by the item itself. A bare field such as `price` is an error, because it could not be told apart from the item when a field shares the item's name. A leading `$` is accepted even though it is not required.
 
 ```html
-<li $each="p of products"
-    $where="p.inStock" $sort="p.price,-p.name" $limit="10" $key="p.id">
+<li $each="p of $products"
+    $where="$p.inStock" $sort="p.price,-p.name" $limit="10" $key="$p.id">
   {$p.name}
 </li>
 
 <!-- index alias, when needed -->
-<li $each="p, i of products">…</li>
+<li $each="p, i of $products">…</li>
 ```
 
 > [!note] Iteration control is declarative
@@ -97,8 +97,8 @@ A multi-way decision is a container carrying `$match` whose **direct children ar
 
 ```html
 <template $match>
-  <progress $when="order.pending">Placing order…</progress>
-  <output   $when="order.error">{$order.error.message}</output>
+  <progress $when="$order.pending">Placing order…</progress>
+  <output   $when="$order.error">{$order.error.message}</output>
   <p        $else>Thanks for your order.</p>
 </template>
 ```
@@ -109,8 +109,8 @@ A multi-way decision is a container carrying `$match` whose **direct children ar
 
 ```html
 <!-- optional scope: bind the subject once, for every arm -->
-<template $match="account.plan as plan">
-  <span $when="plan.tier = 'pro'">{$plan.seats} seats</span>
+<template $match="$account.plan as plan">
+  <span $when="$plan.tier = 'pro'">{$plan.seats} seats</span>
   <span $else>Free plan</span>
 </template>
 ```
@@ -123,7 +123,7 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 <!-- multi-way among rows: arms are direct <template> children, so they survive -->
 <table><tbody>
   <template $match>
-    <tr $when="row.error" class="err"><td>{$row.message}</td></tr>
+    <tr $when="$row.error" class="err"><td>{$row.message}</td></tr>
     <tr $else><td>{$row.name}</td></tr>
   </template>
 </tbody></table>
@@ -137,7 +137,7 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). It takes an explicit **alias** rather than spreading the value's members as bare names: spreading reproduces the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/declarative-components/expressions)).
 
 ```html
-<section $with="account.owner as owner">
+<section $with="$account.owner as owner">
   <p>{$owner.name}</p>   <!-- owner is in scope here -->
 </section>
 ```
@@ -151,7 +151,7 @@ Authored text evaluates expressions only inside `{expression}`. `$value="expr"` 
 <p>Hello {$user.name}, welcome.</p>
 <p>Total: {format($cart.total, 'currency', { currency: 'USD' })}</p>
 <output $value="format($cart.total, 'currency', { currency: 'USD' })"></output>
-<article $html="post.body"></article>
+<article $html="$post.body"></article>
 ```
 
 ### Expression boundaries and errors
@@ -185,7 +185,7 @@ HTML Next does **not** transform the whitespace an author writes. A template is 
      RENDER through CSS white-space — exactly as in a hand-written .html file,
      not through a template build step. -->
 <ul>
-  <li $each="t of tags">{$t}</li>
+  <li $each="t of $tags">{$t}</li>
 </ul>
 
 <!-- Opt out the way any HTML page does: with CSS, not a template flag. -->
@@ -193,7 +193,7 @@ HTML Next does **not** transform the whitespace an author writes. A template is 
 
 <!-- $value / $html own the element's whole content: authored children
      alongside them are a conformance error, never a silent merge. -->
-<p $value="user.name">welcome</p>   <!-- ✗ text child + $value -->
+<p $value="$user.name">welcome</p>   <!-- ✗ text child + $value -->
 ```
 
 Text expressions, elements, and `<template $value>` interleave as ordinary **mixed content**. The space in `Total: {$cart.total}` is significant and is preserved; `$each` emits the whitespace inside and around it like any repeated markup, with no join or separator behaviour of its own. The one hard rule is the content-owning directives: `$value` and `$html` set an element's *entire* content, so authored children beside them are a **conformance error** rather than a silent merge, the same constraint a content-replacing property binding carries.
@@ -217,16 +217,16 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 ```html
 <!-- every $ directive is an attribute, so it survives every parser context -->
 <table><tbody>
-  <tr $each="r of rows" $key="r.id"><td>{$r.name}</td></tr>
+  <tr $each="r of $rows" $key="$r.id"><td>{$r.name}</td></tr>
 </tbody></table>
 
 <select>
-  <option $each="o of opts" from:value="o.id">{$o.label}</option>
+  <option $each="o of $opts" from:value="$o.id">{$o.label}</option>
 </select>
 
 <!-- a fragment (several siblings) rides a <template> -->
 <table><tbody>
-  <template $each="r of rows">
+  <template $each="r of $rows">
     <tr class="head"><td>{$r.title}</td></tr>
     <tr class="body"><td>{$r.detail}</td></tr>
   </template>
@@ -292,7 +292,7 @@ Value
 : the for-of grammar: `item of items`, or `item, i of items`
 
 Modifiers
-: `$where`, `$sort` (`a,-b`), `$limit`, `$key`
+: `$where`, `$sort` (`p.a,-p.b`), `$limit`, `$key`
 
 Scope
 : binds the alias (and index) in a lexical layer; `loop.index/first/last/count`

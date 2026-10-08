@@ -184,7 +184,7 @@ A controller often needs a specific element, the node a library mounts into. Rat
 <canvas $ref="surface" width="640" height="480"></canvas>
 
 <!-- inside an iteration, one name covers every element that iteration produced -->
-<li $each="o of options" $key="o.id" $ref="rows"></li>
+<li $each="o of $options" $key="$o.id" $ref="rows"></li>
 
 ```
 
@@ -369,8 +369,8 @@ Take a dashboard, `<x-dashboard>` (component A), that reads metrics and renders 
   <section>
     <h1>{$title}</h1>
     <template $match>
-      <p $when="metrics.pending">Loading…</p>
-      <x-chart $else from:series="metrics.value.series"></x-chart>
+      <p $when="$metrics.pending">Loading…</p>
+      <x-chart $else from:series="$metrics.value.series"></x-chart>
     </template>
   </section>
 </template>

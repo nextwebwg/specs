@@ -115,7 +115,7 @@ Because the mapping is fixed and manifest-driven, every target serializes identi
 
 ## Two-way binding: bind:
 
-`bind:prop="path"` reflects the value and writes user input back to `path`. It is the forms workhorse, and it requires a **writable path** plus an element contract that supports updates. Because a two-way binding must write back to a location, its value is a **path field, not an expression field**: write the path without `$`, as in `search.query`. A leading `$` is also accepted, for authors who expect one. A bracketed index inside the path is an ordinary expression, as in `rows[$i].done`.
+`bind:prop="path"` reflects the value and writes user input back to `path`. It is the forms workhorse, and it requires a **writable path** plus an element contract that supports updates. Because a two-way binding must write back to a location, its value is a **path field, not an expression field**: write the path without `$`, as in `search.query`. A leading `$` is accepted even though it is not required. A bracketed index inside the path is an ordinary expression, as in `rows[$i].done`.
 
 ```html
 <input bind:value="search.query">
@@ -239,7 +239,7 @@ A handler is an ordered, enumerable list of declarative steps. The vocabulary is
 
 | Step | Effect |
 | --- | --- |
-| `<set name value>` or `<set name expr:value>` | Write a local state cell. `name` is a path field written without `$`, like `bind:`; a leading `$` is accepted. `value` is a typed constant; `expr:value` is evaluated when the handler runs. |
+| `<set name value>` or `<set name expr:value>` | Write a local state cell. `name` is a path field written without `$`, like `bind:`; a leading `$` is accepted even though it is not required. `value` is a typed constant; `expr:value` is evaluated when the handler runs. |
 | `<dispatch event target? value?>` or `<dispatch event target? expr:value?>` | Dispatch a native component event from the current root or to a component-local ref, with an optional typed constant or action-time expression as its payload. |
 | `$if` (on a step) | Guard a step; it runs only when the expression is truthy, the same `$if` directive used in templating. |
 

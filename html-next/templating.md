@@ -57,7 +57,7 @@ Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read
 
 ## $if: single guard
 
-`$if="expr"` instantiates the element (or a `<template>`'s content) only when `expr` is truthy. It is a **single guard with no else**; multi-way branching is `$match`. The single-guard / multi-way split follows XSLT's `xsl:if` versus `xsl:choose`, rather than an imperative `if`/`else if`/`else`.[^1]
+`$if="expr"` instantiates the element (or a `<template>`'s content) only when `expr` is truthy. While `expr` stays truthy the element and everything inside it stay as they are: a change to what `expr` reads updates the bindings inside, and creates nothing again. A test that turns falsy removes the element; one that turns truthy again creates it afresh (see [What counts as a change](/declarative-components/reactivity#changes)). It is a **single guard with no else**; multi-way branching is `$match`. The single-guard / multi-way split follows XSLT's `xsl:if` versus `xsl:choose`, rather than an imperative `if`/`else if`/`else`.[^1]
 
 ```html
 <p $if="$cart.items.length">You have items in your cart.</p>
@@ -93,7 +93,7 @@ Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read
 
 ## $match / $when / $else: multi-way choice
 
-A multi-way decision is a container carrying `$match` whose **direct children are arms**: each child with `$when="expr"` is a conditional arm, the first truthy one wins, and a child with `$else` is the terminal fallback. On a `<template>` the container itself renders nothing (only the winning arm does); on a real element the element wraps the winner.
+A multi-way decision is a container carrying `$match` whose **direct children are arms**: each child with `$when="expr"` is a conditional arm, the first truthy one wins, and a child with `$else` is the terminal fallback. The winning arm stays as it is while it keeps winning; when another arm wins, the old arm is removed and the new one created. On a `<template>` the container itself renders nothing (only the winning arm does); on a real element the element wraps the winner.
 
 ```html
 <template $match>
@@ -134,7 +134,7 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 
 ## $with: scope alias
 
-Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). It takes an explicit **alias** rather than spreading the value's members as bare names: spreading reproduces the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/declarative-components/expressions)).
+Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). A new value updates what reads `name` in place; the children are not created again. It takes an explicit **alias** rather than spreading the value's members as bare names: spreading reproduces the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/declarative-components/expressions)).
 
 ```html
 <section $with="$account.owner as owner">

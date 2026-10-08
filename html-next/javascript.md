@@ -163,7 +163,7 @@ The checks have the same depth as declarative writes: an object or list is check
 `host.effect(callback)` is the deliberately small JavaScript companion to declarative bindings. It exists for effects on systems outside the runtime-owned DOM, such as updating a chart, observer, or media object from component state. It is not required to make template bindings reactive; those are wired directly from their declared paths.
 
 - **Connection:** an effect registered by the controller runs once when the instance is connected. Reads through `host.state` or `host.props` during its last successful run are its dependencies.
-- **Update:** a dependency change marks the effect dirty. The runtime coalesces repeated changes and runs it in the same ordered microtask flush as affected bindings, after state and computed values have settled.
+- **Update:** a change to a value it read marks the effect dirty; a write that leaves the value unchanged does not (see [What counts as a change](/declarative-components/reactivity#changes)). The runtime coalesces repeated changes and runs it in the same ordered microtask flush as affected bindings, after state and computed values have settled.
 - **Rerun:** if the callback returned a disposer, that disposer runs before the next callback. The next run replaces the tracked dependency set, so conditional JavaScript reads remain precise without an authored `untrack`.
 - **Disconnection:** the current disposer runs and every observation owned by the effect is removed. It does no work while detached; reconnection runs it once and establishes a fresh dependency set.
 - **Early stop:** the function returned by `host.effect` performs the same cleanup permanently and is idempotent.

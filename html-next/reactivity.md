@@ -33,6 +33,23 @@ A `<state>` uses the same type syntax as a prop (see [Types](/declarative-compon
 
 `value` supplies a constant initial state value, parsed through the declared type. It does not establish the type when `type` is omitted. A handler's `<set value>` likewise writes a typed constant, while `<set expr:value>` evaluates an expression when the handler runs. A `<computed from>` declares **computed state**: it stays subscribed to the values it reads and derives a read-only value. Controllers read both mutable and computed state through `host.state`; only mutable state is writable. [Bindings & Events](/declarative-components/bindings#constant-action-time-and-computed-values) compares all three value forms.
 
+## What counts as a change {#changes}
+
+A reader depends on the **paths** its expression reads, and on the paths that lead to them: `$items.0.name` depends on `items`, `items.0` and `items.0.name`. A path **changes** when its value is no longer `Object.is`-equal to the one it had,[^12] so `NaN` equals `NaN` and `0` differs from `-0`. The rule is the same at every depth; there is no separate shallow or deep mode.
+
+Writing inside an object or list changes the paths it writes and nothing that contains them. `items.push(item)` changes `items.length` and the new index, but not `items`, so a reader of `$items.0.name` is unaffected. Assigning a different list to `items` changes `items`, so every reader of a path through it evaluates again. A reader that iterates a whole list with `$each`, or converts a whole object or list to text, depends on its contents, so a change anywhere inside reaches it.
+
+**An unchanged value stops propagation.** A state write, a computed value, or a structural decision whose new value has not changed notifies nothing. Nothing downstream evaluates again, renders again, requests again, or runs an effect:
+
+- A `<state>` written with its current value, and a `<computed>` that recomputes to its previous value, notify no reader.
+- `$if` keeps its element and content while its test stays truthy, `$match` keeps its arm while that arm is still chosen, and `$with` updates what reads its alias in place (see [Templating](/declarative-components/templating)).
+- An attribute, class, style, or text binding writes only a result that differs from what it last wrote. A property binding writes each new result, because the element may have changed that property itself, as a control does with its `value`.
+- A `<data>` read requests again only when a resolved parameter changes.
+- `host.effect` runs again only when a value it read changes (see [JavaScript](/declarative-components/javascript#the-companion-javascript-dom-api)).
+
+> [!note] To act on every occurrence, handle the event
+> Work that should happen on every click or keystroke, whether or not a value changes, belongs in a handler (see [Bindings & Events](/declarative-components/bindings)). To refetch with unchanged inputs, change a state parameter the read depends on, or declare a `poll` interval (see `<data>` below).
+
 ## Invalid reactive results
 
 A live expression evaluates when its dependencies change. Each evaluation proposes a value for its destination. If the value does not have the destination's declared type, the evaluation **does not write**. The destination keeps the value from its most recent successful write. If no evaluation has written successfully, it keeps its declared default, or `null` when there is no default. The invalid evaluation does not notify dependents of a value change or trigger an effect that requires that new value. The binding stays subscribed: a later valid result writes normally.
@@ -414,3 +431,4 @@ Level
 [^9]: WHATWG Fetch, [methods](https://fetch.spec.whatwg.org/#methods): method normalization uppercases `DELETE`, `GET`, `HEAD`, `OPTIONS`, `POST`, and `PUT`; it does not include `PATCH`.
 [^10]: IETF, [RFC&nbsp;10008: The HTTP QUERY Method](https://www.rfc-editor.org/rfc/rfc10008): a safe, idempotent method that carries request content.
 [^11]: WHATWG HTML, [issue&nbsp;#12594](https://github.com/whatwg/html/issues/12594): the active proposal to support `method="query"` and `formmethod="query"` in HTML forms.
+[^12]: ECMAScript, [SameValue](https://tc39.es/ecma262/#sec-samevalue), the comparison `Object.is` performs. The TC39 Signals proposal's default `equals`, Solid's [createMemo](https://docs.solidjs.com/reference/secondary-primitives/create-memo), and Vue's `computed` stop propagation on the same comparison.

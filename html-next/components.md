@@ -123,16 +123,16 @@ Content projection uses the native-shaped `<slot>`. Level&nbsp;1 includes defaul
 </x-card>
 ```
 
-### Content that renders on demand
+### Content that renders on demand {#content-that-renders-on-demand}
 
-Projected elements belong to the consumer, so they exist as soon as the consumer renders. They load their resources and bind even while their slot is not rendered, for example under a false `$if`. To defer content until its slot renders, wrap it in a `<template slot="name">`:
+Projected elements belong to the consumer, so they exist as soon as the consumer renders. They load their resources and bind even while their slot is not rendered, for example under a false `$if`. Only a component invoked among them waits: it is set up when a slot first places it. To defer the elements themselves until their slot renders, wrap them in a `<template slot="name">`:
 
 ```html
 <!-- definition -->
 <template component="x-disclosure"> …
   <div>
     <button type="button" on:click="toggle">More</button>
-    <section $if="open"><slot name="details"></slot></section>
+    <section $if="$open"><slot name="details"></slot></section>
   </div>
 </template>
 
@@ -140,15 +140,16 @@ Projected elements belong to the consumer, so they exist as soon as the consumer
 <x-disclosure>
   <template slot="details">
     <img src="chart.png" alt="Sales by month">
-    <x-chart from:rows="sales"></x-chart>
+    <x-chart from:rows="$sales"></x-chart>
   </template>
 </x-disclosure>
 ```
 
-- A slot renders the children of a consumer's `<template slot>` only while the slot itself renders. Until then nothing inside the template is created, fetched, or bound, and no component inside it is set up.
+- A slot renders the children of a consumer's `<template slot>` only while the slot itself renders. Until then nothing inside the template is created, fetched, or bound, and no component inside it is set up. The slot that receives the template decides. If a component places that slot inside content it projects into another component, the slot renders, and so does the template, even while the other component's slot is hidden; there the rendered elements are plain projected content.
 - The children render in the consumer's scope with the consumer's bindings, like an `$if` body. Each time the slot renders again they render afresh, so elements and component state inside them do not survive a close and reopen.
 - If a consumer supplies more than one `<template slot>` for the same slot, the slot renders the first. Other content assigned to that slot is not rendered with it.
-- Projection without a template stays eager: the elements keep their identity while the slot closes and reopens, and a controller can read them through [`host.slots`](/declarative-components/javascript) while the slot is hidden. A listbox that reads its options while its panel is closed relies on this.
+- A slot without props accepts plain elements, and their projection stays eager as described above: the elements keep their identity while the slot closes and reopens, and a controller can read them through [`host.slots`](/declarative-components/javascript) while the slot is hidden. A listbox that reads its options while its panel is closed relies on this.
+- A slot that exposes props, a scoped slot (below), renders only a `<template slot>`, because only a template can receive its props. Plain elements assigned to it without a template are an error, reported with a diagnostic; with nothing assigned, it shows its fallback.
 - Server output keeps the `<template slot>` itself in the [carrier](/declarative-components/rendered-form), unrendered, whether or not its slot renders. Hydration renders it when its slot renders.
 
 Use a template for content that is costly to create or load and only needed when shown. Project plain elements when the component must reach them while they are hidden.

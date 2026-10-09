@@ -46,12 +46,13 @@ For [shared state](/declarative-components/reactivity), this also means a hydrat
 Every rendered slot is delimited by processing instructions:
 
 ```html
-<?start slot=""?>…<?end?>                    <!-- default slot -->
-<?start slot="title"?>…<?end?>               <!-- named slot -->
-<?start slot="title" fallback=""?>…<?end?>   <!-- slot showing its fallback -->
-<?start slot="row" scoped=""?>…<?end?>       <!-- slot rendering a consumer's <template slot> -->
-<?marker slot="title"?>                      <!-- slot rendered empty, no fallback -->
-<?carrier?><template>…</template>            <!-- carrier for content no slot renders -->
+<?start slot=""?>…<?end?>                            <!-- default slot -->
+<?start slot="title"?>…<?end?>                       <!-- named slot -->
+<?start slot="title" fallback=""?>…<?end?>           <!-- slot showing its fallback -->
+<?start slot="row" scoped=""?>…<?end?>               <!-- slot rendering a consumer's <template slot> -->
+<?start slot="row" fallback="" scoped=""?>…<?end?>   <!-- slot with props showing its fallback -->
+<?marker slot="title"?>                              <!-- slot rendered empty, no fallback -->
+<?carrier?><template>…</template>                    <!-- carrier for content no slot renders -->
 ```
 
 - Attributes use the platform's pseudo-attribute syntax: quoted `name="value"` pairs. A bare attribute is a parse error that leaves the instruction with no attributes at all, so the default slot is written `slot=""`.[^2][^3]

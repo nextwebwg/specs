@@ -68,11 +68,11 @@ A slot under a false `$if`, content for an `$each` row that does not exist yet, 
 <template component="x-disclosure">
   <defs>
     <state type="boolean" name="open" value="false"></state>
-    <handler name="toggle"><set name="open" expr:value="not open"></set></handler>
+    <handler name="toggle"><set name="open" expr:value="not $open"></set></handler>
   </defs>
   <div>
     <button type="button" on:click="toggle">More</button>
-    <section $if="open"><slot name="details"></slot></section>
+    <section $if="$open"><slot name="details"></slot></section>
     <slot></slot>
   </div>
 </template>

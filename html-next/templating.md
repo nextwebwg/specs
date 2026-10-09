@@ -15,20 +15,20 @@ Control flow is a family of **marked directives on ordinary elements**: `$each`,
 A structural directive is a `$`-prefixed attribute. It goes on the element it applies to, or on a `<template>` to apply to a group of siblings. The `$` is deliberate: bindings (`from:x`, `bind:x`, `on:x`) set or wire *values*; a `$` directive changes *whether, how many times, or in what scope* markup is produced. At lowering the directive is evaluated and **removed**, so it never appears in the output (rendered DOM, compiled component, or serialized HTML alike), which is why its attribute name is free to be a directive.
 
 ```html
-<li $each="p of products">…</li>          <!-- iterate this element -->
-<p  $if="cart.items.length">…</p>          <!-- guard this element -->
-<td $value="user.name"></td>               <!-- escaped text content -->
+<li $each="p of $products">…</li>          <!-- iterate this element -->
+<p  $if="$cart.items.length">…</p>          <!-- guard this element -->
+<td $value="$user.name"></td>               <!-- escaped text content -->
 
 <!-- multi-way and scope are directives too, on an element or a <template> -->
 <template $match>
-  <p $when="a">…</p>
+  <p $when="$a">…</p>
   <p $else>…</p>
 </template>
 ```
 
 | Directive | Effect |
 | --- | --- |
-| `$each="item of items"` | Instantiate once per element of `items`, binding `item`. |
+| `$each="item of $items"` | Instantiate once per element of `items`, binding `item`. |
 | `$if="expr"` | Instantiate only when `expr` is truthy. |
 | `$match` · `$when="expr"` · `$else` | Multi-way choice: on a container, its direct children are arms; the first `$when` that is truthy wins, `$else` is the fallback. |
 | `$with="expr as name"` | Bind `expr` to `name` in scope for the children. |
@@ -60,32 +60,32 @@ Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read
 `$if="expr"` instantiates the element (or a `<template>`'s content) only when `expr` is truthy. It is a **single guard with no else**; multi-way branching is `$match`. The single-guard / multi-way split follows XSLT's `xsl:if` versus `xsl:choose`, rather than an imperative `if`/`else if`/`else`.[^1]
 
 ```html
-<p $if="cart.items.length">You have items in your cart.</p>
+<p $if="$cart.items.length">You have items in your cart.</p>
 
 <!-- guard several siblings at once via a <template> -->
-<template $if="cart.items.length">
+<template $if="$cart.items.length">
   <h2>Your cart</h2>
   <ul>…</ul>
 </template>
 ```
 
 > [!note] Negation stays in the expression grammar
-> The expression language's `not` operator handles a negative condition directly: `$if="not cart.items.length"`. A separate `$unless` directive would duplicate that operation; Liquid and Twig are examples of template languages that provide both.[^4]
+> The expression language's `not` operator handles a negative condition directly: `$if="not $cart.items.length"`. A separate `$unless` directive would duplicate that operation; Liquid and Twig are examples of template languages that provide both.[^4]
 
 ## $each: iteration
 
-`$each="item of items"` instantiates once per element of `items`, binding `item` in a fresh scope layer (with an optional index, `$each="item, i of items"`). The value uses the `for…of` grammar, one bounded, familiar form, not a packed micro-syntax. Iteration *shaping* is expressed as sibling `$` modifiers, following XSLT's `xsl:sort` living inside `xsl:for-each` rather than a value pipeline.[^1]
+`$each="item of $items"` instantiates once per element of `items`, binding `item` in a fresh scope layer (with an optional index, `$each="item, i of $items"`). The value uses the `for…of` grammar, one bounded, familiar form, not a packed micro-syntax. Iteration *shaping* is expressed as sibling `$` modifiers, following XSLT's `xsl:sort` living inside `xsl:for-each` rather than a value pipeline.[^1]
 
-`$sort` takes a comma-separated list of keys, each optionally prefixed with `-` for descending, so `$sort="p.price,-p.name"` orders by price ascending then name descending, the convention JSON:API's `sort` parameter[^2] and Django's `order_by`[^3] use.
+`$sort` takes a comma-separated list of keys, each optionally prefixed with `-` for descending, so `$sort="p.price,-p.name"` orders by price ascending then name descending, the convention JSON:API's `sort` parameter[^2] and Django's `order_by`[^3] use. Each key is a path from the loop item, not an expression: it starts with the item's name, so `p.price` reads the item's `price` and `p` alone sorts by the item itself. A bare field such as `price` is an error, because it could not be told apart from the item when a field shares the item's name. A leading `$` is accepted even though it is not required.
 
 ```html
-<li $each="p of products"
-    $where="p.inStock" $sort="p.price,-p.name" $limit="10" $key="p.id">
+<li $each="p of $products"
+    $where="$p.inStock" $sort="p.price,-p.name" $limit="10" $key="$p.id">
   {$p.name}
 </li>
 
 <!-- index alias, when needed -->
-<li $each="p, i of products">…</li>
+<li $each="p, i of $products">…</li>
 ```
 
 > [!note] Iteration control is declarative
@@ -97,8 +97,8 @@ A multi-way decision is a container carrying `$match` whose **direct children ar
 
 ```html
 <template $match>
-  <progress $when="order.pending">Placing order…</progress>
-  <output   $when="order.error">{$order.error.message}</output>
+  <progress $when="$order.pending">Placing order…</progress>
+  <output   $when="$order.error">{$order.error.message}</output>
   <p        $else>Thanks for your order.</p>
 </template>
 ```
@@ -109,8 +109,8 @@ A multi-way decision is a container carrying `$match` whose **direct children ar
 
 ```html
 <!-- optional scope: bind the subject once, for every arm -->
-<template $match="account.plan as plan">
-  <span $when="plan.tier = 'pro'">{$plan.seats} seats</span>
+<template $match="$account.plan as plan">
+  <span $when="$plan.tier = 'pro'">{$plan.seats} seats</span>
   <span $else>Free plan</span>
 </template>
 ```
@@ -123,7 +123,7 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 <!-- multi-way among rows: arms are direct <template> children, so they survive -->
 <table><tbody>
   <template $match>
-    <tr $when="row.error" class="err"><td>{$row.message}</td></tr>
+    <tr $when="$row.error" class="err"><td>{$row.message}</td></tr>
     <tr $else><td>{$row.name}</td></tr>
   </template>
 </tbody></table>
@@ -137,7 +137,7 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). It takes an explicit **alias** rather than spreading the value's members as bare names: spreading reproduces the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/declarative-components/expressions)).
 
 ```html
-<section $with="account.owner as owner">
+<section $with="$account.owner as owner">
   <p>{$owner.name}</p>   <!-- owner is in scope here -->
 </section>
 ```
@@ -151,7 +151,7 @@ Authored text evaluates expressions only inside `{expression}`. `$value="expr"` 
 <p>Hello {$user.name}, welcome.</p>
 <p>Total: {format($cart.total, 'currency', { currency: 'USD' })}</p>
 <output $value="format($cart.total, 'currency', { currency: 'USD' })"></output>
-<article $html="post.body"></article>
+<article $html="$post.body"></article>
 ```
 
 ### Expression boundaries and errors
@@ -185,7 +185,7 @@ HTML Next does **not** transform the whitespace an author writes. A template is 
      RENDER through CSS white-space — exactly as in a hand-written .html file,
      not through a template build step. -->
 <ul>
-  <li $each="t of tags">{$t}</li>
+  <li $each="t of $tags">{$t}</li>
 </ul>
 
 <!-- Opt out the way any HTML page does: with CSS, not a template flag. -->
@@ -193,7 +193,7 @@ HTML Next does **not** transform the whitespace an author writes. A template is 
 
 <!-- $value / $html own the element's whole content: authored children
      alongside them are a conformance error, never a silent merge. -->
-<p $value="user.name">welcome</p>   <!-- ✗ text child + $value -->
+<p $value="$user.name">welcome</p>   <!-- ✗ text child + $value -->
 ```
 
 Text expressions, elements, and `<template $value>` interleave as ordinary **mixed content**. The space in `Total: {$cart.total}` is significant and is preserved; `$each` emits the whitespace inside and around it like any repeated markup, with no join or separator behaviour of its own. The one hard rule is the content-owning directives: `$value` and `$html` set an element's *entire* content, so authored children beside them are a **conformance error** rather than a silent merge, the same constraint a content-replacing property binding carries.
@@ -217,16 +217,16 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 ```html
 <!-- every $ directive is an attribute, so it survives every parser context -->
 <table><tbody>
-  <tr $each="r of rows" $key="r.id"><td>{$r.name}</td></tr>
+  <tr $each="r of $rows" $key="$r.id"><td>{$r.name}</td></tr>
 </tbody></table>
 
 <select>
-  <option $each="o of opts" from:value="o.id">{$o.label}</option>
+  <option $each="o of $opts" from:value="$o.id">{$o.label}</option>
 </select>
 
 <!-- a fragment (several siblings) rides a <template> -->
 <table><tbody>
-  <template $each="r of rows">
+  <template $each="r of $rows">
     <tr class="head"><td>{$r.title}</td></tr>
     <tr class="body"><td>{$r.detail}</td></tr>
   </template>
@@ -236,6 +236,55 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 > [!note] Context-safe formatting
 > Inline text expressions and `$value` attributes preserve their native parser context, so formatted output works in cells and options without a special output element.
 
+## Future exploration: transitions
+
+> [!future] Optional extension · outside Level 1
+> Structural directives could animate the markup they add, remove, and reorder. The browser already does the animating: the View Transitions API[^9] takes a picture of the page before and after a DOM change and animates between the two, including an element that exists on only one side. What it lacks is a declarative way in. Today an author wraps the change in `document.startViewTransition()`, gives each element a unique `view-transition-name`, and styles the `::view-transition-old()` and `::view-transition-new()` pseudo-elements. This extension would let a template say which elements take part and how they move, and leave the rest to the runtime.
+>
+> ```html
+> <aside $if="$open" $transition="fly 200ms ease-out">…</aside>
+>
+> <li $each="todo of $todos" $key="$todo.id" $transition="fade">{$todo.title}</li>
+>
+> <img $each="photo of $photos" $key="$photo.id" $transition-name="$photo.id">
+> <img $if="$selected" class="hero" $transition-name="$selected.id">
+> ```
+>
+> The panel flies in and out. Each todo fades in and out, and glides to its new place when the list reorders. When a photo is selected, its thumbnail grows into the hero image.
+>
+> **`$transition`** says how an element animates when a structural directive adds or removes it, or when it moves. The value is a literal in the form of the CSS `animation` shorthand[^10]: a keyframes name, then an optional duration, easing, and delay. It is not an expression, so, like `$sort`, it can never take references. The name is a built-in (`fade`, `fly`, `scale`, `blur`) or any `@keyframes` in the component's `<style>`. Keyframes describe *arriving*; leaving plays them in reverse. With no value, the element uses the browser's default crossfade.
+>
+> ```html
+> <p $if="$saved" $transition="pop 150ms">Saved</p>
+>
+> <style>
+>   @keyframes pop { from { scale: .5; opacity: 0; } }
+> </style>
+> ```
+>
+> **`$transition-name="expr"`** is the element's identity across the change, as `view-transition-name` is in CSS. It is an expression: `$photo.id` reads a value, and a bare word such as `hero` is a keyword (see [Expressions](/declarative-components/expressions)). When one element leaves and another with the same name arrives in the same update, the browser moves and resizes the first into the second. The runtime would turn any value into a valid CSS identifier. Names are page-wide, which is what lets a grid and a detail view in different components pair up. An element with only `$transition` gets a unique generated name.
+>
+> An element with either directive *participates*. The runtime would:
+>
+> - run an update inside a view transition only when a structural directive inserts, removes, or reorders a participating element, using `Element.startViewTransition()`[^11] on the nearest container where it is supported and `document.startViewTransition()` otherwise; every other update stays as it is;
+> - keep the rest of the page out of the transition, so it stays live and clickable;
+> - play each element's keyframes on its picture, forwards when it arrives and reversed when it leaves, and apply its timing to the browser's own move;
+> - skip the animation when the user prefers reduced motion.
+>
+> Authors can still write `::view-transition-*` rules; the extension removes the requirement, not the option.
+>
+> **Why pictures instead of delayed removal.** Svelte and Vue keep a leaving node in the DOM until its animation ends. Here the DOM always holds the true state: a removed `$if` branch is gone at once, so refs, keyed rows, focus, and form submission never see a node on its way out. A framework target only has to wrap its state update, rather than map onto that framework's own transition component. CSS alone cannot cover removal: `@starting-style`[^12] animates an element's arrival, but nothing animates an element leaving the DOM.
+>
+> **Still open.**
+>
+> - A second document-level view transition skips the first, so closing and reopening quickly jumps instead of reversing. Element-scoped transitions, which can run side by side, are in Chromium only.
+> - An animated update reaches the DOM one frame later, after the browser captures the old state.
+> - When a sibling leaves, content that does not participate moves to its new position at once; it glides only if it participates too.
+> - A leaving picture can draw outside an `overflow` container until element-scoped transitions are widely available.
+> - Two elements on screen with the same name abort the transition.
+> - A framework target can wrap the component's own state writes, but a parent's prop change re-renders the child before the old state can be captured.
+> - Naming: `$transition` versus `$view-transition`, the platform's own term. Separate enter and leave animations wait until a use needs them.
+
 ## Reference
 
 ::: {.entry name="$each" role="iteration directive"}
@@ -243,7 +292,7 @@ Value
 : the for-of grammar: `item of items`, or `item, i of items`
 
 Modifiers
-: `$where`, `$sort` (`a,-b`), `$limit`, `$key`
+: `$where`, `$sort` (`p.a,-p.b`), `$limit`, `$key`
 
 Scope
 : binds the alias (and index) in a lexical layer; `loop.index/first/last/count`
@@ -326,3 +375,7 @@ Level
 [^6]: W3C, [CSS Text Module Level 3](https://www.w3.org/TR/css-text-3/#white-space-processing) (the white-space processing and collapsing model HTML Next defers to at render).
 [^7]: Angular [structural directives](https://angular.dev/guide/directives/structural-directives) (`*ngIf`/`*ngFor`): control flow expressed as a directive on the context-valid element rather than a wrapper element, the same parser-survival property argued here. Contrast: Svelte [`{#if}`](https://svelte.dev/docs/svelte/if)/`{#each}` and Solid [`Show`](https://docs.solidjs.com/reference/components/show)/`For` are wrapper or block forms that do not survive `<table>`/`<select>` foster-parenting.
 [^8]: Angular [`@switch`/`@case`/`@default`](https://angular.dev/guide/templates/control-flow) blocks: a near-exact twin of `$match`/`$when`/`$else`, alongside the XSLT `xsl:choose` unit.
+[^9]: W3C, [CSS View Transitions Module Level 1](https://www.w3.org/TR/css-view-transitions-1/) (`startViewTransition()`, [`view-transition-name`](https://www.w3.org/TR/css-view-transitions-1/#view-transition-name-prop), and the `::view-transition-*` pseudo-elements).
+[^10]: W3C, [CSS Animations Level 1](https://www.w3.org/TR/css-animations-1/#animation) (the `animation` shorthand).
+[^11]: Chrome for Developers, [element-scoped view transitions](https://developer.chrome.com/docs/css-ui/view-transitions/element-scoped-view-transitions) (`Element.startViewTransition()`, which runs transitions side by side and keeps the rest of the page interactive).
+[^12]: W3C, [CSS Transitions Level 2](https://www.w3.org/TR/css-transitions-2/#defining-before-change-style) (`@starting-style`).

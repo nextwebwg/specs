@@ -348,8 +348,8 @@ class Compiler {
     const first = node.children[0];
     const inline = first?.children[0]?.token;
     const head = inline?.children?.[0];
-    const match = head?.type === "text" ? head.content.match(/^\[!(note|ex|norm|warn)\]\s*(.*)$/) : null;
-    if (!match) throw new Error("A blockquote must be a callout: > [!note|ex|norm|warn] Title");
+    const match = head?.type === "text" ? head.content.match(/^\[!(note|ex|norm|warn|future)\]\s*(.*)$/) : null;
+    if (!match) throw new Error("A blockquote must be a callout: > [!note|ex|norm|warn|future] Title");
     const rest = inline!.children!.slice(1);
     const breakAt = rest.findIndex((t) => t.type === "softbreak");
     const title = match[2] + (breakAt < 0 ? plainText({ children: rest } as Token) : plainText({ children: rest.slice(0, breakAt) } as Token));

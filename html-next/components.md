@@ -61,7 +61,7 @@ A polymorphic component declares `as` as a keyword prop constrained to its suppo
 
   <!-- Both possible native roots are visible in the definition. -->
   <template $match>
-    <a $when="as = 'a'"><slot></slot></a>
+    <a $when="$as = 'a'"><slot></slot></a>
     <button $else><slot></slot></button>
   </template>
 </template>
@@ -159,10 +159,10 @@ A slot may expose data to the content projected into it. The definition binds sl
 
 ```html
 <!-- definition: a list that owns iteration, slots each row out -->
-<slot $each="row of rows" $key="row.id" name="row" from:item="row" from:index="loop.index"></slot>
+<slot $each="row of $rows" $key="$row.id" name="row" from:item="$row" from:index="$loop.index"></slot>
 
 <!-- use: the template's scope is { item, index } -->
-<x-list from:rows="people">
+<x-list from:rows="$people">
   <template slot="row"><td>{$item.name}</td></template>
 </x-list>
 ```
@@ -189,7 +189,7 @@ Native `<template>` has no `src`, so HTML Next defines it: `<template src="…">
 When the component to render is decided at runtime, `<component is="expr">` resolves the tag from an expression, the name and syntax taken verbatim from Vue `<component :is>` (Svelte `<svelte:component>` and Angular `NgComponentOutlet` are the same idea).[^8] Props and children pass through as with a literal invocation.
 
 ```html
-<component is="block.type" from:data="block"></component>
+<component is="$block.type" from:data="$block"></component>
 ```
 
 ### <portal to>: render elsewhere
@@ -249,7 +249,7 @@ A resource [must]{.kw} contain at least one component carrier. After HTML fragme
 | Comments and whitespace-only text | Ignore. |
 | `<style>`, any `<script>` (including import maps and data scripts), `<base>`, `<meta http-equiv>`, HTML Imports, ordinary body elements, plain non-component templates, and non-whitespace text | Reject as invalid resource content. |
 
-Executable event-handler attributes remain invalid in metadata at either scope. Scripts, `<base>`, policy metadata, and HTML Imports also remain invalid inside a carrier. A metadata `<link rel="stylesheet">` is ignored at resource scope or as a direct carrier child; the optional `<style>` **inside** a carrier still supplies its scoped component CSS. Imperative behavior still uses the carrier's declared `controller` module.
+Executable event-handler attributes remain invalid in metadata at either scope. Scripts, `<base>`, policy metadata, and HTML Imports also remain invalid inside a carrier. A metadata `<link rel="stylesheet">` is ignored at resource scope or as a direct carrier child; the optional `<style>` **inside** a carrier still supplies its scoped component CSS, including [shared CSS imported with `@import`](/declarative-components/styling#shared-css). Imperative behavior still uses the carrier's declared `controller` module.
 
 Application build systems [may]{.kw} consume file-level and component-owned metadata under their own documented conventions. For example, a build may select one component as a page, interpret that component's namespaced metadata as a layout choice, and collect its title and description into the generated document's head. This proposal defines neither page selection nor layout selection, head merging, precedence, binding scope, or navigation updates. An application build owns those behaviors; they are not component registration or lowering effects. Metadata from another component or an imported dependency does not acquire application authority merely because rendering or the component graph reaches it.
 
@@ -304,6 +304,8 @@ For live loading, `<link rel="component">` retains the normal fetch vocabulary: 
 All of these forms feed one document-level registry keyed by tag; when the parser meets `<x-button>` it looks the tag up there. A tag [must]{.kw} have exactly one definition in a document. Declaring the same tag more than once, inline or by pointer, is a conformance error rather than last-wins, so resolution stays deterministic.
 
 A definition that composes other components [should]{.kw} carry its own `<link rel="component">` edges, normally as relative URLs inside one live location or package. If it needs imperative behavior, its carrier declares one `controller` specifier. The complete HTML-to-HTML-to-JavaScript graph is therefore discoverable by a static walk, without relying on the consuming document to reconstruct it or executing a package entry point.
+
+The definition's `<style>` may also declare CSS `@import` edges. A static graph walk includes their transitive stylesheet dependencies, using the [shared CSS resolution and scoping contract](/declarative-components/styling#shared-css). Resolving these stylesheets requires no controller execution.
 
 ### Imported definitions are inert
 

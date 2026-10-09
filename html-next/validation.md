@@ -21,9 +21,9 @@ The same validation that already works on a form `<input>` works on any typed va
 <!-- a component definition declares the bounds on its own prop -->
 <template component="x-age-field">
   <defs><prop name="age" type="integer" min="0" max="120">Age.</prop></defs>
-  <div from:data-age="age"></div>
+  <div from:data-age="$age"></div>
 </template>
-<x-age-field from:age="draft.age"></x-age-field>
+<x-age-field from:age="$draft.age"></x-age-field>
 
 <!-- structured data validates against a schema; failures carry a path -->
 <data name="profile" src="/api/me" schema="/schemas/profile.json">

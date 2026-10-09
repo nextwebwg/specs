@@ -14,12 +14,12 @@ What that looks like in practice: expressions never run as code, dangerous sinks
 
 ```html
 <!-- Blocked: no expression is ever eval'd; a bound javascript: URL is dropped -->
-<a from:href="user.website">…</a>       <!-- javascript:… as the value → attribute removed -->
+<a from:href="$user.website">…</a>       <!-- javascript:… as the value → attribute removed -->
 <button onclick="…">                 <!-- inline handler → non-conforming, rejected -->
 
 <!-- Safe sinks are explicit -->
-<h2 $value="post.title">             <!-- textContent: markup stays text -->
-<article $html="post.body">          <!-- deterministic HTML parsing + the standard safe-default policy -->
+<h2 $value="$post.title">             <!-- textContent: markup stays text -->
+<article $html="$post.body">          <!-- deterministic HTML parsing + the standard safe-default policy -->
 ```
 
 ## Secure by construction
@@ -77,6 +77,12 @@ HTML Next keeps the defensible parts without claiming a security boundary that i
 
 > [!norm] Trust the root, constrain the closure
 > An application approves a component root, not a hand-copied list of everything below it. That is the useful trust boundary shared by ES-module, package, and iframe imports. The component definition only declares dependencies; it cannot carry consumer approval or change the application's map. Requiring approval for every transitive controller would add ceremony without creating a sandbox.
+
+### Shared stylesheet resources
+
+Stylesheets reached through a component's CSS `@import` are part of its declarative resource graph. A live loader [must]{.kw} resolve each import against its containing source, check the final response URL against the containing component's approved live scope, and enforce the application's CSP and the CORS requirements for reading and transforming cross-origin CSS. URL resolution alone does not authorize a fetch. A CSS import cannot widen a live trust scope; ordinary CSS URL strings do not acquire JavaScript import-map resolution. Packaged builds use their host resolver and application-owned asset graph instead, as defined in [Style Scoping](/declarative-components/styling#shared-css).
+
+Component scoping constrains selector matching, not resource requests. Fonts, images, and other assets referenced by imported CSS retain their original source bases and the platform's normal resource policies. An implementation [must not]{.kw} activate an unscoped sheet as a fallback when its contents cannot be read or transformed. The application's policies govern both fetching source CSS and applying the generated styles; a JavaScript loader using Fetch remains subject to `connect-src` as well as the applicable style policy.
 
 ### Packaged components do not use live trust
 

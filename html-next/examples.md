@@ -43,14 +43,14 @@ Structural `$`-directives ride on ordinary elements (or a `<template>`), so they
 ```html
 <!-- templating: a filtered, sorted list and a three-way status, all as directives -->
 <ul>
-  <li $each="p of products" $where="p.inStock" $sort="price,-name" $key="p.id">
+  <li $each="p of $products" $where="$p.inStock" $sort="p.price,-p.name" $key="$p.id">
     {format($p.price, 'currency', { currency: 'USD' })} — {$p.name}
   </li>
 </ul>
 
-<template $match="order.status as s">
-  <p $when="s = 'pending'">Working…</p>
-  <p $when="s = 'error'">Something went wrong.</p>
+<template $match="$order.status as s">
+  <p $when="$s = 'pending'">Working…</p>
+  <p $when="$s = 'error'">Something went wrong.</p>
   <p $else>Done.</p>
 </template>
 ```

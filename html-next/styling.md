@@ -74,6 +74,51 @@ A rule may be conditioned on context outside the component by placing that conte
 
 Styling the page itself (its `<body>`, other components, or unrelated elements) is never a component's to do. Page-wide rules belong in the page's stylesheets, or in a stylesheet a package ships alongside its components for the page to include. At-rules that are document-wide in CSS, such as `@font-face`, `@property`, and `@keyframes` names, keep that meaning inside a component's `<style>`.
 
+## Shared component CSS: @import {#shared-css}
+
+A component shares defaults or other styles with ordinary CSS `@import` inside its `<style>`. Imported rules have the same meaning as rules authored inline in the importing component, including its scope boundaries and component selectors.
+
+```html title="components/card.html"
+<template component="x-card">
+  <article><slot></slot></article>
+  <style>
+    @import "../styles/component-defaults.css";
+
+    :host { padding: 1rem; border: 1px solid; }
+  </style>
+</template>
+```
+
+```css title="styles/component-defaults.css"
+:host, *, :host::before, :host::after, *::before, *::after {
+  box-sizing: border-box;
+}
+```
+
+The universal selector `*` selects elements, not `::before` or `::after`; the baseline lists those pseudo-elements explicitly. `box-sizing` is not inherited by default. The card's own markup uses `border-box`; nested components and projected content remain outside these rules. Slotted content that declares `box-sizing: content-box` keeps that box model. Another component adopts the same baseline by importing the same file. HTML Next supplies no automatic reset: defaults come from native CSS, the application, and styles the component explicitly authors or imports. [Inheritance still crosses](#inheritance-still-crosses): slotted content with `box-sizing: inherit` can inherit the receiving parent's box model even though the card's selectors do not match it.
+
+### Resolution and CSS meaning
+
+The import graph is resolved before component scoping is applied. A conforming implementation [must]{.kw} preserve the following behavior in live loading and every generated target:
+
+- **Source-relative URLs.** An inline import resolves against the containing component resource's final response URL. A nested import resolves against the final response URL of the stylesheet containing it. Relative asset references, such as `url("./icons.svg")` or a font source, retain that stylesheet's base URL when CSS is moved or bundled. A component inline in an application document uses that document's base URL.
+- **Ordinary CSS imports.** CSS defines valid import placement, import order, `layer` and `layer(name)`, `supports()`, media conditions, and cycle handling.[^6] Imported rules participate at the import's authored position. Nested imports follow the same rules; a cyclic edge contributes no further rules. Repeated imports retain their separate cascade positions and anonymous-layer identities. CSS constructs local to a stylesheet, such as `@namespace`, retain their original stylesheet boundaries.
+- **The importing component owns the rules.** `:host`, prop and state selectors, and `:slotted()` are interpreted against the importing component's contract. Ordinary rules stop at its nested-component and projected-content boundaries; imported `:slotted()` rules use the same explicit opt-in as inline rules. Importing a stylesheet does not install its ordinary selectors globally.
+- **Existing resolution policy.** Live imports use CSS URL resolution, not JavaScript bare-specifier resolution: `@import "defaults.css"` names a relative URL. They obey the application's component-resource loading policy, including live trust scopes, redirects, CORS, and CSP (see [Security](/declarative-components/security#shared-stylesheet-resources)). A build [may]{.kw} use its host resolver for package paths or aliases, provided its output preserves these CSS semantics and asset bases; this does not create a browser CSS import-map mechanism.
+
+An unresolved, blocked, or failed import contributes no rules, as in CSS, and [must]{.kw} produce a diagnostic identifying the source stylesheet and import. An implementation [must not]{.kw} substitute an unscoped stylesheet or bypass application policy to recover. Invalid CSS imports retain CSS's normal parsing behavior and do not become dependency edges.
+
+### Document-wide rules and delivery
+
+Imported `@keyframes`, `@font-face`, `@property`, and other document-wide rules retain the same meaning as their inline counterparts. Their names remain document-wide, with ordinary CSS conflict resolution. Native `@scope` permits global name-defining rules without scoping those names.[^1] A transform that emits them outside the component's generated scope [must]{.kw} preserve their source order and enclosing conditions and layers. Grouping rules such as `@media`, `@supports`, and `@layer` continue to contain scoped style rules; their contents do not all become global merely because the group also contains a document-wide rule.
+
+Fetching and parsing a shared resource [should]{.kw} be cached by its resolved final URL. Compatible imports of that URL [must]{.kw} share one delivered stylesheet body, scoped to the components that adopt it; implementations [must not]{.kw} copy it into each component or each rendered instance. Prop and state tests still read each adopting component's own resolved values. Reuse [must not]{.kw} change the cascade, conditions, anonymous-layer identities, stylesheet-local constructs, or document-wide effects. Imports under different conditions or layers, or at incompatible cascade positions, retain separate scoped occurrences when sharing would change their meaning. CSS delivery [must]{.kw} preserve the same result across server rendering and hydration.
+
+Stylesheet order follows the resolved component graph and the imports' authored positions, not instance mount order. Live and generated implementations [must]{.kw} preserve equivalent cascade ordering for the same graph. Moving, unmounting, or remounting an instance [must not]{.kw} move or reinstall its stylesheet. A later extension of the graph preserves already delivered order and installs new occurrences where sharing cannot preserve that order.
+
+> [!note] Resolve first, then scope
+> A runtime or build resolves imported CSS and preserves its source bases, then applies the same component-style processing used for inline CSS. Constructed stylesheets' `replace()` and `replaceSync()` discard unresolved `@import` rules,[^7] so passing unresolved source to those methods cannot implement this contract. Ordinary metadata stylesheet links remain separate: the component loader ignores them, as defined in [Components & Composition](/declarative-components/components#resource-metadata-for-application-tooling).
+
 ## Styling by props and state
 
 Use `:host([prop])` for declared **props**, and `:host-state([state])` for mutable or computed **state**. Both select the component's root using resolved values, including defaults. Their arguments use attribute-selector-shaped tests; they do not require reflected DOM attributes.
@@ -226,3 +271,5 @@ Full isolation via a real shadow boundary [may]{.kw} be requested explicitly; it
 [^3]: Scoped-style precedent: Angular [ViewEncapsulation.Emulated](https://angular.dev/guide/components/styling), its shipped default, is attribute-hash scoping with no shadow boundary; Vue [`<style scoped>`](https://vuejs.org/api/sfc-css-features.html#scoped-css) and [Svelte scoped styles](https://svelte.dev/docs/svelte/scoped-styles) are the same scoping-not-isolation approach.
 [^4]: The isolation contrast authors avoided: Shadow DOM and Lit [component styles](https://lit.dev/docs/components/styles/) impose a real shadow boundary that also blocks shared theming and the cascade.
 [^5]: CSS Scoping, [`:host`](https://www.w3.org/TR/css-scoping-1/#host-selector) and [`::slotted()`](https://www.w3.org/TR/css-scoping-1/#slotted-pseudo); the long-standing request to let `::slotted()` take complex selectors, [csswg-drafts #2425](https://github.com/w3c/csswg-drafts/issues/2425), and to make it a combinator, [#7922](https://github.com/w3c/csswg-drafts/issues/7922).
+[^6]: CSS Cascading and Inheritance Level 5, [`@import`](https://www.w3.org/TR/css-cascade-5/#at-import) and [processing stylesheet imports](https://www.w3.org/TR/css-cascade-5/#import-processing) (import occurrences retain their CSS meaning independently of resource-fetch caching); CSS Namespaces, [scope](https://www.w3.org/TR/css-namespaces-3/#scope) (namespace declarations apply only to their containing stylesheet).
+[^7]: CSS Object Model, [replacing stylesheet rules](https://drafts.csswg.org/cssom/#dom-cssstylesheet-replacesync) (constructed-sheet replacement removes `@import` rules).

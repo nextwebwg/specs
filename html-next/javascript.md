@@ -128,7 +128,7 @@ interface ComponentHost<
 
 Teardown is either a disposer returned from an `host.on("connect", …)` callback or an explicit `host.on("disconnect", …)`; `host.effect` cleans itself up. This is the same connect-and-return-a-disposer shape used across the platform and userland alike.
 
-### Accepted values and prop inputs
+### Accepted values and prop inputs {#accepted-values-and-prop-inputs}
 
 `host.props.amount.value` reads the prop's **accepted value**. Template expressions such as `$amount` read that value too; `host.state.amount` is absent. A declared `<state name="count">` is read and written through `host.state.count`, and `host.props.count` is absent. A `<computed>` declares **computed state**: its value is derived from dependencies and read through `host.state`, but cannot be assigned. Inherited `<context>` values are also read-only under `host.state`. Each `<data>` resource is read through `host.data`, for example `host.data.search.value`; data resources are absent from `host.state`. State has no `inputValue` or `validity`; a failed `<set>` or `bind:` write does not replace it. When the attempted value came from a native control, that control retains its edit and owns its validity.
 
@@ -142,7 +142,7 @@ host.state.amount                 // undefined: props are absent from state
 host.props.amount.validity.badInput // true
 ```
 
-### State writes use the same checks as bindings
+### State writes use the same checks as bindings {#state-writes-use-the-same-checks-as-bindings}
 
 A controller assignment proposes a value to the declared state, just as `<set>` or `bind:` does. The destination's type rules apply before the write. A wrong-typed value is ignored, the state keeps its current value, and dependents are not notified. An attempt to assign computed state or an inherited context is likewise ignored because that destination is read-only.
 

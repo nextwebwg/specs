@@ -134,10 +134,10 @@ A writable path is a member or index access chain rooted at a **`<state>`** cell
 | a prop | error (inside the component) | props are one-way in; a component surfaces two-way by exposing a bindable prop and `<dispatch>`ing changes, which the consumer binds with `bind:` on the invocation |
 | `$a + $b`, `$x \| filter` | error | an expression is not an assignable location |
 
-Writability flows from the root: a `$each` local or `$with` alias is writable exactly when it aliases a writable path, an item of a `<state>` collection is, an item of a `<data>` collection is not. Writing a sub-path changes that path and nothing that contains it, and re-runs that path's dependents (see [What counts as a change](/declarative-components/reactivity#changes)). An implementation may track mutations or store structural copies, as long as readers observe exactly that.
+Writability flows from the root: a `$each` local or `$with` alias is writable exactly when it aliases a writable path, an item of a `<state>` collection is, an item of a `<data>` collection is not. Writing a sub-path changes that path and nothing that contains it, and re-runs that path's dependents and every reader that takes a whole value containing it (see [What counts as a change](/declarative-components/reactivity#changes)). An implementation may track mutations or store structural copies, as long as readers observe exactly that.
 
 > [!note] Editing fetched data
-> A GET `<data>` result is read-only, so you do not `bind:` to it. Copy the fetched value into a `<state>` draft and bind controls to the draft. If that draft should autosave, a writable [`<data method="patch" send="change">`](/declarative-components/reactivity) observes the fields it sends. The fetched value, in-progress edit, and write effect remain distinct.
+> A GET `<data>` result is read-only, so you do not `bind:` to it. Copy the fetched value into a `<state>` draft and bind controls to the draft. If that draft should autosave, a writable [`<data method="patch" send="change">`](/declarative-components/reactivity) observes the fields it sends, including a change inside an object or list field such as a tag list. The fetched value, in-progress edit, and write effect remain distinct.
 
 > [!note] Attribute vs. property
 > Binding distinguishes an input's initial `value` attribute (serialized/default state) from its live `value` property (current control state). `from:value` updates the attribute from an expression; `bind:value` tracks the live property.

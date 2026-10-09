@@ -37,14 +37,19 @@ A `<state>` uses the same type syntax as a prop (see [Types](/declarative-compon
 
 A reader depends on the **paths** its expression reads, and on the paths that lead to them: `$items.0.name` depends on `items`, `items.0` and `items.0.name`. A path **changes** when its value is no longer `Object.is`-equal to the one it had,[^12] so `NaN` equals `NaN` and `0` differs from `-0`. The rule is the same at every depth; there is no separate shallow or deep mode.
 
-Writing inside an object or list changes the paths it writes and nothing that contains them. `items.push(item)` changes `items.length` and the new index, but not `items`, so a reader of `$items.0.name` is unaffected. Assigning a different list to `items` changes `items`, so every reader of a path through it evaluates again. A reader that iterates a whole list with `$each`, or converts a whole object or list to text, depends on its contents, so a change anywhere inside reaches it.
+Writing inside an object or list changes the paths it writes and nothing that contains them. `items.push(item)` changes `items.length` and the new index, but not `items`, so a reader of `$items.0.name` is unaffected. Assigning a different list to `items` changes `items`, so every reader of a path through it evaluates again. A reader that takes a whole object or list depends on its contents, so a change anywhere inside it, at any depth, reaches that reader. These readers are:
+
+- `$each` iterating a whole list;
+- conversion of a whole object or list to text;
+- a `<data>` parameter whose `from:value` is a whole object or list: after `tags.push('b')` or `tags[0] = 'z'`, a read with `<param name="tags" from:value="$filter.tags">` requests again, and a `send="change"` write (see [Writes](#writes) below) sends again;
+- a `from:` binding that passes a whole object or list to a child component's prop: the child's readers see the change.
 
 **An unchanged value stops propagation.** A state write, a computed value, or a structural decision whose new value has not changed notifies nothing. Nothing downstream evaluates again, renders again, requests again, or runs an effect:
 
 - A `<state>` written with its current value, and a `<computed>` that recomputes to its previous value, notify no reader.
 - `$if` keeps its element and content while its test stays truthy, `$match` keeps its arm while that arm is still chosen, and `$with` updates what reads its alias in place (see [Templating](/declarative-components/templating)).
 - An attribute, class, style, or text binding writes only a result that differs from what it last wrote. A property binding writes its result whenever a value it reads changes, even when that result equals what it last wrote, because the element may have changed that property itself, as a control does with its `value`.
-- A `<data>` read requests again only when a resolved parameter changes.
+- A `<data>` read requests again only when a resolved parameter changes, including a change inside a whole object or list it passes.
 - `host.effect` runs again only when a value it read changes (see [JavaScript](/declarative-components/javascript#the-companion-javascript-dom-api)).
 
 > [!note] To act on every occurrence, handle the event
@@ -234,9 +239,9 @@ Content-Type: application/json
 
 `id` filled the `{id}` placeholder and therefore does not repeat in the body; `title`, `tags`, and the sampled `clientRevision` are the body. The same rule decides both directions, so an author reading a declaration can tell what the request will look like without reading any JavaScript.
 
-## Writes: reactive data effects
+## Writes: reactive data effects {#writes}
 
-A synchronized write is the outbound half of the same reactive resource model. A `<data>` with a modifying `method` and `send="change"` observes its `from:value` body parameters and sends their latest snapshot when they change. An `expr:value` parameter is sampled when another parameter causes the resource to prepare a request; changing only that expression's inputs does not queue a request. This mode represents state synchronization: each body is the latest state, never a request to perform a one-shot command. `debounce` controls the quiet period before the effect runs, so autosave does not mean one request per keystroke. The declaration lives in `<defs>` and exposes `.dirty`, `.pending`, `.value`, `.error`, and `.ok`.
+A synchronized write is the outbound half of the same reactive resource model. A `<data>` with a modifying `method` and `send="change"` observes its `from:value` body parameters and sends their latest snapshot when they change, including a change inside an object or list parameter (see [What counts as a change](#changes)). An `expr:value` parameter is sampled when another parameter causes the resource to prepare a request; changing only that expression's inputs does not queue a request. This mode represents state synchronization: each body is the latest state, never a request to perform a one-shot command. `debounce` controls the quiet period before the effect runs, so autosave does not mean one request per keystroke. The declaration lives in `<defs>` and exposes `.dirty`, `.pending`, `.value`, `.error`, and `.ok`.
 
 ```html
 <defs>

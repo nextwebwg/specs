@@ -198,7 +198,7 @@ Google's Polymer entered maintenance mode in 2018 and was superseded by Lit (a t
 
 The people who build component models did not build them on this one.
 
-The creator of Svelte set out in 2019 why he does not use Web Components: Shadow DOM forces CSS into JavaScript; the property/attribute split forces boilerplate; slotted content renders eagerly; the registry is one global namespace; and the DOM is "an awkward interface for building interactive applications."[^1] React, Vue, Svelte, and Solid each built their own model instead.
+The creator of Svelte set out in 2019 why he does not use Web Components: Shadow DOM forces CSS into JavaScript; the property/attribute split forces boilerplate; slotted content renders eagerly; the registry is one global namespace; and the DOM is "an awkward interface for building interactive applications."[^1] React, Vue, Svelte, and Solid each built their own model instead. HTML Next answers the eager-slot complaint directly: a consumer's `<template slot>` renders only while the slot that receives it renders, so content that slot does not render is never created, loaded, or set up ([content that renders on demand](/declarative-components/components#content-that-renders-on-demand)).
 
 #### The extension mechanism is blocked
 

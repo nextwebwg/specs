@@ -100,7 +100,8 @@ interface ComponentHost<
   readonly refs: Readonly<Record<string, Element | readonly Element[]>>;
 
   /** Elements a consumer projected, by slot name, in order. Empty while the slot
-   *  shows its fallback. The only way to enumerate projected content. */
+   *  shows its fallback. A <template slot> contributes the elements it renders,
+   *  only while its slot renders. The only way to enumerate projected content. */
   readonly slots: Readonly<Record<string, readonly Element[]>>;
 
   /** Run callback on a lifecycle or component event. Returns an unsubscribe. */
@@ -121,7 +122,7 @@ interface ComponentHost<
 | <code>host.data.<var>name</var></code> | Read a declared `<data>` resource, including its `.pending`, `.value`, `.error`, and `.ok` fields. The resource is read-only. | The declared resource and its native fetch lifetime |
 | <code>host.props.<var>name</var></code> | Inspect a caller-supplied prop's accepted value, latest direct input, and validity. This is the controller's only path to a declared prop. | An HTML control separates its input and validity from the value its consumers read[^10] |
 | <code>host.refs.<var>name</var></code> | The element declared with <code>$ref="<var>name</var>"</code>, or the list of them when that name sits inside an iteration. | captured at lowering (see below) |
-| <code>host.slots.<var>name</var></code> | The elements a consumer projected into that slot, in order; empty while the slot shows its fallback. | `assignedElements()`[^9] |
+| <code>host.slots.<var>name</var></code> | The elements a consumer projected into that slot, in order; empty while the slot shows its fallback. For a consumer's `<template slot>`, the elements the template renders while the slot renders, and none while it does not ([content that renders on demand](/declarative-components/components#content-that-renders-on-demand)). | `assignedElements()`[^9] |
 | <code>host.on(<var>event</var>, fn)</code> | Run `fn` on a lifecycle or component event; `connect`/`disconnect` included. | `connectedCallback`/`disconnectedCallback`[^1] |
 | `host.effect(fn)` | Run `fn` while connected and re-run it whenever a state path it read changes. Returns an early-stop function; connection also owns cleanup. | TC39 Signals `Watcher`[^4] plus DOM connection |
 | <code>host.dispatch(<var>event</var>, detail)</code> | Raise a component event a parent can catch with `on:event`. | `CustomEvent` / `dispatchEvent`[^8] |

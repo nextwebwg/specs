@@ -46,11 +46,13 @@ For [shared state](/declarative-components/reactivity), this also means a hydrat
 Every rendered slot is delimited by processing instructions:
 
 ```html
-<?start slot=""?>…<?end?>                    <!-- default slot -->
-<?start slot="title"?>…<?end?>               <!-- named slot -->
-<?start slot="title" fallback=""?>…<?end?>   <!-- slot showing its fallback -->
-<?marker slot="title"?>                      <!-- slot rendered empty, no fallback -->
-<?carrier?><template>…</template>            <!-- carrier for content no slot renders -->
+<?start slot=""?>…<?end?>                            <!-- default slot -->
+<?start slot="title"?>…<?end?>                       <!-- named slot -->
+<?start slot="title" fallback=""?>…<?end?>           <!-- slot showing its fallback -->
+<?start slot="row" scoped=""?>…<?end?>               <!-- slot rendering a consumer's <template slot> -->
+<?start slot="row" fallback="" scoped=""?>…<?end?>   <!-- slot with props showing its fallback -->
+<?marker slot="title"?>                              <!-- slot rendered empty, no fallback -->
+<?carrier?><template>…</template>                    <!-- carrier for content no slot renders -->
 ```
 
 - Attributes use the platform's pseudo-attribute syntax: quoted `name="value"` pairs. A bare attribute is a parse error that leaves the instruction with no attributes at all, so the default slot is written `slot=""`.[^2][^3]
@@ -97,8 +99,8 @@ The carrier is marked by a `<?carrier?>` instruction immediately before it, read
 
 1. Recover explicit props from the server-rendered instance's hydration data. The proposal has not fixed a wire format for that data; visible `data-<name>` attributes are not required.
 2. Collect the root's own slot ranges in document order: its subtree, minus its own ranges' contents (consumer content), minus nested components' own regions, plus the contents of nested components' ranges (what this component projected into them).
-3. The projected nodes are the contents of every range without `fallback`, each assigned that range's slot, followed by the carrier's nodes, which keep their own `slot` attribute. The carrier is removed.
-4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes or the fallback nodes, adopted in place so their bindings attach.
+3. The projected nodes are the contents of every range without `fallback` or `scoped`, each assigned that range's slot, followed by the carrier's nodes, which keep their own `slot` attribute. A consumer's [`<template slot>`](/declarative-components/components#content-that-renders-on-demand) is always in the carrier: the live DOM holds what it renders, never the template. The carrier is removed.
+4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes, the fallback nodes, or the nodes its `<template slot>` rendered, adopted in place so their bindings attach.
 5. A nested component's server-rendered root is adopted, not re-rendered. The outer template's nodes inside it are matched against that component's slot ranges and carrier, where lowering placed them, and the nested root hydrates as its own instance.
 
 A root that a framework rendered is owned by that framework, which hydrates from its own state. Framework output need not carry slot ranges; its element tree remains subject to [target equivalence](/declarative-components/targets).

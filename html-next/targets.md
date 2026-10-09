@@ -23,6 +23,8 @@ Whatever the target, a generator turns one HTML Next source into that target's i
 - import or reference the generated CSS exactly once; and
 - produce deterministic output for deterministic input.
 
+CSS output includes the component's transitive [`@import` dependencies](/declarative-components/styling#shared-css). Every target [must]{.kw} preserve imported rules' component scope, cascade order, conditions, layers, and source-relative assets, along with document-wide at-rule behavior. A target [may]{.kw} bundle or share CSS artifacts; it [must not]{.kw} turn component-owned imports into global styles or add stylesheet copies for each instance.
+
 ::: targets
 Vanilla DOM
 : ESM factory + .d.ts

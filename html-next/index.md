@@ -88,7 +88,7 @@ The proposal is **purely additive markup**. You add one feature to an ordinary H
 
 ### How the proposal versions
 
-There is no single umbrella version, no big-bang *HTML&nbsp;Next&nbsp;1.0*. The project versions the way the platform itself does today, on three borrowed axes:
+There is no single umbrella version of the proposal, no big-bang *HTML&nbsp;Next&nbsp;1.0*. A number such as *HTML&nbsp;Next&nbsp;1.x* names a version of the reference tools, not of the proposal (see [Stability comes from pinning](#stability)). The proposal versions the way the platform itself does today, on three borrowed axes:
 
 ::: two
 

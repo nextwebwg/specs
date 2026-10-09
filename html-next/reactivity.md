@@ -43,7 +43,7 @@ Writing inside an object or list changes the paths it writes and nothing that co
 
 - A `<state>` written with its current value, and a `<computed>` that recomputes to its previous value, notify no reader.
 - `$if` keeps its element and content while its test stays truthy, `$match` keeps its arm while that arm is still chosen, and `$with` updates what reads its alias in place (see [Templating](/declarative-components/templating)).
-- An attribute, class, style, or text binding writes only a result that differs from what it last wrote. A property binding writes each new result, because the element may have changed that property itself, as a control does with its `value`.
+- An attribute, class, style, or text binding writes only a result that differs from what it last wrote. A property binding writes its result whenever a value it reads changes, even when that result equals what it last wrote, because the element may have changed that property itself, as a control does with its `value`.
 - A `<data>` read requests again only when a resolved parameter changes.
 - `host.effect` runs again only when a value it read changes (see [JavaScript](/declarative-components/javascript#the-companion-javascript-dom-api)).
 
@@ -431,4 +431,4 @@ Level
 [^9]: WHATWG Fetch, [methods](https://fetch.spec.whatwg.org/#methods): method normalization uppercases `DELETE`, `GET`, `HEAD`, `OPTIONS`, `POST`, and `PUT`; it does not include `PATCH`.
 [^10]: IETF, [RFC&nbsp;10008: The HTTP QUERY Method](https://www.rfc-editor.org/rfc/rfc10008): a safe, idempotent method that carries request content.
 [^11]: WHATWG HTML, [issue&nbsp;#12594](https://github.com/whatwg/html/issues/12594): the active proposal to support `method="query"` and `formmethod="query"` in HTML forms.
-[^12]: ECMAScript, [SameValue](https://tc39.es/ecma262/#sec-samevalue), the comparison `Object.is` performs. The TC39 Signals proposal's default `equals`, Solid's [createMemo](https://docs.solidjs.com/reference/secondary-primitives/create-memo), and Vue's `computed` stop propagation on the same comparison.
+[^12]: ECMAScript, [SameValue](https://tc39.es/ecma262/#sec-samevalue), the comparison `Object.is` performs. The TC39 Signals proposal's default `equals` and Vue's `computed` stop propagation on the same comparison. Solid's [createMemo](https://docs.solidjs.com/reference/secondary-primitives/create-memo) compares with `===` by default, which differs from it only for `NaN` and for `0` and `-0`.

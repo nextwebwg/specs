@@ -26,7 +26,7 @@ Each type has one name and one meaning.
 | `keyword` | `compact`, `size-2` | One or more ASCII letters, digits, underscores, or hyphens (`^[A-Za-z0-9_-]+$`), represented as a JavaScript string.[^2] |
 | `boolean` | `true`, `false` | A truth value.[^3] |
 | `integer` | `3`, `-2` | A whole number, parsed using HTML's integer syntax.[^4] |
-| `number` | `2.5` | A finite number, parsed using HTML's floating-point number syntax.[^4] |
+| `number` | `2.5` | A finite number, parsed using HTML's floating-point number syntax.[^4] Expression arithmetic on it is [decimal to the operands' precision](/declarative-components/expressions#decimal-arithmetic): `0.1 + 0.2` is `0.3`. |
 | `url` | `https://example.org/` | A valid absolute URL string.[^5] |
 | `email` | `ada@example.org` | A valid email address string.[^5] |
 | `date` | `2026-09-29` | A calendar date without a time zone, written year-month-day: at least four year digits and exactly two digits each for month and day.[^6] |

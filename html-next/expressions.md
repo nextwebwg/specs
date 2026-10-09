@@ -136,9 +136,51 @@ Reading a property that is not present at runtime, `order.error.message` when `e
 
 Comparison is **typed**. Two values of different types are not equal, and comparing operands whose types are statically known to be disjoint, a `number` against a string literal, is a **conformance error**, a caught bug rather than a silent `false`. Where a type mismatch can only be known at runtime, the result is simply `false`; it never throws.
 
-Arithmetic follows the operand types. `+` is *not* overloaded for string concatenation, so `"1" + 1` can never silently become `"11"`. An incompatible combination is a type error where it is statically known, and absent otherwise. Operators never coerce across types. Conversion happens at **typed edges**: a `number` prop converts its incoming string once, on the way in, the way `<input>` exposes both `value` and `valueAsNumber`, never mid-expression. The [rules for dimensions](#arithmetic-with-units) give each valid operation a result type.
+Arithmetic follows the operand types. `+` is *not* overloaded for string concatenation, so `"1" + 1` can never silently become `"11"`. An incompatible combination is a type error where it is statically known, and absent otherwise. Operators never coerce across types. Conversion happens at **typed edges**: a `number` prop converts its incoming string once, on the way in, the way `<input>` exposes both `value` and `valueAsNumber`, never mid-expression. Number arithmetic is [decimal to the operands' precision](#decimal-arithmetic), so `0.1 + 0.2` is `0.3`. The [rules for dimensions](#arithmetic-with-units) give each valid operation a result type.
 
 `concat(value, …)` is an explicit conversion edge for constructing a string. One argument converts an accepted scalar value to text; further arguments append their text in order. It does not bypass a declaration's type check. Its arguments and errors are defined under [Functions](#functions).
+
+### Decimal arithmetic {#decimal-arithmetic}
+
+Fractional numbers calculate the way they are written. Adding `0.1` to `0.2` gives `0.3`, and a value stepped by `0.1` reaches exactly the number an author compares it with. A `number` is still a JavaScript `Number`; only the result of `+`, `-`, `*`, and `%` changes.
+
+```html
+<template component="x-level">
+  <defs>
+    <state name="level" type="number" value="0"></state>
+    <handler name="raise">
+      <set name="level" expr:value="$level + 0.1" $if="$level < 9.9"></set>
+    </handler>
+  </defs>
+  <button type="button" on:click="raise" from:disabled="$level = 9.9">Level {$level}</button>
+</template>
+```
+
+Each click raises the level by `0.1`: it reads `0.1`, `0.2`, `0.3`, and so on to `9.9`. Then `$level = 9.9` is true, the button is disabled, and the guard stops further steps. JavaScript's binary doubles would drift instead. The third click would give `0.30000000000000004`, 99 clicks would reach `9.89999999999998`, `$level = 9.9` would never become true, and the guard would allow a 100th click, to `9.99999999999998`. An `<input type="number" step="0.1">` already steps from `1.1` to `1.2` and, step by step, from `0` to `9.9` in every browser, and CSS serializes `calc(0.1px + 0.2px)` as `0.3px`.[^19]
+
+> [!norm] Number arithmetic is decimal to the operands' precision
+> For `+`, `-`, `*`, and `%` on two `number` operands, each operand stands for its [decimal value]{.dfn}: the shortest decimal that converts back to the same number, as ECMAScript's `Number::toString` writes it.[^20] An operand's [places]{.dfn} are the digits after the decimal point in its decimal value: `1.25` has 2, `1e-7` has 7, and an integer has 0. The result [must]{.kw} be the number nearest to the exact sum, difference, product, or remainder of the decimal values. That exact result has at most *p* places, where *p* is the larger of the operands' places for `+`, `-`, and `%`, and the sum of both operands' places for `*`. `%` truncates as JavaScript's `%` does, so a remainder has the dividend's sign.
+>
+> A double holds 15 significant digits exactly. When the operands or the floating-point result need more at *p* places, the operation [must]{.kw} return the floating-point result instead: that happens when the largest magnitude among the two operands and the floating-point result, multiplied by 10 to the power *p* in floating point, is 10¹⁵ or more. When *p* is 0, as for two whole numbers, the result is the floating-point result. A zero result has the sign of the floating-point result.
+>
+> `/` is floating-point division, without a decimal step: `1 / 3` has no decimal result. Any result that is not finite is invalid, as for any `number`.
+
+| Expression | Result | JavaScript's double result |
+| --- | --- | --- |
+| `1.1 + 0.1` | `1.2` | `1.2000000000000002` |
+| `0.1 + 0.2` | `0.3` | `0.30000000000000004` |
+| `0.3 - 0.1` | `0.2` | `0.19999999999999998` |
+| `1.25 * 2` | `2.5` (*p* = 2) | `2.5` |
+| `0.1 * 0.2` | `0.02` (*p* = 2) | `0.020000000000000004` |
+| `4.35 * 100` | `435` | `434.99999999999994` |
+| `0.3 % 0.1` | `0` | `0.09999999999999998` |
+| `-5.5 % 2` | `-1.5` | `-1.5` |
+| `1 / 3` | `0.3333333333333333` | `0.3333333333333333` |
+| `0.3 / 0.1` | `2.9999999999999996` | `2.9999999999999996` |
+| `9999999999.9999 + 0.0002` | `10000000000.0001` | `10000000000.000101` |
+| `99999999999.9999 + 0.0002` | `100000000000.00009`: 16 digits at *p* = 4, so the double result | `100000000000.00009` |
+
+The rule keeps a `number` an ordinary double at every boundary. Props, state, controllers, and the DOM see the same JavaScript `Number` values as before; only arithmetic rounds its result to the precision its operands were written with. A decimal type, such as the decimal.js library or the TC39 Decimal proposal, would also give exact results, but it would change what crosses into JavaScript.[^19] Division stays a double because most quotients, such as `1 / 3`, have no exact decimal at any precision.
 
 ### Fallback for absence
 
@@ -212,7 +254,7 @@ Unitless `0` is a number, so `round(8px, 0)` is a type error; use `0px` (which t
 
 ### Arithmetic with units
 
-An `integer` or a fractional `number` is unitless. The result type follows the operands, then the destination checks whether that result is allowed. Each dimensional result retains its operand's **written unit**. CSS math's type checking is prior art, but these rules use only calculations that need no unit conversion.[^17]
+An `integer` or a fractional `number` is unitless. The result type follows the operands, then the destination checks whether that result is allowed. Each dimensional result retains its operand's **written unit**. CSS math's type checking is prior art, but these rules use only calculations that need no unit conversion.[^17] The numeric part calculates by the [decimal rule](#decimal-arithmetic), so `1.1px + 0.1px` is `1.2px` and `3 * 0.1rem` is `0.3rem`, while `1px / 3` is `0.3333333333333333px`.
 
 | Operation | Valid operands | Result | Example |
 | --- | --- | --- | --- |
@@ -422,3 +464,5 @@ A parsed expression exposes exactly which paths it reads, so dependencies are st
 [^17]: CSS Values and Units Level 4, [math function type checking](https://drafts.csswg.org/css-values-4/#calc-type-checking), derives calculation types from operands. Declarative Components adopts only the operations listed above and does not convert written units.
 
 [^18]: CSS Syntax Module Level 3, [ident-start code point](https://www.w3.org/TR/css-syntax-3/#ident-start-code-point). Only the character definition is reused; the leading-dash and escape rules of CSS identifier tokenization do not apply.
+[^19]: Prior art for decimal results from binary numbers. WHATWG HTML defines [stepping](https://html.spec.whatwg.org/multipage/input.html#dom-input-stepup) and [step mismatch](https://html.spec.whatwg.org/multipage/input.html#the-step-attribute) as integral multiples of the allowed step from the step base; Blink, WebKit, and Gecko compute them with a decimal type, so `stepUp()` with `step="0.1"` gives `1.2` from `1.1` and `9.9` after 99 steps from `0` (checked in Chromium, Firefox, and WebKit). CSSOM [serializes a `<number>`](https://www.w3.org/TR/cssom-1/#serialize-a-css-component-value) in the shortest form with at most 6 decimals, so `calc(0.1px + 0.2px)` reads back as `calc(0.3px)`. The [decimal.js](https://github.com/MikeMcl/decimal.js/) library and the Stage&nbsp;1 [TC39 Decimal proposal](https://github.com/tc39/proposal-decimal) instead add a decimal type to JavaScript; decimal.js is the reference implementation's test oracle for this rule.
+[^20]: ECMAScript, [Number::toString](https://tc39.es/ecma262/#sec-numeric-types-number-tostring): the shortest digit string that converts back to the same number, the text `String(0.1)` gives.

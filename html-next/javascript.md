@@ -159,6 +159,8 @@ An invalid authored write reports the same runtime warning as an authored bindin
 
 The checks have the same depth as declarative writes: an object or list is checked at its immediate boundary, and nested fields are checked when read or written through their declared paths. Controller assignment does not introduce a separate coercion or validation policy. Resource fields under `host.data` are also read-only; a controller changes a resource's declared state parameters rather than assigning its response or status fields.
 
+A controller calculates with JavaScript's own operators. Three steps of `host.state.level += 0.1` from `0` store `0.30000000000000004`, where three runs of `<set name="level" expr:value="$level + 0.1">` store `0.3` by the [decimal arithmetic rule](/declarative-components/expressions#decimal-arithmetic). A controller that must match an expression applies the same rule; the reference implementation, `@nextwebwg/html-next`, exports it as `add`, `subtract`, `multiply`, and `divide`.
+
 ### The companion JavaScript / DOM API {#the-companion-javascript-dom-api}
 
 `host.effect(callback)` is the deliberately small JavaScript companion to declarative bindings. It exists for effects on systems outside the runtime-owned DOM, such as updating a chart, observer, or media object from component state. It is not required to make template bindings reactive; those are wired directly from their declared paths.

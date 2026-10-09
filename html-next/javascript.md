@@ -129,7 +129,7 @@ interface ComponentHost<
 
 Teardown is either a disposer returned from an `host.on("connect", …)` callback or an explicit `host.on("disconnect", …)`; `host.effect` cleans itself up. This is the same connect-and-return-a-disposer shape used across the platform and userland alike.
 
-### Accepted values and prop inputs
+### Accepted values and prop inputs {#accepted-values-and-prop-inputs}
 
 `host.props.amount.value` reads the prop's **accepted value**. Template expressions such as `$amount` read that value too; `host.state.amount` is absent. A declared `<state name="count">` is read and written through `host.state.count`, and `host.props.count` is absent. A `<computed>` declares **computed state**: its value is derived from dependencies and read through `host.state`, but cannot be assigned. Inherited `<context>` values are also read-only under `host.state`. Each `<data>` resource is read through `host.data`, for example `host.data.search.value`; data resources are absent from `host.state`. State has no `inputValue` or `validity`; a failed `<set>` or `bind:` write does not replace it. When the attempted value came from a native control, that control retains its edit and owns its validity.
 
@@ -143,7 +143,7 @@ host.state.amount                 // undefined: props are absent from state
 host.props.amount.validity.badInput // true
 ```
 
-### State writes use the same checks as bindings
+### State writes use the same checks as bindings {#state-writes-use-the-same-checks-as-bindings}
 
 A controller assignment proposes a value to the declared state, just as `<set>` or `bind:` does. The destination's type rules apply before the write. A wrong-typed value is ignored, the state keeps its current value, and dependents are not notified. An attempt to assign computed state or an inherited context is likewise ignored because that destination is read-only.
 
@@ -159,12 +159,12 @@ An invalid authored write reports the same runtime warning as an authored bindin
 
 The checks have the same depth as declarative writes: an object or list is checked at its immediate boundary, and nested fields are checked when read or written through their declared paths. Controller assignment does not introduce a separate coercion or validation policy. Resource fields under `host.data` are also read-only; a controller changes a resource's declared state parameters rather than assigning its response or status fields.
 
-### The companion JavaScript / DOM API
+### The companion JavaScript / DOM API {#the-companion-javascript-dom-api}
 
 `host.effect(callback)` is the deliberately small JavaScript companion to declarative bindings. It exists for effects on systems outside the runtime-owned DOM, such as updating a chart, observer, or media object from component state. It is not required to make template bindings reactive; those are wired directly from their declared paths.
 
 - **Connection:** an effect registered by the controller runs once when the instance is connected. Reads through `host.state` or `host.props` during its last successful run are its dependencies.
-- **Update:** a dependency change marks the effect dirty. The runtime coalesces repeated changes and runs it in the same ordered microtask flush as affected bindings, after state and computed values have settled.
+- **Update:** a change to a value it read marks the effect dirty; a write that leaves the value unchanged does not (see [What counts as a change](/declarative-components/reactivity#changes)). The runtime coalesces repeated changes and runs it in the same ordered microtask flush as affected bindings, after state and computed values have settled.
 - **Rerun:** if the callback returned a disposer, that disposer runs before the next callback. The next run replaces the tracked dependency set, so conditional JavaScript reads remain precise without an authored `untrack`.
 - **Disconnection:** the current disposer runs and every observation owned by the effect is removed. It does no work while detached; reconnection runs it once and establishes a fresh dependency set.
 - **Early stop:** the function returned by `host.effect` performs the same cleanup permanently and is idempotent.

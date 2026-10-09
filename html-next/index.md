@@ -88,7 +88,7 @@ The proposal is **purely additive markup**. You add one feature to an ordinary H
 
 ### How the proposal versions
 
-There is no single umbrella version, no big-bang *HTML&nbsp;Next&nbsp;1.0*. The project versions the way the platform itself does today, on three borrowed axes:
+There is no single umbrella version of the proposal, no big-bang *HTML&nbsp;Next&nbsp;1.0*. A number such as *HTML&nbsp;Next&nbsp;1.x* names a version of the reference tools, not of the proposal (see [Stability comes from pinning](#stability)). The proposal versions the way the platform itself does today, on three borrowed axes:
 
 ::: two
 
@@ -104,6 +104,15 @@ There is no single umbrella version, no big-bang *HTML&nbsp;Next&nbsp;1.0*. The 
 > A dated **snapshot** is the draft as published on that day, at its Level. It records what the proposal contains on that date; the working draft keeps moving.
 
 **The worked example is Web Components.** The Level&nbsp;1 chapters (components, templating, reactivity, scoping) provide a practical component authoring model today. The parts a compiler cannot supply, including native-element extension and deeper Shadow DOM integration, belong in later upstream platform proposals.
+
+### Stability comes from pinning {#stability}
+
+The proposal is not stable, and will not be until a standards venue adopts it: the working draft can change on any day. Software built on it can be stable sooner, because a snapshot never changes. A tool that implements one snapshot can promise not to break that snapshot's syntax. A component library or an application built with that tool can then be stable for that tool's version, while the draft keeps moving.
+
+> [!norm] Name the snapshot you implement
+> An implementation [should]{.kw} state the snapshot it implements and the [extensions](#extensions) it supports, for example *Declarative HTML Components Level&nbsp;1, Stage&nbsp;0, snapshot of 25&nbsp;September&nbsp;2026, with no extensions*. The reference tools publish how their versions map to snapshots, and what they promise within a version, in [Versions and stability](/html-next/versions).
+
+When the proposal goes to a standards venue, what it submits is a snapshot. From then on, that venue's process decides what changes and how the work is staged, and the snapshots published here remain as records.
 
 ## What declarative components need
 
@@ -265,6 +274,18 @@ Keywords follow RFC&nbsp;2119, scoped to HTML Next tooling. A tool [must]{.kw} e
 | **Forms** | Native ownership, validation, submission, and submitter overrides. | [L2]{.pill .inc} expanded methods and composable submission scopes |
 | **Types** | `string`, `boolean`, `number`, `enum`. | [L3]{.pill .soon} URLs, colors, refs, content models |
 | **Isolation** | None yet | [Upstream]{.pill .inc} Declarative-Shadow-DOM extension; native-element extension upstream |
+
+### Extensions {#extensions}
+
+An **extension** is an optional part of the language that sits outside every Level. Each one has a one-word name, so that tools and documentation can say exactly which extensions they support, and each moves through the proposal's own stages: **Proposal** (written down, not yet implemented), **Incubation** (implemented in the reference tools, still free to change), and finally adoption into a Level, or withdrawal.
+
+An implementation [may]{.kw} omit any extension. One that does [must]{.kw} report an unsupported-extension diagnostic that names the extension when it meets that syntax, under the same rule as any construct above its Level; each extension states what output, if any, such an implementation may still produce.
+
+| Extension | Adds | Chapter | Stage |
+| --- | --- | --- | --- |
+| `transitions` | `$transition`, `$transition-name` | [Templating](/declarative-components/templating#transitions-extension) | [Incubation]{.pill .inc} |
+
+A **future exploration** is different: it sketches a possible change to a Level, has no name, and no tool implements it.
 
 ::: {#chapters}
 

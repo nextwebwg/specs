@@ -86,7 +86,7 @@ export default function controller(host) {
 :::
 
 > [!note] Integrating a foreign library
-> The same shape wraps any imperative library: reach the element with a `$ref`, let the library own that (unbound) subtree, and re-run on data changes with `host.effect`.
+> The same shape wraps any imperative library: reach the element with a `$ref`, let the library own that (unbound) subtree, create the library instance when the component connects, re-run on data changes with `host.effect`, and destroy the instance in the disposer the connect callback returns. A component that reconnects gets a new instance.
 
 ::: two
 
@@ -103,13 +103,15 @@ export default function controller(host) {
 ```
 
 ```js title="chart.js"
-// chart.js — the library owns its own (unbound) canvas; an effect re-runs if data changes.
+// chart.js — the library owns its own (unbound) canvas for as long as the chart is connected.
 import { Chart } from "chart-lib";               // a bare specifier; the import map resolves it
 
 export default function controller(host) {
-  const chart = new Chart(host.refs.surface, { data: host.state.bars });
-  host.effect(() => chart.update(host.state.bars));
-  host.on("disconnect", () => chart.destroy());
+  host.on("connect", () => {                     // runs on every connection, reconnects included
+    const chart = new Chart(host.refs.surface, { data: host.state.bars });
+    const stop = host.effect(() => chart.update(host.state.bars));   // re-plots when bars change
+    return () => { stop(); chart.destroy(); };   // the disposer runs on disconnect
+  });
 }
 ```
 

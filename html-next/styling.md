@@ -172,13 +172,14 @@ A test inside `:host(...)` names a declared prop. The selected value must be a s
 | Test | Matches a component root while |
 | --- | --- |
 | `:state(name)` | state `name` is truthy |
-| `:state(name="value")` | state `name` resolves to `value` |
+| `:state(name=value)` | state `name` resolves to `value` |
 | `:state(name of x-tag)` | state `name` of the `x-tag` component rendered at this element is truthy |
-| `:state(name="value" of x-tag)` | the same, for a value |
+| `:state(name=value of x-tag)` | the same, for a value |
 
 - `name` names declared mutable or computed state. A prop in `:state()` is a diagnostic; props use `:host([prop])`.
 - The selected value [must]{.kw} be a string, number, boolean, or keyword union. Only equality and presence are supported; structured values are diagnostics.
-- Combine tests by repeating the pseudo-class: `:host(:state(open):state(tone="warm"))`.
+- `value` is written as in an attribute selector: an identifier as is, anything else quoted. `:state(tone=warm)` and `:state(tone="warm")` are the same test; a number or a value with spaces needs quotes, as in `:state(step="2")`.
+- Combine tests by repeating the pseudo-class: `:host(:state(open):state(tone=warm))`.
 - Every declared state of a scalar type is selectable. Like the states of a built-in element, a component's state needs no separate opt-in to be visible to selectors.
 
 The boolean form is the native `:state()` pseudo-class, which tests the custom states of an element's [`ElementInternals`](/declarative-components/javascript). The value form and `of` extend it for the same reason [`host.state`](/declarative-components/javascript) generalizes custom states from flags to values.

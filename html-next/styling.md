@@ -178,7 +178,7 @@ A test inside `:host(...)` names a declared prop. The selected value must be a s
 
 - `name` names declared mutable or computed state. A prop in `:state()` is a diagnostic; props use `:host([prop])`.
 - The selected value [must]{.kw} be a string, number, boolean, or keyword union. Only equality and presence are supported; structured values are diagnostics.
-- `value` is written as in an attribute selector: an identifier as is, anything else quoted. `:state(tone=warm)` and `:state(tone="warm")` are the same test; a number or a value with spaces needs quotes, as in `:state(step="2")`.
+- `value` is written as in an attribute selector: an identifier as is, anything else quoted. `:state(tone=warm)` and `:state(tone="warm")` are the same test; a value that is not an identifier needs quotes: one that starts with a digit or with a hyphen and a digit (`"2"`, `"2x"`, `"-1"`), or that contains spaces or punctuation, as in `:state(step="2")`.
 - Combine tests by repeating the pseudo-class: `:host(:state(open):state(tone=warm))`.
 - Every declared state of a scalar type is selectable. Like the states of a built-in element, a component's state needs no separate opt-in to be visible to selectors.
 

@@ -12,7 +12,7 @@ pager: false
 This page accompanies the proposed [Requests](/declarative-components/javascript#requests) section of the JavaScript Layer. It is for the editors deciding that proposal. Five real use cases are worked through under three candidate shapes, with the code that every kind of author writes for each one, so the shapes can be judged by the code they produce rather than by a list of criteria.
 
 > [!warn] Explainer for review
-> Nothing on this page is normative. The proposal's text is in the [JavaScript Layer](/declarative-components/javascript#requests). One decision is already made: when nobody answers, the asker receives `null`.
+> Nothing on this page is normative. The proposal's text is in the [JavaScript Layer](/declarative-components/javascript#requests). Two decisions are already made: the shape is **A**, requests ([why](#b-against-a)), and when nobody answers, the asker receives `null`.
 
 ## The three shapes
 
@@ -24,7 +24,7 @@ Each shape lets a component get behavior from its consumer without a function-va
 | **B. Answerable events** | `<event name type returns>`: an ordinary event with a `returns` type | `host.dispatch(name, detail, { signal })`, which returns a promise because the event declares `returns` | the same listener and `respondWith` as A |
 | **C. Provided capabilities** | `<capability name type returns>` | `host.use(name)` returns the nearest ancestor's function, or `null`, and the controller calls it | an ancestor provides a function: `host.provide(name, fn)`, a page-level `provide()`, or a framework provider |
 
-A and B share one mechanism: a bubbling `RequestEvent` with `signal` and `respondWith`. They differ only in the declaration and the asking call. In B, a plain event and an answerable one sit side by side, and `returns` is what tells them apart:
+A and B share one mechanism: a bubbling `RequestEvent` with `signal` and `respondWith`. They differ only in the declaration and the asking call, so every use case below is the same length in both: the component's code differs by two names (`<request>` or `<event returns>`, `host.request` or `host.dispatch`), and the consumers' code is identical. In B, a plain event and an answerable one sit side by side, and `returns` is what tells them apart:
 
 ```html
 <defs>
@@ -98,9 +98,14 @@ export default function controller(host) {
 ```
 
 ```js title="(i) ui-editor.js"
-// Only the asking call changes: dispatch returns a promise because the event declares returns.
-host.dispatch("mention-query", { query }, { signal: pending.signal })
-  .then((people) => session.showMentions(people ?? []), () => {});
+let pending;
+session.onMentionQuery = (query) => {
+  pending?.abort();                                   // the previous keystroke's request
+  pending = new AbortController();
+  // dispatch returns a promise because the event declares returns
+  host.dispatch("mention-query", { query }, { signal: pending.signal })
+    .then((people) => session.showMentions(people ?? []), () => {}); // rejected: superseded
+};
 ```
 
 Consumers (ii) to (vi) are identical to A, because the event they receive is the same `RequestEvent`:
@@ -223,8 +228,15 @@ host.on("image-upload", (event) => event.respondWith(uploadImage(event.detail.fi
 ```
 
 ```js title="(i) ui-editor.js"
-host.dispatch("image-upload", { file }, { signal: upload.signal, progress: (l, t) => placeholder.setProgress(l / t) })
-  .then((image) => image ? placeholder.setSrc(image.src) : placeholder.keepPreview(), () => placeholder.remove());
+session.onImageDrop = (file, placeholder) => {
+  const upload = new AbortController();
+  placeholder.onCancel = () => upload.abort();       // the cancel button, or deleting the node
+  host.dispatch("image-upload", { file }, {
+    signal: upload.signal,
+    progress: (loaded, total) => placeholder.setProgress(loaded / total),
+  }).then((image) => image ? placeholder.setSrc(image.src) : placeholder.keepPreview(),
+          () => placeholder.remove());
+};
 ```
 
 The consumers are identical to A:
@@ -323,9 +335,13 @@ export default function controller(host) {
 ```
 
 ```js title="(i) ui-editor.js"
-host.dispatch("extensions").then((extensions) => {
-  session = createEditorSession(host.refs.mount, { extensions: extensions ?? [] });
-}, () => {});
+host.on("connect", () => {
+  let session;
+  host.dispatch("extensions").then((extensions) => {
+    session = createEditorSession(host.refs.mount, { extensions: extensions ?? [] });
+  }, () => {});                                       // rejected: disconnected before the answer
+  return () => session?.destroy();
+});
 ```
 
 The consumers are identical to A:
@@ -417,8 +433,10 @@ host.on("link-resolve", (event) => {
 ```
 
 ```js title="(i) ui-editor.js"
-host.dispatch("link-resolve", { href: link.href })
-  .then((meta) => { if (meta) link.setTitle(meta.title); }, () => {});
+session.onLinkPasted = (link) => {
+  host.dispatch("link-resolve", { href: link.href })
+    .then((meta) => { if (meta) link.setTitle(meta.title); }, () => {});  // null: keep as typed
+};
 ```
 
 The consumers are identical to A:
@@ -511,10 +529,15 @@ host.on("grid-rows", (e) => e.respondWith(e.target === host.refs.orders
 ```
 
 ```js title="(i) ui-data-grid.js"
-host.dispatch("grid-rows", { offset, limit, sort }, { signal: abort.signal }).then((page) => {
-  host.state.rows = page?.rows ?? [];
-  host.state.total = page?.total ?? 0;
-}, () => {});
+host.effect(() => {
+  const { offset, limit, sort } = host.state;          // declared state the pager and headers set
+  const abort = new AbortController();
+  host.dispatch("grid-rows", { offset, limit, sort }, { signal: abort.signal }).then((page) => {
+    host.state.rows = page?.rows ?? [];
+    host.state.total = page?.total ?? 0;
+  }, () => {});
+  return () => abort.abort();                           // the next page or sort supersedes this one
+});
 ```
 
 The consumers are identical to A:
@@ -668,11 +691,20 @@ B makes `<event>` answerable instead of adding `<request>`. The consumer's code 
 
 On balance, A is clearer for the people who consume components, and B is smaller for the specification. The main risk in B is that the obligation to answer is invisible to a consumer.
 
+**Decided: A.** The code is the same length in both shapes, so the choice rests on what each one tells its readers:
+
+- A component's contract lists what it asks its consumer for, apart from what it announces. An unanswered request degrades the component quietly, so a consumer must be able to see it.
+- Framework mirroring maps mechanically: an `<event>` becomes an `onX` handler, and a `<request>` becomes a function prop that returns the answer. Under B, one declaration would map to either kind depending on an attribute, and a handler's ignored return value would answer nothing.
+- `host.dispatch` always returns a boolean, and `host.request` always returns a promise.
+- Existing events keep their propagation, and `<dispatch>` stays fire-and-forget, with no `cancelable` and `returns` conflict.
+
+B's advantage, one fewer declaration and method, is small, because both run on the same `RequestEvent`.
+
 ## Summary: what to decide {#decisions}
 
 | # | Question | Recommendation | Decide |
 | --- | --- | --- | --- |
-| 1 | Shape and naming | **A**: `<request>`, `host.request`, and `RequestEvent` | A or B |
+| 1 | Shape and naming | **A**: `<request>`, `host.request`, and `RequestEvent` | **decided: A** |
 | 2 | No answer | `null` | **decided** |
 | 3 | Ancestor wait (draft step 4) | Keep it. Wait only for each ancestor controller's synchronous body. | Confirm |
 | 4 | Late providers | **Re-ask**: remember unanswered requests, announce with `request-available` (automatic for `host.on` and adapters, an event or `respond()` for page script), and notify with `reask` | Adopt, and the event names |
@@ -683,4 +715,4 @@ On balance, A is clearer for the people who consume components, and B is smaller
 | 9 | Types for `File` and extension objects | `unknown` now. A named `file` type, like `event`, later. | Confirm |
 | 10 | Placement | On acceptance, fold the result into the Components, Types, and JavaScript Layer chapters, and retire this explainer | Confirm |
 
-The two decisions that shape everything else are **1** (A or B) and **4** (re-ask). The rest follow from them or can wait. To continue reading, see the proposed [Requests](/declarative-components/javascript#requests) section.
+With **1** decided, the decision that shapes the rest is **4** (re-ask). The others follow from it or can wait. To continue reading, see the proposed [Requests](/declarative-components/javascript#requests) section.

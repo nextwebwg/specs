@@ -285,7 +285,7 @@ host.dispatch("locationchange", { lat, lng });
 ## Requests: behavior the consumer supplies {#requests}
 
 > [!warn] Proposal for review
-> This section is a proposed addition, written for the editors' review before the reference implementation adopts it. Its syntax, names, and semantics may change. The open questions are listed in its pull request.
+> This section is a proposed addition, written for the editors' review before the reference implementation adopts it. Its syntax, names, and semantics may change. The [Requests Explainer](/declarative-components/requests-explainer) works through use cases, alternative shapes, late providers, and framework mirroring, and lists the open decisions.
 
 Some components need behavior from whoever uses them. A rich-text editor asks for mention suggestions, an image field asks where to store a file, a map asks how to geocode an address. Props cannot carry that behavior, because every prop has an HTML attribute form and a function has none. So a component declares a **request**: a named question its controller asks with `host.request`, and that the consumer answers in its own JavaScript, by listening for an event and calling `respondWith`. Behavior stays in controllers and scripts on both sides. Markup carries only names and types.
 

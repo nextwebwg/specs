@@ -32,6 +32,9 @@
 "chapter: rendered-form":
 - changed-files:
   - any-glob-to-any-file: "html-next/rendered-form.md"
+"chapter: requests-explainer":
+- changed-files:
+  - any-glob-to-any-file: "html-next/requests-explainer.md"
 "chapter: security":
 - changed-files:
   - any-glob-to-any-file: "html-next/security.md"

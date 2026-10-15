@@ -57,7 +57,7 @@ Content a component moves elsewhere with [`<portal>`](/declarative-components/co
 > [!note] Scoping, not a security boundary
 > Scoping decides where a component's rules apply. It does not protect markup from other code: nodes another script inserts inside a component's region are styled like the rest of that region.
 
-## The root: :host
+## The root: :host {#host}
 
 `:host` selects the component's own root. It is the only way to select the root; `:scope` is not part of the authoring syntax.
 
@@ -119,11 +119,11 @@ Stylesheet order follows the resolved component graph and the imports' authored 
 > [!note] Resolve first, then scope
 > A runtime or build resolves imported CSS and preserves its source bases, then applies the same component-style processing used for inline CSS. Constructed stylesheets' `replace()` and `replaceSync()` discard unresolved `@import` rules,[^7] so passing unresolved source to those methods cannot implement this contract. Ordinary metadata stylesheet links remain separate: the component loader ignores them, as defined in [Components & Composition](/declarative-components/components#resource-metadata-for-application-tooling).
 
-## Styling by props and state
+## Styling by props and state {#props-and-state}
 
-Use `:host([prop])` for declared **props**, and `:host-state([state])` for mutable or computed **state**. Both select the component's root using resolved values, including defaults. Their arguments use attribute-selector-shaped tests; they do not require reflected DOM attributes.
+Use `:host([prop])` for declared **props**, and `:state()` for mutable or computed **state**. Both test resolved values, including defaults, and neither requires reflected DOM attributes.
 
-A prop is a caller-supplied part of the public interface, while state belongs to the component. Keeping the selector spellings separate makes that distinction visible in the stylesheet:
+A prop is a caller-supplied part of the public interface, while state belongs to the component. Keeping the selector spellings separate makes that distinction visible in the stylesheet, the way a native control separates `input[type="checkbox"]` from `input:checked`:
 
 ```html
 <template component="x-container">
@@ -145,13 +145,15 @@ A prop is a caller-supplied part of the public interface, while state belongs to
 
 | Test | Matches while |
 | --- | --- |
-| `[name="value"]` | the selected prop or state `name` resolves to `value`, including when `value` is the declared default |
-| `[name]` | `name` is truthy |
-| `[a="x"][b]` | every test holds |
+| `:host([name="value"])` | prop `name` resolves to `value`, including when `value` is the declared default |
+| `:host([name])` | prop `name` is truthy |
+| `:host([a="x"][b])` | every test holds |
 
-A prop test inside `:host(...)` names a declared prop. A test inside `:host-state(...)` names mutable or computed state; a prop in `:host-state(...)` is a diagnostic. The selected value must be a string, number, boolean, or keyword union. Only equality and presence are supported for these declared-value tests; other attribute operators and structured values are diagnostics.
+A test inside `:host(...)` names a declared prop. The selected value must be a string, number, boolean, or keyword union. Only equality and presence are supported; other attribute operators and structured values are diagnostics.
 
-State uses the same tests through `:host-state()`, so a component styles what its controller changes without writing attributes for its own stylesheet:
+### State: :state() {#state}
+
+`:state()` tests a component's state, so a component styles what its controller changes without writing attributes for its own stylesheet:
 
 ```html
 <template component="x-disclosure">
@@ -161,14 +163,62 @@ State uses the same tests through `:host-state()`, so a component styles what it
   </defs>
   <details>…</details>
   <style>
-    :host-state([open]) .marker { rotate: 90deg; }
+    :host(:state(open)) .marker { rotate: 90deg; }
     :host([summary=""]) .marker { display: none; }
   </style>
 </template>
 ```
 
+| Test | Matches a component root while |
+| --- | --- |
+| `:state(name)` | state `name` is truthy |
+| `:state(name=value)` | state `name` resolves to `value` |
+| `:state(name of x-tag)` | state `name` of the `x-tag` component rendered at this element is truthy |
+| `:state(name=value of x-tag)` | the same, for a value |
+
+- `name` names declared mutable or computed state. A prop in `:state()` is a diagnostic; props use `:host([prop])`.
+- The selected value [must]{.kw} be a string, number, boolean, or keyword union. Only equality and presence are supported; structured values are diagnostics.
+- `value` is written as in an attribute selector: an identifier as is, anything else quoted. `:state(tone=warm)` and `:state(tone="warm")` are the same test; a value that is not an identifier needs quotes: one that starts with a digit or with a hyphen and a digit (`"2"`, `"2x"`, `"-1"`), or that contains spaces or punctuation, as in `:state(step="2")`.
+- Combine tests by repeating the pseudo-class: `:host(:state(open):state(tone=warm))`.
+- Every declared state of a scalar type is selectable. Like the states of a built-in element, a component's state needs no separate opt-in to be visible to selectors.
+
+The boolean form is the native `:state()` pseudo-class, which tests the custom states of an element's [`ElementInternals`](/declarative-components/javascript). The value form and `of` extend it for the same reason [`host.state`](/declarative-components/javascript) generalizes custom states from flags to values.
+
+### Another component's state is a condition
+
+A component may test the state of a nested component or of a component in its projected content, in the same way it may already place [context before `:host`](#host). As everywhere in this chapter, the element a rule styles stays inside the component's region; only the condition reaches outside.
+
+```html
+<template component="x-settings">
+  <ul>
+    <li><x-toggle></x-toggle><label>Notifications</label></li>
+    <li class="row"><x-item></x-item></li>
+  </ul>
+  <slot></slot>
+  <style>
+    x-toggle:state(on) + label { font-weight: bold; }          /* a sibling of the toggle */
+    .row:has(x-item:state(selected)) { background: Highlight; } /* an ancestor of the item */
+    :slotted(li:has(x-item:state(selected))) { outline: 1px solid; }
+  </style>
+</template>
+```
+
+A rule whose subject is a nested component's root matches nothing, with or without `:state()`: `x-toggle:state(on) { color: red; }` does not restyle the toggle. An implementation [should]{.kw} report such a rule as a diagnostic. The toggle styles itself with `:host(:state(on))`, or reads a [custom property](#customization-custom-properties) the caller sets.
+
+### Which component's state
+
+An element can be the root of more than one component: a component whose markup root is another component shares its root element with that component. `:state(name)` without `of` resolves as follows:
+
+- Inside `:host(...)`, it tests the state of the component the stylesheet belongs to.
+- Elsewhere, it matches if any component rendered at that element has state `name` that satisfies the test.
+
+`of x-tag` limits the test to one of those components. It is needed only where two components at the same element declare the same state name. A component tag before the pseudo-class does not limit it: `x-base:state(open)` tests that the element is an `x-base` and, separately, that some component at it has `open`, as with any compound selector.
+
 > [!note] Resolved values, not reflected attributes
-> `:host([prop])` sees the prop's resolved value, including its default; `:host-state([state])` sees mutable or computed state. Styling does not depend on whether an implementation reflects a value as a `data-*` attribute.
+> `:host([prop])` sees the prop's resolved value, including its default; `:state()` sees mutable or computed state. Styling does not depend on whether an implementation reflects a value as a `data-*` attribute.
+
+> [!warn] Alignment with native :state()
+> A rendered component root is an ordinary element, not a custom element, so it has no `ElementInternals` today. This chapter defines `:state()` matching for component roots by their declared state. Whether the CSS Working Group adopts a value form of `:state()`, and with what syntax, is open; this proposal keeps the boolean form identical to native so only the extensions would need to change.
 
 ## Styling projected content: :slotted() {#slotted}
 
@@ -239,17 +289,17 @@ In HTML Next the nested component is out of the parent's scope, root included, s
 | --- | --- | --- | --- |
 | A nested component's root | Out of scope. Lay it out from your own markup, or give the invocation a `class` | In scope: a child's root takes both the parent's scoped rules and its own | Out of scope |
 | Inside a nested component | Never. There is no `:deep()`; use the component's custom properties | `:deep()` reaches in | `:global()` reaches in |
-| The component's own root | `:host`, `:host([prop])` for resolved props, and `:host-state([state])` for mutable or computed state | A class the author puts on the root element | A class the author puts on an element; a component may have several top-level elements |
+| The component's own root | `:host`, `:host([prop])` for resolved props, and `:host(:state(name))` for mutable or computed state | A class the author puts on the root element | A class the author puts on an element; a component may have several top-level elements |
 | Content passed in through a slot | Opt in with `:slotted()`: a full selector, matching at any depth, stopping at nested components, and losing ties to the consumer's own rules | Opt in with `:slotted()` | Not matched; `:global()` reaches it |
 
 Why HTML Next draws the lines this way:
 
 - **One owner per element.** Vue lets a child's root answer to two stylesheets as a convenience for layout. The cost is that a child renaming or restructuring its root changes what the parent's rules hit, with no error. Here a parent's rules never match another component's elements, so that coupling cannot form.
 - **A public surface instead of a way in.** `:deep()` and `:global()` let a caller depend on another component's private markup. HTML Next gives components [custom properties](#customization-custom-properties) as their styling contract and no selector into someone else's internals.
-- **State without attributes.** Vue and Svelte style a component's state through classes or attributes the component writes on itself. `:host([prop])` and `:host-state([state])` test resolved props and state directly, defaults included, so nothing is written just so a stylesheet can see it.
+- **State without attributes.** Vue and Svelte style a component's state through classes or attributes the component writes on itself. `:host([prop])` and `:state()` test resolved props and state directly, defaults included, so nothing is written just so a stylesheet can see it.
 - **Defined by the platform.** The region, a root with a lower limit at nested components and projected content, is the shape of CSS [`@scope`](https://www.w3.org/TR/css-cascade-6/#scoped-styles) with its range form, rather than a selector rewrite particular to one build tool. An implementation may still rewrite selectors, for example when it compiles to Vue, but what matches is what this page defines.
 
-Porting a component: move a parent's rules for a child's root into layout on the parent's own container, or into a class on the invocation; turn each `:deep()` into a custom property the child reads; replace classes toggled for prop styling with `:host([prop])`, and state styling with `:host-state([state])`. For how a lowered component looks in the page, see [Rendered form](/declarative-components/rendered-form).
+Porting a component: move a parent's rules for a child's root into layout on the parent's own container, or into a class on the invocation; turn each `:deep()` into a custom property the child reads; replace classes toggled for prop styling with `:host([prop])`, and state styling with `:host(:state(name))`. For how a lowered component looks in the page, see [Rendered form](/declarative-components/rendered-form).
 
 ## Isolation: opt-in, later
 
@@ -262,7 +312,7 @@ Full isolation via a real shadow boundary [may]{.kw} be requested explicitly; it
 ---
 
 > [!note] How this is achieved is an implementation detail
-> This page defines only the *behaviour*. How an implementation produces it is documented with that implementation. The model maps directly onto CSS `@scope`, whose **range** form (`@scope (root) to (limit)`) expresses the root-plus-lower-limit region above. A state test lowers to a token on a per-component `data-<tag>-state` attribute, written only for the names a definition's own stylesheet tests.
+> This page defines only the *behaviour*. How an implementation produces it is documented with that implementation. The model maps directly onto CSS `@scope`, whose **range** form (`@scope (root) to (limit)`) expresses the root-plus-lower-limit region above. A state test lowers to a token on a per-component `data-<tag>-state` attribute, written only for the names some stylesheet in the component graph tests.
 
 ## References
 

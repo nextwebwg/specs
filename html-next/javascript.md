@@ -1,7 +1,7 @@
 ---
 title: The JavaScript Layer
 order: 6
-blurb: controllers · host · $ref · finding elements · effects
+blurb: controllers · host · $ref · finding elements · effects · requests
 eyebrow: Declarative HTML Components · reserved for Level 2
 status: Proposed direction · the imperative escape hatch
 ---
@@ -282,6 +282,155 @@ host.dispatch("locationchange", { lat, lng });
 // <x-map on:locationchange="recenter">
 ```
 
+## Requests: behavior the consumer supplies {#requests}
+
+> [!warn] Proposal for review
+> This section is a proposed addition, written for the editors' review before the reference implementation adopts it. Its syntax, names, and semantics may change. The open questions are listed in its pull request.
+
+Some components need behavior from whoever uses them. A rich-text editor asks for mention suggestions, an image field asks where to store a file, a map asks how to geocode an address. Props cannot carry that behavior, because every prop has an HTML attribute form and a function has none. So a component declares a **request**: a named question its controller asks with `host.request`, and that the consumer answers in its own JavaScript, by listening for an event and calling `respondWith`. Behavior stays in controllers and scripts on both sides. Markup carries only names and types.
+
+::: two
+
+```html title="ui-editor.html"
+<template component="ui-editor" controller="./ui-editor.js">
+  <defs>
+    <request name="mention-query"
+      type="object({ query: string })"
+      returns="list(object({ id: string, label: string }))">
+      People or pages matching what the author typed after @.
+    </request>
+  </defs>
+  <div $ref="mount"></div>
+</template>
+```
+
+```js title="ui-editor.js"
+export default function controller(host) {
+  host.on("connect", () => {
+    const session = createEditorSession(host.refs.mount, {
+      // Called on each keystroke after @; the session aborts the previous signal.
+      mentions: (query, signal) =>
+        host.request("mention-query", { query }, { signal }),
+    });
+    return () => session.destroy();
+  });
+}
+```
+
+:::
+
+The consumer answers in its own controller with the `host.on` it already has. The request bubbles from the editor's root to the consumer's root like any component event:
+
+```js title="x-notes.js"
+// x-notes.html renders <ui-editor> in its template.
+export default function controller(host) {
+  host.on("mention-query", (event) => {
+    event.respondWith(searchPeople(event.detail.query, { signal: event.signal }));
+  });
+}
+```
+
+A request is the inverse of a component event. An event reports something to whoever is listening and needs no answer; a request asks a question and waits for one answer. It uses the same native event channel, so page scripts and framework targets answer it with the listener mechanisms they already have.
+
+### Declaring a request
+
+A `<request>` in `<defs>` names the question and types both sides of it:
+
+| Attribute or child | Meaning |
+| --- | --- |
+| `name` | The request's event type: lowercase kebab case, like an `<event>` name. A definition [must not]{.kw} declare an `<event>` and a `<request>` with the same name. |
+| `type` | The type of the request's detail, written as for an `<event>`. Omitted, the detail is `null`. |
+| `returns` | The type of the answer. Omitted, the answer is `unknown`. |
+| `<prop>` children | The detail's fields, when `type="object"`, as for an [expanded event declaration](/declarative-components/types#structured-values). |
+| one `<returns type>` child | The answer's type in expanded form, holding its own `<prop>` children. It replaces the `returns` attribute. |
+| text content | The request's description, as for a `<prop>`. |
+
+```html
+<request name="image-upload" type="object">
+  <prop name="file" type="unknown" required>The File the author dropped or pasted.</prop>
+  <returns type="object">
+    <prop name="src" type="string" required></prop>
+    <prop name="width" type="integer"></prop>
+    <prop name="height" type="integer"></prop>
+  </returns>
+</request>
+```
+
+A request has no attribute and no text form, so its `type` and `returns` may use types that a prop cannot, such as `unknown` and `event`. An answer of `null` is always accepted: it means the consumer has no answer, as an omitted prop means no value. A request is not a prop: it is never reflected, never written into the [rendered form](/declarative-components/rendered-form), and never part of hydration data.
+
+### Asking: host.request {#host-request}
+
+```ts
+interface ComponentHost {
+  /** Ask the consumer a declared request. Resolves to its answer, or null when none answered. */
+  request(name: string, detail?: unknown, options?: { signal?: AbortSignal }): Promise<unknown>;
+}
+```
+
+When a controller calls <code>host.request(<var>name</var>, <var>detail</var>, <var>options</var>)</code>, the runtime [must]{.kw} run these steps:
+
+1. If the definition declares no `<request>` named <var>name</var>, return a promise rejected with a `TypeError`. A build tool reports a literal undeclared name before execution.
+2. If <var>detail</var> does not conform to the request's `type`, return a promise rejected with a `TypeError`, and report the runtime warning a `host.dispatch` type mismatch reports.
+3. Let <var>signal</var> be `AbortSignal.any()` of <var>options</var>`.signal`, when given, and the instance's **connection signal**, which aborts when the instance disconnects. If <var>signal</var> is aborted, return a promise rejected with its reason.
+4. Wait until every component ancestor of the instance in the [logical component tree](/declarative-components/components) that declares a controller has had that controller invoked for its current connection and returned, or has failed to load it. If <var>signal</var> aborts while waiting, reject with its reason.
+5. Create a `RequestEvent` whose `type` is <var>name</var>, whose `detail` is <var>detail</var> or `null`, and whose `signal` is <var>signal</var>. It bubbles, is composed, and is not cancelable.
+6. Dispatch it at the instance's root.
+7. If no listener called `respondWith` during that dispatch, resolve with `null`.
+8. Otherwise wait for the value passed to `respondWith`. If <var>signal</var> aborts first, reject with its reason and discard the value when it arrives. If the value rejects, reject with that reason.
+9. If the value is not `null` and does not conform to the request's `returns` type, reject with a `TypeError` and report a runtime warning that names the request. Otherwise resolve with the value.
+{.algo}
+
+Step 4 makes the order in which controllers load irrelevant. An editor that asks for its extensions when it connects reaches its consumer's listener even when the consumer's controller module loads second. A consumer [should]{.kw} register its answers in its controller's synchronous body or its `connect` callback, before any `await`; an answer can still arrive later, because `respondWith` accepts a promise.
+
+The detail and the answer are passed by reference, not cloned, as a `host.dispatch` payload is. The answer is not reactive and is not stored: a controller that needs it again asks again.
+
+### Answering: RequestEvent {#request-event}
+
+```ts
+interface RequestEvent<Detail = unknown, Answer = unknown> extends CustomEvent<Detail> {
+  /** Aborts when the asker no longer needs the answer, or its component disconnects. */
+  readonly signal: AbortSignal;
+  /** Answer the request with a value or a promise of one. */
+  respondWith(answer: Answer | null | PromiseLike<Answer | null>): void;
+}
+```
+
+`respondWith(answer)` [must]{.kw} throw an `"InvalidStateError"` `DOMException` when it is called after the event's dispatch has finished, or when the request already has an answer. Otherwise it records <var>answer</var> and stops the event's propagation, including to the remaining listeners on the current target. The **nearest responder answers**: a listener on the editor's own root takes precedence over one on its consumer's root, which takes precedence over one on the document. An application can set a default upload destination on `document` and override it for one region of the page.
+
+A responder that starts asynchronous work passes `event.signal` to it. When the asker aborts its own signal, for example because the author typed another character, or when the asking component disconnects, `event.signal` aborts and the request rejects with its reason without waiting for the responder.
+
+A consumer that is itself a component may forward a request it also declares. Its own `host.on` sees requests from its own root too, so it checks the target first:
+
+```js
+host.on("mention-query", (event) => {
+  if (event.target === host.root) return;   // our own request: let it bubble to our consumer
+  event.respondWith(host.request("mention-query", event.detail, { signal: event.signal }));
+});
+```
+
+### Who answers
+
+Each kind of consumer answers with its own listener mechanism. Nothing new is written in markup.
+
+| Consumer | Answers with |
+| --- | --- |
+| An HTML Next component | `host.on("mention-query", (event) => event.respondWith(…))` in its controller |
+| Page script | `element.addEventListener("mention-query", …)` on the component's root or an ancestor, registered before the request is made |
+| Vue | `@mention-query="(event) => event.respondWith(…)"` |
+| React | a generated `onMentionQuery` prop, typed by the declaration |
+| Svelte | the generated event prop Svelte uses for the component's declared events |
+
+A framework host adapter [must]{.kw} attach the listeners passed for declared requests to the root before it invokes the controller, so a request made at connect reaches them. A declarative `<handler>` can observe a request through `on:` but cannot answer it.
+
+Generated TypeScript types each request from its declaration: `host.request("mention-query", …)` resolves to `{ id: string; label: string }[] | null`, and a framework's listener receives `RequestEvent<{ query: string }, { id: string; label: string }[]>`.
+
+### Server rendering
+
+Controllers never run on a server, so a server never makes or answers a request. A server-rendered component renders its declarative baseline, and its controller asks once it connects in the browser. Because answers are never serialized, a request adds nothing to the rendered form or to hydration.
+
+> [!note] Grounded in the platform
+> Answering an event with `respondWith` is the shape of the Service Worker `FetchEvent`[^11], which also stops propagation once answered. The `signal` follows `NavigateEvent`[^12] and the DOM's `AbortSignal`[^13]. The Web Components Community Group Context Protocol[^14] uses the same idea, an event that carries a way to answer, for exchanging values between JavaScript components. HTML Next declares the request in the definition, so its types are known to build tools and framework targets without running anything.
+
 ## Binding: the definition owns the controller edge
 
 The runtime discovers definitions and instances in the document. Each definition names its controller entry module directly, and that module's default export supplies the behavior:
@@ -542,6 +691,20 @@ Level
 : [L2+]{.pill .soon} reserved
 :::
 
+::: {.entry name="<request>" role="declared question a consumer answers (proposed)"}
+Attributes
+: `name`, `type?`, `returns?` · `<prop>` children for the detail · `<returns type>` for the answer
+
+Asked with
+: <code>host.request(<var>name</var>, <var>detail</var>, { signal })</code>, resolving to the answer or `null`
+
+Answered with
+: a `RequestEvent` listener calling `respondWith`; the nearest responder answers
+
+Level
+: [L2+]{.pill .soon} proposed
+:::
+
 ## References
 
 [^1]: WHATWG HTML, [custom elements](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-elements-core-concepts) (`connectedCallback`/`disconnectedCallback`): a controller supplies the same per-instance behavior and lifecycle to a data-defined component instead of requiring a class registration.
@@ -554,3 +717,7 @@ Level
 [^8]: WHATWG DOM, [CustomEvent](https://dom.spec.whatwg.org/#interface-customevent) and [dispatchEvent](https://dom.spec.whatwg.org/#dom-eventtarget-dispatchevent): what `host.dispatch` lowers to.
 [^9]: WHATWG HTML, [`HTMLSlotElement.assignedElements()`](https://html.spec.whatwg.org/multipage/scripting.html#dom-slot-assignedelements): the native way a component reads what a consumer projected, rather than searching its own subtree for it.
 [^10]: WHATWG HTML, [the input element's value, content attribute, and dirty value flag](https://html.spec.whatwg.org/multipage/input.html#the-input-element) and [bad input](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#suffering-from-bad-input): separate written input, current value, and validity inform this prop handle; the API is not identical to an `<input>`.
+[^11]: W3C Service Workers, [`FetchEvent.respondWith()`](https://w3c.github.io/ServiceWorker/#fetch-event-respondwith): an event answered with a value or a promise, which also stops its propagation.
+[^12]: WHATWG HTML, [`NavigateEvent`](https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-navigateevent-interface) (`intercept()` and `signal`): an event whose handler takes over asynchronous work and receives a signal that aborts when the work is no longer wanted.
+[^13]: WHATWG DOM, [`AbortSignal`](https://dom.spec.whatwg.org/#interface-AbortSignal) and [`AbortSignal.any()`](https://dom.spec.whatwg.org/#dom-abortsignal-any): the platform's cancellation primitive.
+[^14]: Web Components Community Group, [Context Community Protocol](https://github.com/webcomponents-cg/community-protocols/blob/main/proposals/context.md): an event-based protocol in which a requesting element dispatches an event carrying a callback and the nearest provider answers it.

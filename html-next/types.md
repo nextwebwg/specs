@@ -191,6 +191,27 @@ The `event` type accepts a native DOM `Event`, including its subclasses such as 
 
 In the first declaration the entire `CustomEvent.detail` must be a native event. In the second, `detail` is an object whose `source` is a native event and whose `item` is a string. A resource fetched as JSON cannot supply a native event. Mutable state can retain an event reference when its declaration permits it, but that reference does not make the native event's fields reactive or give it a serialized server representation. See [The triggering event](/declarative-components/bindings#triggering-event).
 
+## Request values {#request-values}
+
+A [request](/declarative-components/components#requests)'s detail and answer pass between JavaScript on both sides and are never written in HTML. Their types are written as for an event's detail, and they may use types that a prop cannot:
+
+```html
+<request name="extensions" returns="list(unknown)">Tiptap extensions added to the built-in set.</request>
+
+<request name="image-upload" type="object">
+  <prop name="file" type="unknown" required>The File the author dropped or pasted.</prop>
+  <returns type="object">
+    <prop name="src" type="string" required></prop>
+  </returns>
+</request>
+```
+
+- `unknown` and `event` may appear at the top level of `type` and `returns`, since neither needs an HTML attribute form.
+- A JavaScript object that has no type of its own here, such as a `File` or a library's extension object, is typed `unknown`. An `unknown` value is passed through unchecked, and generated TypeScript types it as `unknown`.
+- An answer of `null` is always accepted: it means the consumer has no answer, as an omitted prop means no value. `returns` constrains every other answer.
+
+The runtime checks the detail when a controller asks and the answer when it arrives; the [request steps](/declarative-components/javascript#host-request) define both checks.
+
 ## Types selected by a prop or state value
 
 A component can select a prop's type from the current value of another declared prop or state value. For example, a `type` prop can select whether `value` is a string or a number.

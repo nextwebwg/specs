@@ -40,12 +40,54 @@ The interface is **declarative HTML**, not a data island. A `<prop>` states only
 
 ## Two regions: <defs> and the markup
 
-A definition has two visibly separate parts, so a reader can tell at a glance what renders and what only describes behavior. The `<prop>` interface declarations, reactive `<state>` and `<computed>`, read and write `<data>` resources, and `<handler>` blocks live inside a single `<defs>` region as flat siblings. The visible markup is the one native root and its `<slot>`s. Application-tooling metadata may appear directly inside the carrier as siblings of these regions; it does not render or enter the component's declarations or binding scope. The content stays pure markup that points at behavior by name; the behavior stays a small labeled list above it.
+A definition has two visibly separate parts, so a reader can tell at a glance what renders and what only describes behavior. The `<prop>`, `<event>`, and `<request>` interface declarations, reactive `<state>` and `<computed>`, read and write `<data>` resources, and `<handler>` blocks live inside a single `<defs>` region as flat siblings. The visible markup is the one native root and its `<slot>`s. Application-tooling metadata may appear directly inside the carrier as siblings of these regions; it does not render or enter the component's declarations or binding scope. The content stays pure markup that points at behavior by name; the behavior stays a small labeled list above it.
 
 This mirrors the document's own `<head>`/`<body>` split, declarations and resources versus rendered content, applied fractally to a component. The name is borrowed from SVG, where `<defs>` already means exactly this: definitions that render nothing and are referenced by name from elsewhere.[^5]
 
 > [!note] <defs> survives fragment parsing
 > `<defs>` is an ordinary element in HTML content, so it round-trips intact through `outerHTML` and carries the intended definition-only meaning. The HTML fragment parser instead discards `<head>` and `<body>` wrappers inside a `<template>` and hoists their children out (verified against the reference implementation's parse5-based build).
+
+## Requests: what a component asks its consumer {#requests}
+
+Some components need behavior from whoever uses them: a rich-text editor asks for mention suggestions, an image field asks where to store a file. A prop cannot carry that behavior, because every prop has an HTML attribute form and a function has none. So the definition declares a **request** in `<defs>`, a named question with a typed detail and a typed answer. Its [controller](/declarative-components/javascript#requests) asks it with `host.request`, and the consumer answers in its own JavaScript.
+
+```html title="ui-editor.html"
+<defs>
+  <request name="mention-query" type="object({ query: string })"
+    returns="list(object({ id: string, label: string }))">People matching the text after @.</request>
+
+  <request name="image-upload" type="object">
+    <prop name="file" type="unknown" required>The File the author dropped or pasted.</prop>
+    <returns type="object">
+      <prop name="src" type="string" required></prop>
+      <prop name="width" type="integer"></prop>
+      <prop name="height" type="integer"></prop>
+    </returns>
+  </request>
+</defs>
+```
+
+| Attribute or child | Meaning |
+| --- | --- |
+| `name` | The request's event type: lowercase kebab case, like an `<event>` name. A definition [must not]{.kw} declare an `<event>` and a `<request>` with the same name, or either one named `responder`, the host event for [late responders](/declarative-components/javascript#late-responders). |
+| `type` | The type of the request's detail, written as for an `<event>`. Omitted, the detail is `null`. |
+| `returns` | The type of the answer. Omitted, the answer is `unknown`. |
+| `<prop>` children | The detail's fields, when `type="object"`, as for an [expanded event declaration](/declarative-components/types#structured-values). |
+| one `<returns type>` child | The answer's type in expanded form, holding its own `<prop>` children. It replaces the `returns` attribute. |
+| text content | The request's description, as for a `<prop>`. |
+
+A request is not a prop: it is never reflected, never written into the [rendered form](/declarative-components/rendered-form), and never part of hydration data. Its detail and answer are JavaScript values, so they use the [request value types](/declarative-components/types#request-values). A generated framework component exposes each request as a [function prop](/declarative-components/javascript#framework-requests).
+
+### Requests and events
+
+A request and an event travel as the same native event, but a component declares them apart, because they tell the consumer different things:
+
+- **The contract lists what a component asks for apart from what it announces.** An unanswered request degrades the component quietly, so a consumer must be able to see it in generated documentation, types, and editor completions.
+- **Framework output maps mechanically.** An `<event>` becomes an `onX` handler, and a `<request>` becomes a function prop that returns the answer.
+- **Each method has one return type.** `host.dispatch` always returns a boolean, and `host.request` always returns a promise.
+- **Events keep their behavior.** Every listener receives an event, while the first responder stops a request. `<dispatch>` stays fire-and-forget.
+
+The second declaration costs little, since both run on the same `RequestEvent` machinery.
 
 ## Native lowering and explicit root branches
 
@@ -193,7 +235,7 @@ When the component to render is decided at runtime, `<component is="expr">` reso
 <component is="$block.type" from:data="$block"></component>
 ```
 
-### <portal to>: render elsewhere
+### <portal to>: render elsewhere {#portal}
 
 Overlays (dialogs, tooltips, toasts) render outside their DOM position while staying logically owned by the component. `<portal to="selector">` moves its children to the target (a CSS selector or an element id) while preserving reactive bindings and event wiring. The term is React `createPortal`; Vue `Teleport` was originally named `<portal>`, and Angular CDK ships a `Portal` too.[^9]
 
@@ -367,7 +409,7 @@ Level
 
 ::: {.entry name="<defs>" role="non-rendered declarations"}
 Contains
-: `<prop>`, `<state>`, `<computed>`, `<data>`, `<handler>`, and `<context>` as flat siblings — everything that renders nothing.
+: `<prop>`, `<event>`, `<request>`, `<state>`, `<computed>`, `<data>`, `<handler>`, and `<context>` as flat siblings — everything that renders nothing.
 
 Semantics
 : Separates behavior/data/interface from visible markup; borrowed from SVG `<defs>`. Survives the template fragment parser where `<head>`/`<body>` do not.
@@ -391,6 +433,23 @@ Inferred
 
 Level
 : [L1]{.pill .l1}
+:::
+
+::: {.entry name="<request>" role="declared question a consumer answers"}
+Attributes
+: `name`, `type?`, `returns?` · `<prop>` children for the detail · `<returns type>` for the answer
+
+Placement
+: a flat child of `<defs>`, beside `<prop>` and `<event>`
+
+Asked with
+: <code>host.request(<var>name</var>, <var>detail</var>, { signal, progress })</code>, resolving to the answer or `null` (see [the JavaScript Layer](/declarative-components/javascript#requests))
+
+Answered with
+: a `RequestEvent` listener calling `respondWith`, or a framework function prop; the nearest responder answers
+
+Level
+: [L2+]{.pill .soon} reserved, with the JavaScript layer
 :::
 
 ::: {.entry name="data-component" role="provenance stamp (output)"}

@@ -117,7 +117,7 @@ Fetching and parsing a shared resource [should]{.kw} be cached by its resolved f
 Stylesheet order follows the resolved component graph and the imports' authored positions, not instance mount order. Live and generated implementations [must]{.kw} preserve equivalent cascade ordering for the same graph. Moving, unmounting, or remounting an instance [must not]{.kw} move or reinstall its stylesheet. A later extension of the graph preserves already delivered order and installs new occurrences where sharing cannot preserve that order.
 
 > [!note] Resolve first, then scope
-> A runtime or build resolves imported CSS and preserves its source bases, then applies the same component-style processing used for inline CSS. Constructed stylesheets' `replace()` and `replaceSync()` discard unresolved `@import` rules,[^7] so passing unresolved source to those methods cannot implement this contract. Ordinary metadata stylesheet links remain separate: the component loader ignores them, as defined in [Components & Composition](/declarative-components/components#resource-metadata-for-application-tooling).
+> A runtime or build resolves imported CSS and preserves its source bases, then applies the same component-style processing used for inline CSS. Constructed stylesheets' `replace()` and `replaceSync()` discard unresolved `@import` rules,[^7] so passing unresolved source to those methods cannot implement this contract. A `<link rel="stylesheet">` is invalid in a component definition, as defined in [Components & Composition](/declarative-components/components#head-elements), so a component's CSS always passes through this processing.
 
 ## Styling by props and state {#props-and-state}
 

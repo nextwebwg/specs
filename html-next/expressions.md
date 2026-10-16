@@ -43,7 +43,7 @@ An identifier starts with a CSS Syntax **ident-start code point** and continues 
 
 ### The component layer is flat, and collisions are errors
 
-A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, and `<context>`, share **one flat namespace**. Each uses its `name`, except `<context>` uses `as` when supplied. Two declarations introducing the same local name are a **conformance error**, not a silent precedence: the author disambiguates rather than memorizing which kind wins. Each `<data>` is named, so datasets are referenced individually (`search.value`, `orders.pending`). A context name reads the provider's state with the same type and reactive behavior, but is read-only in this scope (see [Reactivity](/declarative-components/reactivity)).
+A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, `<context>`, and named [declared scripts](/declarative-components/components#declared-scripts), share **one flat namespace**. Each uses its `name`, except `<context>` uses `as` when supplied. Two declarations introducing the same local name are a **conformance error**, not a silent precedence: the author disambiguates rather than memorizing which kind wins. Each `<data>` is named, so datasets are referenced individually (`search.value`, `orders.pending`). A context name reads the provider's state with the same type and reactive behavior, but is read-only in this scope (see [Reactivity](/declarative-components/reactivity)).
 
 ### Inner layers are lexical, and they shadow
 

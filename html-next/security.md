@@ -35,6 +35,8 @@ The source language is deliberately less powerful than JavaScript. The compiler 
 | DOM property binding | Resolve through the generated allowlist for the element interface. Raw-code and raw-markup sinks are not bindable. |
 | Literal executable syntax | Reject inline `on*` handlers and target-framework directives rather than copying them through. |
 | Controller module | Accept only the definition carrier's explicit `controller` specifier. Resolve URL-like values from the definition and bare values through the application-owned import map, then use the standard module loader so CSP, CORS, and import-map integrity apply. |
+| Declared script | Accept only `<script src>` in `<defs>`. Resolve `src` by the controller's rules, then insert one new, ordinary `<script>` element into `document.head` so CSP, CORS, mixed-content blocking, and `integrity` apply. |
+| Head declaration | Accept only the [listed elements and `rel` keywords](/declarative-components/components#head-elements). Create new elements in the document, never insert the definition's nodes, and ignore an imported component's document-authority entries. |
 
 ## Conformance requirements
 
@@ -43,11 +45,11 @@ The source language is deliberately less powerful than JavaScript. The compiler 
 3. `{expression}` and `$value` [must]{.kw} produce text. `$html` [must]{.kw} sanitize with the standard safe configuration before insertion (see [Templating](/declarative-components/templating)). URL, style, and future trusted-content values [must]{.kw} use their own contextual parser and policy; generic escaping is not a substitute.
 4. Every generated target [must]{.kw} preserve these checks. A converter may enforce a rule at compile time or emit a target-native runtime guard, but it [must not]{.kw} weaken a rule because React, Vue, Svelte, or the DOM exposes a more permissive sink.
 5. Property resolution uses a generated [static manifest](/declarative-components/bindings) keyed by ASCII-lowercase name, never runtime prototype enumeration, and [must]{.kw} reject two properties that collapse to the same key rather than pick a winner.
-6. A component definition may declare at most one controller, as the `controller` attribute on its `<template component>` carrier. Arbitrary `<script>` elements—including `type="importmap"`—inline code, executable event attributes, `<base>`, and policy-changing `<meta>` elements are invalid anywhere in a definition.
-7. A fetched definition [must]{.kw} be parsed as inert component data and [must not]{.kw} be inserted as an active document fragment. Resource-level and direct carrier title and non-policy-changing metadata permitted by [Components & Composition](/declarative-components/components#resource-metadata-for-application-tooling) [must]{.kw} be ignored by the component loader, not promoted into the application document or used to change application configuration. Only import maps in the application document participate in resolution. An imported definition cannot create, replace, merge, or widen an import map or live trust scope.
-8. A URL-like component or controller reference [must]{.kw} be resolved and canonicalized against the final response URL of its containing definition. A bare reference [must]{.kw} resolve through the application-owned map. Redirect targets are checked after redirect handling; a redirect cannot escape the approved live scope.
-9. For packaged input, the installer or build resolves bare package subpaths through package metadata, validates the same graph, and emits application-owned assets; the browser live-trust procedure is not involved. For cross-origin live input, a direct application import selects a root inside an application-mapped URL prefix. Relative edges may remain inside that prefix; leaving it requires another application-owned bare-specifier mapping.
-10. The controller request [must]{.kw} use the standard module loader and obey the document's CSP and the platform's CORS and referrer-policy rules. URL-keyed integrity metadata generated in the application's import map applies to the module graph. A blocked, unresolved, out-of-scope, or failed controller leaves the declarative rendering in place and reports a diagnostic.
+6. A component definition may declare at most one controller, as the `controller` attribute on its `<template component>` carrier, and any number of [declared scripts](/declarative-components/components#declared-scripts) and JSON-LD data blocks in `<defs>`. Every other `<script>` element—inline executable scripts and every other `type`, including `type="importmap"`—inline code, executable event attributes, `<base>`, `<meta http-equiv>`, `<link rel="stylesheet">`, and HTML Imports are invalid anywhere in a definition.
+7. A fetched definition [must]{.kw} be parsed as inert component data and [must not]{.kw} be inserted as an active document fragment. Registering a definition [must not]{.kw} change the document. [Head declarations](/declarative-components/components#head-declarations) take effect only while an instance is connected, through new elements the runtime creates, and an imported component's [document-authority entries](/declarative-components/components#document-authority) [must]{.kw} be ignored. Resource-level build metadata [must]{.kw} be ignored by the component loader. Only import maps in the application document participate in resolution. An imported definition cannot create, replace, merge, or widen an import map or live trust scope.
+8. A URL-like component, controller, or declared-script reference [must]{.kw} be resolved and canonicalized against the final response URL of its containing definition. A bare reference [must]{.kw} resolve through the application-owned map. Redirect targets are checked after redirect handling; a redirect cannot escape the approved live scope.
+9. For packaged input, the installer or build resolves bare package subpaths through package metadata, validates the same graph, and emits application-owned assets; the browser live-trust procedure is not involved. For cross-origin live input, a direct application import selects a root inside an application-mapped URL prefix. Relative edges may remain inside that prefix; leaving it requires another application-owned bare-specifier mapping. A declared script outside the prefix is also approved when the application's import map has an entry whose key is the script's URL.
+10. The controller request [must]{.kw} use the standard module loader and obey the document's CSP and the platform's CORS and referrer-policy rules. URL-keyed integrity metadata generated in the application's import map applies to the module graph. A blocked, unresolved, out-of-scope, or failed controller leaves the declarative rendering in place and reports a diagnostic. A declared script is an ordinary script element under the same policies; when it is blocked or fails, its status reports the error, `on:error` runs, and the declarative rendering stays in place.
 11. Content inserted through `$html`, CMS fields, slots accepting untrusted markup, or equivalent content sinks [must never]{.kw} be processed as a component-definition source. Sanitized content cannot register components, contribute dependency edges, or introduce controllers.
 12. If an implementation cannot apply a required sanitizer, URL policy, property allowlist, declared integrity check, CSP decision, or CORS check, it [must]{.kw} reject the source or value. Silent pass-through is non-conforming.
 {.algo}
@@ -57,7 +59,7 @@ The source language is deliberately less powerful than JavaScript. The compiler 
 >
 > The inert-definition rule applies **before** code executes. A fetched definition cannot install an import map or otherwise modify application policy. A controller that has already been trusted and evaluated can manipulate the page and request anything ordinary page script can request—including attempting to add an import map under the browser's normal processing rules. At that point it already has page authority; pretending the component loader still contains it would be misleading.
 >
-> Therefore a component package that contains a controller is trusted application code, including the controller's transitive module graph. CSP limits where code may come from, and integrity pins which bytes may run, but neither makes trusted code untrusted. If code needs an actual authority boundary, it must run in a separate environment such as a Worker or sandboxed iframe and communicate through messages; that stronger isolation trades away direct page-DOM access.
+> Therefore a component package that contains a controller is trusted application code, including the controller's transitive module graph. A definition that declares a script is trusted application code in exactly the same way. CSP limits where code may come from, and integrity pins which bytes may run, but neither makes trusted code untrusted. If code needs an actual authority boundary, it must run in a separate environment such as a Worker or sandboxed iframe and communicate through messages; that stronger isolation trades away direct page-DOM access.
 
 ## Component imports use the existing module loader
 
@@ -66,14 +68,14 @@ Importing a component with imperative behavior means trusting that behavior. HTM
 |  | HTML Imports | HTML Next component import |
 | --- | --- | --- |
 | **Imported unit** | An HTML `Document` with general markup, styles, dependencies, and scripts. | A definition constrained to the HTML Next component grammar. |
-| **Imperative code** | General classic or module scripts could appear throughout imported documents. | Arbitrary scripts and inline handlers are invalid. A definition may name one controller entry on its carrier. |
-| **Loading time** | Imported-document parsing defined script execution and ordering. | A controller loads as an ES module when its first component instance connects, or eagerly when the application imports it itself. |
+| **Imperative code** | General classic or module scripts could appear throughout imported documents. | Inline scripts and inline handlers are invalid. A definition may name one controller entry on its carrier and declare external scripts by URL in `<defs>`. |
+| **Loading time** | Imported-document parsing defined script execution and ordering. | A controller loads as an ES module when its first component instance connects, or eagerly when the application imports it itself. A declared script is inserted when an instance connects, comes into view, or asks for it. |
 | **Execution model** | A separate HTML-import document, dependency, parsing, and script-ordering model. | The existing JavaScript module loader, CSP, CORS, import maps, and integrity model. |
 | **Authority after execution** | Page-level JavaScript authority. | Also page-level JavaScript authority. ESM does not improve this part. |
 
 The old HTML Imports proposal was [explicit that scripting was enabled in imported documents](https://www.w3.org/TR/html-imports/); it has since been [retired by W3C](https://www.w3.org/standards/history/html-imports/). Its difficulty was broader than “too many script tags”: an HTML-document dependency graph also needed rules for parsing, parser blocking, transitive script order, style order, deduplication, `document.currentScript`, and custom-element upgrades. It created a second loading and execution model alongside JavaScript modules, while a content import still carried page-authority code.
 
-HTML Next keeps the defensible parts without claiming a security boundary that is not there. A definition cannot hide arbitrary executable syntax among its markup: it has a closed declarative grammar and, when imperative behavior is necessary, one visible `controller` specifier on the carrier. That module uses the existing JavaScript loader and its CSP, CORS, caching, import-map resolution, and integrity behavior. There is no imported-document global, parser-blocking script lifecycle, or second script-ordering system.
+HTML Next keeps the defensible parts without claiming a security boundary that is not there. A definition cannot hide arbitrary executable syntax among its markup: it has a closed declarative grammar and, when imperative behavior is necessary, one visible `controller` specifier on the carrier and visible `src` URLs for any third-party scripts. That module uses the existing JavaScript loader and its CSP, CORS, caching, import-map resolution, and integrity behavior. There is no imported-document global, parser-blocking script lifecycle, or second script-ordering system.
 
 > [!norm] Trust the root, constrain the closure
 > An application approves a component root, not a hand-copied list of everything below it. That is the useful trust boundary shared by ES-module, package, and iframe imports. The component definition only declares dependencies; it cannot carry consumer approval or change the application's map. Requiring approval for every transitive controller would add ceremony without creating a sandbox.
@@ -88,7 +90,7 @@ Component scoping constrains selector matching, not resource requests. Fonts, im
 
 Installing a package already admits its controller code to the application's software supply chain. The build resolves a concrete exported HTML subpath, walks its component and controller edges, follows static ESM imports, and emits application-owned assets. The package lock records versions and the normal review/build pipeline handles updates. A second runtime permission list would duplicate that bookkeeping without containing malicious installed code.
 
-### Live components use an application-owned trust root
+### Live components use an application-owned trust root {#live-components-use-an-application-owned-trust-root}
 
 Live cross-origin loading is different because the publisher can change bytes without an application dependency update. The application maps a package-like prefix to a selected, preferably versioned HTTPS location, then imports a concrete root. The definition is unchanged:
 
@@ -139,3 +141,47 @@ This follows the useful shape of [iframe embedded policy](https://www.w3.org/TR/
 | Worker or sandboxed iframe | Creates an actual authority boundary for code that is not trusted with the page. | Does not provide direct DOM access; integration must use messages. |
 
 A normal packaged application may reasonably rely on its lockfile, same-origin HTTPS deployment, CSP, and content-hashed build assets. Live cross-origin entry points may carry generated integrity metadata and must satisfy CORS. Authors should never calculate hashes by hand. A high-assurance deployment—not the general default—can pin more of the graph and adopt [`Integrity-Policy`](https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Integrity-Policy) as browser support matures.
+
+## Head declarations and declared scripts {#head-declarations}
+
+A component can add a title, metadata, links, and JSON-LD to the document head, and can name the external scripts it needs, as [head declarations](/declarative-components/components#head-declarations) in its `<defs>`. A checkout form can load Stripe.js; a page can set its title and canonical link. Three rules keep this safe:
+
+1. **No hidden code.** A definition never contains executable code. Code enters only through declared, visible references, the carrier's `controller` and each `<script src>` in `<defs>`, which the platform loads under the page's CSP.
+2. **Importing is pure.** Fetching and registering a definition runs nothing and changes nothing in the document. Effects start only when an instance connects.
+3. **No borrowed authority.** Importing a component does not give it control of the application's document. Policy elements are invalid everywhere, and [document-authority entries](/declarative-components/components#document-authority) apply only from the application's own components.
+{.algo}
+
+Like a controller, a declared script has page authority once it runs. A definition that declares a script is trusted application code, exactly like one with a controller.
+
+| Threat | Rule that covers it |
+| --- | --- |
+| A component smuggles in code. | An inline executable `<script>`, any other script type, and event-handler attributes are invalid in a definition. The runtime creates new elements and never inserts the definition's own nodes, so a parsed `<script>` cannot run by being cloned into the document. Every script is a visible `src`, and a build lists every declared script URL. |
+| Importing a component has an effect. | Registration inserts nothing. Head contributions and scripts wait for a connected instance, and `lazy` and `manual` scripts wait longer. |
+| A component takes over document policy. | `<meta http-equiv>`, which can set a CSP, a refresh, or cookies; `<base>`, which would rebase every relative URL; import maps; and the render-blocking `blocking` attribute are invalid in a definition. Only the application document's import map resolves bare names. |
+| A component hijacks the document's search identity. | `canonical`, `alternate`, `robots`, `icon`, and `manifest` are document-authority entries. An imported component's are ignored, with a diagnostic. |
+| A component changes the referrer policy, viewport, or color scheme. | `referrer`, `viewport`, `color-scheme`, and `theme-color` are document-authority entries too. |
+| A network attacker swaps a script in transit. | The inserted element follows HTML's rules: mixed-content blocking stops an `http:` script on an `https:` page, and `integrity` rejects changed bytes. Declare HTTPS URLs, and add `integrity` to versioned ones. |
+| A third-party script host is compromised. | A versioned URL can carry `integrity`, which pins its bytes. An evergreen SDK such as Stripe.js cannot be pinned: loading it is an explicit trust decision the application makes, visible in the markup and in the build's script list. It is the same decision as a hand-written `<script>` tag today. |
+| A component pings a tracker through `preconnect`, `preload`, or a script URL. | No new capability: a component can already make a request to any origin with `<img src>` or `<data src>`. CSP governs each fetch by its destination, as it does for any element. |
+| Tags stay behind after navigation. | Contributions are removed when their last contributor disconnects, and a title falls back to the next contributor or the application's own. Only scripts stay, because code that has run cannot be unloaded. |
+| A script runs twice. | The head holds one element per script URL and type, never removed and never reinserted. Server rendering writes an eager script only as a `preload` link, never as a `<script>`, and the client inserts the real element once. |
+| A definition loaded live from another origin adds a script the application did not approve. | Its script URLs stay within the application-mapped live scope, or match an entry in the application's import map, the same rule that applies to its controller. |
+
+**What is not new.** A `<data>` resource already fetches from declared URLs, and images and CSS already request any origin. A controller already has page authority, including the power to insert any script it likes. Head declarations make the common cases declarative and visible; they do not widen what a trusted component can do. They narrow what an imported one can do, because its document-authority entries are ignored, where a controller's DOM writes would not be.
+
+### Declared scripts under a Content Security Policy
+
+A declared script is an ordinary element, so a typical policy covers it unchanged. An origin allowlist names the script's origin:
+
+```text title="HTTP response header"
+Content-Security-Policy: script-src 'self' https://js.stripe.com
+```
+
+A nonce-based policy with `'strict-dynamic'` trusts the scripts a trusted script inserts, which is how the polyfill runtime's insertions load. A native implementation has no inserting script, so it copies the `nonce` of the application element that imported the definition onto the scripts that definition's graph inserts. The application grants that trust by placing its nonce on the import, as it would on a `<script>`:
+
+```html
+<!-- Content-Security-Policy: script-src 'nonce-r4nd0m' 'strict-dynamic' -->
+<link rel="component" href="./checkout-form.html" nonce="r4nd0m">
+```
+
+A build lists every declared script URL beside the controllers, with the component that declares each one, so the application can review its scripts and generate its `script-src`.

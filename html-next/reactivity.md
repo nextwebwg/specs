@@ -161,6 +161,8 @@ A `<data>` exposes a small, typed surface any binding can read:
 | `search.ok` | settled with a value and no error |
 | `saveDraft.dirty` | a write resource has body changes not yet acknowledged |
 
+A [declared script](/declarative-components/components#declared-scripts) exposes the same `.pending`, `.ok`, and `.error` status, so `$stripe.pending` reads like `$search.pending`.
+
 Controllers read the same resource through `host.data.search`: for example `host.data.search.pending` and `host.data.search.value`. A resource is absent from `host.state`. Its response and status fields are read-only; reads participate in `host.effect` dependency tracking. A mutable local copy belongs in a declared `<state>`.
 
 To refetch with unchanged inputs (a manual refresh, polling) there is no imperative call: bump a state param the source depends on, or declare a `poll` interval. For a read, a param change cancels the stale in-flight GET request. Reads are keyed by their resolved params, giving a natural cache key.

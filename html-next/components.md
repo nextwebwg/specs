@@ -326,7 +326,7 @@ Authored elements are never changed: while a contribution overrides one, it is s
 
 **Terms.**
 
-- A **contribution** is one head declaration of one connected instance, with its bindings evaluated. A document-authority entry from an [imported component](#document-authority) is not a contribution; the implementation [must]{.kw} report a diagnostic for it. A JSON-LD declaration whose bound value is `null` is not a contribution while its value is `null`.
+- A **contribution** is one head declaration of one connected instance, with its bindings evaluated. A page-wide head entry from an [imported component](#page-wide-head-entries) is not a contribution; the implementation [must]{.kw} report a diagnostic for it. A JSON-LD declaration whose bound value is `null` is not a contribution while its value is `null`.
 - Each contribution has a **key**: `title` for `<title>`; `canonical` for `<link rel="canonical">`; `name` and the ASCII-lowercased `name` for `<meta name>`; `property` and the `property` value for `<meta property>`; the ASCII-lowercased `rel` and the resolved `href` for any other `<link>`; the serialized text for a JSON-LD block; and the resolved URL with `classic` or `module` for a declared script. The first four are **competing** keys, the next two are **shared** keys, and the last is a **script** key.
 - A `<meta>` key whose name or property has three or more colon-separated parts is a **sub-property** of the key formed by removing its last part and colon, with the same attribute. A key that is not a sub-property is a **top-level** key. A top-level competing key's **family** is the key and every key that is, directly or through another, its sub-property.
 - Instance A has higher **precedence** than instance B when A is deeper in the logical component tree, or at equal depth when A connected after B.
@@ -381,9 +381,9 @@ Navigating from `/docs/a/` to `/docs/b/` inside a `docs-layout` that sets the ti
 
 The title never reads `Docs · Acme`, and the preconnect link is never removed and reinserted.
 
-### Entries only the application sets {#document-authority}
+### Page-wide head entries {#page-wide-head-entries}
 
-Some head entries set policy or identity for the whole document. Only an **application component** can contribute them:
+Some head entries affect the whole page: its identity for search engines and sharing, and page-wide behavior. These are **page-wide head entries**, and only an **application component** can contribute them:
 
 | Entry | Why the application owns it |
 | --- | --- |
@@ -397,31 +397,31 @@ Some head entries set policy or identity for the whole document. Only an **appli
 | `<meta name="color-scheme">` | Selects light or dark rendering for the whole document. |
 | `<meta name="theme-color">` | Colors the browser interface around the document. |
 | `<meta property="og:url">` | The URL that link previews and social sharing attribute the document to. |
-| `<meta name="application-components">` | Says which sources supply application components, below. |
+| `<meta name="component-src">` | Says which sources supply application components, below. |
 
 **Application components.** A definition is an **application component** when it is one of these:
 
 - part of the build's own source, in a build;
 - written inline in the application document;
-- loaded through URL-like references only, from the application document down, from a final response URL that matches the document's **application-components source list**.
+- loaded through URL-like references only, from the application document down, from a final response URL that matches the document's **`component-src` list**.
 
 Every other definition is an **imported component**. That includes any definition reached through a bare specifier, such as an installed package subpath or a mapped live import, any definition from an unlisted cross-origin source, and every definition reached from an imported one. A resource reached both ways is an imported component.
 
 The source list uses the grammar of a CSP source list: space-separated source expressions such as `'self'`, origins, and URL path prefixes. A URL matches it by the CSP rules for matching a URL to a source list, with the application document's origin as `'self'`.[^10] The application declares the list in its own authored head:
 
 ```html
-<meta name="application-components" content="'self' https://cdn.acme.example/ui/">
+<meta name="component-src" content="'self' https://cdn.acme.example/ui/">
 ```
 
 - The list always includes `'self'`, so same-origin definitions are application components even when the meta is absent.
 - A source the list names is also loadable: the loader [must]{.kw} accept a cross-origin component root whose URL matches a listed source expression and is reached by a URL-like reference, such as `<link rel="component" href="https://cdn.acme.example/ui/dashboard.html">`, as it accepts a same-origin one, without an import-map entry. The URL prefix that source expression names, or the root's origin when it names none, is the root's approved scope: its relative component and controller edges stay inside it, as they stay inside an [application-mapped prefix](/declarative-components/security#live-components-use-an-application-owned-trust-root).
-- The implementation [must]{.kw} read the list only from the first `<meta name="application-components">` in the application document's authored head, as parsed. It [must]{.kw} ignore this entry from any component, application or imported, and [must]{.kw} report a diagnostic for a second authored one.
+- The implementation [must]{.kw} read the list only from the first `<meta name="component-src">` in the application document's authored head, as parsed. It [must]{.kw} ignore this entry from any component, application or imported, and [must]{.kw} report a diagnostic for a second authored one.
 - A build reads the list from the application's document template.
 
-The runtime ignores an imported component's document-authority entries and reports a diagnostic. Its other head declarations apply as usual.
+The runtime ignores an imported component's page-wide head entries and reports a diagnostic. Its other head declarations apply as usual.
 
-> [!note] A CSP directive for the same list
-> The list protects the document's identity, which CSP does not cover. A native implementation could expose the same source list as a CSP directive, such as `application-components 'self' https://cdn.acme.example/ui/`, and treat the meta as its in-document form.
+> [!note] The name and grammar of `component-src`
+> The name follows CSP Level 3, whose fetch directives name a resource type plus `-src`: `script-src`, `img-src`, `style-src`, `frame-src`, `connect-src`, `font-src`, and `manifest-src`.[^10] `component-src` names where an application's own components come from. Its value reuses CSP's source-list syntax and source-expression matching exactly, `'self'`, origins, and path prefixes included, the same origin-list idea as a Permissions Policy allowlist.[^11] One difference is deliberate: a CSP `*-src` directive only permits loading, while `component-src` also marks matched components as the application's own, so they may set page-wide head entries. A browser could adopt the same name as a real CSP directive, delivered in the `Content-Security-Policy` header, such as `component-src 'self' https://cdn.acme.example/ui/`, with no change in meaning; the meta is then its in-document form.
 
 In an application framework with file-based pages, pages and layouts live in the application's source, so they are application components. A component installed from a package is an imported component, even when an application page renders it.
 
@@ -502,7 +502,7 @@ assert.equal(document.querySelector("title"), authoredTitle);
 
 ### Generated components {#head-generated}
 
-A generated React, Vue, or Svelte component [must]{.kw} produce the same head contributions, at the same lifecycle points, with the same marker, keys, precedence, document-authority rule, reconciliation, and script sharing, through its host adapter. An adapter [may]{.kw} use its framework's own head mechanism when the observable result is the same.
+A generated React, Vue, or Svelte component [must]{.kw} produce the same head contributions, at the same lifecycle points, with the same marker, keys, precedence, page-wide head entry rule, reconciliation, and script sharing, through its host adapter. An adapter [may]{.kw} use its framework's own head mechanism when the observable result is the same.
 
 > [!note] Platform integration
 > A native implementation needs three things: DOM insertion, removal, and value changes in `document.head` when instances connect and disconnect; the reconciliation steps above; and HTML's existing `<script>` and `<link rel="preload">` elements. It [may]{.kw} track ownership internally, but it uses the `data-component-head` marker for the handoff from server output to the client, so output from any server hydrates under any client. It needs no new security primitive: CSP, Subresource Integrity, CORS, and mixed-content blocking apply because each contribution is an ordinary element in the document. It is also much smaller than [HTML Imports](#imported-definitions-are-inert): there is no second document, no parser-blocking load, and no new script-ordering model. Each declared script is one script inserted through the DOM.
@@ -868,7 +868,7 @@ Bindings
 : inline text in `<title>` · `from:content` · `from:href` · `from:value` on a JSON-LD block
 
 Authority
-: `canonical`, `alternate`, `icon`, `manifest`, `robots`, `referrer`, `viewport`, `color-scheme`, `theme-color`, `og:url`, and `application-components` apply only from application components
+: `canonical`, `alternate`, `icon`, `manifest`, `robots`, `referrer`, `viewport`, `color-scheme`, `theme-color`, `og:url`, and `component-src` are page-wide head entries, which apply only from application components
 
 Level
 : [L1 (proposed)]{.pill .l1}
@@ -946,4 +946,5 @@ Level
 [^7]: W3C (retired), [HTML Imports](https://www.w3.org/TR/html-imports/) (`<link rel="import">`).
 [^8]: Dynamic component, borrowed directly: Vue [`<component :is>`](https://vuejs.org/api/built-in-special-elements.html#component) (name and syntax verbatim), Svelte [`<svelte:component>`](https://svelte.dev/docs/svelte/svelte-component), and Angular [NgComponentOutlet](https://angular.dev/api/common/NgComponentOutlet).
 [^9]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
-[^10]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
+[^10]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [fetch directives](https://www.w3.org/TR/CSP3/#directives-fetch), the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
+[^11]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.

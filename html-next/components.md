@@ -420,7 +420,7 @@ The source list uses the grammar of a CSP source list: space-separated source ex
 
 The runtime ignores an imported component's page-wide head entries and reports a diagnostic. Its other head declarations apply as usual.
 
-> [!note] Why `component-src`
+> [!note] The name and grammar of `component-src`
 > The name follows CSP Level 3, whose fetch directives name a resource type plus `-src`: `script-src`, `img-src`, `style-src`, `frame-src`, `connect-src`, `font-src`, and `manifest-src`.[^10] `component-src` names where an application's own components come from. Its value reuses CSP's source-list syntax and source-expression matching exactly, `'self'`, origins, and path prefixes included, the same origin-list idea as a Permissions Policy allowlist.[^11] One difference is deliberate: a CSP `*-src` directive only permits loading, while `component-src` also marks matched components as the application's own, so they may set page-wide head entries. A browser could adopt the same name as a real CSP directive, delivered in the `Content-Security-Policy` header, such as `component-src 'self' https://cdn.acme.example/ui/`, with no change in meaning; the meta is then its in-document form.
 
 In an application framework with file-based pages, pages and layouts live in the application's source, so they are application components. A component installed from a package is an imported component, even when an application page renders it.

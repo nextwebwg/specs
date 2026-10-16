@@ -361,8 +361,8 @@ interface ComponentHost {
 
 When a controller calls <code>host.request(<var>name</var>, <var>detail</var>, <var>options</var>)</code>, the runtime [must]{.kw} run these steps:
 
-1. If the definition declares no `<request>` named <var>name</var>, return a promise rejected with a `TypeError`. A build tool reports a literal undeclared name before execution.
-2. If <var>detail</var> does not conform to the request's `type`, return a promise rejected with a `TypeError`, and report the runtime warning a `host.dispatch` type mismatch reports.
+1. If the definition declares no `<request>` named <var>name</var>, return a promise rejected with a `TypeError`. A build tool [may]{.kw} report a literal undeclared name before execution.
+2. If <var>detail</var> does not conform to the request's `type`, report a runtime warning that names the request, and return a promise rejected with a `TypeError`.
 3. Let <var>signal</var> be `AbortSignal.any()` of <var>options</var>`.signal`, when given, and the instance's **connection signal**, which aborts when the instance disconnects. If <var>signal</var> is aborted, return a promise rejected with its reason.
 4. Wait until every component whose root is a DOM ancestor of the instance's root, and whose definition declares a controller, has run that controller's synchronous body for its current connection, or has failed to load it. The wait ends when each controller function returns; promises a controller starts are outside it. If <var>signal</var> aborts while waiting, reject with its reason.
 5. Create a `RequestEvent` whose `type` is <var>name</var>, whose `detail` is <var>detail</var> or `null`, and whose `signal` is <var>signal</var>. It bubbles, is composed, and is not cancelable.
@@ -484,7 +484,7 @@ host.on("connect", () => {
 ```
 
 ```js title="editor-setup.js"
-import { respond } from "@nextwebwg/html";
+import { respond } from "@nextwebwg/html-next";
 import Highlight from "@tiptap/extension-highlight";
 respond(document, "extensions", () => [Highlight]);   // adds the listener and announces it
 ```

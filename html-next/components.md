@@ -69,7 +69,7 @@ Some components need behavior from whoever uses them: a rich-text editor asks fo
 
 | Attribute or child | Meaning |
 | --- | --- |
-| `name` | The request's event type: lowercase kebab case, like an `<event>` name. A definition [must not]{.kw} declare an `<event>` and a `<request>` with the same name, or either one named `responder`, the host event for [late responders](/declarative-components/javascript#late-responders). |
+| `name` | The request's event type: lowercase kebab case, like an `<event>` name. A definition [must not]{.kw} declare an `<event>` and a `<request>` with the same name, or either one named `responder`, the host event for [late responders](/declarative-components/javascript#late-responders). A build tool reports either as an error. The live parser warns and ignores the declaration: for a shared name it keeps the `<event>` and ignores the `<request>`. |
 | `type` | The type of the request's detail, written as for an `<event>`. Omitted, the detail is `null`. |
 | `returns` | The type of the answer. Omitted, the answer is `unknown`. |
 | `<prop>` children | The detail's fields, when `type="object"`, as for an [expanded event declaration](/declarative-components/types#structured-values). |

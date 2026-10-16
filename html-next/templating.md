@@ -171,7 +171,7 @@ Mixed literal text and expression segments retain one native text node per autho
 >
 > `$html` must **not** call native `Element.setHTML()`, even when it exists. Firefox currently reorders malformed table content differently from Chromium, WebKit, and the reference HTML parser. Using native `setHTML()` would make the result depend on the browser and could break server-rendered hydration. It remains useful for comparing sanitizer policies, not for rendering `$html`.
 >
-> The result renders markup but cannot execute code, the same script-free guarantee a `<template component>` import receives. Raw, *unsanitized* HTML is not available here; it requires the dedicated trusted-HTML type (see [Types](/declarative-components/types)), the only path that can carry script and therefore the only one gated.
+> The result renders markup but cannot execute code, the same guarantee a `<template component>` import receives: no embedded code. Raw, *unsanitized* HTML is not available here; it requires the dedicated trusted-HTML type (see [Types](/declarative-components/types)), the only path that can carry script and therefore the only one gated.
 
 ## Whitespace & mixed content
 

@@ -341,6 +341,7 @@ Genuine design questions, not yet settled:
 | Reactive scheduling | Browser scheduling, teardown, and dynamic-index dependency breadth. |
 | Parser contexts | SVG, MathML, table, and select insertion modes. |
 | Extension | How consumers extend the element and type vocabulary; capability negotiation. |
+| Document head | Crawler-specific robots names as document-authority entries; reading the status of an authored script that settled before the runtime looked. |
 
 > [!note] Prior art, credited
 > Shopify Liquid (constrained template language, filter pipelines), Squarespace JSON-T (data-context-first templating), Vue & Svelte (markup-first components, scoped styles, browser-safe binding syntax), Mitosis (one source → many framework targets), and XSLT (declarative tree transformation) are inputs and evidence; none is adopted as the default answer.

@@ -31,7 +31,7 @@ Declarative HTML Components is one specification, in chapters that each define p
 
 | Chapter | In plain terms |
 | --- | --- |
-| [Components](/declarative-components/components) | Define a reusable tag with `<template component>`. Its interface (props) and non-visual declarations live in a `<defs>` region; below that is the markup it renders. |
+| [Components](/declarative-components/components) | Define a reusable tag with `<template component>`. Its interface (props) and non-visual declarations, including what it adds to the document head, live in a `<defs>` region; below that is the markup it renders. |
 | [Templating](/declarative-components/templating) | Control flow uses attributes that survive the HTML parser: `$if` (show or not), `$each` (repeat), `$match` (pick one). Output uses `{expression}` for inline text and `$value`/`$html` to replace content with text or safe markup. |
 | [Expressions](/declarative-components/expressions) | A small, typed, no-JavaScript expression language for bindings and inline text, with predictable rules for missing data and equality (it never throws). |
 | [Bindings & events](/declarative-components/bindings) | Set reactive values with `from:attr`, two-way with `bind:`, react to events with `on:`, toggle a class or style with `class:`/`style:`. |
@@ -39,7 +39,7 @@ Declarative HTML Components is one specification, in chapters that each define p
 | [Types](/declarative-components/types) | Plain-keyword value types cover strings, numbers, HTML value formats, and selected CSS values. An omitted prop with no default is `null`. |
 | [Validation](/declarative-components/validation) | A declared type is a constraint: a typed prop or data value that fails its type is invalid, through the validity model [HTML Forms](/html-forms) extends to every element, and styled with the native `:user-invalid`. |
 | [Style scoping](/declarative-components/styling) | A component's `<style>` applies to that component, using CSS `@scope`, scoping without the isolation cost of a shadow root. |
-| [The JavaScript layer](/declarative-components/javascript) | The escape hatch. When behavior genuinely needs code (a timer, a chart library), a separate ES-module *controller* attaches to the component. Definitions stay script-free. |
+| [The JavaScript layer](/declarative-components/javascript) | The escape hatch. When behavior genuinely needs code (a timer, a chart library), a separate ES-module *controller* attaches to the component. Definitions contain no code; they reference it. |
 
 ## How it fits together
 

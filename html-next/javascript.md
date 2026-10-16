@@ -8,13 +8,13 @@ status: Proposed direction · the imperative escape hatch
 
 # The JavaScript Layer
 
-Almost everything is declarative, and a component definition holds **no script at all**. When behavior genuinely needs imperative JavaScript, a timer, a stream, an observer, a foreign library, it lives in an ordinary **ES module** outside the definition and attaches through a small, native-grounded seam: a **controller** declared by the component definition. The definition stays pure data; the module stays pure behavior; they meet only at the contract.
+Almost everything is declarative, and a component definition **contains no executable code**: code is referenced, never embedded. When behavior genuinely needs imperative JavaScript, a timer, a stream, an observer, a foreign library, it lives in an ordinary **ES module** outside the definition and attaches through a small, native-grounded seam: a **controller** declared by the component definition. The definition stays pure data; the module stays pure behavior; they meet only at the contract.
 
 ## Imperative behavior uses controllers
 
 The declarative layers, templating, bindings, and reactivity, cover the large majority of interface work with no script. But some behavior is irreducibly imperative: a `setInterval` clock, a Server-Sent-Events stream, an `IntersectionObserver`, wrapping a mapping or charting library, or computation too involved for a [pure expression](/declarative-components/expressions). That work needs JavaScript, and pretending otherwise would push authors back into inline handlers and `eval`-shaped escapes.
 
-So HTML Next draws a firm line. A **component definition is declarative data**: no `<script>`, no inline handlers, importable and inspectable without executing anything, and renderable on a server. Imperative JavaScript is a **separate concern** in an ordinary ES module. The two never fuse; they meet at a named seam.
+So HTML Next draws a firm line. A **component definition is declarative data**: no embedded script, no inline handlers, importable and inspectable without executing anything, and renderable on a server. A definition may also name a third-party script it needs, such as a payment SDK, as a [declared script](/declarative-components/components#declared-scripts): a visible URL that the runtime loads as an ordinary `<script>` element when an instance connects. Imperative JavaScript is a **separate concern** in an ordinary ES module. The two never fuse; they meet at a named seam.
 
 > [!norm] Server rendering supplies the declarative baseline
 > The JavaScript layer only *enhances*: a controller adds live imperative behavior on top and is never load-bearing for the first render. But be precise about what "no JS" delivers, because it depends on where the markup comes from. On a **server-rendered** page the first render is real HTML that displays, is accessible, and is indexable with no script; a controller failing to load leaves that baseline intact. On a **client-only** page there is no such baseline: an invocation like `<x-app>` is an unknown element, so without the runtime it renders *nothing* (its inline children, if any, are all that shows). So the guarantee is: **no-JS renders the declarative baseline when the HTML was server-rendered**; client-only pages need the runtime to produce first paint. Determinism and adopt-in-place hydration are likewise SSR properties (see [Components](/declarative-components/components)), not client-only ones.
@@ -77,6 +77,16 @@ interface DataResource<Value = unknown> {
   readonly dirty?: boolean; // write resources
 }
 
+interface ScriptResource {
+  readonly pending: boolean;
+  readonly ok: boolean;
+  readonly error: Event | TypeError | null;
+  /** Resolves when the script loads; rejects with its error event. Settles once, with the script. */
+  readonly ready: Promise<void>;
+  /** Insert the script element if it is not inserted yet. Returns ready. */
+  load(): Promise<void>;
+}
+
 interface ComponentHost<
   State extends object = Record<string, unknown>,
   Props extends object = Record<string, unknown>,
@@ -91,6 +101,9 @@ interface ComponentHost<
 
   /** One read-only resource per <data>; resource changes participate in effects. */
   readonly data: Readonly<Data>;
+
+  /** One entry per named declared script; status changes participate in effects. */
+  readonly scripts: Readonly<Record<string, ScriptResource>>;
 
   /** One handle per declared <prop>. No <state>, <computed>, or <data> entries. */
   readonly props: { readonly [Name in keyof Props]: PropHandle<Props[Name]> };
@@ -123,6 +136,7 @@ interface ComponentHost<
 | `host.root` | The component's root element, whose connection owns this controller's lifetime. | `:host` / the custom-element instance |
 | `host.state` | Read local mutable state, read-only computed state, and inherited `<context>` values. Only declared `<state>` entries are writable. Props and data resources are absent. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
 | <code>host.data.<var>name</var></code> | Read a declared `<data>` resource, including its `.pending`, `.value`, `.error`, and `.ok` fields. The resource is read-only. | The declared resource and its native fetch lifetime |
+| <code>host.scripts.<var>name</var></code> | Read a [declared script](/declarative-components/components#declared-scripts)'s status, wait for it with `ready`, or insert it now with `load()`. | The inserted `<script>` element's `load` and `error` events |
 | <code>host.props.<var>name</var></code> | Inspect a caller-supplied prop's accepted value, latest direct input, and validity. This is the controller's only path to a declared prop. | An HTML control separates its input and validity from the value its consumers read[^10] |
 | <code>host.refs.<var>name</var></code> | The element declared with <code>$ref="<var>name</var>"</code>, or the list of them when that name sits inside an iteration. | captured at lowering (see below) |
 | <code>host.slots.<var>name</var></code> | The elements a consumer projected into that slot, in order; empty while the slot shows its fallback. For a consumer's `<template slot>`, the elements the template renders while the slot renders, and none while it does not ([content that renders on demand](/declarative-components/components#content-that-renders-on-demand)). | `assignedElements()`[^9] |
@@ -132,6 +146,24 @@ interface ComponentHost<
 | <code>host.request(<var>name</var>, detail, { signal, progress })</code> | Ask the consumer a declared [request](#requests); resolves to its answer, or `null`. Present when the component declares a request. | `FetchEvent.respondWith()`[^11] |
 
 Teardown is either a disposer returned from an `host.on("connect", …)` callback or an explicit `host.on("disconnect", …)`; `host.effect` cleans itself up. This is the same connect-and-return-a-disposer shape used across the platform and userland alike.
+
+### Waiting for a declared script {#host-scripts}
+
+A component that wraps a third-party SDK declares the SDK's script in `<defs>` and waits for it in the controller. `host.scripts.name.ready` is a promise about the script: it settles once, on the inserted `<script>` element's own `load` or `error` event. The declaration's `on:load` and `on:error` handlers, by contrast, run once for each connection:
+
+```js
+// <script name="maps" src="https://maps.example/sdk/v2.js" loading="manual">
+export default function controller(host) {
+  host.on("connect", () => {
+    host.refs.open.addEventListener("click", async () => {
+      await host.scripts.maps.load();          // inserts the element once, then waits
+      if (host.root.isConnected) new MapsSDK.Map(host.refs.canvas);
+    }, { once: true });
+  });
+}
+```
+
+`load()` matters only for `loading="manual"`; for `eager` and `lazy` it inserts the element early. The script is shared by every component that declares the same URL and is never removed, so `ready` may already be resolved when an instance connects. A controller that sets up on every connection waits on `ready` in its `connect` callback, as here, or uses `on:load`. See [Declared scripts](/declarative-components/components#declared-scripts) for when the element is inserted and how its status is shared.
 
 ### Accepted values and prop inputs {#accepted-values-and-prop-inputs}
 
@@ -179,7 +211,7 @@ A controller calculates with JavaScript's own operators. Three steps of `host.st
 > The contract exposes mutable and computed state and inherited contexts through `host.state`, declared resources through `host.data`, caller-supplied props through `host.props`, and lifetime-bound reactions through `host.effect`; it does not expose an instance's backing `Signal.State`, `Signal.Computed`, or `Watcher` objects. Raw handles would let code retain observations beyond the element's lifetime, bypass declared writability and type rules, and couple HTML Next to a Stage&nbsp;1 API shape. A browser runtime may use TC39 Signals internally, but that choice is not observable. Page code outside the controller uses the component's declared attributes and properties and listens for DOM events; it cannot retrieve the private `host`. The raw-signal question can be reopened if cross-system signal identity proves to be a real interoperability requirement.
 
 > [!note] Grounded in the platform, not a framework
-> The surface reads like userland (`state`, `effect`, `refs`), but each name has a standards anchor: the carrier's module reference ↔ declarative module loading, `host` ↔ `:host`, connect/disconnect ↔ the custom-element reactions, `effect` ↔ the Signals proposal. The overall shape, a controller bound to a host with connect and disconnect callbacks, is Lit's Reactive Controller[^5], adapted to a script-free definition.
+> The surface reads like userland (`state`, `effect`, `refs`), but each name has a standards anchor: the carrier's module reference ↔ declarative module loading, `host` ↔ `:host`, connect/disconnect ↔ the custom-element reactions, `effect` ↔ the Signals proposal. The overall shape, a controller bound to a host with connect and disconnect callbacks, is Lit's Reactive Controller[^5], adapted to a definition that contains no code.
 
 ## Element handles: $ref
 
@@ -568,7 +600,7 @@ Later discovery follows the same duplicate-definition, custom-element precedence
 
 The observer batches additions and removals, ignores its own completed lowering, and connects each instance once. Removal disconnects the instance and disposes its owned work; later reinsertion reconnects it. A move that stays within the same document during one mutation batch preserves the connection. Compiled/AOT builds discover the graph ahead of time and use target lifecycle hooks; they do not use `MutationObserver` for component discovery.
 
-### Loading a controller
+### Loading a controller {#loading-a-controller}
 
 A definition names its controller module directly on the carrier with `controller="…"`. A URL-like value resolves relative to the definition; a bare value uses the application's ordinary import map, just like a JavaScript import. That HTML-to-JavaScript edge is statically discoverable without executing either file, and the controller's own static imports continue the visible graph through JavaScript. The component author declares dependencies; the application decides how bare specifiers resolve:
 
@@ -603,9 +635,9 @@ The resulting association is direct and inspectable:
 | controller module | one default-exported host function plus ordinary static imports | the definition's `controller` edge | ES module loader[^7] |
 
 > [!norm] The honest boundary from HTML Imports
-> Importing a component root trusts its dependency closure, including a declared controller. HTML Next does **not** pretend otherwise. The improvement over HTML Imports[^6] is architectural: a definition is parsed under one closed declarative grammar; arbitrary classic scripts and inline handlers are rejected; imperative behavior has one explicit `controller` attribute; and that edge uses the existing ES-module loader instead of an imported-document script lifecycle.
+> Importing a component root trusts its dependency closure, including a declared controller. HTML Next does **not** pretend otherwise. The improvement over HTML Imports[^6] is architectural: a definition is parsed under one closed declarative grammar; arbitrary classic scripts and inline handlers are rejected; imperative behavior has one explicit `controller` attribute, and any third-party script is a visible declared `src`; and those edges use the existing ES-module loader and script element instead of an imported-document script lifecycle.
 >
-> ES modules provide standardized fetching, CORS, CSP, dependency graphs, deduplication, and one-time evaluation. They do **not** sandbox authority. A controller and its transitive module graph are trusted page JavaScript, just like the JavaScript shipped by a custom element or an installed UI package.
+> ES modules provide standardized fetching, CORS, CSP, dependency graphs, deduplication, and one-time evaluation. They do **not** sandbox authority. A controller and its transitive module graph are trusted page JavaScript, just like the JavaScript shipped by a custom element or an installed UI package. So is a declared script.
 
 ## A worked example: a component that uses another
 
@@ -738,7 +770,7 @@ adaptVue(controller, { refs: { canvas }, props });
 </template>
 ```
 
-This works because `host` is deliberately tiny, and every target already has all of it natively: lifecycle (Vue `onMounted`/`onUnmounted`, Svelte `onMount`/`onDestroy`, Solid `onMount`/`onCleanup`, React `useEffect`), effects (Vue `watchEffect`, Svelte `$effect`, Solid `createEffect`), refs (Vue `ref`, Svelte `bind:this`, React `useRef`), props for `host.props`, and mutable and computed state and context for `host.state`, and resources for `host.data`. `$ref="name"` maps to each target's ref idiom; `host.dispatch` to its event mechanism.
+This works because `host` is deliberately tiny, and every target already has all of it natively: lifecycle (Vue `onMounted`/`onUnmounted`, Svelte `onMount`/`onDestroy`, Solid `onMount`/`onCleanup`, React `useEffect`), effects (Vue `watchEffect`, Svelte `$effect`, Solid `createEffect`), refs (Vue `ref`, Svelte `bind:this`, React `useRef`), props for `host.props`, and mutable and computed state and context for `host.state`, and resources for `host.data`. `host.scripts` needs no framework primitive: the adapter inserts the same `<script>` element and follows the same [head management](/declarative-components/components#head-management) rules. `$ref="name"` maps to each target's ref idiom; `host.dispatch` to its event mechanism.
 
 > [!note] React is the one that needs a bridge
 > React has no native fine-grained reactivity, so its adapter backs `host.effect` and `host.state` with an external store (via `useSyncExternalStore`) rather than a signal. That wart is contained to the React adapter; the controller and every other target are unaffected.
@@ -796,7 +828,7 @@ Level
 
 ::: {.entry name="host" role="the instance window passed to a controller"}
 Provides
-: `element`, `state` (declared state only is writable), `refs`, `elements`, `on`, `effect`, `dispatch`, and `request` when the component declares a request
+: `element`, `state` (declared state only is writable), `refs`, `elements`, `scripts`, `on`, `effect`, `dispatch`, and `request` when the component declares a request
 
 Effect lifetime
 : connected only; dependency changes are microtask-batched; cleanup runs before rerun and on disconnect; the returned stop function ends it early
@@ -831,7 +863,7 @@ Level
 [^2]: WHATWG HTML, [ElementInternals](https://html.spec.whatwg.org/multipage/custom-elements.html#the-elementinternals-interface) and [custom states](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-state-pseudo-class) with CSS [:state()](https://developer.mozilla.org/docs/Web/CSS/:state): the native model for the internal state of an element, generalized here from boolean flags to values.
 [^3]: CSS Scoping, [Shadow Parts](https://drafts.csswg.org/css-shadow-parts/) (`part` / `::part()`) and [:host](https://developer.mozilla.org/docs/Web/CSS/:host): the platform words for a component element seen from inside, and for a named internal piece exposed to outside CSS.
 [^4]: TC39, [Signals](https://github.com/tc39/proposal-signals) (`State`, `Computed`, and `Watcher`): a candidate low-level basis for `host.effect`. The proposal explicitly does not provide effects, scheduling, DOM ownership, or automatic disposal; this DOM-facing layer supplies them.
-[^5]: Lit, [Reactive Controllers](https://lit.dev/docs/composition/controllers/) (`hostConnected`/`hostDisconnected`, a controller object attached to a host): direct prior art for the controller-plus-host shape, adapted to a script-free definition.
+[^5]: Lit, [Reactive Controllers](https://lit.dev/docs/composition/controllers/) (`hostConnected`/`hostDisconnected`, a controller object attached to a host): direct prior art for the controller-plus-host shape, adapted to a definition that contains no code.
 [^6]: W3C, [HTML Imports](https://www.w3.org/TR/webcomponents/#imports) (discontinued): the approach this layer deliberately avoids, fusing markup, style, and executing script into one imported document.
 [^7]: WHATWG HTML, [module-script fetching](https://html.spec.whatwg.org/multipage/webappapis.html#fetch-a-single-module-script), [Content Security Policy](https://developer.mozilla.org/docs/Web/HTTP/Guides/CSP), and [Subresource Integrity](https://developer.mozilla.org/docs/Web/Security/Defenses/Subresource_Integrity): the existing loading and deployment controls used by controllers.
 [^8]: WHATWG DOM, [CustomEvent](https://dom.spec.whatwg.org/#interface-customevent) and [dispatchEvent](https://dom.spec.whatwg.org/#dom-eventtarget-dispatchevent): what `host.dispatch` lowers to.

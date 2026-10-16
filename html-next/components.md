@@ -848,10 +848,10 @@ Placement
 : a flat child of `<defs>`, beside `<prop>` and `<event>`
 
 Asked with
-: <code>host.request(<var>name</var>, <var>detail</var>, { signal, progress })</code>, resolving to the answer or `null` (see [the JavaScript Layer](/declarative-components/javascript#requests))
+: <code>host.request(<var>name</var>, <var>detail</var>, { signal, progress })</code>, resolving to the answer or `null` (see [the JavaScript Layer](/declarative-components/javascript#requests)); <code>host.hasResponder(<var>name</var>)</code> tells whether a [known responder](/declarative-components/javascript#has-responder) answers
 
 Answered with
-: a `RequestEvent` listener calling `respondWith`, or a framework function prop; the nearest responder answers
+: a `RequestEvent` listener calling `respondWith`, [`RequestEvent.respond()`](/declarative-components/javascript#outside-a-controller), or a framework function prop; the nearest responder answers
 
 Level
 : [L2+]{.pill .soon} reserved, with the JavaScript layer

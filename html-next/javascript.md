@@ -113,8 +113,8 @@ interface ComponentHost<
   /** Raise a component event a parent catches with on:event. */
   dispatch(type: string, detail?: unknown): boolean;
 
-  /** Ask the consumer a declared request. Resolves to its answer, or null. */
-  request(name: string, detail?: unknown, options?: RequestOptions): Promise<unknown>;
+  /** Ask the consumer a declared request. Resolves to its answer, or null. Present when the component declares a request. */
+  request?(name: string, detail?: unknown, options?: RequestOptions): Promise<unknown>;
 }
 ```
 
@@ -129,7 +129,7 @@ interface ComponentHost<
 | <code>host.on(<var>event</var>, fn)</code> | Run `fn` on a lifecycle or component event; `connect`, `disconnect`, and [`responder`](#late-responders) included. | `connectedCallback`/`disconnectedCallback`[^1] |
 | `host.effect(fn)` | Run `fn` while connected and re-run it whenever a state path it read changes. Returns an early-stop function; connection also owns cleanup. | TC39 Signals `Watcher`[^4] plus DOM connection |
 | <code>host.dispatch(<var>event</var>, detail)</code> | Raise a component event a parent can catch with `on:event`. | `CustomEvent` / `dispatchEvent`[^8] |
-| <code>host.request(<var>name</var>, detail, { signal, progress })</code> | Ask the consumer a declared [request](#requests); resolves to its answer, or `null`. | `FetchEvent.respondWith()`[^11] |
+| <code>host.request(<var>name</var>, detail, { signal, progress })</code> | Ask the consumer a declared [request](#requests); resolves to its answer, or `null`. Present when the component declares a request. | `FetchEvent.respondWith()`[^11] |
 
 Teardown is either a disposer returned from an `host.on("connect", …)` callback or an explicit `host.on("disconnect", …)`; `host.effect` cleans itself up. This is the same connect-and-return-a-disposer shape used across the platform and userland alike.
 
@@ -354,10 +354,12 @@ interface RequestOptions {
 }
 
 interface ComponentHost {
-  /** Ask the consumer a declared request. Resolves to its answer, or null when none answered. */
-  request(name: string, detail?: unknown, options?: RequestOptions): Promise<unknown>;
+  /** Ask the consumer a declared request. Resolves to its answer, or null when none answered. Present when the component declares a request. */
+  request?(name: string, detail?: unknown, options?: RequestOptions): Promise<unknown>;
 }
 ```
+
+`host.request` is present on the host of a component that declares at least one request. On any other host it is absent, so a controller that calls it there throws a `TypeError`, as calling any missing method does; a component that asks declares what it asks.
 
 When a controller calls <code>host.request(<var>name</var>, <var>detail</var>, <var>options</var>)</code>, the runtime [must]{.kw} run these steps:
 
@@ -794,7 +796,7 @@ Level
 
 ::: {.entry name="host" role="the instance window passed to a controller"}
 Provides
-: `element`, `state` (declared state only is writable), `refs`, `elements`, `on`, `effect`, `dispatch`, `request`
+: `element`, `state` (declared state only is writable), `refs`, `elements`, `on`, `effect`, `dispatch`, and `request` when the component declares a request
 
 Effect lifetime
 : connected only; dependency changes are microtask-batched; cleanup runs before rerun and on disconnect; the returned stop function ends it early

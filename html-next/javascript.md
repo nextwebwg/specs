@@ -113,8 +113,8 @@ interface ComponentHost<
   /** Raise a component event a parent catches with on:event. */
   dispatch(type: string, detail?: unknown): boolean;
 
-  /** Ask the consumer a declared request. Resolves to its answer, or null. */
-  request(name: string, detail?: unknown, options?: RequestOptions): Promise<unknown>;
+  /** Ask the consumer a declared request. Resolves to its answer, or null. Present when the component declares a request. */
+  request?(name: string, detail?: unknown, options?: RequestOptions): Promise<unknown>;
 }
 ```
 
@@ -129,7 +129,7 @@ interface ComponentHost<
 | <code>host.on(<var>event</var>, fn)</code> | Run `fn` on a lifecycle or component event; `connect`, `disconnect`, and [`responder`](#late-responders) included. | `connectedCallback`/`disconnectedCallback`[^1] |
 | `host.effect(fn)` | Run `fn` while connected and re-run it whenever a state path it read changes. Returns an early-stop function; connection also owns cleanup. | TC39 Signals `Watcher`[^4] plus DOM connection |
 | <code>host.dispatch(<var>event</var>, detail)</code> | Raise a component event a parent can catch with `on:event`. | `CustomEvent` / `dispatchEvent`[^8] |
-| <code>host.request(<var>name</var>, detail, { signal, progress })</code> | Ask the consumer a declared [request](#requests); resolves to its answer, or `null`. | `FetchEvent.respondWith()`[^11] |
+| <code>host.request(<var>name</var>, detail, { signal, progress })</code> | Ask the consumer a declared [request](#requests); resolves to its answer, or `null`. Present when the component declares a request. | `FetchEvent.respondWith()`[^11] |
 
 Teardown is either a disposer returned from an `host.on("connect", …)` callback or an explicit `host.on("disconnect", …)`; `host.effect` cleans itself up. This is the same connect-and-return-a-disposer shape used across the platform and userland alike.
 
@@ -354,15 +354,17 @@ interface RequestOptions {
 }
 
 interface ComponentHost {
-  /** Ask the consumer a declared request. Resolves to its answer, or null when none answered. */
-  request(name: string, detail?: unknown, options?: RequestOptions): Promise<unknown>;
+  /** Ask the consumer a declared request. Resolves to its answer, or null when none answered. Present when the component declares a request. */
+  request?(name: string, detail?: unknown, options?: RequestOptions): Promise<unknown>;
 }
 ```
 
+`host.request` is present on the host of a component that declares at least one request. On any other host it is absent, so a controller that calls it there throws a `TypeError`, as calling any missing method does; a component that asks declares what it asks.
+
 When a controller calls <code>host.request(<var>name</var>, <var>detail</var>, <var>options</var>)</code>, the runtime [must]{.kw} run these steps:
 
-1. If the definition declares no `<request>` named <var>name</var>, return a promise rejected with a `TypeError`. A build tool reports a literal undeclared name before execution.
-2. If <var>detail</var> does not conform to the request's `type`, return a promise rejected with a `TypeError`, and report the runtime warning a `host.dispatch` type mismatch reports.
+1. If the definition declares no `<request>` named <var>name</var>, return a promise rejected with a `TypeError`. A build tool [may]{.kw} report a literal undeclared name before execution.
+2. If <var>detail</var> does not conform to the request's `type`, report a runtime warning that names the request, and return a promise rejected with a `TypeError`.
 3. Let <var>signal</var> be `AbortSignal.any()` of <var>options</var>`.signal`, when given, and the instance's **connection signal**, which aborts when the instance disconnects. If <var>signal</var> is aborted, return a promise rejected with its reason.
 4. Wait until every component whose root is a DOM ancestor of the instance's root, and whose definition declares a controller, has run that controller's synchronous body for its current connection, or has failed to load it. The wait ends when each controller function returns; promises a controller starts are outside it. If <var>signal</var> aborts while waiting, reject with its reason.
 5. Create a `RequestEvent` whose `type` is <var>name</var>, whose `detail` is <var>detail</var> or `null`, and whose `signal` is <var>signal</var>. It bubbles, is composed, and is not cancelable.
@@ -484,7 +486,7 @@ host.on("connect", () => {
 ```
 
 ```js title="editor-setup.js"
-import { respond } from "@nextwebwg/html";
+import { respond } from "@nextwebwg/html-next";
 import Highlight from "@tiptap/extension-highlight";
 respond(document, "extensions", () => [Highlight]);   // adds the listener and announces it
 ```
@@ -794,7 +796,7 @@ Level
 
 ::: {.entry name="host" role="the instance window passed to a controller"}
 Provides
-: `element`, `state` (declared state only is writable), `refs`, `elements`, `on`, `effect`, `dispatch`, `request`
+: `element`, `state` (declared state only is writable), `refs`, `elements`, `on`, `effect`, `dispatch`, and `request` when the component declares a request
 
 Effect lifetime
 : connected only; dependency changes are microtask-batched; cleanup runs before rerun and on disconnect; the returned stop function ends it early

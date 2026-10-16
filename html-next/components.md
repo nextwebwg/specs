@@ -414,6 +414,7 @@ The source list uses the grammar of a CSP source list: space-separated source ex
 ```
 
 - The list always includes `'self'`, so same-origin definitions are application components even when the meta is absent.
+- A source the list names is also loadable: the loader [must]{.kw} accept a cross-origin component root whose URL matches a listed source expression and is reached by a URL-like reference, such as `<link rel="component" href="https://cdn.acme.example/ui/dashboard.html">`, as it accepts a same-origin one, without an import-map entry. The URL prefix that source expression names, or the root's origin when it names none, is the root's approved scope: its relative component and controller edges stay inside it, as they stay inside an [application-mapped prefix](/declarative-components/security#live-components-use-an-application-owned-trust-root).
 - The implementation [must]{.kw} read the list only from the first `<meta name="application-components">` in the application document's authored head, as parsed. It [must]{.kw} ignore this entry from any component, application or imported, and [must]{.kw} report a diagnostic for a second authored one.
 - A build reads the list from the application's document template.
 

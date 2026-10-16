@@ -172,11 +172,11 @@ Head declarations follow the instance's connection, the same lifetime that runs 
 - **Import.** Fetching, parsing, and registering a definition changes nothing in the document.
 - **Connect.** The instance's declarations become contributions to the document head. The runtime inserts an element for each one, or shares an element that is already there.
 - **Update.** While the instance is connected, a bound title, `content`, `href`, or data block updates in place, like any other binding.
-- **Disconnect.** The instance's contributions leave. An element stays while another connected instance still contributes it; a title or description falls back to the next contributor, and then to the application's own.
+- **Disconnect.** The instance's contributions leave. An element stays while another connected instance still contributes it; a title or description falls back to the next contributor, and then to the application's own element, restored as it was.
 - **Scripts.** A declared script is inserted at most once per document and is never removed. Removing a `<script>` element does not undo code that has run, and inserting a second one would run that code again.
 - **One change per update.** The runtime applies head changes once per update, after that update's connections and disconnections, so a page change is a single head change.
 
-Every change is an ordinary DOM insertion, removal, or attribute or text change in `document.head`, made only to elements that carry the `data-html-next-head` marker. The application's own head elements are never changed. [Head management](#head-management) gives the exact steps.
+Every change is an ordinary DOM insertion, removal, or attribute or text change in `document.head`, made to elements that carry the `data-component-head` marker. The application's own head elements are never changed: while a contribution overrides one, it is set aside and restored. [Head management](#head-management) gives the exact steps.
 
 ### Declared scripts {#declared-scripts}
 
@@ -208,22 +208,22 @@ No other attribute is accepted. `async` and `defer` add nothing, because a scrip
 - `lazy`: when a connected instance's root first comes near the viewport, by the rule the browser applies to `<img loading="lazy">`.
 - `manual`: when the controller calls `host.scripts.name.load()`.
 
-**Shared by every declaration.** The head holds one element per script URL and type. Every instance that declares that script gets its own status, its own `ready`, and its own `on:load` or `on:error` from that one element. The element is never removed, so a script never runs twice, however many components declare it and however often they connect. Declarations of one script agree on `integrity`, `crossorigin`, and `referrerpolicy`, because those change the fetch; a disagreement is an error. `fetchpriority` comes from the declaration that inserts the element. A `<script>` the application authored with the same URL is shared the same way: the runtime uses it instead of inserting another. [Head management](#head-management) gives the exact rules, including how the runtime reads the status of a script that may have loaded before the runtime looked.
+**Shared by every declaration.** The head holds one element per script URL and type. Every instance that declares that script reads the same status and `ready` from that one element, and runs its own `on:load` or `on:error` each time it connects. The element is never removed, so a script never runs twice, however many components declare it and however often they connect. Declarations of one script agree on `integrity`, `crossorigin`, and `referrerpolicy`, because those change the fetch; a disagreement is an error. `fetchpriority` comes from the declaration that inserts the element. A `<script>` the application authored with the same URL is shared the same way: the runtime uses it instead of inserting another. [Head management](#head-management) gives the exact rules, including how the runtime reads the status of a script that may have loaded before the runtime looked.
 
-**Status.** Each instance has its own status, and expressions read it like a [`<data>`](/declarative-components/reactivity) resource:
+**Status.** Expressions read a script's status like a [`<data>`](/declarative-components/reactivity) resource:
 
 | Path | Meaning |
 | --- | --- |
-| `stripe.pending` | The script element is inserted, and this instance has not yet been told whether it loaded. |
-| `stripe.ok` | The script loaded, and this instance has been told. |
-| `stripe.error` | The `error` event the script fired, once this instance has been told, or `null`. |
+| `stripe.pending` | The script element is inserted and has fired neither `load` nor `error`. |
+| `stripe.ok` | The script fired `load`. |
+| `stripe.error` | The `error` event the script fired, or `null`. |
 
-Before insertion, `pending` and `ok` are false and `error` is `null`. A controller reads the same status through [`host.scripts`](/declarative-components/javascript#host-scripts), together with `ready`, a promise that resolves on `load` and rejects with the `error` event, and `load()`, which inserts the element if it is not inserted yet and returns `ready`.
+Before insertion, `pending` and `ok` are false and `error` is `null`. A controller reads the same status through [`host.scripts`](/declarative-components/javascript#host-scripts), together with `ready`, a promise about the script that settles once: it resolves on `load` and rejects with the `error` event, and `load()`, which inserts the element if it is not inserted yet and returns `ready`.
 
-**`on:load` and `on:error`.** These bindings mean "this script is now available to this instance" and "this script failed for this instance". They call a `<handler>` like any element's `on:` binding, with the element's `load` or `error` event as `$$event`.
+**`on:load` and `on:error`.** These bindings mean "this script is available to this connection of the instance" and "this script failed". They call a `<handler>` like any element's `on:` binding, with the element's `load` or `error` event as `$$event`.
 
-- `on:load` runs when the script's `load` event fires. For an instance that connects after the script has loaded, through another component's declaration or an authored script, it runs when the instance connects, in the same microtask that resolves `ready` for it. `on:error` follows the same rule for failure.
-- Each runs at most once per instance, and exactly one of the two runs. Neither runs while the instance is disconnected.
+- Each time an instance connects, exactly one of the two runs, as soon as the script settles: when its `load` or `error` event fires, or straight away if it has already settled, through another component's declaration or an authored script.
+- Nothing runs while the instance is disconnected. A connection that ends before the script settles gets neither handler, and a later connection gets its own. Each connection is a fresh setup, so work done in `on:load`, such as mounting a card field, runs again after a reconnect.
 - Neither runs before the script is inserted, for example before a `lazy` script's instance comes near the viewport, or until a `manual` script's `load()` is called, unless another declaration has already inserted it.
 
 Here two components on one page both need Stripe.js:
@@ -245,18 +245,18 @@ Here two components on one page both need Stripe.js:
 ```
 
 ```html title="document.head, once both have connected"
-<link rel="preconnect" href="https://js.stripe.com" data-html-next-head>
-<script src="https://js.stripe.com/v3/" data-html-next-head></script>
+<link rel="preconnect" href="https://js.stripe.com" data-component-head>
+<script src="https://js.stripe.com/v3/" data-component-head></script>
 ```
 
-The saved-cards list is `eager`, so it inserts the script when it connects. The checkout form is `lazy`, but the script it would have waited for is already loading, so it shares that element. When the element fires `load`, the browser has run Stripe.js once, and each instance's `on:load` handler runs once: `enable` for the list and `announceReady` for the form.
+The saved-cards list is `eager`, so it inserts the script when it connects. The checkout form is `lazy`, but the script it would have waited for is already loading, so it shares that element. When the element fires `load`, the browser has run Stripe.js once, and each instance's `on:load` handler runs: `enable` for the list and `announceReady` for the form. If the form is removed and added again, its `announceReady` runs again on that connection, straight away, because the script has already loaded.
 
 **Resolution.** A script's `src` resolves by the [controller's rules](/declarative-components/javascript#loading-a-controller):
 
 - A URL-like value (relative, root-relative, or absolute) resolves against the definition's final response URL. `https://js.stripe.com/v3/` is absolute, so it stays as written.
 - A bare value, such as `src="@acme/maps-sdk"`, resolves through the application's import map with the module-specifier resolution algorithm, as a bare component reference does. The application then chooses the URL, and the definition stays the same in every deployment.
-- An application's own components and installed packages may name any URL, including an unpinned third-party one like Stripe's. The page's CSP decides whether it loads, and the build lists it for review.
-- A definition loaded live from another origin follows the [live-scope rule](/declarative-components/security#live-components-use-an-application-owned-trust-root): each script URL stays within the application-mapped prefix, or the application's import map has an entry for it. That is the same case in which a controller needs approval.
+- Any component, whether from the application, an installed package, or a live import, may name any URL, including an unpinned third-party one like Stripe's. Only the document's CSP decides whether it loads, and builds and developer tools list it for review.
+- A controller keeps its [live-scope rule](/declarative-components/security#live-components-use-an-application-owned-trust-root), because a controller is the component's own code from its publisher, while a declared script is typically a third-party SDK from another origin.
 
 ### Declared scripts under CSP {#declared-scripts-csp}
 
@@ -292,7 +292,7 @@ Head declarations use the bindings a component already has. Here an article page
 
 - `<title>` text uses inline text expressions, and `<meta>` binds `from:content`. A `<link>` may bind `from:href`, which applies the URL attribute policy.
 - A JSON-LD block with literal content is inert text: the runtime copies it unchanged, and braces in it are literal, because inline text expressions apply to template text, not script content.
-- `from:value` on a JSON-LD block binds the whole value. The value is an object or a list. HTML Next serializes it as JSON and writes every `<` as `\u003c`, so the text can never close the element or open a comment when the page is serialized as HTML. A `null` result omits the element, as it does here while the article loads. Any other result is an [invalid reactive result](/declarative-components/reactivity#invalid-reactive-results) and keeps the last value written.
+- `from:value` on a JSON-LD block binds the whole value. The value is an object or a list. The runtime serializes it as JSON and writes every `<` as `\u003c`, so the text can never close the element or open a comment when the page is serialized as HTML. A `null` result omits the element, as it does here while the article loads. Any other result is an [invalid reactive result](/declarative-components/reactivity#invalid-reactive-results) and keeps the last value written.
 - A JSON-LD block has literal content or `from:value`, not both.
 
 ### When two components declare the same thing {#head-precedence}
@@ -301,53 +301,64 @@ A page and the layout around it may both set a title. Two cards on one page may 
 
 | Kind | Declarations | What the head holds |
 | --- | --- | --- |
-| Singleton | `<title>`, `<link rel="canonical">`, and each `<meta>` by its `name` or `property` | One value: the contribution of the instance with the highest precedence. When it disconnects, the next contributor's value applies, and with none left, the application's own element shows again. |
+| Competing | `<title>`, `<link rel="canonical">`, and each `<meta>` by its `name` or `property` | The entries of one component: the one with the highest precedence. When it disconnects, the next contributor's entries apply, and with none left, the application's own element returns. |
 | Shared | Every other `<link>`, keyed by `rel` and `href`, and each JSON-LD block, keyed by its text | One element per key, kept while any connected instance contributes it. The element is reference-counted: it is removed when the count reaches zero. |
 | Script | `<script src>`, keyed by its resolved URL and type | One element per key, for the document's lifetime. See [Declared scripts](#declared-scripts). |
 
-**Precedence: the deepest component wins.** Among the contributors to a singleton, the instance deepest in the [logical component tree](#component-ancestry-for-shared-state) has the highest precedence. A page renders inside its layout, so it is deeper, and its title replaces the layout's. Between instances at the same depth, the one that connected later wins.
+**Precedence: the deepest component wins.** Among the contributors to a competing key, the instance deepest in the [logical component tree](#component-ancestry-for-shared-state) has the highest precedence. A page renders inside its layout, so it is deeper, and its title replaces the layout's. Between instances at the same depth, the one that connected later wins.
 
-A `<meta>` is a singleton by its name or property, because two values for one name conflict: a document has one description. A component may still declare several elements with one key, such as several `<meta property="og:image">` entries, and the winner's whole group applies. A definition [must not]{.kw} declare two `<title>` elements, two canonical links, or two links with the same `rel` and `href`.
+**A key's value can be a list.** A `<meta>` key competes by its name or property, because two values for one name conflict: a document has one description. A component may still repeat an entry, such as two `<meta property="og:image">` elements; its entries for a key, in declared order, are that key's value. Lists from different components never mix: the winner's list replaces the previous one whole. A definition [must not]{.kw} declare two `<title>` elements, two canonical links, or two links with the same `rel` and `href`.
 
-**The application's own head is never changed.** An element the application authored in its document head has no marker, and the runtime never modifies, moves, or removes it. A contributed singleton is inserted before the application's element with the same key, so it is the one the browser reads: `document.title` reads the first `<title>` in the document. When no contributor remains, the runtime removes its element, and the application's untouched element applies again, exactly as authored. An application leaves out of its authored head the keys its pages set, such as the canonical link, because some crawlers treat two canonical links as a conflict; a build reports the overlap.
+**Sub-properties follow their parent.** A `<meta>` name or property with three or more colon-separated parts, such as `og:image:width`, is a sub-property of the key without its last part, `og:image`. It does not compete on its own. It applies only while the same component wins its parent key, and it stays beside the parent entries it was declared with. So a page's `og:image:width` can never describe a layout's `og:image`. The rule is about the shape of the name, so it covers `og:image:*`, `og:video:*`, and conventions not yet written.
+
+**The application's own head is set aside, never changed.** An element the application authored in its document head carries no marker. While a contribution wins a key the authored head also has, the runtime sets the authored element aside, detached but unmodified, and puts the managed element in its place. When no contributor remains, the runtime removes the managed element and puts the same authored node back where it was. The restore is exact because it is the same node. An authored shared element, such as a preconnect the application already has, satisfies a contribution with the same key, and the runtime inserts nothing; the authored element is never removed.
+
+> [!note] Joining a list across components
+> A component may one day need to add to a list another component owns, for example a second `og:image` from an embedded card. An opt-in `additive` attribute on a head declaration, which joins the key's list instead of competing for it, is a possible future addition if a real case appears. It is not part of this proposal.
 
 ### Head management {#head-management}
 
 This section is normative. Polyfills, converters, server renderers, and native implementations [must]{.kw} produce the head these steps produce, so that output from one implementation hydrates under another.
 
-**The marker attribute.** Every element in `document.head` that HTML Next manages [must]{.kw} carry the attribute `data-html-next-head`, spelled exactly so in ASCII lowercase, with the empty string as its value. Its presence means "HTML Next manages this element"; it carries no other information. An element in `document.head` without the attribute is **authored**. An implementation [must not]{.kw} modify, move, or remove an authored element, and [must not]{.kw} adopt one as a contribution's element. The one exception is a script: a declared script [may]{.kw} share an authored `<script>` element under step S2, without modifying it. Server rendering [must]{.kw} write the marker on every element it writes for a head declaration, and hydration [must]{.kw} adopt only elements that carry it. A native implementation [may]{.kw} track ownership internally, but [must]{.kw} write and read this attribute wherever ownership passes from server output to a client.
+**The marker attribute.** Every element in `document.head` that the component runtime manages [must]{.kw} carry the attribute `data-component-head`, spelled exactly so in ASCII lowercase. On a contribution's element its value is the empty string. On a `<template>` that server output uses to hold [set-aside elements](#head-ssr), its value is `set-aside`. Its presence means "the component runtime manages this element"; it carries no other information. An element in `document.head` without the attribute is **authored**.
+
+Authored elements are never changed: while a contribution overrides one, it is set aside and restored. An implementation [must not]{.kw} modify an authored element's attributes or content, [must not]{.kw} adopt one as a contribution's element, and [must not]{.kw} remove one except to set it aside under step 2 below. A declared script [may]{.kw} share an authored `<script>` element under step S2, without modifying it. Server rendering [must]{.kw} write the marker on every element it writes for a head declaration, and hydration [must]{.kw} adopt only elements that carry it. A native implementation [may]{.kw} track ownership internally, but [must]{.kw} write and read this attribute wherever ownership passes from server output to a client.
 
 **Terms.**
 
 - A **contribution** is one head declaration of one connected instance, with its bindings evaluated. A document-authority entry from an [imported component](#document-authority) is not a contribution; the implementation [must]{.kw} report a diagnostic for it. A JSON-LD declaration whose bound value is `null` is not a contribution while its value is `null`.
-- Each contribution has a **key**: `title` for `<title>`; `canonical` for `<link rel="canonical">`; `name` and the ASCII-lowercased `name` for `<meta name>`; `property` and the `property` value for `<meta property>`; the ASCII-lowercased `rel` and the resolved `href` for any other `<link>`; the serialized text for a JSON-LD block; and the resolved URL with `classic` or `module` for a declared script. The first four are **singleton** keys, the next two are **shared** keys, and the last is a **script** key.
+- Each contribution has a **key**: `title` for `<title>`; `canonical` for `<link rel="canonical">`; `name` and the ASCII-lowercased `name` for `<meta name>`; `property` and the `property` value for `<meta property>`; the ASCII-lowercased `rel` and the resolved `href` for any other `<link>`; the serialized text for a JSON-LD block; and the resolved URL with `classic` or `module` for a declared script. The first four are **competing** keys, the next two are **shared** keys, and the last is a **script** key.
+- A `<meta>` key whose name or property has three or more colon-separated parts is a **sub-property** of the key formed by removing its last part and colon, with the same attribute. A key that is not a sub-property is a **top-level** key. A top-level competing key's **family** is the key and every key that is, directly or through another, its sub-property.
 - Instance A has higher **precedence** than instance B when A is deeper in the logical component tree, or at equal depth when A connected after B.
 - An **update** is one set of connections, disconnections, and binding changes that an implementation processes together: one batch of mutation records for the polyfill, one commit for a framework adapter, one navigation for an application router.
 
 **Reconciliation.** After each update, once that update's connections and disconnections have happened and before its rendering is presented, the implementation [must]{.kw} reconcile `document.head` once:
 
-1. Compute the target state. For each singleton key with at least one contribution, the target is the group of that key's contributions from the instance with the highest precedence, in source order. For each shared key with at least one contribution, the target is one element. A key with no contribution has no target.
-2. For each singleton key with a target, if marked elements with that key are in `document.head`, set their attributes and text to the target's values, changing only values that differ. Insert or remove marked elements after the last one so their number equals the group's. If no marked element with that key is there, create the group's elements, mark them, and insert them before the first authored element with the same key, or append them to `document.head` if there is none.
-3. For each singleton key without a target, remove its marked elements.
+1. Compute the target state. For each top-level competing key with at least one contribution, the **winner** is the contributing instance with the highest precedence, and the target is the winner's contributions to the key's family, in the winner's declared order. A contribution to a sub-property key whose winner's family does not include it is not part of any target. For each shared key with at least one contribution, the target is one element. A key with no contribution has no target.
+2. For each top-level competing key with a target, if marked elements for its family are in `document.head`, update them to the target: set attributes and text, changing only values that differ, and insert or remove marked elements after the last one so their number and order equal the target's. Otherwise, if authored elements for the family are in `document.head`, record them in order as the family's **set-aside elements**, insert the target's elements, newly created and marked, before the first of them, and remove them from `document.head`. Otherwise append the target's elements, newly created and marked, to `document.head`.
+3. For each top-level competing key without a target, if it has set-aside elements, insert them in their recorded order before the first marked element of its family and forget the record. Then remove the family's marked elements.
 4. For each shared key with a target, if `document.head` holds a marked or authored element with that key, leave it as it is. Otherwise create the element, mark it, and append it to `document.head`.
 5. For each shared key without a target, remove its marked element. A marked element that a script entry owns under step S4 is never removed.
-6. Create new elements in tree order of their instances, then source order of their declarations. Leave every element whose key has an unchanged target untouched: an element present before and after reconciliation [must not]{.kw} be removed and reinserted.
+6. Create new elements in tree order of their instances, then declared order. Leave every element whose key has an unchanged target untouched: an element present before and after reconciliation [must not]{.kw} be removed and reinserted.
 {.algo}
 
-An implementation [must]{.kw} create every element it inserts as a new element of the document. It [must not]{.kw} insert, move, or clone a definition's own nodes.
+An implementation [must]{.kw} create every element it inserts for a contribution as a new element of the document. It [must not]{.kw} insert, move, or clone a definition's own nodes.
 
 **Scripts.**
 
 1. **S1. Bind.** When an instance connects and its definition declares a script, the implementation [must]{.kw} bind the instance to the document's script entry for that script's key, creating the entry under S2 if there is none.
 2. **S2. Create an entry.** If the document contains an authored `<script>` element whose `src` resolves to the entry's URL and whose type matches, the entry uses that element and [must not]{.kw} modify it. Otherwise the entry has no element yet.
-3. **S3. Check agreement.** When an instance binds to an entry whose first declaration, or authored element, has a different `integrity`, `crossorigin`, or `referrerpolicy`, the implementation [must]{.kw} report an error diagnostic and treat the script as failed for that instance: under S7 the instance is notified of a failure, with a `TypeError` that describes the conflict in place of an `error` event. A different `fetchpriority` is not an error; the element keeps the value of the declaration that inserted it.
-4. **S4. Insert.** When a bound instance calls for the script and the entry has no element, the implementation [must]{.kw} create one `script` element in the document, set its `src` to the resolved URL, copy the standard attributes from that instance's declaration, apply the [nonce rule](#declared-scripts-csp), mark it with `data-html-next-head`, append it to `document.head`, and observe its `load` and `error` events. An instance calls for the script when it connects, for `loading="eager"`; when its root first comes within the distance of the viewport at which the user agent fetches an `<img loading="lazy">`, for `lazy`; and when its controller calls `load()`, for `manual`. A marked `<link rel="preload">` or `<link rel="modulepreload">` whose `href` is the entry's URL belongs to the entry.
+3. **S3. Check agreement.** When an instance binds to an entry whose first declaration, or authored element, has a different `integrity`, `crossorigin`, or `referrerpolicy`, the implementation [must]{.kw} report an error diagnostic and treat the script as failed for that instance: its `ready` rejects with a `TypeError` that describes the conflict, and `on:error` runs for it under S8. A different `fetchpriority` is not an error; the element keeps the value of the declaration that inserted it.
+4. **S4. Insert.** When a bound instance calls for the script and the entry has no element, the implementation [must]{.kw} create one `script` element in the document, set its `src` to the resolved URL, copy the standard attributes from that instance's declaration, apply the [nonce rule](#declared-scripts-csp), mark it with `data-component-head`, append it to `document.head`, and observe its `load` and `error` events. An instance calls for the script when it connects, for `loading="eager"`; when its root first comes within the distance of the viewport at which the user agent fetches an `<img loading="lazy">`, for `lazy`; and when its controller calls `load()`, for `manual`. A marked `<link rel="preload">` or `<link rel="modulepreload">` whose `href` is the entry's URL belongs to the entry.
 5. **S5. Keep.** The entry, its element, and any preload link it owns last for the document's lifetime. The implementation [must not]{.kw} remove, reinsert, or re-run them.
 6. **S6. Settle.** The entry settles as loaded when its element fires `load`, and as failed when it fires `error`. An entry that uses an authored element that has not fired either event by the time the entry is created settles on the first one it fires, except that the implementation [must]{.kw} treat it as loaded at creation when it is a parser-inserted classic script without `async` or `defer`, or when the document's `load` event has already fired.
-7. **S7. Notify each instance.** When an entry settles, and when an instance binds to an entry that has already settled, the implementation [must]{.kw}, for each connected bound instance it has not yet notified, queue one microtask that sets the instance's status, settles its `ready` (resolving when loaded, rejecting with the `error` event when failed), and runs its `on:load` or `on:error` handler. Each instance is notified at most once, so exactly one of the two handlers runs for it. An instance that is disconnected is not notified, and its `ready` stays pending; if it connects again before it was notified, it binds again under S1.
+7. **S7. Settle `ready`.** Each entry has one `ready` promise, created with the entry. When the entry settles, the implementation [must]{.kw} resolve it when loaded, or reject it with the `error` event when failed, before it runs any handler under S8. It settles once and is shared by every instance bound to the entry, except that an instance in conflict under S3 has its own `ready`, rejected with the `TypeError`.
+8. **S8. Run one handler per connection.** For each connection of a bound instance, the implementation [must]{.kw} run exactly one of the declaration's `on:load` and `on:error` handlers, once the entry has settled: when the entry settles, it queues one microtask for each bound instance that is connected and has not run a handler in its current connection; when an instance connects to an entry that has already settled, it queues that microtask at connection. The microtask runs `on:load` when the entry loaded and `on:error` when it failed, or `on:error` for an instance in conflict under S3. No handler runs while an instance is disconnected. A connection that ends before its microtask runs gets neither handler, and each later connection gets its own.
 {.algo}
 
-An instance's `pending` is true from the insertion of the entry's element until the instance is notified. Its `ok` becomes true when it is notified of a load, and its `error` becomes the `error` event when it is notified of a failure, or the `TypeError` under S3. Before insertion, `pending` and `ok` are false and `error` is `null`.
+A script's status describes its entry: `pending` is true from the insertion of the entry's element until the entry settles, `ok` becomes true when it loads, and `error` becomes the `error` event when it fails. Before insertion, `pending` and `ok` are false and `error` is `null`. For an instance in conflict under S3, `pending` and `ok` are false and `error` is the `TypeError`.
+
+Handlers run per connection because each connection is a fresh setup: work done in `on:load`, such as mounting a payment form's card field, has to run again after the instance reconnects. `ready` is a promise about the script, so it settles once.
 
 > [!note] What S6 cannot see
 > The DOM records no "has loaded" flag on a script element, so S6 infers it. Its inference has two limits: an authored script that failed before the runtime looked reads as loaded, and so does one that other code inserted after the document's `load` event and that is still loading. Declaring the script, rather than authoring it, avoids both.
@@ -364,7 +375,7 @@ Navigating from `/docs/a/` to `/docs/b/` inside a `docs-layout` that sets the ti
 
 | Moment | Instances | `document.head` |
 | --- | --- | --- |
-| Before | `docs-layout`, `page-a` | `<title data-html-next-head>Install · Docs</title>`, `<link rel="preconnect" href="https://search.acme.example" data-html-next-head>` |
+| Before | `docs-layout`, `page-a` | `<title data-component-head>Install · Docs</title>`, `<link rel="preconnect" href="https://search.acme.example" data-component-head>` |
 | The router disconnects `page-a` and connects `page-b` | `docs-layout`, `page-b` | Unchanged. Reconciliation has not run. |
 | Reconciliation | `docs-layout`, `page-b` | The same `<title>` element's text becomes `Configure · Docs`. The preconnect link is the same node, untouched. |
 
@@ -385,12 +396,33 @@ Some head entries set policy or identity for the whole document. Only an **appli
 | `<meta name="viewport">` | Controls layout and zoom for the whole document, including whether people can zoom. |
 | `<meta name="color-scheme">` | Selects light or dark rendering for the whole document. |
 | `<meta name="theme-color">` | Colors the browser interface around the document. |
+| `<meta property="og:url">` | The URL that link previews and social sharing attribute the document to. |
+| `<meta name="application-components">` | Says which sources supply application components, below. |
 
-An **application component** is a definition from the application's own source. It is either written inline in the application document, or loaded from a resource the application reaches only through same-origin URL-like references, the [live project source](#one-import-form-live-or-packaged); in a build, it is a definition in the application's own source tree. Any other definition is an **imported component**: one reached through a bare specifier, as an installed package subpath or a mapped live import, together with every definition reached from it. These are the distributions [Security](/declarative-components/security#live-components-use-an-application-owned-trust-root) names first-party source, installed package, and live cross-origin source. If one resource is reached both ways, it is an imported component.
+**Application components.** A definition is an **application component** when it is one of these:
+
+- part of the build's own source, in a build;
+- written inline in the application document;
+- loaded through URL-like references only, from the application document down, from a final response URL that matches the document's **application-components source list**.
+
+Every other definition is an **imported component**. That includes any definition reached through a bare specifier, such as an installed package subpath or a mapped live import, any definition from an unlisted cross-origin source, and every definition reached from an imported one. A resource reached both ways is an imported component.
+
+The source list uses the grammar of a CSP source list: space-separated source expressions such as `'self'`, origins, and URL path prefixes. A URL matches it by the CSP rules for matching a URL to a source list, with the application document's origin as `'self'`.[^10] The application declares the list in its own authored head:
+
+```html
+<meta name="application-components" content="'self' https://cdn.acme.example/ui/">
+```
+
+- The list always includes `'self'`, so same-origin definitions are application components even when the meta is absent.
+- The implementation [must]{.kw} read the list only from the first `<meta name="application-components">` in the application document's authored head, as parsed. It [must]{.kw} ignore this entry from any component, application or imported, and [must]{.kw} report a diagnostic for a second authored one.
+- A build reads the list from the application's document template.
 
 The runtime ignores an imported component's document-authority entries and reports a diagnostic. Its other head declarations apply as usual.
 
-In an HTMLKit-like application, pages and layouts live in the application's source, so they are application components. A component installed from a package is an imported component, even when an application page renders it.
+> [!note] A CSP directive for the same list
+> The list protects the document's identity, which CSP does not cover. A native implementation could expose the same source list as a CSP directive, such as `application-components 'self' https://cdn.acme.example/ui/`, and treat the meta as its in-document form.
+
+In an application framework with file-based pages, pages and layouts live in the application's source, so they are application components. A component installed from a package is an imported component, even when an application page renders it.
 
 ```html title="app/pages/pricing.html"
 <template component="page-pricing">
@@ -398,66 +430,73 @@ In an HTMLKit-like application, pages and layouts live in the application's sour
     <title>Pricing · Acme</title>
     <meta name="description" content="Plans for teams of every size.">
     <link rel="canonical" href="https://acme.example/pricing">
-    <meta name="hk:layout" content="marketing">
+    <meta name="app:layout" content="marketing">
   </defs>
   <main>…</main>
 </template>
 ```
 
-A `<meta>` name that contains a colon, such as `hk:layout`, belongs to the application build that defines it. HTML Next gives it no meaning: the runtime adds it to the head like any other `<meta>`, and a build that reads it at build time, as HTMLKit reads `hk:layout` to choose the page's layout, may leave it out of its output.
+A `<meta>` name that contains a colon, such as `app:layout`, belongs to the application build that defines it. This specification gives it no meaning: the runtime adds it to the head like any other `<meta>`, and a build that reads it at build time, here to choose the page's layout, may leave it out of its output.
 
 ### Server rendering and hydration {#head-ssr}
 
 A server-rendered page arrives with its head already written, so a crawler or a no-JavaScript reader sees the title, description, and structured data. Hydration then takes over the same elements. Nothing renders twice, and no script runs twice.
 
-1. **H1. Write contributions.** Server rendering [must]{.kw} compute the target state of [reconciliation](#head-management) over the rendered tree and write each target element into the document head, marked with `data-html-next-head`, at the position reconciliation gives it.
-2. **H2. Preload eager scripts.** For each script that an `eager` declaration in the rendered tree calls for, and that no authored script in the document satisfies under S2, server rendering [must]{.kw} write one `<link rel="preload" as="script">`, or `<link rel="modulepreload">` for `type="module"`, with the resolved URL as its `href`, the declaration's `crossorigin`, `integrity`, `referrerpolicy`, and `fetchpriority` where present, and `data-html-next-head`. It [must not]{.kw} write an executing `<script>` element for a declared script.
-3. **H3. Leave lazy and manual scripts out.** Server rendering [must not]{.kw} write anything for a `lazy` or `manual` script. A component that wants an early connection declares its own `<link rel="preconnect">`, which H1 writes like any link. An automatic one would open connections for scripts that may never load.
-4. **H4. Adopt.** Before its first reconciliation, the client runtime [must]{.kw} adopt each marked element whose key has a target, recording the instances that contribute it, and [must not]{.kw} insert a second element for an adopted key. Reconciliation then changes only values that differ. Marked elements whose keys have no target are removed by that first reconciliation, except preload links that a script entry owns under S4.
-5. **H5. Insert eager scripts once.** After adoption, each eager declaration calls for its script under S4. The runtime inserts the real `<script>` exactly once; the browser serves it from the preload, runs it once, and its `load` or `error` event drives every instance's status, `ready`, and `on:load` or `on:error` under S7.
+1. **H1. Write contributions.** Server rendering [must]{.kw} compute the result of [reconciliation](#head-management) over the rendered tree, starting from the application document's authored head, and write that head, with each contribution's element marked `data-component-head`.
+2. **H2. Write set-aside elements.** For each family whose authored elements reconciliation sets aside, server rendering [must]{.kw} write those elements, unmodified and in their recorded order, as the content of a `<template data-component-head="set-aside">` placed immediately after the family's last marked element. It [must not]{.kw} write them anywhere else.
+3. **H3. Preload eager scripts.** For each script that an `eager` declaration in the rendered tree calls for, and that no authored script in the document satisfies under S2, server rendering [must]{.kw} write one `<link rel="preload" as="script">`, or `<link rel="modulepreload">` for `type="module"`, with the resolved URL as its `href`, the declaration's `crossorigin`, `integrity`, `referrerpolicy`, and `fetchpriority` where present, and `data-component-head`. It [must not]{.kw} write an executing `<script>` element for a declared script.
+4. **H4. Leave lazy and manual scripts out.** Server rendering [must not]{.kw} write anything for a `lazy` or `manual` script. A component that wants an early connection declares its own `<link rel="preconnect">`, which H1 writes like any link. An automatic one would open connections for scripts that may never load.
+5. **H5. Adopt.** Before its first reconciliation, the client runtime [must]{.kw} adopt each marked element whose key has a target, recording the instances that contribute it, and [must not]{.kw} insert a second element for an adopted key. For each `<template data-component-head="set-aside">`, it [must]{.kw} take the template's child elements, in order, as the set-aside elements of the family whose marked elements precede it, hold them detached, outside the template, and remove the template. Reconciliation then changes only values that differ. Marked elements whose keys have no target are removed by that first reconciliation, except preload links that a script entry owns under S4.
+6. **H6. Insert eager scripts once.** After adoption, each eager declaration calls for its script under S4. The runtime inserts the real `<script>` exactly once; the browser serves it from the preload, runs it once, and its `load` or `error` event settles `ready` under S7 and runs each connected instance's `on:load` or `on:error` under S8.
 {.algo}
 
-H1 and H4 identify elements by the marker together with their keys, so server output needs no per-element ownership record. The key alone is not enough, because the application's authored head can hold an element with the same key; the marker separates the two.
+H1 and H5 identify elements by the marker together with their keys, so server output needs no per-element ownership record. The marker separates managed elements from authored ones, and the set-aside template carries the authored elements the client must restore later, so restoring stays exact after hydration.
 
 | Declaration | Server output in `document.head` | After hydration |
 | --- | --- | --- |
-| `<title>`, `<meta>` | The winning contribution, marked, before any authored element with the same key. | The same element, adopted. |
-| `<link>` other than a preload for a script | One marked element per key. | The same element, adopted and reference-counted. |
+| `<title>`, `<meta>` | The winner's entries, marked, in the place of any authored element with the same key. That authored element follows in a set-aside template. | The same elements, adopted. The authored element is held aside, out of the head, until no contributor remains. |
+| `<link>` other than a preload for a script | One marked element per key, unless an authored one has the key. | The same element, adopted and reference-counted. |
 | JSON-LD | One marked block per distinct text. | The same element, adopted. |
 | `<script src>`, `eager` | A marked `preload` or `modulepreload` link. Never a `<script>`. | One marked `<script>`, inserted once and served from the preload. The link stays. |
 | `<script src>`, `lazy` or `manual` | Nothing. | Inserted under S4 when an instance calls for it. |
-| `on:load`, `on:error` | Nothing. | Runs once per instance, when the inserted script fires `load` or `error`. |
+| `on:load`, `on:error` | Nothing. | One of the two runs for each connection, once the script settles. |
 
 For a checkout page inside a layout that loads Stripe.js eagerly, with an application document that authors `<title>Acme</title>`:
 
 ```html title="Server output"
 <head>
-  <title data-html-next-head>Checkout · Acme</title>
-  <title>Acme</title>
-  <link rel="preconnect" href="https://js.stripe.com" data-html-next-head>
-  <link rel="preload" as="script" href="https://js.stripe.com/v3/" data-html-next-head>
+  <title data-component-head>Checkout · Acme</title>
+  <template data-component-head="set-aside"><title>Acme</title></template>
+  <link rel="preconnect" href="https://js.stripe.com" data-component-head>
+  <link rel="preload" as="script" href="https://js.stripe.com/v3/" data-component-head>
 </head>
 ```
 
 ```html title="After hydration"
 <head>
-  <title data-html-next-head>Checkout · Acme</title>   <!-- adopted: the same node -->
-  <title>Acme</title>                                   <!-- authored: never touched -->
-  <link rel="preconnect" href="https://js.stripe.com" data-html-next-head>
-  <link rel="preload" as="script" href="https://js.stripe.com/v3/" data-html-next-head>
-  <script src="https://js.stripe.com/v3/" data-html-next-head></script>
+  <title data-component-head>Checkout · Acme</title>   <!-- adopted: the same node -->
+  <link rel="preconnect" href="https://js.stripe.com" data-component-head>
+  <link rel="preload" as="script" href="https://js.stripe.com/v3/" data-component-head>
+  <script src="https://js.stripe.com/v3/" data-component-head></script>
 </head>
+<!-- The authored <title>Acme</title> is held aside, unmodified, to be restored. -->
 ```
 
 ```js title="What a conformance test checks"
 // Hydration adopts the server's nodes instead of replacing them.
 assert.equal(document.querySelector("title"), serverTitle);
 assert.equal(document.title, "Checkout · Acme");
-// One Stripe.js element, run once; every declaring instance is notified once.
+// One Stripe.js element, run once.
 assert.equal(document.querySelectorAll('script[src="https://js.stripe.com/v3/"]').length, 1);
 assert.equal(onLoadRuns("checkout-form"), 1);
-// After client navigation to a page that declares no title, the layout's or the
-// application's own title applies, and the script is not inserted again.
+// Removing and re-adding the form runs on:load again for the new connection,
+// without inserting or running the script again.
+form.remove(); main.append(form); await microtasks();
+assert.equal(onLoadRuns("checkout-form"), 2);
+assert.equal(document.querySelectorAll('script[src="https://js.stripe.com/v3/"]').length, 1);
+// When no component sets a title, the authored node returns: the same object.
+await navigate("/no-title/");
+assert.equal(document.querySelector("title"), authoredTitle);
 ```
 
 ### Generated components {#head-generated}
@@ -465,7 +504,7 @@ assert.equal(onLoadRuns("checkout-form"), 1);
 A generated React, Vue, or Svelte component [must]{.kw} produce the same head contributions, at the same lifecycle points, with the same marker, keys, precedence, document-authority rule, reconciliation, and script sharing, through its host adapter. An adapter [may]{.kw} use its framework's own head mechanism when the observable result is the same.
 
 > [!note] Platform integration
-> A native implementation needs three things: DOM insertion, removal, and value changes in `document.head` when instances connect and disconnect; the reconciliation steps above; and HTML's existing `<script>` and `<link rel="preload">` elements. It [may]{.kw} track ownership internally, but it uses the `data-html-next-head` marker for the handoff from server output to the client, so output from any server hydrates under any client. It needs no new security primitive: CSP, Subresource Integrity, CORS, and mixed-content blocking apply because each contribution is an ordinary element in the document. It is also much smaller than [HTML Imports](#imported-definitions-are-inert): there is no second document, no parser-blocking load, and no new script-ordering model. Each declared script is one script inserted through the DOM.
+> A native implementation needs three things: DOM insertion, removal, and value changes in `document.head` when instances connect and disconnect; the reconciliation steps above; and HTML's existing `<script>` and `<link rel="preload">` elements. It [may]{.kw} track ownership internally, but it uses the `data-component-head` marker for the handoff from server output to the client, so output from any server hydrates under any client. It needs no new security primitive: CSP, Subresource Integrity, CORS, and mixed-content blocking apply because each contribution is an ordinary element in the document. It is also much smaller than [HTML Imports](#imported-definitions-are-inert): there is no second document, no parser-blocking load, and no new script-ordering model. Each declared script is one script inserted through the DOM.
 
 ## Native lowering and explicit root branches
 
@@ -639,13 +678,13 @@ For live loading, the loader [must]{.kw} fetch the HTML resource referenced by `
 A component resource is a file of component carriers and the dependency links they need. It may also hold build metadata for the file as a whole, such as which of its components is a page:
 
 ```html title="products.html"
-<meta name="hk:page" content="page-products">
+<meta name="app:page" content="page-products">
 <link rel="component" href="./product-summary.html">
 
 <template component="page-products">
   <defs>
     <title>Products · Admin</title>
-    <meta name="hk:layout" content="admin">
+    <meta name="app:layout" content="admin">
   </defs>
   <section><h1>Products</h1><product-summary></product-summary></section>
 </template>
@@ -657,11 +696,11 @@ Everything a component adds to the document head belongs to that component, in i
 | --- | --- |
 | `<template component="…">` | Parse and register the component definition. |
 | `<link rel="component" href="…">` | Resolve the component dependency. |
-| `<meta name content>` whose `name` contains a colon, such as `hk:page` | Build metadata. The loader ignores it; it is never added to the document. |
+| `<meta name content>` whose `name` contains a colon, such as `app:page` | Build metadata. The loader ignores it; it is never added to the document. |
 | Comments and whitespace-only text | Ignore. |
 | Anything else, including `<title>`, any other `<meta>`, any other `<link>`, `<style>`, any `<script>`, `<base>`, HTML Imports, ordinary body elements, plain non-component templates, and non-whitespace text | Reject as invalid resource content. |
 
-A carrier's direct children are its `<defs>`, its markup root, and its `<style>`; a head element placed directly in the carrier, outside `<defs>`, is invalid. A namespaced name such as `hk:page` belongs to the application build that defines it: in this example it selects the page component in a file that holds several. Its spelling and meaning are the build's, and the component runtime gives it none. See [Security](/declarative-components/security) for the imported-resource boundary.
+A carrier's direct children are its `<defs>`, its markup root, and its `<style>`; a head element placed directly in the carrier, outside `<defs>`, is invalid. A namespaced name such as `app:page` belongs to the application build that defines it: in this example it selects the page component in a file that holds several. Its spelling and meaning are the build's, and the component runtime gives it none. See [Security](/declarative-components/security) for the imported-resource boundary.
 
 ### One import form, live or packaged {#one-import-form-live-or-packaged}
 
@@ -822,13 +861,13 @@ Placement
 : flat children of `<defs>`
 
 Effect
-: added to `document.head` while an instance is connected, marked `data-html-next-head`; singletons by precedence, shared entries reference-counted (see [Head management](#head-management))
+: added to `document.head` while an instance is connected, marked `data-component-head`; competing keys by precedence, shared entries reference-counted (see [Head management](#head-management))
 
 Bindings
 : inline text in `<title>` · `from:content` · `from:href` · `from:value` on a JSON-LD block
 
 Authority
-: `canonical`, `alternate`, `icon`, `manifest`, `robots`, `referrer`, `viewport`, `color-scheme`, and `theme-color` apply only from application components
+: `canonical`, `alternate`, `icon`, `manifest`, `robots`, `referrer`, `viewport`, `color-scheme`, `theme-color`, `og:url`, and `application-components` apply only from application components
 
 Level
 : [L1 (proposed)]{.pill .l1}
@@ -842,7 +881,7 @@ Standard attributes
 : `src` · `type?` (`module`) · `integrity` · `crossorigin` · `referrerpolicy` · `fetchpriority`, copied onto the inserted element
 
 Exposes
-: `.pending`, `.ok`, `.error` per instance · `host.scripts.name` with `ready` and `load()`
+: `.pending`, `.ok`, `.error` · `host.scripts.name` with `ready` and `load()` · `on:load` or `on:error` once per connection
 
 Semantics
 : one ordinary `<script>` element per URL and type in `document.head`, inserted once and never removed
@@ -906,3 +945,4 @@ Level
 [^7]: W3C (retired), [HTML Imports](https://www.w3.org/TR/html-imports/) (`<link rel="import">`).
 [^8]: Dynamic component, borrowed directly: Vue [`<component :is>`](https://vuejs.org/api/built-in-special-elements.html#component) (name and syntax verbatim), Svelte [`<svelte:component>`](https://svelte.dev/docs/svelte/svelte-component), and Angular [NgComponentOutlet](https://angular.dev/api/common/NgComponentOutlet).
 [^9]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
+[^10]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).

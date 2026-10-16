@@ -81,7 +81,7 @@ interface ScriptResource {
   readonly pending: boolean;
   readonly ok: boolean;
   readonly error: Event | TypeError | null;
-  /** Resolves when the script loads; rejects with its error event. Settles once per instance. */
+  /** Resolves when the script loads; rejects with its error event. Settles once, with the script. */
   readonly ready: Promise<void>;
   /** Insert the script element if it is not inserted yet. Returns ready. */
   load(): Promise<void>;
@@ -136,7 +136,7 @@ interface ComponentHost<
 | `host.root` | The component's root element, whose connection owns this controller's lifetime. | `:host` / the custom-element instance |
 | `host.state` | Read local mutable state, read-only computed state, and inherited `<context>` values. Only declared `<state>` entries are writable. Props and data resources are absent. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
 | <code>host.data.<var>name</var></code> | Read a declared `<data>` resource, including its `.pending`, `.value`, `.error`, and `.ok` fields. The resource is read-only. | The declared resource and its native fetch lifetime |
-| <code>host.scripts.<var>name</var></code> | Read a [declared script](/declarative-components/components#declared-scripts)'s status for this instance, wait for it with `ready`, or insert it now with `load()`. | The inserted `<script>` element's `load` and `error` events |
+| <code>host.scripts.<var>name</var></code> | Read a [declared script](/declarative-components/components#declared-scripts)'s status, wait for it with `ready`, or insert it now with `load()`. | The inserted `<script>` element's `load` and `error` events |
 | <code>host.props.<var>name</var></code> | Inspect a caller-supplied prop's accepted value, latest direct input, and validity. This is the controller's only path to a declared prop. | An HTML control separates its input and validity from the value its consumers read[^10] |
 | <code>host.refs.<var>name</var></code> | The element declared with <code>$ref="<var>name</var>"</code>, or the list of them when that name sits inside an iteration. | captured at lowering (see below) |
 | <code>host.slots.<var>name</var></code> | The elements a consumer projected into that slot, in order; empty while the slot shows its fallback. For a consumer's `<template slot>`, the elements the template renders while the slot renders, and none while it does not ([content that renders on demand](/declarative-components/components#content-that-renders-on-demand)). | `assignedElements()`[^9] |
@@ -149,7 +149,7 @@ Teardown is either a disposer returned from an `host.on("connect", …)` callbac
 
 ### Waiting for a declared script {#host-scripts}
 
-A component that wraps a third-party SDK declares the SDK's script in `<defs>` and waits for it in the controller. `host.scripts.name.ready` settles on the inserted `<script>` element's own `load` or `error` event, at the same moment the declaration's `on:load` or `on:error` handler runs for this instance:
+A component that wraps a third-party SDK declares the SDK's script in `<defs>` and waits for it in the controller. `host.scripts.name.ready` is a promise about the script: it settles once, on the inserted `<script>` element's own `load` or `error` event. The declaration's `on:load` and `on:error` handlers, by contrast, run once for each connection:
 
 ```js
 // <script name="maps" src="https://maps.example/sdk/v2.js" loading="manual">
@@ -163,7 +163,7 @@ export default function controller(host) {
 }
 ```
 
-`load()` matters only for `loading="manual"`; for `eager` and `lazy` it inserts the element early. The script is shared by every component that declares the same URL and is never removed, so `ready` may already be resolved when an instance connects. See [Declared scripts](/declarative-components/components#declared-scripts) for when the element is inserted and how its status is shared.
+`load()` matters only for `loading="manual"`; for `eager` and `lazy` it inserts the element early. The script is shared by every component that declares the same URL and is never removed, so `ready` may already be resolved when an instance connects. A controller that sets up on every connection waits on `ready` in its `connect` callback, as here, or uses `on:load`. See [Declared scripts](/declarative-components/components#declared-scripts) for when the element is inserted and how its status is shared.
 
 ### Accepted values and prop inputs {#accepted-values-and-prop-inputs}
 

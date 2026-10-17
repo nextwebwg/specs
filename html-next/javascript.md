@@ -185,17 +185,15 @@ host.props.amount.validity.badInput // true
 
 ### State writes use the same checks as bindings {#state-writes-use-the-same-checks-as-bindings}
 
-A controller assignment proposes a value to the declared state, just as `<set>` or `bind:` does. The destination's type rules apply before the write. A state without `value`, or one declared `nullable`, accepts `null`; any other state treats `null` as a wrong-typed value. A wrong-typed value is ignored, the state keeps its current value, and dependents are not notified. An attempt to assign computed state or an inherited context is likewise ignored because that destination is read-only.
+A controller assignment proposes a value to the declared state, just as `<set>` or `bind:` does. The destination's type rules apply before the write. A `null` or `undefined` write is never wrong-typed: it resets the state to its declared `value`, or to `null` when it has none. A wrong-typed value is ignored, the state keeps its current value, and dependents are not notified. An attempt to assign computed state or an inherited context is likewise ignored because that destination is read-only.
 
 ```js
 // <state name="count" type="number" value="1">
 // <computed name="doubled" from="$count * 2">
-// <state name="level" type="integer">
 host.state.count = 2;          // accepted; doubled becomes 4
 host.state.count = 'blah';     // warning; count stays 2, doubled stays 4
-host.state.count = null;       // warning; count has a value and is not nullable
+host.state.count = null;       // accepted; count resets to 1, doubled becomes 2
 host.state.doubled = 10;       // warning; computed state stays read-only
-host.state.level = null;       // accepted; level has no value, so it is nullable
 ```
 
 An invalid authored write reports the same runtime warning as an authored binding or handler write with the same defect. The warning identifies the destination and its expected type or read-only status; a repeated defect at the same authored location is reported once. These writes do not throw merely because their value is invalid. A build tool may report a statically knowable mistake before execution. An ordinary invalid user edit remains a validity concern and does not produce a warning. See [Invalid reactive results](/declarative-components/reactivity#invalid-reactive-results).
@@ -893,7 +891,7 @@ When code calls <code>update(<var>element</var>, <var>props</var>)</code>, the r
 
 1. If <var>element</var> is not the native root of a component instance, whether created by `create` or lowered from markup, throw a `TypeError`.
 2. For each entry of <var>props</var>, if the instance's definition declares no prop of that name, throw a `TypeError`.
-3. For each entry, when the value is `undefined`, return the prop to its implicit default. Otherwise, make it the prop's explicit input, checked as [an accepted value](#accepted-values-and-prop-inputs) exactly as the matching attribute would be.
+3. For each entry, when the value is `null` or `undefined`, return the prop to its implicit default. Otherwise, make it the prop's explicit input, checked as [an accepted value](#accepted-values-and-prop-inputs) exactly as the matching attribute would be.
 4. Render the changes in the instance's next flush, batched with its state writes. A disconnected instance renders them when it reconnects.
 {.algo}
 

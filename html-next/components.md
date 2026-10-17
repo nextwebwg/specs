@@ -575,7 +575,7 @@ A slot's name is written, never computed, on both sides:
 
 Fixed names keep a component's slots part of its public interface: tools list them, generated components type them, and a consumer's content never changes slots as data changes. Content that varies by item is one named [scoped slot](#scoped-slots) that passes the item as a prop.
 
-### Named & fallback
+### Named & fallback {#named-fallback}
 
 ```html
 <!-- definition -->
@@ -592,6 +592,18 @@ Fixed names keep a component's slots part of its public interface: tools list th
   <p>Body content lands in the default slot.</p>
 </x-card>
 ```
+
+A slot shows its fallback while nothing is assigned to it, as a native `<slot>` shows its own children while it has no assigned nodes.[^12] Content the consumer writes under `$if` or `$each` is assigned while it renders. A slot whose only content is a false `$if`, or an `$each` with no rows, shows its fallback. When that content appears, the slot switches to it, and back to the fallback when it goes:
+
+```html
+<!-- use: the header reads "Untitled" until $heading has a value -->
+<x-card>
+  <h2 slot="title" $if="$heading">{$heading}</h2>
+  <p>Body content lands in the default slot.</p>
+</x-card>
+```
+
+Conditional and repeated content goes to the slot its `slot` attribute names whenever it renders, on the first render or after a later change.
 
 ### Content that renders on demand {#content-that-renders-on-demand}
 
@@ -695,7 +707,7 @@ A slot that owns iteration gives each row's props the same way:
 </x-list>
 ```
 
-Vue gives a scoped slot's props the same two ways, a plain attribute on its `<slot>` and a bound `:prop`, with only `name` reserved, and types them with `defineSlots`.[^12]
+Vue gives a scoped slot's props the same two ways, a plain attribute on its `<slot>` and a bound `:prop`, with only `name` reserved, and types them with `defineSlots`.[^13]
 
 ### Component ancestry for shared state {#component-ancestry-for-shared-state}
 
@@ -1020,4 +1032,5 @@ Level
 [^9]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
 [^10]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [fetch directives](https://www.w3.org/TR/CSP3/#directives-fetch), the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
 [^11]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.
-[^12]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved; [`defineSlots()`](https://vuejs.org/api/sfc-script-setup.html#defineslots) types each slot's props.
+[^12]: WHATWG DOM, [assigning slottables](https://dom.spec.whatwg.org/#assign-slotables) and [`assignedNodes()`](https://dom.spec.whatwg.org/#dom-htmlslotelement-assignednodes); CSS Scoping, [slots and fallback content in the flat tree](https://drafts.csswg.org/css-scoping/#slots-in-shadow-tree): a slot with no assigned nodes renders its own children, and switches as nodes are assigned or removed.
+[^13]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved; [`defineSlots()`](https://vuejs.org/api/sfc-script-setup.html#defineslots) types each slot's props.

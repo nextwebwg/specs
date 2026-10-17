@@ -567,6 +567,14 @@ The stamp is also what makes hydration an **adopt-in-place**, not a rebuild. An 
 
 Content projection uses the native-shaped `<slot>`. Level&nbsp;1 includes default, named, fallback, and scoped slots because all four are part of the baseline component contract.
 
+A slot's name is written, never computed, on both sides:
+
+- An outlet's `name` is a literal [identifier](/declarative-components/expressions#identifier-spelling-and-case), with the spelling an expression name uses: letters, digits after the first character, and `_`, but no `-`. `<slot name="labelAction">` names a slot; `<slot name="label-action">` is an error.
+- A consumer's `slot` attribute, on an element or on a `<template slot>`, is the same kind of literal identifier, naming the slot it fills. A value that is not an identifier, such as `slot="$which"`, and a bound `from:slot` are errors.
+- An empty `slot=""` assigns content to the default slot, as having no `slot` attribute does.
+
+Fixed names keep a component's slots part of its public interface: tools list them, generated components type them, and a consumer's content never changes slots as data changes. Content that varies by item is one named [scoped slot](#scoped-slots) that passes the item as a prop.
+
 ### Named & fallback
 
 ```html
@@ -666,8 +674,6 @@ Static and bound props mix freely on one outlet. These are errors, each reported
 - An outlet omits a `required` prop. A prop with a `default` that an outlet omits takes its default; one without either is absent from the template's scope.
 
 An outlet with any prop is a scoped slot: it renders only a `<template slot>`, as below.
-
-A slot's name is written as `name`, never computed. Content that varies by item, such as an option rendered its own way, is one named scoped slot that passes the item as a prop.
 
 A slot that owns iteration gives each row's props the same way:
 

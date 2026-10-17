@@ -146,7 +146,7 @@ The same field declarations describe event details and structured state values:
 </state>
 ```
 
-Each nested field is checked when the object or array is checked. `required` means the field must be present; `nullable` permits an explicitly present `null` value, as in `previous` above. The same `nullable` attribute permits a declared state to hold `null`. An `open` object permits additional fields; a field with `type="unknown"` accepts any JavaScript value, but `unknown` cannot be a top-level prop because it has no HTML attribute form. A build tool reports a malformed nested `values` constraint as an error; the live browser parser warns and ignores that constraint. Generated TypeScript uses the closest literal types, so the event detail above has `trigger: 'keyboard' | 'pointer' | 'programmatic'`.
+Each nested field is checked when the object or array is checked. `required` means the field must be present; `nullable` permits an explicitly present `null` value, as in `previous` above. A declared state accepts `null` when it has no `value`, or when it is also declared `nullable`; see [Null and missing values](/declarative-components/types#null-and-missing-values). An `open` object permits additional fields; a field with `type="unknown"` accepts any JavaScript value, but `unknown` cannot be a top-level prop because it has no HTML attribute form. A build tool reports a malformed nested `values` constraint as an error; the live browser parser warns and ignores that constraint. Generated TypeScript uses the closest literal types, so the event detail above has `trigger: 'keyboard' | 'pointer' | 'programmatic'`.
 
 A shared or external schema can instead be referenced with `schema`, using JSON Schema:[^13]
 
@@ -291,6 +291,14 @@ A declared prop that is omitted and has no default resolves to `null`, consisten
 <x-note></x-note>             <!-- label is null -->
 <x-note from:label="null"></x-note> <!-- label is null -->
 <x-note label=""></x-note>    <!-- label is the empty string -->
+```
+
+A declared `<state>` follows the same idea. A state without `value` starts as `null`, so it is nullable: it accepts later `null` writes too. A state with a `value` starts with that value and accepts `null` only when it is also declared `nullable`. The declared type still constrains every non-null value.
+
+```html
+<state name="level" type="integer">                    <!-- starts null; a null write is accepted -->
+<state name="count" type="integer" value="0" nullable> <!-- starts 0; a null write is accepted -->
+<state name="total" type="integer" value="0">          <!-- starts 0; a null write is ignored -->
 ```
 
 ## Future exploration

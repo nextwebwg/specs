@@ -185,14 +185,17 @@ host.props.amount.validity.badInput // true
 
 ### State writes use the same checks as bindings {#state-writes-use-the-same-checks-as-bindings}
 
-A controller assignment proposes a value to the declared state, just as `<set>` or `bind:` does. The destination's type rules apply before the write. A wrong-typed value is ignored, the state keeps its current value, and dependents are not notified. An attempt to assign computed state or an inherited context is likewise ignored because that destination is read-only.
+A controller assignment proposes a value to the declared state, just as `<set>` or `bind:` does. The destination's type rules apply before the write. A state without `value`, or one declared `nullable`, accepts `null`; any other state treats `null` as a wrong-typed value. A wrong-typed value is ignored, the state keeps its current value, and dependents are not notified. An attempt to assign computed state or an inherited context is likewise ignored because that destination is read-only.
 
 ```js
 // <state name="count" type="number" value="1">
 // <computed name="doubled" from="$count * 2">
+// <state name="level" type="integer">
 host.state.count = 2;          // accepted; doubled becomes 4
 host.state.count = 'blah';     // warning; count stays 2, doubled stays 4
+host.state.count = null;       // warning; count has a value and is not nullable
 host.state.doubled = 10;       // warning; computed state stays read-only
+host.state.level = null;       // accepted; level has no value, so it is nullable
 ```
 
 An invalid authored write reports the same runtime warning as an authored binding or handler write with the same defect. The warning identifies the destination and its expected type or read-only status; a repeated defect at the same authored location is reported once. These writes do not throw merely because their value is invalid. A build tool may report a statically knowable mistake before execution. An ordinary invalid user edit remains a validity concern and does not produce a warning. See [Invalid reactive results](/declarative-components/reactivity#invalid-reactive-results).

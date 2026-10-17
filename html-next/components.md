@@ -667,22 +667,7 @@ Static and bound props mix freely on one outlet. These are errors, each reported
 
 An outlet with any prop is a scoped slot: it renders only a `<template slot>`, as below.
 
-An outlet whose name is computed, `<slot from:name="$which">`, may render as more than one slot. Each prop it gives must be declared, with a type its value conforms to, on every declared slot it could render as:
-
-- When the name expression's type is a keyword with `values`, it could render as exactly those slots, and each of them must be declared.
-- Otherwise it could render as any declared slot, so each of its props must be declared on every declared slot.
-
-The check is made when the definition is read, from types alone, so a name that changes at run time never finds an undeclared prop.
-
-```html
-<defs>
-  <state name="which" type="keyword" values="person, team" value="person"></state>
-  <slot name="person"><prop name="item" type="object" required>The row.</prop></slot>
-  <slot name="team"><prop name="item" type="object" required>The row.</prop></slot>
-</defs>
-<!-- renders as "person" or "team"; both declare `item` -->
-<slot from:name="$which" from:item="$row"></slot>
-```
+A slot's name is written as `name`, never computed. Content that varies by item, such as an option rendered its own way, is one named scoped slot that passes the item as a prop.
 
 A slot that owns iteration gives each row's props the same way:
 

@@ -618,17 +618,50 @@ Use a template for content that is costly to create or load and only needed when
 
 ### Scoped slots
 
-A slot may expose data to the content projected into it. The definition binds slot props on the `<slot>`; the consumer supplies a `<template slot="name">`, which renders [on demand](#content-that-renders-on-demand) as above. Its **scope adds those exposed props** to the consumer's own: no new prefix, consistent with `$with`-style scoping.
+A slot may expose data to the content projected into it. The definition gives slot props on the `<slot>`; the consumer supplies a `<template slot="name">`, which renders [on demand](#content-that-renders-on-demand) as above. Its **scope adds those exposed props** to the consumer's own: no new prefix, consistent with `$with`-style scoping.
+
+A slot prop is given the way a prop is given to a component invocation:
+
+- **Static.** Every plain attribute on the `<slot>` other than `name` is a prop whose value is the attribute's text, a string: `label="Details"` gives `$label` the value `"Details"`.
+- **Bound.** `from:open="$open"` gives `$open` the expression's value, and follows it as it changes.
+
+Static and bound props mix freely on one slot. Giving the same prop both ways (`label` and `from:label`) is an error, and so is a prop name that is not a valid name in expression scope, static or bound. A slot with any prop, static or bound, is a scoped slot: it renders only a `<template slot>`, as below.
+
+```html
+<!-- definition: a disclosure that tells its summary its label and whether it is open -->
+<template component="x-disclosure">
+  <defs>
+    <state type="boolean" name="open" value="false"></state>
+    <handler name="toggle"><set name="open" expr:value="not $open"></set></handler>
+  </defs>
+  <div>
+    <button type="button" on:click="toggle">
+      <slot name="summary" label="Details" from:open="$open">Details</slot>
+    </button>
+    <section $if="$open"><slot></slot></section>
+  </div>
+</template>
+
+<!-- use: the template's scope is { label, open } -->
+<x-disclosure>
+  <template slot="summary">{$label}{$open ? " (open)" : ""}</template>
+  <p>The details.</p>
+</x-disclosure>
+```
+
+A slot that owns iteration gives each row's props the same way:
 
 ```html
 <!-- definition: a list that owns iteration, slots each row out -->
-<slot $each="row of $rows" $key="$row.id" name="row" from:item="$row" from:index="$loop.index"></slot>
+<slot $each="row of $rows" $key="$row.id" name="row" kind="person" from:item="$row" from:index="$loop.index"></slot>
 
-<!-- use: the template's scope is { item, index } -->
+<!-- use: the template's scope is { kind, item, index } -->
 <x-list from:rows="$people">
   <template slot="row"><td>{$item.name}</td></template>
 </x-list>
 ```
+
+Vue gives a scoped slot's props the same two ways: a plain attribute on its `<slot>` is a static string and `:prop` is bound, and only `name` is reserved.[^13]
 
 ### Component ancestry for shared state {#component-ancestry-for-shared-state}
 
@@ -909,7 +942,7 @@ Level
 
 ::: {.entry name="<slot>" role="content projection"}
 Attributes
-: `name?` (named slot) · `:prop` bindings (scoped-slot data)
+: `name?` (named slot) · any other plain attribute (a static slot prop, a string) · `from:prop` bindings (bound slot props)
 
 Children
 : fallback content used when nothing is projected
@@ -950,3 +983,4 @@ Level
 [^9]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
 [^10]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [fetch directives](https://www.w3.org/TR/CSP3/#directives-fetch), the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
 [^11]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.
+[^13]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved.

@@ -40,7 +40,7 @@ The interface is **declarative HTML**, not a data island. A `<prop>` states only
 
 ## Two regions: <defs> and the markup
 
-A definition has two visibly separate parts, so a reader can tell at a glance what renders and what only describes behavior. The `<prop>`, `<event>`, and `<request>` interface declarations, the `<slot>` declarations of slot props, reactive `<state>` and `<computed>`, read and write `<data>` resources, and `<handler>` blocks live inside a single `<defs>` region as flat siblings, together with the [head declarations](#head-declarations): the title, metadata, links, and scripts the component adds to the document head while an instance is connected. The visible markup is the one native root and its `<slot>`s. The content stays pure markup that points at behavior by name; the behavior stays a small labeled list above it.
+A definition has two visibly separate parts, so a reader can tell at a glance what renders and what only describes behavior. The `<prop>`, `<event>`, `<request>`, and `<slot>` interface declarations, reactive `<state>` and `<computed>`, read and write `<data>` resources, and `<handler>` blocks live inside a single `<defs>` region as flat siblings, together with the [head declarations](#head-declarations): the title, metadata, links, and scripts the component adds to the document head while an instance is connected. A `<slot>` in `<defs>` is a declaration of that slot's props, and renders nothing; a `<slot>` in the markup is an outlet, where projected content renders. The visible markup is the one native root and its `<slot>` outlets. The content stays pure markup that points at behavior by name; the behavior stays a small labeled list above it.
 
 This mirrors the document's own `<head>`/`<body>` split, declarations and resources versus rendered content, applied fractally to a component. The name is borrowed from SVG, where `<defs>` already means exactly this: definitions that render nothing and are referenced by name from elsewhere.[^5]
 
@@ -665,7 +665,24 @@ Static and bound props mix freely on one outlet. These are errors, each reported
 - An outlet gives the same prop both ways (`label` and `from:label`).
 - An outlet omits a `required` prop. A prop with a `default` that an outlet omits takes its default; one without either is absent from the template's scope.
 
-An outlet with any prop is a scoped slot: it renders only a `<template slot>`, as below. An outlet whose name is computed (`from:name`) checks its props against the declaration of the slot it renders as, when it renders.
+An outlet with any prop is a scoped slot: it renders only a `<template slot>`, as below.
+
+An outlet whose name is computed, `<slot from:name="$which">`, may render as more than one slot. Each prop it gives must be declared, with a type its value conforms to, on every declared slot it could render as:
+
+- When the name expression's type is a keyword with `values`, it could render as exactly those slots, and each of them must be declared.
+- Otherwise it could render as any declared slot, so each of its props must be declared on every declared slot.
+
+The check is made when the definition is read, from types alone, so a name that changes at run time never finds an undeclared prop.
+
+```html
+<defs>
+  <state name="which" type="keyword" values="person, team" value="person"></state>
+  <slot name="person"><prop name="item" type="object" required>The row.</prop></slot>
+  <slot name="team"><prop name="item" type="object" required>The row.</prop></slot>
+</defs>
+<!-- renders as "person" or "team"; both declare `item` -->
+<slot from:name="$which" from:item="$row"></slot>
+```
 
 A slot that owns iteration gives each row's props the same way:
 
@@ -875,7 +892,7 @@ Level
 
 ::: {.entry name="<defs>" role="non-rendered declarations"}
 Contains
-: `<prop>`, `<event>`, `<request>`, `<state>`, `<computed>`, `<data>`, `<handler>`, and `<context>`, and the head declarations `<title>`, `<meta>`, `<link>`, and `<script>`, as flat siblings — everything that renders nothing in place.
+: `<prop>`, `<event>`, `<request>`, `<slot>` declarations, `<state>`, `<computed>`, `<data>`, `<handler>`, and `<context>`, and the head declarations `<title>`, `<meta>`, `<link>`, and `<script>`, as flat siblings — everything that renders nothing in place.
 
 Semantics
 : Separates behavior/data/interface from visible markup; borrowed from SVG `<defs>`. Survives the template fragment parser where `<head>`/`<body>` do not.

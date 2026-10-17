@@ -1,7 +1,7 @@
 ---
 title: The JavaScript Layer
 order: 6
-blurb: controllers · host · $ref · finding elements · effects · requests
+blurb: controllers · host · $ref · finding elements · effects · requests · componentRegistry
 eyebrow: Declarative HTML Components · reserved for Level 2
 status: Proposed direction · the imperative escape hatch
 ---
@@ -700,7 +700,7 @@ Controllers never run on a server, so a server never makes or answers a request.
 > [!note] Grounded in the platform
 > Answering an event with `respondWith` is the shape of the Service Worker `FetchEvent`[^11], which also stops propagation once answered. The `signal` follows `NavigateEvent`[^12] and the DOM's `AbortSignal`[^13], and `progress` follows `ProgressEvent`[^15]. The Web Components Community Group Context Protocol[^14] uses the same idea, an event that carries a way to answer, for exchanging values between JavaScript components; its `context-provider` event and `ContextRoot` are the precedent for announcing a late responder and listening once at the document. HTML Next declares the request in the definition, so its types are known to build tools and framework targets without running anything.
 
-## Binding: the definition owns the controller edge
+## Binding: the definition owns the controller edge {#binding}
 
 The runtime discovers definitions and instances in the document. Each definition names its controller entry module directly, and that module's default export supplies the behavior:
 
@@ -726,7 +726,7 @@ The **definition** registers declaratively, by being a parsed `<template compone
 > [!note] Sharing the custom-element namespace
 > A hyphenated tag like `x-chart` is also a valid *custom element* name, so the two registries occupy one namespace, and precedence must be defined, not left to a race. The rule: **a registered custom element wins**. If `customElements.get(tag)` is defined, the browser owns that tag (it upgrades and runs the element's own lifecycle), and HTML Next does not lower it, an author who registers a custom element for a tag has opted that tag out of HTML Next. The runtime checks this before lowering rather than tearing out a live custom element.
 
-### Definitions and instances added after boot
+### Definitions and instances added after boot {#added-after-boot}
 
 An application may insert an inline `<template component>` definition or a new component instance after the runtime starts. The in-browser runtime uses `MutationObserver` to discover additions, validate and register new definitions, lower new instances, and connect their controllers. If an instance arrives before its definition, it lowers when that definition becomes available. The definition still binds behavior through `controller="…"` and a callable default export; the controller needs no package import or registration call.
 
@@ -772,6 +772,152 @@ The resulting association is direct and inspectable:
 > Importing a component root trusts its dependency closure, including a declared controller. HTML Next does **not** pretend otherwise. The improvement over HTML Imports[^6] is architectural: a definition is parsed under one closed declarative grammar; arbitrary classic scripts and inline handlers are rejected; imperative behavior has one explicit `controller` attribute, and any third-party script is a visible declared `src`; and those edges use the existing ES-module loader and script element instead of an imported-document script lifecycle.
 >
 > ES modules provide standardized fetching, CORS, CSP, dependency graphs, deduplication, and one-time evaluation. They do **not** sandbox authority. A controller and its transitive module graph are trusted page JavaScript, just like the JavaScript shipped by a custom element or an installed UI package. So is a declared script.
+
+## Creating components from code: componentRegistry {#component-registry}
+
+Most components exist because markup invokes them. Sometimes code has to make one instead: an editor drawing a callout inside the document it manages, a virtual list creating rows as they scroll into view, a library rendering into a region it owns. Inserting `<ui-callout>` and letting the runtime find it does not work there. [Lowering](/declarative-components/components) replaces the authored element with the component's native root, so the code is left holding an element that is no longer in the document.
+
+`componentRegistry` is how code takes part instead. It creates a component's finished native root directly, updates that instance's props later, and answers whether a definition is registered yet. It is modeled on the custom elements registry, `customElements`[^19]: the same names where they mean the same thing, and one registry for each document.
+
+```js
+const { create, update, whenDefined } = componentRegistry;
+
+await whenDefined("ui-callout");                  // the definition may still be loading
+
+const heading = document.createElement("span");
+heading.slot = "heading";                         // a node picks its slot, as in markup
+heading.textContent = "Before you start";
+const callout = create("ui-callout", { props: { tone: "tip" }, content: [heading, "Install first."] });
+
+editorBody.append(callout);                       // connects, like any authored instance
+update(callout, { tone: "warning" });             // later: the tone changes, the heading stays
+callout.addEventListener("close", onClose);       // its events, on its root, as for any instance
+```
+
+That instance is indistinguishable from one lowered from this markup:
+
+```html
+<ui-callout tone="tip"><span slot="heading">Before you start</span>Install first.</ui-callout>
+```
+
+### The interface {#component-registry-interface}
+
+```ts
+interface ComponentRegistry {
+  /** Register the definition a <template component> carries. */
+  define(carrier: HTMLTemplateElement): void;
+  /** The definition registered for `tag`, or undefined. */
+  get(tag: string): ComponentDefinition | undefined;
+  /** Resolves with the definition once `tag` is registered. */
+  whenDefined(tag: string): Promise<ComponentDefinition>;
+  /** Lower the authored invocations inside `root` now. */
+  upgrade(root: Node): void;
+  /** Create an instance of `tag`: its native root, not yet connected. */
+  create<K extends keyof ComponentTagMap>(tag: K, init?: ComponentInit<ComponentTagMap[K]["props"]>): ComponentTagMap[K]["element"];
+  create(tag: string, init?: ComponentInit): Element;
+  /** Set props on an instance, as attributes on an invocation or framework props would. */
+  update(element: Element, props: Readonly<Record<string, unknown>>): void;
+}
+
+interface ComponentInit<Props = Readonly<Record<string, unknown>>> {
+  /** The instance's props, as an invocation's attributes would set them. */
+  props?: Props;
+  /** The nodes an invocation would contain: a fragment, or nodes and strings, as append() takes. */
+  content?: DocumentFragment | Iterable<Node | string>;
+}
+
+interface ComponentDefinition {
+  readonly tag: string;
+}
+
+/** Each component adds its tag here, as HTMLElementTagNameMap does for createElement. */
+interface ComponentTagMap {}
+
+declare var componentRegistry: ComponentRegistry;
+```
+
+```js
+const { define, get, whenDefined, upgrade, create, update } = componentRegistry;
+```
+
+Each member corresponds to a `customElements` member, or to the DOM operation that covers the same need for custom elements:
+
+| `componentRegistry` | Custom elements | What differs |
+| --- | --- | --- |
+| `define(carrier)` | `customElements.define(name, constructor)` | It takes the `<template component>` carrier, the declarative definition, and reads the tag from its `component` attribute. There is no class. |
+| `get(tag)` | `customElements.get(name)` | It returns the definition, not a constructor. |
+| `whenDefined(tag)` | `customElements.whenDefined(name)` | It resolves with the definition. |
+| `upgrade(root)` | `customElements.upgrade(root)` | Lowering replaces each authored element with its native root; a custom element upgrades in place. |
+| `create(tag, init)` | `document.createElement(name)`[^20] | It returns the native root. It exists because an authored element would be replaced, so `createElement` cannot serve. |
+| `update(element, props)` | setting properties on the element | It is the one way code sets an instance's props: the same channel as attributes on an invocation and framework props. |
+
+The members are **static operations that do not use `this`**, so a destructured call behaves exactly as a call on `componentRegistry`, as with [`RequestEvent`'s statics](#outside-a-controller).
+
+### Defining and waiting {#component-registry-define}
+
+The runtime defines every definition it [discovers](#added-after-boot), and `define(carrier)` registers one from code. Either way, the same rules apply, and when code calls <code>define(<var>carrier</var>)</code> the runtime [must]{.kw} run these steps:
+
+1. If <var>carrier</var> is not a `<template>` element with a `component` attribute, throw a `TypeError`.
+2. Validate it as a discovered definition is validated. If it is invalid, throw a `SyntaxError` `DOMException` that names the first error's code.
+3. Let <var>tag</var> be its `component` attribute's value. If `customElements.get(tag)` is defined, throw a `NotSupportedError` `DOMException`: [a registered custom element wins](#binding).
+4. If a definition for <var>tag</var> is already registered, return when it is the same definition, and otherwise throw a `NotSupportedError` `DOMException` (HR001).
+5. Register it, resolve every pending `whenDefined(tag)` with it, and lower the authored invocations of <var>tag</var> already in the document.
+{.algo}
+
+A compiled Vanilla DOM module defines its component when it is evaluated, with the same effect as `define` for its definition, so importing the module is enough for `create` to find it. Framework targets render through their framework and define nothing.
+
+`get(tag)` returns the registered `ComponentDefinition` or `undefined`. This proposal specifies only the definition's `tag`; exposing more of its contract is open. `whenDefined(tag)` rejects with a `SyntaxError` `DOMException` when <var>tag</var> is not a valid custom element name, resolves at once when the tag is registered, and otherwise resolves when it is. A controller whose code creates a component that its template does not use declares the edge with `<link rel="component">`, like any composed component, so the definition loads before the controller asks for it.
+
+`upgrade(root)` lowers every authored invocation in <var>root</var>'s inclusive subtree whose definition is registered, in tree order and synchronously, as discovery would. It skips invocations already lowered and leaves invocations of unregistered tags alone. It lets code that has just inserted markup use the resulting instances without waiting for the runtime's next discovery batch.
+
+### Creating an instance {#component-registry-create}
+
+When code calls <code>create(<var>tag</var>, <var>init</var>)</code>, the runtime [must]{.kw} run these steps:
+
+1. If `customElements.get(tag)` is defined, throw a `NotSupportedError` `DOMException`.
+2. Let <var>definition</var> be the definition registered for <var>tag</var>. If there is none, throw a `NotFoundError` `DOMException`; code that cannot be sure of the order calls `whenDefined` first.
+3. Let <var>nodes</var> be the children of <var>init</var>`.content` when it is a `DocumentFragment`, or else its items in order, each string replaced by a new `Text` node holding it.
+4. For each entry of <var>init</var>`.props`, if <var>definition</var> declares no prop of that name, throw a `TypeError`.
+5. Create the instance as lowering an invocation of <var>tag</var> creates one. Each prop of <var>init</var>`.props` is an input checked as [an accepted value](#accepted-values-and-prop-inputs), exactly as the matching attribute would be. <var>nodes</var> are the invocation's child nodes, so each is assigned to the slot its `slot` attribute names, or else to the default slot, as authored children are.
+6. Return the instance's native root.
+{.algo}
+
+The root is not yet connected. Inserting it connects the instance and removing it disconnects it, by the same rules as [any instance](#added-after-boot): its controller runs when it first connects, its effects start and stop with its connection, and a move within one mutation batch keeps the connection. It is an instance in every respect, so it dispatches its events at its root, asks its requests, and takes `update`. Native attributes that are not props, such as `id` or `aria-label`, are set on the returned root with `setAttribute`, as on any element.
+
+`create` always makes an HTML Next instance, a native root with its runtime behavior attached, never a framework's component, even when the calling code runs inside a Vue, React, or Svelte application. Code creates components where a framework does not render, such as a document an editor library manages, so the instance lives outside the framework's tree. The [equivalence contract](/declarative-components/targets) makes it the same element a framework target would render. In an application that renders through a framework, the component's compiled Vanilla DOM module, or the live runtime, defines it for `create` to find.
+
+### Updating props {#component-registry-update}
+
+When code calls <code>update(<var>element</var>, <var>props</var>)</code>, the runtime [must]{.kw} run these steps:
+
+1. If <var>element</var> is not the native root of a component instance, whether created by `create`, lowered from markup, or rendered by a framework adapter, throw a `TypeError`.
+2. For each entry of <var>props</var>, if the instance's definition declares no prop of that name, throw a `TypeError`.
+3. For each entry, when the value is `undefined`, return the prop to its implicit default. Otherwise, make it the prop's explicit input, checked as [an accepted value](#accepted-values-and-prop-inputs) exactly as the matching attribute would be.
+4. Render the changes in the instance's next flush, batched with its state writes. A disconnected instance renders them when it reconnects.
+{.algo}
+
+A framework adapter sets a framework component's props through the same operation, so an instance has one prop channel, whoever writes to it.
+
+### Types {#component-registry-types}
+
+`ComponentTagMap` follows TypeScript's `HTMLElementTagNameMap`[^21], which types `document.createElement("input")` as an `HTMLInputElement`. A tool that emits declarations for a component adds an entry, so `create` types its props and its root:
+
+```ts
+interface ComponentTagMap {
+  "ui-callout": { element: HTMLDivElement; props: { tone?: "info" | "tip" | "warning"; heading?: string } };
+}
+```
+
+### Why a registry {#component-registry-why}
+
+Requests needed only three operations, so they live as statics on the interface every request already uses, and add no global name. Components need more: definitions are per-document state with a lifecycle of their own. They are defined, waited for, upgraded and created from, which is exactly what `CustomElementRegistry` models for custom elements. A registry is also where a later level can scope definitions to a part of the document, as scoped custom element registries[^22] do with `new CustomElementRegistry()`. Scoping is not proposed here.
+
+This adds two global names, `ComponentRegistry` and `componentRegistry`, which parallel `CustomElementRegistry` and `customElements`. The instance is not called `components`: a new global must not collide with names that pages already define, and an everyday word like that is far more likely to.
+
+Controllers run in the browser only, and so do `create` and `update`. A server renders authored invocations.
+
+> [!note] Until browsers implement componentRegistry
+> A polyfill or library provides the same object as one package export. Callers import it and destructure it: `import { componentRegistry } from "@nextwebwg/html-next"; const { create, update, whenDefined } = componentRegistry;`. Every HTML Next bundle on a page (the live runtime, compiled modules and framework helpers) shares one registry for each document, so code can create any registered component, whichever bundle defined it. Native code is identical without the import line.
 
 ## A worked example: a component that uses another
 
@@ -994,6 +1140,23 @@ Level
 : [L2+]{.pill .soon} reserved
 :::
 
+::: {.entry name="componentRegistry" role="create and update components from code"}
+Members
+: `define`, `get`, `whenDefined`, `upgrade`, `create`, and `update`; static operations that do not use `this`
+
+Creates
+: an HTML Next instance's native root, never a framework's component
+
+Native kin
+: `customElements` (`CustomElementRegistry`) and `document.createElement`
+
+Scope
+: one registry for each document, shared by every HTML Next bundle on the page
+
+Level
+: [L2+]{.pill .soon} reserved
+:::
+
 ## References
 
 [^1]: WHATWG HTML, [custom elements](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-elements-core-concepts) (`connectedCallback`/`disconnectedCallback`): a controller supplies the same per-instance behavior and lifecycle to a data-defined component instead of requiring a class registration.
@@ -1014,3 +1177,7 @@ Level
 [^16]: WHATWG Fetch, [`Response.json()`](https://fetch.spec.whatwg.org/#dom-response-json): a static method that builds a response, offered on the interface instead of as a global function.
 [^17]: WHATWG URL, [`URL.canParse()`](https://url.spec.whatwg.org/#dom-url-canparse): a static check offered on the interface it concerns.
 [^18]: ECMAScript, [`Promise.withResolvers()`](https://tc39.es/ecma262/#sec-promise.withResolvers): a static helper on `Promise`; it reads its `this` value as the promise constructor, so it fails when called detached.
+[^19]: WHATWG HTML, [`CustomElementRegistry`](https://html.spec.whatwg.org/multipage/custom-elements.html#customelementregistry) (`define`, `get`, `whenDefined`, and `upgrade`), reached through `customElements`: the registry `componentRegistry` is modeled on.
+[^20]: WHATWG DOM, [`document.createElement()`](https://dom.spec.whatwg.org/#dom-document-createelement) and its `ElementCreationOptions` dictionary: how code creates an element, and the precedent for an options dictionary such as `ComponentInit`.
+[^21]: TypeScript, [`HTMLElementTagNameMap`](https://github.com/microsoft/TypeScript/blob/main/src/lib/dom.generated.d.ts) in the DOM library declarations: the map from tag to element type that types `createElement`, which `ComponentTagMap` follows.
+[^22]: WICG, [Scoped Custom Element Registries](https://github.com/WICG/webcomponents/blob/gh-pages/proposals/Scoped-Custom-Element-Registries.md): registries created with `new CustomElementRegistry()` and attached to a shadow root or document, the model for scoping component definitions at a later level.

@@ -700,7 +700,7 @@ Controllers never run on a server, so a server never makes or answers a request.
 > [!note] Grounded in the platform
 > Answering an event with `respondWith` is the shape of the Service Worker `FetchEvent`[^11], which also stops propagation once answered. The `signal` follows `NavigateEvent`[^12] and the DOM's `AbortSignal`[^13], and `progress` follows `ProgressEvent`[^15]. The Web Components Community Group Context Protocol[^14] uses the same idea, an event that carries a way to answer, for exchanging values between JavaScript components; its `context-provider` event and `ContextRoot` are the precedent for announcing a late responder and listening once at the document. HTML Next declares the request in the definition, so its types are known to build tools and framework targets without running anything.
 
-## Binding: the definition owns the controller edge {#binding}
+## Binding: the definition owns the controller edge
 
 The runtime discovers definitions and instances in the document. Each definition names its controller entry module directly, and that module's default export supplies the behavior:
 
@@ -726,7 +726,7 @@ The **definition** registers declaratively, by being a parsed `<template compone
 > [!note] Sharing the custom-element namespace
 > A hyphenated tag like `x-chart` is also a valid *custom element* name, so the two registries occupy one namespace, and precedence must be defined, not left to a race. The rule: **a registered custom element wins**. If `customElements.get(tag)` is defined, the browser owns that tag (it upgrades and runs the element's own lifecycle), and HTML Next does not lower it, an author who registers a custom element for a tag has opted that tag out of HTML Next. The runtime checks this before lowering rather than tearing out a live custom element.
 
-### Definitions and instances added after boot {#added-after-boot}
+### Definitions and instances added after boot
 
 An application may insert an inline `<template component>` definition or a new component instance after the runtime starts. The in-browser runtime uses `MutationObserver` to discover additions, validate and register new definitions, lower new instances, and connect their controllers. If an instance arrives before its definition, it lowers when that definition becomes available. The definition still binds behavior through `controller="…"` and a callable default export; the controller needs no package import or registration call.
 
@@ -855,11 +855,11 @@ The members are **static operations that do not use `this`**, so a destructured 
 
 ### Defining and waiting {#component-registry-define}
 
-The runtime defines every definition it [discovers](#added-after-boot), and `define(carrier)` registers one from code. Either way, the same rules apply, and when code calls <code>define(<var>carrier</var>)</code> the runtime [must]{.kw} run these steps:
+The runtime defines every definition it [discovers](#definitions-and-instances-added-after-boot), and `define(carrier)` registers one from code. Either way, the same rules apply, and when code calls <code>define(<var>carrier</var>)</code> the runtime [must]{.kw} run these steps:
 
 1. If <var>carrier</var> is not a `<template>` element with a `component` attribute, throw a `TypeError`.
 2. Validate it as a discovered definition is validated. If it is invalid, throw a `SyntaxError` `DOMException` that names the first error's code.
-3. Let <var>tag</var> be its `component` attribute's value. If `customElements.get(tag)` is defined, throw a `NotSupportedError` `DOMException`: [a registered custom element wins](#binding).
+3. Let <var>tag</var> be its `component` attribute's value. If `customElements.get(tag)` is defined, throw a `NotSupportedError` `DOMException`: [a registered custom element wins](#binding-the-definition-owns-the-controller-edge).
 4. If a definition for <var>tag</var> is already registered, return when it is the same definition, and otherwise throw a `NotSupportedError` `DOMException` (HR001).
 5. Register it, resolve every pending `whenDefined(tag)` with it, and lower the authored invocations of <var>tag</var> already in the document.
 {.algo}
@@ -882,7 +882,7 @@ When code calls <code>create(<var>tag</var>, <var>init</var>)</code>, the runtim
 6. Return the instance's native root.
 {.algo}
 
-The root is not yet connected. Inserting it connects the instance and removing it disconnects it, by the same rules as [any instance](#added-after-boot): its controller runs when it first connects, its effects start and stop with its connection, and a move within one mutation batch keeps the connection. It is an instance in every respect, so it dispatches its events at its root, asks its requests, and takes `update`. Native attributes that are not props, such as `id` or `aria-label`, are set on the returned root with `setAttribute`, as on any element.
+The root is not yet connected. Inserting it connects the instance and removing it disconnects it, by the same rules as [any instance](#definitions-and-instances-added-after-boot): its controller runs when it first connects, its effects start and stop with its connection, and a move within one mutation batch keeps the connection. It is an instance in every respect, so it dispatches its events at its root, asks its requests, and takes `update`. Native attributes that are not props, such as `id` or `aria-label`, are set on the returned root with `setAttribute`, as on any element.
 
 `create` always makes an HTML Next instance, a native root with its runtime behavior attached, never a framework's component, even when the calling code runs inside a Vue, React, or Svelte application. Code creates components where a framework does not render, such as a document an editor library manages, so the instance lives outside the framework's tree. The [equivalence contract](/declarative-components/targets) makes it the same element a framework target would render. In an application that renders through a framework, the component's compiled Vanilla DOM module, or the live runtime, defines it for `create` to find.
 

@@ -59,8 +59,9 @@ This is what makes "many backends" trustworthy: pick any two targets and their o
 Hydration markers and development-only attributes are excluded from the comparison, but an adapter [must not]{.kw} add semantic wrapper elements.
 
 > [!ex] CLI
+> A generator's command line takes a source and an output directory, for example:
 > ```bash
-> html-next build button.html --out-dir dist
+> component-build button.html --out-dir dist
 > ```
 
 Next: see a full source in [Examples](/declarative-components/examples), or how targets fit the component model in the [Overview](/declarative-components/overview). {.lede}

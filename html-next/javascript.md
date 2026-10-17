@@ -202,7 +202,7 @@ An invalid authored write reports the same runtime warning as an authored bindin
 
 The checks have the same depth as declarative writes: an object or list is checked at its immediate boundary, and nested fields are checked when read or written through their declared paths. Controller assignment does not introduce a separate coercion or validation policy. Resource fields under `host.data` are also read-only; a controller changes a resource's declared state parameters rather than assigning its response or status fields.
 
-A controller calculates with JavaScript's own operators. Three steps of `host.state.level += 0.1` from `0` store `0.30000000000000004`, where three runs of `<set name="level" expr:value="$level + 0.1">` store `0.3` by the [decimal arithmetic rule](/declarative-components/expressions#decimal-arithmetic). A controller that must match an expression applies the same rule; the reference implementation, `@nextwebwg/html-next`, exports it as `add`, `subtract`, `multiply`, and `divide`.
+A controller calculates with JavaScript's own operators. Three steps of `host.state.level += 0.1` from `0` store `0.30000000000000004`, where three runs of `<set name="level" expr:value="$level + 0.1">` store `0.3` by the [decimal arithmetic rule](/declarative-components/expressions#decimal-arithmetic). A controller that must match an expression applies the same rule; an implementation may export it as `add`, `subtract`, `multiply`, and `divide`.
 
 ### The companion JavaScript / DOM API {#the-companion-javascript-dom-api}
 
@@ -694,7 +694,7 @@ It is the same protocol, so a responder receives the same `RequestEvent` and can
 It costs nothing beyond `host.hasResponder`, which performs the same lookup, and it gives code that asks through `RequestEvent.request` the choice a controller has: to offer a feature only when someone will answer, for example when a hand-written element renders its toolbar. Code that must follow changes as they happen belongs in a controller, where the read is reactive.
 
 > [!note] Until browsers implement RequestEvent
-> A polyfill or library provides the same interface as one package export. Callers import `RequestEvent` and destructure it: `import { RequestEvent } from "@nextwebwg/html-next"; const { respond, request, hasResponder } = RequestEvent;`. Native code is identical without the import line.
+> A polyfill provides the same interface as a module export. Callers import `RequestEvent` and destructure it: `import { RequestEvent } from "./request-event.js"; const { respond, request, hasResponder } = RequestEvent;`. Native code is identical without the import line.
 
 ### Server rendering
 
@@ -724,7 +724,7 @@ export default function controller(host) { … }
 The **definition** registers declaratively, by being a parsed `<template component="x-chart" controller="./x-chart.js">`. Its `controller` attribute is a static dependency edge to one ES-module entry point. The browser imports that module, requires a callable default export, and invokes it with each connected instance's `host`. The tag is not repeated in JavaScript, so markup and behavior cannot silently disagree.
 
 > [!norm] A platform contract, not a library convention
-> The proposal defines browser behavior. Controller source has no required package import and no polyfill registration call. Until browsers implement the feature, `@nextwebwg/html` performs the same resolution, default-export check, and per-instance invocation behind the declarative surface. Build targets may statically import the same default export and pass it their host adapter. None of those implementation paths changes component source.
+> The proposal defines browser behavior. Controller source has no required package import and no polyfill registration call. Until browsers implement the feature, a polyfill performs the same resolution, default-export check, and per-instance invocation behind the declarative surface. Build targets may statically import the same default export and pass it their host adapter. None of those implementation paths changes component source.
 
 > [!note] Sharing the custom-element namespace
 > A hyphenated tag like `x-chart` is also a valid *custom element* name, so the two registries occupy one namespace, and precedence must be defined, not left to a race. The rule: **a registered custom element wins**. If `customElements.get(tag)` is defined, the browser owns that tag (it upgrades and runs the element's own lifecycle), and HTML Next does not lower it, an author who registers a custom element for a tag has opted that tag out of HTML Next. The runtime checks this before lowering rather than tearing out a live custom element.
@@ -916,7 +916,7 @@ This adds two global names, `ComponentRegistry` and `componentRegistry`, which p
 Controllers run in the browser only, and so do `create` and `update`. A server renders authored invocations.
 
 > [!note] Until browsers implement componentRegistry
-> A polyfill or library provides the same object as one package export. Callers import it and destructure it: `import { componentRegistry } from "@nextwebwg/html-next"; const { create, update, whenDefined } = componentRegistry;`. Every HTML Next bundle on a page shares one registry for each document, so code can create any registered component, whichever bundle defined it. Native code is identical without the import line.
+> A polyfill provides the same object as a module export. Callers import it and destructure it: `import { componentRegistry } from "./component-registry.js"; const { create, update, whenDefined } = componentRegistry;`. Every HTML Next bundle on a page shares one registry for each document, so code can create any registered component, whichever bundle defined it. Native code is identical without the import line.
 
 ## A worked example: a component that uses another
 

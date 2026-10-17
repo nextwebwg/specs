@@ -23,8 +23,6 @@ Whatever the target, a generator turns one HTML Next source into that target's i
 - import or reference the generated CSS exactly once; and
 - produce deterministic output for deterministic input.
 
-A Vanilla DOM module also defines its component in [`componentRegistry`](/declarative-components/javascript#component-registry) when it is evaluated, and its declarations add the tag to `ComponentTagMap`, so code can create the component with `componentRegistry.create`.
-
 CSS output includes the component's transitive [`@import` dependencies](/declarative-components/styling#shared-css). Every target [must]{.kw} preserve imported rules' component scope, cascade order, conditions, layers, and source-relative assets, along with document-wide at-rule behavior. A target [may]{.kw} bundle or share CSS artifacts; it [must not]{.kw} turn component-owned imports into global styles or add stylesheet copies for each instance.
 
 ::: targets

@@ -867,8 +867,6 @@ The runtime defines every definition it [discovers](#definitions-and-instances-a
 5. Register it, resolve every pending `whenDefined(tag)` with it, and lower the authored invocations of <var>tag</var> already in the document.
 {.algo}
 
-A compiled Vanilla DOM module defines its component when it is evaluated, with the same effect as `define` for its definition, so importing the module is enough for `create` to find it. Framework targets render through their framework and define nothing.
-
 `get(tag)` returns the registered `ComponentDefinition` or `undefined`. This proposal specifies only the definition's `tag`; exposing more of its contract is open. `whenDefined(tag)` rejects with a `SyntaxError` `DOMException` when <var>tag</var> is not a valid custom element name, resolves at once when the tag is registered, and otherwise resolves when it is. A controller whose code creates a component that its template does not use declares the edge with `<link rel="component">`, like any composed component, so the definition loads before the controller asks for it.
 
 `upgrade(root)` lowers every authored invocation in <var>root</var>'s inclusive subtree whose definition is registered, in tree order and synchronously, as discovery would. It skips invocations already lowered and leaves invocations of unregistered tags alone. It lets code that has just inserted markup use the resulting instances without waiting for the runtime's next discovery batch.
@@ -887,19 +885,17 @@ When code calls <code>create(<var>tag</var>, <var>init</var>)</code>, the runtim
 
 The root is not yet connected. Inserting it connects the instance and removing it disconnects it, by the same rules as [any instance](#definitions-and-instances-added-after-boot): its controller runs when it first connects, its effects start and stop with its connection, and a move within one mutation batch keeps the connection. It is an instance in every respect, so it dispatches its events at its root, asks its requests, and takes `update`. Native attributes that are not props, such as `id` or `aria-label`, are set on the returned root with `setAttribute`, as on any element.
 
-`create` always makes an HTML Next instance, a native root with its runtime behavior attached, never a framework's component, even when the calling code runs inside a Vue, React, or Svelte application. Code creates components where a framework does not render, such as a document an editor library manages, so the instance lives outside the framework's tree. The [equivalence contract](/declarative-components/targets) makes it the same element a framework target would render. In an application that renders through a framework, the component's compiled Vanilla DOM module, or the live runtime, defines it for `create` to find.
+`create` always makes an HTML Next instance, a native root with its runtime behavior attached, never a framework's component, even when the calling code runs inside a Vue, React, or Svelte application. Code creates components where a framework does not render, such as a document an editor library manages, so the instance lives outside the framework's tree. The [equivalence contract](/declarative-components/targets) makes it the same element a framework target would render.
 
 ### Updating props {#component-registry-update}
 
 When code calls <code>update(<var>element</var>, <var>props</var>)</code>, the runtime [must]{.kw} run these steps:
 
-1. If <var>element</var> is not the native root of a component instance, whether created by `create`, lowered from markup, or rendered by a framework adapter, throw a `TypeError`.
+1. If <var>element</var> is not the native root of a component instance, whether created by `create` or lowered from markup, throw a `TypeError`.
 2. For each entry of <var>props</var>, if the instance's definition declares no prop of that name, throw a `TypeError`.
 3. For each entry, when the value is `undefined`, return the prop to its implicit default. Otherwise, make it the prop's explicit input, checked as [an accepted value](#accepted-values-and-prop-inputs) exactly as the matching attribute would be.
 4. Render the changes in the instance's next flush, batched with its state writes. A disconnected instance renders them when it reconnects.
 {.algo}
-
-A framework adapter sets a framework component's props through the same operation, so an instance has one prop channel, whoever writes to it.
 
 ### Types {#component-registry-types}
 
@@ -920,7 +916,7 @@ This adds two global names, `ComponentRegistry` and `componentRegistry`, which p
 Controllers run in the browser only, and so do `create` and `update`. A server renders authored invocations.
 
 > [!note] Until browsers implement componentRegistry
-> A polyfill or library provides the same object as one package export. Callers import it and destructure it: `import { componentRegistry } from "@nextwebwg/html-next"; const { create, update, whenDefined } = componentRegistry;`. Every HTML Next bundle on a page (the live runtime, compiled modules and framework helpers) shares one registry for each document, so code can create any registered component, whichever bundle defined it. Native code is identical without the import line.
+> A polyfill or library provides the same object as one package export. Callers import it and destructure it: `import { componentRegistry } from "@nextwebwg/html-next"; const { create, update, whenDefined } = componentRegistry;`. Every HTML Next bundle on a page shares one registry for each document, so code can create any registered component, whichever bundle defined it. Native code is identical without the import line.
 
 ## A worked example: a component that uses another
 

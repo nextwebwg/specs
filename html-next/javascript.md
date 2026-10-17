@@ -1039,7 +1039,7 @@ The example is one implementation's converter output. `adaptVue` and its package
 <!-- Vue output. The controller body is reused verbatim; only the host is adapted. -->
 <script setup>
 import controller from "./x-map.js";
-import { adaptVue } from "@nextwebwg/html/vue";
+import { adaptVue } from "./component-runtime/vue.js";
 
 const props = defineProps({ center: { type: Array, default: () => [0, 0] } });
 const canvas = ref();

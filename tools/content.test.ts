@@ -208,7 +208,9 @@ test("security defines mandatory controls instead of disclaiming the model", () 
   assert.match(javascript, /await import\(controllerURL\)/);
   assert.match(javascript, /export default function controller\(host\)/);
   assert.match(javascript, /typeof module\.default !== "function"/);
-  assert.match(javascript, /@nextwebwg\/html\/vue/);
+  assert.match(javascript, /import \{ adaptVue \} from "\.\/component-runtime\/vue\.js";/);
+  // The spec names no implementation package.
+  assert.doesNotMatch([security, javascript, examples, components].join("\n"), /@nextwebwg\//);
   assert.match(examples, /<template component="x-counter" controller="\.\/counter\.js">/);
   assert.match(components, /"@acme\/ui\/": "https:\/\/cdn\.example\/@acme\/ui@4\/components\/"/);
   assert.match(components, /"\.\/\*\.html": "\.\/components\/\*\.html"/);

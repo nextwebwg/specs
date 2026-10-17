@@ -95,12 +95,31 @@ Serialization appends an inert `<template>` to each component root that has such
 
 The carrier is marked by a `<?carrier?>` instruction immediately before it, read the same way as the slot marks, including the comment form where processing instructions are not parsed. Only the component root carries a component marker, and a component's own template may contain a `<template>` element, so position alone cannot identify the carrier. Qwik keeps unprojected content for the same reason.[^9]
 
+## Conditional content in a slot
+
+A consumer may write slot content under `$if` or `$each`. A slot whose only such content renders nothing shows its fallback, and switches to the content when it appears (see [Named & fallback](/declarative-components/components#named-fallback)). The instance still holds the region, so a later change can render into it. The rendered form keeps the region's marks in the slot's range, after its fallback nodes:
+
+```html
+<!-- invocation: the meta slot has content only while $open is true -->
+<x-row><span slot="meta" $if="$open">Opened</span></x-row>
+
+<!-- rendered form while $open is false: the fallback, then the empty region's marks -->
+<span class="meta"><?start slot="meta" fallback=""?>No meta<!--if--><!--/if--><?end?></span>
+
+<!-- after $open becomes true, the same range holds the content between the marks -->
+<span class="meta"><?start slot="meta"?><!--if--><span slot="meta">Opened</span><!--/if--><?end?></span>
+```
+
+- A `fallback` range holds the slot's fallback nodes first. Hydration adopts them by walking the slot's fallback children; any nodes left in the range after them are the marks of the consumer's empty regions, and they are that slot's projected content.
+- `<!--if-->` and `<!--/if-->` stand for the region's marks, which are the implementation's until structural anchors share the range grammar (an open question below).
+- A native `<slot>` behaves the same way: it shows its own children while no node is assigned to it, and its assigned nodes once there are some.[^10]
+
 ## How hydration rebuilds the instance
 
 1. Recover explicit props from the server-rendered instance's hydration data. The proposal has not fixed a wire format for that data; visible `data-<name>` attributes are not required.
 2. Collect the root's own slot ranges in document order: its subtree, minus its own ranges' contents (consumer content), minus nested components' own regions, plus the contents of nested components' ranges (what this component projected into them).
-3. The projected nodes are the contents of every range without `fallback` or `scoped`, each assigned that range's slot, followed by the carrier's nodes, which keep their own `slot` attribute. A consumer's [`<template slot>`](/declarative-components/components#content-that-renders-on-demand) is always in the carrier: the live DOM holds what it renders, never the template. The carrier is removed.
-4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes, the fallback nodes, or the nodes its `<template slot>` rendered, adopted in place so their bindings attach.
+3. The projected nodes are the contents of every range without `fallback` or `scoped`, each assigned that range's slot, then the marks of any consumer region that follow the fallback nodes in a `fallback` range (see [Conditional content in a slot](#conditional-content-in-a-slot)), assigned that range's slot, followed by the carrier's nodes, which keep their own `slot` attribute. A consumer's [`<template slot>`](/declarative-components/components#content-that-renders-on-demand) is always in the carrier: the live DOM holds what it renders, never the template. The carrier is removed.
+4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes, the fallback nodes and any empty consumer regions after them, or the nodes its `<template slot>` rendered, adopted in place so their bindings attach.
 5. A nested component's server-rendered root is adopted, not re-rendered. The outer template's nodes inside it are matched against that component's slot ranges and carrier, where lowering placed them, and the nested root hydrates as its own instance.
 
 A root that a framework rendered is owned by that framework, which hydrates from its own state. Framework output need not carry slot ranges; its element tree remains subject to [target equivalence](/declarative-components/targets).
@@ -124,3 +143,4 @@ A root that a framework rendered is owned by that framework, which hydrates from
 [^7]: W3C, [Selectors Level 4, `:empty`](https://www.w3.org/TR/selectors-4/#the-empty-pseudo): comments and processing instructions do not affect emptiness.
 [^8]: Standards positions on processing instructions in HTML: [Mozilla #1369](https://github.com/mozilla/standards-positions/issues/1369), [WebKit #628](https://github.com/WebKit/standards-positions/issues/628) (both open).
 [^9]: Prior art: [Qwik projection](https://qwik.builder.io/docs/components/projection/) keeps projected content that is not currently rendered, because it may be projected later.
+[^10]: WHATWG DOM, [assigning slottables](https://dom.spec.whatwg.org/#assign-slotables); CSS Scoping, [slots and fallback content in the flat tree](https://drafts.csswg.org/css-scoping/#slots-in-shadow-tree).

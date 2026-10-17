@@ -40,7 +40,7 @@ The interface is **declarative HTML**, not a data island. A `<prop>` states only
 
 ## Two regions: <defs> and the markup
 
-A definition has two visibly separate parts, so a reader can tell at a glance what renders and what only describes behavior. The `<prop>`, `<event>`, and `<request>` interface declarations, reactive `<state>` and `<computed>`, read and write `<data>` resources, and `<handler>` blocks live inside a single `<defs>` region as flat siblings, together with the [head declarations](#head-declarations): the title, metadata, links, and scripts the component adds to the document head while an instance is connected. The visible markup is the one native root and its `<slot>`s. The content stays pure markup that points at behavior by name; the behavior stays a small labeled list above it.
+A definition has two visibly separate parts, so a reader can tell at a glance what renders and what only describes behavior. The `<prop>`, `<event>`, and `<request>` interface declarations, the `<slot>` declarations of slot props, reactive `<state>` and `<computed>`, read and write `<data>` resources, and `<handler>` blocks live inside a single `<defs>` region as flat siblings, together with the [head declarations](#head-declarations): the title, metadata, links, and scripts the component adds to the document head while an instance is connected. The visible markup is the one native root and its `<slot>`s. The content stays pure markup that points at behavior by name; the behavior stays a small labeled list above it.
 
 This mirrors the document's own `<head>`/`<body>` split, declarations and resources versus rendered content, applied fractally to a component. The name is borrowed from SVG, where `<defs>` already means exactly this: definitions that render nothing and are referenced by name from elsewhere.[^5]
 
@@ -618,17 +618,76 @@ Use a template for content that is costly to create or load and only needed when
 
 ### Scoped slots
 
-A slot may expose data to the content projected into it. The definition binds slot props on the `<slot>`; the consumer supplies a `<template slot="name">`, which renders [on demand](#content-that-renders-on-demand) as above. Its **scope adds those exposed props** to the consumer's own: no new prefix, consistent with `$with`-style scoping.
+A slot may expose data to the content projected into it. The definition declares the slot's props in `<defs>` and gives them on each `<slot>` outlet; the consumer supplies a `<template slot="name">`, which renders [on demand](#content-that-renders-on-demand) as above. Its **scope adds those exposed props** to the consumer's own: no new prefix, consistent with `$with`-style scoping.
+
+```html
+<!-- definition: a disclosure that tells its summary its label and how many items it holds -->
+<template component="x-disclosure">
+  <defs>
+    <prop name="items" type="list(string)" default="[]">The items.</prop>
+    <state type="boolean" name="open" value="false"></state>
+    <handler name="toggle"><set name="open" expr:value="not $open"></set></handler>
+    <slot name="summary">
+      <prop name="label" type="string" default="Details">The summary's text.</prop>
+      <prop name="count" type="number" required>How many items there are.</prop>
+    </slot>
+  </defs>
+  <div>
+    <button type="button" on:click="toggle">
+      <slot name="summary" label="Open" from:count="$items.length">Details</slot>
+    </button>
+    <ul $if="$open"><li $each="item of $items">{$item}</li></ul>
+  </div>
+</template>
+
+<!-- use: the template's scope is { label: string, count: number } -->
+<x-disclosure from:items="['a', 'b']">
+  <template slot="summary">{$label} ({$count})</template>
+</x-disclosure>
+```
+
+### Declaring a slot's props {#slot-props}
+
+- A `<slot>` inside `<defs>` is a **declaration**, never an outlet: it renders nothing. Its `name` names the slot it declares; without `name` it declares the default slot. A component declares each slot once.
+- Its children are `<prop>` elements with exactly the vocabulary of a component's [`<prop>`](#element-reference): `name`, `type`, `values`, `default`, `required`, and a description as element text. Each name must be a valid name in expression scope, and unique within the slot.
+- The declared props are part of the component's public interface, beside its props, events, and requests: tools list them, and generated components type them.
+
+### Giving slot props on an outlet {#slot-prop-outlets}
+
+A slot prop is given on the `<slot>` outlet the way a prop is given to a component invocation:
+
+- **Static.** Every plain attribute on the outlet other than `name` is a prop's input. It converts by the declared type exactly as an invocation attribute converts by a component `<prop>`: with `type="number"`, `count="3"` gives `$count` the number `3`.
+- **Bound.** `from:count="$items.length"` gives `$count` the expression's value, checked as an [accepted value](/declarative-components/javascript#accepted-values-and-prop-inputs) of the declared type, and follows it as it changes.
+
+Static and bound props mix freely on one outlet. These are errors, each reported with a diagnostic that names the outlet:
+
+- An outlet gives a prop its slot does not declare, or gives props to a slot with no declaration. The diagnostic names the `<slot>` and `<prop>` declaration to add.
+- An outlet gives the same prop both ways (`label` and `from:label`).
+- An outlet omits a `required` prop. A prop with a `default` that an outlet omits takes its default; one without either is absent from the template's scope.
+
+An outlet with any prop is a scoped slot: it renders only a `<template slot>`, as below. An outlet whose name is computed (`from:name`) checks its props against the declaration of the slot it renders as, when it renders.
+
+A slot that owns iteration gives each row's props the same way:
 
 ```html
 <!-- definition: a list that owns iteration, slots each row out -->
-<slot $each="row of $rows" $key="$row.id" name="row" from:item="$row" from:index="$loop.index"></slot>
+<defs>
+  <prop name="rows" type="list(object({ id: string, name: string }))" required>The rows.</prop>
+  <slot name="row">
+    <prop name="kind" type="keyword" values="person, team" default="person">What a row is.</prop>
+    <prop name="item" type="object({ id: string, name: string })" required>The row.</prop>
+    <prop name="index" type="number" required>The row's position.</prop>
+  </slot>
+</defs>
+<table><tr $each="row of $rows" $key="$row.id"><slot name="row" kind="person" from:item="$row" from:index="$loop.index"></slot></tr></table>
 
-<!-- use: the template's scope is { item, index } -->
+<!-- use: the template's scope is { kind, item, index } -->
 <x-list from:rows="$people">
   <template slot="row"><td>{$item.name}</td></template>
 </x-list>
 ```
+
+Vue gives a scoped slot's props the same two ways, a plain attribute on its `<slot>` and a bound `:prop`, with only `name` reserved, and types them with `defineSlots`.[^12]
 
 ### Component ancestry for shared state {#component-ancestry-for-shared-state}
 
@@ -833,7 +892,7 @@ Content
 : the prop description (element text)
 
 Placement
-: a flat child of `<defs>` (no `<props>` wrapper); the public interface is the set of `<prop>` elements there
+: a flat child of `<defs>` (no `<props>` wrapper); the public interface is the set of `<prop>` elements there. A `<prop>` inside a `<slot>` declaration in `<defs>` declares one of that slot's props instead
 
 Inferred
 : target from the first `from:attribute`/`.property` binding; not restated on the prop. A prop may be bound in more places; those only render it.
@@ -909,7 +968,10 @@ Level
 
 ::: {.entry name="<slot>" role="content projection"}
 Attributes
-: `name?` (named slot) · `:prop` bindings (scoped-slot data)
+: `name?` (named slot) · any other plain attribute (a static slot prop, converted by its declared type) · `from:prop` bindings (bound slot props)
+
+Placement
+: in the markup, an outlet; inside `<defs>`, a [declaration](#slot-props) of the slot's props, whose children are `<prop>` elements
 
 Children
 : fallback content used when nothing is projected
@@ -950,3 +1012,4 @@ Level
 [^9]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
 [^10]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [fetch directives](https://www.w3.org/TR/CSP3/#directives-fetch), the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
 [^11]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.
+[^12]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved; [`defineSlots()`](https://vuejs.org/api/sfc-script-setup.html#defineslots) types each slot's props.

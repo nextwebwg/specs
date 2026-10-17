@@ -661,7 +661,7 @@ A slot that owns iteration gives each row's props the same way:
 </x-list>
 ```
 
-Vue gives a scoped slot's props the same two ways: a plain attribute on its `<slot>` is a static string and `:prop` is bound, and only `name` is reserved.[^13]
+Vue gives a scoped slot's props the same two ways: a plain attribute on its `<slot>` is a static string and `:prop` is bound, and only `name` is reserved.[^12]
 
 ### Component ancestry for shared state {#component-ancestry-for-shared-state}
 
@@ -983,4 +983,4 @@ Level
 [^9]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
 [^10]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [fetch directives](https://www.w3.org/TR/CSP3/#directives-fetch), the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
 [^11]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.
-[^13]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved.
+[^12]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved.

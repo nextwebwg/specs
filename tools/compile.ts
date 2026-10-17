@@ -495,7 +495,7 @@ class Compiler {
       : parts.join("\n");
   }
 
-  proposal(meta: ChapterMeta, nodes: Node[]): string {
+  proposal(meta: ChapterMeta, nodes: Node[], snapshot = true): string {
     const sotdAt = nodes.findIndex((n) => n.token.tag === "h2" && /\bsotd\b/.test(n.token.attrGet("class") ?? ""));
     const head = nodes.slice(0, sotdAt);
     const nextSection = nodes.findIndex((n, i) => i > sotdAt && n.token.tag === "h2");
@@ -516,7 +516,7 @@ class Compiler {
       `<p class="tagline">${this.inline(tagline?.children[0]?.token, "template")}</p>`,
       `<div class="stamp"><span class="dot" /> ${this.inlineSource(meta.stamp ?? "", "template")}</div>`,
       `<nav class="entry-points" aria-label="Start reading ${escapeText(meta.title)}">\n${links.join("\n")}\n</nav>`,
-      `<dl class="meta">\n<div><dt>Latest snapshot</dt><dd><a :href="latestHtmlNextSnapshot.href">{{ latestHtmlNextSnapshot.label }}</a></dd></div>\n${rows.join("\n")}\n</dl>`,
+      `<dl class="meta">\n${snapshot ? '<div><dt>Latest snapshot</dt><dd><a :href="latestHtmlNextSnapshot.href">{{ latestHtmlNextSnapshot.label }}</a></dd></div>\n' : ""}${rows.join("\n")}\n</dl>`,
       `<div class="sotd">\n<h2>${this.inline(nodes[sotdAt].children[0]?.token, "template")}</h2>\n${this.children(sotd)}\n</div>`,
       `</header>`,
     ].join("\n");
@@ -537,6 +537,8 @@ export interface CompileOptions {
   // both belong to the publishing site, which supplies them.
   proposalImports?: string;
   proposalStyle?: string;
+  // A proposal without published snapshots must not inherit another draft's history.
+  proposalSnapshot?: boolean;
 }
 
 export function compileChapter(source: string, options: CompileOptions = {}): { meta: ChapterMeta; sfc: string } {
@@ -546,7 +548,7 @@ export function compileChapter(source: string, options: CompileOptions = {}): { 
   resolveAttrs(nodes);
   assignHeadingIds(nodes);
   const proposal = meta.layout === "proposal";
-  const template = proposal ? compiler.proposal(meta, nodes) : compiler.chapter(meta, nodes, options.chapterFrame);
+  const template = proposal ? compiler.proposal(meta, nodes, options.proposalSnapshot) : compiler.chapter(meta, nodes, options.chapterFrame);
   // Code samples contain </script> and </template>; escape "<" so they cannot end an SFC block.
   const literal = (value: unknown) => JSON.stringify(value).replace(/</g, "\\u003c");
   // Nuxt resolves components automatically only in .vue files, so a compiled chapter imports the

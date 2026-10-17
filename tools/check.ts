@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { compileScript, compileTemplate, parse } from "@vue/compiler-sfc";
 import { compileChapter } from "./compile.ts";
 
-const PROPOSALS = ["html-next", "html-forms"];
+const PROPOSALS = ["html-next", "html-forms", "expressive-markdown"];
 let failures = 0;
 let chapters = 0;
 for (const dir of PROPOSALS) {

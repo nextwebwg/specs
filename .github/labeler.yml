@@ -50,3 +50,22 @@
 "chapter: validation":
 - changed-files:
   - any-glob-to-any-file: "html-next/validation.md"
+
+"proposal: markdown":
+- changed-files:
+  - any-glob-to-any-file: "expressive-markdown/**"
+"chapter: markdown-front-page":
+- changed-files:
+  - any-glob-to-any-file: "expressive-markdown/index.md"
+"chapter: markdown-language":
+- changed-files:
+  - any-glob-to-any-file: "expressive-markdown/language.md"
+"chapter: markdown-ast":
+- changed-files:
+  - any-glob-to-any-file: "expressive-markdown/ast.md"
+"chapter: markdown-presentation":
+- changed-files:
+  - any-glob-to-any-file: "expressive-markdown/presentation.md"
+"chapter: markdown-publishing":
+- changed-files:
+  - any-glob-to-any-file: "expressive-markdown/publishing.md"

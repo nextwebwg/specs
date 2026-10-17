@@ -10,6 +10,10 @@ export function chapterLabels() {
     const title = readFileSync(`html-next/${file}`, "utf8").match(/^title: (.+)$/m)?.[1];
     if (title) labels.set(title, `chapter: ${file === "index.md" ? "front-page" : file.replace(/\.md$/, "")}`);
   }
+  for (const file of readdirSync("expressive-markdown").filter((f) => f.endsWith(".md"))) {
+    const title = readFileSync(`expressive-markdown/${file}`, "utf8").match(/^title: (.+)$/m)?.[1];
+    if (title) labels.set(title, `chapter: markdown-${file === "index.md" ? "front-page" : file.replace(/\.md$/, "")}`);
+  }
   for (const part of ["Expanded request methods", "QUERY forms", "Composable submission scopes", "Constraint validation on any element"]) {
     labels.set(part, `chapter: ${part.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
   }

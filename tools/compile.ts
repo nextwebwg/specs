@@ -171,6 +171,56 @@ function resolveAttrs(nodes: Node[]) {
   }
 }
 
+/** The longest id a heading's text produces, so a link's fragment stays readable. */
+export const MAX_HEADING_ID_LENGTH = 64;
+
+/**
+ * The id a heading's text produces. Letters, numbers and combining marks in any script are kept,
+ * lowercased after NFC; every other run becomes one hyphen. It starts with a letter, so it is a
+ * valid CSS identifier without escaping, and it is cut to MAX_HEADING_ID_LENGTH, at a hyphen
+ * where there is one.
+ */
+export function headingId(text: string, max = MAX_HEADING_ID_LENGTH): string {
+  let id = text.normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}\p{M}]+/gu, "-").replace(/^-+|-+$/g, "");
+  if (!/^\p{L}/u.test(id)) id = id ? `section-${id}` : "section";
+  return clip(id, max);
+}
+
+/** Cuts an id to `max` code points, at its last hyphen within them when it has one. */
+function clip(id: string, max: number): string {
+  const points = [...id];
+  if (points.length <= max) return id;
+  const kept = points.slice(0, max + 1).join("");
+  const hyphen = kept.lastIndexOf("-");
+  return (hyphen > 0 ? kept.slice(0, hyphen) : points.slice(0, max).join("")).replace(/-+$/, "");
+}
+
+/**
+ * Gives every heading without an explicit `{#id}` the id its text produces, so any section can be
+ * linked. Explicit ids are taken first, wherever they are in the chapter, and a repeated id gets
+ * `-2`, `-3`, … within the length limit.
+ */
+function assignHeadingIds(nodes: Node[]) {
+  const taken = new Set<string>();
+  const headings: Node[] = [];
+  const walk = (list: Node[]) => {
+    for (const node of list) {
+      const id = node.token.attrGet("id");
+      if (id) taken.add(id);
+      else if (node.token.type === "heading_open") headings.push(node);
+      walk(node.children);
+    }
+  };
+  walk(nodes);
+  for (const heading of headings) {
+    const base = headingId(plainText(heading.children[0]?.token));
+    let id = base;
+    for (let n = 2; taken.has(id); n++) id = `${clip(base, MAX_HEADING_ID_LENGTH - String(n).length - 1)}-${n}`;
+    taken.add(id);
+    heading.token.attrSet("id", id);
+  }
+}
+
 // ---------------------------------------------------------------------------------------------
 // Rendering
 
@@ -494,6 +544,7 @@ export function compileChapter(source: string, options: CompileOptions = {}): { 
   const compiler = new Compiler();
   const nodes = toTree(compiler.md.parse(body, {}));
   resolveAttrs(nodes);
+  assignHeadingIds(nodes);
   const proposal = meta.layout === "proposal";
   const template = proposal ? compiler.proposal(meta, nodes) : compiler.chapter(meta, nodes, options.chapterFrame);
   // Code samples contain </script> and </template>; escape "<" so they cannot end an SFC block.

@@ -4,6 +4,7 @@
 
 - [ ] Declarative HTML Components (`html-next/`). Chapters:
 - [ ] HTML Forms (`html-forms/`). Parts:
+- [ ] Expressive Markdown (`expressive-markdown/`). Chapters:
 - [ ] Neither: tooling, workflows, or repository documentation
 
 ## Type

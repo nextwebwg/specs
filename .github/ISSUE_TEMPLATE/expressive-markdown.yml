@@ -1,0 +1,42 @@
+name: Expressive Markdown feedback
+description: A question, problem, or suggestion about the Expressive Markdown draft.
+labels: ["proposal: markdown"]
+body:
+  - type: dropdown
+    id: chapter
+    attributes:
+      label: Chapter
+      description: The part of the proposal your feedback is about. Choose the closest one; editors can relabel.
+      options:
+        - Expressive Markdown
+        - Language & Semantics
+        - Document AST
+        - Presentation Coverage
+        - Publishing & Integration
+        - Several chapters or not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: Editorial feedback leaves what the proposal requires unchanged; substantive feedback changes it.
+      options:
+        - Editorial (wording, a typo, a link, or an example)
+        - Substantive (what the proposal requires, allows, or defines)
+        - Question
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Feedback
+      description: What is unclear, wrong, missing, or worth changing? Quote or link the passage when you can.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested change
+      description: Optional. Proposed wording, an example, or the behavior you expected.

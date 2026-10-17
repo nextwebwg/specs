@@ -59,3 +59,33 @@ test("a heading id is a valid identifier from the text, in any script, within th
   assert.equal(long, "creating-components-from-code-with-a-registry-modeled-on-the");
   assert.match(long, /^\p{L}[\p{L}\p{N}\p{M}-]*$/u);
 });
+
+test("a new proposal uses the shared masthead without borrowing another proposal's snapshot", () => {
+  const proposal = `---
+title: Expressive Markdown
+layout: proposal
+---
+# Expressive Markdown
+
+A common language for documentation.
+
+- [Read the language](/expressive-markdown/language)
+
+Editors
+: Next Web Working Group
+
+## Status of this document {.sotd}
+
+Unofficial editor's draft.
+
+## Abstract
+
+Readable source and shared document data.
+`;
+  const { sfc } = compileChapter(proposal, { proposalSnapshot: false, proposalImports: "" });
+  assert.match(sfc, /<header class="masthead">/);
+  assert.match(sfc, /<h1>Expressive Markdown<\/h1>/);
+  assert.match(sfc, /<dt>Editors<\/dt>/);
+  assert.match(sfc, /<Section title="Abstract"/);
+  assert.doesNotMatch(sfc, /Latest snapshot|latestHtmlNextSnapshot/);
+});

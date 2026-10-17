@@ -1,6 +1,6 @@
-# HTML Next specifications
+# Next Web Working Group specifications
 
-The specifications for the [HTML Next](https://nextwebwg.org/) proposals, published by the Next
+Specifications for the [Next Web Working Group](https://nextwebwg.org/) proposals, published by the Next
 Web Working Group. Each proposal is an **Unofficial Editor's Draft at Stage 0**: a document for
 discussion, not a W3C or WHATWG deliverable.
 
@@ -8,6 +8,7 @@ discussion, not a W3C or WHATWG deliverable.
 | --- | --- | --- |
 | Declarative HTML Components | [`html-next/`](./html-next) — one specification in chapters | [nextwebwg.org/declarative-components](https://nextwebwg.org/declarative-components/) |
 | HTML Forms | [`html-forms/`](./html-forms) | [nextwebwg.org/html-forms](https://nextwebwg.org/html-forms/) |
+| Expressive Markdown | [`expressive-markdown/`](./expressive-markdown) | [nextwebwg.org/expressive-markdown](https://nextwebwg.org/expressive-markdown/) |
 
 The site renders these files as they are on `main`; dated snapshots are frozen copies. The
 reference implementation, a browser runtime and compiler, lives in

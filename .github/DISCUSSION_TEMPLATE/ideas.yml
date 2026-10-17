@@ -7,6 +7,7 @@ body:
       options:
         - Declarative HTML Components
         - HTML Forms
+        - Expressive Markdown
         - A new proposal
         - Not sure
     validations:

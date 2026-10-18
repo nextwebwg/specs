@@ -1,15 +1,15 @@
 ---
-title: Self-closing HTML
+title: HTML Next Parsing
 eyebrow: HTML Next · independent proposal
 status: "Unofficial Editor's Draft · Stage 0"
 pager: false
 ---
 
-# Self-closing HTML
+# HTML Next Parsing
 
-Write an empty element once. Opt in to self-closing tags while keeping HTML's forgiving parser and ordinary DOM.
+Self-closing tags, with forgiving HTML rules and the same DOM. One explicit opt-in lets HTML grow while existing pages keep their meaning.
 
-## The proposal
+## Self-closing tags
 
 One declaration enables the shorthand:
 
@@ -57,7 +57,7 @@ Adding children later means expanding the tag pair. The element's behavior stays
 
 ## A small change for browsers
 
-This is probably the easiest proposal in this collection for browser makers to adopt: its scope is one explicit opt-in and one source abbreviation.
+The self-closing rule is probably the easiest change in this collection for browser makers to adopt: one explicit opt-in and one source abbreviation. The placement extension below is a separate, larger design task.
 
 > [!ex] Reuse what browsers already have
 > The doctype already carries a public identifier. The tokenizer already recognizes `/>`. The result uses existing DOM elements, rendering, and accessibility behavior.[^2][^6]
@@ -69,12 +69,31 @@ This is probably the easiest proposal in this collection for browser makers to a
 
 Discuss the proposal in the [specifications repository](https://github.com/nextwebwg/specs/discussions).
 
+## Extension: more places for components {#placement-extension}
+
+> [!future] Extension · placement · Proposal
+> Let web components and declarative components appear as direct children in more contexts, under the same proposed doctype opt-in.
+>
+> Today, the parser moves this component outside the table:[^7]
+>
+> ```html
+> <table>
+>   <some-component></some-component>
+> </table>
+> ```
+>
+> The goal: keep the component where it was authored, with its child structure intact. Tables are one example; template contents and other restrictive contexts need the same review.
+>
+> Layout and accessibility remain design questions. `display: contents` is an option to evaluate, not a chosen default.[^8]
+
 ## Parser details and sources
 
 ::: {.details summary="Read the proposed parser contract"}
 ### Selecting the profile
 
 Recognize the initial doctype before element content: name `html`, public identifier exactly `next` (case-sensitive), system identifier absent. Keywords and the doctype name keep HTML's case-insensitive matching.
+
+The name `next` identifies a defined profile, not a rolling latest mode. Settle which capabilities it selects before shipping; later incompatible parsing changes need a distinct identifier or a separately specified opt-in.
 
 The profile selects standards rendering mode and is fixed for that parse. Other doctypes retain existing behavior. Later declarations, DOM edits to the doctype, and custom-element registration cannot switch it.
 
@@ -108,6 +127,18 @@ Before adoption, measure existing uses of the exact declaration, test fallback a
 
 Unsupported browsers retain today's tag rules. Send them expanded tag pairs. Build-time lowering needs a parser that understands the proposed syntax; string replacement or a DOM rewrite after parsing cannot reliably recover source intent.
 
+### Placement extension: goals and open questions
+
+The `placement` extension proposes using the same `next` parsing profile to make more parent/child combinations available to components. It is at Proposal stage, separate from the self-closing rule; neither a parser algorithm nor a rendering default is settled.
+
+Preserve the authored parent and child structure of eligible component elements when existing context rules would relocate them or discard their descendants. This includes inert template contents. For example, a wrapper around `<tr><td>Row</td></tr>` should not cause those row and cell elements to disappear. The component runtime still decides what the component does; preserving a node does not instantiate or render a declarative component by itself.[^7]
+
+Review each affected context, including table insertion modes, templates, selects, and document structure. Define which component or unknown element names qualify, how implied containers and omitted end tags interact with them, and how fragments inherit the behavior. Preserve HTML's void elements, text-only parsing, namespace handling, and forgiving recovery outside the specified changes. The extension does not promise arbitrary nesting for every native element.
+
+Evaluate DOM structure, native layout, and accessibility separately. `display: contents` changes box generation, not parsing; it cannot recover discarded nodes. A rendering design must account for native table and control behavior, focus, events, and accessible relationships before selecting any default.[^8]
+
+Existing documents keep today's behavior. Authors opting in must audit component placement as well as self-closing syntax; fallback and feature detection need tests for each capability. The shared doctype expresses intent, not proof that a browser supports every part of this draft.
+
 Seek browser implementer review alongside the existing WHATWG discussion. This is an independent Stage 0 draft, not a W3C or WHATWG deliverable.
 
 Editor: [Matthew Dean](https://github.com/matthew-dean).
@@ -120,4 +151,6 @@ Editor: [Matthew Dean](https://github.com/matthew-dean).
 [^4]: React, [Writing Markup with JSX](https://react.dev/learn/writing-markup-with-jsx#2-close-all-the-tags), and Vue, [self-closing tags](https://vuejs.org/guide/essentials/component-basics.html#self-closing-tags).
 [^5]: W3C, [XML 1.0 external identifiers](https://www.w3.org/TR/xml/#sec-external-ent), for the historical distinction between public names and URI-based system identifiers.
 [^6]: WHATWG HTML, [initial insertion mode](https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode), [after DOCTYPE name](https://html.spec.whatwg.org/multipage/parsing.html#after-doctype-name-state), [fragment parsing](https://html.spec.whatwg.org/multipage/parsing.html#parsing-html-fragments), and [current doctype syntax](https://html.spec.whatwg.org/multipage/syntax.html#the-doctype).
+[^7]: WHATWG HTML, [unexpected markup in tables](https://html.spec.whatwg.org/multipage/parsing.html#unexpected-markup-in-tables), [in-template insertion mode](https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intemplate), and [in-body insertion mode](https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody). These rules explain table relocation and why a wrapper can change how following row and cell tags are parsed.
+[^8]: CSS Display, [box generation](https://drafts.csswg.org/css-display/#box-generation). `display` controls layout rather than the document tree or document-language semantics.
 :::

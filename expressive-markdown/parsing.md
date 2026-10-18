@@ -323,6 +323,27 @@ references and delimiters.
 | Regenerated table markers; escaped literal markers | Numeric spans and originating cell IDs. |
 | YAML strings for title/ID; string lists for tags | Custom metadata, quoting strings YAML would otherwise type differently. |
 
+### Text and formatting boundaries
+
+Literal AST text must stay literal after reparsing. For example, write an AST
+value containing the six characters `&copy;` as `&amp;copy;`, so it does not
+become ©. This does not change CommonMark entity interpretation in authored source.
+
+Preserve whitespace inside formatting, adjacent/nested formatting boundaries,
+and empty or whitespace-only paragraphs. Use supported safe HTML when Markdown
+delimiters or blank source lines would change that content:
+
+```md
+<strong>Hello </strong>@[Ada]#user-123
+
+<p></p>
+
+Use &amp;copy; literally.
+```
+
+These forms parse back into the same structured nodes. Ordinary bold text still
+uses `**bold**`; extra blank source lines remain ordinary paragraph spacing.
+
 Code fences follow CommonMark backtick/tilde rules and exceed conflicting delimiter runs in their literal content. Parsers should prefer compact `value` for wholly literal inline content, but supplied text-only `children` remain valid. Normalization must not lose child IDs, attributes or provenance.
 
 Optional AST fields accept null as absence and serialize as omission; null metadata stays data. Required root `version` must be supported or conversion stops with a clear error. See the [AST contract](/expressive-markdown/ast).

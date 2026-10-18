@@ -1121,12 +1121,15 @@ code. Colors and copy controls belong to the renderer.
 ## Tables
 
 Use list-based forms inside `::: table` for **all tabular content**, including
-short values. Each outer item is a row. Named fields assign cells by column
-name; nested cell lists assign them by position.
-This keeps each cell readable from top to bottom without aligning columns or
-padding neighbouring values. Traditional pipe tables remain supported for
-compatibility, but their pipe-heavy rows and long values are often hard to
-read and edit.
+short values. This is an intentional departure from table syntax in other
+Markdown formats, chosen to make the source easier to read for both authors
+and readers. Traditional pipe tables remain supported for compatibility.
+
+Tabular data has historically been one of Markdown's less readable source
+forms: dense rows of pipes and long values make cells difficult to follow.
+List-based forms let each cell read from top to bottom without aligning
+columns or padding neighbouring values. Each outer item is a row. Named
+fields assign cells by column name; nested cell lists assign them by position.
 
 For positional rows, only the first two list levels define table structure.
 **Relative indentation determines nesting**, using ordinary Markdown list rules.

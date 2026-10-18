@@ -1,6 +1,6 @@
 ---
 title: Publishing & Integration
-order: 4
+order: 5
 blurb: navigation · presentation survey · migration gaps
 eyebrow: Expressive Markdown · Optional profile
 status: Unofficial Editor's Draft · Stage 0

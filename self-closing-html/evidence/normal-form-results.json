@@ -1,0 +1,18 @@
+{
+  "seed": "0x4e4f524d",
+  "inputs": 20000,
+  "contexts": [
+    "div",
+    "table",
+    "template",
+    "select"
+  ],
+  "scripting": [
+    true,
+    false
+  ],
+  "audits": 160000,
+  "eligibleFree": 99549,
+  "identical": 99549,
+  "failures": []
+}

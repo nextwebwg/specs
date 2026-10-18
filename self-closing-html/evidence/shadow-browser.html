@@ -1,0 +1,77 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Shadow-root containment reference</title>
+<h1>Shadow-root containment reference</h1>
+<p>Inert native recognition followed by a containment projection. No parsed nodes are inserted into this page. This checks open shadow-root ownership, not native Next parsing or script scheduling.</p>
+<p id="status"></p>
+<pre id="results"></pre>
+<script>
+const HTML = 'http://www.w3.org/1999/xhtml';
+const cases = [
+ ['custom host', '<x-host id="host" data-next-empty/><template shadowrootmode="open"><span>shadow</span></template><span>light</span>'],
+ ['div host', '<div id="host" data-next-empty/><template shadowrootmode="open"><span>shadow</span></template><span>light</span>'],
+ ['nested shorthand in shadow', '<x-host id="host" data-next-empty/><template shadowrootmode="open"><x-inner data-next-empty/><span>shadow</span></template><span>light</span>'],
+ ['inert template in shadow', '<x-host id="host" data-next-empty/><template shadowrootmode="open"><template><img data-probe></template></template><span>light</span>'],
+ ['hidden host', '<x-host id="host" hidden data-next-empty/><template shadowrootmode="open"><span>shadow</span></template><span>light</span>'],
+ ['host under foreign content', '<svg><foreignObject><x-host id="host" data-next-empty/><template shadowrootmode="open"><span>shadow</span></template><span>light</span></x-host></foreignObject></svg>']
+];
+
+function inventory(root, identities) {
+ const entries = [];
+ function visit(node, boundaries = []) {
+  if (!identities.has(node)) identities.set(node, identities.size);
+  const id = identities.get(node);
+  if (node.nodeType === 11 || (node.nodeType === 1 &&
+      (node.namespaceURI !== HTML || ['template'].includes(node.localName) ||
+       ['hidden', 'inert', 'disabled'].some(a => node.hasAttribute(a))))) {
+   boundaries = [...boundaries, id];
+  }
+  entries.push({id, name:node.nodeName, text:node.nodeValue,
+   ns:node.namespaceURI, boundaries,
+   host:node.host ? identities.get(node.host) : undefined,
+   attrs:node.nodeType === 1 ? Array.from(node.attributes, a => [a.namespaceURI, a.name, a.value]) : undefined});
+  if (node.shadowRoot) visit(node.shadowRoot, boundaries);
+  for (const child of node.childNodes) visit(child, boundaries);
+  if (node.localName === 'template' && node.namespaceURI === HTML) visit(node.content, boundaries);
+ }
+ visit(root);
+ return entries;
+}
+
+function project(root, foreign = false) {
+ for (const node of Array.from(root.childNodes)) {
+  const element = node.nodeType === 1;
+  const underForeign = foreign || (element && node.namespaceURI !== HTML);
+  project(node, underForeign);
+  if (node.localName === 'template' && node.namespaceURI === HTML) project(node.content, underForeign);
+  // A root is an ownership edge, not a light-DOM child to move out of its host.
+  if (node.shadowRoot) project(node.shadowRoot, underForeign);
+  if (element && !underForeign && node.hasAttribute('data-next-empty') &&
+      !['hidden', 'inert', 'disabled'].some(a => node.hasAttribute(a))) {
+   node.after(...Array.from(node.childNodes));
+  }
+ }
+}
+
+if (!Document.parseHTMLUnsafe) {
+ document.getElementById('status').textContent = 'UNSUPPORTED: requires native declarative-shadow-root parsing.';
+} else {
+ const results = cases.map(([name, source]) => {
+  const doc = Document.parseHTMLUnsafe('<!doctype html><body>' + source);
+  const host = doc.getElementById('host');
+  const shadow = host.shadowRoot;
+  const ids = new Map();
+  const before = inventory(doc, ids);
+  project(doc);
+  const after = inventory(doc, ids);
+  const exempt = name === 'hidden host' || name === 'host under foreign content';
+  return {name, source, recognitionPreserved:JSON.stringify(before) === JSON.stringify(after),
+   sameShadowRoot:!!shadow && host.shadowRoot === shadow && shadow.host === host,
+   hostLightChildren:host.childNodes.length,
+   correctContainment:exempt ? host.childNodes.length > 0 : host.childNodes.length === 0};
+ });
+ const pass = results.every(r => r.recognitionPreserved && r.sameShadowRoot && r.correctContainment);
+ document.getElementById('status').textContent = (pass ? 'PASS' : 'FAIL') + ': six open-root ownership and containment comparisons.';
+ document.getElementById('results').textContent = JSON.stringify(results, null, 2);
+}
+</script>

@@ -8,7 +8,7 @@ stamp: Unofficial Editor's Draft · Stage&nbsp;0
 
 # Expressive Markdown
 
-Keep your docs when your tools change.
+Markdown for structured, portable documents.
 
 - [Learn the syntax →](/expressive-markdown/language)
 - [Implement a parser or writer →](/expressive-markdown/parsing)
@@ -31,22 +31,23 @@ W3C, WHATWG or a browser vendor, or require browsers to parse Markdown.
 
 ## Why Expressive Markdown
 
-You write a guide. Add a warning. Put a checklist in a table. Then move it to
-another tool.
+Documentation often moves between text editors, rich editors and publishing
+tools. Those tools may preserve the words while losing the structure needed
+for further editing.
 
-**Your document should arrive with its meaning intact.**
+CommonMark defines ordinary Markdown. GFM adds tables, task lists and
+strikethrough.[^1] Expressive Markdown builds on these formats to address three
+recurring problems in richer documents.
 
-CommonMark defines the basics. GFM adds tables and task lists.[^1]
-Expressive Markdown builds on them so richer documents can move between tools.
+### Conversions can lose structure
 
-### Conversions should preserve meaning
-
-A warning can become a styled paragraph. A block can lose its title.
-Converting it back cannot restore what was discarded.
+A warning can become a styled paragraph. A titled block can lose the
+distinction between its title and body. Saving the result as Markdown cannot
+reliably recover that information.
 
 ::::: {.two}
 :::: {.example}
-**Write it as Markdown**
+**Markdown source**
 
 ```md
 ::: warning [Before upgrading]
@@ -56,23 +57,28 @@ Back up your data.
 ::::
 
 :::: {.example}
-**Keep it as a warning**
+**Rendered warning**
 
 > [!warn] Before upgrading
 > Back up your data.
 ::::
 :::::
 
-Expressive Markdown defines **text syntax and document structure** together,
-so editors and publishers can preserve the warning’s title, body and meaning. [See the warning example →](/expressive-markdown/language#named-constructs)
+Expressive Markdown defines **text syntax and a shared document tree**, with
+explicit fields for titles, content and attributes. Editors and publishers
+have a common representation to preserve through conversion, even when
+whitespace or presentation changes.
 
-### Tables should be easy to read and type
+[See the warning example →](/expressive-markdown/language#named-constructs)
 
-Long pipe-table rows are hard to scan and awkward to edit. Their cells cannot
-hold lists or other block content.[^7]
+### Tables can be hard to edit
 
-Write each row as a list instead. No column padding. Room for paragraphs,
-lists and code:
+Pipe tables work well for short values. Long rows are harder to scan and
+require editing across columns. GFM cells cannot contain block content such
+as paragraphs, lists or fenced code.[^7]
+
+List-based tables let each cell read from top to bottom. Text can wrap without
+aligning neighboring columns, and cells can hold ordinary Markdown blocks:
 
 ```md
 ::: table
@@ -86,18 +92,19 @@ lists and code:
 ```
 
 [Explore tables and merged cells →](/expressive-markdown/language#tables)
-Traditional pipe tables remain supported.
+Traditional pipe tables remain supported for compatibility.
 
-### Extensions need shared rules
+### Extensions vary between tools
 
-A callout here, a tab group there. Different tools use different syntax and
-conventions.[^2][^3] Moving your docs can mean rewriting them.
+Documentation tools provide callouts, tabs and other features through
+extensions. Their syntax and conventions vary, so moving a document can
+require translating those features individually.[^2][^3]
 
-CommonMark and GFM leave those features open. Expressive Markdown proposes
-**shared syntax and meanings** for richer content, with room for custom types.
+CommonMark and GFM do not define a shared format for those features.
+Expressive Markdown proposes consistent syntax, common meanings and document
+data for them. Custom types use the same grammar.
 
-Your content stays independent of a component framework or site generator.
-**Choose your tools. Keep your docs.**
+The format is independent of a component framework or site generator.
 
 ## What the proposal defines
 

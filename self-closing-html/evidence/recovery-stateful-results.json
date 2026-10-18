@@ -1,0 +1,609 @@
+{
+  "seed": "0x52455041",
+  "inputs": 100005,
+  "results": [
+    {
+      "recovery": "closed-name-stateful-excluded",
+      "witnesses": [
+        {
+          "input": "<p/><div/></b><math></svg><table/></b><math><mglyph></div><template/><img data-probe><div/><foreignObject></b></style>",
+          "legacy": [
+            {
+              "offset": 90,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 90,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "div",
+              "offset": 73
+            }
+          ],
+          "activations": [
+            {
+              "tag": "div",
+              "offset": 25,
+              "foreignContext": false
+            },
+            {
+              "tag": "div",
+              "offset": 106,
+              "foreignContext": false
+            }
+          ]
+        },
+        {
+          "input": "</div></form><template/></span><span/><svg><template/></noscript></template><img data-probe></x-box></style><div/><style>",
+          "legacy": [
+            {
+              "offset": 97,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 97,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [],
+          "activations": [
+            {
+              "tag": "span",
+              "offset": 52,
+              "foreignContext": false
+            },
+            {
+              "tag": "div",
+              "offset": 129,
+              "foreignContext": false
+            }
+          ]
+        }
+      ],
+      "changedMarkerInterpretations": 2,
+      "repairs": 962,
+      "seeds": [
+        {
+          "input": "<style/><img data-probe><style></style>",
+          "legacy": [],
+          "next": [],
+          "repairs": []
+        },
+        {
+          "input": "<textarea/><img data-probe><textarea></textarea>",
+          "legacy": [],
+          "next": [],
+          "repairs": []
+        },
+        {
+          "input": "<math><mtext><x-box/><mglyph><style><img data-probe></style></mglyph></mtext></math>",
+          "legacy": [],
+          "next": [],
+          "repairs": []
+        },
+        {
+          "input": "<x-box/><svg></x-box><style><img data-probe></style></svg>",
+          "legacy": [],
+          "next": [],
+          "repairs": [
+            {
+              "name": "x-box",
+              "offset": 34
+            }
+          ]
+        },
+        {
+          "input": "<div/><svg></div><style><img data-probe></style></svg>",
+          "legacy": [],
+          "next": [],
+          "repairs": [
+            {
+              "name": "div",
+              "offset": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "recovery": "all-stray-stateful-excluded",
+      "witnesses": [
+        {
+          "input": "</span></noscript><mtext><math></template></foreignObject><template/><form/><p/></mtext><b/><b/></math><img data-probe></textarea><style><span/>",
+          "legacy": [
+            {
+              "offset": 124,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 124,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "template",
+              "offset": 52
+            }
+          ],
+          "activations": []
+        },
+        {
+          "input": "<svg></foreignObject><select/></span><template/><img data-probe><img data-probe></form></math><noscript><mglyph><form/>",
+          "legacy": [
+            {
+              "offset": 69,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            },
+            {
+              "offset": 85,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 69,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            },
+            {
+              "offset": 85,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "foreignobject",
+              "offset": 26
+            }
+          ],
+          "activations": []
+        },
+        {
+          "input": "<foreignObject><svg></mtext><form/><mglyph></math><template/></foreignObject><mtext></p></form></table></span></div></select><template/></table><form/><math></template><mtext><form/><img data-probe>",
+          "legacy": [
+            {
+              "offset": 203,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 203,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "mtext",
+              "offset": 41
+            },
+            {
+              "name": "template",
+              "offset": 178
+            }
+          ],
+          "activations": []
+        },
+        {
+          "input": "</select></select><svg></mglyph></mtext><template/></noscript><img data-probe><table/></style></textarea><mglyph>",
+          "legacy": [
+            {
+              "offset": 83,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 83,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "mglyph",
+              "offset": 44
+            }
+          ],
+          "activations": []
+        },
+        {
+          "input": "<svg><svg></math><select/></foreignObject><form/><template/></table><span/><img data-probe><table/></math><mtext></template>",
+          "legacy": [
+            {
+              "offset": 96,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 96,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "math",
+              "offset": 31
+            }
+          ],
+          "activations": [
+            {
+              "tag": "span",
+              "offset": 89,
+              "foreignContext": false
+            }
+          ]
+        },
+        {
+          "input": "</svg></style></select><math></span></x-box><svg><form/></noscript><template/><b/><img data-probe>",
+          "legacy": [
+            {
+              "offset": 103,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 103,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "span",
+              "offset": 50
+            },
+            {
+              "name": "noscript",
+              "offset": 77
+            }
+          ],
+          "activations": []
+        },
+        {
+          "input": "<template/><svg></foreignObject><noscript></foreignObject><math></template></noscript></mglyph><img data-probe></math></mtext><textarea><mglyph><div/></svg><b/>",
+          "legacy": [
+            {
+              "offset": 116,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 116,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "foreignobject",
+              "offset": 37
+            }
+          ],
+          "activations": []
+        },
+        {
+          "input": "</div><mtext><form/><math><mglyph><textarea><math></span></svg><mglyph><math></select><mtext><mglyph></select></x-box><template/><mtext><span/></form></span><img data-probe></mtext></mglyph>",
+          "legacy": [
+            {
+              "offset": 178,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 178,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "span",
+              "offset": 71
+            },
+            {
+              "name": "select",
+              "offset": 98
+            }
+          ],
+          "activations": [
+            {
+              "tag": "span",
+              "offset": 157,
+              "foreignContext": false
+            }
+          ]
+        },
+        {
+          "input": "</span></foreignObject><style><style></span><foreignObject></style><math></textarea></textarea><template/><noscript></mglyph></noscript><x-box/><img data-probe><foreignObject></b><select/></p>",
+          "legacy": [
+            {
+              "offset": 165,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 165,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "textarea",
+              "offset": 94
+            }
+          ],
+          "activations": [
+            {
+              "tag": "x-box",
+              "offset": 157,
+              "foreignContext": false
+            }
+          ]
+        },
+        {
+          "input": "<mglyph><p/><svg></foreignObject><mglyph><template/><img data-probe><mtext></x-box><select/>",
+          "legacy": [
+            {
+              "offset": 73,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 73,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "foreignobject",
+              "offset": 38
+            }
+          ],
+          "activations": []
+        },
+        {
+          "input": "</form><mglyph></math><svg></style><x-box/><select/><template/><img data-probe><math><select/><p/><noscript><textarea><select/><textarea><mglyph><p/><noscript><p/></mtext><noscript>",
+          "legacy": [
+            {
+              "offset": 84,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 84,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "style",
+              "offset": 48
+            }
+          ],
+          "activations": [
+            {
+              "tag": "x-box",
+              "offset": 56,
+              "foreignContext": false
+            }
+          ]
+        },
+        {
+          "input": "</math><p/></span><math><mglyph></span><template/></p></foreignObject><img data-probe><select/>",
+          "legacy": [
+            {
+              "offset": 91,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 91,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "span",
+              "offset": 53
+            }
+          ],
+          "activations": []
+        },
+        {
+          "input": "</span><table/><p/><svg></span><template/><form/><textarea></noscript></foreignObject></textarea></div></math></table><img data-probe></x-box><select/><select/></p><img data-probe></mtext></template>",
+          "legacy": [
+            {
+              "offset": 139,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            },
+            {
+              "offset": 185,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 139,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            },
+            {
+              "offset": 185,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "span",
+              "offset": 45
+            }
+          ],
+          "activations": []
+        },
+        {
+          "input": "<p/><div/></b><math></svg><table/></b><math><mglyph></div><template/><img data-probe><div/><foreignObject></b></style>",
+          "legacy": [
+            {
+              "offset": 90,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 90,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "svg",
+              "offset": 41
+            },
+            {
+              "name": "div",
+              "offset": 73
+            }
+          ],
+          "activations": [
+            {
+              "tag": "div",
+              "offset": 25,
+              "foreignContext": false
+            },
+            {
+              "tag": "div",
+              "offset": 106,
+              "foreignContext": false
+            }
+          ]
+        },
+        {
+          "input": "<math></mtext><math></textarea><template/><img data-probe><foreignObject></b></foreignObject><select/></form></svg><p/><form/><b/><svg></form></table>",
+          "legacy": [
+            {
+              "offset": 63,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": false
+            }
+          ],
+          "next": [
+            {
+              "offset": 63,
+              "ns": "http://www.w3.org/1999/xhtml",
+              "inert": true
+            }
+          ],
+          "repairs": [
+            {
+              "name": "mtext",
+              "offset": 27
+            },
+            {
+              "name": "textarea",
+              "offset": 41
+            }
+          ],
+          "activations": []
+        }
+      ],
+      "changedMarkerInterpretations": 157,
+      "repairs": 25719,
+      "seeds": [
+        {
+          "input": "<style/><img data-probe><style></style>",
+          "legacy": [],
+          "next": [],
+          "repairs": []
+        },
+        {
+          "input": "<textarea/><img data-probe><textarea></textarea>",
+          "legacy": [],
+          "next": [],
+          "repairs": []
+        },
+        {
+          "input": "<math><mtext><x-box/><mglyph><style><img data-probe></style></mglyph></mtext></math>",
+          "legacy": [],
+          "next": [],
+          "repairs": []
+        },
+        {
+          "input": "<x-box/><svg></x-box><style><img data-probe></style></svg>",
+          "legacy": [],
+          "next": [],
+          "repairs": [
+            {
+              "name": "x-box",
+              "offset": 34
+            }
+          ]
+        },
+        {
+          "input": "<div/><svg></div><style><img data-probe></style></svg>",
+          "legacy": [],
+          "next": [],
+          "repairs": [
+            {
+              "name": "div",
+              "offset": 32
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "caveats": [
+    "Incomplete experimental parser, not native engine proof",
+    "Counts added or differently classified markers in either direction, not proven new hazards",
+    "Raw input witnesses are not sanitizer bypasses"
+  ]
+}

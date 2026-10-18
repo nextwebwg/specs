@@ -1,0 +1,24 @@
+{
+  "seed": "0x52545250",
+  "inputs": 20000,
+  "contexts": [
+    "document",
+    "div",
+    "table",
+    "template",
+    "select"
+  ],
+  "scripting": [
+    true,
+    false
+  ],
+  "comparisons": 200000,
+  "changedMarkerClassifications": 0,
+  "newlyActiveMarkers": 0,
+  "witnesses": [],
+  "caveats": [
+    "Finite model search, not proof of serialization safety",
+    "Marker classification covers only the searched parser mechanism",
+    "Actual insertion contexts must match; select model differs from Chromium"
+  ]
+}

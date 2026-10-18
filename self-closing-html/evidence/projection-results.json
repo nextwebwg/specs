@@ -1,0 +1,131 @@
+{
+  "seed": "0x50524f4a",
+  "inputs": 100000,
+  "contexts": [
+    "document",
+    "div",
+    "table",
+    "template"
+  ],
+  "scripting": [
+    true,
+    false
+  ],
+  "comparisons": 800000,
+  "recognitionChanges": 0,
+  "activations": 180796,
+  "examples": [
+    {
+      "source": "<div/><span>Following</span>",
+      "html": "<!DOCTYPE html><html><head></head><body><div></div><span>Following</span></body></html>",
+      "sameRecognition": true,
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 21
+        }
+      ]
+    },
+    {
+      "source": "<x-box/><x-box/>text",
+      "html": "<!DOCTYPE html><html><head></head><body><x-box></x-box><x-box></x-box>text</body></html>",
+      "sameRecognition": true,
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 29
+        },
+        {
+          "tag": "x-box",
+          "offset": 21
+        }
+      ]
+    },
+    {
+      "source": "<style/><img data-probe><style></style>",
+      "html": "<!DOCTYPE html><html><head></head><body><style><img data-probe><style></style></body></html>",
+      "sameRecognition": true,
+      "activations": []
+    },
+    {
+      "source": "<textarea/><img data-probe><textarea></textarea>",
+      "html": "<!DOCTYPE html><html><head></head><body><textarea>&lt;img data-probe&gt;&lt;textarea&gt;</textarea></body></html>",
+      "sameRecognition": true,
+      "activations": []
+    },
+    {
+      "source": "<math><mtext><x-box/><mglyph><style><img data-probe></style></mglyph></mtext></math>",
+      "html": "<!DOCTYPE html><html><head></head><body><math><mtext><x-box><mglyph><style><img data-probe></style></mglyph></x-box></mtext></math></body></html>",
+      "sameRecognition": true,
+      "activations": []
+    },
+    {
+      "source": "<x-box/><svg></x-box><style><img data-probe></style></svg>",
+      "html": "<!DOCTYPE html><html><head></head><body><x-box></x-box><svg></svg><style><img data-probe></style></body></html>",
+      "sameRecognition": true,
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 21
+        }
+      ]
+    },
+    {
+      "source": "<div/><svg></div><style><img data-probe></style></svg>",
+      "html": "<!DOCTYPE html><html><head></head><body><div></div><svg></svg><style><img data-probe></style></body></html>",
+      "sameRecognition": true,
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 21
+        }
+      ]
+    },
+    {
+      "source": "<h1/><svg></h2><style><img data-probe></style></svg>",
+      "html": "<!DOCTYPE html><html><head></head><body><h1></h1><svg></svg><style><img data-probe></style></body></html>",
+      "sameRecognition": true,
+      "activations": [
+        {
+          "tag": "h1",
+          "offset": 21
+        }
+      ]
+    },
+    {
+      "source": "<div><x-box/></div><svg></x-box><title><style></title><img data-probe></style>",
+      "html": "<!DOCTYPE html><html><head></head><body><div><x-box></x-box></div><svg><title><style></title><img data-probe></style></title></svg></body></html>",
+      "sameRecognition": true,
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 26
+        }
+      ]
+    },
+    {
+      "source": "<div inert/><img data-probe>",
+      "html": "<!DOCTYPE html><html><head></head><body><div inert=\"\"><img data-probe=\"\"></div></body></html>",
+      "sameRecognition": true,
+      "activations": []
+    },
+    {
+      "source": "<template/><img data-probe>",
+      "html": "<!DOCTYPE html><html><head></head><body><template><img data-probe=\"\"></template></body></html>",
+      "sameRecognition": true,
+      "activations": []
+    },
+    {
+      "source": "<select/><img data-probe>",
+      "html": "<!DOCTYPE html><html><head></head><body><select></select></body></html>",
+      "sameRecognition": true,
+      "activations": []
+    }
+  ],
+  "failures": [],
+  "limits": [
+    "Static containment projection, not a production streaming algorithm",
+    "Recognition equality includes preorder node identities, namespace, attributes, text, template inertness and designated containment barriers; not all browser execution behavior",
+    "Excludes stateful names; does not implement declarative shadow roots, custom element execution or script scheduling"
+  ]
+}

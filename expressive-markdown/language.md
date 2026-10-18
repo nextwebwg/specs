@@ -845,18 +845,19 @@ For the frontmatter above (with no body content):
 
 ## Leading-pipe line blocks
 
-Use a leading pipe when line divisions are part of the content:
+Use a leading pipe when line divisions are part of the content, such as in a
+postal address:
 
 ```md
-| First line
-| Second line
-|
-| Fourth line
+| Morgan Lee
+| 42 Example Street
+| Bristol BS1 1AA
+| United Kingdom
 ```
 
-:::: {.render title="Preserved lines" height="150"}
+:::: {.render title="Postal address" height="150"}
 ```html
-<p>First line<br>Second line<br><br>Fourth line</p>
+<p>Morgan Lee<br>42 Example Street<br>Bristol BS1 1AA<br>United Kingdom</p>
 ```
 
 ::: {.details #line-block-ast summary="AST"}
@@ -866,24 +867,28 @@ Use a leading pipe when line divisions are part of the content:
   "children": [
     {
       "type": "text",
-      "value": "First line"
+      "value": "Morgan Lee"
     },
     {
       "type": "break"
     },
     {
       "type": "text",
-      "value": "Second line"
-    },
-    {
-      "type": "break"
+      "value": "42 Example Street"
     },
     {
       "type": "break"
     },
     {
       "type": "text",
-      "value": "Fourth line"
+      "value": "Bristol BS1 1AA"
+    },
+    {
+      "type": "break"
+    },
+    {
+      "type": "text",
+      "value": "United Kingdom"
     }
   ]
 }

@@ -424,6 +424,8 @@ class Compiler {
     const [kind] = classes;
     const body = node.children;
     switch (kind) {
+      case "details":
+        return `<details class="spec-disclosure"${id ? ` id="${escapeText(id)}"` : ""}>\n<summary>${escapeText(attrs.summary ?? "Details")}</summary>\n<div class="disclosure-body">\n${this.children(body)}\n</div>\n</details>`;
       case "entry": {
         const dl = body.find((c) => c.token.type === "dl_open");
         const rows = [];

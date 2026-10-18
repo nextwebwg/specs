@@ -89,3 +89,22 @@ Readable source and shared document data.
   assert.match(sfc, /<Section title="Abstract"/);
   assert.doesNotMatch(sfc, /Latest snapshot|latestHtmlNextSnapshot/);
 });
+
+test("disclosures render closed native details with an escaped summary and compiled Markdown", () => {
+  const { sfc } = compileChapter(`${source}
+::: {.details summary="Parser notes & <rules>"}
+### Matching
+
+Keep **HTML** parsing and [the proposal](/self-closing-html/).
+
+> [!note] Context
+> A fragment uses its document's profile.
+:::
+`);
+  assert.match(sfc, /<details(?:\s[^>]*)?>\s*<summary>Parser notes &amp; &lt;rules&gt;<\/summary>/);
+  assert.doesNotMatch(sfc, /<details[^>]*\sopen(?:\s|=|>)/);
+  assert.match(sfc, /<h3[^>]*>Matching<\/h3>/);
+  assert.match(sfc, /<strong>HTML<\/strong>/);
+  assert.match(sfc, /<NuxtLink to="\/self-closing-html\/">the proposal<\/NuxtLink>/);
+  assert.match(sfc, /<Callout kind="note" tag="Context">/);
+});

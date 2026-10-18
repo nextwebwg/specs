@@ -40,9 +40,9 @@ For any name outside the allowlist, including custom and unknown element names, 
 
 Existing optional-end-tag and legacy error-recovery rules remain in force. SVG and MathML retain their own foreign-content rules; this allowlist governs HTML elements.
 
-## Why this should be simple
+## Why authors want this
 
-An author can see that an element is empty without repeating its name in an end tag.
+An author should be able to mark an element as empty where it starts, using a convention already familiar from JSX and Vue templates.[^4]
 
 ```html
 <section class="profile">
@@ -52,9 +52,30 @@ An author can see that an element is empty without repeating its name in an end 
 </section>
 ```
 
-The same convention works for native elements and custom elements. Adding children later means expanding the shorthand into a normal pair of tags. The element's content model stays the same: a self-closed `div` can still receive children through DOM APIs, and self-closing syntax does not make a custom element void.
+The benefits are concrete:
+
+- **State intent at the point of use.** `<user-avatar />` says that this instance has no authored children. Repeating a long custom-element name in an adjacent end tag adds no information about that instance.
+- **Remove a documented parsing surprise.** Vue's documentation explains that `<my-component />` works in its template parser, while native HTML parsing can make the following `span` a child of that component. Authors have to change the spelling when moving markup between those contexts.[^4] This proposal would remove that particular difference.
+- **Use the same shorthand for native and custom elements.** An empty `div` and an empty `user-avatar` would follow the same authoring rule. The void-element allowlist keeps `br`, `link`, and other existing void elements working as they do today.
+- **Support direct HTML authoring.** Native support would let authors use this shorthand in documents and fragments without requiring a build step solely to expand empty tags.
+
+Adding children later means expanding the shorthand into a normal pair of tags. The element's content model stays the same: a self-closed `div` can still receive children through DOM APIs, and self-closing syntax does not make a custom element void.
+
+The request also predates this proposal: WHATWG HTML issue #721 asks for general self-closing syntax and discusses both author expectations and compatibility.[^3] Together with the framework documentation, it records why the behavior is wanted; it does not establish how many sites would adopt it.
 
 This proposal stands on its own. It requires neither a component framework nor the [Declarative HTML Components](/declarative-components/) proposal.
+
+## Why this is probably the easiest proposal to adopt
+
+Of the proposals in this collection, this is probably the easiest for browser makers to adopt. Its scope is a familiar source abbreviation that produces element structures browsers already support. That assessment concerns the feature's scope; browser implementers still need to establish compatibility and implementation cost.
+
+- **The tokenizer already recognizes the syntax.** HTML already defines a self-closing start-tag state and a self-closing flag on tokens.[^2] The proposal changes how HTML tree construction handles that signal for non-void elements.
+- **The result uses the existing DOM.** `<div />` has the semantics of `<div></div>`. The proposal introduces no element interface, DOM node type, or JavaScript API.
+- **Rendering uses existing behavior.** CSS, layout, accessibility, and element behavior operate on the expanded result. There is no new visual primitive or component lifecycle to implement.
+- **Void and foreign elements retain their rules.** The explicit allowlist keeps `<br />` equivalent to `<br>`, and SVG and MathML retain their existing handling of self-closing syntax.
+- **It can be evaluated independently.** Implementers can review and test this parser change without adopting the component, reactivity, or forms proposals in this collection.
+
+The remaining work is concentrated in tree construction and compatibility: raw-text elements, script execution, special insertion modes, and document and fragment parsing all need precise rules and tests. Existing pages can depend on today's interpretation of a trailing slash.[^3] The case for easy adoption rests on the small feature scope; safe deployment still requires the compatibility work below.
 
 ## Source sugar, ordinary DOM
 
@@ -118,3 +139,4 @@ Discuss the rule and its compatibility path in the [specifications repository](h
 [^1]: WHATWG HTML, [elements](https://html.spec.whatwg.org/multipage/syntax.html#elements-2) and [start tags](https://html.spec.whatwg.org/multipage/syntax.html#start-tags): void elements, foreign elements, and the boundary between an unquoted attribute value and a trailing slash.
 [^2]: WHATWG HTML, [non-void HTML element start tag with trailing solidus](https://html.spec.whatwg.org/multipage/parsing.html#parse-error-non-void-html-element-start-tag-with-trailing-solidus) and [self-closing start tag state](https://html.spec.whatwg.org/multipage/parsing.html#self-closing-start-tag-state).
 [^3]: WHATWG HTML, [issue #721: HTML should support self-closing tags in general](https://github.com/whatwg/html/issues/721), including discussion of compatibility and custom elements.
+[^4]: React, [Writing Markup with JSX: close all the tags](https://react.dev/learn/writing-markup-with-jsx#2-close-all-the-tags), and Vue, [Components Basics: self-closing tags](https://vuejs.org/guide/essentials/component-basics.html#self-closing-tags). Vue documents the difference between its template parser and native HTML parsing, including unintended nesting of following content.

@@ -11,8 +11,9 @@ body:
         - Expressive Markdown
         - Language & Semantics
         - Document AST
-        - Presentation Coverage
-        - Publishing & Integration
+        - Parser & Writer Rules
+        - Rendering Recommendations
+        - Publishing & Navigation
         - Several chapters or not sure
     validations:
       required: true

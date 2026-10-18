@@ -8,8 +8,7 @@ stamp: Unofficial Editor's Draft · Stage&nbsp;0
 
 # Expressive Markdown
 
-Familiar Markdown for documentation that keeps its meaning when it moves
-between editors and publishing tools.
+Keep your docs when your tools change.
 
 - [Learn the syntax →](/expressive-markdown/language)
 - [Implement a parser or writer →](/expressive-markdown/parsing)
@@ -32,83 +31,73 @@ W3C, WHATWG or a browser vendor, or require browsers to parse Markdown.
 
 ## Why Expressive Markdown
 
-Your documentation should survive a change of tools. A warning should keep its
-title and body. A table should keep the lists inside its cells. Editing a
-page as rich text and saving it as Markdown should preserve that structure.
+You write a guide. Add a warning. Put a checklist in a table. Then move it to
+another tool.
 
-CommonMark makes ordinary Markdown predictable: headings, links, lists and
-other familiar constructs have defined parsing rules. GFM adds useful features
-such as pipe tables, task lists and strikethrough.[^1] Expressive Markdown
-builds on that foundation, addressing three gaps for richer documents.
+**Your document should arrive with its meaning intact.**
+
+CommonMark defines the basics. GFM adds tables and task lists.[^1]
+Expressive Markdown builds on them so richer documents can move between tools.
 
 ### Conversions should preserve meaning
 
-A document can look right after conversion while losing information needed
-for its next edit. A warning may become a styled paragraph; a titled block may
-lose the distinction between its title and body. Converting that result back
-to Markdown cannot reliably recover what was discarded.
+A warning can become a styled paragraph. A block can lose its title.
+Converting it back cannot restore what was discarded.
 
-Expressive Markdown defines both a text syntax and a shared document tree,
-with explicit fields for content, titles, attributes and identity. The aim is
-to preserve meaning as content moves between text editors, rich editors and
-publishing tools, even when formatting or presentation changes.
-
-For example, this warning has a name, a title and a body:
+::::: {.two}
+:::: {.example}
+**Write it as Markdown**
 
 ```md
 ::: warning [Before upgrading]
-Back up your data before installing the new version.
+Back up your data.
 :::
 ```
+::::
 
-An editor can offer the title as an editable field and write it back to the
-same construct. A publisher can choose the colors and icon. The
-[warning example](/expressive-markdown/language#named-constructs) shows its
-Markdown, HTML, document data and rendering together.
+:::: {.example}
+**Keep it as a warning**
+
+> [!warn] Before upgrading
+> Back up your data.
+::::
+:::::
+
+Expressive Markdown defines **text syntax and document structure** together,
+so editors and publishers can preserve the warning’s title, body and meaning. [See the warning example →](/expressive-markdown/language#named-constructs)
 
 ### Tables should be easy to read and type
 
-Pipe tables work well for short values. Long cells make rows hard to scan,
-and keeping columns visually aligned takes editing effort. GFM table cells
-also cannot contain block content such as paragraphs, lists or fenced code
-blocks.[^7]
+Long pipe-table rows are hard to scan and awkward to edit. Their cells cannot
+hold lists or other block content.[^7]
 
-Expressive Markdown uses lists for table authoring. Each row reads from top to
-bottom, with named fields or positional cells. You can wrap text and include
-ordinary Markdown blocks inside a cell, without padding neighboring columns:
+Write each row as a list instead. No column padding. Room for paragraphs,
+lists and code:
 
 ```md
 ::: table
 
 - Task: Install
-  Instructions: Download the package and run the installer.
-
-- Task: Verify
-  Instructions: Check the version before continuing.
+  Steps:
+    - Download the package.
+    - Run the installer.
 
 :::
 ```
 
-[Tables](/expressive-markdown/language#tables) also support row and column spans.
-Traditional pipe tables remain supported for compatibility.
+[Explore tables and merged cells →](/expressive-markdown/language#tables)
+Traditional pipe tables remain supported.
 
 ### Extensions need shared rules
 
-Documentation tools already offer callouts, tabs and other richer content.
-Their extensions use different syntax and conventions, so moving a document
-can mean translating its features one by one.[^2][^3]
+A callout here, a tab group there. Different tools use different syntax and
+conventions.[^2][^3] Moving your docs can mean rewriting them.
 
-CommonMark and GFM do not define a shared format for those features.
-Expressive Markdown proposes a consistent grammar for named blocks and inline
-content, shared attributes, and defined meanings for common documentation
-constructs. Custom types use the same grammar, so an extension need not invent
-another syntax.
+CommonMark and GFM leave those features open. Expressive Markdown proposes
+**shared syntax and meanings** for richer content, with room for custom types.
 
-The proposal keeps content independent of a particular component framework or
-site generator. Authors get readable files they can keep when their tools
-change; implementers get a common format to parse, edit and write. The
-[language reference](/expressive-markdown/language) shows the syntax and its
-document representations side by side.
+Your content stays independent of a component framework or site generator.
+**Choose your tools. Keep your docs.**
 
 ## What the proposal defines
 
@@ -163,5 +152,4 @@ execution and framework component APIs are outside the language.
 [^4]: [Pandoc's Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
 [^5]: [UMD table-spanning documentation](https://docs.rs/crate/umd/0.2.0/source/README.md).
 [^6]: [mdast](https://github.com/syntax-tree/mdast) and [unist](https://github.com/syntax-tree/unist).
-
 [^7]: [GFM table syntax and cell contents](https://github.github.com/gfm/#tables-extension).

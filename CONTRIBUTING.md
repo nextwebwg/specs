@@ -49,6 +49,7 @@ The first paragraph after the title is the lede.
 | --- | --- |
 | `navGroup: guide` | List the page under "Start here" (Overview, Examples) instead of the numbered chapters. |
 | `pager: false` | Omit the previous/next links (a standalone proposal). |
+| `sectionNav: true` | Expose the chapter's section/subsection headings as persistent nested navigation. Source examples and disclosure details stay out of that outline. |
 | `layout: proposal` | The proposal's front page; see below. |
 
 `##` starts a section and `###` a subsection. A section runs until the next `##`; a thematic

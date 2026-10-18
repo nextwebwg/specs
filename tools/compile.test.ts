@@ -15,6 +15,29 @@ A short introduction.
 The guide body.
 `;
 
+test("chapter outlines use rendered heading IDs and exclude examples and disclosure details", () => {
+  const { outline, sfc } = compileChapter(`${source}
+### Paragraphs {#prose}
+
+\`\`\`md
+## Example heading
+\`\`\`
+
+::: {.details summary="AST"}
+### Internal fields
+Hidden reference content.
+:::
+
+## First steps
+`);
+  assert.deepEqual(outline, [
+    { id: "first-steps", title: "First steps", level: 2 },
+    { id: "prose", title: "Paragraphs", level: 3 },
+    { id: "first-steps-2", title: "First steps", level: 2 },
+  ]);
+  for (const heading of outline) assert.ok(sfc.includes(`id="${heading.id}"`));
+});
+
 test("an optional publisher frame separates the header and keeps the full chapter", () => {
   const { sfc } = compileChapter(source, { chapterFrame: "ToolsPage" });
   assert.match(sfc, /import \{[^}]*ToolsPage[^}]*\} from "#components"/);

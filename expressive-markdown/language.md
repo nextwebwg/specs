@@ -1,6 +1,7 @@
 ---
 title: Language & Semantics
 order: 1
+sectionNav: true
 blurb: syntax · meaning · HTML guidance
 eyebrow: Expressive Markdown · Proposal
 status: Unofficial Editor's Draft · Stage 0
@@ -8,10 +9,9 @@ status: Unofficial Editor's Draft · Stage 0
 
 # Language & Semantics
 
-Use Markdown for headings, paragraphs, links and lists. Expressive also supports
-callouts for important notes, tabs for alternative instructions, and tables
-with lists or code inside their cells. This chapter explains familiar Markdown
-first, then those additional forms.
+Start a heading with `#`, make text bold with `**text**`, create a link with
+`[label](url)`, or start a list item with `-`. Use callouts for important notes,
+tabs for alternative instructions, and tables to compare information.
 
 ```md
 # Installation
@@ -30,13 +30,16 @@ helps; metadata and straightforward variations can explain their result.
 For implementation details, see the [parser and writer rules](/expressive-markdown/parsing)
 and the [shared AST contract](/expressive-markdown/parsing#shared-ast-contract).
 
-## Familiar Markdown
+## Text, headings and lists
 
-Headings, emphasis, links and lists work as they do in CommonMark and GFM.
+These forms follow CommonMark and GFM. Each is explained below, including its
+source syntax, HTML, AST and rendering.
 
 ### Paragraphs and headings
 
-Use paragraphs for prose and headings to organize the document:
+Separate paragraphs with a blank line. Start a heading with one to six `#`
+characters followed by a space: `#` is level one, `##` is level two, and so on.
+Use headings to organize the document:
 
 ```md
 A paragraph about installation.
@@ -77,7 +80,8 @@ Parsed text values are literal content, not Markdown to parse again.
 
 ### Inline formatting and code
 
-Emphasize words, mark removed text, or distinguish literal code:
+Wrap text in `*` for emphasis, `**` for strong emphasis (usually bold), or `~~`
+for strikethrough. Wrap literal code in backticks:
 
 ```md
 Use *care*, **check twice**, and replace ~~old~~ with `new`.
@@ -198,7 +202,7 @@ Setext heading underline in the CommonMark contexts that recognize those forms.
 
 ### Quotations
 
-Distinguish quoted material from surrounding prose:
+Start quoted lines with `> ` to distinguish them from surrounding prose:
 
 ```md
 > Keep a backup before continuing.
@@ -226,7 +230,8 @@ Distinguish quoted material from surrounding prose:
 
 ### Links and images
 
-Link to another resource, or embed an image with alternative text:
+Use `[label](url)` to link to a resource. Use `![description](image-url)` to
+embed an image with alternative text. An optional quoted title supplies a tooltip:
 
 ```md
 [Release notes](release.md "Changes in this release")
@@ -285,9 +290,9 @@ only an explicit figure supplies a caption, separate from image alternative text
 
 ### Lists and literal markers
 
-At a block boundary, `1. item` creates an ordered list and `- item` creates a
-bullet list under the ordinary CommonMark rules. Put whitespace after the marker;
-no extra leading space is required. Block context matters: `### 1. item` is a
+Start a line with `1. ` for a numbered list or `- ` for a bullet list. Put a
+space after the marker; no extra leading space is required. Use `[ ]` or `[x]`
+after a bullet marker for an unchecked or checked task. Block context matters: `### 1. item` is a
 level-three heading whose text is “1. item”. Its HTML is `<h3>1. item</h3>`
 and its AST is `{"type":"heading","level":3,"value":"1. item"}`. The number
 is part of the heading text.
@@ -495,8 +500,8 @@ The exact sanitizer preset remains to be selected.
 
 ## Named constructs
 
-Once ordinary Markdown is not enough, give a block a name. For example, mark
-an important instruction as a warning:
+Put `::: warning` before an important note and close it with `:::` on its own
+line. Add `[Title]` after `warning` to give the note a title:
 
 ```md
 ::: warning [Before deploying]

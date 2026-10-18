@@ -31,8 +31,8 @@ W3C, WHATWG or a browser vendor, or require browsers to parse Markdown.
 
 ## Abstract
 
-Start with the Markdown you already know: headings, paragraphs, emphasis,
-links and lists. Expressive keeps those forms familiar.
+Start a heading with `#`, make text bold with `**text**`, create a link with
+`[label](url)`, or start a list item with `-`. For example:
 
 ```md
 # Installation
@@ -45,9 +45,8 @@ Install the package, then **check the version**.
 
 Use callouts to highlight important notes, tabs to offer alternative
 instructions, and tables to compare information. The
-[language chapter](/expressive-markdown/language) explains the syntax with
-examples, starting with familiar Markdown. HTML representations and AST details
-sit beside the examples for people building editors, converters or renderers.
+[language reference](/expressive-markdown/language) explains each form with its
+syntax, HTML representation, AST data and rendering examples.
 
 The same document can move between a text editor, a rich editor and a
 documentation site. A warning keeps its meaning and a mention keeps its target;

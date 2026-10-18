@@ -79,9 +79,10 @@ the **Next Web Working Group** and lists proposals. Detailed HTML Next content b
 
 Use the current publication fields from `app/data/publications.json`; do not improvise status
 labels on individual pages. Until a recognized standards venue adopts the work, call HTML
-Next an **Unofficial Editor's Draft · Stage 0**, never a W3C Working Draft. A module **Level**
-describes that module's maturity. A dated **Snapshot** identifies a frozen publication. None
-of those terms substitutes for another.
+Next an **Unofficial Editor's Draft · Stage 0**, never a W3C Working Draft. A specification **Level**
+describes the scope of its language contract; its chapters advance together. A **Stage**
+describes proposal maturity, and a dated **Snapshot** identifies a frozen publication.
+Implementation coverage is reported by the tools, separately from those terms.
 
 Published snapshots are records, not pages to revise. Correct the current draft and publish
 a new date instead of editing anything under `public/declarative-components/YYYY-MM-DD/` (or a legacy `public/html-next/YYYY-MM-DD/` snapshot).

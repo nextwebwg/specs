@@ -10,7 +10,6 @@ body:
       options:
         - Expressive Markdown
         - Language & Semantics
-        - Document AST
         - Parser & Writer Rules
         - Rendering Recommendations
         - Publishing & Navigation

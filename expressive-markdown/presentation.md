@@ -1,6 +1,6 @@
 ---
 title: Rendering Recommendations
-order: 4
+order: 3
 blurb: rendering · accessibility · safe HTML
 eyebrow: Expressive Markdown · Proposal
 status: Unofficial Editor's Draft · Stage 0
@@ -9,16 +9,46 @@ status: Unofficial Editor's Draft · Stage 0
 # Rendering Recommendations
 
 Expressive defines what a document means. Renderers choose how it looks. These
-recommendations show how to keep that meaning readable and accessible in HTML,
+rendering examples and recommendations show how to keep that meaning readable and accessible in HTML,
 including when an interactive widget is unavailable.
 
 ## Callouts and captions {#coverage-matrix}
+
+Draw attention to information while retaining a readable title and body:
 
 ```md
 ::: warning [Before deploying]
 Back up the database first.
 :::
 ```
+
+
+:::: {.render title="Warning callout" height="155"}
+```html
+<section class="callout"><header>Before deploying</header><p>Back up the database first.</p></section>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "container",
+  "subType": "warning",
+  "title": {
+    "type": "title",
+    "value": "Before deploying"
+  },
+  "body": [
+    {
+      "type": "paragraph",
+      "value": "Back up the database first."
+    }
+  ]
+}
+```
+
+See the [feature definitions](/expressive-markdown/language) for node constraints.
+:::
+::::
 
 Show this as a warning with a visible title and body. A border, color or icon can
 help, but the meaning should remain understandable without color.
@@ -38,6 +68,8 @@ when the renderer can offer only a generic section.
 
 ## Tabs and saved content {#selection-state-and-identity}
 
+Offer alternative instructions without losing any alternative's content:
+
 ```md
 ::: tab [npm]
 Run `npm install`.
@@ -51,6 +83,80 @@ Run `pnpm install`.
 Adjacent tabs form one group; blank lines do not split it. An interactive
 renderer can show one at a time. A static export should show both as labelled
 sections, keeping every tab's content.
+
+
+:::: {.render title="Static tab fallback" height="200"}
+```html
+<section><header><strong>npm</strong></header><p>Run <code>npm install</code>.</p></section><section><header><strong>pnpm</strong></header><p>Run <code>pnpm install</code>.</p></section>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "container",
+  "subType": "tabs",
+  "body": [
+    {
+      "type": "container",
+      "subType": "tab",
+      "title": {
+        "type": "title",
+        "value": "npm"
+      },
+      "body": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Run "
+            },
+            {
+              "type": "inlineCode",
+              "value": "npm install"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "subType": "tab",
+      "title": {
+        "type": "title",
+        "value": "pnpm"
+      },
+      "body": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Run "
+            },
+            {
+              "type": "inlineCode",
+              "value": "pnpm install"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+See the [feature definitions](/expressive-markdown/language) for node constraints.
+:::
+::::
 
 An outer `tabs` container can supply settings such as
 `{group=language & default=js}`. Related groups synchronize by tab selection
@@ -66,6 +172,8 @@ content from the document or export.
 
 ## Code, lines and tables
 
+Help readers find the important lines while preserving the code they copy:
+
 ````md
 ```ts {title="deploy.ts" & highlight=1,3-4 & show-line-numbers}
 const mode = "safe";
@@ -74,6 +182,37 @@ await deploy();
 await verify();
 ```
 ````
+
+
+:::: {.render title="Code caption and highlights" height="235"}
+```html
+<figure><figcaption>deploy.ts</figcaption><div style="display:grid;grid-template-columns:auto 1fr;gap:12px"><pre aria-hidden="true" style="user-select:none">1
+2
+3
+4</pre><pre><code><mark>const mode = &quot;safe&quot;;</mark>
+await check();
+<mark>await deploy();</mark>
+<mark>await verify();</mark>
+</code></pre></div></figure>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "code",
+  "language": "ts",
+  "title": "deploy.ts",
+  "attributes": {
+    "highlight": "1,3-4",
+    "showLineNumbers": true
+  },
+  "value": "const mode = \"safe\";\nawait check();\nawait deploy();\nawait verify();"
+}
+```
+
+See the [feature definitions](/expressive-markdown/language) for node constraints.
+:::
+::::
 
 Show the caption **deploy.ts**, highlight line 1 and lines 3–4, and display line
 numbers. Keep line-number labels and other decorations out of copied code.
@@ -89,6 +228,138 @@ remain renderer choices.
 A table of contents renders its saved links inside `<nav>`. An optional refresh
 updates the actual entries in the document and source. Rendering alone does not
 replace those entries with an empty generated placeholder.
+
+### Table-cell layout
+
+Table cells can contain full block content, including lists, multiple paragraphs
+and fenced code blocks. Keep those structures when rendering. Cell width is a
+presentation constraint, not a reason to remove a supported kind of content.
+
+
+````md
+::: table
+
+- Task: Install
+  Instructions:
+    1. Download the package.
+    2. Run the installer.
+
+    ```sh
+    pnpm install
+    ```
+
+:::
+````
+
+:::: {.render title="Compact table cell with a list and code" height="235"}
+```html
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Task</th>
+      <th scope="col">Instructions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Install</td>
+      <td><ol><li>Download the package.</li><li>Run the installer.</li></ol><pre><code>pnpm install</code></pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "table",
+  "children": [
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Task"
+        },
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Instructions"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Install"
+        },
+        {
+          "type": "tableCell",
+          "body": [
+            {
+              "type": "list",
+              "ordered": true,
+              "tight": true,
+              "children": [
+                {
+                  "type": "listItem",
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "value": "Download the package."
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "value": "Run the installer."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "code",
+              "value": "pnpm install"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+See the [feature definitions](/expressive-markdown/language) for node constraints.
+:::
+::::
+
+Semantic header cells can use bold text and a neutral background by default.
+These examples use light grey in the light theme. Their source and AST retain
+header semantics without extra bold marks or stored cell colors. Custom
+formatting remains separate authored data.
+
+Renderers should adapt page-level styles to the available cell space:
+
+- Prefer compact list indentation and block spacing. A list need not receive
+  the same inset or outer margins as one in the main document. Keep markers
+  visible and nested levels distinguishable.
+- Choose text wrapping for the cell width instead of inheriting the main
+  document's width and wrapping policy unchanged. Preserve authored line
+  boundaries where they carry meaning.
+- Code may wrap visually or scroll within its cell. Preserve its stored
+  whitespace and line divisions exactly; copying code must return the original
+  text, without visual wrap breaks, line numbers or other decoration.
+
+Use semantic HTML lists and code blocks within native table cells. Changing
+their spacing or visual wrapping must not flatten their document structure.
 
 ## Safe HTML and editing {#presentation-preservation}
 
@@ -112,4 +383,4 @@ Diagram/math extensions should retain their literal notation for editing and
 fallback display. No JavaScript runtime or CSS framework is required.
 
 For exact syntax and defaults, see [Language & Semantics](/expressive-markdown/language).
-For data structures, see the [Document AST](/expressive-markdown/ast).
+For data structures, open the AST disclosures beside the [feature examples](/expressive-markdown/language).

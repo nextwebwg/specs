@@ -1,6 +1,6 @@
 ---
 title: Parser & Writer Rules
-order: 3
+order: 2
 blurb: boundaries · recovery · preservation
 eyebrow: Expressive Markdown · Proposal
 status: Unofficial Editor's Draft · Stage 0
@@ -9,7 +9,7 @@ status: Unofficial Editor's Draft · Stage 0
 # Parser & Writer Rules
 
 Use these rules to implement a parser or writer: recognize source boundaries,
-build the [document AST](/expressive-markdown/ast), recover invalid input and
+build the [document AST](/expressive-markdown/parsing#shared-ast-contract), recover invalid input and
 write equivalent Markdown. Each section defines one feature's exact behavior.
 For author-facing examples, start with [Language & Semantics](/expressive-markdown/language).
 HTML conversion recommendations are informative.
@@ -193,6 +193,17 @@ Each `| ` or pipe-plus-tab starts a represented line; a bare `|` requests an emp
 
 Inline formatting may span represented lines; boundaries remain `break` nodes within that formatting. Inline code spans fit within one represented line. Escape a literal pipe or put it in code.
 
+Parse the payload of each represented line as inline content, never as another
+block. Thus `| 1. item`, `| - item` and `| # item` contain literal block markers;
+they do not create lists or headings. Inline escapes remain valid within the
+payload, but escaping those block markers is unnecessary.
+
+Recognize a GFM table only when its header and delimiter row meet the table
+grammar. A trailing pipe alone does not establish a table. For example,
+`| - one item |` followed by `| - second item |` is a line block, with each
+trailing pipe retained as text. Once a table is established, its pipes delimit
+cells and cannot also serve as line-block markers inside those cells.
+
 The AST uses `lineBlock.children` with `break` nodes; consecutive/leading/trailing breaks preserve empty lines. A single plain line may use `value`; a single bare pipe uses `value: ""`.
 
 **Recommended HTML:** `<p>` with `<br>` boundaries and preserved inline wrappers. Append one layout `<br>` for a terminal empty line, or for an entirely empty one-line block, so HTML does not absorb it. This extra layout break is not an AST break. Explicit empty lines add to normal paragraph spacing.
@@ -202,6 +213,310 @@ The AST uses `lineBlock.children` with `break` nodes; consecutive/leading/traili
 
 ## Tables
 
+The preferred source forms for all tables are list-based rows within a
+`table` container. A named first record establishes titled columns and supports
+later named or positional rows. An unnamed first row uses positional cell lists.
+Traditional GFM pipe syntax remains accepted. All forms normalize to `table`
+→ `tableRow` → `tableCell`, not generic containers or structural list nodes.
+
+### Named fields and column identity
+
+```md
+::: table
+
+- Task: Install
+  Instructions:
+    1. Download the package.
+    2. Run the installer.
+
+- Notes: Check the version.
+  Task: Verify
+
+:::
+```
+
+:::: {.render title="Resolved named columns" height="280"}
+```html
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Task</th>
+      <th scope="col">Instructions</th>
+      <th scope="col">Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Install</td>
+      <td><ol><li>Download the package.</li><li>Run the installer.</li></ol>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>Verify</td>
+      <td>
+      </td>
+      <td>Check the version.</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "table",
+  "children": [
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Task"
+        },
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Instructions"
+        },
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Notes"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Install"
+        },
+        {
+          "type": "tableCell",
+          "body": [
+            {
+              "type": "list",
+              "ordered": true,
+              "tight": true,
+              "children": [
+                {
+                  "type": "listItem",
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "value": "Download the package."
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "value": "Run the installer."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableCell",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Verify"
+        },
+        {
+          "type": "tableCell",
+          "value": ""
+        },
+        {
+          "type": "tableCell",
+          "value": "Check the version."
+        }
+      ]
+    }
+  ]
+}
+```
+
+See the [feature definitions](/expressive-markdown/language) for node constraints.
+:::
+::::
+
+
+A named record is an outer unordered-list item beginning with a field label
+and `:` followed by whitespace or the end of the line. Additional field labels
+align with the start of the first label, relative to that list item. A field
+body starts after its separator or on indented continuation lines. Writers
+indent continuation blocks two spaces beyond the label column. Blank lines
+within a field do not end the record. A line at label indentation must start
+a field; deeper lists, fenced code and colon-bearing text remain cell content.
+Lexical code boundaries take precedence over field recognition.
+
+Labels are nonempty plain-text strings on one line, ending at the first
+unescaped `:` followed by whitespace or line end. Backslash escapes protect
+literal punctuation in a label. Decode those escapes and trim surrounding
+horizontal whitespace; otherwise compare exact Unicode strings, without case
+folding or Unicode normalization. Labels are not YAML, inline Markdown, or
+namespaced attributes. Values use ordinary Markdown block parsing, with no
+YAML scalar typing.
+
+Build one ordered column registry over the entire container:
+
+1. The first named record establishes columns in field order. A name's first
+   appearance defines its index. The original label becomes header-cell text.
+2. In every named record, assign by **name**, never assignment order. An existing
+   name always selects its registered column. A new name appends a column.
+3. Omitted fields are empty cells. An explicit label with no body also assigns
+   an empty cell. New columns add empty cells to preceding records; they never
+   shift earlier column indices.
+4. A later positional row assigns by index in the registry order. Omitted
+   trailing positions are empty; interior omissions need explicit empty items.
+   More positional cells than columns established at that point is malformed,
+   not permission to invent column names. A table beginning with unnamed
+   positional data cannot acquire named records later; establish names first.
+5. A duplicate assignment to the same name within one record is malformed.
+   Preserve the whole table as recoverable literal source rather than discard
+   one value or fabricate another column.
+
+Compilers may warn about similar names such as `Instruction` and `Instructions`.
+This is an advisory about **two distinct columns**, never authorization to merge
+or rename them, fail an otherwise valid table, or fall back to matching by
+position. Diagnostics should identify both names and source locations.
+
+After discovering all columns, prepend one header row containing their labels
+and place each record's values in registry order. This is the named form's
+implicit header; `header` is redundant and `!header` is malformed for that form.
+For untitled columns, use the positional form instead. The resolved names are
+header content, not a second schema or a second renderer matching operation.
+
+### Structural lists and cell bodies
+
+```md
+::: table
+
+- - First cell
+  -
+    - A bullet inside the second cell.
+    - Another bullet in that same cell.
+
+:::
+```
+
+1. Parse the container body using CommonMark list indentation and block rules.
+   An empty body produces an empty table. Otherwise it contains one unordered
+   outer list, with no other sibling blocks. Its items define source records
+   or positional rows; recognize the first item's named/positional form before
+   interpreting its body.
+2. Each positional row contains exactly one unordered nested list, whose items
+   define cells. Row and cell list items are unchecked structural items. A missing cell
+   list or other direct row content is malformed, rather than guessed to be a
+   cell. Blank lines are ordinary source spacing, not additional rows or cells.
+3. Consume **exactly these two structural list levels**. Every cell item's body
+   is parsed as ordinary Markdown blocks, including deeper lists, multiple
+   paragraphs, quotes, line blocks, fenced code and nested tables. A blank cell
+   item is an empty cell. Do not consume a deeper list as more table structure.
+4. Nesting depends on block-relative list indentation, not absolute document
+   columns or alignment with cells in other rows. The common `- - value` form
+   opens a row and its first cell on one line. Writers use `-` markers and
+   two-space increments for the structural levels; cell blocks use ordinary
+   list-item continuation indentation. Code retains its lexical boundaries.
+
+Recognize whole-cell merge markers from their unescaped cell source before
+interpreting them as ordinary block content. This special case never consumes
+a marker inside a code span, fence, quote body or a larger cell value.
+
+A cell can use compact `value` or inline `children` for one ordinary paragraph
+when no paragraph identity or supported data would be lost. Otherwise retain
+its blocks in `body`. Preserve deeper lists and code as blocks, never joined
+text. Literal paragraphs beginning with list markers use the usual escapes;
+there is no user-supplied serialization flag.
+
+For a wholly unnamed positional table without merges, the source width is the
+largest cell count. Pad shorter rows with empty cells; do not discard extra
+cells. Named tables instead use their registry and mixed-row rules above.
+With merge markers, positional rows must explicitly provide every grid slot,
+including covered slots. Named records resolve to their full registry width,
+including empty cells for omitted fields, before merge processing. The table
+caption and ID come from the container title and attributes normally.
+
+### Header, transpose and alignment settings
+
+| Container setting | Source interpretation | Normalized AST |
+| --- | --- | --- |
+| `header` | Positional form: first source row contains header cells; default false. Named form: implicit header row; true is redundant, false is malformed. | `tableCell.header: true` on those originating cells. |
+| `transpose` | Boolean flag; swap source rows and columns after merges. Default false. | Actual transposed `tableRow`/`tableCell` placement, with swapped spans. |
+| `align="left,right"` | Comma-separated displayed-column alignments, applied after transposition. | `table.align`, using null for `-`. |
+
+An omitted or negated `transpose` means false. Positional `header` defaults to
+false; named records supply their implicit header without that flag and cannot
+negate it. Assigned strings are not boolean flags;
+invalid `header`/`transpose` values are malformed table settings. Alignment
+entries are `left`, `center`, `right` or `-`, with optional surrounding spaces.
+One entry applies to all displayed columns; otherwise the count must match the
+nonempty displayed width. Omitted alignment means the default. Invalid tokens
+or counts are malformed, not silently truncated.
+
+Generate the named header row, or apply positional header status in source
+coordinates, then resolve merges, transpose if requested and apply
+displayed-column alignment. Thus `{header transpose}`
+places headers in the first displayed column. Transposition moves complete
+cells and swaps `rowSpan`/`colSpan`; it never reparses content or changes list
+semantics. It preserves every cell ID exactly once. Source-control settings
+`header`, `transpose` and `align` are consumed into these semantic fields, not
+stored as duplicate table attributes that a renderer would apply again.
+Optional source provenance may retain the original orientation and settings.
+Other supported table attributes remain ordinary attributes.
+
+Named field labels define column identity at parsing time. Positional header
+content does not: preserve duplicate or empty labels as authored. With
+positional `header`, padded empty cells in the first source row are header
+cells too. Do not accept named records in a wholly positional table by guessing
+keys from its header content.
+
+### Merge grid
+
+Positional cell lists and traditional pipe tables recognize these marker-only
+cells. In named assignments, marker-looking values remain ordinary content:
+
+| Marker | Meaning in the source grid |
+| --- | --- |
+| `>` | Merge into the next ordinary cell to the right. Consecutive markers join that cell. |
+| `^` | Continue the cell above. Cover every column of a horizontal span. |
+| Empty cell | Empty content, never a merge. |
+| `\>` / `\^`, or inline code | Literal marker text. |
+
+Markers match the entire unescaped cell after trimming source spacing. Resolve
+horizontal runs first, then vertical continuations on the original columns.
+A `>` run must end in an ordinary cell on that row, not `^`.
+
+Merges form non-overlapping rectangles, consume only marker slots and never
+cross the header/body boundary. In pipe syntax, delimiter rows cannot merge.
+Repeated `^` rows extend the originating cell. Invalid merges or malformed
+list-table structure/settings preserve the **whole table** as block `literal`
+source and recommend a diagnostic; do not partially transpose or drop content.
+
+The AST contains originating cells only, in displayed row and column order.
+Place each at the first unoccupied column, skipping prior row spans. Spans are
+positive integers, default/omitted `1`. Caption, ID, cell content and supported
+metadata survive normalization. Numeric structural fields do not change the
+string-only assigned-attribute rule.
+
+### Traditional pipe compatibility
+
 ```md
 | First | Second | Status |
 | --- | --- | --- |
@@ -209,31 +524,49 @@ The AST uses `lineBlock.children` with `break` nodes; consecutive/leading/traili
 | ^ | ^ | Verified |
 ```
 
-Start with GFM tables: headers, inline cells and column alignment. Add marker-only cells for merging:
+GFM supplies header/delimiter recognition, inline cells, alignment and ordinary
+row-width behavior. Tight `|>`/`|^` merge forms also work. Merge markers use the
+grid rules above and require explicit equal slot counts before GFM
+padding/truncation. The pipe form's inline parsing is a source-format
+restriction, not a restriction on the Expressive table model.
 
-| Marker | Meaning |
-| --- | --- |
-| `>` | Merge into the next ordinary cell to the right. Consecutive markers join that cell. |
-| `^` | Continue the cell above. Cover every column of a horizontal span. |
-| Empty cell | Empty content, never a merge. |
-| `\>` / `\^`, or inline code | Literal marker text. |
+### Writing tables
 
-Markers match the entire unescaped cell after trimming spaces/tabs; tight `|>`/`|^` forms also work. They are recognized before inline parsing, only inside established tables. The example gives “Release checks” `colSpan: 2`, `rowSpan: 2`.
+Prefer list-based forms for all representable tables, including short values.
+Named rows are suitable for unique, nonempty plain-text headers without merges;
+write fields in column order and omit empty fields or assign explicit empty
+bodies. Positional cell lists support untitled or complex headers and merges.
+Both forms use ordinary Markdown inside each cell.
+Indent every continuation line for its cell; choose container fences longer
+than nested container fences. An empty cell uses an empty structural item.
+Escape literal whole-cell merge markers and any ordinary block punctuation
+that would change a literal paragraph into another block.
 
-**Grid rules:**
+Writers can preserve a transposed source orientation when provenance records
+it. In that case, write the inverse grid and appropriate source form, then
+emit `transpose`; never emit the flag on an already transposed source grid.
+The resulting AST and displayed layout must stay the same. Without source
+preference, row-oriented source is the canonical default. Named output derives
+labels from the header cells and values from their columns; it must not rematch
+cells or retain a stale registry after a header edit. Use `header` only
+when the originating header cells are exactly the first source row; do not
+invent, remove or infer header status from text formatting.
 
-- Resolve horizontal runs first, then vertical continuations on the original columns. A `>` run must end in an ordinary cell on that row, not `^`.
-- Merges form non-overlapping rectangles, consume only markers and never cross the header/body boundary. Delimiter rows cannot merge. Repeated `^` rows extend the originating cell.
-- With merge markers, every source row explicitly supplies equal column slots, including covered slots, before GFM padding/truncation. Without markers, ordinary GFM row-width behavior applies.
-- Invalid merges preserve the **whole table** as block `literal` source and recommend a diagnostic.
+When only the first displayed column contains headers, a writer can use
+`{header transpose}` and the inverse grid to preserve that pattern even without
+source provenance. A header pattern that neither orientation expresses uses
+the preservation fallback below.
 
-The [table AST](/expressive-markdown/ast#content-node-reference) contains originating cells only, in column order. Place each at the first unoccupied column, skipping prior row spans. Spans are positive integers, default/omitted `1`; numeric structural fields do not change the string-only assigned-attribute rule. Alignment comes from the leftmost column unless a cell attribute overrides it.
+Pipe output remains permitted for compatibility, provided it preserves content,
+headers, alignment, spans and identities. When table/row/cell identities,
+header patterns or supported presentation cannot be expressed in a chosen
+form, use supported safe HTML or report unsupported conversion. Never flatten
+rich cells or erase metadata merely to fit shorthand syntax.
 
-Cells use exactly one of literal `value`, inline `children` or rich block `body`. Column alignment is `table.align` (`left`, `center`, `right` or null); cell `header` is boolean. Preserve widths/backgrounds/classes in attributes. Native HTML imports map supported `colspan`/`rowspan` to structural fields, without duplicate attributes; unrepresentable safe content stays HTML with a diagnostic.
-
-Writers use pipe syntax where it preserves everything: `>` before the content slot and `^` in every covered lower slot, escaping literal markers. Otherwise use supported safe HTML or report unsupported conversion. Preserve each cell's identity once, without placeholder IDs.
-
-**Recommended HTML:** `<table>`, `<thead>`/`<tbody>`, `<tr>`, `<th>`/`<td>`, with spans, alignment and supported presentation attributes. Never silently flatten merged/rich cells or infer complex accessible header associations solely from visual position.
+**Recommended HTML:** native `<table>`, `<tr>` and `<th>`/`<td>`, with suitable
+header/body grouping, spans, alignment and supported presentation attributes.
+Keep header cells semantic when transposed into a column. Do not infer complex
+accessible header associations solely from visual position.
 
 ## Code presentation
 
@@ -344,6 +677,178 @@ Use &amp;copy; literally.
 These forms parse back into the same structured nodes. Ordinary bold text still
 uses `**bold**`; extra blank source lines remain ordinary paragraph spacing.
 
+### Literal block markers
+
+Writers determine syntax from the final node type and its enclosing context.
+They must not infer a list solely from text beginning with a list marker, or
+require a user-supplied serialization flag.
+
+| Node and literal content | Source example | Reparsed node |
+| --- | --- | --- |
+| Ordered list with item “item” | `1. item` | Ordered `list`. |
+| Bullet list with item “item” | `- item` | Unordered `list`. |
+| Level-three heading “1. item” | `### 1. item` | `heading`, level 3. |
+| One represented line “1. item” | `\| 1. item` | `lineBlock`. |
+| Two represented lines “- one item”, “- second item” | `\| - one item` followed by `\| - second item` on the next source line | One `lineBlock` with a `break`. |
+| Ordinary paragraph “1. item” | `1\. item` | `paragraph`. |
+| Ordinary paragraph “- item” | `\- item` | `paragraph`. |
+| Paragraph “1. item” or “- item” in a rich cell body | `1\. item` / `\- item`, within that body | `paragraph`. |
+
+For line blocks, prefer the leading-pipe form without redundant escapes of list
+or heading markers. Preserve inline Markdown escaping where needed. For ordinary
+paragraphs, escape punctuation that would otherwise start a different block,
+including the period in a leading ordered-list marker. Do not silently change a
+`paragraph` into a `lineBlock`: the latter also records explicit line divisions.
+An editor adapter that maps a deliberately literal line to `lineBlock` makes
+that choice before serialization. Reversing an editor's automatic formatting
+must survive export and import as literal content.
+
+Rich cell bodies preserve list nodes and literal paragraph text under the same
+rules as other block bodies. In compact pipe source, the pipes that delimit
+cells cannot also act as line-block prefixes. List-based forms delimit a rich
+cell before parsing its block content, so a line block inside that cell remains
+valid ordinary Markdown.
+
 Code fences follow CommonMark backtick/tilde rules and exceed conflicting delimiter runs in their literal content. Parsers should prefer compact `value` for wholly literal inline content, but supplied text-only `children` remain valid. Normalization must not lose child IDs, attributes or provenance.
 
-Optional AST fields accept null as absence and serialize as omission; null metadata stays data. Required root `version` must be supported or conversion stops with a clear error. See the [AST contract](/expressive-markdown/ast).
+Optional AST fields accept null as absence and serialize as omission; null metadata stays data. Required root `version` must be supported or conversion stops with a clear error. See the [AST contract](/expressive-markdown/parsing#shared-ast-contract).
+
+
+## Shared AST contract
+
+The abstract syntax tree (AST) is the JSON document format. Feature-specific
+node shapes are disclosed beside their [Markdown examples](/expressive-markdown/language).
+These shared rules apply to every node.
+
+| Field | Type | Contract |
+| --- | --- | --- |
+| `type` | Nonempty string | Required structural node type; canonical built-in names are defined beside their feature examples. |
+| `subType` | String | Semantic type on `container`, `inline` and `leaf`; canonical lowercase. Its vocabulary is open. |
+| `id` | String | Optional on every node; preserve exactly. Never generate or normalize it implicitly. |
+| `title` | `TitleNode` or string, according to the node type | Optional. Document/container/table captions use a title node; code captions and link/image resource tooltips use strings. Each node type fixes its representation. |
+| `body` | `Node[]` | Main block content. A title is optional, not the criterion for choosing this field. |
+| `children` | `Node[]` | Inline content or structural grouping. |
+| `value` | String | Literal content. Never reparse it as Markdown. |
+| `attributes` | Object of string or boolean values | Authored properties/presentation. Keys use camelCase mapped from case-insensitive, dash-separated source names; `show-line-numbers` becomes `showLineNumbers`. Assigned values are strings; flags are booleans. Generic ID lives in `id`, not here. |
+| `position` | `Position` | Optional original-source range, defined below. |
+| `source` | JSON object | Optional lexical provenance for source preservation. It is not another semantic value or a traversable subtree. |
+| `data` | JSON object | Optional application/tool annotations. Not interpreted as content by generic traversal. |
+
+`body`, `children` and `value` are mutually exclusive. A node can have none,
+such as a break. Empty strings and arrays are real values, not absence.
+A title-bearing node can have its title alongside its main content field.
+Literal leaf types do not contain a node-valued title or other nested content.
+
+`source` keeps original spellings; `data` keeps tool annotations. Neither holds
+traversable document content. Readers preserve unknown fields as JSON extension
+data and report unsupported structure. New node-bearing fields need an explicit
+contract; only the defined content fields participate in traversal.
+
+### Attribute spelling
+
+```md
+{highlight=1,3-4 & show-line-numbers}
+```
+
+```json
+{"highlight": "1,3-4", "showLineNumbers": true}
+```
+
+The JSON above is the node's `attributes` object. `&` is an optional source separator, not AST data. Assigned values remain strings; bare/negated flags become booleans. Canonical writers turn camelCase keys back into dash-separated names. Metadata keys and generic node IDs do not undergo this mapping. See [attribute normalization](/expressive-markdown/parsing#attributes-and-identity).
+
+### Fixed field types, alternative content shapes
+
+Both of these are valid:
+
+```json
+{ "type": "heading", "level": 2, "value": "Deployment" }
+```
+
+```json
+{
+  "type": "heading",
+  "level": 2,
+  "children": [
+    { "type": "text", "value": "Deploying " },
+    { "type": "strong", "value": "safely" }
+  ]
+}
+```
+
+A field does not change type: `value` remains a string, and `children` remains
+an array. The node permits either shape. Parsers should choose the compact
+form for purely literal content. Supplied ASTs need not be rewritten into that
+form, particularly when text children have IDs, attributes or source records.
+
+### Absence and normalization
+
+Readers accept omission or null as absence for optional fields without another
+defined null meaning. Canonical AST serialization omits absent fields. Normalize
+that absence before checking content-field exclusion. Thus optional
+`children: null` can disappear, but a required content field still needs an
+actual value. Null does not satisfy required fields or become a valid attribute
+entry. Null within metadata is preserved as data.
+
+### Generic traversal
+
+```text
+visit(node)
+if node.title is a node:
+    walk(node.title)
+for child in node.body or node.children, if present:
+    walk(child)
+```
+
+Visit the title before main content, even when a renderer places its caption
+after the body. Array order is meaningful. A string resource title is literal
+metadata; `value` is literal content. Neither is recursively visited as nodes.
+`attributes`, `metadata`, `source` and `data` are not hidden content subtrees.
+Reject multiple content fields instead of silently choosing one.
+
+### Source locations
+
+Use `position: {start, end}` for original-source locations. A point has required one-based
+`line` and `column`, with optional zero-based `offset`. Columns and offsets count
+UTF-16 code units; line endings advance the line and reset its column. The end
+point is exclusive. Offsets, when supplied, count the original source, including
+both units in CRLF. A retained BOM counts in offsets but not the first displayed
+column. Positions describe source provenance, not node identity.
+
+An edit invalidates affected positions unless a tool recalculates them. A tool
+may omit positions for generated or moved content. Do not fabricate source
+coordinates or keep stale coordinates as if they describe the new source.
+The point format follows [unist positions](https://github.com/syntax-tree/unist#position).
+
+### Content shapes
+
+**Inline content** means exactly one of string `value` or ordered inline
+`children`. **Blocks** means an ordered `body` array. All nodes also allow the
+shared fields above. Each feature disclosure defines its required content and additional fields.
+
+Block content admits paragraph, heading, quote, list, code, line block, table,
+container, leaf, horizontal rule and block-display group/HTML/literal.
+Inline content admits text, inline formatting, inline code, link, image,
+break/soft break, inline directive and inline-display group/HTML/literal.
+`title` is a designated title-field node, not an ordinary paragraph body child.
+Lists contain list items; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
+
+
+### Serialization, extensions and diagnostics
+
+JSON serialization preserves every semantic field. JSON object-key order is not
+semantic; node array order is. Unknown semantic `subType` values remain valid.
+Unknown structural node types may be retained as extension nodes with the same
+generic field rules; a converter lacking a source mapping reports unsupported
+conversion instead of discarding them. Extensible structure does not authorize
+arbitrary new traversable slots.
+
+Diagnostics belong beside the document, not inside its content. Tools can return
+a document together with diagnostics and optional source records; this reference
+does not prescribe their API. See [expressmark](https://github.com/nextwebwg/expressmark)
+for the JavaScript tooling project.
+
+Round-tripping preserves supported semantic data, not necessarily byte-identical
+Markdown. Application-only IDs without a source attachment cannot always be
+written; report that limitation. Discarded unsafe HTML is never restored.
+See [writer rules](/expressive-markdown/parsing#writing-and-preservation) for
+canonical output and preservation boundaries.

@@ -114,19 +114,45 @@ Escape a character that Markdown would otherwise read as syntax with a backslash
 
 ## Rendered illustrations
 
-Pair source examples with a common or possible rendering when appearance helps
-explain the feature. Use a `render` div containing one fenced HTML example:
+For Expressive Markdown syntax, cover five reader questions together:
 
-````md
-::: {.render title="A list inside a cell" height="160"}
+1. **Feature / use case:** what can someone express, and why use this form?
+2. **Markdown syntax:** what do they write, including relevant options?
+3. **HTML representation:** what semantic HTML can represent it?
+4. **AST:** what data does it produce? Put JSON and node constraints in a closed
+   disclosure beside the example. Related variants can link to that disclosure.
+5. **Rendering example:** what might that source look like?
+
+This is a coverage checklist, not a compulsory five-heading template. Keep
+representations beside the source and options they describe. Related variants
+can share a representation when their equivalence is clear. Metadata may
+produce no body HTML; a nonvisual setting or an obvious variation may need no
+separate rendering. Explain or link the applicable behavior rather than adding
+an empty example. A chapter about parsing or AST details can link back to the
+syntax's complete example instead of repeating all five parts.
+
+Use a `render` div containing one fenced HTML example followed by an AST
+disclosure or reference paragraphs. It publishes the HTML source, the AST
+disclosure, then the rendering. Use a longer outer fence when nesting the disclosure:
+
+`````md
+:::: {.render title="A list inside a cell" height="160"}
 ```html
-<table><tbody><tr><td><ul><li>First item</li><li>Second item</li></ul></td></tr></tbody></table>
+<table><tbody><tr><td><ul><li>First item</li></ul></td></tr></tbody></table>
 ```
-:::
-````
 
-The publisher shows the HTML in a sandboxed frame labelled “One possible
-rendering”. Give each illustration a descriptive title and enough height for
+::: {.details summary="AST"}
+```json
+{"type":"tableCell","body":[{"type":"list","ordered":false,"children":[{"type":"listItem","body":[{"type":"paragraph","value":"First item"}]}]}]}
+```
+
+This is the cell fragment; the surrounding table supplies its row.
+:::
+::::
+`````
+
+The publisher shows the HTML in a sandboxed frame labelled “Rendering
+example”. Give each illustration a descriptive title and enough height for
 its content. Examples use self-contained HTML, inline SVG or data images;
 scripts and external assets do not run. Native interactions such as `details`
 can still demonstrate ordinary HTML behavior.

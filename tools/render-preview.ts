@@ -10,6 +10,7 @@ body { margin: 16px; color: CanvasText; background: Canvas; }
 body > :first-child { margin-top: 0; }
 body > :last-child { margin-bottom: 0; }
 table { border-collapse: collapse; width: 100%; }
+th { font-weight: 700; background: color-mix(in srgb, CanvasText 6%, Canvas); }
 th, td { border: 1px solid GrayText; padding: 8px 12px; text-align: left; vertical-align: top; }
 td > :first-child, th > :first-child { margin-top: 0; }
 td > :last-child, th > :last-child { margin-bottom: 0; }

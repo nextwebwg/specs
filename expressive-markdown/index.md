@@ -11,7 +11,7 @@ stamp: Unofficial Editor's Draft · Stage&nbsp;0
 A common language for documentation.
 
 - [Learn the syntax →](/expressive-markdown/language)
-- [Use the document AST →](/expressive-markdown/ast)
+- [Implement a parser or writer →](/expressive-markdown/parsing)
 - [Browse Chapters ↓](#chapters)
 
 Editors
@@ -31,23 +31,27 @@ W3C, WHATWG or a browser vendor, or require browsers to parse Markdown.
 
 ## Abstract
 
-Documentation needs more than headings and paragraphs: warnings, tabs, code
-examples, mentions and tables with merged cells. Expressive gives those features
-readable Markdown syntax and shared meanings, so the same document can move
-between a text editor, a rich editor and a documentation site.
+Start with the Markdown you already know: headings, paragraphs, emphasis,
+links and lists. Expressive keeps those forms familiar.
 
 ```md
-::: warning [Before deploying] {#deployment-check}
-Back up the database first.
-:::
+# Installation
 
-Status: :chip[Ready]{tone=green}.
-Thanks, @[Ada Lovelace]#user-123.
+Install the package, then **check the version**.
+
+- Download the package.
+- Run the installer.
 ```
 
-A warning remains a warning; a mention keeps its target. Each renderer chooses
-its own colors, icons and layout. Tools exchange a documented JSON tree instead
-of having to recover those meanings from a particular editor's HTML.
+When a document needs more structure, add it a feature at a time: a warning,
+a caption, or a more readable table. Each has a Markdown form, HTML
+representation and JSON shape beside a rendering example where useful. The
+[language chapter](/expressive-markdown/language) starts with the basics and
+builds toward those additions.
+
+The same document can move between a text editor, a rich editor and a
+documentation site. A warning keeps its meaning and a mention keeps its target;
+renderers choose their own colors and layout.
 
 ## What the proposal defines
 

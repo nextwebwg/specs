@@ -426,10 +426,15 @@ class Compiler {
     const body = node.children;
     switch (kind) {
       case "render": {
-        if (body.length !== 1 || body[0].token.type !== "fence" || body[0].token.info.trim() !== "html") {
-          throw new Error("A rendering preview must contain exactly one html code fence.");
+        if (!body.length || body[0].token.type !== "fence" || body[0].token.info.trim() !== "html"
+          || body.slice(1).some((part) => part.token.type !== "paragraph_open"
+            && !(part.token.type === "container_div_open" && parseDivInfo(part.token.info).classes[0] === "details"))) {
+          throw new Error("A rendering preview must start with exactly one html code fence, followed by optional references or AST disclosures.");
         }
-        return renderPreview(body[0].token.content, attrs.title ?? "Rendered example", attrs.height);
+        // Show the same HTML that the frame renders, with its AST reference between
+        // the code and preview. Authors keep Markdown/use-case context beside this div.
+        return `<p><strong>HTML representation</strong></p>${this.codeBlock(body[0].token)}${this.children(body.slice(1))}`
+          + renderPreview(body[0].token.content, attrs.title ?? "Rendered example", attrs.height);
       }
       case "details":
         return `<details class="spec-disclosure"${id ? ` id="${escapeText(id)}"` : ""}>\n<summary>${escapeText(attrs.summary ?? "Details")}</summary>\n<div class="disclosure-body">\n${this.children(body)}\n</div>\n</details>`;

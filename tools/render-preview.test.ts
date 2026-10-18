@@ -19,11 +19,28 @@ test("preview HTML cannot close its frame or become Vue template code", () => {
   const { sfc } = compileChapter(chapter(preview('</iframe><script>alert(1)</script><p>{{ value }}</p>')));
   assert.equal((sfc.match(/<iframe /g) ?? []).length, 1);
   assert.equal((sfc.match(/<\/iframe>/g) ?? []).length, 1);
-  assert.doesNotMatch(sfc, /alert\(1\)<\/script>|\{\{ value \}\}/);
+  assert.doesNotMatch(sfc.split("<template>")[1], /alert\(1\)<\/script>|\{\{ value \}\}/);
   assert.match(sfc, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
 });
 
 test("malformed preview bodies and heights fail chapter compilation", () => {
   assert.throws(() => compileChapter(chapter('::: {.render}\nOrdinary prose.\n:::')), /exactly one html code fence/);
   assert.throws(() => compileChapter(chapter(preview('<p>Example</p>', '12px'))), /positive integer/);
+});
+
+test("HTML source and a closed AST disclosure stay between Markdown and its rendering", () => {
+  const { sfc } = compileChapter(chapter([
+    '```md', '::: table {transpose}', '- Name: Ada', ':::', '```', '',
+    ':::: {.render title="Vertical fields"}', '```html',
+    '<table><tr><th scope="row">Name</th><td>Ada</td></tr></table>', '```', '',
+    '::: {.details #vertical-fields-ast summary="AST"}', '```json',
+    '{"type":"table","children":[{"type":"tableRow","children":[{"type":"tableCell","header":true,"value":"Name"},{"type":"tableCell","value":"Ada"}]}]}', '```', ':::', '::::',
+  ].join('\n')));
+  const markdown = sfc.indexOf('<CodeBlock :code="__code[0]"');
+  const html = sfc.indexOf('<CodeBlock :code="__code[1]"');
+  const ast = sfc.indexOf('<details class="spec-disclosure" id="vertical-fields-ast">');
+  const json = sfc.indexOf('<CodeBlock :code="__code[2]"');
+  const rendering = sfc.indexOf('<div class="render-preview">');
+  assert.ok(markdown >= 0 && markdown < html && html < ast && ast < json && json < rendering);
+  assert.doesNotMatch(sfc, /<details[^>]*\bopen(?:[\s>]|=)/);
 });

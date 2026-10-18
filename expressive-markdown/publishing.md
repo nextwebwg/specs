@@ -1,6 +1,6 @@
 ---
 title: Publishing & Navigation
-order: 5
+order: 4
 blurb: navigation labels · hidden pages
 eyebrow: Expressive Markdown · Optional profile
 status: Unofficial Editor's Draft · Stage 0
@@ -25,11 +25,33 @@ navigation:
 The page title stays **Installing Expressive Markdown**; its sidebar or menu
 entry can read **Installation**.
 
-::: {.render title="Navigation label and page title" height="240"}
+:::: {.render title="Navigation label and page title" height="240"}
 ```html
 <nav aria-label="Documentation"><a href="/installation">Installation</a></nav><article><h1>Installing Expressive Markdown</h1></article>
 ```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "document",
+  "version": 1,
+  "title": {
+    "type": "title",
+    "value": "Installing Expressive Markdown"
+  },
+  "metadata": {
+    "navigation": {
+      "label": "Installation",
+      "hidden": false
+    }
+  },
+  "body": []
+}
+```
+
+See the [feature definitions](/expressive-markdown/language) for node constraints.
 :::
+::::
 
 
 | Field | Type | Meaning and default |

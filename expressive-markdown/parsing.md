@@ -1,6 +1,6 @@
 ---
 title: Parser & Writer Rules
-order: 3
+order: 2
 blurb: boundaries · recovery · preservation
 eyebrow: Expressive Markdown · Proposal
 status: Unofficial Editor's Draft · Stage 0
@@ -9,7 +9,7 @@ status: Unofficial Editor's Draft · Stage 0
 # Parser & Writer Rules
 
 Use these rules to implement a parser or writer: recognize source boundaries,
-build the [document AST](/expressive-markdown/ast), recover invalid input and
+build the [document AST](/expressive-markdown/parsing#shared-ast-contract), recover invalid input and
 write equivalent Markdown. Each section defines one feature's exact behavior.
 For author-facing examples, start with [Language & Semantics](/expressive-markdown/language).
 HTML conversion recommendations are informative.
@@ -235,11 +235,126 @@ Traditional GFM pipe syntax remains accepted. All forms normalize to `table`
 :::
 ```
 
-::: {.render title="Resolved named columns" height="280"}
+:::: {.render title="Resolved named columns" height="280"}
 ```html
-<table><thead><tr><th scope="col">Task</th><th scope="col">Instructions</th><th scope="col">Notes</th></tr></thead><tbody><tr><td>Install</td><td><ol><li>Download the package.</li><li>Run the installer.</li></ol></td><td></td></tr><tr><td>Verify</td><td></td><td>Check the version.</td></tr></tbody></table>
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Task</th>
+      <th scope="col">Instructions</th>
+      <th scope="col">Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Install</td>
+      <td><ol><li>Download the package.</li><li>Run the installer.</li></ol>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>Verify</td>
+      <td>
+      </td>
+      <td>Check the version.</td>
+    </tr>
+  </tbody>
+</table>
 ```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "table",
+  "children": [
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Task"
+        },
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Instructions"
+        },
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Notes"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Install"
+        },
+        {
+          "type": "tableCell",
+          "body": [
+            {
+              "type": "list",
+              "ordered": true,
+              "tight": true,
+              "children": [
+                {
+                  "type": "listItem",
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "value": "Download the package."
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "value": "Run the installer."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableCell",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Verify"
+        },
+        {
+          "type": "tableCell",
+          "value": ""
+        },
+        {
+          "type": "tableCell",
+          "value": "Check the version."
+        }
+      ]
+    }
+  ]
+}
+```
+
+See the [feature definitions](/expressive-markdown/language) for node constraints.
 :::
+::::
 
 
 A named record is an outer unordered-list item beginning with a field label
@@ -596,4 +711,144 @@ valid ordinary Markdown.
 
 Code fences follow CommonMark backtick/tilde rules and exceed conflicting delimiter runs in their literal content. Parsers should prefer compact `value` for wholly literal inline content, but supplied text-only `children` remain valid. Normalization must not lose child IDs, attributes or provenance.
 
-Optional AST fields accept null as absence and serialize as omission; null metadata stays data. Required root `version` must be supported or conversion stops with a clear error. See the [AST contract](/expressive-markdown/ast).
+Optional AST fields accept null as absence and serialize as omission; null metadata stays data. Required root `version` must be supported or conversion stops with a clear error. See the [AST contract](/expressive-markdown/parsing#shared-ast-contract).
+
+
+## Shared AST contract
+
+The abstract syntax tree (AST) is the JSON document format. Feature-specific
+node shapes are disclosed beside their [Markdown examples](/expressive-markdown/language).
+These shared rules apply to every node.
+
+| Field | Type | Contract |
+| --- | --- | --- |
+| `type` | Nonempty string | Required structural node type; canonical built-in names are defined beside their feature examples. |
+| `subType` | String | Semantic type on `container`, `inline` and `leaf`; canonical lowercase. Its vocabulary is open. |
+| `id` | String | Optional on every node; preserve exactly. Never generate or normalize it implicitly. |
+| `title` | `TitleNode` or string, according to the node type | Optional. Document/container/table captions use a title node; code captions and link/image resource tooltips use strings. Each node type fixes its representation. |
+| `body` | `Node[]` | Main block content. A title is optional, not the criterion for choosing this field. |
+| `children` | `Node[]` | Inline content or structural grouping. |
+| `value` | String | Literal content. Never reparse it as Markdown. |
+| `attributes` | Object of string or boolean values | Authored properties/presentation. Keys use camelCase mapped from case-insensitive, dash-separated source names; `show-line-numbers` becomes `showLineNumbers`. Assigned values are strings; flags are booleans. Generic ID lives in `id`, not here. |
+| `position` | `Position` | Optional original-source range, defined below. |
+| `source` | JSON object | Optional lexical provenance for source preservation. It is not another semantic value or a traversable subtree. |
+| `data` | JSON object | Optional application/tool annotations. Not interpreted as content by generic traversal. |
+
+`body`, `children` and `value` are mutually exclusive. A node can have none,
+such as a break. Empty strings and arrays are real values, not absence.
+A title-bearing node can have its title alongside its main content field.
+Literal leaf types do not contain a node-valued title or other nested content.
+
+`source` keeps original spellings; `data` keeps tool annotations. Neither holds
+traversable document content. Readers preserve unknown fields as JSON extension
+data and report unsupported structure. New node-bearing fields need an explicit
+contract; only the defined content fields participate in traversal.
+
+### Attribute spelling
+
+```md
+{highlight=1,3-4 & show-line-numbers}
+```
+
+```json
+{"highlight": "1,3-4", "showLineNumbers": true}
+```
+
+The JSON above is the node's `attributes` object. `&` is an optional source separator, not AST data. Assigned values remain strings; bare/negated flags become booleans. Canonical writers turn camelCase keys back into dash-separated names. Metadata keys and generic node IDs do not undergo this mapping. See [attribute normalization](/expressive-markdown/parsing#attributes-and-identity).
+
+### Fixed field types, alternative content shapes
+
+Both of these are valid:
+
+```json
+{ "type": "heading", "level": 2, "value": "Deployment" }
+```
+
+```json
+{
+  "type": "heading",
+  "level": 2,
+  "children": [
+    { "type": "text", "value": "Deploying " },
+    { "type": "strong", "value": "safely" }
+  ]
+}
+```
+
+A field does not change type: `value` remains a string, and `children` remains
+an array. The node permits either shape. Parsers should choose the compact
+form for purely literal content. Supplied ASTs need not be rewritten into that
+form, particularly when text children have IDs, attributes or source records.
+
+### Absence and normalization
+
+Readers accept omission or null as absence for optional fields without another
+defined null meaning. Canonical AST serialization omits absent fields. Normalize
+that absence before checking content-field exclusion. Thus optional
+`children: null` can disappear, but a required content field still needs an
+actual value. Null does not satisfy required fields or become a valid attribute
+entry. Null within metadata is preserved as data.
+
+### Generic traversal
+
+```text
+visit(node)
+if node.title is a node:
+    walk(node.title)
+for child in node.body or node.children, if present:
+    walk(child)
+```
+
+Visit the title before main content, even when a renderer places its caption
+after the body. Array order is meaningful. A string resource title is literal
+metadata; `value` is literal content. Neither is recursively visited as nodes.
+`attributes`, `metadata`, `source` and `data` are not hidden content subtrees.
+Reject multiple content fields instead of silently choosing one.
+
+### Source locations
+
+Use `position: {start, end}` for original-source locations. A point has required one-based
+`line` and `column`, with optional zero-based `offset`. Columns and offsets count
+UTF-16 code units; line endings advance the line and reset its column. The end
+point is exclusive. Offsets, when supplied, count the original source, including
+both units in CRLF. A retained BOM counts in offsets but not the first displayed
+column. Positions describe source provenance, not node identity.
+
+An edit invalidates affected positions unless a tool recalculates them. A tool
+may omit positions for generated or moved content. Do not fabricate source
+coordinates or keep stale coordinates as if they describe the new source.
+The point format follows [unist positions](https://github.com/syntax-tree/unist#position).
+
+### Content shapes
+
+**Inline content** means exactly one of string `value` or ordered inline
+`children`. **Blocks** means an ordered `body` array. All nodes also allow the
+shared fields above. Each feature disclosure defines its required content and additional fields.
+
+Block content admits paragraph, heading, quote, list, code, line block, table,
+container, leaf, horizontal rule and block-display group/HTML/literal.
+Inline content admits text, inline formatting, inline code, link, image,
+break/soft break, inline directive and inline-display group/HTML/literal.
+`title` is a designated title-field node, not an ordinary paragraph body child.
+Lists contain list items; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
+
+
+### Serialization, extensions and diagnostics
+
+JSON serialization preserves every semantic field. JSON object-key order is not
+semantic; node array order is. Unknown semantic `subType` values remain valid.
+Unknown structural node types may be retained as extension nodes with the same
+generic field rules; a converter lacking a source mapping reports unsupported
+conversion instead of discarding them. Extensible structure does not authorize
+arbitrary new traversable slots.
+
+Diagnostics belong beside the document, not inside its content. Tools can return
+a document together with diagnostics and optional source records; this reference
+does not prescribe their API. See [expressmark](https://github.com/nextwebwg/expressmark)
+for the JavaScript tooling project.
+
+Round-tripping preserves supported semantic data, not necessarily byte-identical
+Markdown. Application-only IDs without a source attachment cannot always be
+written; report that limitation. Discarded unsafe HTML is never restored.
+See [writer rules](/expressive-markdown/parsing#writing-and-preservation) for
+canonical output and preservation boundaries.

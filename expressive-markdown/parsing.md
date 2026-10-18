@@ -231,11 +231,19 @@ Start with GFM tables: headers, inline cells and column alignment. Add marker-on
 
 Markers match the entire unescaped cell after trimming spaces/tabs; tight `|>`/`|^` forms also work. They are recognized before inline parsing, only inside established tables. The example gives “Release checks” `colSpan: 2`, `rowSpan: 2`.
 
-Pipe-table cell content uses inline parsing. Leading `1. item` and `- item` in a
-cell stay text; they are not list blocks. Their escaped forms `1\. item` and
-`\- item` are equally valid and decode to the same text. Rich cells with block
-`body` content use supported safe HTML when pipe syntax cannot preserve them;
-actual list nodes in such a body remain lists.
+**Cell content and source forms:** an Expressive table cell admits full block
+content through `body`, including lists, multiple paragraphs, quotes and fenced
+code blocks. Preserve the same block semantics as outside a table. In a block
+body, `1. item` and `- item` create lists under the ordinary block rules;
+`1\. item` and `\- item` preserve paragraph text.
+
+The currently defined compact GFM pipe form uses inline parsing for cells. This
+describes that source form's compatibility behavior, not the complete
+Expressive table model. A Markdown grammar for full cell bodies remains an open
+design item: it must specify row/cell boundaries, multiline and nested blocks,
+escapes, and canonical writing before implementations can claim support for it.
+Until then, supported safe HTML preserves rich cells that compact pipe source
+cannot represent. Never flatten a block body to fit a source form.
 
 **Grid rules:**
 
@@ -376,7 +384,7 @@ require a user-supplied serialization flag.
 | Two represented lines “- one item”, “- second item” | `\| - one item` followed by `\| - second item` on the next source line | One `lineBlock` with a `break`. |
 | Ordinary paragraph “1. item” | `1\. item` | `paragraph`. |
 | Ordinary paragraph “- item” | `\- item` | `paragraph`. |
-| Pipe-table cell “1. item” or “- item” | `1. item` / `- item`, optionally escaped | Inline cell content. |
+| Paragraph “1. item” or “- item” in a rich cell body | `1\. item` / `\- item`, within that body | `paragraph`. |
 
 For line blocks, prefer the leading-pipe form without redundant escapes of list
 or heading markers. Preserve inline Markdown escaping where needed. For ordinary
@@ -387,10 +395,10 @@ An editor adapter that maps a deliberately literal line to `lineBlock` makes
 that choice before serialization. Reversing an editor's automatic formatting
 must survive export and import as literal content.
 
-Table-cell writers may escape list-marker punctuation for clarity, but must not
-insert a leading pipe to suppress list recognition: it would delimit another
-cell. Preserve actual lists in rich cell bodies using the table preservation
-rules above.
+Rich cell bodies preserve list nodes and literal paragraph text under the same
+rules as other block bodies. In compact pipe source, the pipes that delimit
+cells cannot also act as line-block prefixes. The full rich-cell source grammar
+remains open as described above.
 
 Code fences follow CommonMark backtick/tilde rules and exceed conflicting delimiter runs in their literal content. Parsers should prefer compact `value` for wholly literal inline content, but supplied text-only `children` remain valid. Normalization must not lose child IDs, attributes or provenance.
 

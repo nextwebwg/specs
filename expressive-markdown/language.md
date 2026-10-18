@@ -180,13 +180,12 @@ this is a one-column table, including its required header separator:
 ```md
 | Item |
 | --- |
-| - one item |
-| 1. item |
+| First item |
+| Second item |
 ```
 
-Pipe-table cells contain inline Markdown, so these markers stay text too.
-`\- one item` and `1\. item` are valid cell text with the same result. The outer
-pipes delimit cells; they do not provide the line-block form inside a cell.
+The outer pipes delimit cells; they do not provide the line-block form inside a
+cell. Full block content belongs to the cell itself; see [tables](#tables).
 Without a valid table header and separator, leading-pipe lines remain a line
 block, even when they end with another pipe.
 
@@ -302,8 +301,13 @@ The exact sanitizer preset remains to be selected.
 
 ## Tables
 
-GFM tables support headers, alignment and inline cells. Marker-only cells add
-merging:
+A table cell can contain the same block content as the document body, including
+paragraphs, lists, quotes and complete fenced code blocks. Its position in a
+table changes layout, not the meaning or availability of that content. The AST
+already represents this with a cell's block `body`.
+
+The current compact pipe form starts from GFM tables, with headers, alignment
+and inline cells. Marker-only cells add merging:
 
 ```md
 | First | Second | Status |
@@ -326,10 +330,19 @@ with `^`, and stay within the header or body. Invalid merges preserve the whole
 table source instead of guessing. The AST stores numeric `colSpan`/`rowSpan`,
 not placeholder cells.
 
+> [!warn] Rich-cell source syntax remains open
+> GFM's compact pipe form parses cells as inline content. That compatibility
+> rule is not a restriction on Expressive table cells. A readable Markdown form
+> for full cell bodies still needs defined row/cell boundaries, multiline and
+> nested-block handling, escaping, and writer rules. This draft does not yet
+> choose that grammar. Supported safe HTML currently preserves rich cells when
+> the compact form cannot; it does not settle the source-syntax design.
+
 **Recommended HTML:** native tables with spans and supported presentation. Rich
-cells can hold blocks and styling; use supported safe HTML or report a
-conversion limitation when pipe syntax is insufficient. Never flatten cells
-silently. See [grid rules](/expressive-markdown/parsing#tables).
+cells retain their blocks and styling. Renderers should adapt list indentation,
+block spacing and wrapping to cell widths while preserving content, list
+markers and nesting. See [table rendering](/expressive-markdown/presentation#table-cell-layout)
+and [grid rules](/expressive-markdown/parsing#tables).
 
 ## Recognized container semantics
 

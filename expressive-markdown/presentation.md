@@ -90,6 +90,27 @@ A table of contents renders its saved links inside `<nav>`. An optional refresh
 updates the actual entries in the document and source. Rendering alone does not
 replace those entries with an empty generated placeholder.
 
+### Table-cell layout
+
+Table cells can contain full block content, including lists, multiple paragraphs
+and fenced code blocks. Keep those structures when rendering. Cell width is a
+presentation constraint, not a reason to remove a supported kind of content.
+
+Renderers should adapt page-level styles to the available cell space:
+
+- Prefer compact list indentation and block spacing. A list need not receive
+  the same inset or outer margins as one in the main document. Keep markers
+  visible and nested levels distinguishable.
+- Choose text wrapping for the cell width instead of inheriting the main
+  document's width and wrapping policy unchanged. Preserve authored line
+  boundaries where they carry meaning.
+- Code may wrap visually or scroll within its cell. Preserve its stored
+  whitespace and line divisions exactly; copying code must return the original
+  text, without visual wrap breaks, line numbers or other decoration.
+
+Use semantic HTML lists and code blocks within native table cells. Changing
+their spacing or visual wrapping must not flatten their document structure.
+
 ## Safe HTML and editing {#presentation-preservation}
 
 HTML passes through a maintained sanitizer allowlist for elements, attributes

@@ -122,7 +122,7 @@ Source names are case-insensitive; AST attribute keys use camelCase. Lowercase t
 
 ```md
 ## Deployment {#deployment}
-![Service diagram](services.svg){width=640 placement=center responsive}
+![Service diagram](services.svg){width=640 responsive}
 [Release notes](release.md){class="release-link"}
 ```
 

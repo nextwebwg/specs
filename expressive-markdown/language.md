@@ -262,7 +262,7 @@ embed an image with alternative text. An optional quoted title supplies a toolti
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
 | `link` | String `url`; inline content. | Optional string tooltip `title`. Nested links are invalid child content. |
-| `image` | String `url`, string `alt`. | Optional string tooltip `title`; attributes preserve size, placement and delivery intent. No inline/body content field. Empty alt is permitted. |
+| `image` | String `url`, string `alt`. | Optional string tooltip `title`; attributes preserve size and delivery intent. No inline/body content field. Empty alt is permitted. |
 :::
 
 Both keep `url` and optional tooltip `title`; a link holds inline content,
@@ -407,10 +407,12 @@ preserving ordinary paragraph nodes and table cells.
 > Markdown alone would lose formatted whitespace or an empty paragraph. Literal
 > entity text is escaped too. See [writer preservation rules](/expressive-markdown/parsing#text-and-formatting-boundaries).
 
-Image `width`/`height` are positive integer CSS-pixel strings. `placement` is
-`center`, `wrap-left` or `wrap-right`, with ordinary flow as the default.
-`responsive` permits host-selected renditions; loading and URL selection belong
-to the renderer.
+Image `width`/`height` are positive integer CSS-pixel strings. `responsive`
+permits host-selected renditions; loading and URL selection belong to the renderer.
+Use a [layout container](#layout) to align or float an image, caption or any other
+group of blocks. Positioning belongs to the group, rather than to images alone.
+Earlier image `placement` attributes remain preservable authored data; they do
+not define the layout container's behavior.
 
 ### Safe HTML and additional styling
 
@@ -682,7 +684,7 @@ Attach identity or presentation to the content it describes:
 
 ```md
 ## Deployment {#deployment}
-![Service diagram](services.svg){width=640 placement=center responsive}
+![Service diagram](services.svg){width=640 responsive}
 
 [Release notes](release.md){class="release-link"}
 ```
@@ -691,7 +693,7 @@ Attach identity or presentation to the content it describes:
 
 ```html
 <h2 id="deployment">Deployment</h2>
-<p><img src="services.svg" alt="Service diagram" width="640" data-placement="center" data-responsive></p>
+<p><img src="services.svg" alt="Service diagram" width="640" data-responsive></p>
 <p><a href="release.md" class="release-link">Release notes</a></p>
 ```
 
@@ -713,7 +715,6 @@ Attach identity or presentation to the content it describes:
         "alt": "Service diagram",
         "attributes": {
           "width": "640",
-          "placement": "center",
           "responsive": true
         }
       }
@@ -735,8 +736,8 @@ Attach identity or presentation to the content it describes:
 ]
 ```
 :::
-The heading and link render normally; the image's layout depends on its asset
-and the renderer's placement policy.
+The heading and link render normally; the image retains its authored width and
+responsive setting. See [layout](#layout) for grouping and positioning content.
 
 Heading attributes are final and whitespace-separated. Image/link attributes
 are immediately adjacent. All attachments stay on the same source line.
@@ -2370,6 +2371,7 @@ title and a block body. Types are case-insensitive and open to extensions.
 | `danger` | Critical information warranting maximum attention. | Labelled `<section data-type="danger">`. |
 | `details` | Collapsible content. | `<details>` / `<summary>`. |
 | `figure` | Self-contained, optionally captioned content. | `<figure>` / `<figcaption>`. |
+| `layout` | Align or float a group of blocks. | A `<div data-type="layout">` with logical layout styles. |
 | `tabs`, `tab` | Alternatives and their labelled content. | Labelled sections; optional interactive tabs. |
 | `toc` | Authored section navigation. | `<nav>` with title and body. |
 | Custom type | Meaning defined by its extension. | Generic labelled section. |
@@ -2378,6 +2380,77 @@ Use `<header>` for a section title without assuming a heading rank. An absent
 title stays absent; a renderer can show a separate type label. Colors/icons are
 renderer choices, and static warnings/dangers are not automatically live alerts.
 Custom `info`, `important` or `caution` types are valid, not aliases for core types.
+
+### Layout
+
+Center a group of blocks and their text together:
+
+```md
+::: layout {align=center}
+![Service diagram](services.svg){width=320 responsive}
+
+Services communicate through a shared queue.
+:::
+```
+
+The image block and caption paragraph are centered, and their text is centered.
+The body accepts any block content, including figures, quotations, code, lists,
+tables and nested layouts. A layout supplies presentation, not new document
+meaning or a heading level.
+
+| Attribute | Values | Meaning and default |
+| --- | --- | --- |
+| `align` | String `start`, `center` or `end`. | Align child blocks within the group and provide their default text alignment. Inherit the enclosing layout's alignment; otherwise use `start`. |
+| `float` | String `start` or `end`. | Float the whole group at the containing flow's inline edge, allowing surrounding text to flow around it. Omitted means ordinary block flow; floating is not inherited. |
+| `dir` | Native HTML `ltr`, `rtl` or `auto`. | Set the group's text direction; otherwise inherit it from the document. `lang` labels the language but does not itself set direction. |
+
+`start` and `end` are logical directions. For horizontal Arabic or Hebrew with
+`dir=rtl`, start is the right edge and end is the left edge. For `dir=ltr`,
+the mapping reverses. Center does not depend on direction. Resolve block
+placement against the containing layout's inline direction, text alignment
+against the text's own direction, and floating against the containing flow's
+direction. A nested group's explicit `dir` can change its text without changing
+which edge its parent calls start.
+
+A nested layout's explicit `align` overrides the enclosing layout for its own
+placement and contents. Explicit child text styling overrides inherited text
+alignment. Omitted attributes stay omitted in the AST; renderers do not write
+computed defaults into the document. Preserve unrecognized values as authored
+data, recommend a diagnostic, and use the corresponding omitted-value behavior.
+Physical `left`/`right` values have no layout meaning.
+
+Float a quotation and its attribution together, without making either an image:
+
+```md
+::: layout {float=end & align=center}
+> A small example is easier to understand.
+
+— The editor
+:::
+
+This paragraph can flow beside the quotation when there is enough room.
+```
+
+The group retains its source position and internal reading order. Floating
+does not reorder its children or turn them into columns. A renderer may keep
+the group in ordinary flow when the target cannot float content or when the
+available space is insufficient. Keep all content readable and in source order.
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "container",
+  "subType": "layout",
+  "attributes": {"align": "start", "float": "end", "dir": "rtl", "lang": "ar"},
+  "body": [{"type": "paragraph", "value": "مرحبًا بالعالم"}]
+}
+```
+
+This uses the shared container shape. `align` and `float` remain string
+attributes; no new structural node fields or parser extension are required.
+:::
+
+For HTML and right-to-left examples, see [layout rendering](/expressive-markdown/presentation#layout).
 
 ### Details
 
@@ -2703,7 +2776,7 @@ Thanks, @ada-lovelace#user-123.
 
 The [recognized semantic subtype registry](/expressive-markdown/language#recognized-semantic-subtypes)
 defines the shared vocabulary: container `note`, `tip`, `warning`, `danger`,
-`details`, `figure`, `tabs`, `tab`, `toc`; inline `chip`, `mention`.
+`details`, `figure`, `layout`, `tabs`, `tab`, `toc`; inline `chip`, `mention`.
 A mention has an optional string `ref` field for its entity target. The shared
 node families allow generic traversal; subtypes supply specific meanings.
 Custom subtypes are valid but do not acquire a standard subtype's contract.
@@ -2912,7 +2985,7 @@ blocks. See [parser order](/expressive-markdown/parsing#parsing-order).
 
 | Family | Standard types |
 | --- | --- |
-| `container` | `note`, `tip`, `warning`, `danger`, `details`, `figure`, `tabs`, `tab`, `toc`. |
+| `container` | `note`, `tip`, `warning`, `danger`, `details`, `figure`, `layout`, `tabs`, `tab`, `toc`. |
 | `inline` | `chip`, `mention`. |
 
 AST subtypes use lowercase. Unknown types retain their name, attributes and

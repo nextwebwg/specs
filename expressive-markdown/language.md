@@ -237,6 +237,11 @@ Reference-style and inline links produce the same nodes. Unresolved references
 use CommonMark's literal fallback. An isolated image stays in its paragraph;
 only an explicit figure supplies a caption, separate from image alternative text.
 
+> [!note] Writers preserve the document
+> Exports may use safe HTML such as `<strong>Hello </strong>` or `<p></p>` when
+> Markdown alone would lose formatted whitespace or an empty paragraph. Literal
+> entity text is escaped too. See [writer preservation rules](/expressive-markdown/parsing#text-and-formatting-boundaries).
+
 Image `width`/`height` are positive integer CSS-pixel strings. `placement` is
 `center`, `wrap-left` or `wrap-right`, with ordinary flow as the default.
 `responsive` permits host-selected renditions; loading and URL selection belong

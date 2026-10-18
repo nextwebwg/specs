@@ -175,7 +175,7 @@ additional fields.
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
 | `text` | String `value`. | Literal text leaf. |
-| `paragraph` | Inline content. | Empty content is valid AST data; source writers may normalize empty paragraphs as ordinary spacing. |
+| `paragraph` | Inline content. | Empty and whitespace-only content is valid AST data and must survive writing; use safe HTML when ordinary spacing would erase it. |
 | `heading` | Integer `level` 1–6; inline content. | No implicit ID; authored `id` remains generic. |
 | `title` | Inline content. | Used through a parent's title field; does not itself supply a heading rank. |
 | `emphasis`, `strong`, `delete`, `underline`, `highlight` | Inline content. | Semantic/stylistic inline wrappers; preserve attributes. |

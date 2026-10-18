@@ -435,7 +435,7 @@ class Compiler {
         // Show the same HTML that the frame renders, with its AST reference between
         // the code and preview. Authors keep Markdown/use-case context beside this div.
         return `<p><strong>HTML representation</strong></p>${this.codeBlock(body[0].token)}${this.children(body.slice(1))}`
-          + renderPreview(body[0].token.content, attrs.title ?? "Rendered example", attrs.height);
+          + renderPreview(body[0].token.content, attrs.title ?? "Rendered example", attrs.height, attrs.interactive);
       }
       case "details":
         return `<details class="spec-disclosure"${id ? ` id="${escapeText(id)}"` : ""}>\n<summary>${escapeText(attrs.summary ?? "Details")}</summary>\n<div class="disclosure-body">\n${this.children(body)}\n</div>\n</details>`;

@@ -525,10 +525,11 @@ string-only assigned-attribute rule.
 ### Traditional pipe compatibility
 
 ```md
-| First | Second | Status |
-| --- | --- | --- |
-| > | Release checks | Ready |
-| ^ | ^ | Verified |
+| Session | Activity |
+| --- | --- |
+| Morning | Breakfast |
+| ^ | Workshop |
+| Afternoon | Review |
 ```
 
 GFM supplies header/delimiter recognition, inline cells, alignment and ordinary

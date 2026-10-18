@@ -2041,122 +2041,37 @@ The positional list and pipe forms use the same marker-only cells:
 | Empty | Empty content, not a merge. |
 | `\>` / `\^`, or inline code | Literal marker. |
 
+### Spanning columns
+
+A section label can span both columns above the individual task/status rows.
+Put `>` immediately to the left of the cell whose content spans the columns:
+
 ```md
-::: table
+::: table {header}
+
+- - Task
+  - Status
 
 - - >
   - Release checks
+
+- - Install
   - Ready
 
-- - ^
-  - ^
-  - Verified
+- - Verify
+  - Pending
 
 :::
 ```
 
-:::: {.render title="Merged cells" height="140"}
+:::: {.render title="Cell spanning two columns" height="220"}
 ```html
 <table>
+  <thead><tr><th scope="col">Task</th><th scope="col">Status</th></tr></thead>
   <tbody>
-    <tr>
-      <td colspan="2" rowspan="2">Release checks</td>
-      <td>Ready</td>
-    </tr>
-    <tr>
-      <td>Verified</td>
-    </tr>
-  </tbody>
-</table>
-```
-
-::: {.details #table-grid-ast summary="AST"}
-```json
-{
-  "type": "table",
-  "children": [
-    {
-      "type": "tableRow",
-      "children": [
-        {
-          "type": "tableCell",
-          "colSpan": 2,
-          "rowSpan": 2,
-          "value": "Release checks"
-        },
-        {
-          "type": "tableCell",
-          "value": "Ready"
-        }
-      ]
-    },
-    {
-      "type": "tableRow",
-      "children": [
-        {
-          "type": "tableCell",
-          "value": "Verified"
-        }
-      ]
-    }
-  ]
-}
-```
-
-Rows contain originating cells only; merged-away slots are not nodes. Place a
-cell at the first free column, skipping slots covered by row spans from preceding
-rows. Its rectangle covers `colSpan` columns and `rowSpan` rows, each defaulting
-to 1. Rectangles cannot overlap, extend beyond the table or cross its header/body
-boundary. Every row must resolve to the same grid width. An empty `children`
-array is valid for a row fully covered by spans above it.
-
-When `align` is supplied, its length is the grid width; otherwise the first
-row establishes the width. Cell header booleans describe header status, not
-implicit row-span permission. Native HTML span attributes map to numeric span
-fields; do not duplicate them in `attributes`. Safe HTML outside this grid model remains `html` or produces an
-unsupported-import diagnostic.
-:::
-::::
-
-
-“Release checks” spans two source columns and two source rows. The marker must
-be the cell's entire unescaped content; `> A quotation` is ordinary block
-content. Merges must form rectangles and stay within the header or body.
-Resolve merges in the source grid first; `{transpose}` then swaps their row and
-column spans. Merging is optional; ordinary tables need none of these markers. In a named
-assignment, `>` and `^` remain ordinary content; use positional rows or the pipe
-form when expressing merges.
-
-### Traditional pipe tables
-
-GFM pipe tables remain valid, including headers, column alignment and the merge
-markers above:
-
-```md
-| First | Second | Status |
-| --- | --- | --- |
-| > | Release checks | Ready |
-| ^ | ^ | Verified |
-```
-
-:::: {.render title="Traditional pipe table with merged cells" height="180"}
-```html
-<table>
-  <thead>
-    <tr>
-      <th scope="col">First</th>
-      <th scope="col">Second</th>
-      <th scope="col">Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td colspan="2" rowspan="2">Release checks</td>
-      <td>Ready</td>
-    </tr>
-    <tr>
-      <td>Verified</td>
-    </tr>
+    <tr><td colspan="2">Release checks</td></tr>
+    <tr><td>Install</td><td>Ready</td></tr>
+    <tr><td>Verify</td><td>Pending</td></tr>
   </tbody>
 </table>
 ```
@@ -2172,12 +2087,7 @@ markers above:
         {
           "type": "tableCell",
           "header": true,
-          "value": "First"
-        },
-        {
-          "type": "tableCell",
-          "header": true,
-          "value": "Second"
+          "value": "Task"
         },
         {
           "type": "tableCell",
@@ -2192,8 +2102,16 @@ markers above:
         {
           "type": "tableCell",
           "colSpan": 2,
-          "rowSpan": 2,
           "value": "Release checks"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Install"
         },
         {
           "type": "tableCell",
@@ -2206,7 +2124,11 @@ markers above:
       "children": [
         {
           "type": "tableCell",
-          "value": "Verified"
+          "value": "Verify"
+        },
+        {
+          "type": "tableCell",
+          "value": "Pending"
         }
       ]
     }
@@ -2216,6 +2138,214 @@ markers above:
 :::
 ::::
 
+“Release checks” occupies both columns. The Install and Verify rows each retain
+two separate cells, so the horizontal span is visible above them.
+
+### Spanning rows
+
+One session can contain several activities. Put `^` below “Morning” to continue
+that cell through the Breakfast and Workshop rows; Afternoon starts a new cell:
+
+```md
+::: table {header}
+
+- - Session
+  - Activity
+
+- - Morning
+  - Breakfast
+
+- - ^
+  - Workshop
+
+- - Afternoon
+  - Review
+
+:::
+```
+
+:::: {.render title="Cell spanning two rows" height="220"}
+```html
+<table>
+  <thead><tr><th scope="col">Session</th><th scope="col">Activity</th></tr></thead>
+  <tbody>
+    <tr><td rowspan="2">Morning</td><td>Breakfast</td></tr>
+    <tr><td>Workshop</td></tr>
+    <tr><td>Afternoon</td><td>Review</td></tr>
+  </tbody>
+</table>
+```
+
+::: {.details #table-grid-ast summary="AST"}
+```json
+{
+  "type": "table",
+  "children": [
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Session"
+        },
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Activity"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "rowSpan": 2,
+          "value": "Morning"
+        },
+        {
+          "type": "tableCell",
+          "value": "Breakfast"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Workshop"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Afternoon"
+        },
+        {
+          "type": "tableCell",
+          "value": "Review"
+        }
+      ]
+    }
+  ]
+}
+```
+Rows contain originating cells only; merged-away slots are not nodes. Place a
+cell at the first free column, skipping slots covered by row spans from preceding
+rows. Its rectangle covers `colSpan` columns and `rowSpan` rows, each defaulting
+to 1. Rectangles cannot overlap, extend beyond the table or cross its header/body
+boundary. Every row must resolve to the same grid width. An empty `children`
+array is valid for a row fully covered by spans above it.
+
+When `align` is supplied, its length is the grid width; otherwise the first
+row establishes the width. Cell header booleans describe header status, not
+implicit row-span permission. Native HTML span attributes map to numeric span
+fields; do not duplicate them in `attributes`. Safe HTML outside this grid model remains `html` or produces an
+unsupported-import diagnostic.
+:::
+::::
+
+“Morning” is one cell beside two distinct activity rows. Its left column has
+no divider between Breakfast and Workshop; both columns divide before Afternoon.
+
+A marker must be the cell's entire unescaped content; `> A quotation` is
+ordinary block content. Horizontal and vertical spans can combine, but merges
+must form rectangles and stay within the header or body. Resolve merges in the
+source grid first; `{transpose}` then swaps their row and column spans.
+Merging is optional. In a named assignment, `>` and `^` remain ordinary content;
+use positional rows or the pipe form when expressing merges.
+
+### Traditional pipe tables
+
+GFM pipe tables remain valid, including headers, column alignment and the merge
+markers above. This is the same session/activity table with a vertical span:
+
+```md
+| Session | Activity |
+| --- | --- |
+| Morning | Breakfast |
+| ^ | Workshop |
+| Afternoon | Review |
+```
+
+:::: {.render title="Traditional pipe table with a row span" height="220"}
+```html
+<table>
+  <thead><tr><th scope="col">Session</th><th scope="col">Activity</th></tr></thead>
+  <tbody>
+    <tr><td rowspan="2">Morning</td><td>Breakfast</td></tr>
+    <tr><td>Workshop</td></tr>
+    <tr><td>Afternoon</td><td>Review</td></tr>
+  </tbody>
+</table>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "table",
+  "children": [
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Session"
+        },
+        {
+          "type": "tableCell",
+          "header": true,
+          "value": "Activity"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "rowSpan": 2,
+          "value": "Morning"
+        },
+        {
+          "type": "tableCell",
+          "value": "Breakfast"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Workshop"
+        }
+      ]
+    },
+    {
+      "type": "tableRow",
+      "children": [
+        {
+          "type": "tableCell",
+          "value": "Afternoon"
+        },
+        {
+          "type": "tableCell",
+          "value": "Review"
+        }
+      ]
+    }
+  ]
+}
+```
+:::
+::::
 
 This compact compatibility form uses inline cells. It does not limit what an
 Expressive table cell can contain; use the list form for full block content.
@@ -2361,9 +2491,12 @@ pnpm add example-package
 :::
 ````
 
-:::: {.render title="Tabs as static labelled sections" height="230"}
+:::: {.render title="Choose an installation command" height="250" interactive="tabs"}
 ```html
-<section><header><strong>npm</strong></header><pre><code>npm install example-package</code></pre></section><section><header><strong>pnpm</strong></header><pre><code>pnpm add example-package</code></pre></section>
+<div data-tabs aria-label="Package manager">
+  <section data-tab="npm"><h3>npm</h3><pre><code>npm install example-package</code></pre></section>
+  <section data-tab="pnpm"><h3>pnpm</h3><pre><code>pnpm add example-package</code></pre></section>
+</div>
 ```
 
 ::: {.details #tabs-ast summary="AST"}
@@ -2415,6 +2548,11 @@ its required readable title is incomplete: preserve it and recommend a diagnosti
 ::::
 
 
+Select npm or pnpm to switch commands. Use Left/Right Arrow, Home or End while
+focused on a tab; Tab moves to its panel. Without JavaScript, both labelled
+sections remain visible. These are authored rendering illustrations; the
+preview's controls are not additional Expressive Markdown syntax.
+
 Another content block ends the group. Grouping stays within one block context,
 never across list items, quotes or enclosing containers. A single tab forms a
 group too. Explicit neighbouring groups remain separate.
@@ -2432,8 +2570,13 @@ TypeScript example.
 ::::
 ```
 
-The HTML fallback remains the labelled sections above; interactive renderers
-apply these group settings without removing either body.
+:::: {.render title="Tabs with explicit selection settings" height="240" interactive="tabs"}
+```html
+<div data-tabs data-group="language" data-default="js" aria-label="Example language">
+  <section data-tab="js"><h3>JavaScript</h3><p>JavaScript example.</p></section>
+  <section data-tab="ts"><h3>TypeScript</h3><p>TypeScript example.</p></section>
+</div>
+```
 
 ::: {.details summary="AST"}
 ```json
@@ -2453,6 +2596,11 @@ A tab's selection identity is string `attributes.value`; it is distinct from
 its generic node `id`. Titles are structured nodes. Group settings live in
 `attributes`; automatic groups have no authored settings, title or ID.
 :::
+::::
+
+The JavaScript panel starts selected because its value matches `default=js`.
+Switching panels leaves both bodies in the document. The labelled sections
+are also the no-JavaScript fallback.
 
 | Setting | Meaning/default |
 | --- | --- |

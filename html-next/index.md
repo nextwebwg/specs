@@ -262,18 +262,23 @@ Declarative HTML Components is a language specification: an implementation is a 
 
 ## Conformance & Levels
 
-Keywords follow RFC&nbsp;2119, scoped to HTML Next tooling. A tool [must]{.kw} emit an explicit unsupported-feature diagnostic, never silent literal fallback, for any construct above its level.
+Level&nbsp;1 defines the component language across these chapters, including templating and live reactive updates. A Level describes the specification's scope; it does not report how much a particular tool has implemented. The draft remains at Stage&nbsp;0, and implementations should identify the snapshot they support, as described in [How the proposal versions](#how-the-proposal-versions).
 
-| Area | Level 1: normative today | Direction |
-| --- | --- | --- |
-| **Components** | Typed native-root components; default, named, fallback, and scoped slots; explicit polymorphic roots. [Shipping]{.pill .l1} | [L2]{.pill .inc} external imports and dynamic composition |
-| **Targets** | Vanilla, React, Vue, Svelte, CSS, docs. [Shipping]{.pill .l1} | [L2]{.pill .inc} SSR, static/email |
-| **Browser runtime** | One-shot lowering, no Custom Elements, no eval. [Shipping]{.pill .l1} | [L2]{.pill .inc} reactive updates |
-| **Templating** | None yet | [L1]{.pill .l1} `$each`, `$if`, `$match`, `{expression}` |
-| **Reactivity** | None yet | [L1]{.pill .l1} state, computed, data |
-| **Forms** | Native ownership, validation, submission, and submitter overrides. | [L2]{.pill .inc} expanded methods and composable submission scopes |
-| **Types** | `string`, `boolean`, `number`, `enum`. | [L3]{.pill .soon} URLs, colors, refs, content models |
-| **Isolation** | None yet | [Upstream]{.pill .inc} Declarative-Shadow-DOM extension; native-element extension upstream |
+Keywords follow RFC&nbsp;2119, scoped to conforming implementations. A tool [must]{.kw} emit an explicit unsupported-feature diagnostic, never silent literal fallback, for any construct above its level.
+
+| Area | Level 1 contract |
+| --- | --- |
+| **Components** | Typed native-root components; default, named, fallback, and scoped slots; explicit polymorphic roots. See [Components & Composition](/declarative-components/components). |
+| **Targets** | Equivalent Vanilla DOM, React, Vue, and Svelte output, with CSS and API documentation. See [Targets & Equivalence](/declarative-components/targets). |
+| **Browser runtime** | Initial lowering and live updates to the native DOM from the declared dependency graph, without Custom Elements or `eval()`. See [Reactivity & Data](/declarative-components/reactivity). |
+| **Templating** | `$each`, `$if`, `$match`, `$with`, content directives, and `{expression}` text, with reactive bindings and keyed iteration. See [Templating](/declarative-components/templating). |
+| **Reactivity** | Mutable `<state>`, read-only `<computed>`, reactive `<data>` resources, change propagation, and connection-owned observation. See [Reactivity & Data](/declarative-components/reactivity). |
+| **Rendered form** | Server-rendered native HTML and the records needed to recover component instances during hydration; remaining recovery questions are identified in [Rendered Form & Hydration](/declarative-components/rendered-form). |
+| **Forms and validation** | Native form ownership and submission; declared types and constraints participate in validity. [HTML Forms](/html-forms) defines expanded methods and composable submission scopes as an independent proposal. |
+| **Types** | Scalar types including `keyword`, `integer`, URLs, dates, and CSS values; structured lists and objects; value constraints and selected types. See [Type System](/declarative-components/types). |
+| **Style scoping** | Component-scoped CSS in the light DOM, without a required shadow boundary. See [Style Scoping](/declarative-components/styling). |
+
+External composition remains marked as Level&nbsp;2 in [Components & Composition](/declarative-components/components). Native-element extension and deeper Declarative Shadow DOM integration remain upstream platform work. Optional extensions are listed separately below.
 
 ### Extensions {#extensions}
 
@@ -334,13 +339,9 @@ Genuine design questions, not yet settled:
 
 | Area | Question |
 | --- | --- |
-| Imports | Component-definition and registry-scoping syntax; untrusted-import trust model. |
-| Data | Request, caching, cancellation, concurrency, and stale-response semantics. |
-| Rendering | SSR serialization, hydration ownership, no-runtime fallback, static/email targets. |
-| Expressions | `and`/`or`/`not` vs. `&&`/`\|\|`/`!`; missing-data value; object/list literals; safe navigation. |
-| Reactive scheduling | Browser scheduling, teardown, and dynamic-index dependency breadth. |
-| Parser contexts | SVG, MathML, table, and select insertion modes. |
-| Extension | How consumers extend the element and type vocabulary; capability negotiation. |
+| Rendered form | Recovering explicit prop inputs and logical owners through server-rendered portals; a shared range grammar for structural anchors; consumer `class` and `style` origin. See [Rendered Form & Hydration](/declarative-components/rendered-form#open-questions). |
+| Types | Parsing values when an untagged union admits more than one base type. See [Type System](/declarative-components/types#future-exploration). |
+| Bindings | Whether computed values should also provide a writable binding contract. See [Bindings & Events](/declarative-components/bindings#future-exploration-writable-computed-values). |
 | Document head | Crawler-specific robots names as page-wide head entries; reading the status of an authored script that settled before the runtime looked. |
 
 > [!note] Prior art, credited

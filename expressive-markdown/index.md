@@ -43,11 +43,11 @@ Install the package, then **check the version**.
 - Run the installer.
 ```
 
-When a document needs more structure, add it a feature at a time: a warning,
-a caption, or a more readable table. Each has a Markdown form, HTML
-representation and JSON shape beside a rendering example where useful. The
-[language chapter](/expressive-markdown/language) starts with the basics and
-builds toward those additions.
+Use callouts to highlight important notes, tabs to offer alternative
+instructions, and tables to compare information. The
+[language chapter](/expressive-markdown/language) explains the syntax with
+examples, starting with familiar Markdown. HTML representations and AST details
+sit beside the examples for people building editors, converters or renderers.
 
 The same document can move between a text editor, a rich editor and a
 documentation site. A warning keeps its meaning and a mention keeps its target;

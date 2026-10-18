@@ -8,10 +8,10 @@ status: Unofficial Editor's Draft · Stage 0
 
 # Language & Semantics
 
-Start with familiar Markdown, then add features as you need them. This chapter
-moves from ordinary text and formatting to explicit lines, structured tables
-and reusable documentation blocks. Each feature keeps the same meaning across
-editors and renderers.
+Use Markdown for headings, paragraphs, links and lists. Expressive also supports
+callouts for important notes, tabs for alternative instructions, and tables
+with lists or code inside their cells. This chapter explains familiar Markdown
+first, then those additional forms.
 
 ```md
 # Installation

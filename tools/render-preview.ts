@@ -17,8 +17,10 @@ td > :last-child, th > :last-child { margin-bottom: 0; }
 td ul, td ol, th ul, th ol { padding-inline-start: 1.3em; margin-block: .35em; }
 pre { overflow: auto; padding: 12px; background: color-mix(in srgb, CanvasText 6%, Canvas); border-radius: 6px; }
 code { font-family: ui-monospace, monospace; }
-.callout { border-inline-start: 4px solid #9a6700; padding: 12px 16px; background: color-mix(in srgb, #e6b800 10%, Canvas); }
-.callout header { font-weight: 650; }
+.callout { border-inline-start: 4px solid #64748b; padding: 12px 16px; background: color-mix(in srgb, #64748b 10%, Canvas); }
+.callout[data-type="note"] { border-inline-start-color: #2563eb; background: color-mix(in srgb, #2563eb 10%, Canvas); }
+.callout[data-type="warning"] { border-inline-start-color: #9a6700; background: color-mix(in srgb, #e6b800 10%, Canvas); }
+.callout > header { font-weight: 650; }
 .chip, .mention { display: inline-block; padding: 1px 7px; border-radius: 12px; background: color-mix(in srgb, #20a464 15%, Canvas); }
 .mention { background: color-mix(in srgb, #8560cf 15%, Canvas); }
 figure { margin: 0; }

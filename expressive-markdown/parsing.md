@@ -208,8 +208,15 @@ The AST uses `lineBlock.children` with `break` nodes; consecutive/leading/traili
 
 **Recommended HTML:** `<p>` with `<br>` boundaries and preserved inline wrappers. Append one layout `<br>` for a terminal empty line, or for an entirely empty one-line block, so HTML does not absorb it. This extra layout break is not an AST break. Explicit empty lines add to normal paragraph spacing.
 
-> [!note] Why a leading pipe?
-> It is visible and marks the line it affects. CommonMark trailing spaces are invisible; its trailing backslash forces a break where languages such as Python use one to continue a line. Both CommonMark hard-break forms remain accepted as `break`; writers prefer line blocks.
+### CommonMark compatibility
+
+Accept CommonMark's trailing-backslash and two-or-more-trailing-spaces hard
+breaks as `break` nodes within a paragraph. Their lexical boundaries follow
+[CommonMark hard line breaks](https://spec.commonmark.org/0.31.2/#hard-line-breaks).
+The [Language compatibility examples](/expressive-markdown/language#commonmark-compatibility)
+show the source, HTML and AST. Leading pipes are the preferred authoring form
+for line blocks; compatibility hard breaks do not change a paragraph into a
+`lineBlock`. Writers preserve that distinction under the [writer contract](#writing-and-preservation).
 
 ## Tables
 

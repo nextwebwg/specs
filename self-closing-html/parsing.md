@@ -76,7 +76,7 @@ In the second example, the attribute value is `assets/`. The final slash belongs
 
 ## Retain recognition while changing containment
 
-Use ordinary HTML tokenization and recovery to determine the recognized node tree in the actual parser context and scripting state. Keep its open-element, formatting, form, namespace, and template state.
+Use ordinary HTML tokenization and recovery to determine the recognized node tree in the actual parser context and scripting state. Keep its open-element, formatting, form, namespace, and template state. This recognition state follows ordinary HTML independently of output DOM parenting: an eligible shorthand's empty DOM element can still have a live open-element entry used for scope checks and later closing tags.
 
 For each eligible self-closing start token that creates an element:
 
@@ -88,6 +88,8 @@ For each eligible self-closing start token that creates an element:
 > Ignored start tokens create no record. Records expire when HTML recovery removes them, including through an ancestor's closing tag. Retain complete state: a set of previously closed names cannot represent heading aliases, namespace transitions, or formatting recovery.
 
 For example, HTML can use `</h2>` to close an `h1`. A recovery rule that checks only exact names would miss that relationship. [See the worked SVG-boundary example →](/html-parsing/security#recover-at-namespace-boundaries)
+
+For example, after `<div/><svg>`, the recognition stack still contains the div below SVG, while the output DOM places the empty div and SVG as siblings. A later `</div>` can therefore pop both recognition entries before the next token is interpreted.
 
 The static reference is ordinary HTML recognition followed by this containment projection. When recovery depends on an ignored slash, the result can differ from parsing a literally expanded string. That conservative interpretation is part of the profile.
 

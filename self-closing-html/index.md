@@ -65,7 +65,7 @@ For ordinary shorthand, following content becomes a sibling:
 ```
 :::
 
-The parser still remembers the div's recovery context. If a later closing tag affects how HTML interprets SVG or style text, that context remains available. **An empty DOM element does not erase the parser's recovery state.**
+The div remains on the parser's recognition stack even though it is empty in the DOM. A later `</div>` can still close that entry and any intervening SVG context. The next `style` then uses HTML text parsing, so image-looking text stays text. **The slash changes containment without discarding the scope information that protects text boundaries.**
 
 ### Keep text and protected content inside their boundaries
 
@@ -80,7 +80,7 @@ Sensitive elements retain their existing slash handling. For example:
 > [!ex] The rule behind the shorthand
 > Change eligible parent/child relationships while preserving recognized tags, text, namespaces, and protected containers. Existing HTML insertion APIs retain their current grammar.
 
-The [parsing rules](/html-parsing/parsing) define eligibility and recovery. [Security and evidence](/html-parsing/security) walks through the namespace case, the safety argument, and the experiments.
+The [parsing rules](/html-parsing/parsing) define eligibility and recovery. [Security and evidence](/html-parsing/security) separates the sanitizer and distant-mode-switch objections, shows the retained stack token by token, and states what the reference construction establishes.
 
 ## Extension: more places for components {#placement-extension}
 

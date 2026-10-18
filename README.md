@@ -8,7 +8,7 @@ discussion, not a W3C or WHATWG deliverable.
 | --- | --- | --- |
 | Declarative HTML Components | [`html-next/`](./html-next) — one specification in chapters | [nextwebwg.org/declarative-components](https://nextwebwg.org/declarative-components/) |
 | HTML Forms | [`html-forms/`](./html-forms) | [nextwebwg.org/html-forms](https://nextwebwg.org/html-forms/) |
-| Self-closing HTML | [`self-closing-html/`](./self-closing-html) | [nextwebwg.org/self-closing-html](https://nextwebwg.org/self-closing-html/) |
+| HTML Next Parsing | [`self-closing-html/`](./self-closing-html) | [nextwebwg.org/html-parsing](https://nextwebwg.org/html-parsing/) |
 | Expressive Markdown | [`expressive-markdown/`](./expressive-markdown) | [nextwebwg.org/expressive-markdown](https://nextwebwg.org/expressive-markdown/) |
 
 The site renders these files as they are on `main`; dated snapshots are frozen copies. The

@@ -155,8 +155,17 @@ This is the cell fragment; the surrounding table supplies its row.
 The publisher shows the HTML in a sandboxed frame labelled “Rendering
 example”. Give each illustration a descriptive title and enough height for
 its content. Examples use self-contained HTML, inline SVG or data images;
-scripts and external assets do not run. Native interactions such as `details`
+authored scripts and external assets do not run. Native interactions such as `details`
 can still demonstrate ordinary HTML behavior.
+
+For a selectable tabs illustration, add `interactive="tabs"` to the render div.
+Use a labelled `data-tabs` wrapper with `section[data-tab]` children and a
+heading in each section. Optional `data-default` and `data-group` values
+demonstrate initial selection and synchronization within that frame. The
+publisher adds tab controls and keyboard handling. Without JavaScript, all
+labelled sections remain visible. Only the fixed publisher controller runs;
+authored scripts and event handlers stay blocked, and the frame cannot access
+the parent page. Other render divs keep scripts disabled.
 
 These are authored illustrations, not output from an Expressive parser or a
 claim that a particular implementation supports the adjacent syntax. Keep the

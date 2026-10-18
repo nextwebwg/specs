@@ -8,10 +8,10 @@ stamp: Unofficial Editor's Draft · Stage&nbsp;0
 
 # Expressive Markdown
 
-A common language for documentation.
+Markdown for structured, portable documents.
 
 - [Learn the syntax →](/expressive-markdown/language)
-- [Use the document AST →](/expressive-markdown/ast)
+- [Implement a parser or writer →](/expressive-markdown/parsing)
 - [Browse Chapters ↓](#chapters)
 
 Editors
@@ -29,25 +29,82 @@ Expressive Markdown is a proposed Markdown language and document format. This
 unofficial editor's draft is open for discussion. It does not represent the
 W3C, WHATWG or a browser vendor, or require browsers to parse Markdown.
 
-## Abstract
+## Why Expressive Markdown
 
-Documentation needs more than headings and paragraphs: warnings, tabs, code
-examples, mentions and tables with merged cells. Expressive gives those features
-readable Markdown syntax and shared meanings, so the same document can move
-between a text editor, a rich editor and a documentation site.
+Documentation often moves between text editors, rich editors and publishing
+tools. Those tools may preserve the words while losing the structure needed
+for further editing.
+
+CommonMark defines ordinary Markdown. GFM adds tables, task lists and
+strikethrough.[^1] Expressive Markdown builds on these formats to address three
+recurring problems in richer documents.
+
+### Conversions can lose structure
+
+A warning can become a styled paragraph. A titled block can lose the
+distinction between its title and body. Saving the result as Markdown cannot
+reliably recover that information.
+
+::::: {.two}
+:::: {.example}
+**Markdown source**
 
 ```md
-::: warning [Before deploying] {#deployment-check}
-Back up the database first.
+::: warning [Before upgrading]
+Back up your data.
 :::
+```
+::::
 
-Status: :chip[Ready]{tone=green}.
-Thanks, @[Ada Lovelace]#user-123.
+:::: {.example}
+**Rendered warning**
+
+> [!warn] Before upgrading
+> Back up your data.
+::::
+:::::
+
+Expressive Markdown defines **text syntax and a shared document tree**, with
+explicit fields for titles, content and attributes. Editors and publishers
+have a common representation to preserve through conversion, even when
+whitespace or presentation changes.
+
+[See the warning example →](/expressive-markdown/language#named-constructs)
+
+### Tables can be hard to edit
+
+Pipe tables work well for short values. Long rows are harder to scan and
+require editing across columns. GFM cells cannot contain block content such
+as paragraphs, lists or fenced code.[^7]
+
+List-based tables let each cell read from top to bottom. Text can wrap without
+aligning neighboring columns, and cells can hold ordinary Markdown blocks:
+
+```md
+::: table
+
+- Task: Install
+  Steps:
+    - Download the package.
+    - Run the installer.
+
+:::
 ```
 
-A warning remains a warning; a mention keeps its target. Each renderer chooses
-its own colors, icons and layout. Tools exchange a documented JSON tree instead
-of having to recover those meanings from a particular editor's HTML.
+[Explore tables and merged cells →](/expressive-markdown/language#tables)
+Traditional pipe tables remain supported for compatibility.
+
+### Extensions vary between tools
+
+Documentation tools provide callouts, tabs and other features through
+extensions. Their syntax and conventions vary, so moving a document can
+require translating those features individually.[^2][^3]
+
+CommonMark and GFM do not define a shared format for those features.
+Expressive Markdown proposes consistent syntax, common meanings and document
+data for them. Custom types use the same grammar.
+
+The format is independent of a component framework or site generator.
 
 ## What the proposal defines
 
@@ -102,3 +159,4 @@ execution and framework component APIs are outside the language.
 [^4]: [Pandoc's Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
 [^5]: [UMD table-spanning documentation](https://docs.rs/crate/umd/0.2.0/source/README.md).
 [^6]: [mdast](https://github.com/syntax-tree/mdast) and [unist](https://github.com/syntax-tree/unist).
+[^7]: [GFM table syntax and cell contents](https://github.github.com/gfm/#tables-extension).

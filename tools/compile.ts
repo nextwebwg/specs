@@ -8,12 +8,14 @@ import type Token from "markdown-it/lib/token.mjs";
 import container from "markdown-it-container";
 import deflist from "markdown-it-deflist";
 import { parse as parseYaml } from "yaml";
+import { renderPreview } from "./render-preview.ts";
 
 export interface ChapterMeta {
   title: string;
   order?: number;
   blurb?: string;
   navGroup?: string;
+  sectionNav?: boolean;
   layout?: "chapter" | "proposal";
   pager?: boolean;
   eyebrow?: string;
@@ -424,6 +426,17 @@ class Compiler {
     const [kind] = classes;
     const body = node.children;
     switch (kind) {
+      case "render": {
+        if (!body.length || body[0].token.type !== "fence" || body[0].token.info.trim() !== "html"
+          || body.slice(1).some((part) => part.token.type !== "paragraph_open"
+            && !(part.token.type === "container_div_open" && parseDivInfo(part.token.info).classes[0] === "details"))) {
+          throw new Error("A rendering preview must start with exactly one html code fence, followed by optional references or AST disclosures.");
+        }
+        // Show the same HTML that the frame renders, with its AST reference between
+        // the code and preview. Authors keep Markdown/use-case context beside this div.
+        return `<p><strong>HTML representation</strong></p>${this.codeBlock(body[0].token)}${this.children(body.slice(1))}`
+          + renderPreview(body[0].token.content, attrs.title ?? "Rendered example", attrs.height, attrs.interactive);
+      }
       case "details":
         return `<details class="spec-disclosure"${id ? ` id="${escapeText(id)}"` : ""}>\n<summary>${escapeText(attrs.summary ?? "Details")}</summary>\n<div class="disclosure-body">\n${this.children(body)}\n</div>\n</details>`;
       case "entry": {
@@ -543,12 +556,26 @@ export interface CompileOptions {
   proposalSnapshot?: boolean;
 }
 
-export function compileChapter(source: string, options: CompileOptions = {}): { meta: ChapterMeta; sfc: string } {
+export interface ChapterHeading {
+  id: string;
+  title: string;
+  level: 2 | 3;
+}
+
+export function compileChapter(source: string, options: CompileOptions = {}): { meta: ChapterMeta; outline: ChapterHeading[]; sfc: string } {
   const { meta, body } = readFrontmatter(source);
   const compiler = new Compiler();
   const nodes = toTree(compiler.md.parse(body, {}));
   resolveAttrs(nodes);
   assignHeadingIds(nodes);
+  // Only document headings belong in navigation. Headings inside disclosures,
+  // quotes and source examples are not steps in the chapter's reading order.
+  const outline = nodes.filter(({ token }) => token.tag === "h2" || token.tag === "h3")
+    .map(({ token, children }) => ({
+      id: token.attrGet("id")!,
+      title: plainText(children[0]?.token),
+      level: (token.tag === "h2" ? 2 : 3) as 2 | 3,
+    }));
   const proposal = meta.layout === "proposal";
   const template = proposal ? compiler.proposal(meta, nodes, options.proposalSnapshot) : compiler.chapter(meta, nodes, options.chapterFrame);
   // Code samples contain </script> and </template>; escape "<" so they cannot end an SFC block.
@@ -563,5 +590,5 @@ export function compileChapter(source: string, options: CompileOptions = {}): { 
     `const __data = ${literal(compiler.data)};`,
   ].filter(Boolean).join("\n");
   const style = proposal && options.proposalStyle ? `\n<style scoped>\n${readFileSync(options.proposalStyle, "utf8")}</style>\n` : "";
-  return { meta, sfc: `<script setup>\n${script}\n</script>\n\n<template>\n${template}\n</template>\n${style}` };
+  return { meta, outline, sfc: `<script setup>\n${script}\n</script>\n\n<template>\n${template}\n</template>\n${style}` };
 }

@@ -8,6 +8,7 @@ import type Token from "markdown-it/lib/token.mjs";
 import container from "markdown-it-container";
 import deflist from "markdown-it-deflist";
 import { parse as parseYaml } from "yaml";
+import { renderPreview } from "./render-preview.ts";
 
 export interface ChapterMeta {
   title: string;
@@ -424,6 +425,12 @@ class Compiler {
     const [kind] = classes;
     const body = node.children;
     switch (kind) {
+      case "render": {
+        if (body.length !== 1 || body[0].token.type !== "fence" || body[0].token.info.trim() !== "html") {
+          throw new Error("A rendering preview must contain exactly one html code fence.");
+        }
+        return renderPreview(body[0].token.content, attrs.title ?? "Rendered example", attrs.height);
+      }
       case "details":
         return `<details class="spec-disclosure"${id ? ` id="${escapeText(id)}"` : ""}>\n<summary>${escapeText(attrs.summary ?? "Details")}</summary>\n<div class="disclosure-body">\n${this.children(body)}\n</div>\n</details>`;
       case "entry": {

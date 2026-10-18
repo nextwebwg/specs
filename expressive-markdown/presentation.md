@@ -9,7 +9,7 @@ status: Unofficial Editor's Draft · Stage 0
 # Rendering Recommendations
 
 Expressive defines what a document means. Renderers choose how it looks. These
-recommendations show how to keep that meaning readable and accessible in HTML,
+rendering examples and recommendations show how to keep that meaning readable and accessible in HTML,
 including when an interactive widget is unavailable.
 
 ## Callouts and captions {#coverage-matrix}
@@ -19,6 +19,14 @@ including when an interactive widget is unavailable.
 Back up the database first.
 :::
 ```
+
+
+
+::: {.render title="Warning callout" height="155"}
+```html
+<section class="callout"><header>Before deploying</header><p>Back up the database first.</p></section>
+```
+:::
 
 Show this as a warning with a visible title and body. A border, color or icon can
 help, but the meaning should remain understandable without color.
@@ -52,6 +60,14 @@ Adjacent tabs form one group; blank lines do not split it. An interactive
 renderer can show one at a time. A static export should show both as labelled
 sections, keeping every tab's content.
 
+
+
+::: {.render title="Static tab fallback" height="200"}
+```html
+<section><header><strong>npm</strong></header><p>Run <code>npm install</code>.</p></section><section><header><strong>pnpm</strong></header><p>Run <code>pnpm install</code>.</p></section>
+```
+:::
+
 An outer `tabs` container can supply settings such as
 `{group=language & default=js}`. Related groups synchronize by tab selection
 value. A group without the chosen value keeps its current selection. A valid
@@ -75,6 +91,21 @@ await verify();
 ```
 ````
 
+
+
+::: {.render title="Code caption and highlights" height="235"}
+```html
+<figure><figcaption>deploy.ts</figcaption><div style="display:grid;grid-template-columns:auto 1fr;gap:12px"><pre aria-hidden="true" style="user-select:none">1
+2
+3
+4</pre><pre><code><mark>const mode = &quot;safe&quot;;</mark>
+await check();
+<mark>await deploy();</mark>
+<mark>await verify();</mark>
+</code></pre></div></figure>
+```
+:::
+
 Show the caption **deploy.ts**, highlight line 1 and lines 3–4, and display line
 numbers. Keep line-number labels and other decorations out of copied code.
 The code's stored text remains unchanged. Without optional decoration, escaped
@@ -95,6 +126,14 @@ replace those entries with an empty generated placeholder.
 Table cells can contain full block content, including lists, multiple paragraphs
 and fenced code blocks. Keep those structures when rendering. Cell width is a
 presentation constraint, not a reason to remove a supported kind of content.
+
+
+
+::: {.render title="Compact table cell with a list and code" height="235"}
+```html
+<table><thead><tr><th scope="col">Task</th><th scope="col">Instructions</th></tr></thead><tbody><tr><td>Install</td><td><ol><li>Download the package.</li><li>Run the installer.</li></ol><pre><code>pnpm install</code></pre></td></tr></tbody></table>
+```
+:::
 
 Renderers should adapt page-level styles to the available cell space:
 

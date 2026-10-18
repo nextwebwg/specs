@@ -30,7 +30,8 @@ Thanks, @[Ada Lovelace]#user-123.
 
 The [parser reference](/expressive-markdown/parsing) specifies boundaries and
 recovery. The [AST reference](/expressive-markdown/ast) defines the document tree.
-HTML conversions below are recommendations, not required output.
+Rendering examples show common possibilities, not a required visual theme.
+HTML mappings describe semantics alongside those examples.
 
 ## Named constructs
 
@@ -40,6 +41,13 @@ These open the same warning:
 :::warning[Before deploying]{#check}
 ::: warning {#check} [Before deploying]
 ```
+
+::: {.render title="Warning callout" height="155"}
+```html
+<section class="callout"><header>Before deploying</header><p>Back up the database first.</p></section>
+```
+:::
+
 
 - Put the type first. Title and attributes can follow in either order.
 - Keep the opening header on one source line. Spaces between parts are optional;
@@ -62,6 +70,13 @@ Check the configuration.
 
 ::::
 ```
+
+::: {.render title="Nested callout" height="180"}
+```html
+<section class="callout"><header>Outer</header><section class="callout"><header>Inner</header><p>Check the configuration.</p></section></section>
+```
+:::
+
 
 Fences have at least three colons. A directly nested container uses fewer than
 its parent; each closing fence matches its opening length. Bodies can contain
@@ -112,7 +127,7 @@ Heading attributes are final and whitespace-separated. Image/link attributes
 are immediately adjacent. All attachments stay on the same source line.
 Escape `{` to write literal text. Other block styling uses supported safe HTML.
 
-**Recommended HTML:** use native attributes where supported; map custom
+**Rendering semantics:** use native attributes where supported; map custom
 attributes to `data-*`. Custom true flags are present/empty; false flags are
 omitted. Native boolean attributes follow HTML presence: an assigned string
 `"false"` still enables them. See the [attribute conversion rules](/expressive-markdown/parsing#attributes-and-identity).
@@ -157,6 +172,13 @@ Use a leading pipe when line divisions are part of the content:
 | Fourth line
 ```
 
+::: {.render title="Preserved lines" height="150"}
+```html
+<p>First line<br>Second line<br><br>Fourth line</p>
+```
+:::
+
+
 `| ` starts a preserved line; a bare `|` requests an empty one. `|Text` stays
 ordinary text. Source indentation is stripped, not displayed.
 
@@ -167,6 +189,13 @@ The content after the pipe uses inline Markdown. A list marker there stays text:
 | - one item
 | - second item
 ```
+
+::: {.render title="Literal numbered and bullet lines" height="125"}
+```html
+<p>1. item<br>- one item<br>- second item</p>
+```
+:::
+
 
 These are three represented lines, with no list. Backslash escapes are also
 valid: `1\. item` and `\- item` prevent list recognition in an ordinary paragraph.
@@ -206,7 +235,7 @@ block. Formatting can span represented lines; inline code stays within one.
 | Blank source line at a block boundary | Ordinary paragraph spacing. |
 | Bare pipe at a boundary | An extra empty line in addition to ordinary spacing. |
 
-**Recommended HTML:** a paragraph with `<br>` boundaries, retaining inline
+**Rendering semantics:** a paragraph with `<br>` boundaries, retaining inline
 formatting. See [terminal empty-line handling](/expressive-markdown/parsing#leading-pipe-line-blocks).
 
 > [!note] Why a leading pipe?
@@ -226,6 +255,20 @@ await verify();
 ```
 ````
 
+::: {.render title="Captioned code with highlighted lines" height="235"}
+```html
+<figure><figcaption>deploy.ts</figcaption><div style="display:grid;grid-template-columns:auto 1fr;gap:12px"><pre aria-hidden="true" style="user-select:none">1
+2
+3
+4</pre><pre><code><mark>const mode = &quot;safe&quot;;</mark>
+await check();
+<mark>await deploy();</mark>
+<mark>await verify();</mark>
+</code></pre></div></figure>
+```
+:::
+
+
 This captions the example **deploy.ts**, highlights **line 1 and lines 3 through
 4**, and shows line numbers. A comma separates selections; a hyphen means
 “through.” Line highlighting is separate from syntax coloring.
@@ -242,7 +285,7 @@ attribute grammar as other features. Code remains literal text. Unknown info
 string tokens remain in `meta`; annotation comments remain part of the code.
 See [validation and writing rules](/expressive-markdown/parsing#code-presentation).
 
-**Recommended HTML:** escaped `<pre><code class="language-ts">…</code></pre>`,
+**Rendering semantics:** escaped `<pre><code class="language-ts">…</code></pre>`,
 optionally captioned and decorated. Keep generated line numbers out of copied
 code. Colors and copy controls belong to the renderer.
 
@@ -301,13 +344,305 @@ The exact sanitizer preset remains to be selected.
 
 ## Tables
 
-A table cell can contain the same block content as the document body, including
-paragraphs, lists, quotes and complete fenced code blocks. Its position in a
-table changes layout, not the meaning or availability of that content. The AST
-already represents this with a cell's block `body`.
+Use list-based forms inside `::: table` for **all tabular content**, including
+short values. Each outer item is a row. Named fields assign cells by column
+name; nested cell lists assign them by position.
+This keeps each cell readable from top to bottom without aligning columns or
+padding neighbouring values. Traditional pipe tables remain supported for
+compatibility, but their pipe-heavy rows and long values are often hard to
+read and edit.
 
-The current compact pipe form starts from GFM tables, with headers, alignment
-and inline cells. Marker-only cells add merging:
+For positional rows, only the first two list levels define table structure.
+**Relative indentation determines nesting**, using ordinary Markdown list rules.
+For named rows, field labels begin cells and indented content belongs to those
+cells. Lists inside a cell remain content; they do not create extra rows or
+cells. Columns do not need to line up horizontally.
+
+### Untitled columns
+
+No header setting is needed for a table without column titles:
+
+```md
+::: table
+
+- - Install
+  - Download the package.
+
+- - Verify
+  - Open the application.
+
+:::
+```
+
+::: {.render title="Untitled columns" height="140"}
+```html
+<table><tbody><tr><td>Install</td><td>Download the package.</td></tr><tr><td>Verify</td><td>Open the application.</td></tr></tbody></table>
+```
+:::
+
+
+This makes two rows and two columns, with no header cells.
+
+### Titled columns
+
+Name the fields to establish titled columns:
+
+```md
+::: table
+
+- Task: Install
+  Instructions: Run the installer.
+
+- Task: Verify
+  Instructions: Check the version.
+
+:::
+```
+
+::: {.render title="Named columns" height="180"}
+```html
+<table><thead><tr><th scope="col">Task</th><th scope="col">Instructions</th></tr></thead><tbody><tr><td>Install</td><td>Run the installer.</td></tr><tr><td>Verify</td><td>Check the version.</td></tr></tbody></table>
+```
+:::
+
+
+Field names are authoritative. The first appearance of a name establishes its
+column, and columns keep that order. Later assignments to that name reuse the
+column, even if fields appear in a different order. Missing fields leave empty
+cells. A new name adds a column; earlier rows receive an empty cell there.
+
+```md
+::: table
+
+- Task: Install
+  Instructions: Run the installer.
+
+- Notes: Check the version.
+  Task: Verify
+
+:::
+```
+
+::: {.render title="New named field and reordered assignments" height="220"}
+```html
+<table><thead><tr><th scope="col">Task</th><th scope="col">Instructions</th><th scope="col">Notes</th></tr></thead><tbody><tr><td>Install</td><td>Run the installer.</td><td></td></tr><tr><td>Verify</td><td></td><td>Check the version.</td></tr></tbody></table>
+```
+:::
+
+
+This has columns “Task”, “Instructions” and “Notes”. “Verify” still belongs to
+“Task”, even though it is the second assignment in its record. `Instructions:`
+with no body explicitly assigns an empty cell; omitting it also leaves that
+cell empty.
+
+Names match exactly: `Instruction` and `Instructions` are different columns.
+A compiler may warn about a likely typo, but must preserve both columns and
+their values. Never silently merge names or fall back to positional matching
+for a named assignment.
+
+```md
+::: table
+
+- Task: Install
+  Instructions: Run the installer.
+
+- Task: Verify
+  Instruction: Check the version.
+
+:::
+```
+
+::: {.render title="Distinct columns for differing names" height="240"}
+```html
+<table><thead><tr><th scope="col">Task</th><th scope="col">Instructions</th><th scope="col">Instruction</th></tr></thead><tbody><tr><td>Install</td><td>Run the installer.</td><td></td></tr><tr><td>Verify</td><td></td><td>Check the version.</td></tr></tbody></table>
+```
+:::
+
+
+Table captions are separate: `::: table [Checklist]` captions the whole table.
+For complex or untitled header cells, the positional form also accepts
+`{header}` to mark its first row as headers. Header formatting does not define
+column identity; named field labels are plain text.
+
+### Positional rows after named columns
+
+Once names establish the columns, subsequent rows may use positions:
+
+```md
+::: table
+
+- Task: Install
+  Instructions: Run the installer.
+
+- - Verify
+  - Check the version.
+
+:::
+```
+
+::: {.render title="Named and positional rows" height="180"}
+```html
+<table><thead><tr><th scope="col">Task</th><th scope="col">Instructions</th></tr></thead><tbody><tr><td>Install</td><td>Run the installer.</td></tr><tr><td>Verify</td><td>Check the version.</td></tr></tbody></table>
+```
+:::
+
+
+The positional row follows the established order: “Task”, then “Instructions”.
+Named rows can still reorder assignments or add columns later. A new name
+appends its column; it never shifts existing positions. Missing trailing cells
+are empty. To leave an interior position empty, retain an empty cell item.
+A positional row with more cells than the established columns is malformed;
+it cannot invent names. Named columns must be established before mixing these
+forms, rather than retroactively guessing names for earlier positional data.
+
+### Vertical fields
+
+Add `{transpose}` to swap rows and columns:
+
+```md
+::: table {transpose}
+
+- Name: Ada
+  Role: Engineer
+
+- Name: Grace
+  Role: Reviewer
+
+:::
+```
+
+::: {.render title="Transposed named fields" height="140"}
+```html
+<table><tbody><tr><th scope="row">Name</th><td>Ada</td><td>Grace</td></tr><tr><th scope="row">Role</th><td>Engineer</td><td>Reviewer</td></tr></tbody></table>
+```
+:::
+
+
+The first displayed column contains the field names “Name” and “Role”, with
+Ada's and Grace's values in the next two columns. Each source record supplies
+a displayed column. Transposition happens after resolving names and positions;
+it changes placement, not content or field matching.
+
+The untitled positional form also accepts `{transpose}`. With positional
+`{header transpose}`, the first source row becomes a displayed header column.
+
+### Alignment
+
+Optional `align="left,right"` sets alignment by **displayed column**, after any
+transposition. Use `left`, `center`, `right` or `-` for the default. One entry
+applies to every column; multiple entries match the displayed column count.
+For example, `::: table {header align="left,right"}` aligns labels left and
+amounts right. Cell width and wrapping remain renderer choices.
+
+### Lists and blocks inside cells
+
+A cell contains ordinary Markdown blocks, including paragraphs, lists, quotes,
+line blocks, nested tables and complete fenced code blocks:
+
+````md
+::: table
+
+- - Install
+  -
+    - Download the package.
+    - Run the installer.
+
+    ```sh
+    pnpm install
+    ```
+
+:::
+````
+
+::: {.render title="A list and code in a table cell" height="200"}
+```html
+<table><tbody><tr><td>Install</td><td><ul><li>Download the package.</li><li>Run the installer.</li></ul><pre><code>pnpm install</code></pre></td></tr></tbody></table>
+```
+:::
+
+
+This is one row with two cells. The second cell contains a bullet list followed
+by a code block. With the two-space style above, the outer list defines a row,
+its nested list defines cells, and the deeper list belongs to cell content.
+Blank lines can separate blocks inside a cell; they do not start another row.
+
+Named fields support the same cell bodies:
+
+````md
+::: table
+
+- Task: Install
+  Instructions:
+    1. Download the package.
+    2. Run:
+
+       ```sh
+       pnpm install
+       ```
+
+:::
+````
+
+::: {.render title="Named field with a list and fenced code" height="290"}
+```html
+<table><thead><tr><th scope="col">Task</th><th scope="col">Instructions</th></tr></thead><tbody><tr><td>Install</td><td><ol><li>Download the package.</li><li>Run:<pre><code>pnpm install</code></pre></li></ol></td></tr></tbody></table>
+```
+:::
+
+
+To keep a list marker as literal paragraph text inside a cell, use the usual
+escape: `1\. item` or `\- item`. Exporters do this automatically from the
+stored document structure. The `-` markers that define rows and cells are
+structural; an additional list inside a cell is normal content.
+
+Pipes inside a list-form cell do not delimit neighbouring cells, so ordinary
+text such as `left | right` needs no table-specific escape. A complete nested
+pipe table still follows its own table rules inside that cell.
+
+### Optional merged cells
+
+The positional list and pipe forms use the same marker-only cells:
+
+| Cell source | Meaning before transposition |
+| --- | --- |
+| `>` | Merge right into the next ordinary cell. |
+| `^` | Continue the cell above. |
+| Empty | Empty content, not a merge. |
+| `\>` / `\^`, or inline code | Literal marker. |
+
+```md
+::: table
+
+- - >
+  - Release checks
+  - Ready
+
+- - ^
+  - ^
+  - Verified
+
+:::
+```
+
+::: {.render title="Merged cells" height="140"}
+```html
+<table><tbody><tr><td colspan="2" rowspan="2">Release checks</td><td>Ready</td></tr><tr><td>Verified</td></tr></tbody></table>
+```
+:::
+
+
+“Release checks” spans two source columns and two source rows. The marker must
+be the cell's entire unescaped content; `> A quotation` is ordinary block
+content. Merges must form rectangles and stay within the header or body.
+Resolve merges in the source grid first; `{transpose}` then swaps their row and
+column spans. Merging is optional; ordinary tables need none of these markers. In a named
+assignment, `>` and `^` remain ordinary content; use positional rows or the pipe
+form when expressing merges.
+
+### Traditional pipe tables
+
+GFM pipe tables remain valid, including headers, column alignment and the merge
+markers above:
 
 ```md
 | First | Second | Status |
@@ -316,33 +651,22 @@ and inline cells. Marker-only cells add merging:
 | ^ | ^ | Verified |
 ```
 
-“Release checks” spans two columns and two rows.
+::: {.render title="Traditional pipe table with merged cells" height="180"}
+```html
+<table><thead><tr><th scope="col">First</th><th scope="col">Second</th><th scope="col">Status</th></tr></thead><tbody><tr><td colspan="2" rowspan="2">Release checks</td><td>Ready</td></tr><tr><td>Verified</td></tr></tbody></table>
+```
+:::
 
-| Cell | Meaning |
-| --- | --- |
-| `>` | Merge right into the next ordinary cell. |
-| `^` | Continue the cell above. |
-| Empty | Empty content, not a merge. |
-| `\>` / `\^`, or inline code | Literal marker. |
 
-Tight `|>`/`|^` forms work too. Merges must be rectangular, cover every lower slot
-with `^`, and stay within the header or body. Invalid merges preserve the whole
-table source instead of guessing. The AST stores numeric `colSpan`/`rowSpan`,
-not placeholder cells.
+This compact compatibility form uses inline cells. It does not limit what an
+Expressive table cell can contain; use the list form for full block content.
+Both forms produce the same table, row and cell node types.
 
-> [!warn] Rich-cell source syntax remains open
-> GFM's compact pipe form parses cells as inline content. That compatibility
-> rule is not a restriction on Expressive table cells. A readable Markdown form
-> for full cell bodies still needs defined row/cell boundaries, multiline and
-> nested-block handling, escaping, and writer rules. This draft does not yet
-> choose that grammar. Supported safe HTML currently preserves rich cells when
-> the compact form cannot; it does not settle the source-syntax design.
-
-**Recommended HTML:** native tables with spans and supported presentation. Rich
+**Rendering semantics:** native tables with spans and supported presentation. Rich
 cells retain their blocks and styling. Renderers should adapt list indentation,
 block spacing and wrapping to cell widths while preserving content, list
 markers and nesting. See [table rendering](/expressive-markdown/presentation#table-cell-layout)
-and [grid rules](/expressive-markdown/parsing#tables).
+and the [parser and writer rules](/expressive-markdown/parsing#tables).
 
 ## Recognized container semantics
 
@@ -374,6 +698,13 @@ The build finished successfully.
 :::
 ```
 
+::: {.render title="Expanded disclosure" height="145"}
+```html
+<details open><summary>Show the full log</summary><p>The build finished successfully.</p></details>
+```
+:::
+
+
 Absent `open` or `{!open}` recommends a collapsed disclosure; `{open}` recommends
 expanded. Any assigned string, including `{open="false"}`, enables native HTML
 boolean presence. A missing title can use the control label “Details” without
@@ -386,6 +717,13 @@ adding a title to the AST.
 ![Services and connections](deployment.svg)
 :::
 ```
+
+::: {.render title="Figure and caption" height="165"}
+```html
+<figure><svg role="img" aria-label="Services and connections" viewBox="0 0 460 90" style="width:100%;max-width:460px;height:90px"><rect x="5" y="10" width="150" height="60" rx="6" fill="none" stroke="currentColor"/><text x="80" y="47" text-anchor="middle" fill="currentColor">Application</text><path d="M155 40h140m-10-7 10 7-10 7" fill="none" stroke="currentColor"/><rect x="300" y="10" width="150" height="60" rx="6" fill="none" stroke="currentColor"/><text x="375" y="47" text-anchor="middle" fill="currentColor">Service</text></svg><figcaption>Deployment overview</figcaption></figure>
+```
+:::
+
 
 The title is a caption, distinct from image alternative text. Bodies can hold
 images, tables, diagrams or code. Recommend the caption after the body; numbering
@@ -408,6 +746,13 @@ pnpm add example-package
 ```
 :::
 ````
+
+::: {.render title="Tabs as static labelled sections" height="230"}
+```html
+<section><header><strong>npm</strong></header><pre><code>npm install example-package</code></pre></section><section><header><strong>pnpm</strong></header><pre><code>pnpm add example-package</code></pre></section>
+```
+:::
+
 
 Another content block ends the group. Grouping stays within one block context,
 never across list items, quotes or enclosing containers. A single tab forms a
@@ -439,7 +784,7 @@ inline Markdown; bodies hold ordinary blocks and nested containers. Unnamed
 automatic groups do not implicitly synchronize. Remembering choices across
 pages belongs to the renderer.
 
-**Recommended HTML:** labelled sections showing all content without JavaScript.
+**Rendering semantics:** labelled sections showing all content without JavaScript.
 Interactive renderers supply accessible tab roles, keyboard operation and
 control/content relationships. See [rendering recommendations](/expressive-markdown/presentation#selection-state-and-identity).
 
@@ -450,6 +795,13 @@ Status: :chip[Ready]{tone=green}.
 Thanks, @[Ada Lovelace].
 Thanks, @ada-lovelace#user-123.
 ```
+
+::: {.render title="Status chip and unresolved mentions" height="165"}
+```html
+<p>Status: <span class="chip">Ready</span>.</p><p>Thanks, <span class="mention">Ada Lovelace</span>.</p><p>Thanks, <span class="mention">@ada-lovelace</span>.</p>
+```
+:::
+
 
 A **chip** is a compact category/status label. `tone` suggests neutral, blue,
 green, yellow, red or purple. Preserve custom tones; use neutral fallback when
@@ -482,6 +834,13 @@ See [complete mention boundaries](/expressive-markdown/parsing#mention-shorthand
 - [Configuration](#configuration)
 :::
 ```
+
+::: {.render title="Saved table of contents" height="145"}
+```html
+<nav aria-label="On this page"><header><strong>On this page</strong></header><ul><li><a href="#installation">Installation</a></li><li><a href="#configuration">Configuration</a></li></ul></nav>
+```
+:::
+
 
 A table of contents holds readable authored links, normally a nested list.
 Plain format can use paragraph/link content. Empty bodies are incomplete:

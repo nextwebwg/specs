@@ -215,6 +215,18 @@ break/soft break, inline directive and inline-display group/HTML/literal.
 `title` is a designated title-field node, not an ordinary paragraph body child.
 Lists contain list items; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
 
+Named fields, positional cell lists and traditional pipe source normalize to
+the table nodes above. Named fields resolve column identity by exact name and
+first appearance, synthesizing header cells; missing assignments become empty
+cells. Positional lists consume two structural list levels; deeper lists remain
+cell block content. Mixed positional rows use already-established named column
+order. No field registry remains for a renderer to match again. A source
+`transpose` flag is resolved into actual row/cell placement and swapped spans, not retained as a
+second rendering operation. Header flags become cell `header` values and
+alignment becomes `table.align`. Optional `source` provenance may remember the
+source orientation without changing the semantic tree. See the
+[table rules](/expressive-markdown/parsing#tables).
+
 ### Recognized semantic subtypes
 
 The [recognized semantic subtype registry](/expressive-markdown/language#recognized-semantic-subtypes)
@@ -323,7 +335,16 @@ For the merged body in the language example, the rows are:
 ]
 ```
 
-The preceding header row establishes three columns. Marker spelling and the
+
+
+::: {.render title="Merged table grid" height="140"}
+```html
+<table><tbody><tr><td colspan="2" rowspan="2">Release checks</td><td>Ready</td></tr><tr><td>Verified</td></tr></tbody></table>
+```
+:::
+
+The first body row covers three grid columns: a two-column span and one
+ordinary cell. Marker spelling and the
 rightmost source location of horizontally merged content are lexical details;
 the semantic cell starts at the rectangle's top-left position.
 

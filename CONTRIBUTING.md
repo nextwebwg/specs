@@ -112,6 +112,30 @@ Quote a name that contains `"` with single quotes: `name='<link rel="component">
 
 Escape a character that Markdown would otherwise read as syntax with a backslash, as in `\*`.
 
+## Rendered illustrations
+
+Pair source examples with a common or possible rendering when appearance helps
+explain the feature. Use a `render` div containing one fenced HTML example:
+
+````md
+::: {.render title="A list inside a cell" height="160"}
+```html
+<table><tbody><tr><td><ul><li>First item</li><li>Second item</li></ul></td></tr></tbody></table>
+```
+:::
+````
+
+The publisher shows the HTML in a sandboxed frame labelled “One possible
+rendering”. Give each illustration a descriptive title and enough height for
+its content. Examples use self-contained HTML, inline SVG or data images;
+scripts and external assets do not run. Native interactions such as `details`
+can still demonstrate ordinary HTML behavior.
+
+These are authored illustrations, not output from an Expressive parser or a
+claim that a particular implementation supports the adjacent syntax. Keep the
+illustration consistent with that example and its normative meaning. The
+`render` div is a publishing convention, not Expressive Markdown syntax.
+
 ## The proposal front page
 
 `html-next/index.md` uses `layout: proposal`. Its masthead is generated from the frontmatter

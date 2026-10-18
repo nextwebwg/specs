@@ -25,6 +25,13 @@ navigation:
 The page title stays **Installing Expressive Markdown**; its sidebar or menu
 entry can read **Installation**.
 
+::: {.render title="Navigation label and page title" height="240"}
+```html
+<nav aria-label="Documentation"><a href="/installation">Installation</a></nav><article><h1>Installing Expressive Markdown</h1></article>
+```
+:::
+
+
 | Field | Type | Meaning and default |
 | --- | --- | --- |
 | `navigation` | Mapping | Optional metadata, stored in `document.metadata.navigation`. |

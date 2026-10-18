@@ -221,9 +221,9 @@ The code's stored text remains unchanged. Without optional decoration, escaped
 
 Leading-pipe line blocks preserve requested lines and empty lines with `<br>`
 boundaries. Merged tables use native `colspan`/`rowspan`; do not flatten them.
-Keep rich cell content, alignment and supported styling. Image size, placement
-and responsive settings express layout intent; loading and rendition selection
-remain renderer choices.
+Keep rich cell content, alignment and supported styling. Image size and responsive
+settings preserve asset intent; layout containers express grouping and placement.
+Loading and rendition selection remain renderer choices.
 
 A table of contents renders its saved links inside `<nav>`. An optional refresh
 updates the actual entries in the document and source. Rendering alone does not
@@ -360,6 +360,57 @@ Renderers should adapt page-level styles to the available cell space:
 
 Use semantic HTML lists and code blocks within native table cells. Changing
 their spacing or visual wrapping must not flatten their document structure.
+
+## Layout
+
+Align a group's child blocks and their text together. Use logical directions so
+the same document can be read in left-to-right and right-to-left contexts:
+
+```md
+::: layout {align=start dir=rtl lang=ar}
+مرحبًا بالعالم
+:::
+```
+
+Here start is the right edge. With `align=end`, the group aligns its content to
+the left edge; center stays centered. Hebrew follows the same direction rules.
+The [layout contract](/expressive-markdown/language#layout) defines inheritance,
+child overrides, floating and the shared AST shape.
+
+Native CSS can supply this behavior without a layout runtime. For example, a
+normal-flow `<div data-type="layout">` can use `text-align:start`, with
+shrink-to-fit item wrappers positioned by logical inline margins. Keep an item's
+placement wrapper in the parent's direction when the item has its own `dir`.
+Its text still follows its own direction. Preserve safe explicit child styling.
+
+Use a new block formatting context, such as `display:flow-root`, to contain
+floats within the group. A floated layout itself can use `float:inline-start`
+or `float:inline-end`, with a bounded inline size. The group floats as a whole,
+including any title, figure, quotation or code inside it. Following text flows
+around that group; the floated content does not wrap itself. A layout inside a
+host flex/grid formatting context follows native float rules there.
+
+For a bounded floating sidebar:
+
+```md
+::: layout {float=start & align=center & dir=rtl & lang=he & style="inline-size:12rem"}
+> הערה קצרה
+
+מידע נוסף
+:::
+
+הטקסט שמסביב ממשיך לזרום לצד הקבוצה.
+```
+
+Floating follows the containing flow's direction, so this group floats at the
+start edge of an RTL document and at the start edge of an LTR document even
+though its internal text is Hebrew. Test both document directions and explicit
+nested direction changes. `lang` alone does not establish RTL layout.
+
+Constrain the group and responsive images to the available inline size. Retain
+normal document order and readable in-flow fallback when there is insufficient
+room or the output target lacks layout support. Do not use a layout group as a
+substitute for the data relationships of a semantic table.
 
 ## Safe HTML and editing {#presentation-preservation}
 

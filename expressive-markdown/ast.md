@@ -8,10 +8,11 @@ status: Unofficial Editor's Draft · Stage 0
 
 # Document AST
 
-This reference defines Expressive's independent JSON document format. It gives
-parser, writer, editor and renderer authors the same content roles and traversal
-rules. It is an Unofficial Editor's Draft at Stage 0. Source syntax is defined in
-[Language & Semantics](/expressive-markdown/language).
+The abstract syntax tree (AST) is the JSON format tools use to read, edit and
+render an Expressive document. It keeps titles, bodies and entity references
+explicit, so a renderer can use them without interpreting a particular editor's
+HTML. This reference defines fields and valid node shapes; the
+[language chapter](/expressive-markdown/language) shows their Markdown syntax.
 
 ```json
 {
@@ -42,7 +43,7 @@ rules. It is an Unofficial Editor's Draft at Stage 0. Source syntax is defined i
 | `type` | Nonempty string | Required structural node type; canonical built-in names below. |
 | `subType` | String | Semantic type on `container`, `inline` and `leaf`; canonical lowercase. Its vocabulary is open. |
 | `id` | String | Optional on every node; preserve exactly. Never generate or normalize it implicitly. |
-| `title` | `TitleNode` or string, according to the node type | Optional. Document/container/panel/table captions use a title node; code captions and link/image resource tooltips use strings. Each node type fixes its representation. |
+| `title` | `TitleNode` or string, according to the node type | Optional. Document/container/table captions use a title node; code captions and link/image resource tooltips use strings. Each node type fixes its representation. |
 | `body` | `Node[]` | Main block content. A title is optional, not the criterion for choosing this field. |
 | `children` | `Node[]` | Inline content or structural grouping. |
 | `value` | String | Literal content. Never reparse it as Markdown. |
@@ -56,13 +57,10 @@ such as a break. Empty strings and arrays are real values, not absence.
 A title-bearing node can have its title alongside its main content field.
 Literal leaf types do not contain a node-valued title or other nested content.
 
-The optional `source`/`data` extension points are proposed defaults. They
-let implementations retain original spellings or editor annotations without
-overloading authored `attributes`. Arbitrary new node-bearing fields require a
-future contract: hiding content in annotation objects would evade traversal.
-Unknown fields are preserved as JSON extension data by interchange readers;
-validation reports unsupported structure without silently deleting it. Only
-defined content fields participate in generic traversal.
+`source` keeps original spellings; `data` keeps tool annotations. Neither holds
+traversable document content. Readers preserve unknown fields as JSON extension
+data and report unsupported structure. New node-bearing fields need an explicit
+contract; only the defined content fields participate in traversal.
 
 ### Attribute spelling
 
@@ -127,7 +125,7 @@ Reject multiple content fields instead of silently choosing one.
 
 ### Source locations
 
-The proposed location format is `position: {start, end}`. A point has required one-based
+Use `position: {start, end}` for original-source locations. A point has required one-based
 `line` and `column`, with optional zero-based `offset`. Columns and offsets count
 UTF-16 code units; line endings advance the line and reset its column. The end
 point is exclusive. Offsets, when supplied, count the original source, including
@@ -137,8 +135,7 @@ column. Positions describe source provenance, not node identity.
 An edit invalidates affected positions unless a tool recalculates them. A tool
 may omit positions for generated or moved content. Do not fabricate source
 coordinates or keep stale coordinates as if they describe the new source.
-This shape draws on [unist positions](https://github.com/syntax-tree/unist#position)
-without adopting its content/traversal model.
+The point format follows [unist positions](https://github.com/syntax-tree/unist#position).
 
 ## Document and metadata
 
@@ -168,9 +165,12 @@ the existence of a title node.
 
 ## Content node reference
 
-In this table, **inline content** means exactly one of string `value` or an
-ordered array `children` of inline nodes. **Blocks** means an ordered `body`
-array. Named subtypes remain open; built-in structural node shapes are defined.
+**Inline content** means exactly one of string `value` or ordered inline
+`children`. **Blocks** means an ordered `body` array. All nodes also allow the
+shared fields above. The following sections define required content and any
+additional fields.
+
+### Text and inline content
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
@@ -181,60 +181,56 @@ array. Named subtypes remain open; built-in structural node shapes are defined.
 | `emphasis`, `strong`, `delete`, `underline`, `highlight` | Inline content. | Semantic/stylistic inline wrappers; preserve attributes. |
 | `inlineCode` | String `value`. | Literal code leaf; Markdown delimiters are not part of value. |
 | `break`, `softBreak` | No content field. | Explicit represented break versus ordinary source wrapping. |
+| `link` | String `url`; inline content. | Optional string tooltip `title`. Nested links are invalid child content. |
+| `image` | String `url`, string `alt`. | Optional string tooltip `title`; attributes preserve size, placement and delivery intent. No inline/body content field. Empty alt is permitted. |
+| `inline` | String `subType`; optional inline content. | Attribute-only atomic directives may omit content. |
+
+### Blocks
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
 | `horizontalRule` | No content field. | Horizontal rule separating document sections; recommended HTML `<hr>`. |
 | `blockquote` | Blocks. | Body contains ordinary blocks. |
 | `list` | Boolean `ordered`; `children: ListItem[]`. | Optional integer `start` (default 1 when ordered), boolean `tight` (default false). `start` is nonnegative. |
 | `listItem` | Blocks. | Optional boolean `checked`; absent means ordinary item. |
-| `link` | String `url`; inline content. | Optional string tooltip `title`. Nested links are invalid child content. |
-| `image` | String `url`, string `alt`. | Optional string tooltip `title`; attributes preserve size, placement and delivery intent. No inline/body content field. Empty alt is permitted. |
 | `code` | String `value`. | Optional string `language`, literal string caption `title`, `attributes` and string uninterpreted `meta`. Code notation stays in value. |
 | `lineBlock` | Inline content. | Boundaries use `break`, including within emphasis. `value: ""` means one empty represented line. A `value` containing an LF is not valid line-block shorthand. |
 | `container` | String `subType`; blocks. | Optional structured `title`. All colon containers share this family, including nested/custom types. |
-| `inline` | String `subType`; optional inline content. | Attribute-only atomic directives may omit content. |
 | `leaf` | String `subType`; no main content field. | Optional structured `title` for a directive label; “leaf” denotes bodyless authoring scope, not an assertion about title descendants. |
-| `panel` | Structured `title`; blocks. | Optional `attributes.value` for stable selection identity, distinct from node `id`. |
+
+### Tables and wrappers
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
 | `table` | `children: TableRow[]`. | Optional `align: ("left"\|"center"\|"right"\|null)[]`, structured caption `title`. |
 | `tableRow` | `children: TableCell[]`. | Structural row grouping. |
 | `tableCell` | Exactly one of `value`, inline `children`, or block `body`. | Optional boolean `header`, default false; positive integer `colSpan`/`rowSpan`, default 1; string/flag attributes hold widths and styling. |
 | `group` | `children: Node[]`; `display: "inline"\|"block"`. | Generic structural wrapper; optional native wrapper `tag` is `span` or `div`, consistent with display. |
-| `html` | String `value`; `display: "inline"\|"block"`. | Original opaque HTML. Host rendering policy is explicit. |
+| `html` | String `value`; `display: "inline"\|"block"`. | Supported safe HTML after allowlist filtering; never includes discarded unsafe content. |
 | `literal` | String `value`; `display: "inline"\|"block"`. | Preserved invalid/uninterpreted source for recovery, escaped for display. |
-
 Block content admits paragraph, heading, quote, list, code, line block, table,
-container, panel, leaf, horizontal rule and block-display group/HTML/literal.
+container, leaf, horizontal rule and block-display group/HTML/literal.
 Inline content admits text, inline formatting, inline code, link, image,
 break/soft break, inline directive and inline-display group/HTML/literal.
 `title` is a designated title-field node, not an ordinary paragraph body child.
-Lists contain list items; tables contain rows; rows contain cells. A panel is
-structural content of tabs/code groups rather than an unrelated top-level block.
-Code groups can keep ordinary code blocks directly as described in the language
-draft. These constraints supplement the generic field exclusion.
+Lists contain list items; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
 
 ### Recognized semantic subtypes
 
 The [recognized semantic subtype registry](/expressive-markdown/language#recognized-semantic-subtypes)
 defines the shared vocabulary: container `note`, `tip`, `warning`, `danger`,
-`details`, `figure`, `tabs`, `code-group`, `toc`; inline `chip`, `mention`.
-For the `mention` subtype, optional string `ref` is a defined semantic field. These meanings are defined language features, not arbitrary styling labels.
-Their common structural family keeps generic traversal independent of meaning.
-Custom subtypes remain valid without acquiring one of these contracts.
+`details`, `figure`, `tabs`, `tab`, `toc`; inline `chip`, `mention`.
+A mention has an optional string `ref` field for its entity target. The shared
+node families allow generic traversal; subtypes supply specific meanings.
+Custom subtypes are valid but do not acquire a standard subtype's contract.
 
 | Feature | AST shape | Content and presentation data |
 | --- | --- | --- |
 | Chip | `inline`, `subType: "chip"` | `value` or inline `children`; `attributes.tone` for neutral/blue/green/yellow/red/purple or a preserved custom tone. |
 | Mention | `inline`, `subType: "mention"` | Authored label/handle in `value`/`children`, excluding the `@` marker. Optional string `ref` targets an entity; optional `attributes.url` supplies navigation. Label-only mentions are valid. Generic `id` identifies this occurrence. |
-| Note, tip, warning, danger | `container`, corresponding `subType` | Optional structured `title`, block `body`, IDs and presentation attributes. Colors/icons/labels are renderer choices. |
-| Disclosure | `container`, `subType: "details"` | Optional title/summary, block `body`; `attributes.open` can be a boolean flag or an assigned string. |
-| Figure | `container`, `subType: "figure"` | Optional structured caption `title`; block `body`; image `alt` remains on the image. |
-| Tabs | `container`, `subType: "tabs"` | Panel nodes in `body`; `group`, `default`, `queryString` and `lazy` attributes preserve selection/presentation intent. |
-| Code group | `container`, `subType: "code-group"` | Panel nodes or consecutive code blocks in `body`; group settings and code captions remain available. |
-| Tab panel (structural node, not a subtype) | `panel` | Structured `title`, block `body`; optional string `attributes.value` is selection identity. |
+| Tabs | `container`, `subType: "tabs"` | `container/tab` children in `body`; optional group title and `group`, `default`, `queryString`, `lazy` attributes. Automatic groups have no authored settings/title/ID. |
+| Tab | `container`, `subType: "tab"` | Structured title, block `body`; optional string `attributes.value` is selection identity, distinct from generic node ID. Code is ordinary body content. |
 | Table of contents | `container`, `subType: "toc"` | Optional structured `title`; readable navigation blocks in `body`. Depth/format settings guide an optional editor/converter refresh that updates the actual body. |
-| Image layout (native node attributes) | `image` | `attributes.width`, `height`, `placement` and `responsive` retain layout intent. |
-| Styled text | `underline`, `highlight`, or styled inline `group` | Literal/structured content and authored style/class attributes; wrappers preserve grouping without inventing new meanings. |
-| Block styling | Attributes on the block or block `group` | Alignment, color and other supported native presentation remain available to renderers. |
-| Rich/merged tables | `table`/`tableRow`/`tableCell` | Structural spans, block cell bodies, width/background/style attributes. |
-| Code presentation | `code` | Language, string caption; `attributes.highlight` is a range-selection string and `attributes.showLineNumbers` a boolean flag. Annotation comments remain literal source. |
 
 ```json
 {
@@ -258,25 +254,44 @@ Both mention spellings have the same structural contract:
 They correspond to `@[Ada Lovelace]` and `@ada-lovelace`. Neither requires a stored entity reference. Source `@[Ada Lovelace]#user-123` adds string `ref: "user-123"` directly on the node. It never becomes a generic node attribute or the node ID. The general source `{ref="…"}` alias maps to that same field, without duplication.
 
 A formatted chip uses `children` instead of `value`, for example a `strong`
-child. An unknown subtype keeps the same data shape and remains valid. The
-[presentation matrix](/expressive-markdown/presentation) distinguishes structured editing,
-interactive rendering and static fallback for each feature.
+child. An unknown subtype keeps the same data shape and remains valid. See [rendering recommendations](/expressive-markdown/presentation) for HTML and
+interactive presentation.
+
+### Automatic tab groups
+
+```json
+{
+  "type": "container",
+  "subType": "tabs",
+  "body": [
+    {"type": "container", "subType": "tab", "title": {"type": "title", "value": "npm"}, "body": [{"type": "code", "language": "sh", "value": "npm install example-package"}]},
+    {"type": "container", "subType": "tab", "title": {"type": "title", "value": "pnpm"}, "body": [{"type": "code", "language": "sh", "value": "pnpm add example-package"}]}
+  ]
+}
+```
+
+Adjacent tabs and an explicit `tabs` wrapper produce this same group structure.
+Blank source lines do not split an automatic group. Explicit groups additionally
+retain authored settings, title and ID, and are not wrapped again. A tab missing
+its required readable title is incomplete: preserve it and recommend a diagnostic.
 
 ### Native HTML and rich editor data
 
-The core can preserve native HTML as opaque `html` nodes. A rich-editor profile
-that claims editable support for a native feature maps its known HTML subset to
-structured nodes and preserves the native attributes. Typical mappings include
-paragraphs/headings, lists, quotes, images, links, tables, details and figures.
-Native `span`/`div` wrappers map to `group` when they carry grouping/styling rather
-than a stronger document meaning. Existing named semantic HTML can map to the
-corresponding container without leaking a component's implementation name.
+HTML is filtered using a maintained sanitizer allowlist for elements, attributes
+and URLs. Parsing discards `script` elements and their contents; writers never
+replay discarded unsafe content. The exact sanitizer preset is still to be
+selected. Report filtering losses, and exclude discarded unsafe content from
+round-trip guarantees.
 
-Writing attributes not expressible in ordinary Markdown uses supported native
-HTML, not a lossy Markdown approximation. For example, a paragraph's alignment
-or cell background can remain in a `style` string. Import policies must disclose
-which HTML becomes structured and which stays opaque. Opaque preservation and
-editable structured support are separate coverage claims.
+Map supported safe HTML to its structured nodes: paragraphs, headings, lists,
+quotes, images, links, tables, details and figures. Use a `group` for a safe
+`span`/`div` that supplies grouping or styling without a stronger meaning. Other
+supported safe HTML may remain an `html` node.
+
+An integration documents which safe HTML it maps and which it retains as a
+string. Keeping an HTML string does not establish editable support. Preserve
+supported native attributes; when ordinary Markdown cannot express them, write
+supported safe HTML or report the unsupported conversion.
 
 ### Table grid
 
@@ -290,8 +305,8 @@ array is valid for a row fully covered by spans above it.
 When `align` is supplied, its length is the grid width; otherwise the first
 row establishes the width. Cell header booleans describe header status, not
 implicit row-span permission. Native HTML span attributes map to numeric span
-fields; do not duplicate them in `attributes`. Rich HTML outside this grid model
-remains `html` or produces an unsupported-import diagnostic.
+fields; do not duplicate them in `attributes`. Safe HTML outside this grid model remains `html` or produces an
+unsupported-import diagnostic.
 
 For the merged body in the language example, the rows are:
 
@@ -321,13 +336,13 @@ generic field rules; a converter lacking a source mapping reports unsupported
 conversion instead of discarding them. Extensible structure does not authorize
 arbitrary new traversable slots.
 
-Implementation packages may use their own parsing tools; their APIs are not
-defined by this language-independent reference. A useful conversion result can pair
-the document with diagnostics and optional source records without inserting
-diagnostics into document content. Custom renderer APIs remain separate work.
+Diagnostics belong beside the document, not inside its content. Tools can return
+a document together with diagnostics and optional source records; this reference
+does not prescribe their API. See [expressmark](https://github.com/nextwebwg/expressmark)
+for the JavaScript tooling project.
 
-The first proposed round-trip guarantee covers conforming source and representable
-semantic AST content. It does not promise byte-identical Markdown or serialization
-of application-only IDs on every source fragment without a source representation.
-A writer must report such a limitation instead of silently claiming preservation.
-See [presentation coverage](/expressive-markdown/presentation) for integration requirements and future acceptance cases.
+Round-tripping preserves supported semantic data, not necessarily byte-identical
+Markdown. Application-only IDs without a source attachment cannot always be
+written; report that limitation. Discarded unsafe HTML is never restored.
+See [writer rules](/expressive-markdown/parsing#writing-and-preservation) for
+canonical output and preservation boundaries.

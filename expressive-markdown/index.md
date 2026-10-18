@@ -10,8 +10,8 @@ stamp: Unofficial Editor's Draft · Stage&nbsp;0
 
 A common language for documentation.
 
-- [Read Language & Semantics →](/expressive-markdown/language)
-- [Explore the Document AST →](/expressive-markdown/ast)
+- [Learn the syntax →](/expressive-markdown/language)
+- [Use the document AST →](/expressive-markdown/ast)
 - [Browse Chapters ↓](#chapters)
 
 Editors
@@ -25,74 +25,74 @@ Status
 
 ## Status of this document {.sotd}
 
-This proposal is an unofficial editor's draft for discussion. It defines a
-Markdown document format, its meanings and an independent data representation.
-It does not require browsers to parse Markdown and does not represent the
-position of the W3C, WHATWG or a browser vendor. No conforming parser or editor
-integration is claimed by this draft.
+Expressive Markdown is a proposed Markdown language and document format. This
+unofficial editor's draft is open for discussion. It does not represent the
+W3C, WHATWG or a browser vendor, or require browsers to parse Markdown.
 
 ## Abstract
 
-Expressive Markdown adds named documentation constructs to familiar Markdown
-and defines the document data that editors and renderers exchange. The aim is
-readable source with shared meaning: a warning remains a warning, an entity
-mention retains its reference, and a table of contents contains readable links.
-Presentation can vary without losing those meanings.
+Documentation needs more than headings and paragraphs: warnings, tabs, code
+examples, mentions and tables with merged cells. Expressive gives those features
+readable Markdown syntax and shared meanings, so the same document can move
+between a text editor, a rich editor and a documentation site.
 
-````md
-:::: warning [Before deploying] {#deployment-check}
-
+```md
+::: warning [Before deploying] {#deployment-check}
 Back up the database first.
-
-::: tip [Check the backup]
-Try restoring it in a separate environment.
 :::
 
-::::
-
 Status: :chip[Ready]{tone=green}.
-````
+Thanks, @[Ada Lovelace]#user-123.
+```
 
-The warning and tip share the `container` AST family, with recognized semantic
-subtypes. The chip belongs to inline content. Their type names convey meaning;
-colors, icons and layout remain renderer choices.
+A warning remains a warning; a mention keeps its target. Each renderer chooses
+its own colors, icons and layout. Tools exchange a documented JSON tree instead
+of having to recover those meanings from a particular editor's HTML.
 
 ## What the proposal defines
 
 ::: targets
-Readable source
-: CommonMark/GFM foundations, bracketed titles, named constructs, frontmatter,
-  explicit line blocks and merged table cells.
+Readable Markdown
+: Familiar CommonMark/GFM, extended with named blocks and inline content,
+  shared attributes, YAML frontmatter, explicit lines and merged table cells.
 
 Shared meanings
-: Recognized semantic subtypes with documented attributes, defaults and suggested
-  HTML conversions, alongside an open vocabulary for extensions.
+: Standard documentation features with suggested HTML conversions. Custom
+  types remain valid, so the vocabulary can grow without a new grammar.
 
 Document data
-: A JSON AST with named title/body roles, compact literal content, stable authored
-  identities and predictable traversal.
+: An independent JSON abstract syntax tree (AST), with named title/body fields,
+  compact text values, authored IDs and predictable traversal.
 
-Presentation coverage
-: Documentation and rich-editor features, an optional publishing profile, and a
-  survey of this site's presentation patterns for future publishing integration.
+Publishing
+: Rendering recommendations and optional navigation metadata, without requiring
+  a component framework, CSS library or site generator.
 :::
 
 ## Chapters
 
 ::chapter-index
 
+## Tools
+
+[expressmark](https://github.com/nextwebwg/expressmark) is the JavaScript tooling
+project for Expressive Markdown, with releases on
+[npm](https://www.npmjs.com/package/expressmark). Its repository documents the
+available APIs and implementation status. The language and AST remain independent of that
+package.
+
 ## Prior art
 
-CommonMark and GFM supply the ordinary Markdown foundation.[^1] Docusaurus
-informs documentation presentation and nested callouts.[^2] Remark directives
-provide the inline, bodyless-block and container scopes.[^3] Pandoc provides
-prior art for IDs and leading-pipe line blocks.[^4] UMD contributes compact
-cell-merging markers.[^5] mdast and unist inform the documented-tree approach;
-Expressive defines its own named content fields and traversal.[^6]
+Expressive builds on established Markdown conventions:
 
-Each feature chapter identifies the convention it adopts and its compatibility
-limits. Full MDX/JSX source compatibility and a JavaScript component runtime are
-outside this language contract.
+- **CommonMark and GFM:** ordinary Markdown, tables, task lists and strikethrough.[^1]
+- **Docusaurus and remark:** documentation callouts, nested colon fences and named constructs.[^2][^3]
+- **Pandoc:** attribute IDs and leading-pipe line blocks.[^4]
+- **UMD:** compact markers for merged table cells.[^5]
+- **mdast and unist:** documented tree structures; Expressive uses its own named content fields.[^6]
+
+These influences do not imply full source compatibility. MDX/JSX, JavaScript
+execution and framework component APIs are outside the language.
 
 ## References
 
@@ -100,5 +100,5 @@ outside this language contract.
 [^2]: [Docusaurus Markdown features](https://docusaurus.io/docs/markdown-features) and [admonitions](https://docusaurus.io/docs/markdown-features/admonitions).
 [^3]: [remark-directive](https://github.com/remarkjs/remark-directive).
 [^4]: [Pandoc's Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
-[^5]: [UMD 0.2.0 source and table-spanning documentation](https://docs.rs/crate/umd/0.2.0/source/README.md).
+[^5]: [UMD table-spanning documentation](https://docs.rs/crate/umd/0.2.0/source/README.md).
 [^6]: [mdast](https://github.com/syntax-tree/mdast) and [unist](https://github.com/syntax-tree/unist).

@@ -69,3 +69,7 @@
 "chapter: markdown-publishing":
 - changed-files:
   - any-glob-to-any-file: "expressive-markdown/publishing.md"
+
+"chapter: markdown-parsing":
+- changed-files:
+  - any-glob-to-any-file: "expressive-markdown/parsing.md"

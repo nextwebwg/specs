@@ -46,7 +46,7 @@ rules. It is an Unofficial Editor's Draft at Stage 0. Source syntax is defined i
 | `body` | `Node[]` | Main block content. A title is optional, not the criterion for choosing this field. |
 | `children` | `Node[]` | Inline content or structural grouping. |
 | `value` | String | Literal content. Never reparse it as Markdown. |
-| `attributes` | Object of string or boolean values | Authored properties/presentation. Names are lowercase. Assigned values are strings; flags are booleans. Generic ID lives in `id`, not here. |
+| `attributes` | Object of string or boolean values | Authored properties/presentation. Keys use camelCase mapped from case-insensitive, dash-separated source names; `show-line-numbers` becomes `showLineNumbers`. Assigned values are strings; flags are booleans. Generic ID lives in `id`, not here. |
 | `position` | `Position` | Optional original-source range, defined below. |
 | `source` | JSON object | Optional lexical provenance for source preservation. It is not another semantic value or a traversable subtree. |
 | `data` | JSON object | Optional application/tool annotations. Not interpreted as content by generic traversal. |
@@ -63,6 +63,18 @@ future contract: hiding content in annotation objects would evade traversal.
 Unknown fields are preserved as JSON extension data by interchange readers;
 validation reports unsupported structure without silently deleting it. Only
 defined content fields participate in generic traversal.
+
+### Attribute spelling
+
+```md
+{highlight=1,3-4 & show-line-numbers}
+```
+
+```json
+{"highlight": "1,3-4", "showLineNumbers": true}
+```
+
+The JSON above is the node's `attributes` object. `&` is an optional source separator, not AST data. Assigned values remain strings; bare/negated flags become booleans. Canonical writers turn camelCase keys back into dash-separated names. Metadata keys and generic node IDs do not undergo this mapping. See [attribute normalization](/expressive-markdown/parsing#attributes-and-identity).
 
 ### Fixed field types, alternative content shapes
 
@@ -203,18 +215,18 @@ draft. These constraints supplement the generic field exclusion.
 The [recognized semantic subtype registry](/expressive-markdown/language#recognized-semantic-subtypes)
 defines the shared vocabulary: container `note`, `tip`, `warning`, `danger`,
 `details`, `figure`, `tabs`, `code-group`, `toc`; inline `chip`, `mention`.
-These meanings are defined language features, not arbitrary styling labels.
+For the `mention` subtype, optional string `ref` is a defined semantic field. These meanings are defined language features, not arbitrary styling labels.
 Their common structural family keeps generic traversal independent of meaning.
 Custom subtypes remain valid without acquiring one of these contracts.
 
 | Feature | AST shape | Content and presentation data |
 | --- | --- | --- |
 | Chip | `inline`, `subType: "chip"` | `value` or inline `children`; `attributes.tone` for neutral/blue/green/yellow/red/purple or a preserved custom tone. |
-| Mention | `inline`, `subType: "mention"` | Authored label in `value`/`children`; target in string `attributes.ref`; optional `attributes.url`. Generic `id` identifies this occurrence. |
+| Mention | `inline`, `subType: "mention"` | Authored label/handle in `value`/`children`, excluding the `@` marker. Optional string `ref` targets an entity; optional `attributes.url` supplies navigation. Label-only mentions are valid. Generic `id` identifies this occurrence. |
 | Note, tip, warning, danger | `container`, corresponding `subType` | Optional structured `title`, block `body`, IDs and presentation attributes. Colors/icons/labels are renderer choices. |
 | Disclosure | `container`, `subType: "details"` | Optional title/summary, block `body`; `attributes.open` can be a boolean flag or an assigned string. |
 | Figure | `container`, `subType: "figure"` | Optional structured caption `title`; block `body`; image `alt` remains on the image. |
-| Tabs | `container`, `subType: "tabs"` | Panel nodes in `body`; `group`, `default`, `query-string` and `lazy` attributes preserve selection/presentation intent. |
+| Tabs | `container`, `subType: "tabs"` | Panel nodes in `body`; `group`, `default`, `queryString` and `lazy` attributes preserve selection/presentation intent. |
 | Code group | `container`, `subType: "code-group"` | Panel nodes or consecutive code blocks in `body`; group settings and code captions remain available. |
 | Tab panel (structural node, not a subtype) | `panel` | Structured `title`, block `body`; optional string `attributes.value` is selection identity. |
 | Table of contents | `container`, `subType: "toc"` | Optional structured `title`; readable navigation blocks in `body`. Depth/format settings guide an optional editor/converter refresh that updates the actual body. |
@@ -222,7 +234,7 @@ Custom subtypes remain valid without acquiring one of these contracts.
 | Styled text | `underline`, `highlight`, or styled inline `group` | Literal/structured content and authored style/class attributes; wrappers preserve grouping without inventing new meanings. |
 | Block styling | Attributes on the block or block `group` | Alignment, color and other supported native presentation remain available to renderers. |
 | Rich/merged tables | `table`/`tableRow`/`tableCell` | Structural spans, block cell bodies, width/background/style attributes. |
-| Code presentation | `code` | Language, string caption, range/numbering attributes and preserved annotation comments. |
+| Code presentation | `code` | Language, string caption; `attributes.highlight` is a range-selection string and `attributes.showLineNumbers` a boolean flag. Annotation comments remain literal source. |
 
 ```json
 {
@@ -232,6 +244,18 @@ Custom subtypes remain valid without acquiring one of these contracts.
   "attributes": {"tone": "green"}
 }
 ```
+
+Both mention spellings have the same structural contract:
+
+```json
+{"type": "inline", "subType": "mention", "value": "Ada Lovelace"}
+```
+
+```json
+{"type": "inline", "subType": "mention", "value": "ada-lovelace"}
+```
+
+They correspond to `@[Ada Lovelace]` and `@ada-lovelace`. Neither requires a stored entity reference. Source `@[Ada Lovelace]#user-123` adds string `ref: "user-123"` directly on the node. It never becomes a generic node attribute or the node ID. The general source `{ref="…"}` alias maps to that same field, without duplication.
 
 A formatted chip uses `children` instead of `value`, for example a `strong`
 child. An unknown subtype keeps the same data shape and remains valid. The

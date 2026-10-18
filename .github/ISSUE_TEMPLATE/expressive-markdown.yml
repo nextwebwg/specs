@@ -11,6 +11,7 @@ body:
         - Expressive Markdown
         - Language & Semantics
         - Document AST
+        - Parser & Writer Rules
         - Presentation Coverage
         - Publishing & Integration
         - Several chapters or not sure

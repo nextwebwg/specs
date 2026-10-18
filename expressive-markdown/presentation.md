@@ -1,6 +1,6 @@
 ---
 title: Presentation Coverage
-order: 3
+order: 4
 blurb: documentation · rich editing · preservation
 eyebrow: Expressive Markdown · Proposal
 status: Unofficial Editor's Draft · Stage 0
@@ -42,10 +42,10 @@ not a mutation of authored document data.
 | Tabs | `container/tabs`, `panel` nodes | Tab controls, explicit defaults, group synchronization, optional URL/persistence | Editable panels, titles and stable selection values | All panels as labelled sections |
 | Code groups | `container/code-group`, explicit panels or consecutive code nodes | Tabbed code variants; labels from caption/language | Editable code variants and group settings | All code blocks visible with labels |
 | Fenced code | `code.value`, language, literal string caption | Syntax colors, filename, copy action | Editable literal code; source retained | Escaped `<pre><code>` and caption |
-| Code highlights and numbers | String ranges, boolean number flag, string start; source comment notations retained | Highlighted lines, configurable numbering, custom annotation treatment | Preserve annotations/settings without inserting presentation into source value | Plain escaped code; optional line decoration |
+| Code highlights and numbers | String `attributes.highlight` and boolean `attributes.showLineNumbers`; comments remain literal source | Highlighted lines, configurable numbering, custom annotation treatment | Preserve attributes and literal code; imported annotation conventions need explicit mappings | Plain escaped code; optional line decoration |
 | Images | URL, alt, tooltip and size/placement/responsive attributes | Responsive images, layout as requested | Editable size, placement and alternative text | Native `<img>` plus supported CSS |
 | Inline chips | `inline/chip`, formatted label, tone attribute | Compact status/category label | Editable label and tone | Labelled `<span>` |
-| Mentions | `inline/mention`, label, `attributes.ref`, optional URL | Entity label or link | Resolve host entity while retaining reference | Label or link without host resolution |
+| Mentions | `inline/mention`, authored name/handle, optional node `ref` and URL | Entity label or link | Resolve host entity while retaining reference | Label or link without host resolution |
 | Table of contents | `container/toc`, readable link/list body, optional title and depth/format settings | Navigation from authored entries; optional converter refresh | Readable editable entries; optional refresh updates actual body/source | `<nav>` with converted authored content |
 | Ordinary tables | Table/row/cell nodes, alignment | Documentation table styling | Structured cell editing | Native table |
 | Merged cells | Numeric `colSpan`/`rowSpan`; pipe markers in source | Rectangular merged table | Editable merged cell structure | Native `colspan`/`rowspan` |

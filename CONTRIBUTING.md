@@ -65,6 +65,7 @@ an anchor with `{#name}`: `## Constraint validation {#validation}`.
 | `1. step` followed by `{.algo}` on the next line | Numbered algorithm steps. |
 | A paragraph ending in `{.lede}` | A lede paragraph inside a section. |
 | `::: two` … `:::` | Two blocks side by side, such as two callouts or two code samples. |
+| `::: {.details summary="Parser details"}` … `:::` | A native disclosure, closed by default, containing ordinary Markdown. Use `###` for headings inside it. |
 | `::: {#name}` … `:::` | An anchor around a section, for links into it. |
 | `::chapter-index` | The generated list of chapters (front page). |
 

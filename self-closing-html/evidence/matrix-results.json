@@ -1,0 +1,608 @@
+{
+  "seed": "0x51e1f00d",
+  "versions": {
+    "parse5": "8.0.1",
+    "dompurify": "3.4.17",
+    "jsdom": "30.1.3",
+    "sanitizeHtml": "2.18.1"
+  },
+  "inputs": 3010,
+  "contexts": [
+    "div",
+    "table",
+    "template",
+    "select"
+  ],
+  "profiles": [
+    "all",
+    "text-excluded",
+    "text-and-foreign-excluded"
+  ],
+  "pipelines": [
+    {
+      "name": "DOMPurify-default",
+      "inputs": 3010,
+      "comparisons": 36120,
+      "newSignals": 0,
+      "activations": 0,
+      "baselineSignals": 0,
+      "treeChanges": 0,
+      "errors": 0
+    },
+    {
+      "name": "DOMPurify-custom-elements",
+      "inputs": 3010,
+      "comparisons": 36120,
+      "newSignals": 0,
+      "activations": 0,
+      "baselineSignals": 0,
+      "treeChanges": 0,
+      "errors": 0
+    },
+    {
+      "name": "sanitize-html-default",
+      "inputs": 3010,
+      "comparisons": 36120,
+      "newSignals": 0,
+      "activations": 0,
+      "baselineSignals": 0,
+      "treeChanges": 0,
+      "errors": 0
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "inputs": 3010,
+      "comparisons": 36120,
+      "newSignals": 0,
+      "activations": 726,
+      "baselineSignals": 9,
+      "treeChanges": 27,
+      "errors": 0
+    }
+  ],
+  "counterexamples": [],
+  "activationExamples": [
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></table><math><x-box/></svg><noscript><img src onerror=\"probe()\">",
+      "clean": "<style></table><math><x-box/></svg><noscript><img src onerror=\"probe()\"></style>",
+      "context": "select",
+      "profile": "all",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 21,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></table><math><x-box/></svg><noscript><img src onerror=\"probe()\">",
+      "clean": "<style></table><math><x-box/></svg><noscript><img src onerror=\"probe()\"></style>",
+      "context": "select",
+      "profile": "text-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 21,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></table><math><x-box/></svg><noscript><img src onerror=\"probe()\">",
+      "clean": "<style></table><math><x-box/></svg><noscript><img src onerror=\"probe()\"></style>",
+      "context": "select",
+      "profile": "text-and-foreign-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 21,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "</template><form></template><style></template></textarea><mtext><x-box/><math><div/><mglyph><table><img src onerror=\"probe()\"><mtext>",
+      "clean": "<style></template></textarea><mtext><x-box/><math><div/><mglyph><table><img src onerror=\"probe()\"><mtext></style>",
+      "context": "select",
+      "profile": "all",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 36,
+          "foreignContext": false
+        },
+        {
+          "tag": "div",
+          "offset": 50,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "</template><form></template><style></template></textarea><mtext><x-box/><math><div/><mglyph><table><img src onerror=\"probe()\"><mtext>",
+      "clean": "<style></template></textarea><mtext><x-box/><math><div/><mglyph><table><img src onerror=\"probe()\"><mtext></style>",
+      "context": "select",
+      "profile": "text-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 36,
+          "foreignContext": false
+        },
+        {
+          "tag": "div",
+          "offset": 50,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "</template><form></template><style></template></textarea><mtext><x-box/><math><div/><mglyph><table><img src onerror=\"probe()\"><mtext>",
+      "clean": "<style></template></textarea><mtext><x-box/><math><div/><mglyph><table><img src onerror=\"probe()\"><mtext></style>",
+      "context": "select",
+      "profile": "text-and-foreign-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 36,
+          "foreignContext": false
+        },
+        {
+          "tag": "div",
+          "offset": 50,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></form><noscript><mtext></template></div><x-box/></textarea></table></style><template>",
+      "clean": "<style></form><noscript><mtext></template></div><x-box/></textarea></table></style>",
+      "context": "select",
+      "profile": "all",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 48,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></form><noscript><mtext></template></div><x-box/></textarea></table></style><template>",
+      "clean": "<style></form><noscript><mtext></template></div><x-box/></textarea></table></style>",
+      "context": "select",
+      "profile": "text-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 48,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></form><noscript><mtext></template></div><x-box/></textarea></table></style><template>",
+      "clean": "<style></form><noscript><mtext></template></div><x-box/></textarea></table></style>",
+      "context": "select",
+      "profile": "text-and-foreign-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 48,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></svg><mtext><div/></x-box>",
+      "clean": "<style></svg><mtext><div/></x-box></style>",
+      "context": "select",
+      "profile": "all",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 20,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></svg><mtext><div/></x-box>",
+      "clean": "<style></svg><mtext><div/></x-box></style>",
+      "context": "select",
+      "profile": "text-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 20,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></svg><mtext><div/></x-box>",
+      "clean": "<style></svg><mtext><div/></x-box></style>",
+      "context": "select",
+      "profile": "text-and-foreign-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 20,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style><mtext><div/></style></mtext></table><noscript><mglyph><mtext><div/><noscript><textarea></style></svg>",
+      "clean": "<style><mtext><div/></style><mglyph><mtext><div></div></mtext></mglyph>",
+      "context": "select",
+      "profile": "all",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 14,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style><mtext><div/></style></mtext></table><noscript><mglyph><mtext><div/><noscript><textarea></style></svg>",
+      "clean": "<style><mtext><div/></style><mglyph><mtext><div></div></mtext></mglyph>",
+      "context": "select",
+      "profile": "text-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 14,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style><mtext><div/></style></mtext></table><noscript><mglyph><mtext><div/><noscript><textarea></style></svg>",
+      "clean": "<style><mtext><div/></style><mglyph><mtext><div></div></mtext></mglyph>",
+      "context": "select",
+      "profile": "text-and-foreign-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 14,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<svg><mtext><style><x-box/></math><mtext></math>",
+      "clean": "<svg><mtext><style><x-box/></math><mtext></math></style></mtext></svg>",
+      "context": "select",
+      "profile": "all",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 19,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<svg><mtext><style><x-box/></math><mtext></math>",
+      "clean": "<svg><mtext><style><x-box/></math><mtext></math></style></mtext></svg>",
+      "context": "select",
+      "profile": "text-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 19,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<svg><mtext><style><x-box/></math><mtext></math>",
+      "clean": "<svg><mtext><style><x-box/></math><mtext></math></style></mtext></svg>",
+      "context": "select",
+      "profile": "text-and-foreign-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "x-box",
+          "offset": 19,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></x-box><img src onerror=\"probe()\"><div/></form>",
+      "clean": "<style></x-box><img src onerror=\"probe()\"><div/></form></style>",
+      "context": "select",
+      "profile": "all",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 42,
+          "foreignContext": false
+        }
+      ]
+    },
+    {
+      "name": "sanitize-html-styles-custom",
+      "input": "<style></x-box><img src onerror=\"probe()\"><div/></form>",
+      "clean": "<style></x-box><img src onerror=\"probe()\"><div/></form></style>",
+      "context": "select",
+      "profile": "text-excluded",
+      "baseline": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "next": {
+        "markers": [],
+        "handlers": [],
+        "scripts": [],
+        "urls": []
+      },
+      "activations": [
+        {
+          "tag": "div",
+          "offset": 42,
+          "foreignContext": false
+        }
+      ]
+    }
+  ],
+  "caveats": [
+    "parse5 prototype is not a browser implementation or an independent security proof",
+    "signals are event-handler attributes, script elements, and dangerous URL schemes; this is not a complete XSS oracle",
+    "no handlers or scripts execute",
+    "parse5 8 has legacy select behavior that differs from current Chromium",
+    "DOMPurify/jsdom and sanitize-html configurations are specific tested versions; no universal library claim"
+  ]
+}

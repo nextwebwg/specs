@@ -1,0 +1,116 @@
+[
+  {
+    "name": "style text boundary",
+    "source": "<style/><img data-probe><style></style>",
+    "legacy": {
+      "visibleMarkerElements": 0,
+      "styles": [
+        {
+          "namespace": "http://www.w3.org/1999/xhtml",
+          "text": "<img data-probe><style>"
+        }
+      ],
+      "serialized": "<html><head></head><body><style><img data-probe><style></style></body></html>"
+    },
+    "handExpanded": {
+      "visibleMarkerElements": 1,
+      "styles": [
+        {
+          "namespace": "http://www.w3.org/1999/xhtml",
+          "text": ""
+        },
+        {
+          "namespace": "http://www.w3.org/1999/xhtml",
+          "text": ""
+        }
+      ],
+      "serialized": "<html><head></head><body><style></style><img data-probe=\"\"><style></style></body></html>"
+    }
+  },
+  {
+    "name": "textarea text boundary",
+    "source": "<textarea/><img data-probe><textarea></textarea>",
+    "legacy": {
+      "visibleMarkerElements": 0,
+      "styles": [],
+      "serialized": "<html><head></head><body><textarea>&lt;img data-probe&gt;&lt;textarea&gt;</textarea></body></html>"
+    },
+    "handExpanded": {
+      "visibleMarkerElements": 1,
+      "styles": [],
+      "serialized": "<html><head></head><body><textarea></textarea><img data-probe=\"\"><textarea></textarea></body></html>"
+    }
+  },
+  {
+    "name": "custom element before MathML integration boundary",
+    "source": "<math><mtext><x-box/><mglyph><style><img data-probe></style></mglyph></mtext></math>",
+    "legacy": {
+      "visibleMarkerElements": 0,
+      "styles": [
+        {
+          "namespace": "http://www.w3.org/1999/xhtml",
+          "text": "<img data-probe>"
+        }
+      ],
+      "serialized": "<html><head></head><body><math><mtext><x-box><mglyph><style><img data-probe></style></mglyph></x-box></mtext></math></body></html>"
+    },
+    "handExpanded": {
+      "visibleMarkerElements": 1,
+      "styles": [
+        {
+          "namespace": "http://www.w3.org/1998/Math/MathML",
+          "text": ""
+        }
+      ],
+      "serialized": "<html><head></head><body><math><mtext><x-box></x-box><mglyph><style></style></mglyph><img data-probe=\"\"></mtext></math></body></html>"
+    }
+  },
+  {
+    "name": "closing HTML ancestor across SVG boundary",
+    "source": "<x-box/><svg></x-box><style><img data-probe></style></svg>",
+    "legacy": {
+      "visibleMarkerElements": 0,
+      "styles": [
+        {
+          "namespace": "http://www.w3.org/1999/xhtml",
+          "text": "<img data-probe>"
+        }
+      ],
+      "serialized": "<html><head></head><body><x-box><svg></svg></x-box><style><img data-probe></style></body></html>"
+    },
+    "handExpanded": {
+      "visibleMarkerElements": 1,
+      "styles": [
+        {
+          "namespace": "http://www.w3.org/2000/svg",
+          "text": ""
+        }
+      ],
+      "serialized": "<html><head></head><body><x-box></x-box><svg><style></style></svg><img data-probe=\"\"></body></html>"
+    }
+  },
+  {
+    "name": "closing div across SVG boundary",
+    "source": "<div/><svg></div><style><img data-probe></style></svg>",
+    "legacy": {
+      "visibleMarkerElements": 0,
+      "styles": [
+        {
+          "namespace": "http://www.w3.org/1999/xhtml",
+          "text": "<img data-probe>"
+        }
+      ],
+      "serialized": "<html><head></head><body><div><svg></svg></div><style><img data-probe></style></body></html>"
+    },
+    "handExpanded": {
+      "visibleMarkerElements": 1,
+      "styles": [
+        {
+          "namespace": "http://www.w3.org/2000/svg",
+          "text": ""
+        }
+      ],
+      "serialized": "<html><head></head><body><div></div><svg><style></style></svg><img data-probe=\"\"></body></html>"
+    }
+  }
+]

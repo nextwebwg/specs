@@ -1,0 +1,322 @@
+[
+  {
+    "audit": "next-active",
+    "key": "positive-control:legacy",
+    "signals": [
+      "image-error"
+    ],
+    "targetVisible": true,
+    "activeTarget": "target",
+    "images": 1,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "positive-control:serialized-projection",
+    "signals": [
+      "image-error"
+    ],
+    "targetVisible": true,
+    "activeTarget": "target",
+    "images": 1,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "style:legacy",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "style:serialized-projection",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "textarea:legacy",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "textarea:serialized-projection",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "math:legacy",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "math:serialized-projection",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "svg-ancestor:legacy",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "svg-ancestor:serialized-projection",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "template:legacy",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "template:serialized-projection",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "expired-frame:legacy",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "expired-frame:serialized-projection",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "details:legacy",
+    "signals": [],
+    "targetVisible": false,
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "details:serialized-projection",
+    "signals": [],
+    "targetVisible": true,
+    "activeTarget": "target",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "dialog:legacy",
+    "signals": [],
+    "targetVisible": false,
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "dialog:serialized-projection",
+    "signals": [],
+    "targetVisible": true,
+    "activeTarget": "target",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "datalist:legacy",
+    "signals": [],
+    "targetVisible": false,
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "datalist:serialized-projection",
+    "signals": [],
+    "targetVisible": true,
+    "activeTarget": "target",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "audio:legacy",
+    "signals": [],
+    "targetVisible": false,
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "audio:serialized-projection",
+    "signals": [],
+    "targetVisible": true,
+    "activeTarget": "target",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "video:legacy",
+    "signals": [],
+    "targetVisible": false,
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "video:serialized-projection",
+    "signals": [],
+    "targetVisible": true,
+    "activeTarget": "target",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "canvas:legacy",
+    "signals": [],
+    "targetVisible": false,
+    "activeTarget": "target",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "canvas:serialized-projection",
+    "signals": [],
+    "targetVisible": true,
+    "activeTarget": "target",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "script-mutation:legacy",
+    "signals": [
+      "script-parent:DIV"
+    ],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false,
+    "emptyChildren": 4,
+    "followingParent": "DIV"
+  },
+  {
+    "audit": "next-active",
+    "key": "script-mutation:serialized-projection",
+    "signals": [
+      "script-parent:BODY"
+    ],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false,
+    "emptyChildren": 1,
+    "followingParent": "BODY"
+  },
+  {
+    "audit": "next-active",
+    "key": "custom-reaction:legacy",
+    "signals": [
+      "connected:DIV"
+    ],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false,
+    "emptyChildren": 2
+  },
+  {
+    "audit": "next-active",
+    "key": "custom-reaction:serialized-projection",
+    "signals": [
+      "connected:BODY"
+    ],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": false,
+    "emptyChildren": 0
+  },
+  {
+    "audit": "next-active",
+    "key": "shadow-owner:legacy",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": true,
+    "bodyShadow": false
+  },
+  {
+    "audit": "next-active",
+    "key": "shadow-owner:serialized-projection",
+    "signals": [],
+    "activeTarget": "",
+    "images": 0,
+    "shadowHost": false,
+    "bodyShadow": true
+  }
+]

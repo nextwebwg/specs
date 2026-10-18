@@ -8,7 +8,11 @@ status: Unofficial Editor's Draft · Stage 0
 
 # Parser & Writer Rules
 
-Implementation details for the [language guide](/expressive-markdown/language): lexical boundaries, document data, recovery and canonical writing. These rules form part of the Stage 0 language contract. HTML conversion remains informative.
+Use these rules to implement a parser or writer: recognize source boundaries,
+build the [document AST](/expressive-markdown/ast), recover invalid input and
+write equivalent Markdown. Each section defines one feature's exact behavior.
+For author-facing examples, start with [Language & Semantics](/expressive-markdown/language).
+HTML conversion recommendations are informative.
 
 ## Parsing order
 
@@ -16,7 +20,10 @@ Implementation details for the [language guide](/expressive-markdown/language): 
 2. Recognize optional opening frontmatter, then CommonMark blocks, containers, leaf directives, tables and line blocks in their enclosing block context.
 3. Parse inline content after block boundaries.
 
-Code spans, fenced/indented code and raw HTML blocks retain their lexical rules: their contents do not open directives or line blocks. GFM table recognition takes precedence over a leading pipe. Escaped structural punctuation stays literal.
+Code spans, fenced/indented code and HTML blocks retain their lexical boundaries;
+their contents do not open directives or line blocks. GFM tables take precedence
+over leading-pipe line blocks. Escaped structural punctuation stays literal.
+Apply the [safe HTML policy](#safe-html) when importing HTML and before writing it.
 
 ## YAML frontmatter
 
@@ -97,7 +104,14 @@ Writers use `3 + maximum descendant container depth` colons, recalculating withi
 | `open=false` / `open="false"` | String `"false"`, never boolean. |
 | `#check` / `id=check` | Node `id: "check"`. |
 
-Entries are separated by runs of spaces/tabs, `&`, or both, including tight forms such as `{a=1&b=2}`. `&` is a separator outside quoted values, never part of an unquoted value. Assigned values are strings, unquoted or single/double-quoted. Unquoted values are nonempty and end at whitespace, `&` or `}`; quote whitespace, ampersands, braces or quote delimiters. Use `key=""` for an empty string; `key=` is malformed. In quoted values, backslash escapes the active quote/backslash; other backslashes remain literal.
+- Separate entries with spaces/tabs, `&`, or both. Tight `{a=1&b=2}` is valid.
+- Outside quotes, `&` is a separator. Unquoted values are nonempty and end at
+  whitespace, `&` or `}`.
+- Assigned values stay strings, whether unquoted or single/double-quoted. Quote
+  whitespace, ampersands, braces or quote delimiters.
+- `key=""` is an empty string; `key=` is malformed.
+- In quotes, backslash escapes the active quote/backslash; other backslashes
+  remain literal.
 
 Source names are case-insensitive; AST attribute keys use camelCase. Lowercase the source name, split at hyphens, and join the nonempty parts, capitalizing the first ASCII letter of each part after the first. Digits and underscores remain unchanged. For example, `SHOW-LINE-NUMBERS` becomes `showLineNumbers`, and `query-string` becomes `queryString`. Resolve duplicate/conflicting entries after this mapping. Values and IDs remain exact. Ordinary entries live in `attributes`, the effective ID once in `id`. Every AST node may carry an ID; this does not create source attachment syntax everywhere.
 
@@ -112,17 +126,25 @@ Source names are case-insensitive; AST attribute keys use camelCase. Lowercase t
 [Release notes](release.md){class="release-link"}
 ```
 
-A heading's final whitespace-separated list attaches to the heading. An immediately adjacent list attaches to a completed image/link. Attachments stay on the target's source line; code-span whitespace is not attachment syntax. Multiple lists resolve in source order; malformed lists stay literal. Escape `{` to prevent attachment. Code-fence attributes are described in the [language guide](/expressive-markdown/language#code-blocks-and-presentation-metadata); other block styling uses native HTML. `.class` shorthand is not defined.
+A heading's final whitespace-separated list attaches to the heading. An immediately adjacent list attaches to a completed image/link. Attachments stay on the target's source line; code-span whitespace is not attachment syntax. Multiple lists resolve in source order; malformed lists stay literal. Escape `{` to prevent attachment. Code-fence attributes are described in the [language guide](/expressive-markdown/language#code-blocks-and-presentation-metadata); other block styling uses supported safe HTML.
 
 | Recommended HTML mapping | Behavior |
 | --- | --- |
-| `id`, `class`, `style`, supported native attributes | Native equivalents; convert camelCase attribute keys back to dash-separated source names where applicable. HTML validity diagnostics do not change AST data. |
+| `id`, `class`, `style`, supported native attributes | Supported safe native equivalents; convert camelCase keys back to dash-separated names where applicable. Filtering is reported. |
 | Other string attributes | `data-*` using the dash-separated name; retain an existing `data-` prefix (AST `dataFoo` → HTML `data-foo`). |
 | Custom true/false flags | Present empty `data-*` / omitted attribute. |
 | Native boolean attributes | True or any assigned string means present; false means omitted. `"false"` therefore still enables it. |
 | Conversion-owned `data-type` (AST `dataType`) | Identifies the construct. Preserve a colliding authored value in the AST and diagnose instead of replacing output identity. |
 
 Unknown attributes remain data. An arbitrary flag does not acquire native HTML behavior.
+
+## Automatic tab grouping
+
+After block parsing, normalize each document/container/quote/list-item/cell block array independently. Replace each maximal run of `container/tab` siblings with one `container/tabs` whose `body` contains the original tabs in order. Blank source lines produce no separating content node. A non-tab node ends the run; groups never cross a block-context boundary. A single tab is a one-item group.
+
+When normalizing an explicit `tabs` body's direct children, retain its tab children directly rather than introducing another implicit group. Preserve nested groups inside each tab's body normally. Explicit neighbouring `tabs` groups remain separate. Derived groups have no authored ID, title or attributes. Source positions may cover the run; they do not create authored identity.
+
+Canonical writers omit the group wrapper when no authored group settings, title or ID need representation and doing so preserves group boundaries. Keep an explicit wrapper where adjacent groups would otherwise merge. Otherwise write a normal `tabs` container with nested `tab` containers and matching fence lengths. A tab's title is inline Markdown and its selection value is string `attributes.value` or its title's plain text.
 
 ## Mention shorthand
 
@@ -207,9 +229,9 @@ Markers match the entire unescaped cell after trimming spaces/tabs; tight `|>`/`
 
 The [table AST](/expressive-markdown/ast#content-node-reference) contains originating cells only, in column order. Place each at the first unoccupied column, skipping prior row spans. Spans are positive integers, default/omitted `1`; numeric structural fields do not change the string-only assigned-attribute rule. Alignment comes from the leftmost column unless a cell attribute overrides it.
 
-Cells use exactly one of literal `value`, inline `children` or rich block `body`. Column alignment is `table.align` (`left`, `center`, `right` or null); cell `header` is boolean. Preserve widths/backgrounds/classes in attributes. Native HTML imports map supported `colspan`/`rowspan` to structural fields, without duplicate attributes; unrepresentable behavior stays HTML with a diagnostic.
+Cells use exactly one of literal `value`, inline `children` or rich block `body`. Column alignment is `table.align` (`left`, `center`, `right` or null); cell `header` is boolean. Preserve widths/backgrounds/classes in attributes. Native HTML imports map supported `colspan`/`rowspan` to structural fields, without duplicate attributes; unrepresentable safe content stays HTML with a diagnostic.
 
-Writers use pipe syntax where it preserves everything: `>` before the content slot and `^` in every covered lower slot, escaping literal markers. Otherwise use native HTML or report unsupported conversion. Preserve each cell's identity once, without placeholder IDs.
+Writers use pipe syntax where it preserves everything: `>` before the content slot and `^` in every covered lower slot, escaping literal markers. Otherwise use supported safe HTML or report unsupported conversion. Preserve each cell's identity once, without placeholder IDs.
 
 **Recommended HTML:** `<table>`, `<thead>`/`<tbody>`, `<tr>`, `<th>`/`<td>`, with spans, alignment and supported presentation attributes. Never silently flatten merged/rich cells or infer complex accessible header associations solely from visual position.
 
@@ -224,6 +246,25 @@ Code attributes share the ordinary string/flag grammar and camelCase key mapping
 - Annotation comments are literal source. Profiles may explicitly map imported conventions, but the core does not interpret Docusaurus, VitePress or Shiki spellings automatically.
 
 Recommended HTML escapes literal code. Per-line decoration must preserve the code's text and line divisions; copied code excludes generated line-number labels. A profile that cannot display a setting preserves it and reports the unsupported presentation.
+
+## Safe HTML
+
+HTML import and output use a maintained sanitizer allowlist for elements,
+attributes and URLs, rather than a hand-written blacklist. The exact preset
+remains to be selected.
+
+- Discard `script` elements **and their contents** during parsing. They never
+  appear in the semantic document or subsequent Markdown output.
+- Map supported safe HTML to structured nodes where possible. Other supported
+  safe markup may remain an `html` node with its inline/block display context.
+- Apply the policy to supplied AST HTML and presentation attributes when writing;
+  do not trust them merely because they arrived as document data.
+- Report filtering and unsupported conversion. Never replay discarded unsafe
+  content from provenance, recovery or source-preservation records.
+
+The policy does not alter literal code examples: HTML written inside a code
+span or code block remains inert code text. A preserved `literal` recovery node
+is escaped text, not executable HTML.
 
 ## Recommended output anchors
 
@@ -262,11 +303,16 @@ Recovery nodes keep original source in `value` and a `display` context. Recommen
 
 Diagnostics remain separate from document content. Suggested records contain code, severity, message, optional position and node ID; this is tooling guidance, not a mandatory API. Recommend warnings for duplicate attributes/IDs and invalid feature values.
 
-The planned JavaScript tool also warns on unquoted `open=true`/`open=false`, suggesting `{open}`/`{!open}`. Quoting suppresses that advisory. Assigned values remain strings regardless; this adds no language-validity rule.
+Tools may warn on unquoted `open=true`/`open=false` and suggest `{open}`/`{!open}`.
+Quoting suppresses this advisory. Assigned values remain strings either way.
 
 ## Writing and preservation
 
-Semantic round-tripping preserves meaning, ordered content, explicit line divisions, authored IDs, unknown types, supported metadata and presentation values. Byte-identical output is optional and requires lexical provenance: whitespace, quotes, overwritten attributes, references and delimiters.
+Round-tripping preserves meaning, order, explicit lines, authored IDs, unknown
+types, supported metadata and presentation. Discarded unsafe HTML is excluded
+and must never be restored from source records. Byte-identical output is
+optional; it needs original whitespace, quotes, overwritten attributes, link
+references and delimiters.
 
 | Writers use | Preserve |
 | --- | --- |

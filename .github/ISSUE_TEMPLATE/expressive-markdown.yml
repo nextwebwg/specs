@@ -12,8 +12,8 @@ body:
         - Language & Semantics
         - Document AST
         - Parser & Writer Rules
-        - Presentation Coverage
-        - Publishing & Integration
+        - Rendering Recommendations
+        - Publishing & Navigation
         - Several chapters or not sure
     validations:
       required: true

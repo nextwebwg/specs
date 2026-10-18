@@ -160,6 +160,36 @@ Use a leading pipe when line divisions are part of the content:
 `| ` starts a preserved line; a bare `|` requests an empty one. `|Text` stays
 ordinary text. Source indentation is stripped, not displayed.
 
+The content after the pipe uses inline Markdown. A list marker there stays text:
+
+```md
+| 1. item
+| - one item
+| - second item
+```
+
+These are three represented lines, with no list. Backslash escapes are also
+valid: `1\. item` and `\- item` prevent list recognition in an ordinary paragraph.
+Pipes make a run of deliberate lines easier to read; escapes work wherever
+ordinary inline Markdown accepts them. Inline formatting such as `**bold**`
+still works inside a line block.
+
+An established [table](#tables) takes precedence over a line block. For example,
+this is a one-column table, including its required header separator:
+
+```md
+| Item |
+| --- |
+| - one item |
+| 1. item |
+```
+
+Pipe-table cells contain inline Markdown, so these markers stay text too.
+`\- one item` and `1\. item` are valid cell text with the same result. The outer
+pipes delimit cells; they do not provide the line-block form inside a cell.
+Without a valid table header and separator, leading-pipe lines remain a line
+block, even when they end with another pipe.
+
 Long lines can wrap onto an indented continuation:
 
 ```md
@@ -236,6 +266,22 @@ not Markdown to parse again.
 Reference-style and inline links produce the same nodes. Unresolved references
 use CommonMark's literal fallback. An isolated image stays in its paragraph;
 only an explicit figure supplies a caption, separate from image alternative text.
+
+### Lists and literal markers
+
+At a block boundary, `1. item` creates an ordered list and `- item` creates a
+bullet list under the ordinary CommonMark rules. Put whitespace after the marker;
+no extra leading space is required. Block context matters: `### 1. item` is a
+level-three heading whose text is “1. item”, not a list inside a heading.
+
+Editors may turn typed Markdown shortcuts into lists or headings. Editors that
+offer this behavior should let Escape immediately reverse the automatic
+formatting and restore the literal characters. Export uses the resulting
+document structure automatically; people should not have to choose a storage
+mode or add escapes themselves. An editor adapter can represent deliberately
+literal lines as `lineBlock` nodes and write the readable pipe form above.
+See the [writer rules](/expressive-markdown/parsing#literal-block-markers) for
+preserving ordinary paragraph nodes and table cells.
 
 > [!note] Writers preserve the document
 > Exports may use safe HTML such as `<strong>Hello </strong>` or `<p></p>` when

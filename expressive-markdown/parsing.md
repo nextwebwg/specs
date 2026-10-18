@@ -193,6 +193,17 @@ Each `| ` or pipe-plus-tab starts a represented line; a bare `|` requests an emp
 
 Inline formatting may span represented lines; boundaries remain `break` nodes within that formatting. Inline code spans fit within one represented line. Escape a literal pipe or put it in code.
 
+Parse the payload of each represented line as inline content, never as another
+block. Thus `| 1. item`, `| - item` and `| # item` contain literal block markers;
+they do not create lists or headings. Inline escapes remain valid within the
+payload, but escaping those block markers is unnecessary.
+
+Recognize a GFM table only when its header and delimiter row meet the table
+grammar. A trailing pipe alone does not establish a table. For example,
+`| - one item |` followed by `| - second item |` is a line block, with each
+trailing pipe retained as text. Once a table is established, its pipes delimit
+cells and cannot also serve as line-block markers inside those cells.
+
 The AST uses `lineBlock.children` with `break` nodes; consecutive/leading/trailing breaks preserve empty lines. A single plain line may use `value`; a single bare pipe uses `value: ""`.
 
 **Recommended HTML:** `<p>` with `<br>` boundaries and preserved inline wrappers. Append one layout `<br>` for a terminal empty line, or for an entirely empty one-line block, so HTML does not absorb it. This extra layout break is not an AST break. Explicit empty lines add to normal paragraph spacing.
@@ -219,6 +230,12 @@ Start with GFM tables: headers, inline cells and column alignment. Add marker-on
 | `\>` / `\^`, or inline code | Literal marker text. |
 
 Markers match the entire unescaped cell after trimming spaces/tabs; tight `|>`/`|^` forms also work. They are recognized before inline parsing, only inside established tables. The example gives “Release checks” `colSpan: 2`, `rowSpan: 2`.
+
+Pipe-table cell content uses inline parsing. Leading `1. item` and `- item` in a
+cell stay text; they are not list blocks. Their escaped forms `1\. item` and
+`\- item` are equally valid and decode to the same text. Rich cells with block
+`body` content use supported safe HTML when pipe syntax cannot preserve them;
+actual list nodes in such a body remain lists.
 
 **Grid rules:**
 
@@ -343,6 +360,37 @@ Use &amp;copy; literally.
 
 These forms parse back into the same structured nodes. Ordinary bold text still
 uses `**bold**`; extra blank source lines remain ordinary paragraph spacing.
+
+### Literal block markers
+
+Writers determine syntax from the final node type and its enclosing context.
+They must not infer a list solely from text beginning with a list marker, or
+require a user-supplied serialization flag.
+
+| Node and literal content | Source example | Reparsed node |
+| --- | --- | --- |
+| Ordered list with item “item” | `1. item` | Ordered `list`. |
+| Bullet list with item “item” | `- item` | Unordered `list`. |
+| Level-three heading “1. item” | `### 1. item` | `heading`, level 3. |
+| One represented line “1. item” | `\| 1. item` | `lineBlock`. |
+| Two represented lines “- one item”, “- second item” | `\| - one item` followed by `\| - second item` on the next source line | One `lineBlock` with a `break`. |
+| Ordinary paragraph “1. item” | `1\. item` | `paragraph`. |
+| Ordinary paragraph “- item” | `\- item` | `paragraph`. |
+| Pipe-table cell “1. item” or “- item” | `1. item` / `- item`, optionally escaped | Inline cell content. |
+
+For line blocks, prefer the leading-pipe form without redundant escapes of list
+or heading markers. Preserve inline Markdown escaping where needed. For ordinary
+paragraphs, escape punctuation that would otherwise start a different block,
+including the period in a leading ordered-list marker. Do not silently change a
+`paragraph` into a `lineBlock`: the latter also records explicit line divisions.
+An editor adapter that maps a deliberately literal line to `lineBlock` makes
+that choice before serialization. Reversing an editor's automatic formatting
+must survive export and import as literal content.
+
+Table-cell writers may escape list-marker punctuation for clarity, but must not
+insert a leading pipe to suppress list recognition: it would delimit another
+cell. Preserve actual lists in rich cell bodies using the table preservation
+rules above.
 
 Code fences follow CommonMark backtick/tilde rules and exceed conflicting delimiter runs in their literal content. Parsers should prefer compact `value` for wholly literal inline content, but supplied text-only `children` remain valid. Normalization must not lose child IDs, attributes or provenance.
 

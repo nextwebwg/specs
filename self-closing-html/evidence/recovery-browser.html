@@ -1,0 +1,34 @@
+<!doctype html><meta charset="utf-8"><title>Recovery-context reference probe</title><h1>Recovery-context reference probe</h1><p>Inert browser comparison of legacy recognition and containment projection. Marker attributes stand in for source-token metadata. This is not a streaming browser implementation.</p><p id="status"></p><pre id="results"></pre><script>const cases=[["ordinary div", "\u003cdiv data-next-empty />\u003cspan>Following\u003c/span>"], ["consecutive custom elements", "\u003cx-box data-next-empty />\u003cx-box data-next-empty />text"], ["style text", "\u003cstyle/>\u003cimg data-probe>\u003cstyle>\u003c/style>"], ["textarea text", "\u003ctextarea/>\u003cimg data-probe>\u003ctextarea>\u003c/textarea>"], ["MathML integration", "\u003cmath>\u003cmtext>\u003cx-box data-next-empty />\u003cmglyph>\u003cstyle>\u003cimg data-probe>\u003c/style>\u003c/mglyph>\u003c/mtext>\u003c/math>"], ["custom ancestor before SVG", "\u003cx-box data-next-empty />\u003csvg>\u003c/x-box>\u003cstyle>\u003cimg data-probe>\u003c/style>\u003c/svg>"], ["div ancestor before SVG", "\u003cdiv data-next-empty />\u003csvg>\u003c/div>\u003cstyle>\u003cimg data-probe>\u003c/style>\u003c/svg>"], ["heading alias recovery", "\u003ch1 data-next-empty />\u003csvg>\u003c/h2>\u003cstyle>\u003cimg data-probe>\u003c/style>\u003c/svg>"], ["expired recovery frame", "\u003cdiv>\u003cx-box data-next-empty />\u003c/div>\u003csvg>\u003c/x-box>\u003ctitle>\u003cstyle>\u003c/title>\u003cimg data-probe>\u003c/style>"], ["inert template", "\u003ctemplate/>\u003cimg data-probe>"], ["explicit inert barrier", "\u003cdiv inert data-next-empty />\u003cimg data-probe>"], ["select context", "\u003cselect/>\u003cimg data-probe>"]];
+const HTML = 'http://www.w3.org/1999/xhtml';
+const EXEMPT = new Set('script style title textarea xmp iframe noembed noframes noscript plaintext html head body frameset frame table caption colgroup col tbody tfoot thead tr td th template select option optgroup form fieldset button details dialog datalist audio video canvas object applet a b big code em font i nobr s small strike strong tt u p pre listing'.split(' '));
+function inventory(root, identities) {
+ const result=[];
+ function visit(node,inTemplate=false) {
+  if(!identities.has(node)) identities.set(node,identities.size);
+  inTemplate ||= node.nodeType===1 && node.namespaceURI===HTML && node.localName==='template';
+  result.push({id:identities.get(node),type:node.nodeType,name:node.nodeName,ns:node.namespaceURI,text:node.nodeValue,attrs:node.nodeType===1?Array.from(node.attributes,a=>[a.namespaceURI,a.name,a.value]):undefined,inTemplate});
+  for(const child of node.childNodes)visit(child,inTemplate);
+  if(node.nodeType===1 && node.namespaceURI===HTML && node.localName==='template')visit(node.content,true);
+ }
+ visit(root);return result;
+}
+function project(parent,foreign=false) {
+ for(const node of Array.from(parent.childNodes)) {
+  const isElement=node.nodeType===1;
+  const underForeign=foreign || (isElement && node.namespaceURI!==HTML);
+  project(node,underForeign);
+  if(isElement && node.namespaceURI===HTML && node.localName==='template')project(node.content,underForeign);
+  if(isElement && !underForeign && node.hasAttribute('data-next-empty') && !EXEMPT.has(node.localName) && !['inert','hidden','disabled'].some(a=>node.hasAttribute(a))) {
+   node.after(...Array.from(node.childNodes));
+  }
+ }
+}
+const results=cases.map(([name,source])=>{
+ const doc=new DOMParser().parseFromString('<!doctype html><body>'+source,'text/html');
+ const ids=new Map();const before=inventory(doc,ids);project(doc);const after=inventory(doc,ids);
+ const markers=items=>items.filter(n=>n.name==='IMG'&&n.attrs?.some(a=>a[1]==='data-probe')).map(n=>({id:n.id,inTemplate:n.inTemplate}));
+ return {name,source,recognitionPreserved:JSON.stringify(before)===JSON.stringify(after),legacyMarkers:markers(before),projectedMarkers:markers(after),html:doc.documentElement.outerHTML};
+});
+document.getElementById('status').textContent=results.every(r=>r.recognitionPreserved)?'PASS: all 12 comparisons preserve node identity, order, namespaces, attributes, text, and template inertness.':'FAIL: a recognition invariant changed.';
+document.getElementById('results').textContent=JSON.stringify(results,null,2);
+</script>

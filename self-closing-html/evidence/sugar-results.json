@@ -1,0 +1,246 @@
+{
+  "cases": 40,
+  "failures": [],
+  "results": [
+    {
+      "context": "body",
+      "tag": "div",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "body",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "body",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "body",
+      "tag": "h1",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "div",
+      "tag": "div",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "div",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "div",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "div",
+      "tag": "h1",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "section",
+      "tag": "div",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "section",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "section",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "section",
+      "tag": "h1",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "link",
+      "tag": "div",
+      "activated": false,
+      "equal": true
+    },
+    {
+      "context": "link",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "link",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "link",
+      "tag": "h1",
+      "activated": false,
+      "equal": true
+    },
+    {
+      "context": "bold",
+      "tag": "div",
+      "activated": false,
+      "equal": true
+    },
+    {
+      "context": "bold",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "bold",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "bold",
+      "tag": "h1",
+      "activated": false,
+      "equal": true
+    },
+    {
+      "context": "emphasis",
+      "tag": "div",
+      "activated": false,
+      "equal": true
+    },
+    {
+      "context": "emphasis",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "emphasis",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "emphasis",
+      "tag": "h1",
+      "activated": false,
+      "equal": true
+    },
+    {
+      "context": "form",
+      "tag": "div",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "form",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "form",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "form",
+      "tag": "h1",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "template",
+      "tag": "div",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "template",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "template",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "template",
+      "tag": "h1",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "list-item",
+      "tag": "div",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "list-item",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "list-item",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "list-item",
+      "tag": "h1",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "table-cell",
+      "tag": "div",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "table-cell",
+      "tag": "span",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "table-cell",
+      "tag": "x-box",
+      "activated": true,
+      "equal": true
+    },
+    {
+      "context": "table-cell",
+      "tag": "h1",
+      "activated": true,
+      "equal": true
+    }
+  ]
+}

@@ -7,11 +7,9 @@ pager: false
 
 # HTML Next Parsing
 
-Self-closing tags, with forgiving HTML rules and the same DOM. One explicit opt-in lets HTML grow while existing pages keep their meaning.
+Native self-closing tags, with forgiving HTML syntax. An explicit opt-in adds the shorthand while preserving HTML's boundaries between text and markup.
 
-## Self-closing tags
-
-One declaration opts document source into the shorthand:
+## Write the empty element once
 
 ```html
 <!DOCTYPE html PUBLIC "next">
@@ -22,7 +20,7 @@ One declaration opts document source into the shorthand:
 ```
 
 ::: two
-> [!norm] Tag pairs
+> [!norm] Ordinary elements
 > `<div />` → `<div></div>`
 >
 > `<x-card />` → `<x-card></x-card>`
@@ -33,50 +31,69 @@ One declaration opts document source into the shorthand:
 > `<link />` → `<link>`
 :::
 
-HTML's explicit void-element allowlist skips the end tag. Other eligible HTML elements use tag pairs; text-mode and namespace exclusions are under security review. **`<br />` never becomes `<br></br>`.**[^1]
+Eligible elements become empty DOM nodes. HTML's existing void-element allowlist remains explicit: **`<br />` never becomes `<br></br>`.**[^1]
 
-## HTML can evolve without becoming XML
+Authors already use self-closing components in JSX and Vue templates. This brings the shorthand to HTML source.[^4]
 
-Self-closing syntax should be available without adopting XML's strict parsing rules.
+Case-insensitive names, boolean attributes, unquoted values, optional tags, and error recovery retain their HTML rules. XML parsing is not required.
 
-> [!note] Keep HTML's flexibility
-> Case-insensitive names, boolean attributes, unquoted values, optional tags, and error recovery all keep their HTML rules. The document remains `text/html`.
+## What held this back
 
-> [!norm] Let authors choose
-> Plain `<!DOCTYPE html>` keeps today's tag interpretation. `<!DOCTYPE html PUBLIC "next">` explicitly selects the new rule for document source.
+Browsers currently ignore the slash on ordinary HTML elements. Changing that everywhere would change existing pages. An explicit document opt-in addresses that compatibility problem.[^2][^3]
 
-This addresses the legacy-content objection in **WHATWG HTML #721**: existing documents keep their meaning. The thread also suggested an opt-in; this declaration makes that route concrete within HTML.[^3]
+There is also a security problem: a sanitizer can regard apparent tags as harmless text, while a different parser exposes them as markup. WHATWG's self-closing discussion identifies this with a `style` example. Merely adding a doctype or excluding `style` is insufficient.[^9]
 
-## Why authors want it
+> [!warn] The boundary that must not move
+> ```html
+> <style/><img src onerror=alert(1)><style></style>
+> ```
+>
+> The apparent image is text in existing HTML. The shorthand must not turn it into an image with an event handler.
 
-- **Less repetition.** An empty custom element declares its intent without repeating a long name.
-- **Fewer surprises.** Vue documents how self-closing components work in its templates but can swallow following content in native HTML.[^4]
-- **Direct HTML authoring.** Native support would remove the need for a build step solely to expand empty tags.
+## Close the element. Preserve the context.
 
-Adding children later means expanding the tag pair. The element's behavior stays the same.
+The proposed parser closes the element's **DOM containment** while retaining the context HTML needs to interpret later tags.
 
-## A small syntax change
+For example, a later `</div>` still receives the appropriate HTML recovery behavior after `<div />`. It cannot accidentally leave the parser inside SVG and turn subsequent style text into markup.
 
-The self-closing rule has a small syntactic scope: one explicit opt-in and one source abbreviation. Safe adoption also needs stable insertion APIs and sanitizer compatibility. The placement extension below is a larger design task.
+> [!ex] Empty elements; stable text boundaries
+> The reference model produces empty elements and following siblings while preserving recognized nodes, namespaces, attributes, text, and inert template boundaries.
+>
+> Text-mode and other parser-sensitive elements keep their existing slash handling. Ordinary HTML insertion APIs keep their existing grammar.
 
-> [!ex] Reuse what browsers already have
-> The doctype already carries a public identifier. The tokenizer already recognizes `/>`. The result uses existing DOM elements, rendering, and accessibility behavior.[^2][^6]
+This makes recovery part of the feature's contract. The slash is not a global instruction to reinterpret everything that follows.
 
-`PUBLIC "next"` names a built-in parsing profile. It fetches no external definition and requires neither a new component model nor the other proposals in this collection.[^5]
+## The rules at a glance
 
-> [!warn] No silent parsing switches
-> The doctype must not change how existing HTML-insertion APIs parse strings. Dynamic Next parsing requires an explicit API; untrusted input must be parsed and sanitized together. Server-generated pages need compatible sanitation too. These are shipping requirements, not problems solved by opting in.[^9][^10]
+| Concern | Proposed rule |
+| --- | --- |
+| Existing pages | Plain `<!DOCTYPE html>` retains existing parsing. |
+| Author opt-in | `<!DOCTYPE html PUBLIC "next">` selects a fixed profile for document source. |
+| Ordinary empty elements | Eligible HTML and custom elements close DOM containment. |
+| Void elements | Use the existing allowlist; never synthesize their end tags. |
+| Sensitive contexts | Preserve text, namespace, inertness, and recovery boundaries through exemptions and retained parser context. |
+| Dynamic HTML | Existing APIs remain stable. Explicit Next insertion must parse and sanitize in the destination context. |
 
-This is a Stage 0 draft. Current browsers keep standards mode with the declaration but still require expanded tag pairs for non-void elements.[^6]
+`PUBLIC "next"` names a built-in profile. It fetches no DTD and does not enable XML. Current browsers retain standards rendering mode with this declaration but do not implement the new syntax.[^5][^6]
 
-Discuss the proposal in the [specifications repository](https://github.com/nextwebwg/specs/discussions).
+## Evidence
+
+The safety argument is structural: the reference model changes eligible parent/child relationships without retokenizing text or creating new elements. The experiments check that implementation and its edge cases. Active-browser checks also identified native containment exemptions and the need to preserve shadow-root ownership.
+
+| Check | Result |
+| --- | --- |
+| Generated parsing cases | 800,000 comparisons preserved the checked recognition properties. |
+| Ordinary authoring examples | 40 comparisons matched explicit pairs or the specified exemption. |
+| Chromium probes | 12 inert comparisons preserved the checked node properties, including the reported text/namespace cases. |
+| Serialization and reparsing | 200,000 comparisons found no new marker exposure against the legacy baseline. |
+| Native containment and shadow roots | Active checks identified necessary exemptions; six inert open-root ownership comparisons passed. |
+
+Sources, pinned dependencies, commands, and recorded results are in the [reproduction directory](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence). These establish properties of the reference model; native browser execution still requires implementation and conformance testing.
 
 ## Extension: more places for components {#placement-extension}
 
 > [!future] Extension · placement · Proposal
-> Let web components and declarative components appear as direct children in more contexts, under the same proposed doctype opt-in.
->
-> Today, the parser moves this component outside the table:[^7]
+> Preserve components as direct children in more contexts, including tables and templates.
 >
 > ```html
 > <table>
@@ -84,109 +101,122 @@ Discuss the proposal in the [specifications repository](https://github.com/nextw
 > </table>
 > ```
 >
-> The goal: keep the component where it was authored, with its child structure intact. Tables are one example; template contents and other restrictive contexts need the same review.
->
-> Layout and accessibility remain design questions. `display: contents` is an option to evaluate, not a chosen default.[^8]
+> Today's parser moves this component outside the table. The extension would preserve the authored structure. It needs its own parsing and safety contract; `display: contents` alone cannot change parsing.[^7][^8]
 
-## Parser details and sources
+## Specification details
 
-::: {.details summary="Read the proposed parser contract"}
-### Selecting the profile
+::: {.details summary="Parsing profile and element eligibility"}
+### Profile selection
 
-For an HTML resource parsed during navigation, recognize the initial doctype before element content: name `html`, public identifier exactly `next` (case-sensitive), system identifier absent. Keywords and the doctype name keep HTML's case-insensitive matching.
+For a navigated HTML resource, an initial doctype with name `html`, public identifier exactly `next` (case-sensitive), and no system identifier selects the profile. Keywords and the doctype name retain HTML's case-insensitive matching. The resource remains `text/html` in standards rendering mode.
 
-The name `next` identifies a defined profile, not a rolling latest mode. Settle which capabilities it selects before shipping; later incompatible parsing changes need a distinct identifier or a separately specified opt-in.
+The profile is fixed for that parse. Later declarations, changes to the doctype DOM node, and custom-element registration cannot switch it. `next` identifies a fixed grammar, not a rolling latest version. Incompatible additions require a distinct opt-in.
 
-The profile selects standards rendering mode and is fixed for that parse. Other doctypes retain existing behavior. Later declarations, DOM edits to the doctype, and custom-element registration cannot switch it.
+Existing doctypes retain their behavior. Today `PUBLIC "next"` is nonconforming but selects standards rendering mode; making it conforming requires a standards change. `<!DOCTYPE html next>` and `<!DOCTYPE html-next>` currently select quirks mode.[^6]
 
-`PUBLIC` names the profile rather than locating a DTD. There is no DTD fetch or validation and no switch to XML. Today this spelling produces a parse error but selects standards mode; recognizing it as conforming requires a standards change. `<!DOCTYPE html next>` and `<!DOCTYPE html-next>` currently trigger quirks mode.[^5][^6]
+### Void elements
 
-### Interpreting tags
+The explicit allowlist is `area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `source`, `track`, `wbr`.[^1]
 
-For eligible HTML names outside the void-element allowlist, process `/>` as a start tag immediately followed by its matching end tag. Eligibility is subject to the security exclusion study below; the draft does not yet settle the complete exception set. Without the slash, the start tag remains open under normal HTML rules.
+Match names case-insensitively in the HTML namespace. Process only a start tag, with or without the slash. Preserve existing recovery for obsolete names.
 
-The allowlist is: `area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `source`, `track`, `wbr`.[^1]
+### Initial exemptions
 
-Match those names case-insensitively in the HTML namespace. With or without the slash, process only the start tag; never generate an end tag. Eligible custom and unknown names default to pairs, regardless of registration. SVG and MathML retain their existing foreign-content rules; HTML integration points need separate review before extending the shorthand there.
+The reference profile preserves current slash handling for these non-void elements and contexts:
 
-Keep existing tokenization: `<div data-path=assets/ />` uses the shorthand; `<div data-path=assets/>` has an unquoted value of `assets/` and does not. Optional-end-tag and legacy error recovery remain in force.
+| Category | Exempt names or contexts |
+| --- | --- |
+| Text and scripting | `script`, `style`, `title`, `textarea`, `xmp`, `iframe`, `noembed`, `noframes`, `noscript`, `plaintext` |
+| Structure and controls | `html`, `head`, `body`, `frameset`, `frame`, `table`, `caption`, `colgroup`, `col`, `tbody`, `tfoot`, `thead`, `tr`, `td`, `th`, `template`, `select`, `option`, `optgroup`, `form`, `fieldset`, `button` |
+| Native containment | `details`, `dialog`, `datalist`, `audio`, `video`, `canvas`, `object`, `applet` |
+| Formatting and recovery | `a`, `b`, `big`, `code`, `em`, `font`, `i`, `nobr`, `s`, `small`, `strike`, `strong`, `tt`, `u`, `p`, `pre`, `listing`; HTML special elements while an active formatting scope is present |
+| Protected contexts | Foreign ancestors and their HTML integration points; elements carrying `inert`, `hidden`, or `disabled` |
 
-### Documents, fragments, and the DOM
+Exemptions do not make an element void. Where HTML recognizes explicit end tags, use them. Eligible custom and unknown names do not depend on registration. Native SVG/MathML self-closing rules remain unchanged.[^12]
 
-- The doctype selects the profile for navigation document source, including a separately navigated iframe resource. It is not an ambient switch for string-to-DOM APIs.
-- Existing APIs retain their current grammar-selection rules: `innerHTML`, `outerHTML`, `insertAdjacentHTML()`, `Range.createContextualFragment()`, `DOMParser.parseFromString(..., "text/html")`, and existing HTML parsing/insertion methods. Neither the destination document's profile nor a doctype inside the supplied string silently enables Next syntax. Ordinary HTML/XML and element-context distinctions remain.
-- Existing string-based document creation, including `iframe.srcdoc`, needs the same fixed-grammar boundary. Document-writing APIs must not silently feed Next syntax to an active parser. Specify a compatible isolation or rejection rule before shipping; `document.write()` integration remains unresolved.
-- Dynamic Next parsing requires an explicit, standardized API request with a defined grammar and insertion context. This draft defines the boundary, not an API name or signature. Unsupported requests must fail before insertion rather than fall back silently. Default calls to existing APIs keep their behavior.
-- Moving nodes does not reparse their markup. Later string parsing follows the called API's explicit contract, not a profile inherited from the destination. Elements gain no new node type, element interface, or persistent self-closing flag. A self-closed non-void element can still receive children through DOM APIs.
-- Element serialization stays ordinary HTML. A serialized string carries no guarantee that another grammar or context will interpret it identically. Complete source relying on the shorthand must preserve its declaration; dynamic consumers must select the grammar explicitly.
+The initial set must match the browser algorithm. Lifting an exemption requires a defined interpretation and safety argument for that context.
 
-### Compatibility and remaining work
+### Tokenization
 
-In `<div /><span>Following content</span>`, ordinary HTML makes the `span` a child of the `div`. A supporting parser with the profile enabled makes them siblings. Authors opting in must audit document source for dependencies on today's nesting. Existing fragment API calls keep their current behavior.[^2][^3]
-
-Self-closing `script`, `textarea`, and other text-mode elements are candidates for exclusion, not promised capabilities. Precise algorithms and tests remain necessary for script execution, text modes, tables, selects, document structure, template-associated documents, shadow roots, and document-writing APIs.
-
-Before adoption, measure existing uses of the exact declaration, test fallback across engines, and specify explicit dynamic parsing and feature detection. `document.doctype.publicId` records author intent; it does not prove support. The small scope is an adoption argument, not a measured implementation estimate.
-
-Unsupported browsers retain today's tag rules. Send them expanded tag pairs. Build-time lowering needs a parser that understands the proposed syntax; string replacement or a DOM rewrite after parsing cannot reliably recover source intent.
-
-### Placement extension: goals and open questions
-
-The `placement` extension proposes using the same `next` parsing profile to make more parent/child combinations available to components. It is at Proposal stage, separate from the self-closing rule; neither a parser algorithm nor a rendering default is settled.
-
-Preserve the authored parent and child structure of eligible component elements when existing context rules would relocate them or discard their descendants. This includes inert template contents. For example, a wrapper around `<tr><td>Row</td></tr>` should not cause those row and cell elements to disappear. The component runtime still decides what the component does; preserving a node does not instantiate or render a declarative component by itself.[^7]
-
-Review each affected context, including table insertion modes, templates, selects, and document structure. Define which component or unknown element names qualify, how implied containers and omitted end tags interact with them, and how an explicit dynamic parsing request selects the behavior. Existing fragment APIs must not inherit it. Preserve HTML's void elements, text-only parsing, namespace handling, and forgiving recovery outside the specified changes. The extension does not promise arbitrary nesting for every native element.
-
-Evaluate DOM structure, native layout, and accessibility separately. `display: contents` changes box generation, not parsing; it cannot recover discarded nodes. A rendering design must account for native table and control behavior, focus, events, and accessible relationships before selecting any default.[^8]
-
-Existing documents keep today's behavior. Authors opting in must audit document-source component placement as well as self-closing syntax; fallback, sanitizer compatibility, and feature detection need tests for each capability. The shared doctype expresses intent, not proof that a browser supports every part of this draft.
-
-Seek browser implementer review alongside the existing WHATWG discussion. This is an independent Stage 0 draft, not a W3C or WHATWG deliverable.
-
-Editor: [Matthew Dean](https://github.com/matthew-dean).
+Preserve HTML attribute tokenization. `<div data-path=assets/ />` uses the shorthand. `<div data-path=assets/>` has an unquoted value of `assets/` and does not.[^2]
 :::
 
-::: {.details summary="Read the security boundaries and exclusion study"}
-### Keep sanitization and interpretation together
+::: {.details summary="Recovery algorithm and safety argument"}
+### Recognition and containment
 
-WHATWG HTML #9491 identifies a real parser-mismatch risk: a sanitizer can treat attacker-controlled markup as harmless text while another grammar exposes executable elements. An explicit document opt-in does not prevent that mismatch. A related mismatch caused the Bleach vulnerability CVE-2020-6802.[^9][^11]
+Use ordinary HTML tokenization and recovery to determine the recognized node tree in the actual parser context and scripting state. Keep its open-element, formatting, form, namespace, and template state. Match scripting state too: disagreement about `noscript` parsing caused the Bleach mutation-XSS vulnerability.[^11]
 
-The proposed dynamic Next path must parse and sanitize untrusted input under the same grammar and actual insertion context, then insert the resulting nodes directly. It must not sanitize a string under legacy rules and reparse it as Next. Existing safe methods such as `setHTML()` provide a precedent for integrating parsing and sanitization; this proposal does not add implicit Next behavior to them.[^10]
+For each eligible self-closing start token that creates an element:
 
-A legacy-sanitized string, or an existing trusted-value wrapper without a matching grammar/context contract, is not proof of Next safety. Define the explicit API, sanitizer policy, supported contexts, and failure behavior before shipping. Reject unsupported grammar/context requests or sanitizer configurations before DOM changes; silent fallback cannot establish safety.
+1. Retain the element as an empty node in the output DOM.
+2. Place its recognized children immediately after it, in order, within the same containing root. Apply the rule recursively for consecutive shorthand elements.
+3. Resolve later opening and closing tags using the retained recognition state, rather than inferring that state from output DOM ancestry.
 
-### Investigate fixed exclusions
+This static reference is ordinary HTML recognition followed by the specified containment projection. Ignored start tokens create no recovery record. Records expire when HTML recovery removes them, including through an ancestor's closing tag.
 
-A conservative candidate is to keep current slash handling for HTML elements that enter script, RAWTEXT, RCDATA, or plaintext parsing: `script`, `style`, `title`, `textarea`, `xmp`, `iframe`, `noembed`, `noframes`, `noscript`, and `plaintext`. This includes legacy names and state-dependent cases so review does not miss them.[^12]
+The parser must preserve complete recovery state: aliases such as `</h2>` closing an `h1`, namespace transitions, and formatting recovery cannot be reduced to a set of previously closed names.
 
-If adopted, these remain non-void elements: `/>` does not make them empty. Their current parsing continues; explicit end tags remain necessary where the existing grammar recognizes them. Tooling should diagnose the unsupported shorthand. An external `src` is not by itself evidence that self-closing `script` is safe.
-
-This stops the specific example in #9491 from acquiring a new text/markup boundary:
-
-```html
-<style/><img src onerror=alert(1)><style></style>
-```
-
-A rule that guesses from later markup is insufficient. Under one interpretation the example has two empty styles and an image; under the other, the apparent tags are style text. Removing the second `<style>` still leaves the mismatch. Choose eligibility from fixed parser rules, not an attempt to infer intent from following tags.
-
-### Tag names alone are not enough
-
-Even closing an ordinary custom element can change the namespace of later elements:
+### Example: a closing tag at an SVG boundary
 
 ```html
-<math><mtext><x-box/><mglyph><style><img data-probe></style></mglyph></mtext></math>
+<div/><svg></div><style><img data-probe></style></svg>
 ```
 
-In an inert Chromium comparison, the source above produces no `img` element. Replacing only `<x-box/>` with `<x-box></x-box>` produces one: `style` changes from HTML text parsing to a MathML element. This compares current parsing with one hand-expanded example; it is not a Next implementation or a demonstrated sanitizer bypass. It shows why excluding only `style` from the shorthand is insufficient.[^12]
+Naive start/end expansion exposes an image. Under the proposed reference rule, `div` is empty in the DOM, but its recovery record remains. `</div>` closes that record and the intervening SVG parsing context. `style` retains HTML text parsing; no image node appears.
 
-A second candidate is to disable the new HTML shorthand within SVG/MathML contexts, including their HTML integration points. Existing foreign-content self-closing syntax would remain unchanged. Both candidate restrictions require precise algorithms and cross-engine review; neither is a proven complete safety boundary.
+When recovery depends on an ignored slash, this rule can differ from parsing a literally expanded string. That conservative interpretation is part of the profile.
 
-### Shipping requirements
+### Construction argument
 
-Server-generated Next source can still reinterpret HTML sanitized under legacy rules. Define and validate a matching sanitation and context-escaping pipeline for that path. Updating a library alone does not protect existing installations. If compatibility cannot be established, narrow the feature or defer it rather than treating author opt-in as sufficient protection.
+Let `R(s,c)` be ordinary HTML recognition of source `s` in exact parser state `c`. Let `P` be the containment projection. The static result is `P(R(s,c))`.
 
-Before adoption, test direct document parsing, explicit dynamic parsing, legacy APIs, server embedding, serialization/reparsing, and cross-document use. Cover text modes, scripting state, SVG/MathML integration, malformed markup, and the placement extension. Use the #9491 example and namespace case as starting regressions, alongside representative sanitizer integrations and broader security review. Do not ship until the remaining mismatch risks have an accepted resolution.
+`P` does not tokenize strings, create elements, or change node namespaces, attributes, or text. It preserves node identities and preorder. Because protected containers never self-close, their contents retain the designated containment boundaries. This includes native disclosure, dialog, and fallback containers: lifting their children can expose previously hidden controls. Text recognized by `R` therefore cannot become newly recognized executable markup through `P`.
+
+This addresses the text-to-markup mismatch illustrated in WHATWG #9491. It is a property of the static reference function, not a universal safety claim for an unimplemented browser. Script execution, custom-element reactions, shadow-root ownership, and DOM mutation interleavings must preserve the same boundaries in the native algorithm.
+
+### Implementation requirements
+
+A native implementation must construct the specified DOM incrementally and preserve its safety boundaries at script and reaction checkpoints. Rewriting an already active page after parsing does not implement this contract.
+
+Declarative shadow-root host selection must use the retained recognition context. Keep each root attached to that same host; project only light-DOM children. A template declaration cannot migrate to a following sibling or the body.
+
+Define parser pauses and encoding restarts, speculative loading, script-driven mutations, and document-writing isolation before shipment. The placement extension changes recognition itself and requires a separate safety argument.
+
+Parentage intentionally changes. Application-defined components and script gadgets require their own policy; a sanitizer must not authorize hazardous content solely because an ordinary ancestor currently hides or intercepts it.[^10]
+:::
+
+::: {.details summary="Insertion APIs, compatibility, and reproduction"}
+### Existing APIs
+
+The destination document's profile must not switch the grammar of `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `Range.createContextualFragment`, `DOMParser`, `Document.parseHTML*`, existing HTML insertion methods, or `iframe.srcdoc`. A doctype inside an input string cannot enable Next.
+
+Dynamic Next insertion requires an explicit request. Parse and sanitize together in the actual target context, then insert nodes directly. Reject unsupported requests before insertion. A legacy-sanitized string or existing TrustedHTML wrapper is not proof of safety in a different context.[^9][^10]
+
+`document.write/writeln` must not feed new-profile tokens through a legacy string API. Specify rejection before mutation or an equivalently isolated contract. `document.open` must not silently escalate grammar.
+
+### DOM and fallback
+
+Elements gain no new interface or persistent self-closing flag. Ordinary DOM operations can add children later. Serialization remains HTML; serialized strings carry no safety or parser-state provenance.
+
+Unsupported browsers need expanded tag pairs. A lowering tool must implement the profile's recovery contract; regex replacement is insufficient. Before adoption, measure existing use of the exact declaration and define reliable capability detection. `document.doctype.publicId` records author intent, not implementation support.
+
+### Reproduction
+
+The [evidence README](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme) documents each command, dependency version, seed, result, and limitation.
+
+- `projection-candidate.mjs`: static reference and generated recognition comparisons.
+- `sugar-check.mjs`: ordinary authoring comparisons.
+- `recovery-browser.html`: inert Chromium comparisons with marker attributes standing in for source metadata.
+- `roundtrip-check.mjs`: serialization/reparsing comparisons.
+- `active-build.mjs` / `active-browser.html`: 32 sandboxed observations, including containment, script mutation, custom-element reactions, and an unsupported serialization case.
+- `shadow-browser.html`: six inert native open-root ownership comparisons.
+- `matrix.mjs`: representative sanitizer configurations and earlier expansion variants.
+
+Finite tests check implementation behavior; they do not prove all inputs safe. The model uses parse5 8.0.1, whose select behavior differs from current Chromium. Its serializer does not preserve declarative shadow-root ownership; it is not a conforming lowering tool. It does not execute source scripts or implement a native navigation parser. Chromium probes cover the recorded cases, not an independent implementation of the complete profile.
+
+This remains an independent Stage 0 draft. Browser implementation, Web Platform Tests, and implementer security review are required before shipment.
+
+Editor: [Matthew Dean](https://github.com/matthew-dean). Discuss the proposal in the [specifications repository](https://github.com/nextwebwg/specs/discussions).
 :::
 
 ::: {.details summary="Sources and prior art"}

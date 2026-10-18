@@ -1,0 +1,50 @@
+[
+  {
+    "name": "custom host",
+    "source": "<x-host id=\"host\" data-next-empty/><template shadowrootmode=\"open\"><span>shadow</span></template><span>light</span>",
+    "recognitionPreserved": true,
+    "sameShadowRoot": true,
+    "hostLightChildren": 0,
+    "correctContainment": true
+  },
+  {
+    "name": "div host",
+    "source": "<div id=\"host\" data-next-empty/><template shadowrootmode=\"open\"><span>shadow</span></template><span>light</span>",
+    "recognitionPreserved": true,
+    "sameShadowRoot": true,
+    "hostLightChildren": 0,
+    "correctContainment": true
+  },
+  {
+    "name": "nested shorthand in shadow",
+    "source": "<x-host id=\"host\" data-next-empty/><template shadowrootmode=\"open\"><x-inner data-next-empty/><span>shadow</span></template><span>light</span>",
+    "recognitionPreserved": true,
+    "sameShadowRoot": true,
+    "hostLightChildren": 0,
+    "correctContainment": true
+  },
+  {
+    "name": "inert template in shadow",
+    "source": "<x-host id=\"host\" data-next-empty/><template shadowrootmode=\"open\"><template><img data-probe></template></template><span>light</span>",
+    "recognitionPreserved": true,
+    "sameShadowRoot": true,
+    "hostLightChildren": 0,
+    "correctContainment": true
+  },
+  {
+    "name": "hidden host",
+    "source": "<x-host id=\"host\" hidden data-next-empty/><template shadowrootmode=\"open\"><span>shadow</span></template><span>light</span>",
+    "recognitionPreserved": true,
+    "sameShadowRoot": true,
+    "hostLightChildren": 1,
+    "correctContainment": true
+  },
+  {
+    "name": "host under foreign content",
+    "source": "<svg><foreignObject><x-host id=\"host\" data-next-empty/><template shadowrootmode=\"open\"><span>shadow</span></template><span>light</span></x-host></foreignObject></svg>",
+    "recognitionPreserved": true,
+    "sameShadowRoot": true,
+    "hostLightChildren": 1,
+    "correctContainment": true
+  }
+]

@@ -1,0 +1,128 @@
+[
+  {
+    "name": "ordinary div",
+    "source": "<div data-next-empty /><span>Following</span>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [],
+    "projectedMarkers": [],
+    "html": "<html><head></head><body><div data-next-empty=\"\"></div><span>Following</span></body></html>"
+  },
+  {
+    "name": "consecutive custom elements",
+    "source": "<x-box data-next-empty /><x-box data-next-empty />text",
+    "recognitionPreserved": true,
+    "legacyMarkers": [],
+    "projectedMarkers": [],
+    "html": "<html><head></head><body><x-box data-next-empty=\"\"></x-box><x-box data-next-empty=\"\"></x-box>text</body></html>"
+  },
+  {
+    "name": "style text",
+    "source": "<style/><img data-probe><style></style>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [],
+    "projectedMarkers": [],
+    "html": "<html><head></head><body><style><img data-probe><style></style></body></html>"
+  },
+  {
+    "name": "textarea text",
+    "source": "<textarea/><img data-probe><textarea></textarea>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [],
+    "projectedMarkers": [],
+    "html": "<html><head></head><body><textarea>&lt;img data-probe&gt;&lt;textarea&gt;</textarea></body></html>"
+  },
+  {
+    "name": "MathML integration",
+    "source": "<math><mtext><x-box data-next-empty /><mglyph><style><img data-probe></style></mglyph></mtext></math>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [],
+    "projectedMarkers": [],
+    "html": "<html><head></head><body><math><mtext><x-box data-next-empty=\"\"><mglyph><style><img data-probe></style></mglyph></x-box></mtext></math></body></html>"
+  },
+  {
+    "name": "custom ancestor before SVG",
+    "source": "<x-box data-next-empty /><svg></x-box><style><img data-probe></style></svg>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [],
+    "projectedMarkers": [],
+    "html": "<html><head></head><body><x-box data-next-empty=\"\"></x-box><svg></svg><style><img data-probe></style></body></html>"
+  },
+  {
+    "name": "div ancestor before SVG",
+    "source": "<div data-next-empty /><svg></div><style><img data-probe></style></svg>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [],
+    "projectedMarkers": [],
+    "html": "<html><head></head><body><div data-next-empty=\"\"></div><svg></svg><style><img data-probe></style></body></html>"
+  },
+  {
+    "name": "heading alias recovery",
+    "source": "<h1 data-next-empty /><svg></h2><style><img data-probe></style></svg>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [],
+    "projectedMarkers": [],
+    "html": "<html><head></head><body><h1 data-next-empty=\"\"></h1><svg></svg><style><img data-probe></style></body></html>"
+  },
+  {
+    "name": "expired recovery frame",
+    "source": "<div><x-box data-next-empty /></div><svg></x-box><title><style></title><img data-probe></style>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [],
+    "projectedMarkers": [],
+    "html": "<html><head></head><body><div><x-box data-next-empty=\"\"></x-box></div><svg><title><style></title><img data-probe></style></title></svg></body></html>"
+  },
+  {
+    "name": "inert template",
+    "source": "<template/><img data-probe>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [
+      {
+        "id": 7,
+        "inTemplate": true
+      }
+    ],
+    "projectedMarkers": [
+      {
+        "id": 7,
+        "inTemplate": true
+      }
+    ],
+    "html": "<html><head></head><body><template><img data-probe=\"\"></template></body></html>"
+  },
+  {
+    "name": "explicit inert barrier",
+    "source": "<div inert data-next-empty /><img data-probe>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [
+      {
+        "id": 6,
+        "inTemplate": false
+      }
+    ],
+    "projectedMarkers": [
+      {
+        "id": 6,
+        "inTemplate": false
+      }
+    ],
+    "html": "<html><head></head><body><div inert=\"\" data-next-empty=\"\"><img data-probe=\"\"></div></body></html>"
+  },
+  {
+    "name": "select context",
+    "source": "<select/><img data-probe>",
+    "recognitionPreserved": true,
+    "legacyMarkers": [
+      {
+        "id": 6,
+        "inTemplate": false
+      }
+    ],
+    "projectedMarkers": [
+      {
+        "id": 6,
+        "inTemplate": false
+      }
+    ],
+    "html": "<html><head></head><body><select><img data-probe=\"\"></select></body></html>"
+  }
+]

@@ -146,19 +146,16 @@ Use *care*, **check twice**, and replace ~~old~~ with `new`.
 
 ### Wrapping, breaks and separators
 
-Ordinary source wrapping joins prose. A trailing backslash forces a hard break;
-[leading-pipe line blocks](#leading-pipe-line-blocks) are preferred when line
-boundaries should be visible in the source:
+Ordinary source wrapping joins prose within the same paragraph:
 
 ```md
 An ordinary source wrap
-continues the same paragraph.\
-This starts a new displayed line.
+continues the same paragraph.
 ```
 
-:::: {.render title="Soft wrapping and a hard break" height="130"}
+:::: {.render title="Ordinary source wrapping" height="105"}
 ```html
-<p>An ordinary source wrap continues the same paragraph.<br>This starts a new displayed line.</p>
+<p>An ordinary source wrap continues the same paragraph.</p>
 ```
 
 ::: {.details summary="AST"}
@@ -166,33 +163,21 @@ This starts a new displayed line.
 {
   "type": "paragraph",
   "children": [
-    {
-      "type": "text",
-      "value": "An ordinary source wrap"
-    },
-    {
-      "type": "softBreak"
-    },
-    {
-      "type": "text",
-      "value": "continues the same paragraph."
-    },
-    {
-      "type": "break"
-    },
-    {
-      "type": "text",
-      "value": "This starts a new displayed line."
-    }
+    { "type": "text", "value": "An ordinary source wrap" },
+    { "type": "softBreak" },
+    { "type": "text", "value": "continues the same paragraph." }
   ]
 }
 ```
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `break`, `softBreak` | No content field. | Explicit represented break versus ordinary source wrapping. |
+| `softBreak` | No content field. | Ordinary source wrapping within inline content. |
 :::
 ::::
+
+Use [leading-pipe line blocks](#leading-pipe-line-blocks) when line divisions
+are part of the content.
 
 Use `---` on its own, separated from surrounding paragraphs by blank lines,
 for a thematic break. Its **HTML representation** is `<hr>` and its **AST** is
@@ -587,7 +572,13 @@ Check the configuration.
 
 :::: {.render title="Nested callout" height="180"}
 ```html
-<section class="callout"><header>Outer</header><section class="callout"><header>Inner</header><p>Check the configuration.</p></section></section>
+<section data-type="note" class="callout">
+  <header>Outer</header>
+  <section data-type="warning" class="callout">
+    <header>Inner</header>
+    <p>Check the configuration.</p>
+  </section>
+</section>
 ```
 
 ::: {.details summary="AST"}
@@ -854,18 +845,19 @@ For the frontmatter above (with no body content):
 
 ## Leading-pipe line blocks
 
-Use a leading pipe when line divisions are part of the content:
+Use a leading pipe when line divisions are part of the content, such as in a
+postal address:
 
 ```md
-| First line
-| Second line
-|
-| Fourth line
+| Morgan Lee
+| 42 Example Street
+| Bristol BS1 1AA
+| United Kingdom
 ```
 
-:::: {.render title="Preserved lines" height="150"}
+:::: {.render title="Postal address" height="150"}
 ```html
-<p>First line<br>Second line<br><br>Fourth line</p>
+<p>Morgan Lee<br>42 Example Street<br>Bristol BS1 1AA<br>United Kingdom</p>
 ```
 
 ::: {.details #line-block-ast summary="AST"}
@@ -875,24 +867,28 @@ Use a leading pipe when line divisions are part of the content:
   "children": [
     {
       "type": "text",
-      "value": "First line"
+      "value": "Morgan Lee"
     },
     {
       "type": "break"
     },
     {
       "type": "text",
-      "value": "Second line"
-    },
-    {
-      "type": "break"
+      "value": "42 Example Street"
     },
     {
       "type": "break"
     },
     {
       "type": "text",
-      "value": "Fourth line"
+      "value": "Bristol BS1 1AA"
+    },
+    {
+      "type": "break"
+    },
+    {
+      "type": "text",
+      "value": "United Kingdom"
     }
   ]
 }
@@ -993,10 +989,67 @@ block. Formatting can span represented lines; inline code stays within one.
 formatting. See [terminal empty-line handling](/expressive-markdown/parsing#leading-pipe-line-blocks).
 
 > [!note] Why a leading pipe?
-> The marker is visible and sits on the affected line. CommonMark's trailing
-> spaces are invisible; its trailing backslash breaks a line where languages
-> such as Python use one to continue it. Both forms remain accepted for
-> compatibility; Expressive writers prefer line blocks.
+> The marker is visible and sits at the start of the affected line. It makes
+> intentional line divisions easy to distinguish from ordinary source wrapping.
+
+### CommonMark compatibility
+
+Existing CommonMark text can use a trailing backslash before a newline to
+request a hard break within a paragraph. Expressive Markdown accepts this
+form for compatibility; use leading pipes when authoring line blocks.
+
+```md
+An ordinary source wrap
+continues the same paragraph.\
+This starts a new displayed line.
+```
+
+:::: {.render title="CommonMark hard-break compatibility" height="130"}
+```html
+<p>An ordinary source wrap continues the same paragraph.<br>This starts a new displayed line.</p>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "paragraph",
+  "children": [
+    {
+      "type": "text",
+      "value": "An ordinary source wrap"
+    },
+    {
+      "type": "softBreak"
+    },
+    {
+      "type": "text",
+      "value": "continues the same paragraph."
+    },
+    {
+      "type": "break"
+    },
+    {
+      "type": "text",
+      "value": "This starts a new displayed line."
+    }
+  ]
+}
+```
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
+| `break`, `softBreak` | No content field. | Explicit represented break versus ordinary source wrapping. |
+:::
+::::
+
+Two or more trailing spaces before a newline have the same hard-break meaning.
+Neither form adds a break at the end of a block, nor inside a code span or HTML
+tag. These rules follow [CommonMark hard line breaks](https://spec.commonmark.org/0.31.2/#hard-line-breaks).
+
+Both forms produce a `break` inside a `paragraph`, not a `lineBlock`. They can
+render alike, but writers must preserve the node type: keeping a paragraph's
+hard break must not silently turn it into a line block. See the
+[writer rules](/expressive-markdown/parsing#writing-and-preservation).
 
 ## Code blocks and presentation metadata
 

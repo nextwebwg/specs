@@ -23,7 +23,7 @@ The 2023 WHATWG proposal already suggested a document opt-in. The objections con
 The earlier #721 discussion also raises compatibility with existing authored markup, including names containing hyphens.[^3] Plain HTML keeps its meaning. Only the explicit Next declaration selects the new document profile; custom-element registration cannot change that profile. Unsupported browsers still need a correct fallback.
 
 > [!ex] What is resolved, and at what level?
-> The reported text-to-markup mechanism is eliminated by the reference construction. The distant-mode-switch problem is excluded by the proposed API contract. A native browser implementation must still demonstrate that it obeys both rules during execution.
+> The reported text-to-markup mechanism is eliminated by the reference construction. The distant-mode-switch problem is excluded by the proposed API contract. The experimental native implementation exercises both rules during execution; the bounded results below do not establish universal safety.
 
 ## Block the direct style exploit
 
@@ -96,7 +96,9 @@ Dynamic Next parsing requires an explicit request at the parsing call. Parse and
 
 Preserving recognized text is necessary, but containment can affect whether an existing node becomes active or visible.
 
-Closed dialogs, disclosure widgets, and media fallback containers are exempt. Active-browser checks found that lifting their children could expose hidden controls. Elements carrying `inert`, `hidden`, or `disabled`, template content, and foreign contexts retain their protected boundaries too.
+Closed dialogs, disclosure widgets, popovers, and media fallback containers are exempt. Active-browser checks found that lifting their children could expose hidden controls. Elements carrying `inert`, `hidden`, `disabled`, or `popover`, template content, and foreign contexts retain their protected boundaries too.
+
+A cross-browser counterexample added the `popover` attribute to this boundary: lifting a button out of a closed popover made it visible in all six recorded observations, and focused it in five. The [before-fix record](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/popover-counterexample-results.json) and passing regression preserve that distinction from a demonstrated sanitizer exploit. Empty and invalid attribute values both select a popover state under the [HTML Standard](https://html.spec.whatwg.org/multipage/popover.html).
 
 Shadow roots keep their recognized host. A root is an ownership relationship, not a light-DOM child to move after an empty host. The browser checks preserve that edge while allowing the host's light DOM to become empty.
 
@@ -110,7 +112,18 @@ That containment step receives **nodes, not HTML strings**. It does not tokenize
 
 Text that the recognition step classified as stylesheet content therefore stays text. There is no operation in the containment step that could turn it into an image or attach an event-handler attribute. This is the construction argument behind the reported exploit's prevention; the experiments check the implementation against it.
 
-The prototype computes the ordinary recognized tree first, then applies containment changes. A native browser must maintain equivalent recognition state independently of output parenting and produce the specified DOM incrementally. Script, custom-element reaction, and mutation checkpoints still require native implementation and verification.
+### Machine-checked static theorems
+
+The [Lean model](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/Projection.lean) formalizes this containment operation over finite forests. Its payload represents a recognized node's identity and immutable data; eligibility and protected-container classification are inputs.
+
+Lean 4.35.0 checks two theorems for every forest in that model:
+
+- `preorder_project`: projection preserves the complete ordered payload sequence. It neither adds nor loses a recognized node, nor changes its namespace, attributes, or text when those are included in the payload.
+- `protectedPaths_project`: every recognized node retains the same ordered protected ancestors. Lifting a node out of an unprotected shorthand cannot lift it out of a protected container.
+
+These proofs use structural induction, rather than enumeration. Lean reports `propext` as their axiom dependency; there are no admitted proof holes. The [verification record](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/formal-results.json) pins the compiler and source digest. The model does not prove HTML recognition, eligibility selection, correspondence of a browser implementation to the model, or safety of arbitrary execution and sanitization policies. Those are separate obligations.
+
+The static prototype computes the ordinary recognized tree first, then applies containment changes. A native browser must maintain equivalent recognition state independently of output parenting and produce the specified DOM incrementally. The Ladybird prototype implements native output routing and tests script, custom-element reaction, and mutation checkpoints; production conformance remains an obligation.
 
 ## What the experiments establish
 
@@ -119,17 +132,51 @@ The experiments test the reference construction and expose boundaries that a bro
 | Check | Recorded result |
 | --- | --- |
 | Generated parsing cases | 800,000 comparisons preserved the checked recognition properties. |
+| Earlier expansion/sanitizer candidates | 144,480 sanitizer comparisons and 160,000 recognition audits characterize the rejected approaches; configuration-dependent inactivity and finite signal coverage prevent a universal sanitizer claim. |
 | Ordinary authoring examples | 40 comparisons matched explicit pairs or the specified exemption. |
 | Chromium probes | 12 inert comparisons preserved the checked node properties, including the reported text/namespace cases. |
 | Serialization and reparsing | 200,000 comparisons found no new marker exposure against the legacy baseline. |
 | Native containment | Sandboxed comparisons identified the native-container exemptions. |
 | Shadow-root ownership | Six inert native open-root comparisons preserved root ownership and the checked containment properties. |
+| Incremental reference parsing | 60,000 seeded comparisons preserved final output across code-unit and randomized chunk schedules, with scripting recognition enabled and disabled. |
+| Boundary enumeration | Every two-chunk split of 12 selected authoring and recovery witnesses matches the static reference; focused tests also exercise pause/resume and exact initial opt-in. |
+| Live browser execution | 20 execution cases pass separately in Chromium, Firefox, and WebKit: scripts, reactions, upgrades, microtasks, observers, mutation, writing isolation, external-script blocking, and streamed input. |
+| Live-DOM refinement | 500 generated recovery cases per engine (1,500 comparisons) match the incremental model’s final tree; foster-parenting and mutation-ownership counterexamples drove passing regression tests. |
+| Native Ladybird navigation | 31 targeted execution checks pass; 200 independent native/reference comparisons agree, with 214 shorthand activations and no baseline disagreements. |
+| Resource side effects | Each engine records the connected-image positive control and no image request from the namespace/raw-text witness. |
 
 The [evidence README](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme) provides pinned dependencies, commands, seeds, results, and limitations.
 
-The prototype uses parse5 8.0.1, including its older select behavior. It does not execute source scripts or implement native navigation parsing. Chromium probes cover the recorded cases, not a complete independent Next parser.
+The static prototype uses parse5 8.0.1, including its older select behavior. The incremental prototype shares that recognition implementation. Its live-DOM adapter executes connected classic scripts in real browser frames and applies parser changes without rebuilding the active tree. It is not a patched native navigation parser. The three engines independently supply DOM operations, custom-element reactions, script execution, and resource requests; they do not independently recognize Next source in these adapter tests.
+
+### What each method establishes
+
+| Method | Claim it supports | Boundary |
+| --- | --- | --- |
+| Construction argument and mechanized induction | Pure projection preserves recognized payloads, order, and protected ancestry. | Requires correct recognized input and eligibility/barrier classification. |
+| Exhaustive split enumeration for selected inputs | Those witnesses are invariant at every tested two-chunk boundary. | Exhaustive over partitions of the selected strings, not all HTML. |
+| Seeded generated comparisons | Checked invariants survive the recorded generated corpus and chunk schedules. | Shared parser code and finite input coverage are explicit dependencies. |
+| Independent native recognition probes | Selected recovery and root-ownership behavior agrees with native Chromium. | Inert recognition and containment observations do not establish execution timing. |
+| Live execution in three browser engines | The incremental adapter exhibits the recorded callback, mutation, pause, and resource behavior. | Its tokenizer is parse5, and its classic-script scheduling is an explicit prototype contract. |
+| Positive and negative controls | Monitored effects are observable, and rejected designs expose the recorded failures. | A monitored signal is not a complete definition of security. |
+| Patched native engine execution and differential testing | Actual navigation exercises incremental network input, parser-inserted classic/module scheduling, reactions, pauses, mutation, CSP, shadow ownership, and API isolation; 31 checks and 200 comparisons pass. | One experimental engine and a finite corpus; speculative scanning is disabled for Next documents. |
 
 Its serializer also fails the recorded declarative shadow-root ownership case; it is not a conforming lowering tool. The separate native-root checks preserve ownership. Finite passing comparisons establish coverage, not universal browser safety.
+
+### Native execution coverage and limitations
+
+The [native patch](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/native-ladybird.patch), [pinned results](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/native-results.json), and evidence README make the native experiment reproducible. This is actual native navigation parsing, independently compared with the parse5 model, rather than the live-DOM adapter.
+
+| Obligation | Native evidence | Remaining boundary |
+| --- | --- | --- |
+| Streaming | Script runs before response EOF; parsing resumes after a blocked network chunk containing Unicode text. | Not an exhaustive encoding or network-boundary proof. |
+| Script execution | Classic, failed external, async, defer, inline modules, external module graph, stylesheet blocking, and CSP checks pass. | Finite scheduling witnesses; arbitrary script effects remain unproved. |
+| Custom-element reactions | Construction and upgrade execute against the incremental output DOM. | Exhaustive reaction reentrancy and lifecycle combinations remain unproved. |
+| Parser pauses | Blocking external scripts stop later source; async source proceeds; native resume passes. | Encoding restart behavior needs separate implementation and tests. |
+| Speculative loading | Request records show no speculative image fetch while a prior script is blocked, followed by the ordinary fetch after release. | The optional speculative scanner is disabled for Next documents; no optimized scanner equivalence claim. |
+| Script-driven mutations | Removed recognition ancestors, moved shorthand elements, fixed profile after doctype mutation, writing isolation, and shadow ownership pass. | Not equivalence for every possible mutation or a universal security proof. |
+
+The first native routing attempt passed 30 of 31 execution checks but disagreed with 23 of 200 generated reference outputs. The retained initial results show why compilation was insufficient. Freezing eligibility before foreign-content recovery and replacing stale child offsets with live sibling boundaries corrected the recorded cases. The final normal run passes both suites without skipping a baseline disagreement. A separate allocation-by-allocation GC stress attempt timed out at 180 seconds without completing refinement; the remaining stress test was stopped. That attempt is inconclusive and supplies no passing memory-safety evidence. The initial patch and results remain evidence of falsification and regression, not current conformance claims. A separate existing upstream parser selection passes 16 tests with the patch; the full upstream suite was not run.
 
 ## Requirements before browser shipment
 
@@ -138,7 +185,7 @@ A native implementation must construct the specified DOM incrementally and prese
 Define parser pauses and encoding restarts, speculative loading, script-driven mutations, and document-writing isolation before shipment. Implement and verify shadow-root ownership under native execution. The [component-placement extension](/html-parsing/#placement-extension) changes recognition itself and requires a separate safety argument.
 
 > [!warn] Implementation status
-> The static reference establishes text-to-markup preservation. Full native streaming and execution safety remain unverified. Browser implementation, Web Platform Tests, and implementer security review are required before shipment.
+> The static reference establishes text-to-markup preservation. Native streaming and execution now have passing bounded evidence in an experimental Ladybird implementation. Universal execution safety, production browser conformance, encoding restarts, Web Platform Tests, and implementer security review remain required before shipment.
 
 Editor: [Matthew Dean](https://github.com/matthew-dean). Discuss the proposal in the [specifications repository](https://github.com/nextwebwg/specs/discussions).
 

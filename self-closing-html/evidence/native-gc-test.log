@@ -1,0 +1,31 @@
+2026-10-19 11:11:24.974 Compositor[7732:184256343] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 11:11:24.974 Compositor[7732:184256319] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 11:11:24.974 Compositor[7732:184256344] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113743.330 Compositor(7732): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113743.735 Compositor(7732): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+Running 2 tests...
+[0] 1/2:  Start Text/input/HTML/next-parsing-refinement.html
+[0] 1/2: Finish Text/input/HTML/next-parsing-refinement.html: 180003ms
+[0] 2/2:  Start Text/input/HTML/next-parsing-execution.html
+
+test-web: SIGINT received
+test-web: active views:
+  - View 1 (pid 7834): Text/input/HTML/next-parsing-execution.html (duration: 11.88 seconds)
+
+
+test-web: test run stopped early: SIGINT received
+test-web: active views:
+  - View 1 (pid 7834): Text/input/HTML/next-parsing-execution.html (duration: 11.883 seconds)
+
+Halted; 1 tests not executed.
+==========================================================
+Pass: 0, Fail: 0, Skipped: 0, Timeout: 1, Crashed: 0
+==========================================================
+Timeout: Text/input/HTML/next-parsing-refinement.html
+Results: file://<experiment>/work/native-gc-results/index.html

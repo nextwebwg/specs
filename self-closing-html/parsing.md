@@ -52,7 +52,7 @@ These names and contexts retain current slash handling in the reference profile:
 | Structure and controls | `html`, `head`, `body`, `frameset`, `frame`, `table`, `caption`, `colgroup`, `col`, `tbody`, `tfoot`, `thead`, `tr`, `td`, `th`, `template`, `select`, `option`, `optgroup`, `form`, `fieldset`, `button` |
 | Native containment | `details`, `dialog`, `datalist`, `audio`, `video`, `canvas`, `object`, `applet` |
 | Formatting and recovery | `a`, `b`, `big`, `code`, `em`, `font`, `i`, `nobr`, `s`, `small`, `strike`, `strong`, `tt`, `u`, `p`, `pre`, `listing`; HTML special elements while an active formatting scope is present |
-| Protected contexts | Foreign ancestors and their HTML integration points; elements carrying `inert`, `hidden`, or `disabled` |
+| Protected contexts | Foreign ancestors and their HTML integration points; elements carrying `inert`, `hidden`, `disabled`, or `popover` |
 
 Exemptions do not make an element void. Where HTML recognizes explicit end tags, use them. For example, `<style />` keeps existing HTML behavior; authors write `<style></style>` for an empty style element.
 
@@ -92,6 +92,12 @@ For example, HTML can use `</h2>` to close an `h1`. A recovery rule that checks 
 For example, after `<div/><svg>`, the recognition stack still contains the div below SVG, while the output DOM places the empty div and SVG as siblings. A later `</div>` can therefore pop both recognition entries before the next token is interpreted.
 
 The static reference is ordinary HTML recognition followed by this containment projection. When recovery depends on an ignored slash, the result can differ from parsing a literally expanded string. That conservative interpretation is part of the profile.
+
+### Incremental execution checkpoints
+
+Construct the output incrementally. Before running a parser-triggered script or delivering a custom-element reaction, expose the output corresponding to recognition completed at that checkpoint. Preserve application mutations rather than reconstructing the active document from a fresh snapshot. A script moving an output node does not rewrite the retained recognition stack. Parser pauses must prevent later source from becoming observable before resume.
+
+Speculative loading must obey the same recognition boundaries; disabling the optional scanner is the experimental native implementation’s conservative strategy. Arbitrary encoding restarts and full scheduling conformance remain unresolved shipment requirements. The [security evidence](/html-parsing/security#native-execution-coverage-and-limitations) separates the formal static argument, live adapter tests, and native execution results.
 
 ### Preserve shadow-root ownership
 

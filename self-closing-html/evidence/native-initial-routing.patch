@@ -1,0 +1,297 @@
+diff --git a/Libraries/LibWeb/DOM/Document.cpp b/Libraries/LibWeb/DOM/Document.cpp
+index 9a7b02fe..e3e4bc85 100644
+--- a/Libraries/LibWeb/DOM/Document.cpp
++++ b/Libraries/LibWeb/DOM/Document.cpp
+@@ -1308,6 +1308,8 @@ WebIDL::ExceptionOr<void> Document::writeln(Utf16View text)
+ // https://html.spec.whatwg.org/multipage/dynamic-markup-insertion.html#document-write-steps
+ WebIDL::ExceptionOr<void> Document::run_the_document_write_steps(Utf16View text, AddLineFeed line_feed)
+ {
++    if (m_next_parsing_profile)
++        return WebIDL::NotSupportedError::create("Legacy document writing is isolated from Next parsing."_utf16);
+     // 1-4. The binding layer concatenates text and validates it with Trusted Types.
+     Utf16StringBuilder string;
+     string.append(text);
+@@ -1354,6 +1356,8 @@ WebIDL::ExceptionOr<void> Document::run_the_document_write_steps(Utf16View text,
+ // https://html.spec.whatwg.org/multipage/dynamic-markup-insertion.html#dom-document-open
+ WebIDL::ExceptionOr<Document*> Document::open(Optional<Utf16String> const&, Optional<Utf16String> const&)
+ {
++    if (m_next_parsing_profile)
++        return WebIDL::NotSupportedError::create("Legacy document writing is isolated from Next parsing."_utf16);
+     // 1. If document is an XML document, then throw an "InvalidStateError" DOMException.
+     if (m_type == Type::XML)
+         return WebIDL::InvalidStateError::create("open() called on XML document."_utf16);
+diff --git a/Libraries/LibWeb/DOM/Document.h b/Libraries/LibWeb/DOM/Document.h
+index db96fe3e..2cf94b2d 100644
+--- a/Libraries/LibWeb/DOM/Document.h
++++ b/Libraries/LibWeb/DOM/Document.h
+@@ -937,6 +937,8 @@ public:
+     void set_parser(Badge<HTML::HTMLParser>, HTML::HTMLParser&);
+     void detach_parser();
+     GC::Ptr<HTML::HTMLParser> parser() const { return m_parser; }
++    bool next_parsing_profile() const { return m_next_parsing_profile; }
++    void set_next_parsing_profile() { m_next_parsing_profile = true; }
+     u64 parser_generation() const { return m_parser_generation; }
+ 
+     [[nodiscard]] bool is_temporary_document_for_fragment_parsing() const { return m_temporary_document_for_fragment_parsing; }
+@@ -2282,6 +2284,7 @@ private:
+     GC::Ptr<HTML::HTMLDialogElement> m_dialog_pointerdown_target;
+ 
+     // https://dom.spec.whatwg.org/#document-allow-declarative-shadow-roots
++    bool m_next_parsing_profile { false };
+     HTML::HTMLParser::AllowDeclarativeShadowRoots m_allow_declarative_shadow_roots { HTML::HTMLParser::AllowDeclarativeShadowRoots::No };
+ 
+     // https://w3c.github.io/selection-api/#dfn-has-scheduled-selectionchange-event
+diff --git a/Libraries/LibWeb/HTML/Parser/HTMLParser.cpp b/Libraries/LibWeb/HTML/Parser/HTMLParser.cpp
+index fad04744..f9ca7051 100644
+--- a/Libraries/LibWeb/HTML/Parser/HTMLParser.cpp
++++ b/Libraries/LibWeb/HTML/Parser/HTMLParser.cpp
+@@ -280,7 +280,7 @@ void HTMLParser::run(HTMLTokenizer::StopAtInsertionPoint stop_at_insertion_point
+             this,
+             m_scripting_mode != ParserScriptingMode::Disabled,
+             m_allow_declarative_shadow_roots == AllowDeclarativeShadowRoots::Yes,
+-            stop_at_insertion_point == HTMLTokenizer::StopAtInsertionPoint::Yes);
++            stop_at_insertion_point == HTMLTokenizer::StopAtInsertionPoint::Yes, m_allow_next_opt_in);
+         if (result == RustFfiHtmlParserRunResult::Ok)
+             break;
+ 
+@@ -2533,7 +2533,9 @@ RefPtr<CSS::StyleValue const> parse_table_child_element_align_value(Utf16View st
+ void HTMLParser::start_the_speculative_html_parser()
+ {
+     // 1. Optionally, return.
+-    // NOTE: We do not opt out.
++    // The experimental profile opts out until a scanner shares its complete recognition state.
++    if (m_document->next_parsing_profile())
++        return;
+ 
+     // 2. If parser's active speculative HTML parser is not null, then stop the speculative HTML parser for parser.
+     if (m_active_speculative_html_parser)
+@@ -3019,3 +3021,8 @@ extern "C" bool ladybird_html_parser_is_shadow_host(size_t node)
+ }
+ 
+ }
++
++extern "C" void ladybird_html_parser_set_next_profile(void* parser)
++{
++    Web::HTML::parser_from_html_parser_ffi(parser).document().set_next_parsing_profile();
++}
+diff --git a/Libraries/LibWeb/HTML/Parser/HTMLParser.h b/Libraries/LibWeb/HTML/Parser/HTMLParser.h
+index 131176bd..a8143783 100644
+--- a/Libraries/LibWeb/HTML/Parser/HTMLParser.h
++++ b/Libraries/LibWeb/HTML/Parser/HTMLParser.h
+@@ -100,6 +100,7 @@ public:
+ 
+     bool aborted() const { return m_aborted; }
+     bool stopped() const { return m_stop_parsing; }
++    void set_allow_next_opt_in(bool allow) { m_allow_next_opt_in = allow; }
+     bool is_paused() const { return m_parser_pause_flag; }
+     bool is_script_created() const { return m_script_created; }
+ 
+@@ -167,6 +168,7 @@ private:
+ 
+     bool m_aborted { false };
+     bool m_parser_pause_flag { false };
++    bool m_allow_next_opt_in { false };
+     bool m_stop_parsing { false };
+     bool m_resume_check_pending { false };
+     size_t m_script_nesting_level { 0 };
+diff --git a/Libraries/LibWeb/HTML/Parser/IncrementalDocumentParser.cpp b/Libraries/LibWeb/HTML/Parser/IncrementalDocumentParser.cpp
+index dc9ed033..31239ea9 100644
+--- a/Libraries/LibWeb/HTML/Parser/IncrementalDocumentParser.cpp
++++ b/Libraries/LibWeb/HTML/Parser/IncrementalDocumentParser.cpp
+@@ -13,6 +13,7 @@
+ #include <LibWeb/DOM/Document.h>
+ #include <LibWeb/Fetch/Infrastructure/HTTP/Bodies.h>
+ #include <LibWeb/HTML/Parser/HTMLEncodingDetection.h>
++#include <LibWebCommon/HTML/BrowsingContext.h>
+ #include <LibWeb/HTML/Parser/HTMLParser.h>
+ #include <LibWeb/HTML/Parser/IncrementalDocumentParser.h>
+ 
+@@ -97,6 +98,7 @@ void IncrementalDocumentParser::initialize_parser(ReadonlyBytes sniff_bytes)
+ 
+     m_document->set_url(m_url);
+     m_parser = HTMLParser::create_with_open_input_stream(m_document, encoding_confidence);
++    m_parser->set_allow_next_opt_in(!url_matches_about_srcdoc(m_url));
+     m_parser->set_change_encoding_callback(GC::create_function(GC::Heap::the(), [this](StringView encoding) {
+         auto result = change_encoding(encoding);
+         if (result.is_error()) {
+diff --git a/Libraries/LibWeb/HTML/Parser/Rust/src/parser.rs b/Libraries/LibWeb/HTML/Parser/Rust/src/parser.rs
+index 0ce293a4..df9d6fe5 100644
+--- a/Libraries/LibWeb/HTML/Parser/Rust/src/parser.rs
++++ b/Libraries/LibWeb/HTML/Parser/Rust/src/parser.rs
+@@ -16,6 +16,7 @@ use crate::token::TokenType;
+ use crate::tokenizer::HtmlTokenizer;
+ use crate::tokenizer::State;
+ use std::ffi::c_void;
++use std::collections::HashMap;
+ use std::ops::Deref;
+ use std::ops::DerefMut;
+ use std::ptr::NonNull;
+@@ -103,6 +104,7 @@ pub struct RustFfiHtmlParserContextAttribute {
+ 
+ unsafe extern "C" {
+     fn ladybird_html_parser_document_node(parser: *mut c_void) -> usize;
++    fn ladybird_html_parser_set_next_profile(parser: *mut c_void);
+     fn ladybird_html_parser_document_html_element(parser: *mut c_void) -> usize;
+     fn ladybird_html_parser_set_document_quirks_mode(parser: *mut c_void, mode: RustFfiHtmlQuirksMode);
+     fn ladybird_html_parser_log_parse_error(parser: *mut c_void, message_ptr: *const u8, message_len: usize);
+@@ -364,6 +366,9 @@ struct ParserState {
+     parser_pause_requested: bool,
+     foster_parenting_enabled: bool,
+     frameset_ok: bool,
++    allow_next_opt_in: bool,
++    next_profile: bool,
++    next_projection: HashMap<usize, AdjustedInsertionLocation>,
+ }
+ 
+ impl ParserState {
+@@ -392,6 +397,9 @@ impl ParserState {
+             parser_pause_requested: false,
+             foster_parenting_enabled: false,
+             frameset_ok: true,
++            allow_next_opt_in: false,
++            next_profile: false,
++            next_projection: HashMap::new(),
+         }
+     }
+ 
+@@ -433,6 +441,10 @@ impl ParserState {
+     }
+ 
+     fn visit_edges(&self, visitor: *mut c_void) {
++        for (node, location) in &self.next_projection {
++            visit_node(visitor, *node);
++            visit_node(visitor, location.parent);
++        }
+         for node in &self.stack_of_open_elements {
+             visit_node(visitor, node.handle);
+             if let Some(template_content) = node.template_content {
+@@ -756,6 +768,10 @@ impl TreeBuilder {
+             // If the DOCTYPE token's name is not "html", or the token's public identifier is not missing,
+             // or the token's system identifier is neither missing nor "about:legacy-compat", then there is a parse error.
+             let doctype = token.doctype_data();
++            self.next_profile = self.allow_next_opt_in && !self.parsing_fragment
++                && doctype.name == "html" && !doctype.missing_public_identifier
++                && doctype.public_identifier == "next" && doctype.missing_system_identifier && !doctype.force_quirks;
++            if self.next_profile { unsafe { ladybird_html_parser_set_next_profile(self.host); } }
+             if doctype.name != "html"
+                 || !doctype.missing_public_identifier
+                 || (!doctype.missing_system_identifier && doctype.system_identifier != "about:legacy-compat")
+@@ -3411,6 +3427,7 @@ impl TreeBuilder {
+         self.flush_character_insertions();
+         // 1. Let the adjustedInsertionLocation be the appropriate place for inserting a node.
+         let adjusted_insertion_location = self.appropriate_place_for_inserting_node(None);
++        let next_eligible = self.next_eligible(token, namespace_);
+         let local_name = adjusted_foreign_tag_name(token.tag_name(), namespace_);
+         let mut attributes = std::mem::take(&mut self.attribute_buffers);
+         attributes.fill_from_token(token, namespace_);
+@@ -3430,7 +3447,7 @@ impl TreeBuilder {
+         // 2. Let element be the result of creating an element for the token given token, namespace, and the element in
+         //    which the adjustedInsertionLocation finds itself.
+         let element = self.create_element(
+-            adjusted_insertion_location.parent,
++            self.next_output_location(adjusted_insertion_location).parent,
+             namespace_,
+             namespace_uri.as_deref(),
+             &local_name,
+@@ -3465,10 +3482,37 @@ impl TreeBuilder {
+             attributes: owned_attributes,
+             template_content,
+         });
++        if next_eligible && !only_add_to_element_stack {
++            let mut location = self.next_output_location(adjusted_insertion_location);
++            if location.offset != APPEND_CHILD_OFFSET { location.offset += 1; }
++            self.next_projection.insert(element, location);
++        }
+         // 5. Return element.
+         element
+     }
+ 
++    // Experimental Next profile: preserve the native recognition stack. This
++    // routing prototype is intentionally audited against the static model; it
++    // does not claim complete formatting/foster-recovery equivalence.
++    fn next_output_location(&self, location: AdjustedInsertionLocation) -> AdjustedInsertionLocation {
++        self.next_projection.get(&location.parent).copied().unwrap_or(location)
++    }
++
++    fn next_eligible(&self, token: &Token, namespace_: RustFfiHtmlNamespace) -> bool {
++        if !self.next_profile || !token.is_self_closing() || namespace_ != RustFfiHtmlNamespace::Html
++            || self.stack_of_open_elements.iter().any(|n| n.namespace_ != RustFfiHtmlNamespace::Html) { return false; }
++        let exempt = "area base br col embed hr img input link meta source track wbr basefont bgsound frame keygen param script style title textarea xmp iframe noembed noframes noscript plaintext html head body frameset table caption colgroup tbody tfoot thead tr td th template select option optgroup form fieldset button details dialog datalist audio video canvas object applet a b big code em font i nobr s small strike strong tt u p pre listing svg math";
++        if exempt.split_whitespace().any(|name| token.tag_name().equals(name)) { return false; }
++        if let TokenPayload::Tag {attributes, ..} = &token.payload {
++            if attributes.iter().any(|a| ["inert", "hidden", "disabled", "popover"].iter().any(|name| a.local_name.equals(name))) { return false; }
++        }
++        if self.list_of_active_formatting_elements.iter().any(|e| !e.is_marker) {
++            let node = StackNode {handle: 0, local_name: token.tag_name().clone(), namespace_, namespace_uri: None, attributes: Vec::new(), template_content: None};
++            if is_special_tag(&node) { return false; }
++        }
++        true
++    }
++
+     fn insert_html_element_for_active_formatting_element(
+         &mut self,
+         entry: &ActiveFormattingElement,
+@@ -3617,10 +3661,15 @@ impl TreeBuilder {
+     }
+ 
+     fn append_child(&mut self, parent: usize, child: usize) {
+-        unsafe { ladybird_html_parser_append_child(parent, child) }
++        if let Some(location) = self.next_projection.get(&parent).copied() {
++            unsafe { ladybird_html_parser_insert_node(location.parent, location.offset, child, false) };
++        } else {
++            unsafe { ladybird_html_parser_append_child(parent, child) }
++        }
+     }
+ 
+     fn insert_node_at_insertion_location(&mut self, insertion_location: AdjustedInsertionLocation, child: usize) {
++        let insertion_location = self.next_output_location(insertion_location);
+         unsafe { ladybird_html_parser_insert_node(insertion_location.parent, insertion_location.offset, child, false) };
+     }
+ 
+@@ -3641,7 +3690,7 @@ impl TreeBuilder {
+         insertion_location: Option<AdjustedInsertionLocation>,
+     ) {
+         // 1. Set insertionLocation to the adjusted insertion location given insertionLocation.
+-        let insertion_location = self.adjusted_insertion_location(insertion_location);
++        let insertion_location = self.next_output_location(self.adjusted_insertion_location(insertion_location));
+ 
+         // NB: Remaining steps implemented on C++ side.
+         let queue_custom_element_reactions = !self.parsing_fragment;
+@@ -3912,6 +3961,7 @@ impl TreeBuilder {
+     }
+ 
+     fn insert_text(&mut self, insertion_location: AdjustedInsertionLocation, data: &str) {
++        let insertion_location = self.next_output_location(insertion_location);
+         unsafe {
+             ladybird_html_parser_insert_text(
+                 insertion_location.parent,
+@@ -5646,6 +5696,7 @@ pub unsafe extern "C" fn rust_html_parser_run_document(
+     scripting_enabled: bool,
+     allow_declarative_shadow_roots: bool,
+     stop_at_insertion_point: bool,
++    allow_next_opt_in: bool,
+ ) -> RustFfiHtmlParserRunResult {
+     if handle.is_null() || tokenizer.is_null() || host.is_null() {
+         return RustFfiHtmlParserRunResult::Unsupported;
+@@ -5654,6 +5705,7 @@ pub unsafe extern "C" fn rust_html_parser_run_document(
+     // synchronously execute script, and script can re-enter this function through document.write() or document.close().
+     // TreeBuilder uses raw pointers internally so those nested parser runs do not alias an outer Rust `&mut` borrow.
+     unsafe {
++        (*handle).state.allow_next_opt_in = allow_next_opt_in;
+         (*handle).state.scripting_enabled = scripting_enabled;
+         (*handle).state.allow_declarative_shadow_roots = allow_declarative_shadow_roots;
+         (*handle).state.parser_pause_requested = false;
+diff --git a/Tests/LibWeb/test-web/Application.cpp b/Tests/LibWeb/test-web/Application.cpp
+index 8960bfcf..34219a43 100644
+--- a/Tests/LibWeb/test-web/Application.cpp
++++ b/Tests/LibWeb/test-web/Application.cpp
+@@ -115,6 +115,9 @@ void Application::create_platform_options(WebView::BrowserOptions& browser_optio
+     web_content_options.force_fontconfig = WebView::ForceFontconfig::Yes;
+     // NB: WPT's Ahem stylesheet prefers local('Ahem'). Make the test font available before
+     //     navigation so its metrics do not depend on an asynchronous font download.
++    // The test FontPlugin requires the bundled SerenitySans face in the service catalog.
++    auto bundled_font_directory = LexicalPath::join(test_root_path, "../../Base/res/fonts"sv).string();
++    browser_options.additional_font_directories.append(MUST(String::from_byte_string(LexicalPath::absolute_path(MUST(Core::System::getcwd()), bundled_font_directory))));
+     auto font_directory = LexicalPath::join(test_root_path, "Ref/input/wpt-import/fonts"sv).string();
+     browser_options.additional_font_directories.append(MUST(String::from_byte_string(LexicalPath::absolute_path(MUST(Core::System::getcwd()), font_directory))));
+ 

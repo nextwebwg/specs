@@ -1,0 +1,23 @@
+2026-10-19 11:11:16.669 Compositor[6971:184253051] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 11:11:16.669 Compositor[6971:184253052] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 11:11:16.670 Compositor[6971:184253077] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+1113553.034 Compositor(6971): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113555.025 Compositor(6971): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113555.211 WebContent(7214): HTMLScriptElement: Refusing to run script because the element's result is null.
+1113555.513 WebContent(7214): Content Security Policy violation: Refusing access to resource 'inline' because it does not appear in the 'script-src-elem' directive.
+1113555.513 WebContent(7214): HTMLScriptElement: Refusing to run inline script because it violates the Content Security Policy.
+Running 2 tests...
+[0] 1/2:  Start Text/input/HTML/next-parsing-refinement.html
+[0] 1/2: Finish Text/input/HTML/next-parsing-refinement.html: 1929ms
+[0] 2/2:  Start Text/input/HTML/next-parsing-execution.html
+[0] 2/2: Finish Text/input/HTML/next-parsing-execution.html: 652ms
+==========================================================
+Pass: 2, Fail: 0, Skipped: 0, Timeout: 0, Crashed: 0
+==========================================================
+Results: file://<experiment>/work/native-final-results/index.html

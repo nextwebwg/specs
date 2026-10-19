@@ -1,0 +1,16 @@
+{
+  "seed": "0x5354524d",
+  "inputs": 10000,
+  "comparisons": 60000,
+  "failures": [],
+  "schedules": [
+    "one-code-unit",
+    "random-1-to-17",
+    "random-1-to-73"
+  ],
+  "scripting": [
+    true,
+    false
+  ],
+  "scope": "Chunk invariance against the shared static reference; not an independent recognition implementation"
+}

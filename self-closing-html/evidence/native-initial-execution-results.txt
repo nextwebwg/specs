@@ -1,0 +1,31 @@
+closed popover empty: PASS
+closed popover invalid: PASS
+comment containment: PASS
+fixed profile after doctype mutation: PASS
+ordinary shorthand: PASS
+nested shorthand: PASS
+script checkpoint and mutation: PASS
+custom element construction: PASS
+custom element upgrade: PASS
+namespace recovery: PASS
+legacy innerHTML: PASS
+legacy document APIs: PASS
+document writing isolation: PASS
+removed open ancestor: PASS
+moved shorthand: PASS
+shadow ownership: PASS
+protected inert containment: PASS
+native container exemption: PASS
+foster parenting: FAIL 
+classic script loading failure resumes: PASS
+deferred native script: PASS
+asynchronous native script: PASS
+inline native module: PASS
+external native module graph: PASS
+native external script pause: PASS
+speculative requests suppressed until recognition: PASS
+native network stream before EOF: PASS
+native network resume: PASS
+native async script does not block source: PASS
+native stylesheet blocks classic script: PASS
+native CSP remains enforced: PASS

@@ -49,13 +49,11 @@ An empty component often gets all its information from attributes. Repeating its
 <status-badge state="ready" />
 ```
 
-The shorthand makes “this element has no authored children” visible at the end of the opening tag. Authors write the name once, and a rename does not require changing a matching closing tag. It also lets eligible empty components use the familiar self-closing spelling in HTML source without a template compiler just to interpret that spelling.
+The name appears once, and `/>` marks “no authored children” at the opening tag. Eligible empty components could use that spelling directly in HTML source.
 
-These are concrete properties of the notation, not measured productivity results. [React’s JSX guide](https://react.dev/learn/writing-markup-with-jsx#2-close-all-the-tags) and [Vue’s component guide](https://vuejs.org/guide/essentials/component-basics.html#self-closing-tags) document existing use of the syntax. Vue explicitly distinguishes compiled templates, where components can self-close, from templates parsed as ordinary HTML, where explicit closing tags are required. This supports familiarity and identifies a real difference between authoring environments; it does not establish how much time this proposal would save.
+[JSX](https://react.dev/learn/writing-markup-with-jsx#2-close-all-the-tags) and [Vue templates](https://vuejs.org/guide/essentials/component-basics.html#self-closing-tags) already use the syntax. That shows existing practice, not measured gains in speed, readability, or error rates. No study establishes whether this proposal’s benefit outweighs its exceptions.
 
-**What has not been measured:** authoring speed, readability, error rates, or developer preference for this proposal. The parsing experiments test correctness, not developer experience. A study comparing empty-component authoring and editing with both spellings would be needed to claim measured improvement.
-
-The benefit is deliberately limited to eligible empty elements. Elements with children still use closing tags, and sensitive elements such as `style` keep their existing rules. In particular, `<script />` still starts a script and can swallow following page source until `</script>`; write `<script></script>` for an empty script. [See the consequence of ignored slashes](/self-closing-html/parsing#what-happens-if-an-author-writes-script). The syntax does not provide component registration, table embedding, or automatic fallback in older browsers.
+**The main tradeoff:** not every element can self-close. `<script />` still starts a script and can swallow following source. [Read the exceptions and consequences](/self-closing-html/parsing#preserve-sensitive-elements). Elements with children keep closing tags. Component embedding in tables is a [separate proposal](/flexible-html-nesting/).
 
 ## What has been checked?
 
@@ -91,7 +89,7 @@ For ordinary shorthand, following content becomes a sibling:
 ```
 :::
 
-The div remains on the parser's recognition stack even though it is empty in the DOM. A later `</div>` can still close that entry and any intervening SVG context. The next `style` then uses HTML text parsing, so image-looking text stays text. **The slash changes containment without discarding the scope information that protects text boundaries.**
+The parser still remembers the div for later closing tags and error recovery. Making it empty changes where following nodes sit, without changing HTML’s decisions about text and tags. [See the worked example](/self-closing-html/security#recover-at-namespace-boundaries).
 
 ### Keep text and protected content inside their boundaries
 
@@ -106,13 +104,7 @@ Sensitive elements retain their existing slash handling. For example:
 > [!ex] The rule behind the shorthand
 > Change eligible parent/child relationships while preserving recognized tags, text, namespaces, and protected containers. Existing HTML insertion APIs retain their current grammar.
 
-The [parsing rules](/self-closing-html/parsing) define eligibility and recovery. [Security and evidence](/self-closing-html/security) separates the sanitizer and distant-mode-switch objections, shows the retained stack token by token, and states what the reference construction establishes.
-
-The recorded experimental implementation uses the earlier literal `PUBLIC "next"` opt-in. Named-selector resolution and HTTP-header selection are proposed in HTML Feature Profiles and are not implemented by those evidence artifacts.
-
-A server can also select this capability with the proposed `HTML-Feature-Profile` response header. [HTML Feature Profiles](/html-feature-profiles/#http-response-header) defines the header, its precedence over the doctype, and unsupported-request handling.
-
-You can also explicitly request self-closing parsing for fetched HTML while the caller remains ordinary HTML. [Per-call parsing and insertion boundaries](/self-closing-html/parsing#parse-independently-of-the-caller-s-document) explain the proposed API and what happens when those nodes are inserted elsewhere.
+The native experiment tests the earlier literal `PUBLIC "next"` opt-in. The proposed [response header and profile selection](/html-feature-profiles/) and [explicit parsing calls](/self-closing-html/parsing#parse-independently-of-the-caller-s-document) are not implemented by that experiment.
 
 ## What feedback is needed?
 
@@ -122,7 +114,7 @@ Review is requested on whether the authoring benefit justifies the [exceptions a
 
 ::chapter-index
 
-This is an independent Stage 0 draft. The reference model establishes a static text-to-markup preservation property; an experimental native Ladybird implementation now passes bounded streaming and execution checks. Production conformance and universal execution safety remain unproved.
+This is an independent Stage 0 draft. The mathematical proof covers the node-rearrangement rule; an experimental native Ladybird implementation now passes bounded streaming and execution checks. Production conformance and universal execution safety remain unproved.
 
 ## Sources
 

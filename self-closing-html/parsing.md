@@ -44,6 +44,26 @@ Eligible custom and unknown names do not depend on registration. Native SVG/Math
 
 ## Preserve sensitive elements
 
+**The shorthand is for eligible empty HTML elements, not every tag.** For example, `<user-avatar />` can be empty, while `<script />`, `<table />`, and `<div hidden />` keep HTML’s existing slash handling. Eligibility also depends on the surrounding parsing context. That unevenness is a real tradeoff, not a minor implementation detail.
+
+### Why keep exceptions?
+
+The draft retains the tested conservative rules rather than extending the slash to cases the evidence does not establish. This is a draft design choice for review, not a claim that broader support is impossible.
+
+| Group | Why the draft keeps existing behavior | Consequence for authors and evidence |
+| --- | --- | --- |
+| Text and scripts | Closing early can turn text that an existing parser treats as inert into markup. | `<script />` starts a script; `<style />` starts a stylesheet. The worked security examples establish the mismatch risk, not that every text-element exception is the only possible design. |
+| Tables, forms, selects, and document structure | These elements have special rules for creating and placing nodes. Treating them like ordinary wrappers is outside the tested shorthand contract. | Use their normal explicit or optional closing-tag rules. Their inclusion is conservative; the evidence does not prove each listed exception individually necessary. |
+| Native containers and protected attributes | Moving children out can expose content that was hidden or inactive. | `<div hidden />` does not become an empty wrapper. Before/after control and popover tests demonstrate particular failures and fixes; the full protected set still needs implementer review. |
+| Formatting and recovery | HTML can reconstruct formatting elements or close elements implicitly, so an apparent empty pair need not behave like an ordinary wrapper. | Eligibility can depend on surrounding formatting. Keep current rules until a broader interpretation is specified and tested; this is not a proof that each excluded name can never self-close. |
+| SVG, MathML, and their surrounding contexts | Preserve existing namespace and text decisions rather than reinterpret them through the new shorthand. | Native foreign-element self-closing behavior is unchanged. Recovery tests cover selected namespace transitions, not all foreign-content combinations. |
+
+The benefit remains concrete for eligible empty components and wrappers: write the element name once and mark the absence of authored children at the opening tag. The cost is that authors must learn exceptions and context rules. No usability study establishes that the benefit outweighs that cost. Incubation should review whether this conservative scope is useful enough, whether a narrower scope is clearer, and what evidence would permit safely broadening it. This draft does not add JavaScript-, JSON-, or CSS-aware tokenization.
+
+[Plain-language fixes and remaining issues →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme)
+
+### Exact exception list
+
 These names and contexts retain current slash handling in the reference profile:
 
 | Category | Exempt names or contexts |

@@ -227,14 +227,27 @@ The first native routing attempt passed 30 of 31 execution checks but disagreed 
 
 :::
 
-## Requirements before browser shipment
+## Ready for discussion is different from ready to ship
 
-A native implementation must construct the specified DOM incrementally and preserve its boundaries at script and custom-element reaction checkpoints. Rewriting an already active page after parsing does not implement this contract.
+This draft can be discussed as an incubation proposal: it identifies the authoring problem, describes a concrete parser change, provides runnable experiments, and lists its tradeoffs. It is not a completed browser feature or an approved security design. The exception set is a proposed conservative boundary; its usability and completeness need review.
 
-Extend the tested pause, script, mutation, and shadow-root behavior to the full browser contract. Implement encoding restarts and verify any look-ahead loading optimization before enabling it. Finish memory stress tests, add shared browser conformance tests, and obtain implementer security review. [Flexible HTML Nesting](/flexible-html-nesting/) is a separate proposal with its own recognition and safety obligations; these proofs do not establish its safety.
+### Work plan before browser shipment
+
+Complete the design review first, then implement the missing behavior, expand the tests, and seek independent engine review. These are proposed completion criteria, not promises that the work is already funded or assigned.
+
+| Work | What must be done | What would establish completion |
+| --- | --- | --- |
+| Exception policy and author mistakes | Review the excluded elements and contexts; define useful diagnostics for ignored slashes; evaluate whether authors understand the scope. | An agreed eligibility contract, positive and negative conformance cases, implemented diagnostic behavior where specified, and author research that evaluates the benefit and exception cost. |
+| Profile integration | Implement named selection, response headers, and explicit parsing options under HTML Feature Profiles. | Native tests of precedence, unsupported requests, independent parsing, and existing API isolation. Passing tests of the old literal `next` selector do not satisfy this. |
+| Encoding restarts | Define how recognition and output state are discarded or rebuilt when the browser rereads bytes in another encoding. | Native restart tests across affected source boundaries, showing no duplicated nodes or execution and the intended final document. Existing network-chunk tests do not satisfy this. |
+| Loading and execution | Extend the passing script, callback, pause, mutation, and shadow-root cases to the complete browser contract. Keep look-ahead loading disabled unless its behavior is verified. | Shared conformance tests for native scheduling and root ownership; request traces showing any enabled look-ahead loader respects the same boundaries. |
+| Broader regression and memory testing | Run relevant engine suites, retain discovered failures as regressions, and finish garbage-collection stress testing. | Completed result records with failures resolved or explicitly dispositioned. A timeout supplies no passing evidence; a passing run is still not a universal memory-safety proof. |
+| Security and interoperability review | Have browser implementers review the parsing, protected-container policy, sanitizer boundary, and implementation. Develop Web Platform Tests usable by independent implementations. | Published review outcomes and interoperable test results, with remaining risks explicitly accepted through the standards process. No vendor commitment or endorsement is reported here. |
+
+[Flexible HTML Nesting](/flexible-html-nesting/) is separate. Its layout and containment behavior needs its own implementation and evidence; these self-closing proofs do not establish it.
 
 > [!warn] Implementation status
-> The static reference establishes text-to-markup preservation. Native streaming and execution now have passing bounded evidence in an experimental Ladybird implementation. Universal execution safety, production browser conformance, encoding restarts, Web Platform Tests, and implementer security review remain required before shipment.
+> The reference model proves a limited rearrangement property. An experimental Ladybird build passes bounded streaming and execution tests. The work above remains required before shipment; the evidence does not establish universal execution safety.
 
 Editor: [Matthew Dean](https://github.com/matthew-dean). Discuss the proposal in the [specifications repository](https://github.com/nextwebwg/specs/discussions).
 

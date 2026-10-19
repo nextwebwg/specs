@@ -114,6 +114,10 @@ A server can also select this capability with the proposed `HTML-Feature-Profile
 
 You can also explicitly request self-closing parsing for fetched HTML while the caller remains ordinary HTML. [Per-call parsing and insertion boundaries](/self-closing-html/parsing#parse-independently-of-the-caller-s-document) explain the proposed API and what happens when those nodes are inserted elsewhere.
 
+## What feedback is needed?
+
+Review is requested on whether the authoring benefit justifies the [exceptions and their consequences](/self-closing-html/parsing#why-keep-exceptions), whether the retained parsing context adequately addresses sanitizer disagreement, and what native tests and implementation changes are needed next. Broader self-closing behavior is not ruled out, but is not established by the current evidence. The [work plan before shipment](/self-closing-html/security#work-plan-before-browser-shipment) separates discussion readiness from production readiness.
+
 ## Read the proposal
 
 ::chapter-index

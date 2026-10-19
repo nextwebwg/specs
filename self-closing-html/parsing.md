@@ -48,6 +48,12 @@ Eligible custom and unknown names do not depend on registration. Native SVG/Math
 
 ### Why keep exceptions?
 
+Some elements control how following source is read; others protect hidden content or use special placement rules. Making them empty can change those behaviors.
+
+The draft keeps the tested conservative scope. Some specific failures are demonstrated; the evidence does not prove every exception necessary. Whether this scope is useful and understandable remains a review question.
+
+::: {.details summary="Exception rationale, evidence, and tradeoffs by category"}
+
 The draft retains the tested conservative rules rather than extending the slash to cases the evidence does not establish. This is a draft design choice for review, not a claim that broader support is impossible.
 
 | Group | Why the draft keeps existing behavior | Consequence for authors and evidence |
@@ -61,6 +67,9 @@ The draft retains the tested conservative rules rather than extending the slash 
 The benefit remains concrete for eligible empty components and wrappers: write the element name once and mark the absence of authored children at the opening tag. The cost is that authors must learn exceptions and context rules. No usability study establishes that the benefit outweighs that cost. Incubation should review whether this conservative scope is useful enough, whether a narrower scope is clearer, and what evidence would permit safely broadening it. This draft does not add JavaScript-, JSON-, or CSS-aware tokenization.
 
 [Plain-language fixes and remaining issues →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme)
+
+
+:::
 
 ### Exact exception list
 
@@ -86,11 +95,11 @@ The slash is ignored. The browser starts a script and treats the following sourc
 </script>
 ```
 
-Here `<p>Hello</p>` is passed to the JavaScript parser instead of creating a paragraph, and ordinarily produces a syntax error. Without a closing `</script>`, the rest of the document can be consumed as script text. For an empty script, write `<script></script>`; for an external script, write `<script src="app.js"></script>`.
+The paragraph becomes script text and ordinarily causes a JavaScript syntax error. Without `</script>`, the rest of the page can be swallowed. If that text is valid JavaScript, it can execute: a syntax error is not a safety guarantee.
 
-This can also be a security concern: if following text is valid JavaScript, it can execute when the script closes. A syntax error in this example is not a safety guarantee. This is existing HTML behavior, but extending self-closing syntax to other elements could make the mistaken expectation more likely; that authoring risk has not been measured or eliminated.
+Write `<script></script>` for an empty script, or `<script src="app.js"></script>` for an external one. `style` similarly reads following source as stylesheet text until `</style>`.
 
-This is a usability cost of the exceptions: a slash does not consistently mean “empty” on every element. Authoring tools should explain ignored self-closing syntax on these elements. No such new diagnostic is implemented by this proposal’s recorded experiments. `style` has a similar consequence: following source remains stylesheet text until `</style>`.
+This existing HTML behavior is an authoring and security hazard. New self-closing syntax may make the mistake more tempting; that risk is unmeasured. Helpful tool warnings are proposed, not implemented by these experiments.
 
 The initial set must match the browser algorithm. Lifting an exemption requires a defined interpretation and safety argument for that context. [Why these boundaries matter →](/self-closing-html/security#preserve-protected-containment)
 

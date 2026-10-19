@@ -15,18 +15,18 @@ Self-closing syntax must not turn harmless text into running code, expose hidden
 
 ## Issue checklist
 
-A checked item means the stated fix has evidence at the level described. It does not mean every possible browser input has been proved safe.
+✅ Demonstrated in the stated proof or tests · 🟡 Partial · ⬜ Open. A passing item is not a claim that every possible browser input is safe.
 
-- [x] **Apparent tags inside text stay text.** Do not let the slash close `style` or other text-sensitive elements. Keep HTML’s normal interpretation of later text and SVG boundaries. The mathematical proof checks the rearrangement rule; browser examples check selected parsing cases.
-- [x] **Hidden controls keep their protection in the tested cases.** Preserve sensitive containers and attributes, including a `popover` protection added after a test exposed a bug.
-- [x] **Existing library parsing calls keep their meaning.** The proposed contract requires an explicit request for new string-parsing behavior; the prototype tests check isolation.
-- [x] **Streaming, scripts, callbacks, pauses, and mutations work in the recorded native cases.** The experimental browser passes 31 targeted checks and 200 reference comparisons. This is evidence from one native engine, not production support.
-- [x] **Shadow roots stay with their hosts in the tested native cases.** A separate serialization shortcut failed and is not a general conversion method.
-- [ ] **Ignored slashes can mislead authors.** `<script />` still starts a script; following valid JavaScript can execute. Keeping existing parsing does not eliminate that authoring hazard. Tool diagnostics and author understanding remain unverified.
-- [ ] **Serialization is not generally proved safe.** Generated tests found no new monitored exposure, but do not remove the known conversion limitation.
-- [ ] **Fast look-ahead loading remains incomplete.** The native prototype disables that optimization rather than proving an optimized loader correct.
-- [ ] **Encoding restarts, memory stress, broader conformance, and security review remain open.** A timed-out stress run is not a pass.
-- [ ] **The newer profile selectors and parsing options need native implementation.** The native experiment tests only the earlier literal `PUBLIC "next"` opt-in.
+- ✅ **Apparent tags inside text stay text.** Do not let the slash close `style` or other text-sensitive elements. Keep HTML’s normal interpretation of later text and SVG boundaries. The mathematical proof checks the rearrangement rule; browser examples check selected parsing cases.
+- ✅ **Hidden controls keep their protection in the tested cases.** Preserve sensitive containers and attributes, including a `popover` protection added after a test exposed a bug.
+- ✅ **Existing library parsing calls keep their meaning.** The proposed contract requires an explicit request for new string-parsing behavior; the prototype tests check isolation.
+- ✅ **Streaming, scripts, callbacks, pauses, and mutations work in the recorded native cases.** The experimental browser passes 31 targeted checks and 200 reference comparisons. This is evidence from one native engine, not production support.
+- ✅ **Shadow roots stay with their hosts in the tested native cases.** A separate serialization shortcut failed and is not a general conversion method.
+- ⬜ **Ignored slashes can mislead authors.** `<script />` still starts a script; following valid JavaScript can execute. Keeping existing parsing does not eliminate that authoring hazard. Tool diagnostics and author understanding remain unverified.
+- 🟡 **Serialization is not generally proved safe.** Generated tests found no new monitored exposure, but do not remove the known conversion limitation.
+- 🟡 **Fast look-ahead loading remains incomplete.** The native prototype disables that optimization rather than proving an optimized loader correct.
+- ⬜ **Encoding restarts, memory stress, broader conformance, and security review remain open.** A timed-out stress run is not a pass.
+- ⬜ **The newer profile selectors and parsing options need native implementation.** The native experiment tests only the earlier literal `PUBLIC "next"` opt-in.
 
 [Read each issue’s solution, evidence, and limits →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme)
 
@@ -42,7 +42,7 @@ The 2023 WHATWG proposal already suggested a document opt-in. The objections con
 The earlier #721 discussion also raises compatibility with existing authored markup, including names containing hyphens.[^3] Plain HTML keeps its meaning. Only the explicit Next declaration selects the new document profile; custom-element registration cannot change that profile. Unsupported browsers still need a correct fallback.
 
 > [!ex] What is resolved, and at what level?
-> The model prevents rearrangement from turning text into tags. The proposed API rules keep existing library calls on their original behavior. The native prototype tests selected examples of both; that does not establish safety for every possible page.
+> The rearrangement algorithm keeps parsed text as text. The proposed API rules keep existing library calls on their original behavior. The native prototype tests selected examples of both; that does not establish safety for every possible page.
 
 ## Block the direct style exploit
 
@@ -131,22 +131,13 @@ Shadow roots keep their recognized host. A root is an ownership relationship, no
 
 Parentage intentionally changes elsewhere. Application-defined components and script gadgets require their own policy; a sanitizer must not authorize hazardous content solely because an ordinary ancestor currently hides or intercepts it.[^5]
 
-## Why recognized text cannot become markup
+## The rearrangement keeps text as text
 
-The static reference first recognizes ordinary HTML in the exact starting context and scripting state. It then receives a tree of already recognized nodes and changes permitted containment relationships.
+The proposed algorithm changes where already-parsed nodes sit. It does not read their contents as HTML again. If HTML identified `<img ...>` as stylesheet text, moving nodes cannot turn that text into an image element.
 
-That containment step receives **nodes, not HTML strings**. It does not tokenize text again, create elements, or change namespaces, attributes, or text. It preserves node identities and preorder. Protected containers remain in the ancestor chain.
+**What was proved:** a mathematical description of this rearrangement preserves node contents, order, and designated protected containers. The proof assumes the parser correctly identified those nodes and containers.
 
-Text that the recognition step classified as stylesheet content therefore stays text. There is no operation in the containment step that could turn it into an image or attach an event-handler attribute. This is the construction argument behind the reported exploit's prevention; the experiments check the implementation against it.
-
-### What the mathematical proof checks
-
-After HTML has been read and its contents identified, this proposal changes where some nodes sit in the document tree. A machine-checked mathematical proof checks two promises about that rearrangement:
-
-- **Keep the same contents in the same order.** The rearrangement cannot add, remove, duplicate, or reorder nodes, or change the information attached to them.
-- **Keep protected boundaries intact.** A node inside a protected container stays inside that same container. For example, moving nodes around a self-closing wrapper cannot move them outside an enclosing protected container.
-
-This supports one part of the security argument: rearranging already identified content does not itself reinterpret text as an element or let content escape a protected boundary. It is not a proof that an entire browser is safe. The model assumes that the parser has correctly identified the content and classified the containers; browser code must still implement those steps and the rearrangement correctly. The execution tests below check other parts of that work.
+**What a browser must do:** implement that rule correctly while parsing and running scripts. The prototypes pass the recorded tests; the proof does not cover a complete browser.
 
 ::: {.details summary="Technical details: the model, theorems, and proof limits"}
 
@@ -163,7 +154,7 @@ The [verification record](https://github.com/nextwebwg/specs/blob/main/self-clos
 
 :::
 
-The static prototype computes the ordinary recognized tree first, then applies containment changes. A native browser must maintain equivalent recognition state independently of output parenting and produce the specified DOM incrementally. The Ladybird prototype implements native output routing and tests script, custom-element reaction, and mutation checkpoints; production conformance remains an obligation.
+The static prototype rearranges a completed tree. The native prototype builds the result as HTML arrives, with tests at script and callback boundaries. Its tests are separate evidence from the mathematical proof.
 
 ## Detailed test records
 
@@ -233,6 +224,10 @@ This draft can be discussed as an incubation proposal: it identifies the authori
 
 ### Work plan before browser shipment
 
+Before shipment: review the exceptions, integrate profile selection, handle encoding restarts, expand native execution and memory tests, and obtain implementer security review. None of those gaps is closed by a passing documentation check.
+
+::: {.details summary="Shipment checklist: required work and completion evidence"}
+
 Complete the design review first, then implement the missing behavior, expand the tests, and seek independent engine review. These are proposed completion criteria, not promises that the work is already funded or assigned.
 
 | Work | What must be done | What would establish completion |
@@ -243,6 +238,8 @@ Complete the design review first, then implement the missing behavior, expand th
 | Loading and execution | Extend the passing script, callback, pause, mutation, and shadow-root cases to the complete browser contract. Keep look-ahead loading disabled unless its behavior is verified. | Shared conformance tests for native scheduling and root ownership; request traces showing any enabled look-ahead loader respects the same boundaries. |
 | Broader regression and memory testing | Run relevant engine suites, retain discovered failures as regressions, and finish garbage-collection stress testing. | Completed result records with failures resolved or explicitly dispositioned. A timeout supplies no passing evidence; a passing run is still not a universal memory-safety proof. |
 | Security and interoperability review | Have browser implementers review the parsing, protected-container policy, sanitizer boundary, and implementation. Develop Web Platform Tests usable by independent implementations. | Published review outcomes and interoperable test results, with remaining risks explicitly accepted through the standards process. No vendor commitment or endorsement is reported here. |
+
+:::
 
 [Flexible HTML Nesting](/flexible-html-nesting/) is separate. Its layout and containment behavior needs its own implementation and evidence; these self-closing proofs do not establish it.
 

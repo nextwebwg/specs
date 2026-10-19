@@ -55,7 +55,7 @@ These are concrete properties of the notation, not measured productivity results
 
 **What has not been measured:** authoring speed, readability, error rates, or developer preference for this proposal. The parsing experiments test correctness, not developer experience. A study comparing empty-component authoring and editing with both spellings would be needed to claim measured improvement.
 
-The benefit is deliberately limited to eligible empty elements. Elements with children still use closing tags, and sensitive elements such as `style` keep their existing rules. The syntax does not provide component registration, table embedding, or automatic fallback in older browsers.
+The benefit is deliberately limited to eligible empty elements. Elements with children still use closing tags, and sensitive elements such as `style` keep their existing rules. In particular, `<script />` still starts a script and can swallow following page source until `</script>`; write `<script></script>` for an empty script. [See the consequence of ignored slashes](/self-closing-html/parsing#what-happens-if-an-author-writes-script). The syntax does not provide component registration, table embedding, or automatic fallback in older browsers.
 
 ## What has been checked?
 

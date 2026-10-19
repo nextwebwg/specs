@@ -9,7 +9,7 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Parsing rules
 
-Define which elements can self-close, how recovery works, and where the new grammar applies.
+This chapter is the implementation reference: which elements can self-close, how the browser handles them, and which APIs can request the behavior. For the motivation and examples, start with the [proposal overview](/self-closing-html/). For what is fixed and what remains open, read the [issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme).
 
 ## Select the capability
 
@@ -44,6 +44,26 @@ Eligible custom and unknown names do not depend on registration. Native SVG/Math
 
 ## Preserve sensitive elements
 
+**The shorthand is for eligible empty HTML elements, not every tag.** For example, `<user-avatar />` can be empty, while `<script />`, `<table />`, and `<div hidden />` keep HTML’s existing slash handling. Eligibility also depends on the surrounding parsing context. That unevenness is a real tradeoff, not a minor implementation detail.
+
+### Why keep exceptions?
+
+The draft retains the tested conservative rules rather than extending the slash to cases the evidence does not establish. This is a draft design choice for review, not a claim that broader support is impossible.
+
+| Group | Why the draft keeps existing behavior | Consequence for authors and evidence |
+| --- | --- | --- |
+| Text and scripts | Closing early can turn text that an existing parser treats as inert into markup. | `<script />` starts a script; `<style />` starts a stylesheet. The worked security examples establish the mismatch risk, not that every text-element exception is the only possible design. |
+| Tables, forms, selects, and document structure | These elements have special rules for creating and placing nodes. Treating them like ordinary wrappers is outside the tested shorthand contract. | Use their normal explicit or optional closing-tag rules. Their inclusion is conservative; the evidence does not prove each listed exception individually necessary. |
+| Native containers and protected attributes | Moving children out can expose content that was hidden or inactive. | `<div hidden />` does not become an empty wrapper. Before/after control and popover tests demonstrate particular failures and fixes; the full protected set still needs implementer review. |
+| Formatting and recovery | HTML can reconstruct formatting elements or close elements implicitly, so an apparent empty pair need not behave like an ordinary wrapper. | Eligibility can depend on surrounding formatting. Keep current rules until a broader interpretation is specified and tested; this is not a proof that each excluded name can never self-close. |
+| SVG, MathML, and their surrounding contexts | Preserve existing namespace and text decisions rather than reinterpret them through the new shorthand. | Native foreign-element self-closing behavior is unchanged. Recovery tests cover selected namespace transitions, not all foreign-content combinations. |
+
+The benefit remains concrete for eligible empty components and wrappers: write the element name once and mark the absence of authored children at the opening tag. The cost is that authors must learn exceptions and context rules. No usability study establishes that the benefit outweighs that cost. Incubation should review whether this conservative scope is useful enough, whether a narrower scope is clearer, and what evidence would permit safely broadening it. This draft does not add JavaScript-, JSON-, or CSS-aware tokenization.
+
+[Plain-language fixes and remaining issues →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme)
+
+### Exact exception list
+
 These names and contexts retain current slash handling in the reference profile:
 
 | Category | Exempt names or contexts |
@@ -55,6 +75,22 @@ These names and contexts retain current slash handling in the reference profile:
 | Protected contexts | Foreign ancestors and their HTML integration points; elements carrying `inert`, `hidden`, `disabled`, or `popover` |
 
 Exemptions do not make an element void. Where HTML recognizes explicit end tags, use them. For example, `<style />` keeps existing HTML behavior; authors write `<style></style>` for an empty style element.
+
+### What happens if an author writes `<script />`?
+
+The slash is ignored. The browser starts a script and treats the following source as script content until it reaches `</script>`. It does not create an empty script.
+
+```html title="Mistake: the paragraph becomes script text"
+<script />
+<p>Hello</p>
+</script>
+```
+
+Here `<p>Hello</p>` is passed to the JavaScript parser instead of creating a paragraph, and ordinarily produces a syntax error. Without a closing `</script>`, the rest of the document can be consumed as script text. For an empty script, write `<script></script>`; for an external script, write `<script src="app.js"></script>`.
+
+This can also be a security concern: if following text is valid JavaScript, it can execute when the script closes. A syntax error in this example is not a safety guarantee. This is existing HTML behavior, but extending self-closing syntax to other elements could make the mistaken expectation more likely; that authoring risk has not been measured or eliminated.
+
+This is a usability cost of the exceptions: a slash does not consistently mean “empty” on every element. Authoring tools should explain ignored self-closing syntax on these elements. No such new diagnostic is implemented by this proposal’s recorded experiments. `style` has a similar consequence: following source remains stylesheet text until `</style>`.
 
 The initial set must match the browser algorithm. Lifting an exemption requires a defined interpretation and safety argument for that context. [Why these boundaries matter →](/self-closing-html/security#preserve-protected-containment)
 

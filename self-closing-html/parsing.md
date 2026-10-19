@@ -103,6 +103,20 @@ Speculative loading must obey the same recognition boundaries; disabling the opt
 
 Declarative shadow-root host selection uses the retained recognition context. Keep each root attached to that same host; project only light-DOM children. A template declaration cannot migrate to a following sibling or the body.
 
+## Parse independently of the caller's document
+
+An explicitly requested parsing operation may enable `self-closing` even when its caller's document uses ordinary HTML or a different profile. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) owns the proposed per-call option, selector validation, inertness, and failure rules. No ambient document flag is required or inherited. Omitting `profile` keeps existing behavior; `profile: "inherit"` explicitly copies the relevant document’s resolved snapshot, while `profile: "next"` resolves the current documented preset.
+
+```js
+// profile is a proposed option on this existing API.
+const response = await fetch("/fragment.html");
+const parsed = Document.parseHTML(await response.text(), {
+  profile: "self-closing"
+});
+```
+
+The returned detached document contains the requested DOM structure. Importing or adopting its nodes into an ordinary document preserves those actual relationships; it does not switch the destination's profile. Parsing is not sanitization, and insertion still follows ordinary security and activation rules. Existing string parsing APIs do not gain this behavior implicitly. The historical prototype does not implement these new options. The safe method retains its mandatory sanitization under the selected grammar; the unsafe method retains its separate contract.
+
 ## Keep existing insertion APIs stable
 
 A document's profile must not change the grammar of existing string insertion and parsing APIs:

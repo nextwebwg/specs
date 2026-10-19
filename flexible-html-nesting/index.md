@@ -118,6 +118,22 @@ This proposed list owns two participating native items, while the host remains i
 
 [Read the table and list layout contract →](/flexible-html-nesting/layout)
 
+## Parse independently of the caller's document
+
+A caller may explicitly parse fetched HTML with `flexible-nesting` even if its own document has no profile enabled. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) defines the proposed per-call parsing option and selector/failure rules. The caller's doctype is not a prerequisite. Omitting `profile` keeps existing behavior; `profile: "inherit"` explicitly copies the relevant document’s resolved snapshot, while `profile: "next"` resolves the current documented preset.
+
+```js
+// Proposed profile option; include the complete table/list context.
+const response = await fetch("/table.html");
+const parsed = Document.parseHTML(await response.text(), {
+  profile: "flexible-nesting"
+});
+```
+
+This creates a detached document with the requested wrapper structure. Parsing success does not automatically activate flexible-nesting layout in a legacy destination. After adoption or import, the receiving document's resolved profile governs table/list participation; a source document's record does not travel with a node as an invisible mode switch. Use an enabled destination document when the new rendering behavior is required. A future subtree-scoped opt-in needs a separate explicit contract.
+
+Context-sensitive fragment parsing also needs an explicit actual context, such as `table` or `tr`; parsing a bare row as a complete document is not a substitute. Parsing is not sanitization, and no native implementation of these new options or the layout contract is claimed. The safe method retains mandatory sanitization under the selected grammar; the unsafe method retains its separate contract.
+
 ## Evidence and safety obligations
 
 The [baseline evidence](https://github.com/nextwebwg/specs/tree/main/flexible-html-nesting/evidence) records ordinary parse5 8.0.1 behavior for custom and ordinary wrappers in tables and lists. The proposed-marker baseline is retained as a historical control: an unknown attribute did not itself change parsing. It does not justify requiring that marker. The pinned parser is not evidence about all current HTML behavior, especially select parsing.

@@ -86,6 +86,8 @@ The recorded experimental implementation uses the earlier literal `PUBLIC "next"
 
 A server can also select this capability with the proposed `HTML-Feature-Profile` response header. [HTML Feature Profiles](/html-feature-profiles/#http-response-header) defines the header, its precedence over the doctype, and unsupported-request handling.
 
+You can also explicitly request self-closing parsing for fetched HTML while the caller remains ordinary HTML. [Per-call parsing and insertion boundaries](/self-closing-html/parsing#parse-independently-of-the-caller-s-document) explain the proposed API and what happens when those nodes are inserted elsewhere.
+
 ## Read the proposal
 
 ::chapter-index

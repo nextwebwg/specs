@@ -60,7 +60,7 @@ Constraints narrow a declared type. They apply to `<prop>` declarations, includi
 | `minlength`, `maxlength` | `string`, `keyword`, `url`, `email` | A nonempty value outside the inclusive length bounds sets `tooShort` or `tooLong`. Length counts UTF-16 code units, as in HTML.[^17] |
 | `min`, `max` | `integer`, `number`, `date`, `month`, `week`, `time`, `datetime-local`, `datetime` | A nonempty value outside the inclusive bounds sets `rangeUnderflow` or `rangeOverflow`. Bounds use the declared type's written form. |
 
-An omitted optional prop resolves to `null`; constraints other than `required` do not reject it. An empty string also skips those constraints. A constraint that does not apply to its declared type, or has an invalid value, is ignored by the live parser with a declaration warning; build tools report a declaration error. A `default` must satisfy every applicable constraint. See [Validation](/declarative-components/validation) for the resulting validity state.
+An omitted optional prop without a default resolves to `null`; constraints other than `required` do not reject it. An empty string also skips those constraints. A constraint that does not apply to its declared type, or has an invalid value, is ignored by the live parser with a declaration warning; build tools report a declaration error. A `default` must satisfy every applicable constraint. See [Validation](/declarative-components/validation) for the resulting validity state.
 
 ### Finite choices
 
@@ -284,13 +284,17 @@ The same selection rules apply as `mode` changes. A caller cannot know an intern
 
 `null` means **no value**. It is distinct from the empty string, zero, and false. Every declared prop accepts `null`, regardless of whether its type is `string`, `number`, `list(...)`, or `object(...)`. The declared type constrains non-null values; `required` makes `null` invalid.
 
-A declared prop that is omitted and has no default resolves to `null`, consistent with DOM `getAttribute()` returning `null` for a missing attribute.[^11] An explicit bound `null` also gives the prop a null value. An explicit empty string remains a string value.
+A declared prop resolves to its `default` when it is omitted or supplied as `null`. Without a default, it resolves to `null`, consistent with DOM `getAttribute()` returning `null` for a missing attribute.[^11] This applies to initial input, later bound writes, and source results. An explicit empty string remains a string value; zero and false also retain their values.
 
 ```html
 <!-- Given <prop name="label" type="string"></prop> -->
 <x-note></x-note>             <!-- label is null -->
 <x-note from:label="null"></x-note> <!-- label is null -->
 <x-note label=""></x-note>    <!-- label is the empty string -->
+
+<!-- Given <prop name="label" type="string" default="Untitled"></prop> -->
+<x-note></x-note>                  <!-- label is 'Untitled' -->
+<x-note from:label="null"></x-note> <!-- label is 'Untitled' -->
 ```
 
 A declared `<state>` follows the same idea. A state without `value` starts as `null`, so it is nullable: it accepts later `null` writes too. A state with a `value` starts with that value and accepts `null` only when it is also declared `nullable`. The declared type still constrains every non-null value.

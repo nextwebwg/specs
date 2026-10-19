@@ -333,3 +333,13 @@ Level
 [^7]: Lit, [using standard or custom events](https://lit.dev/docs/components/events/#using-standard-or-custom-events): custom component data is passed through `CustomEvent.detail`.
 
 [^8]: Svelte, [createEventDispatcher](https://svelte.dev/docs/svelte/svelte#createEventDispatcher): a typed event map narrows event names and `detail` payloads. This earlier API is deprecated in favor of callback props and the `$host()` rune; it is historical precedent, not a dependency of this proposal.
+
+## Availability of a bound input {#availability}
+
+A binding can own an input before it has produced a value. A parent binding that is pending or failed still supplies the child's prop; its unavailability is not an omitted caller input. Ordinary values keep their declared types. Asynchronous status is observed with [`$await`](/declarative-components/templating#await), not by wrapping application values or introducing a global metadata map.
+
+This also applies to expressions on an invocation. For `from:product="$useRemote ? $remoteProduct : $fixture"`, the child follows the selected branch's availability. While `useRemote` is false, a pending or failed `remoteProduct` does not block the fixture. Switching to the remote branch makes its current availability observable in the child.
+
+A default source is eligible only when the caller has not supplied that input. Explicit supplied data bypasses default reading and subscriptions. Releasing a caller input with undefined restores default-source eligibility; valid null and other falsy values do not release it. A supplied null resolves to the prop's declared default when it has one; it remains a supplied input even though its effective value is the default. Without a default, a valid null remains null and is available. Accepted transactions preserve the distinction between caller input and source results through rendering and adoption. Invalid attempts do not transfer ownership or erase the last accepted value.
+
+This is the common input contract. A JavaScript library can supply selected-input readers, subscriptions and policies, and an application host can prepare those values for SSR or static generation. The component language does not prescribe those libraries' configuration fields, request context, RPC endpoints or cache policy.

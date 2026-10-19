@@ -1180,3 +1180,30 @@ Level
 [^20]: WHATWG DOM, [`document.createElement()`](https://dom.spec.whatwg.org/#dom-document-createelement) and its `ElementCreationOptions` dictionary: how code creates an element, and the precedent for an options dictionary such as `ComponentInit`.
 [^21]: TypeScript, [`HTMLElementTagNameMap`](https://github.com/microsoft/TypeScript/blob/main/src/lib/dom.generated.d.ts) in the DOM library declarations: the map from tag to element type that types `createElement`, which `ComponentTagMap` follows.
 [^22]: WICG, [Scoped Custom Element Registries](https://github.com/WICG/webcomponents/blob/gh-pages/proposals/Scoped-Custom-Element-Registries.md): registries created with `new CustomElementRegistry()` and attached to a shadow root or document, the model for scoping component definitions at a later level.
+
+## Component modules and browser connection {#modules}
+
+A component may link an ES module with `module="./product-card.js"`. Its named `connect` export is browser connection behavior:
+
+```html
+<template component="product-card" module="./product-card.js">
+  <defs><prop name="product" type="object({ name: string, price: number })" required>Product.</prop></defs>
+  <article><h2>{$product.name}</h2></article>
+</template>
+```
+
+```js
+export function connect(host, { signal }) {
+  const observer = new ResizeObserver(([entry]) => {
+    host.root.style.setProperty('--card-width', `${entry.contentRect.width}px`);
+  });
+  observer.observe(host.root);
+  return () => observer.disconnect();
+}
+```
+
+A module is imported under ordinary ESM URL resolution and lifetime rules. `connect` runs for each browser activation of an instance and may return cleanup, synchronously or asynchronously. Deactivation aborts its signal and runs cleanup. Cleanup resolving after deactivation runs immediately. A retained reconnection preserves component state and starts fresh connection behavior. A connected move does not create a new lifetime. Browser-only APIs in `connect` and `on:connect` are valid and are not invoked or shimmed by server rendering. Other module exports do not implicitly become expression names.
+
+A renderer may render the template with supplied typed props without importing browser behavior. Compatible source libraries may evaluate data separately and supply binding records for adoption, but no component is required to make its browser behavior runnable on a server. File discovery, private modules, data-source conventions and server execution phases belong to the host's integration.
+
+The existing `controller` default callback remains a compatibility form with its existing once-per-instance behavior. `controller` and `module` on the same definition are a conformance error. Migrating a callback to `connect` adopts connection-scoped cleanup; an automatic export rename is not sufficient for arbitrary effectful callbacks.

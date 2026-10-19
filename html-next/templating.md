@@ -1,14 +1,14 @@
 ---
 title: Templating
 order: 1
-blurb: $each · $if · $match · $with · inline text
+blurb: $each · $if · $match · $await · $with · inline text
 eyebrow: Declarative HTML Components Level 1
 status: Level 1 · reserved direction · reference implementation pending
 ---
 
 # Templating
 
-Control flow is a family of **marked directives on ordinary elements**: `$each`, `$if`, `$match`, `$with`, `$value`. A leading `$` marks a *structural* directive, it controls whether, how many times, or in what scope markup is produced, distinct from the `:` binding family that sets values. There are **no control-flow elements**: every directive rides on any element or a `<template>`, so it survives every parser context, and none appears in the output.
+Control flow is a family of **marked directives on ordinary elements**: `$each`, `$if`, `$match`, `$await`, `$with`, `$value`. A leading `$` marks a *structural* directive, it controls whether, how many times, or in what scope markup is produced, distinct from the `:` binding family that sets values. There are **no control-flow elements**: every directive rides on any element or a `<template>`, so it survives every parser context, and none appears in the output.
 
 ## Structural directives
 
@@ -31,6 +31,7 @@ A structural directive is a `$`-prefixed attribute. It goes on the element it ap
 | `$each="item of $items"` | Instantiate once per element of `items`, binding `item`. |
 | `$if="expr"` | Instantiate only when `expr` is truthy. |
 | `$match` · `$when="expr"` · `$else` | Multi-way choice: on a container, its direct children are arms; the first `$when` that is truthy wins, `$else` is the fallback. |
+| `$await="$product"` · `$error` · `$else` | Show an accepted value, a loading failure, or the unresolved fallback. An optional `binding of $product` names status. |
 | `$with="expr as name"` | Bind `expr` to `name` in scope for the children. |
 | `$value="expr"` · `$html="expr"` | Set the content to escaped text, or to sanitized HTML. |
 | `$where` `$sort` `$limit` `$key` | Iteration modifiers on `$each`. |
@@ -131,6 +132,67 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 
 > [!note] Conformance
 > Every direct child of a `$match` container [must]{.kw} carry `$when` or `$else`. A `$else` must be the last such child; a compiler rejects a second `$else` or any arm after it. This is XSLT's `xsl:choose`/`xsl:when`/`xsl:otherwise` unit,[^1] as a directive family, and a near-exact twin of Angular `@switch`/`@case`/`@default`.[^8]
+
+## $await / $error / $else: asynchronous inputs {#await}
+
+An input may arrive later, or refresh while its previous value is still useful. `$await` chooses the markup for its availability. The input remains an ordinary typed value; loading does not wrap it in a resource object.
+
+```html
+<h2 $await="$product">{$product.name}</h2>
+<p $error>Could not load the product.</p>
+<p $else>Loading…</p>
+```
+
+The three adjacent elements form one branch group. A usable accepted value selects `$await`. Without a usable value, a failure selects `$error`; otherwise `$else` is the unresolved fallback. The branches may be ordinary elements or `<template>` groups, and their directive attributes never appear in output.
+
+The subject names a declared binding: a prop, state, computed value, context read, or declared data source. `$await` observes that binding; it does not start a request or evaluate an arbitrary Promise-producing expression. Its value type is the subject declaration's type. A supplied value is immediately available, including valid `false`, zero, an empty string or list, and nullable null. Availability is not truthiness. An unavailable prerequisite makes a derived binding unavailable; failure propagates its cause. A pending caller binding still owns its destination input and does not activate that component's default source.
+
+### Optional status name
+
+Name the binding only when its status is needed:
+
+```html
+<template $await="binding of $product">
+  <h2>{$product.name}</h2>
+  <small $if="$binding.pending">Refreshing…</small>
+  <small $if="$binding.error">Could not refresh; showing the previous product.</small>
+</template>
+<p $error>Could not load the product.</p>
+<p $else>Loading…</p>
+```
+
+`binding` is an author-chosen local name for a read-only status view. `$product` remains the declared value. The status name is in scope throughout this branch group, including its error and unresolved branches, and nowhere after it. Its type is known from this directive; it is not an undeclared global. A status name [must not]{.kw} shadow a declaration or another enclosing local. Omitting it introduces no status variable, implicit `$$pending`, or global `$$bindings` namespace.
+
+| Status field | Meaning |
+| --- | --- |
+| `ready` | The binding has a usable accepted value. |
+| `pending` | Its current producer operation is in flight. |
+| `error` | Its current public failure record, or null when there is none. A failure record has string `name` and `message` fields; private stacks and capabilities are not part of it. |
+| `stale` | The producer explicitly retained a previous-input value while resolving the current input. |
+
+An available value keeps the success branch selected during refresh. `pending` can therefore render a refreshing indicator without replacing content. A failed refresh retains the accepted content and exposes `error` in that branch. A changed input clears old content unless its producer explicitly retains it. The pending/error policy of a producer does not change how `$await` selects these states. An unresolved manual or disabled binding may have `pending` false; its unresolved fallback still applies.
+
+### Optional error name
+
+An error branch may name the public failure:
+
+```html
+<h2 $await="$product">{$product.name}</h2>
+<p $error="problem">{$problem.message}</p>
+<p $else>Loading…</p>
+```
+
+`problem` is a read-only, non-null public failure record scoped to that error branch. Bare `$error` introduces no name. This describes a loading error, like HTML's resource-loading terminology; it is not an exception-catching statement. Errors in authored expressions and invalid declarations remain conformance errors rather than source-loading failures.
+
+### Grouping, updates and failure handling
+
+An await group is one `$await` element followed by at most one `$error` element and at most one `$else` element, in that order. Whitespace and comments do not break adjacency. An ordinary intervening node ends the group. A repeated branch, a branch after `$else`, or `$error` without a preceding `$await` is a conformance error. `$else` continues to serve `$match` inside a match container; elsewhere it belongs to the adjacent await group. Each element still carries only one structural directive.
+
+Branches are optional. An omitted unresolved branch renders nothing. A failure without a usable value and without an error branch is unhandled: it reaches the enclosing asynchronous group or host render owner. A generic unresolved fallback does not silently turn failure into endless loading. An unhandled blocking server render fails before committing its response; status and response ownership remain the host application's responsibility.
+
+The selected branch retains its nodes and local ownership while it keeps winning; changes update bindings in place. Switching branches releases the previous branch's owned effects and creates the newly selected branch. A same-input refresh does not reconnect the component or recreate its success branch. Existing structural root, slot, reference and table/select parsing constraints apply.
+
+The host renderer owns accepted values, their availability and their input provenance. A source publishes through the declared input's normal type/constraint acceptance, never by writing an unrelated state cell or impersonating a caller override. Invalid source results do not replace an accepted value. Transport, cache identity, retries, polling, server requests and deployment are source-library or host concerns, not effects of this directive.
 
 ## $with: scope alias
 

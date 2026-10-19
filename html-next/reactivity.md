@@ -17,6 +17,7 @@ HTML Next keeps a few concepts separate rather than overloading one element, bec
 | Element | Is | Changes when |
 | --- | --- | --- |
 | `<state name type value>` | a local mutable value | `<set>` runs in a handler, or `bind:` writes it |
+| `<state name type from>` | a local mutable value initialized from other values | its first available seed, or an earlier accepted local write |
 | `<computed name from>` | read-only computed state, derived from other values | a dependency changes |
 | `<data name src>` | a remote resource: a read source or write sink | its params; fetched or synchronized reactively |
 
@@ -31,7 +32,28 @@ The design, a declared dependency graph that can be analyzed statically rather t
 
 A `<state>` uses the same type syntax as a prop (see [Types](/declarative-components/types)). When `type` is omitted, the state has type `unknown`; its initial value does not establish a type. For example, `value="1"` is a string, while `type="number" value="1"` is the number `1`. Declare the type of a state whose values need to be checked or used as numbers, booleans, or structured data.
 
-`value` supplies a constant initial state value, parsed through the declared type. It does not establish the type when `type` is omitted. A state without `value` starts as `null` and accepts `null` writes; a state with a `value` accepts `null` only when it is also declared `nullable`. A handler's `<set value>` likewise writes a typed constant, while `<set expr:value>` evaluates an expression when the handler runs. A `<computed from>` declares **computed state**: it stays subscribed to the values it reads and derives a read-only value. Controllers read both mutable and computed state through `host.state`; only mutable state is writable. [Bindings & Events](/declarative-components/bindings#constant-action-time-and-computed-values) compares all three value forms.
+`value` supplies a constant initial state value, parsed through the declared type. It does not establish the type when `type` is omitted. A state without `value` or `from` starts as `null` and accepts `null` writes; a state with a `value` or `from` accepts `null` only when its declared type accepts it. A handler's `<set value>` likewise writes a typed constant, while `<set expr:value>` evaluates an expression when the handler runs. A `<computed from>` declares **computed state**: it stays subscribed to the values it reads and derives a read-only value. Component modules read both mutable and computed state through `host.state`; only mutable state is writable. [Bindings & Events](/declarative-components/bindings#constant-action-time-and-computed-values) compares these value forms.
+
+### Initialize an editable value from data {#state-initialization}
+
+Use `<state from>` for a draft that starts with incoming data and then belongs to the component:
+
+```html
+<defs>
+  <prop name="product" type="object({ name: string })">Product to edit.</prop>
+  <state name="draft" type="string" from="$product.name">
+</defs>
+<input bind:value="$draft" aria-label="Product name">
+<p $await="$draft">Editing {$draft}</p>
+<p $error="problem">{$problem.message}</p>
+<p $else>Waiting for the product…</p>
+```
+
+`from` evaluates once its actually read prerequisites have current, available values and its result satisfies the state's declared type. Until then, the state is unavailable: `$await` can show its prerequisites' pending or error state, and the module's `host.state.draft` reads as `undefined`. Retained stale prerequisite data does not initialize a new draft. An invalid or absent result leaves initialization waiting; a later conforming result can initialize it. A valid `null` result initializes a type that accepts `null`.
+
+The first accepted seed ends initialization. Later prerequisite changes, refreshes and browser reconnections do not overwrite the draft. An accepted local write before the seed arrives also ends initialization, including an empty string or a write equal to the current underlying value. A refused write does not. Ordinary records and lists are copied when seeded, preserving their shared references and cycles within the copy, so editing a draft does not mutate its input. Opaque platform objects retain their identity.
+
+Declare either `value` or a nonempty `from`, never both. Initialization expressions share the component's declaration scope and may read later declarations; actual dependency cycles are errors. Server rendering can initialize a state when its inputs are available without running browser connection callbacks. Rendered-form adoption preserves whether a state is still waiting or already owns its value, as well as the value itself, so a retained edit survives hydration.
 
 ## What counts as a change {#changes}
 

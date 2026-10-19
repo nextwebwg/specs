@@ -3,7 +3,7 @@ title: Security and evidence
 order: 2
 blurb: sanitizer mismatch · worked solution · experiments · implementation requirements
 sectionNav: true
-eyebrow: HTML Next Parsing · security contract
+eyebrow: Opt-in Self-Closing HTML · security contract
 status: "Unofficial Editor's Draft · Stage 0"
 ---
 
@@ -37,7 +37,7 @@ Ordinary HTML ignores the slash on `style` and enters raw-text tokenization. The
 
 **The proposal keeps `style` exempt from self-closing.** The slash therefore cannot end its text container. The tokenizer consumes the apparent image as text, so there is no image element to load and no `onerror` handler to attach.
 
-The same rule covers `script`, `textarea`, and the other text-sensitive names in the [eligibility table](/html-parsing/parsing#preserve-sensitive-elements). Parsing must also use the same scripting state: disagreement about `noscript` caused the Bleach mutation-XSS vulnerability.[^4]
+The same rule covers `script`, `textarea`, and the other text-sensitive names in the [eligibility table](/self-closing-html/parsing#preserve-sensitive-elements). Parsing must also use the same scripting state: disagreement about `noscript` caused the Bleach mutation-XSS vulnerability.[^4]
 
 ## Recover at namespace boundaries
 
@@ -90,7 +90,7 @@ The second security objection concerns a mode switch outside the code that parse
 
 Under the proposed contract, the same string inserted through an existing HTML API uses that API's existing grammar in either document profile. `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `DOMParser`, fragment parsing, `Document.parseHTML*`, and `iframe.srcdoc` do not inherit Next from the document.
 
-Dynamic Next parsing requires an explicit request at the parsing call. Parse and sanitize together in the actual destination context, then insert nodes directly. A doctype inside the string cannot enable Next. The [insertion rules](/html-parsing/parsing#keep-existing-insertion-apis-stable) also require rejection or isolation of document writing, rather than feeding legacy string writes into the new document grammar.
+Dynamic Next parsing requires an explicit request at the parsing call. Parse and sanitize together in the actual destination context, then insert nodes directly. A doctype inside the string cannot enable Next. The [insertion rules](/self-closing-html/parsing#keep-existing-insertion-apis-stable) also require rejection or isolation of document writing, rather than feeding legacy string writes into the new document grammar.
 
 ## Preserve protected containment
 
@@ -127,7 +127,7 @@ The static prototype computes the ordinary recognized tree first, then applies c
 
 ## What the experiments establish
 
-The experiments test the reference construction and expose boundaries that a browser implementation must preserve.
+The experiments test the reference construction and expose boundaries that a browser implementation must preserve. They use the earlier literal `PUBLIC "next"` opt-in. The proposed named selectors and preset-resolution contract in [HTML Feature Profiles](/html-feature-profiles/) are not implemented or proved by these results.
 
 | Check | Recorded result |
 | --- | --- |
@@ -182,7 +182,7 @@ The first native routing attempt passed 30 of 31 execution checks but disagreed 
 
 A native implementation must construct the specified DOM incrementally and preserve its boundaries at script and custom-element reaction checkpoints. Rewriting an already active page after parsing does not implement this contract.
 
-Define parser pauses and encoding restarts, speculative loading, script-driven mutations, and document-writing isolation before shipment. Implement and verify shadow-root ownership under native execution. The [component-placement extension](/html-parsing/#placement-extension) changes recognition itself and requires a separate safety argument.
+Define parser pauses and encoding restarts, speculative loading, script-driven mutations, and document-writing isolation before shipment. Implement and verify shadow-root ownership under native execution. [Flexible HTML Nesting](/flexible-html-nesting/) is a separate proposal with its own recognition and safety obligations; these proofs do not establish its safety.
 
 > [!warn] Implementation status
 > The static reference establishes text-to-markup preservation. Native streaming and execution now have passing bounded evidence in an experimental Ladybird implementation. Universal execution safety, production browser conformance, encoding restarts, Web Platform Tests, and implementer security review remain required before shipment.

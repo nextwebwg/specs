@@ -1,0 +1,34 @@
+{
+  "parser": "parse5 8.0.1",
+  "runtime": "v24.20.0",
+  "scope": "Legacy source parsing only; no implementation of flexible nesting, layout, shadow participation or accessibility.",
+  "sourceSHA256": "65b5e3a9d9a9dee1d4a708dac3cb36b2745056e55cb8fed283da74a32dfbf7ea",
+  "results": [
+    {
+      "name": "unmarked custom host in table",
+      "source": "<!DOCTYPE html PUBLIC \"next\"><table><some-component id=\"host\"></some-component></table>",
+      "observed": {
+        "host": "body"
+      },
+      "pass": true
+    },
+    {
+      "name": "proposed marker has no native grammar in legacy parser",
+      "source": "<!DOCTYPE html PUBLIC \"next\"><table><div id=\"host\" contentmodel=\"table-rows\"><tr id=\"row\"><td>Cell</td></tr></div></table>",
+      "observed": {
+        "host": "body",
+        "row": "tbody"
+      },
+      "pass": true
+    },
+    {
+      "name": "list wrapper preserved without direct list-item parentage",
+      "source": "<!DOCTYPE html PUBLIC \"next\"><ul><div id=\"host\" contentmodel=\"list-items\"><li id=\"item\">Item</li></div></ul>",
+      "observed": {
+        "host": "ul",
+        "item": "div"
+      },
+      "pass": true
+    }
+  ]
+}

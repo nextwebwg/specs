@@ -7,7 +7,7 @@ name: Publish
 on:
   push:
     branches: [main]
-    paths: ["html-next/**", "html-forms/**", "self-closing-html/**", "expressive-markdown/**", "tools/compile.ts"]
+    paths: ["html-next/**", "html-forms/**", "self-closing-html/**", "flexible-html-nesting/**", "html-feature-profiles/**", "expressive-markdown/**", "tools/compile.ts"]
   workflow_dispatch:
 
 permissions:

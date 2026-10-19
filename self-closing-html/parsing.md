@@ -3,7 +3,7 @@ title: Parsing rules
 order: 1
 blurb: opt-in · eligible elements · recovery · insertion APIs
 sectionNav: true
-eyebrow: HTML Next Parsing · proposed rules
+eyebrow: Opt-in Self-Closing HTML · proposed rules
 status: "Unofficial Editor's Draft · Stage 0"
 ---
 
@@ -11,19 +11,19 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 Define which elements can self-close, how recovery works, and where the new grammar applies.
 
-## Select the profile
+## Select the capability
 
-For a navigated HTML resource, this declaration selects the proposed profile:
+For a navigated HTML resource, request this capability through [HTML Feature Profiles](/html-feature-profiles/):
 
 ```html
-<!DOCTYPE html PUBLIC "next">
+<!DOCTYPE html PUBLIC "self-closing">
 ```
 
-The doctype name is `html`, the public identifier is exactly `next` (case-sensitive), and there is no system identifier. Keywords and the doctype name retain HTML's case-insensitive matching. The resource remains `text/html` in standards rendering mode.
+The shared proposal owns selector grammar, the alternative `PUBLIC "next"` preset, support detection, and operation-local precedence. A resolved feature set is fixed for the parse; later declarations, doctype DOM changes, styles, scripts, and custom-element registration cannot switch it. The resource remains `text/html`; no DTD is fetched and XML is not enabled.
 
-The profile is fixed for that parse. Later declarations, changes to the doctype DOM node, and custom-element registration cannot switch it. `next` identifies a fixed grammar, not a rolling latest version. Incompatible additions require a distinct opt-in.
+The recorded experimental implementation accepts the earlier exact public identifier `next`, with no system identifier. It does not implement the new named-list selector or preset-manifest system. Its evidence remains bounded to that pinned opt-in and the self-closing rules tested.
 
-Existing doctypes retain their behavior. Today `PUBLIC "next"` is nonconforming but selects standards rendering mode; making it conforming requires a standards change. `<!DOCTYPE html next>` and `<!DOCTYPE html-next>` currently select quirks mode.[^1]
+Plain HTML retains existing behavior. These profile declarations require a standards change; current standards rendering behavior is not native support for the proposed grammar.[^1]
 
 ## Distinguish empty pairs from void elements
 
@@ -56,7 +56,7 @@ These names and contexts retain current slash handling in the reference profile:
 
 Exemptions do not make an element void. Where HTML recognizes explicit end tags, use them. For example, `<style />` keeps existing HTML behavior; authors write `<style></style>` for an empty style element.
 
-The initial set must match the browser algorithm. Lifting an exemption requires a defined interpretation and safety argument for that context. [Why these boundaries matter →](/html-parsing/security#preserve-protected-containment)
+The initial set must match the browser algorithm. Lifting an exemption requires a defined interpretation and safety argument for that context. [Why these boundaries matter →](/self-closing-html/security#preserve-protected-containment)
 
 ## Keep HTML attribute tokenization
 
@@ -87,7 +87,7 @@ For each eligible self-closing start token that creates an element:
 > [!norm] Recovery records follow HTML's scope rules
 > Ignored start tokens create no record. Records expire when HTML recovery removes them, including through an ancestor's closing tag. Retain complete state: a set of previously closed names cannot represent heading aliases, namespace transitions, or formatting recovery.
 
-For example, HTML can use `</h2>` to close an `h1`. A recovery rule that checks only exact names would miss that relationship. [See the worked SVG-boundary example →](/html-parsing/security#recover-at-namespace-boundaries)
+For example, HTML can use `</h2>` to close an `h1`. A recovery rule that checks only exact names would miss that relationship. [See the worked SVG-boundary example →](/self-closing-html/security#recover-at-namespace-boundaries)
 
 For example, after `<div/><svg>`, the recognition stack still contains the div below SVG, while the output DOM places the empty div and SVG as siblings. A later `</div>` can therefore pop both recognition entries before the next token is interpreted.
 
@@ -97,7 +97,7 @@ The static reference is ordinary HTML recognition followed by this containment p
 
 Construct the output incrementally. Before running a parser-triggered script or delivering a custom-element reaction, expose the output corresponding to recognition completed at that checkpoint. Preserve application mutations rather than reconstructing the active document from a fresh snapshot. A script moving an output node does not rewrite the retained recognition stack. Parser pauses must prevent later source from becoming observable before resume.
 
-Speculative loading must obey the same recognition boundaries; disabling the optional scanner is the experimental native implementation’s conservative strategy. Arbitrary encoding restarts and full scheduling conformance remain unresolved shipment requirements. The [security evidence](/html-parsing/security#native-execution-coverage-and-limitations) separates the formal static argument, live adapter tests, and native execution results.
+Speculative loading must obey the same recognition boundaries; disabling the optional scanner is the experimental native implementation’s conservative strategy. Arbitrary encoding restarts and full scheduling conformance remain unresolved shipment requirements. The [security evidence](/self-closing-html/security#native-execution-coverage-and-limitations) separates the formal static argument, live adapter tests, and native execution results.
 
 ### Preserve shadow-root ownership
 
@@ -124,7 +124,7 @@ Elements gain no new interface or persistent self-closing flag. Ordinary DOM ope
 
 Unsupported browsers need expanded tag pairs. A lowering tool must implement the profile's recovery contract; regex replacement is insufficient. Before adoption, measure existing use of the exact declaration and define reliable capability detection. `document.doctype.publicId` records author intent, not implementation support.
 
-[Continue: security argument, browser requirements, and evidence →](/html-parsing/security)
+[Continue: security argument, browser requirements, and evidence →](/self-closing-html/security)
 
 ## Sources
 

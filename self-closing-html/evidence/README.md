@@ -1,4 +1,4 @@
-# HTML Next Parsing: reproducible evidence
+# Opt-in Self-Closing HTML: reproducible evidence
 
 The reference model preserves ordinary HTML recognition, then changes eligible containment edges. An empty element remains in the tree; its recognized children become following siblings. These experiments check that construction and identify boundaries a native implementation must preserve. Recorded 18 October 2026 in a Chromium-based Brave browser and Node 22.23.3.
 

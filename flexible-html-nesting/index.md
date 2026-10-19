@@ -55,6 +55,8 @@ The named list requests both capabilities. `<!DOCTYPE html PUBLIC "next">` inste
 
 The existing self-closing prototype does not implement named-list selection or flexible nesting. Existing string parsing APIs keep their current grammar. A document flag must not silently change a library's parsing behavior.
 
+A server can also select this capability with the proposed `HTML-Feature-Profile` response header. [HTML Feature Profiles](/html-feature-profiles/#http-response-header) defines the header, its precedence over the doctype, and unsupported-request handling.
+
 ## Candidate contexts and wrappers
 
 | Structural owner | Native parts it can accept through wrappers |
@@ -115,6 +117,22 @@ A component may start empty, upgrade, attach a shadow root, or change slot assig
 This proposed list owns two participating native items, while the host remains in the DOM. A nested `ul` or `ol` owns its own items. A component with mixed incompatible output falls back to an ordinary layout boundary; content is not discarded to produce a convenient structure.
 
 [Read the table and list layout contract →](/flexible-html-nesting/layout)
+
+## Parse independently of the caller's document
+
+A caller may explicitly parse fetched HTML with `flexible-nesting` even if its own document has no profile enabled. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) defines the proposed per-call parsing option and selector/failure rules. The caller's doctype is not a prerequisite. Omitting `profile` keeps existing behavior; `profile: "inherit"` explicitly copies the relevant document’s resolved snapshot, while `profile: "next"` resolves the current documented preset.
+
+```js
+// Proposed profile option; include the complete table/list context.
+const response = await fetch("/table.html");
+const parsed = Document.parseHTML(await response.text(), {
+  profile: "flexible-nesting"
+});
+```
+
+This creates a detached document with the requested wrapper structure. Parsing success does not automatically activate flexible-nesting layout in a legacy destination. After adoption or import, the receiving document's resolved profile governs table/list participation; a source document's record does not travel with a node as an invisible mode switch. Use an enabled destination document when the new rendering behavior is required. A future subtree-scoped opt-in needs a separate explicit contract.
+
+Context-sensitive fragment parsing also needs an explicit actual context, such as `table` or `tr`; parsing a bare row as a complete document is not a substitute. Parsing is not sanitization, and no native implementation of these new options or the layout contract is claimed. The safe method retains mandatory sanitization under the selected grammar; the unsafe method retains its separate contract.
 
 ## Evidence and safety obligations
 

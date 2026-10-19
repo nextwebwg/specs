@@ -82,7 +82,11 @@ Sensitive elements retain their existing slash handling. For example:
 
 The [parsing rules](/self-closing-html/parsing) define eligibility and recovery. [Security and evidence](/self-closing-html/security) separates the sanitizer and distant-mode-switch objections, shows the retained stack token by token, and states what the reference construction establishes.
 
-The recorded experimental implementation uses the earlier literal `PUBLIC "next"` opt-in. Named-selector resolution is proposed in HTML Feature Profiles and is not implemented by those evidence artifacts.
+The recorded experimental implementation uses the earlier literal `PUBLIC "next"` opt-in. Named-selector resolution and HTTP-header selection are proposed in HTML Feature Profiles and are not implemented by those evidence artifacts.
+
+A server can also select this capability with the proposed `HTML-Feature-Profile` response header. [HTML Feature Profiles](/html-feature-profiles/#http-response-header) defines the header, its precedence over the doctype, and unsupported-request handling.
+
+You can also explicitly request self-closing parsing for fetched HTML while the caller remains ordinary HTML. [Per-call parsing and insertion boundaries](/self-closing-html/parsing#parse-independently-of-the-caller-s-document) explain the proposed API and what happens when those nodes are inserted elsewhere.
 
 ## Read the proposal
 

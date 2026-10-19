@@ -55,6 +55,8 @@ The named list requests both capabilities. `<!DOCTYPE html PUBLIC "next">` inste
 
 The existing self-closing prototype does not implement named-list selection or flexible nesting. Existing string parsing APIs keep their current grammar. A document flag must not silently change a library's parsing behavior.
 
+A server can also select this capability with the proposed `HTML-Feature-Profile` response header. [HTML Feature Profiles](/html-feature-profiles/#http-response-header) defines the header, its precedence over the doctype, and unsupported-request handling.
+
 ## Candidate contexts and wrappers
 
 | Structural owner | Native parts it can accept through wrappers |

@@ -8,7 +8,7 @@ sectionNav: true
 
 # HTML Feature Profiles
 
-Select proposed HTML capabilities explicitly, or opt into a documented `next` preset. This proposal defines the shared selection contract so individual features can specify their behavior without inventing competing switches.
+Select proposed HTML capabilities through an HTTP response header or document declaration, or opt into a documented `next` preset. This proposal defines the shared selection contract so individual features can specify their behavior without inventing competing switches.
 
 ```html
 <!DOCTYPE html PUBLIC "self-closing, flexible-nesting">
@@ -20,10 +20,19 @@ This requests the named capabilities. An author who wants the implementation's d
 <!DOCTYPE html PUBLIC "next">
 ```
 
-Neither form downloads a DTD or enables XML. These are proposed built-in HTML profile selectors, not syntax supported by current production browsers.[^1]
+A server can select the same profile without changing the doctype:
+
+```http
+Content-Type: text/html; charset=utf-8
+HTML-Feature-Profile: self-closing, flexible-nesting
+```
+
+The header can also carry `next`. `HTML-Feature-Profile` is a **proposed HTTP response header**, not an already registered or implemented standard field. A plain `<!DOCTYPE html>` can remain in the response body.
+
+Neither mechanism downloads a DTD or enables XML. These are proposed built-in HTML profile selectors, not syntax supported by current production browsers.[^1]
 
 > [!note] Status and authority
-> This Stage 0 proposal owns selector grammar, preset resolution, support detection, and precedence. [Opt-in Self-Closing HTML](/self-closing-html/) owns `self-closing`; [Flexible HTML Nesting](/flexible-html-nesting/) owns `flexible-nesting`. Feature behavior and safety remain obligations of those proposals. The API shapes below are candidates, not existing web APIs.
+> This Stage 0 proposal owns the response header, selector grammar, preset resolution, support detection, and precedence. [Opt-in Self-Closing HTML](/self-closing-html/) owns `self-closing`; [Flexible HTML Nesting](/flexible-html-nesting/) owns `flexible-nesting`. Feature behavior and safety remain obligations of those proposals. The API shapes below are candidates, not existing web APIs.
 
 ## Named capabilities and the next preset
 
@@ -36,7 +45,7 @@ Neither form downloads a DTD or enables XML. These are proposed built-in HTML pr
 
 `next` is not permission to enable every proposal on the web. A preset manifest must list included identifiers, semantic revisions, dependencies, and approved compositions. Adding an identifier to a registry does not include it in the preset. Inclusion requires compatibility, composition, and security review.
 
-The preset may evolve between implementation releases. It must not evolve while a document is being parsed or remain dependent on a network lookup. Resolve it once, record the resolved revision and features, then freeze that document's parsing and feature contract. An origin's older `next` documents can still change behavior after a browser update; that compatibility risk must be evaluated before changing the preset. Named selectors are the more deliberate choice for authors who do not want new unrelated capabilities.
+The same preset rules apply whether `next` came from the response header or the doctype. The preset may evolve between implementation releases. It must not evolve while a document is being parsed or remain dependent on a network lookup. Resolve it once, record the resolved revision and features, then freeze that document's parsing and feature contract. An origin's older `next` documents can still change behavior after a browser update; that compatibility risk must be evaluated before changing the preset. Named selectors are the more deliberate choice for authors who do not want new unrelated capabilities.
 
 Feature identifiers are durable contracts, not floating aliases to arbitrary incompatible semantics. A breaking revision needs a separately named contract or an explicit migration design. This draft does not invent a version suffix grammar.
 
@@ -56,9 +65,31 @@ Order does not give priority. Resolve dependencies and composition rules before 
 | `Self-Closing` | Invalid: identifiers are case-sensitive. |
 | `future-feature` | Syntactically valid but unsupported unless registered and implemented. |
 
-The initial document doctype must have the HTML name and no system identifier. The public identifier carries the selector. Plain `<!DOCTYPE html>` selects existing HTML. Historical public/system identifiers retain their established handling unless they match the new selector recognition rules.
+When the doctype is the selector source, it must have the HTML name and no system identifier. The public identifier carries the selector. Plain `<!DOCTYPE html>` selects existing HTML. Historical public/system identifiers retain their established handling unless they match the new selector recognition rules.
 
 Recognizing a new short public identifier as a profile request can conflict with previously ignored identifiers. The exact recognition discriminator, including malformed selectors beginning with a known identifier, requires a compatibility survey before adoption. A conforming implementation must not treat a recognized but unsupported request as a successful legacy parse.
+
+## HTTP response header
+
+The candidate field name is `HTML-Feature-Profile`. HTTP field names are case-insensitive; feature identifiers and `next` retain the selector grammar's case-sensitive matching. Its value is a Structured Field List of bare tokens, using RFC 9651. Each token must satisfy the feature-identifier grammar, or be the sole `next` token. Strings, inner lists, parameters, numbers, and booleans are invalid. This preserves the readable comma-separated spelling without the doctype’s surrounding quotes.
+
+```http
+HTML-Feature-Profile: next
+```
+
+This is a response-header field, not a trailer field. Trailers and informational responses cannot select or revise a profile after body processing begins. The final navigation response's header is authoritative for a `text/html` document. Resolve it before consuming profile-sensitive body source. A doctype profile selector is used only when the header is absent. If both are present, the header wins; the doctype cannot add features, remove them, or switch the preset. A developer diagnostic may report a conflicting source declaration, but that conflict does not change the selected profile.
+
+An empty, malformed, or unsupported header is an error under the same resolution rules as other requests. Do not silently fall back to the doctype or apply only supported entries. Multiple field lines are combined and parsed as one Structured Field List before feature validation; repeated identifiers and a combined `next`/named request remain invalid. Presence of a malformed header does not count as absence.
+
+Only the final response selects the profile. Redirect-response headers do not carry into the destination document. Each navigated iframe resolves its own final response; the parent document's header does not select a child's grammar. Ordinary subresources do not change their owner's profile. This draft introduces no request header or automatic capability advertisement.
+
+The header applies to HTML document navigation, not to arbitrary strings retrieved with `fetch`. Passing a fetched string to legacy `innerHTML` or `DOMParser` retains that API's grammar. `iframe.srcdoc` has no response header and retains its separately specified API contract. A future profile-aware parser can accept an explicit selector, but must not acquire it by ambient inheritance.
+
+The header does not replace `Content-Type`, select XML, alter charset decoding, or override the normal doctype rules for rendering mode. Servers should still emit an appropriate HTML doctype. CSP, Trusted Types, origin checks, and sanitization remain independent controls.
+
+Caches must retain the profile header together with the body. If a server varies a representation according to request metadata, its ordinary cache key and `Vary` handling must cover that variation. A proxy, service worker, or user-land transform that changes the selector must treat that as a grammar-changing representation change; it cannot claim semantic equivalence without checking the body. This header is not a security boundary against a party already able to rewrite the response.
+
+Before adoption, the field needs specification and HTTP field registration, compatibility review, intermediary tests, and native implementation. Legacy browsers can ignore it and parse the body normally; sending the header does not establish support.
 
 ## Resolve before consuming profile-sensitive source
 
@@ -78,7 +109,7 @@ Each layer has a defined job. A later layer cannot silently replace an earlier o
 
 | Operation or layer | Authoritative request | Conflict and inheritance rule |
 | --- | --- | --- |
-| HTML document navigation | Initial source doctype. | Select once; a later doctype, registration, stylesheet, or script cannot replace it. No HTTP profile selector is introduced by this draft. |
+| HTML document navigation | Final response `HTML-Feature-Profile` header; initial source doctype only when the header is absent. | The header wins over a conflicting doctype. Resolve once; later declarations, registration, stylesheets, or scripts cannot replace it. |
 | Future explicit profile-aware parse API | Its explicit per-call profile option. | A doctype in the input string is data for that operation, not a second selector. The caller's option governs; invalid or unsupported options fail before mutation. |
 | Existing HTML string APIs | Their existing grammar. | They do not inherit the containing document's profile. An input string cannot silently opt them into a new grammar. |
 | CSS | Normal cascade plus feature-specific rendering rules enabled by the resolved document record. | CSS cannot select or switch HTML tokenization. Author declarations can override user-agent rendering defaults only as the feature specification permits; protected behavior is not bypassed by a style rule. |
@@ -102,10 +133,10 @@ A candidate read-only `document.htmlProfile` record exposes:
 | `features` | Immutable array of resolved identifiers, in canonical order. |
 | `preset` | `"next"` or `null`. |
 | `revision` | Resolved manifest revision string, or `null` for ordinary HTML. |
-| `source` | `"doctype"`, `"api"`, or `"legacy"`. |
+| `source` | `"header"`, `"doctype"`, `"api"`, or `"legacy"`. |
 | `status` | `"active"`, `"legacy"`, or `"unsupported"`. |
 
-These names and shapes need API review. The record reflects the parser's internal selection; changing the DOM doctype cannot change it. User-land objects with similar names are not native support evidence. A future worker or fragment API needs an operation result record rather than a mutable global default.
+These names and shapes need API review. The record reflects the parser's internal selection; changing the DOM doctype cannot change it. For header-selected documents, `requested` records the authoritative header selector and `source` is `"header"`. User-land objects with similar names are not native support evidence. A future worker or fragment API needs an operation result record rather than a mutable global default.
 
 For an evolving preset, `supports("next")` says that the implementation supports its current documented preset, not that two browsers include identical experimental capabilities. Code that needs particular features must check the named combination and inspect the resolved record. Lack of the native API means support is not established; it does not authorize a polyfill to return a misleading native-success signal.
 
@@ -123,11 +154,11 @@ The registry and preset manifest need a governance and revision process before s
 
 The earlier self-closing experiments use the literal selector `next` and their pinned implementation rules. They establish the claims recorded in [that proposal's evidence](/self-closing-html/security), not support for this new named-list grammar, preset manifest system, detection API, failure document, or flexible nesting.
 
-No native implementation of this orchestration proposal is reported. Required tests include selector normalization and rejection, unsupported/dependency/conflict failures, fixed selection across scripts and doctype mutation, no accidental inheritance by legacy APIs, source/tool conflicts, preset revision stability during streaming, and combined feature execution. Compatibility tests must include historical doctypes and unsupported legacy browsers.
+No native implementation of this orchestration proposal is reported. Required tests include header-only selection, header/doctype conflicts, malformed and repeated header fields, redirect isolation, iframe isolation, caching and intermediary handling, selector normalization and rejection, unsupported/dependency/conflict failures, fixed selection across scripts and doctype mutation, no accidental inheritance by legacy APIs, source/tool conflicts, preset revision stability during streaming, and combined feature execution. Compatibility tests must include historical doctypes and unsupported legacy browsers.
 
 ## Review requested
 
-Review is requested on the selector grammar, the evolving preset's compatibility policy, unsupported-navigation behavior, operation-local precedence, detection API, and ownership of the registry and manifest. Discuss these separately from whether to adopt any individual feature in the [specifications repository](https://github.com/nextwebwg/specs/issues).
+Review is requested on the response-header contract, selector grammar, the evolving preset's compatibility policy, unsupported-navigation behavior, operation-local precedence, detection API, and ownership of the registry and manifest. Discuss these separately from whether to adopt any individual feature in the [specifications repository](https://github.com/nextwebwg/specs/issues).
 
 Editor: [Matthew Dean](https://github.com/matthew-dean). Independent Stage 0 proposal; not a W3C or WHATWG deliverable.
 
@@ -135,4 +166,6 @@ Editor: [Matthew Dean](https://github.com/matthew-dean). Independent Stage 0 pro
 
 ::: {.details summary="Sources and prior art"}
 [^1]: WHATWG HTML, [doctype syntax](https://html.spec.whatwg.org/multipage/syntax.html#the-doctype), [initial insertion mode](https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode), and [fragment parsing](https://html.spec.whatwg.org/multipage/parsing.html#parsing-html-fragments). The proposed selectors change the platform contract; current doctype behavior is not implementation of this draft.
+
+HTTP field syntax, repeated field lines, and caching follow [HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110.html#name-field-lines-and-combined-fie) [Structured Field Values](https://www.rfc-editor.org/rfc/rfc9651.html), and [HTTP Caching](https://www.rfc-editor.org/rfc/rfc9111.html). The proposed field requires its own standardization and registration.
 :::

@@ -2,7 +2,7 @@
 
 This folder contains experiments for a proposed HTML shorthand: write `<user-avatar />` instead of `<user-avatar></user-avatar>` when the element has no children in the source.
 
-**The central security problem has a proposed solution, a mathematical proof of its tree-rearrangement rule, and passing prototype tests. This is not ready to ship in browsers.** Some implementation work and security review remain open.
+**These records describe an earlier, more restricted algorithm.** Its visibility-based attribute/container exclusions have been withdrawn from the draft because no security vulnerability was established to justify them. The archived prototypes and result files remain unchanged; they have not verified the revised eligibility rules. This is not ready to ship in browsers.
 
 You do not need to read the code or JSON files to understand the findings. Start with this checklist. The linked files are the supporting records; reproduction instructions and technical explanations are collapsed below.
 
@@ -26,11 +26,11 @@ You do not need to read the code or JSON files to understand the findings. Start
 
   **Evidence:** [12 browser comparisons](recovery-chromium-results.json) cover selected recovery examples. The [native browser results](native-results.json) include 200 comparisons against the reference, with no disagreements in the final run. This is finite coverage, not every possible malformed document.
 
-### Could hidden or inactive controls become exposed?
+### Did visibility or focus changes establish a security vulnerability?
 
-- ✅ **The discovered boundary failures are corrected.** Do not self-close sensitive containers or elements carrying `hidden`, `inert`, `disabled`, or `popover`. Their children stay inside them.
+- ⬜ **No vulnerability was established. The resulting exclusions are withdrawn.** The experiments observed controls becoming visible or focusable after parentage changed. They identified no sanitizer relying on that containment and demonstrated no unauthorized action. Visibility alone is not a security boundary.
 
-  **Evidence:** [tests with protections deliberately removed](active-unprotected-chromium-results.json) show why the protections matter. The [popover failure record](popover-counterexample-results.json) shows a missing protection exposing controls; it was then added, and the [browser regressions](execution-results.json) pass. This does not prove that every future HTML feature has been classified correctly.
+  **Historical evidence:** [container observations](active-unprotected-chromium-results.json) and [popover observations](popover-counterexample-results.json) preserve what was measured. Adding attribute/container exclusions made those observations match the chosen baseline; that does not establish a security fix. The revised draft removes restrictions justified only by these observations. The archived code and pass counts still describe the older algorithm and need updating/retesting.
 
 ### Will a library’s existing HTML calls silently change meaning?
 
@@ -93,6 +93,8 @@ These tests do not establish the separate [Flexible HTML Nesting proposal](https
 - **Native experiment:** changes an actual browser parser. Here that is one experimental Ladybird build, not Chrome, Firefox, or Safari shipping this feature.
 
 ## Technical records and reproduction
+
+The collapsed sections below are historical records of the restricted algorithm. References to protected attributes, barriers, failures, or fixes describe that experiment’s chosen baseline, not an established security requirement for the corrected proposal.
 
 The sections below retain the commands, pinned versions, test mechanics, failed approaches, and precise limitations. They are for readers who want to inspect or repeat the work.
 
@@ -176,7 +178,7 @@ Seed `0x50524f4a` generates 100,000 token sequences × four contexts (`document`
 
 `active-build.mjs` generates `active-browser.html` from the current model. The page compares 16 original document sources with their serialized projections. `active-chromium-results.json` records the resulting 32 observations.
 
-A positive control produces an actual image-error signal, verifying that the sandbox can run the monitored handler. Six cases check controls inside `details`, `dialog`, `datalist`, `audio`, `video`, and `canvas`. With those containers exempt, visibility and focus observations match their legacy counterparts. `active-unprotected-browser.html` repeats the test with the native-container exemptions removed; `active-unprotected-chromium-results.json` records those 32 observations. All six previously hidden controls become visible. Five also become the active focus target; the canvas fallback control was already programmatically focusable. These results justify preserving native containment. They are not six demonstrated sanitizer bypasses. Event-handler signal counts alone missed these changes, so the fixtures also record visibility and the active focus target.
+A positive control produces an actual image-error signal, verifying that the sandbox can run the monitored handler. Six cases check controls inside `details`, `dialog`, `datalist`, `audio`, `video`, and `canvas`. With those containers exempt, visibility and focus observations match their legacy counterparts. `active-unprotected-browser.html` repeats the test with the native-container exemptions removed; `active-unprotected-chromium-results.json` records those 32 observations. All six previously hidden controls become visible. Five also become the active focus target; the canvas fallback control was already programmatically focusable. These results were previously used to justify preserving native containment. That conclusion is withdrawn: the observations establish no vulnerability and are not six demonstrated sanitizer bypasses. Event-handler signal counts alone missed these changes, so the fixtures also record visibility and the active focus target.
 
 The script-mutation case observes an empty div, a following script running under `BODY`, an explicitly appended child retained in that div, and a following span under `BODY`. The custom-element case observes the connected callback under the intended output parent. Those are useful execution fixtures for a future native parser, but serialization followed by ordinary navigation cannot validate native parser checkpoints or arbitrary mutation interleavings.
 
@@ -291,9 +293,9 @@ The live adapter creates inert script placeholders and replaces each with a dyna
 
 A second mutation counterexample uses an implicit body containing a hidden input. Script moves the input into the head; a following frameset replaces the implicit body. The first adapter removed every node no longer reachable in its recognition snapshot, wrongly deleting the moved input and detaching descendants individually from the removed body. The regression first verifies that frameset recovery actually happened, then checks preservation of the moved input and the detached script's parent. Removal now applies only to a removed subtree's root under its previous parser-owned parent. The focused test failed before this fix and passed after it. This tests mutation ownership, not equivalence of arbitrary script effects to legacy HTML.
 
-### Native popover boundary
+### Historical popover containment observations
 
-The containment audit found that `popover` was missing from the protected global attributes. Before the fix, `<div popover/><button>control</button>` lifted the button outside the closed popover. Empty and invalid attribute values each exposed a rendered button in Chromium, Firefox, and WebKit; five of the six recorded focus attempts also focused it. `popover-counterexample-results.json` preserves those failures. The shared recognition eligibility and protected-ancestor signature now treat `popover` as a barrier alongside `inert`, `hidden`, and `disabled`. The focused static test was observed failing before the fix and passing after. Browser regressions check containment, closed-state geometry/focus and an open-state visibility control. These are native visibility/ownership observations, not demonstrated sanitizer exploits.
+The earlier experiment designated global attributes as protected and then added `popover` to that policy. Before that policy change, `<div popover/><button>control</button>` lifted the button outside the closed popover. Empty and invalid attribute values each exposed a rendered button in Chromium, Firefox, and WebKit; five of the six recorded focus attempts also focused it. `popover-counterexample-results.json` preserves those visibility/focus differences; the filename does not establish a security failure. The shared recognition eligibility and protected-ancestor signature now treat `popover` as a barrier alongside `inert`, `hidden`, and `disabled`. The focused static test was observed failing before the fix and passing after. Browser regressions check containment, closed-state geometry/focus and an open-state visibility control. These are native visibility/ownership observations, not demonstrated sanitizer exploits.
 
 The relevant platform contract is [HTML's popover state](https://html.spec.whatwg.org/multipage/popover.html) and [rendering rule](https://html.spec.whatwg.org/multipage/rendering.html): closed popovers are not rendered; an invalid `popover` value selects the Manual state rather than removing the boundary. This also illustrates the mechanized theorem's classification premise: proving preservation of designated barriers does not prove that an implementation has designated every necessary barrier.
 

@@ -469,16 +469,18 @@ caption and ID come from the container title and attributes normally.
 | --- | --- | --- |
 | `header` | Positional form: first source row contains header cells; default false. Named form: implicit header row; true is redundant, false is malformed. | `tableCell.header: true` on those originating cells. |
 | `transpose` | Boolean flag; swap source rows and columns after merges. Default false. | Actual transposed `tableRow`/`tableCell` placement, with swapped spans. |
-| `align="left,right"` | Comma-separated displayed-column alignments, applied after transposition. | `table.align`, using null for `-`. |
+| `align="start,end"` | Comma-separated displayed-column alignments, applied after transposition. | `table.align`, using null for `-`. |
 
 An omitted or negated `transpose` means false. Positional `header` defaults to
 false; named records supply their implicit header without that flag and cannot
 negate it. Assigned strings are not boolean flags;
 invalid `header`/`transpose` values are malformed table settings. Alignment
-entries are `left`, `center`, `right` or `-`, with optional surrounding spaces.
+entries are `start`, `center`, `end` or `-`, with optional surrounding spaces.
 One entry applies to all displayed columns; otherwise the count must match the
 nonempty displayed width. Omitted alignment means the default. Invalid tokens
-or counts are malformed, not silently truncated.
+or counts are malformed, not silently truncated. Physical `left` and `right`
+values are invalid. Render logical alignment using each cell’s text direction,
+with the semantics of CSS `text-align: start`, `center` and `end`.
 
 Generate the named header row, or apply positional header status in source
 coordinates, then resolve merges, transpose if requested and apply
@@ -526,6 +528,10 @@ metadata survive normalization. Numeric structural fields do not change the
 string-only assigned-attribute rule.
 
 ### Traditional pipe compatibility
+
+Normalize delimiter alignment markers `:---`, `:---:` and `---:` to
+`start`, `center` and `end`, respectively; an unmarked delimiter yields null.
+The normalized AST uses logical directions for every table source form.
 
 ```md
 | Session | Activity |

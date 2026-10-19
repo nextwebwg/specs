@@ -1228,7 +1228,7 @@ No header setting is needed for a table without column titles:
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `table` | `children: TableRow[]`. | Optional `align: ("left"\|"center"\|"right"\|null)[]`, structured caption `title`. |
+| `table` | `children: TableRow[]`. | Optional `align: ("start"\|"center"\|"end"\|null)[]`, structured caption `title`. |
 | `tableRow` | `children: TableCell[]`. | Structural row grouping. |
 | `tableCell` | Exactly one of `value`, inline `children`, or block `body`. | Optional boolean `header`, default false; positive integer `colSpan`/`rowSpan`, default 1; string/flag attributes hold widths and styling. |
 
@@ -1765,14 +1765,16 @@ The untitled positional form also accepts `{transpose}`. With positional
 
 ### Alignment
 
-Optional `align="left,right"` sets alignment by **displayed column**, after any
-transposition. Use `left`, `center`, `right` or `-` for the default. One entry
+Optional `align="start,end"` sets alignment by **displayed column**, after any
+transposition. Use `start`, `center`, `end` or `-` for the default. One entry
 applies to every column; multiple entries match the displayed column count.
-For example, `::: table {header align="left,right"}` aligns labels left and
-amounts right. Cell width and wrapping remain renderer choices.
+For example, `::: table {header align="start,end"}` aligns labels at the inline start and
+amounts at the inline end. `start` and `end` follow each cell’s text direction,
+matching CSS `text-align: start` and `text-align: end`; they adapt to RTL content.
+Physical `left` and `right` are invalid alignment values. Cell width and wrapping remain renderer choices.
 
 ```md
-::: table {header align="left,right"}
+::: table {header align="start,end"}
 
 - - Item
   - Amount
@@ -1788,14 +1790,14 @@ amounts right. Cell width and wrapping remain renderer choices.
 <table>
     <thead>
   <tr>
-    <th scope="col">Item</th>
-    <th scope="col" style="text-align:right">Amount</th>
+    <th scope="col" style="text-align:start">Item</th>
+    <th scope="col" style="text-align:end">Amount</th>
   </tr>
 </thead>
   <tbody>
 <tr>
-  <td>Package</td>
-  <td style="text-align:right">24</td>
+  <td style="text-align:start">Package</td>
+  <td style="text-align:end">24</td>
 </tr>
 </tbody>
 </table>
@@ -1836,8 +1838,8 @@ amounts right. Cell width and wrapping remain renderer choices.
     }
   ],
   "align": [
-    "left",
-    "right"
+    "start",
+    "end"
   ]
 }
 ```

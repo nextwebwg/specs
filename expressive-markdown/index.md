@@ -31,9 +31,14 @@ W3C, WHATWG or a browser vendor, or require browsers to parse Markdown.
 
 ## Why Expressive Markdown
 
-Documentation is often edited both as Markdown source and in a rich editor.
-A document can make the round trip **Markdown → rich editor → Markdown**.
-That round trip needs to preserve the document's meaning as well as its words.
+Rich editors can store formatting, block structure and document metadata as
+well as words. Saving that document as Markdown and opening it again requires
+the text file to carry that information:
+
+**Rich editor → Markdown → rich editor**
+
+The goal is to preserve rich content through that round trip while keeping the
+Markdown source readable and practical to edit by hand.
 
 CommonMark defines ordinary Markdown. GFM adds tables, task lists and
 strikethrough.[^1] Expressive Markdown builds on these formats to address three
@@ -41,40 +46,55 @@ recurring problems in richer documents:
 
 ### Problem #1 - Conversions can lose structure
 
-Consider an editor that imports a warning as ordinary paragraphs with some
-formatting. If its document model stores only those paragraphs, an export can
-keep every word while losing the warning's type and its separate title and body:
+A rich editor may support warning callouts, centered layouts and tab groups.
+CommonMark and GFM have no standard shorthand for those features. Even when an
+editor supports them fully, its Markdown export needs a way to describe them.
 
-::::: {.two}
-:::: {.example}
-**Original Markdown**
-
-```md
-::: warning [Before upgrading]
-Back up your data.
-:::
-```
-::::
-
-:::: {.example}
-**After a paragraph-only conversion (illustrative)**
+For example, a warning exported using only ordinary Markdown shorthand might
+keep its words and bold title:
 
 ```md
 **Before upgrading**
 
 Back up your data.
 ```
+
+::::: {.two}
+:::: {.example}
+**Before export: a warning in the rich editor**
+
+> [!warn] Before upgrading
+> Back up your data.
+::::
+
+:::: {.example}
+**After reimporting that Markdown (illustrative)**
+
+**Before upgrading**
+
+Back up your data.
 ::::
 :::::
 
-The export still contains the same words, but nothing identifies them as a
-warning. The bold text could be an ordinary paragraph or the warning's title;
-a writer cannot recover that distinction from the flattened version alone.
+The file contains no warning type or separate title field. Even the same editor
+cannot reliably tell whether the bold paragraph was a warning title or ordinary
+formatted text. The information was lost in the export representation. Raw
+HTML or tool-specific extensions can carry extra information; restoring it
+still needs agreed import rules.
 
-Expressive Markdown defines **text syntax and a shared document tree**, with
-explicit fields for a block's type, title and body. Editors that support these
-nodes can keep those distinctions through import, editing and export, even
-when whitespace or presentation changes.
+Expressive Markdown defines readable extensions for that context:
+
+```md
+::: warning [Before upgrading]
+Back up your data.
+:::
+```
+
+The container names the warning and separates its title from its body. Shared
+attributes carry formatting and settings; YAML frontmatter carries document
+metadata. These details stay explicit in the text, with a shared document tree
+for tools to read and write consistently. That is the “expressive” part: richer
+documents without giving up readable Markdown.
 
 [See the warning example →](/expressive-markdown/language#named-constructs)
 
@@ -108,8 +128,10 @@ extensions. Their syntax and conventions vary, so moving a document can
 require translating those features individually.[^2][^3]
 
 CommonMark and GFM do not define a shared format for those features.
-Expressive Markdown proposes consistent syntax, common meanings and document
-data for them. Custom types use the same grammar.
+Expressive Markdown brings common extensions into **one well-defined syntax**,
+with shared meanings and a document model. Containers, inline extensions,
+attributes and YAML frontmatter carry rich structure, formatting context and
+metadata in readable source. Custom types use the same grammar.
 
 The format is independent of a component framework or site generator.
 

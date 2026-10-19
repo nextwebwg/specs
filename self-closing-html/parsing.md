@@ -68,6 +68,8 @@ The slash is ignored. The browser starts a script and treats the following sourc
 
 Here `<p>Hello</p>` is passed to the JavaScript parser instead of creating a paragraph, and ordinarily produces a syntax error. Without a closing `</script>`, the rest of the document can be consumed as script text. For an empty script, write `<script></script>`; for an external script, write `<script src="app.js"></script>`.
 
+This can also be a security concern: if following text is valid JavaScript, it can execute when the script closes. A syntax error in this example is not a safety guarantee. This is existing HTML behavior, but extending self-closing syntax to other elements could make the mistaken expectation more likely; that authoring risk has not been measured or eliminated.
+
 This is a usability cost of the exceptions: a slash does not consistently mean “empty” on every element. Authoring tools should explain ignored self-closing syntax on these elements. No such new diagnostic is implemented by this proposal’s recorded experiments. `style` has a similar consequence: following source remains stylesheet text until `</style>`.
 
 The initial set must match the browser algorithm. Lifting an exemption requires a defined interpretation and safety argument for that context. [Why these boundaries matter →](/self-closing-html/security#preserve-protected-containment)

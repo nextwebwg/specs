@@ -70,6 +70,10 @@ You do not need to read the code or JSON files to understand the findings. Start
 
 - [ ] **Partial.** The native prototype disables its optional look-ahead loader for opted-in documents. [Native request checks](native-results.json) show the tested image waits until the blocking script is released. Making an optimized look-ahead loader follow the same rules remains open.
 
+### Could an ignored slash on `script` become dangerous?
+
+- [ ] **Open authoring risk.** `<script />` still starts a script. Following source can be consumed as script text; valid JavaScript can execute when the script closes. An example that produces a syntax error is not a safety guarantee. Keeping today’s parsing rule avoids a new parser mismatch, but does not remove this existing hazard or establish that authors understand the exception. Tool warnings are a proposed mitigation, not an implemented or tested result. [Read the example](https://nextwebwg.org/self-closing-html/parsing#what-happens-if-an-author-writes-script).
+
 ## Checklist: what is still required before shipment?
 
 - [ ] **Encoding restarts:** implement and test the case where a browser must reread earlier bytes using a different character encoding. Network chunk tests do not establish this.

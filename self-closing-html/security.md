@@ -22,6 +22,7 @@ A checked item means the stated fix has evidence at the level described. It does
 - [x] **Existing library parsing calls keep their meaning.** The proposed contract requires an explicit request for new string-parsing behavior; the prototype tests check isolation.
 - [x] **Streaming, scripts, callbacks, pauses, and mutations work in the recorded native cases.** The experimental browser passes 31 targeted checks and 200 reference comparisons. This is evidence from one native engine, not production support.
 - [x] **Shadow roots stay with their hosts in the tested native cases.** A separate serialization shortcut failed and is not a general conversion method.
+- [ ] **Ignored slashes can mislead authors.** `<script />` still starts a script; following valid JavaScript can execute. Keeping existing parsing does not eliminate that authoring hazard. Tool diagnostics and author understanding remain unverified.
 - [ ] **Serialization is not generally proved safe.** Generated tests found no new monitored exposure, but do not remove the known conversion limitation.
 - [ ] **Fast look-ahead loading remains incomplete.** The native prototype disables that optimization rather than proving an optimized loader correct.
 - [ ] **Encoding restarts, memory stress, broader conformance, and security review remain open.** A timed-out stress run is not a pass.

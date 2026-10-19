@@ -282,6 +282,21 @@ level-three heading whose text is “1. item”. Its HTML is `<h3>1. item</h3>`
 and its AST is `{"type":"heading","level":3,"value":"1. item"}`. The number
 is part of the heading text.
 
+Task items are **read-only by default**: they display the document's checked or
+unchecked state. A platform or renderer may make them interactive when toggling
+an item updates its `checked` value in the document and preserves that change in
+the Markdown source. A visual toggle alone does not change the authored task.
+
+In either mode, present a clear checkmark for a checked task and a clearly
+visible empty box for an unchecked task. Keep both states legible against their
+background; read-only tasks should not fade into the surrounding content.
+
+Here, “read-only” describes behavior. HTML's `readonly` attribute
+[does not apply to checkboxes](https://html.spec.whatwg.org/multipage/input.html#the-readonly-attribute).
+An HTML renderer can use `disabled` to prevent changes and style the checkbox
+for clarity. An interactive renderer should expose a labelled, keyboard-operable
+control that writes the change back to the document.
+
 ```md
 1. Download the package.
 2. Run the installer.
@@ -998,6 +1013,12 @@ formatting. See [terminal empty-line handling](/expressive-markdown/parsing#lead
 Existing CommonMark text can use a trailing backslash before a newline to
 request a hard break within a paragraph. Expressive Markdown accepts this
 form for compatibility; use leading pipes when authoring line blocks.
+
+A trailing backslash commonly means **explicit continuation** in programming
+languages: the next source line continues the same logical line, as in
+[Python's line joining](https://docs.python.org/3/reference/lexical_analysis.html#explicit-line-joining).
+CommonMark uses it for an **explicit break**, reversing that expectation. Leading
+pipes make the intended displayed line boundaries visible instead.
 
 ```md
 An ordinary source wrap

@@ -9,16 +9,16 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Security and evidence
 
-Self-closing syntax must not turn harmless text into running code, expose hidden controls, or silently change how a library reads HTML. The proposal addresses these problems by keeping HTML’s existing decisions about text and tags, preserving sensitive containers, and requiring an explicit request for the new parsing behavior.
+Self-closing syntax must not turn harmless text into running code or silently change how a library reads HTML. The proposal addresses these problems by keeping HTML’s existing decisions about text and tags, requiring an explicit request for the new parsing behavior.
 
 **There is a working experimental browser implementation, but this is not ready for browser shipment.** The tests below demonstrate specific fixes. Encoding restarts, broader conformance, and implementer security review remain open.
 
 ## Issue checklist
 
-✅ Demonstrated in the stated proof or tests · 🟡 Partial · ⬜ Open. A passing item is not a claim that every possible browser input is safe.
+✅ Demonstrated in the stated proof or tests · 🟡 Partial · ⬜ Open. A passing item describes the archived restricted algorithm, not verification of the revised eligibility rules or every possible browser input.
 
 - ✅ **Apparent tags inside text stay text.** Do not let the slash close `style` or other text-sensitive elements. Keep HTML’s normal interpretation of later text and SVG boundaries. The mathematical proof checks the rearrangement rule; browser examples check selected parsing cases.
-- ✅ **Hidden controls keep their protection in the tested cases.** Preserve sensitive containers and attributes, including a `popover` protection added after a test exposed a bug.
+- ⬜ **Revised eligibility needs implementation and retesting.** Attribute and container restrictions based only on visibility/focus differences are withdrawn. Those observations establish no sanitizer bypass; the recorded prototypes still implement the older restricted rules.
 - ✅ **Existing library parsing calls keep their meaning.** The proposed contract requires an explicit request for new string-parsing behavior; the prototype tests check isolation.
 - ✅ **Streaming, scripts, callbacks, pauses, and mutations work in the recorded native cases.** The experimental browser passes 31 targeted checks and 200 reference comparisons. This is evidence from one native engine, not production support.
 - ✅ **Shadow roots stay with their hosts in the tested native cases.** A separate serialization shortcut failed and is not a general conversion method.
@@ -119,23 +119,23 @@ Under the proposed contract, the same string inserted through an existing HTML A
 
 Dynamic Next parsing requires an explicit request at the parsing call. Parse and sanitize together in the actual destination context, then insert nodes directly. A doctype inside the string cannot enable Next. The [insertion rules](/self-closing-html/parsing#keep-existing-insertion-apis-stable) also require rejection or isolation of document writing, rather than feeding legacy string writes into the new document grammar.
 
-## Preserve protected containment
+## What the containment tests actually showed
 
-Preserving recognized text is necessary, but containment can affect whether an existing node becomes active or visible.
+The experiments moved controls out of containers and observed changes in visibility and focus. Those are rendering and interaction observations. They do not establish a security vulnerability: the experiments identified no sanitizer relying on that containment and demonstrated no unauthorized action.
 
-Closed dialogs, disclosure widgets, popovers, and media fallback containers are exempt. Active-browser checks found that lifting their children could expose hidden controls. Elements carrying `inert`, `hidden`, `disabled`, or `popover`, template content, and foreign contexts retain their protected boundaries too.
+The draft previously treated these differences as a reason to ignore the slash on elements with `hidden`, `inert`, `disabled`, or `popover`, and on several native containers. That justification and those restrictions are withdrawn. An otherwise eligible `<div hidden />` is an empty hidden div; following content is outside it.
 
-A cross-browser counterexample added the `popover` attribute to this boundary: lifting a button out of a closed popover made it visible in all six recorded observations, and focused it in five. The [before-fix record](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/popover-counterexample-results.json) and passing regression preserve that distinction from a demonstrated sanitizer exploit. Empty and invalid attribute values both select a popover state under the [HTML Standard](https://html.spec.whatwg.org/multipage/popover.html).
+The [recorded popover observations](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/popover-counterexample-results.json) remain available as historical evidence. Their counts must not be described as sanitizer exploits or proof that the removed exclusions are necessary. Any future security claim requires an identified trust boundary and a demonstrated way to cross it.
 
-Shadow roots keep their recognized host. A root is an ownership relationship, not a light-DOM child to move after an empty host. The browser checks preserve that edge while allowing the host's light DOM to become empty.
+Template contents, foreign parsing contexts, and shadow-root ownership have separate parsing rules; removing visibility-based exclusions does not remove those rules. Shadow roots must stay attached to their intended host.
 
-Parentage intentionally changes elsewhere. Application-defined components and script gadgets require their own policy; a sanitizer must not authorize hazardous content solely because an ordinary ancestor currently hides or intercepts it.[^5]
+**Implementation gap:** the archived reference and native prototypes retain the older restrictions. Their passing results describe that restricted algorithm, not conformance to this revised eligibility policy. Implementations and affected tests must be updated before claiming that coverage for the revised design.
 
 ## The rearrangement keeps text as text
 
 The proposed algorithm changes where already-parsed nodes sit. It does not read their contents as HTML again. If HTML identified `<img ...>` as stylesheet text, moving nodes cannot turn that text into an image element.
 
-**What was proved:** a mathematical description of this rearrangement preserves node contents, order, and designated protected containers. The proof assumes the parser correctly identified those nodes and containers.
+**What was proved:** a mathematical description of the earlier restricted rearrangement preserves node contents, order, and whichever containers are designated as protected. It does not prove that those designations are necessary security boundaries. The revised eligibility policy requires updated implementation checks; the old proof and passing tests are not a proof of the complete revised design.
 
 **What a browser must do:** implement that rule correctly while parsing and running scripts. The prototypes pass the recorded tests; the proof does not cover a complete browser.
 
@@ -157,6 +157,8 @@ The [verification record](https://github.com/nextwebwg/specs/blob/main/self-clos
 The static prototype rearranges a completed tree. The native prototype builds the result as HTML arrives, with tests at script and callback boundaries. Its tests are separate evidence from the mathematical proof.
 
 ## Detailed test records
+
+These records describe the earlier restricted algorithm. Attribute/container exclusions based on visibility were subsequently withdrawn; the recorded pass counts have not been rerun against that revision.
 
 The [issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme) translates the findings into problems and answers. Expand this section for counts, methods, and the native implementation’s precise limits.
 
@@ -244,7 +246,7 @@ Complete the design review first, then implement the missing behavior, expand th
 [Flexible HTML Nesting](/flexible-html-nesting/) is separate. Its layout and containment behavior needs its own implementation and evidence; these self-closing proofs do not establish it.
 
 > [!warn] Implementation status
-> The reference model proves a limited rearrangement property. An experimental Ladybird build passes bounded streaming and execution tests. The work above remains required before shipment; the evidence does not establish universal execution safety.
+> The mathematical proof covers the earlier restricted rearrangement. An experimental Ladybird build passes bounded streaming and execution tests. The work above remains required before shipment; the evidence does not establish universal execution safety.
 
 Editor: [Matthew Dean](https://github.com/matthew-dean). Discuss the proposal in the [specifications repository](https://github.com/nextwebwg/specs/discussions).
 

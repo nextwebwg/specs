@@ -2,7 +2,7 @@
 
 This folder contains experiments for a proposed HTML shorthand: write `<user-avatar />` instead of `<user-avatar></user-avatar>` when the element has no children in the source.
 
-**The central security problem has a proposed solution, a mathematical proof of its tree-rearrangement rule, and passing prototype tests. This is not ready to ship in browsers.** Some implementation work and security review remain open.
+**These records describe an earlier, more restricted algorithm.** Its visibility-based attribute/container exclusions have been withdrawn from the draft because no security vulnerability was established to justify them. The archived prototypes and result files remain unchanged; they have not verified the revised eligibility rules. This is not ready to ship in browsers.
 
 You do not need to read the code or JSON files to understand the findings. Start with this checklist. The linked files are the supporting records; reproduction instructions and technical explanations are collapsed below.
 
@@ -26,11 +26,11 @@ You do not need to read the code or JSON files to understand the findings. Start
 
   **Evidence:** [12 browser comparisons](recovery-chromium-results.json) cover selected recovery examples. The [native browser results](native-results.json) include 200 comparisons against the reference, with no disagreements in the final run. This is finite coverage, not every possible malformed document.
 
-### Could hidden or inactive controls become exposed?
+### Did visibility or focus changes establish a security vulnerability?
 
-- ✅ **The discovered boundary failures are corrected.** Do not self-close sensitive containers or elements carrying `hidden`, `inert`, `disabled`, or `popover`. Their children stay inside them.
+- ⬜ **No vulnerability was established. The resulting exclusions are withdrawn.** The experiments observed controls becoming visible or focusable after parentage changed. They identified no sanitizer relying on that containment and demonstrated no unauthorized action. Visibility alone is not a security boundary.
 
-  **Evidence:** [tests with protections deliberately removed](active-unprotected-chromium-results.json) show why the protections matter. The [popover failure record](popover-counterexample-results.json) shows a missing protection exposing controls; it was then added, and the [browser regressions](execution-results.json) pass. This does not prove that every future HTML feature has been classified correctly.
+  **Historical evidence:** [container observations](active-unprotected-chromium-results.json) and [popover observations](popover-counterexample-results.json) preserve what was measured. Adding attribute/container exclusions made those observations match the chosen baseline; that does not establish a security fix. The revised draft removes restrictions justified only by these observations. The archived code and pass counts still describe the older algorithm and need updating/retesting.
 
 ### Will a library’s existing HTML calls silently change meaning?
 
@@ -93,6 +93,8 @@ These tests do not establish the separate [Flexible HTML Nesting proposal](https
 - **Native experiment:** changes an actual browser parser. Here that is one experimental Ladybird build, not Chrome, Firefox, or Safari shipping this feature.
 
 ## Technical records and reproduction
+
+The collapsed sections below are historical records of the restricted algorithm. References to protected attributes, barriers, failures, or fixes describe that experiment’s chosen baseline, not an established security requirement for the corrected proposal.
 
 The sections below retain the commands, pinned versions, test mechanics, failed approaches, and precise limitations. They are for readers who want to inspect or repeat the work.
 

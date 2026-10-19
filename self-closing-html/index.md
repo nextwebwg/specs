@@ -55,6 +55,10 @@ The name appears once, and `/>` marks “no authored children” at the opening 
 
 **The main tradeoff:** not every element can self-close. `<script />` still starts a script and can swallow following source. [Read the exceptions and consequences](/self-closing-html/parsing#preserve-sensitive-elements). Elements with children keep closing tags. Component embedding in tables is a [separate proposal](/flexible-html-nesting/).
 
+## Current implementation gap
+
+The draft no longer makes `hidden`, `inert`, `disabled`, or `popover` change self-closing eligibility, and removes container exclusions justified only by visibility/focus observations. The archived prototypes still use the older restrictions. Their results are evidence about that earlier algorithm, not verification of the revised rules. [Read the correction](/self-closing-html/security#what-the-containment-tests-actually-showed).
+
 ## What has been checked?
 
 The [plain-language issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme) explains each problem, its proposed fix, the supporting evidence, and the remaining work. Start there for the findings; the [security chapter](/self-closing-html/security) explains the main examples. The [parsing rules](/self-closing-html/parsing) are the implementation reference.
@@ -91,7 +95,7 @@ For ordinary shorthand, following content becomes a sibling:
 
 The parser still remembers the div for later closing tags and error recovery. Making it empty changes where following nodes sit, without changing HTML’s decisions about text and tags. [See the worked example](/self-closing-html/security#recover-at-namespace-boundaries).
 
-### Keep text and protected content inside their boundaries
+### Keep text parsing unchanged
 
 Sensitive elements retain their existing slash handling. For example:
 
@@ -102,7 +106,7 @@ Sensitive elements retain their existing slash handling. For example:
 `style` is exempt. The apparent image remains style text; no image or event-handler node is created. Retained recovery context also protects cases where an earlier ordinary element affects a later text or namespace boundary.
 
 > [!ex] The rule behind the shorthand
-> Change eligible parent/child relationships while preserving recognized tags, text, namespaces, and protected containers. Existing HTML insertion APIs retain their current grammar.
+> Change eligible parent/child relationships while preserving recognized tags, text, namespaces, and text-parsing boundaries. Existing HTML insertion APIs retain their current grammar.
 
 The native experiment tests the earlier literal `PUBLIC "next"` opt-in. The proposed [response header and profile selection](/html-feature-profiles/) and [explicit parsing calls](/self-closing-html/parsing#parse-independently-of-the-caller-s-document) are not implemented by that experiment.
 

@@ -18,7 +18,7 @@ Self-closing syntax must not turn harmless text into running code or silently ch
 ✅ Demonstrated in the stated proof or tests · 🟡 Partial · ⬜ Open. A passing item describes the archived restricted algorithm, not verification of the revised eligibility rules or every possible browser input.
 
 - ✅ **Apparent tags inside text stay text.** Do not let the slash close `style` or other text-sensitive elements. Keep HTML’s normal interpretation of later text and SVG boundaries. The mathematical proof checks the rearrangement rule; browser examples check selected parsing cases.
-- ⬜ **Revised eligibility needs implementation and retesting.** Attribute and container restrictions based only on visibility/focus differences are withdrawn. Those observations establish no sanitizer bypass; the recorded prototypes still implement the older restricted rules.
+- ⬜ **Current eligibility needs implementation and retesting.** Archived prototypes implement a more restricted algorithm; their results do not establish conformance to the current rules.
 - ✅ **Existing library parsing calls keep their meaning.** The proposed contract requires an explicit request for new string-parsing behavior; the prototype tests check isolation.
 - ✅ **Streaming, scripts, callbacks, pauses, and mutations work in the recorded native cases.** The experimental browser passes 31 targeted checks and 200 reference comparisons. This is evidence from one native engine, not production support.
 - ✅ **Shadow roots stay with their hosts in the tested native cases.** A separate serialization shortcut failed and is not a general conversion method.
@@ -119,18 +119,6 @@ Under the proposed contract, the same string inserted through an existing HTML A
 
 Dynamic Next parsing requires an explicit request at the parsing call. Parse and sanitize together in the actual destination context, then insert nodes directly. A doctype inside the string cannot enable Next. The [insertion rules](/self-closing-html/parsing#keep-existing-insertion-apis-stable) also require rejection or isolation of document writing, rather than feeding legacy string writes into the new document grammar.
 
-## What the containment tests actually showed
-
-The experiments moved controls out of containers and observed changes in visibility and focus. Those are rendering and interaction observations. They do not establish a security vulnerability: the experiments identified no sanitizer relying on that containment and demonstrated no unauthorized action.
-
-The draft previously treated these differences as a reason to ignore the slash on elements with `hidden`, `inert`, `disabled`, or `popover`, and on several native containers. That justification and those restrictions are withdrawn. An otherwise eligible `<div hidden />` is an empty hidden div; following content is outside it.
-
-The [recorded popover observations](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/popover-counterexample-results.json) remain available as historical evidence. Their counts must not be described as sanitizer exploits or proof that the removed exclusions are necessary. Any future security claim requires an identified trust boundary and a demonstrated way to cross it.
-
-Template contents, foreign parsing contexts, and shadow-root ownership have separate parsing rules; removing visibility-based exclusions does not remove those rules. Shadow roots must stay attached to their intended host.
-
-**Implementation gap:** the archived reference and native prototypes retain the older restrictions. Their passing results describe that restricted algorithm, not conformance to this revised eligibility policy. Implementations and affected tests must be updated before claiming that coverage for the revised design.
-
 ## The rearrangement keeps text as text
 
 The proposed algorithm changes where already-parsed nodes sit. It does not read their contents as HTML again. If HTML identified `<img ...>` as stylesheet text, moving nodes cannot turn that text into an image element.
@@ -163,6 +151,19 @@ These records describe the earlier restricted algorithm. Attribute/container exc
 The [issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme) translates the findings into problems and answers. Expand this section for counts, methods, and the native implementation’s precise limits.
 
 ::: {.details summary="Technical evidence: test methods, counts, native coverage, and failed attempts"}
+
+### Historical containment observations
+
+The experiments moved controls out of containers and observed changes in visibility and focus. Those are rendering and interaction observations. They do not establish a security vulnerability: the experiments identified no sanitizer relying on that containment and demonstrated no unauthorized action.
+
+The draft previously treated these differences as a reason to ignore the slash on elements with `hidden`, `inert`, `disabled`, or `popover`, and on several native containers. That justification and those restrictions are withdrawn. An otherwise eligible `<div hidden />` is an empty hidden div; following content is outside it.
+
+The [recorded popover observations](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/popover-counterexample-results.json) remain available as historical evidence. Their counts must not be described as sanitizer exploits or proof that the removed exclusions are necessary. Any future security claim requires an identified trust boundary and a demonstrated way to cross it.
+
+Template contents, foreign parsing contexts, and shadow-root ownership have separate parsing rules; removing visibility-based exclusions does not remove those rules. Shadow roots must stay attached to their intended host.
+
+**Implementation gap:** the archived reference and native prototypes retain the older restrictions. Their passing results describe that restricted algorithm, not conformance to this revised eligibility policy. Implementations and affected tests must be updated before claiming that coverage for the revised design.
+
 
 ### What the experiments establish
 

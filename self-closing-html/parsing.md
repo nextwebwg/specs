@@ -46,19 +46,6 @@ Eligible custom and unknown names do not depend on registration. Native SVG/Math
 
 **The shorthand is for eligible empty HTML elements, not every tag.** For example, `<user-avatar />` can be empty, while `<script />` and `<table />` keep HTML’s existing slash handling. Eligibility also depends on the surrounding parsing context. That unevenness is a real tradeoff, not a minor implementation detail.
 
-### Attributes do not change self-closing eligibility
-
-For an otherwise eligible element, `hidden`, `inert`, `disabled`, and `popover` do not change what the slash means:
-
-```html
-<div hidden />
-<p>Following content</p>
-```
-
-The div is empty and hidden. The paragraph follows it outside the div. Visibility and focus differences caused by that intended parentage do not, by themselves, establish a security vulnerability.
-
-The earlier prototypes excluded these attributes and several native containers to preserve old containment. That restriction is withdrawn: no concrete sanitizer bypass or unauthorized action was established to justify it. Container-specific exclusions based only on those visibility observations are also removed. The archived implementations still use the old restrictions and have not been brought into agreement with these revised eligibility rules.
-
 ### Why keep exceptions?
 
 Some elements control how following source is read; others use special placement rules. Making them empty can change those behaviors.
@@ -67,7 +54,7 @@ The remaining exclusions concern text parsing, structure, formatting, and foreig
 
 ::: {.details summary="Exception rationale, evidence, and tradeoffs by category"}
 
-The draft retains conservative text, structure, formatting, and foreign-context rules. Visibility-based attribute/container restrictions are withdrawn. This is a draft design choice for review, not a claim that broader support is impossible.
+The draft retains conservative text, structure, formatting, and foreign-context rules. This is a draft design choice for review, not a claim that broader support is impossible.
 
 | Group | Why the draft keeps existing behavior | Consequence for authors and evidence |
 | --- | --- | --- |
@@ -112,7 +99,7 @@ Write `<script></script>` for an empty script, or `<script src="app.js"></script
 
 This existing HTML behavior is an authoring and security hazard. New self-closing syntax may make the mistake more tempting; that risk is unmeasured. Helpful tool warnings are proposed, not implemented by these experiments.
 
-The initial set must match the browser algorithm. Lifting an exemption requires a defined interpretation and safety argument for that context. [What the containment tests actually showed →](/self-closing-html/security#what-the-containment-tests-actually-showed)
+The initial set must match the browser algorithm. Lifting an exemption requires a defined interpretation and safety argument for that context. [Evidence and implementation limits →](/self-closing-html/security#detailed-test-records)
 
 ## Keep HTML attribute tokenization
 

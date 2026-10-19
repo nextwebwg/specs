@@ -55,10 +55,6 @@ The name appears once, and `/>` marks “no authored children” at the opening 
 
 **The main tradeoff:** not every element can self-close. `<script />` still starts a script and can swallow following source. [Read the exceptions and consequences](/self-closing-html/parsing#preserve-sensitive-elements). Elements with children keep closing tags. Component embedding in tables is a [separate proposal](/flexible-html-nesting/).
 
-## Current implementation gap
-
-The draft no longer makes `hidden`, `inert`, `disabled`, or `popover` change self-closing eligibility, and removes container exclusions justified only by visibility/focus observations. The archived prototypes still use the older restrictions. Their results are evidence about that earlier algorithm, not verification of the revised rules. [Read the correction](/self-closing-html/security#what-the-containment-tests-actually-showed).
-
 ## What has been checked?
 
 The [plain-language issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme) explains each problem, its proposed fix, the supporting evidence, and the remaining work. Start there for the findings; the [security chapter](/self-closing-html/security) explains the main examples. The [parsing rules](/self-closing-html/parsing) are the implementation reference.

@@ -285,7 +285,8 @@ The same selection rules apply as `mode` changes. A caller cannot know an intern
 A declared value keeps its type, as HTML's reflected attributes do. `tabIndex` is always a number: remove the `tabindex` attribute and the property gives back its default. A prop and a state work the same way. `null` means **not present**, as `getAttribute()` returns `null` for a missing attribute.[^11] It is distinct from the empty string, zero, and false.
 
 - A prop with a `default`, or a state with a `value`, always reads as its type. Writing `null` makes it not present, so it goes back to that default or value.
-- A prop or state with neither reads `null` until it is given a value, and a `null` write stores `null`.
+- A prop without a `default`, or a state without `value` or `from`, reads `null` until it is given a value, and a `null` write stores `null`.
+- A state with [`from`](/declarative-components/reactivity#state-initialization) is unavailable until its first accepted seed or local write. A local `null` write ends that wait and stores `null`.
 - A missing field of an object reads `null`, or the [absent value](/declarative-components/expressions#the-absent-value) in expressions. Writing `null` to a field below a state gives it back its value in the state's declared `value`, or `null` where that has none.
 
 `undefined` means the same as `null` wherever a value is written. A `null` write is therefore never a wrong-typed write; the declared type constrains every value that is present. No declaration opts a value into `null`. `required` makes a value that is not present invalid: it sets `valueMissing`. An explicit empty string is present and remains a string value.

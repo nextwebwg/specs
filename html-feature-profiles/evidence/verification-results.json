@@ -1,0 +1,51 @@
+{
+  "runtime": "v24.20.0",
+  "recordedAt": "2026-10-19T19:17:45.200Z",
+  "sourceDigests": {
+    "resolver.mjs": "7b6d95f2acc9a28689846e3099cc3a90baddad7bd35fe0135c90d509a2bab9df",
+    "resolver.test.mjs": "22abbd3ff32e3fc1fadba125a642705f71679c006067b82c29f5d5aac6aa9918",
+    "verify.mjs": "06bec340ed0ea83ece61195844cb7aeb125b60a15eafdff27057cd6b9fd05035",
+    "browser-baseline.mjs": "9e7589bda5e9f5cec48b479247d5ea784b571450be3fd87c548e5b5b6ff84b50"
+  },
+  "contractModel": {
+    "tests": 36,
+    "passed": 36,
+    "failed": 0,
+    "scope": "Executable selector/precedence/snapshot model and authored contract vectors; not native HTML parsing, sanitization, layout, or full Structured Fields conformance."
+  },
+  "browserBaseline": {
+    "engines": [
+      {
+        "engine": "chromium",
+        "version": "156.0.8078.4"
+      },
+      {
+        "engine": "firefox",
+        "version": "157.0"
+      },
+      {
+        "engine": "webkit",
+        "version": "26.5"
+      }
+    ],
+    "availableMethods": 5,
+    "profileOptionReadByAny": false,
+    "hasResolvedRecord": false,
+    "scope": "Unmodified browser observations. Success with an unknown option does not establish support."
+  },
+  "correctedCounterexample": {
+    "case": "Stateful DOMString conversion",
+    "before": {
+      "conversions": 2,
+      "expected": 1
+    },
+    "after": "Convert once before selector validation and record construction; retained regression passes."
+  },
+  "remaining": [
+    "Native profile dictionary integration and WebIDL error ordering",
+    "Safe/unsafe sanitizer composition under each selected grammar",
+    "Native header selection, preset manifests, and inherited/cross-realm records",
+    "HTTP intermediary/cache behavior and full Structured Fields integration",
+    "Flexible-nesting recognition, composed layout, accessibility, and combined-feature security"
+  ]
+}

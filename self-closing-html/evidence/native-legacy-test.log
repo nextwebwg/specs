@@ -1,0 +1,94 @@
+2026-10-19 11:14:46.209 Compositor[37776:184333829] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 11:14:46.209 Compositor[37776:184333866] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 11:14:46.209 Compositor[37776:184333827] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+1113762.542 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113762.897 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113762.972 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113763.943 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113764.070 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113764.390 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113764.691 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113764.925 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113765.013 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113765.394 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113765.530 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1113765.631 Compositor(37776): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+Running 16 tests...
+[0]  1/16:  Start Text/input/HTML/parser-streams-bytes.html
+[0]  1/16: Finish Text/input/HTML/parser-streams-bytes.html: 371ms
+[0]  2/16:  Start Text/input/HTML/parser-streams-style-split.html
+[0]  2/16: Finish Text/input/HTML/parser-streams-style-split.html: 286ms
+[0]  3/16:  Start Text/input/HTML/parser-streams-crlf-split.html
+[0]  3/16: Finish Text/input/HTML/parser-streams-crlf-split.html: 122ms
+[0]  4/16:  Start Text/input/HTML/parser-streams-script-split.html
+[0]  4/16: Finish Text/input/HTML/parser-streams-script-split.html: 120ms
+[0]  5/16:  Start Text/input/HTML/parser-insertion-into-detached-subtree-is-observable.html
+[0]  5/16: Finish Text/input/HTML/parser-insertion-into-detached-subtree-is-observable.html: 12ms
+[0]  6/16:  Start Text/input/HTML/parser-script-source-lines.html
+[0]  6/16: Finish Text/input/HTML/parser-script-source-lines.html: 13ms
+[0]  7/16:  Start Text/input/HTML/parser-streams-external-script.html
+[0]  7/16: Finish Text/input/HTML/parser-streams-external-script.html: 484ms
+[0]  8/16:  Start Text/input/HTML/parser-streams-late-meta-charset-blocked-parser.html
+[0]  8/16: Finish Text/input/HTML/parser-streams-late-meta-charset-blocked-parser.html: 131ms
+[0]  9/16:  Start Text/input/HTML/parser-tree-construction-edge-cases.html
+[0]  9/16: Finish Text/input/HTML/parser-tree-construction-edge-cases.html: 195ms
+[0] 10/16:  Start Text/input/HTML/parser-streams-named-character-reference-split.html
+[0] 10/16: Finish Text/input/HTML/parser-streams-named-character-reference-split.html: 129ms
+[0] 11/16:  Start Text/input/HTML/parser-streams-utf8-split.html
+[0] 11/16: Finish Text/input/HTML/parser-streams-utf8-split.html: 200ms
+[0] 12/16:  Start Text/input/HTML/parser-created-style-script-blocking.html
+[0] 12/16: Finish Text/input/HTML/parser-created-style-script-blocking.html: 334ms
+[0] 13/16:  Start Text/input/HTML/parser-streams-with-document-write.html
+[0] 13/16: Finish Text/input/HTML/parser-streams-with-document-write.html: 290ms
+[0] 14/16:  Start Text/input/HTML/parser-end-state-released-after-load.html
+[0] 14/16: Finish Text/input/HTML/parser-end-state-released-after-load.html: 179ms
+[0] 15/16:  Start Text/input/HTML/parser-streams-late-meta-charset.html
+[0] 15/16: Finish Text/input/HTML/parser-streams-late-meta-charset.html: 149ms
+[0] 16/16:  Start Text/input/HTML/parser-blocking-script-ready-during-sync-xhr.html
+[0] 16/16: Finish Text/input/HTML/parser-blocking-script-ready-during-sync-xhr.html: 701ms
+==========================================================
+Pass: 16, Fail: 0, Skipped: 0, Timeout: 0, Crashed: 0
+==========================================================
+Results: file://<experiment>/work/native-legacy-results/index.html

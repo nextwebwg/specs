@@ -3,7 +3,7 @@ title: Bindings & Events
 order: 3
 blurb: "from: · bind: · on: · class: · <handler>"
 eyebrow: Declarative HTML Components Level 1
-status: Level 1 · reserved direction
+status: Stage 0 · Level 1 proposal
 ---
 
 # Bindings & Events

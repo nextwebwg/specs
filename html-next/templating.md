@@ -3,7 +3,7 @@ title: Templating
 order: 1
 blurb: $each · $if · $match · $await · $with · inline text
 eyebrow: Declarative HTML Components Level 1
-status: Level 1 · reserved direction · reference implementation pending
+status: Stage 0 · Level 1 proposal
 ---
 
 # Templating

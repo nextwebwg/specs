@@ -119,7 +119,7 @@ Every list has one item type. These three declarations all produce a JavaScript 
 <prop name="rows" type="list(object({ id: number, name: string }))"></prop>
 ```
 
-These values are written as object and bracketed list literals and become JavaScript objects and arrays. When a field needs its own `values`, `required`, `nullable`, or description, expand the shape into nested `<prop>` declarations. Write `type="list"` with one unnamed child `<prop>` for its item type. This expanded declaration describes the same `rows` type as `list(object({ id: number, name: string }))` above:
+These values are written as object and bracketed list literals and become JavaScript objects and arrays. When a field needs its own `values`, `required`, or description, expand the shape into nested `<prop>` declarations. Write `type="list"` with one unnamed child `<prop>` for its item type. This expanded declaration describes the same `rows` type as `list(object({ id: number, name: string }))` above:
 
 ```html
 <prop name="rows" type="list">
@@ -136,7 +136,7 @@ The same field declarations describe event details and structured state values:
 <event name="change" type="object">
   <prop name="value" type="number" required></prop>
   <prop name="trigger" type="keyword" values="keyboard, pointer, programmatic" required></prop>
-  <prop name="previous" type="string" required nullable></prop>
+  <prop name="previous" type="string"></prop>
 </event>
 
 <state name="history" type="list" value="[]">
@@ -146,7 +146,7 @@ The same field declarations describe event details and structured state values:
 </state>
 ```
 
-Each nested field is checked when the object or array is checked. `required` means the field must be present; `nullable` permits an explicitly present `null` value, as in `previous` above. A declared state accepts `null` when it has no `value`, or when it is also declared `nullable`; see [Null and missing values](/declarative-components/types#null-and-missing-values). An `open` object permits additional fields; a field with `type="unknown"` accepts any JavaScript value, but `unknown` cannot be a top-level prop because it has no HTML attribute form. A build tool reports a malformed nested `values` constraint as an error; the live browser parser warns and ignores that constraint. Generated TypeScript uses the closest literal types, so the event detail above has `trigger: 'keyboard' | 'pointer' | 'programmatic'`.
+Each nested field is checked when the object or array is checked. A missing field and a `null` field are the same; `previous` above may be either, and `required` makes both invalid. See [Null and missing values](/declarative-components/types#null-and-missing-values). An `open` object permits additional fields; a field with `type="unknown"` accepts any JavaScript value, but `unknown` cannot be a top-level prop because it has no HTML attribute form. A build tool reports a malformed nested `values` constraint as an error; the live browser parser warns and ignores that constraint. Generated TypeScript uses the closest literal types, so the event detail above has `trigger: 'keyboard' | 'pointer' | 'programmatic'`.
 
 A shared or external schema can instead be referenced with `schema`, using JSON Schema:[^13]
 
@@ -282,28 +282,25 @@ The same selection rules apply as `mode` changes. A caller cannot know an intern
 
 ## Null and missing values
 
-`null` means **no value**. It is distinct from the empty string, zero, and false. Every declared prop accepts `null`, regardless of whether its type is `string`, `number`, `list(...)`, or `object(...)`. The declared type constrains non-null values; `required` makes `null` invalid.
+A declared value keeps its type, as HTML's reflected attributes do. `tabIndex` is always a number: remove the `tabindex` attribute and the property gives back its default. A prop and a state work the same way. `null` means **not present**, as `getAttribute()` returns `null` for a missing attribute.[^11] It is distinct from the empty string, zero, and false.
 
-A declared prop resolves to its `default` when it is omitted or supplied as `null`. Without a default, it resolves to `null`, consistent with DOM `getAttribute()` returning `null` for a missing attribute.[^11] This applies to initial input, later bound writes, and source results. An explicit empty string remains a string value; zero and false also retain their values.
+- A prop with a `default`, or a state with a `value`, always reads as its type. Writing `null` makes it not present, so it goes back to that default or value.
+- A prop or state with neither reads `null` until it is given a value, and a `null` write stores `null`.
+- A missing field of an object reads `null`, or the [absent value](/declarative-components/expressions#the-absent-value) in expressions. Writing `null` to a field below a state gives it back its value in the state's declared `value`, or `null` where that has none.
 
-```html
-<!-- Given <prop name="label" type="string"></prop> -->
-<x-note></x-note>             <!-- label is null -->
-<x-note from:label="null"></x-note> <!-- label is null -->
-<x-note label=""></x-note>    <!-- label is the empty string -->
-
-<!-- Given <prop name="label" type="string" default="Untitled"></prop> -->
-<x-note></x-note>                  <!-- label is 'Untitled' -->
-<x-note from:label="null"></x-note> <!-- label is 'Untitled' -->
-```
-
-A declared `<state>` follows the same idea. A state without `value` starts as `null`, so it is nullable: it accepts later `null` writes too. A state with a `value` starts with that value and accepts `null` only when it is also declared `nullable`. The declared type still constrains every non-null value.
+`undefined` means the same as `null` wherever a value is written. A `null` write is therefore never a wrong-typed write; the declared type constrains every value that is present. No declaration opts a value into `null`. `required` makes a value that is not present invalid: it sets `valueMissing`. An explicit empty string is present and remains a string value.
 
 ```html
-<state name="level" type="integer">                    <!-- starts null; a null write is accepted -->
-<state name="count" type="integer" value="0" nullable> <!-- starts 0; a null write is accepted -->
-<state name="total" type="integer" value="0">          <!-- starts 0; a null write is ignored -->
+<!-- Given <prop name="label" type="string"></prop> and <prop name="tone" type="string" default="plain"></prop> -->
+<x-note></x-note>                                    <!-- label is null; tone is "plain" -->
+<x-note from:label="null" from:tone="null"></x-note> <!-- label is null; tone is "plain" -->
+<x-note label=""></x-note>                           <!-- label is the empty string -->
+
+<state name="count" type="integer" value="0">        <!-- always an integer; a null write gives back 0 -->
+<state name="level" type="integer">                  <!-- null until written; a null write stores null -->
 ```
+
+The same holds wherever the `null` comes from: a bound expression, a framework prop or [`componentRegistry.update`](/declarative-components/javascript#component-registry-update) for a prop; a controller, `<set>` or `bind:` for a state. A controller returns a state to its declared value with [`host.reset`](/declarative-components/javascript#resetting-state).
 
 ## Future exploration
 

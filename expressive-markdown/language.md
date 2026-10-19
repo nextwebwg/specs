@@ -282,6 +282,21 @@ level-three heading whose text is “1. item”. Its HTML is `<h3>1. item</h3>`
 and its AST is `{"type":"heading","level":3,"value":"1. item"}`. The number
 is part of the heading text.
 
+Task items are **read-only by default**: they display the document's checked or
+unchecked state. A platform or renderer may make them interactive when toggling
+an item updates its `checked` value in the document and preserves that change in
+the Markdown source. A visual toggle alone does not change the authored task.
+
+In either mode, present a clear checkmark for a checked task and a clearly
+visible empty box for an unchecked task. Keep both states legible against their
+background; read-only tasks should not fade into the surrounding content.
+
+Here, “read-only” describes behavior. HTML's `readonly` attribute
+[does not apply to checkboxes](https://html.spec.whatwg.org/multipage/input.html#the-readonly-attribute).
+An HTML renderer can use `disabled` to prevent changes and style the checkbox
+for clarity. An interactive renderer should expose a labelled, keyboard-operable
+control that writes the change back to the document.
+
 ```md
 1. Download the package.
 2. Run the installer.
@@ -999,6 +1014,12 @@ Existing CommonMark text can use a trailing backslash before a newline to
 request a hard break within a paragraph. Expressive Markdown accepts this
 form for compatibility; use leading pipes when authoring line blocks.
 
+A trailing backslash commonly means **explicit continuation** in programming
+languages: the next source line continues the same logical line, as in
+[Python's line joining](https://docs.python.org/3/reference/lexical_analysis.html#explicit-line-joining).
+CommonMark uses it for an **explicit break**, reversing that expectation. Leading
+pipes make the intended displayed line boundaries visible instead.
+
 ```md
 An ordinary source wrap
 continues the same paragraph.\
@@ -1207,7 +1228,7 @@ No header setting is needed for a table without column titles:
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `table` | `children: TableRow[]`. | Optional `align: ("left"\|"center"\|"right"\|null)[]`, structured caption `title`. |
+| `table` | `children: TableRow[]`. | Optional `align: ("start"\|"center"\|"end"\|null)[]`, structured caption `title`. |
 | `tableRow` | `children: TableCell[]`. | Structural row grouping. |
 | `tableCell` | Exactly one of `value`, inline `children`, or block `body`. | Optional boolean `header`, default false; positive integer `colSpan`/`rowSpan`, default 1; string/flag attributes hold widths and styling. |
 
@@ -1744,14 +1765,16 @@ The untitled positional form also accepts `{transpose}`. With positional
 
 ### Alignment
 
-Optional `align="left,right"` sets alignment by **displayed column**, after any
-transposition. Use `left`, `center`, `right` or `-` for the default. One entry
+Optional `align="start,end"` sets alignment by **displayed column**, after any
+transposition. Use `start`, `center`, `end` or `-` for the default. One entry
 applies to every column; multiple entries match the displayed column count.
-For example, `::: table {header align="left,right"}` aligns labels left and
-amounts right. Cell width and wrapping remain renderer choices.
+For example, `::: table {header align="start,end"}` aligns labels at the inline start and
+amounts at the inline end. `start` and `end` follow each cell’s text direction,
+matching CSS `text-align: start` and `text-align: end`; they adapt to RTL content.
+Physical `left` and `right` are invalid alignment values. Cell width and wrapping remain renderer choices.
 
 ```md
-::: table {header align="left,right"}
+::: table {header align="start,end"}
 
 - - Item
   - Amount
@@ -1767,14 +1790,14 @@ amounts right. Cell width and wrapping remain renderer choices.
 <table>
     <thead>
   <tr>
-    <th scope="col">Item</th>
-    <th scope="col" style="text-align:right">Amount</th>
+    <th scope="col" style="text-align:start">Item</th>
+    <th scope="col" style="text-align:end">Amount</th>
   </tr>
 </thead>
   <tbody>
 <tr>
-  <td>Package</td>
-  <td style="text-align:right">24</td>
+  <td style="text-align:start">Package</td>
+  <td style="text-align:end">24</td>
 </tr>
 </tbody>
 </table>
@@ -1815,8 +1838,8 @@ amounts right. Cell width and wrapping remain renderer choices.
     }
   ],
   "align": [
-    "left",
-    "right"
+    "start",
+    "end"
   ]
 }
 ```
@@ -2385,15 +2408,26 @@ Custom `info`, `important` or `caution` types are valid, not aliases for core ty
 
 Center a group of blocks and their text together:
 
-```md
+````md
 ::: layout {align=center}
-![Service diagram](services.svg){width=320 responsive}
+```text
+Client → API → Queue
+```
 
 Services communicate through a shared queue.
 :::
-```
+````
 
-The image block and caption paragraph are centered, and their text is centered.
+:::: {.render title="Centered layout: blocks and text" height="180"}
+```html
+<div data-type="layout" data-align="center" style="display:flow-root;text-align:center;border:1px dashed GrayText;padding:16px">
+  <div style="inline-size:fit-content;max-inline-size:100%;margin-inline:auto"><pre><code>Client → API → Queue</code></pre></div>
+  <div style="inline-size:fit-content;max-inline-size:100%;margin-inline:auto"><p>Services communicate through a shared queue.</p></div>
+</div>
+```
+::::
+
+The code block and caption paragraph are centered, and their text is centered.
 The body accepts any block content, including figures, quotations, code, lists,
 tables and nested layouts. A layout supplies presentation, not new document
 meaning or a heading level.
@@ -2422,14 +2456,35 @@ Physical `left`/`right` values have no layout meaning.
 Float a quotation and its attribution together, without making either an image:
 
 ```md
-::: layout {float=end & align=center}
+::: layout {float=end & align=center & style="inline-size:12rem"}
 > A small example is easier to understand.
 
 — The editor
 :::
 
-This paragraph can flow beside the quotation when there is enough room.
+This paragraph flows beside the quotation when there is enough room. The quote
+and its attribution stay together as one group, while this text continues in
+normal reading order. A layout can hold any group of blocks, so a sidebar does
+not need to be an image.
+
+As the paragraph grows beyond the group's height, its remaining lines use the
+full available width. The following paragraph stays in the same document flow.
+Use this pattern for a short aside or a compact group of supporting content;
+keep longer material in the main flow so it remains comfortable to read.
 ```
+
+:::: {.render title="Floating layout: text flows around the group" height="330"}
+```html
+<article style="display:flow-root">
+  <div data-type="layout" data-float="end" data-align="center" style="float:inline-end;display:flow-root;box-sizing:border-box;inline-size:12rem;max-inline-size:100%;margin-inline-start:16px;margin-block-end:12px;padding:14px;border-inline-start:4px solid LinkText;background:color-mix(in srgb,LinkText 8%,Canvas);text-align:center">
+    <blockquote style="margin:0"><p>A small example is easier to understand.</p></blockquote>
+    <p>— The editor</p>
+  </div>
+  <p>This paragraph flows beside the quotation when there is enough room. The quote and its attribution stay together as one group, while this text continues in normal reading order. A layout can hold any group of blocks, so a sidebar does not need to be an image.</p>
+  <p>As the paragraph grows beyond the group's height, its remaining lines use the full available width. The following paragraph stays in the same document flow. Use this pattern for a short aside or a compact group of supporting content; keep longer material in the main flow so it remains comfortable to read.</p>
+</article>
+```
+::::
 
 The group retains its source position and internal reading order. Floating
 does not reorder its children or turn them into columns. A renderer may keep
@@ -2564,7 +2619,7 @@ pnpm add example-package
 :::
 ````
 
-:::: {.render title="Choose an installation command" height="250" interactive="tabs"}
+:::: {.render title="Choose an installation command" height="180" interactive="tabs"}
 ```html
 <div data-tabs aria-label="Package manager">
   <section data-tab="npm"><h3>npm</h3><pre><code>npm install example-package</code></pre></section>
@@ -2643,7 +2698,7 @@ TypeScript example.
 ::::
 ```
 
-:::: {.render title="Tabs with explicit selection settings" height="240" interactive="tabs"}
+:::: {.render title="Tabs with explicit selection settings" height="180" interactive="tabs"}
 ```html
 <div data-tabs data-group="language" data-default="js" aria-label="Example language">
   <section data-tab="js"><h3>JavaScript</h3><p>JavaScript example.</p></section>
@@ -2824,7 +2879,7 @@ unsupported. Recommend a labelled `<span>` where color supplements the text.
 
 A **mention** names a person or entity. `@[Ada Lovelace]` and `@ada-lovelace` are
 valid without a stored target; bracketed labels can use inline formatting.
-`:mention[Ada Lovelace]` uses the general inline syntax.
+Mentions use `@` rather than the generic colon-prefixed inline syntax.
 
 ```md
 @[Ada Lovelace]#user-123{#acknowledgement}
@@ -2839,7 +2894,7 @@ stored references or changing labels.
 Bare handles end outside letters, numbers, combining marks, `_` and `-`.
 Emails, URLs, code and escaped `\@` stay ordinary content. Recommend a labelled
 span, or link when a URL is present, with an optional visible `@`.
-See [complete mention boundaries](/expressive-markdown/parsing#mention-shorthand).
+See [complete mention boundaries](/expressive-markdown/parsing#mentions).
 
 ### Table of contents
 

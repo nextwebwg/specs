@@ -10,8 +10,9 @@
   "scripts": {
     "check": "node --experimental-strip-types --disable-warning=ExperimentalWarning tools/check.ts",
     "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test tools/*.test.ts",
-    "verify:inner": "pnpm check && pnpm test",
-    "verify:pr": "pnpm verify:inner"
+    "verify:inner": "pnpm check && pnpm test && pnpm test:profiles",
+    "verify:pr": "pnpm verify:inner",
+    "test:profiles": "node --test html-feature-profiles/evidence/resolver.test.mjs"
   },
   "dependencies": {
     "markdown-it": "15.0.2",

@@ -1,0 +1,96 @@
+{
+  "scope": "Counterexample before adding popover to protected attributes; visibility/focus observations, not a demonstrated sanitizer bypass",
+  "recordedAt": "2026-10-19T17:54:14.914Z",
+  "reports": [
+    {
+      "engine": "chromium",
+      "version": "156.0.8078.4",
+      "cases": [
+        {
+          "name": "closed popover containment (empty)",
+          "pass": false,
+          "error": "Error: popover boundary retained\n    at check (http://127.0.0.1:62847/execution-browser.mjs:5:56)\n    at http://127.0.0.1:62847/execution-browser.mjs:117:3\n    at run (http://127.0.0.1:62847/execution-browser.mjs:22:10)\n    at async runExecutionCases (http://127.0.0.1:62847/execution-browser.mjs:113:37)\n    at async <anonymous>:337:30",
+          "trace": [
+            {
+              "contained": false,
+              "closedRects": 1,
+              "closedFocus": true
+            }
+          ]
+        },
+        {
+          "name": "closed popover containment (invalid)",
+          "pass": false,
+          "error": "Error: popover boundary retained\n    at check (http://127.0.0.1:62847/execution-browser.mjs:5:56)\n    at http://127.0.0.1:62847/execution-browser.mjs:117:3\n    at run (http://127.0.0.1:62847/execution-browser.mjs:22:10)\n    at async runExecutionCases (http://127.0.0.1:62847/execution-browser.mjs:113:37)\n    at async <anonymous>:337:30",
+          "trace": [
+            {
+              "contained": false,
+              "closedRects": 1,
+              "closedFocus": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "version": "157.0",
+      "cases": [
+        {
+          "name": "closed popover containment (empty)",
+          "pass": false,
+          "error": "check@http://127.0.0.1:62847/execution-browser.mjs:5:56\nrunExecutionCases/<@http://127.0.0.1:62847/execution-browser.mjs:117:4\nrun@http://127.0.0.1:62847/execution-browser.mjs:22:10\nasync*runExecutionCases@http://127.0.0.1:62847/execution-browser.mjs:113:43\nasync*@debugger eval code line 311 > eval:1:12\nevaluate@debugger eval code:313:16\n@debugger eval code:1:44\n@debugger eval code:1:62\n",
+          "trace": [
+            {
+              "contained": false,
+              "closedRects": 1,
+              "closedFocus": true
+            }
+          ]
+        },
+        {
+          "name": "closed popover containment (invalid)",
+          "pass": false,
+          "error": "check@http://127.0.0.1:62847/execution-browser.mjs:5:56\nrunExecutionCases/<@http://127.0.0.1:62847/execution-browser.mjs:117:4\nrun@http://127.0.0.1:62847/execution-browser.mjs:22:10\nasync*runExecutionCases@http://127.0.0.1:62847/execution-browser.mjs:113:43\nasync*@debugger eval code line 311 > eval:1:12\nevaluate@debugger eval code:313:16\n@debugger eval code:1:44\n@debugger eval code:1:62\n",
+          "trace": [
+            {
+              "contained": false,
+              "closedRects": 1,
+              "closedFocus": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "cases": [
+        {
+          "name": "closed popover containment (empty)",
+          "pass": false,
+          "error": "check@http://127.0.0.1:62847/execution-browser.mjs:5:65\n@http://127.0.0.1:62847/execution-browser.mjs:117:4\nrun@http://127.0.0.1:62847/execution-browser.mjs:22:16\nasync runExecutionCases@http://127.0.0.1:62847/execution-browser.mjs:113:46\n@",
+          "trace": [
+            {
+              "contained": false,
+              "closedRects": 1,
+              "closedFocus": true
+            }
+          ]
+        },
+        {
+          "name": "closed popover containment (invalid)",
+          "pass": false,
+          "error": "check@http://127.0.0.1:62847/execution-browser.mjs:5:65\n@http://127.0.0.1:62847/execution-browser.mjs:117:4\nrun@http://127.0.0.1:62847/execution-browser.mjs:22:16\nasync runExecutionCases@http://127.0.0.1:62847/execution-browser.mjs:113:46\n@",
+          "trace": [
+            {
+              "contained": false,
+              "closedRects": 1,
+              "closedFocus": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

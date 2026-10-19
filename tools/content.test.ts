@@ -22,7 +22,7 @@ test("the type system separates base types, permitted values, and selected types
   for (const section of ["components", "examples", "styling"]) {
     assert.doesNotMatch(chapter(section), /type="enum\(/, section);
   }
-  assert.match(types, /A declared prop resolves to its `default` when it is omitted or supplied as `null`/);
+  assert.match(types, /A declared value keeps its type, as HTML.s reflected attributes do/);
   assert.ok(types.indexOf("| `string` |") < types.indexOf("| `length` |"));
   assert.doesNotMatch(types, /^### (?:Combinators|Multipliers|Precedence)$/m);
 });

@@ -1,0 +1,19 @@
+{
+  "tool": "Lean (version 4.35.0, arm64-apple-darwin24.6.0, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc, Release)",
+  "source": "Projection.lean",
+  "sha256": "37ef353cb86ef0525f57b02343ba6b6ebda36458d8bc143cc34e88c84529fa89",
+  "exitCode": 0,
+  "stdout": "'HTMLNext.Forest.preorder_project' depends on axioms: [propext]\n'HTMLNext.Forest.protectedPaths_project' depends on axioms: [propext]\n",
+  "stderr": "",
+  "theorems": [
+    "preorder_project",
+    "protectedPaths_project"
+  ],
+  "scope": "Pure containment projection over already recognized immutable node payloads; protected flags and eligibility are inputs, not proofs about tokenizer classification or browser execution",
+  "assumptions": [
+    "Lean kernel and standard library",
+    "propext (reported by Lean)",
+    "Payload includes node identity and all data to be preserved",
+    "Protected roots and containers must be correctly classified by the caller"
+  ]
+}

@@ -381,7 +381,7 @@ The explicit numeric presets set the native `style`; a conflicting authored `sty
 
 ### Inference follows the declared type
 
-Each supported type has one default formatter. Inference never parses an ordinary string to guess its meaning, and never guesses a formatter from option names. Constraints do not change the underlying formatting identity. Nullable unions ignore absence; other union members must agree on one identity. A selected type can infer only when all possible selections agree. An ordinary string, unknown value, or conflicting union requires an explicit formatter.
+Each supported type has one default formatter. Inference never parses an ordinary string to guess its meaning, and never guesses a formatter from option names. Constraints do not change the underlying formatting identity. Absence and `null` take no part in inference; the members of a union must agree on one identity. A selected type can infer only when all possible selections agree. An ordinary string, unknown value, or conflicting union requires an explicit formatter.
 
 | Declared type | Inferred formatter |
 | --- | --- |

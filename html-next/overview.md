@@ -53,19 +53,19 @@ Two ideas hold the whole thing up:
 
 ## How "done" is measured
 
-The specification advances through **Levels**, as CSS specifications do: this draft is Level&nbsp;1, the shipping baseline, and features beyond it are marked for a later Level where they appear. A dated **Snapshot** records the draft on a given day. A feature is real when it is specified and has conformance tests, not when a number is announced.
+The specification advances through **Levels**, as CSS specifications do: this draft is Level&nbsp;1, including templating and live reactivity, and features beyond it are marked for a later Level where they appear. A Level describes the language contract, not an implementation milestone. A dated **Snapshot** records the draft on a given day. An implementation should identify the snapshot it supports; conformance tests establish whether it meets that contract.
 
-## What is solid, and what is still open
+## What the draft defines, and what is still open
 
-Being plain also means being honest about maturity:
+This is a Stage&nbsp;0 proposal. The chapters define the language; implementation coverage belongs in the [reference tools](https://github.com/nextwebwg/html-next).
 
 ::: two
 
-> [!ex] Solid today
-> The component model, templating and control flow, the expression language and its value semantics, bindings, types, style scoping, and the shape of the JavaScript layer, all specified, and the browser-lowering and validation paths have a tested reference implementation.
+> [!ex] Defined in Level 1
+> Typed native-root components and slots, templating and control flow, expressions, bindings, live state and computed updates, reactive data resources, validation, and style scoping. The browser runtime and compiled targets share one observable-equivalence contract.
 
 > [!warn] Still open
-> Live reactive updates in the browser (a later Level), real-time data (SSE/WebSocket), routing, demand-driven lazy loading gated on reactive state, and the full converter targets. These are named as open, not hidden ([details](/declarative-components/javascript)).
+> Some hydration records remain unresolved, including explicit prop recovery and logical ownership through server-rendered portals ([Rendered Form & Hydration](/declarative-components/rendered-form#open-questions)). Untagged type unions and writable computed bindings remain explorations. External composition is marked for Level 2; deeper native-element and Shadow DOM integration needs upstream platform work.
 
 :::
 

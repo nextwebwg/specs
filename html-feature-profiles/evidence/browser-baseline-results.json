@@ -1,0 +1,134 @@
+{
+  "runtime": "v24.20.0",
+  "scope": "Unmodified browser API baseline, not native support for proposed profile options. Unknown dictionary options can be ignored.",
+  "sourceSHA256": "9e7589bda5e9f5cec48b479247d5ea784b571450be3fd87c548e5b5b6ff84b50",
+  "reports": [
+    {
+      "engine": "chromium",
+      "version": "156.0.8078.4",
+      "cases": [
+        {
+          "method": "parseHTML",
+          "available": true,
+          "baselineMarkup": "<div><span>tail</span></div>",
+          "baselineParent": "DIV",
+          "explicitParent": "DIV",
+          "doctypeParent": "DIV",
+          "profileGetterReads": 0,
+          "unsupportedError": null,
+          "hasResolvedProfileRecord": false,
+          "scriptElements": 0,
+          "eventAttributes": 0,
+          "javascriptURLs": 0,
+          "customHostElements": 0,
+          "optionalDefaultSanitizer": {
+            "scriptElements": 0,
+            "eventAttributes": 0,
+            "javascriptURLs": 0
+          },
+          "sourceScriptExecuted": false
+        },
+        {
+          "method": "parseHTMLUnsafe",
+          "available": true,
+          "baselineMarkup": "<div id=\"empty\"><span id=\"after\">tail</span></div>",
+          "baselineParent": "DIV",
+          "explicitParent": "DIV",
+          "doctypeParent": "DIV",
+          "profileGetterReads": 0,
+          "unsupportedError": null,
+          "hasResolvedProfileRecord": false,
+          "scriptElements": 1,
+          "eventAttributes": 1,
+          "javascriptURLs": 1,
+          "customHostElements": 1,
+          "optionalDefaultSanitizer": {
+            "scriptElements": 0,
+            "eventAttributes": 0,
+            "javascriptURLs": 1
+          },
+          "sourceScriptExecuted": false
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "version": "157.0",
+      "cases": [
+        {
+          "method": "parseHTML",
+          "available": true,
+          "baselineMarkup": "<div><span>tail</span></div>",
+          "baselineParent": "DIV",
+          "explicitParent": "DIV",
+          "doctypeParent": "DIV",
+          "profileGetterReads": 0,
+          "unsupportedError": null,
+          "hasResolvedProfileRecord": false,
+          "scriptElements": 0,
+          "eventAttributes": 0,
+          "javascriptURLs": 0,
+          "customHostElements": 0,
+          "optionalDefaultSanitizer": {
+            "scriptElements": 0,
+            "eventAttributes": 0,
+            "javascriptURLs": 0
+          },
+          "sourceScriptExecuted": false
+        },
+        {
+          "method": "parseHTMLUnsafe",
+          "available": true,
+          "baselineMarkup": "<div id=\"empty\"><span id=\"after\">tail</span></div>",
+          "baselineParent": "DIV",
+          "explicitParent": "DIV",
+          "doctypeParent": "DIV",
+          "profileGetterReads": 0,
+          "unsupportedError": null,
+          "hasResolvedProfileRecord": false,
+          "scriptElements": 1,
+          "eventAttributes": 1,
+          "javascriptURLs": 1,
+          "customHostElements": 1,
+          "optionalDefaultSanitizer": {
+            "scriptElements": 0,
+            "eventAttributes": 0,
+            "javascriptURLs": 1
+          },
+          "sourceScriptExecuted": false
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "cases": [
+        {
+          "method": "parseHTML",
+          "available": false
+        },
+        {
+          "method": "parseHTMLUnsafe",
+          "available": true,
+          "baselineMarkup": "<div id=\"empty\"><span id=\"after\">tail</span></div>",
+          "baselineParent": "DIV",
+          "explicitParent": "DIV",
+          "doctypeParent": "DIV",
+          "profileGetterReads": 0,
+          "unsupportedError": null,
+          "hasResolvedProfileRecord": false,
+          "scriptElements": 1,
+          "eventAttributes": 1,
+          "javascriptURLs": 1,
+          "customHostElements": 1,
+          "optionalDefaultSanitizer": {
+            "scriptElements": 1,
+            "eventAttributes": 1,
+            "javascriptURLs": 1
+          },
+          "sourceScriptExecuted": false
+        }
+      ]
+    }
+  ]
+}

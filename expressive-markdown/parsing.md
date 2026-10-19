@@ -146,7 +146,7 @@ When normalizing an explicit `tabs` body's direct children, retain its tab child
 
 Canonical writers omit the group wrapper when no authored group settings, title or ID need representation and doing so preserves group boundaries. Keep an explicit wrapper where adjacent groups would otherwise merge. Otherwise write a normal `tabs` container with nested `tab` containers and matching fence lengths. A tab's title is inline Markdown and its selection value is string `attributes.value` or its title's plain text.
 
-## Mention shorthand
+## Mentions
 
 | Source | AST content |
 | --- | --- |
@@ -154,15 +154,18 @@ Canonical writers omit the group wrapper when no authored group settings, title 
 | `@ada-lovelace` | Same family/subtype, `value: "ada-lovelace"`. |
 | `@[Ada Lovelace]#user-123` | Same label, plus node `ref: "user-123"`. |
 | `@ada-lovelace#user-123` | Bare handle label plus the same node `ref`. |
-| `:mention[Ada Lovelace]` | Equivalent generic named form. |
 
 The `@` marker is syntax, not part of the label value. A bracketed mention uses the ordinary inline label grammar and optional immediately adjacent attribute lists. A bare handle starts with a Unicode letter, number or `_`; it continues through Unicode letters, combining marks, numbers, `_` and `-`. Preserve label casing and Unicode exactly. Bare handles also accept immediately adjacent attribute lists.
 
-Recognize shorthand only when `@` is not immediately preceded by a letter, combining mark, number, `_`, `-`, `.`, `/` or another `@`. Escaped markers, code, raw HTML and link destinations retain their lexical rules; existing CommonMark/GFM email/URL recognition takes precedence. Invalid bracket/handle structure stays literal under local recovery.
+Recognize a mention only when `@` is not immediately preceded by a letter, combining mark, number, `_`, `-`, `.`, `/` or another `@`. Escaped markers, code, raw HTML and link destinations retain their lexical rules; existing CommonMark/GFM email/URL recognition takes precedence. Invalid bracket/handle structure stays literal under local recovery.
+
+Markdown mentions use the `@` syntax exclusively. The name `mention` is excluded from
+generic colon-prefixed inline directives: `:mention[...]` and its attribute-only
+form remain ordinary text, including case variants of the name.
 
 An immediately adjacent `#reference` suffix belongs to the mention, before optional attribute lists. Its token uses the same characters as a bare handle; sentence punctuation such as the final `.` is excluded. A `#` without a valid reference token stays literal after the otherwise valid mention. The suffix maps to the optional string field `ref`, not `id` or `attributes.ref`. It is an opaque entity reference, not implicitly a URL fragment.
 
-For references containing other characters, the general form `:mention[Ada Lovelace]{ref="org/user-123"}` or `@[Ada Lovelace]{ref="org/user-123"}` remains available. The recognized string `ref` attribute is promoted to the node field, not duplicated in `attributes`. A suffix followed by a `ref` assignment resolves in source order, last occurrence wins. Unsupported non-string `ref` values preserve recoverable source and recommend a diagnostic rather than inventing a target.
+For references containing other characters, use `@[Ada Lovelace]{ref="org/user-123"}`. The recognized string `ref` attribute is promoted to the node field, not duplicated in `attributes`. A suffix followed by a `ref` assignment resolves in source order, last occurrence wins. Unsupported non-string `ref` values preserve recoverable source and recommend a diagnostic rather than inventing a target.
 
 A missing target is valid. Host resolution does not implicitly populate `id` or `ref`. Generic `{#id}` still identifies this occurrence independently. Writers prefer `@[label]#reference{attributes}` when a reference fits the suffix grammar, the full-string attribute form otherwise, and omit absent parts. Optional provenance may retain bare spelling.
 

@@ -31,47 +31,74 @@ W3C, WHATWG or a browser vendor, or require browsers to parse Markdown.
 
 ## Why Expressive Markdown
 
-Documentation often moves between text editors, rich editors and publishing
-tools. Those tools may preserve the words while losing the structure needed
-for further editing.
+Rich editors can store formatting, block structure and document metadata as
+well as words. Saving that document as Markdown and opening it again requires
+the text file to carry that information:
+
+**Rich editor → Markdown → rich editor**
+
+The goal is to preserve rich content through that round trip while keeping the
+Markdown source readable and practical to edit by hand.
 
 CommonMark defines ordinary Markdown. GFM adds tables, task lists and
 strikethrough.[^1] Expressive Markdown builds on these formats to address three
-recurring problems in richer documents.
+recurring problems in richer documents:
 
-### Conversions can lose structure
+### Problem #1 - Conversions can lose structure
 
-A warning can become a styled paragraph. A titled block can lose the
-distinction between its title and body. Saving the result as Markdown cannot
-reliably recover that information.
+A rich editor may support warning callouts, centered layouts and tab groups.
+CommonMark and GFM have no standard shorthand for those features. Even when an
+editor supports them fully, its Markdown export needs a way to describe them.
+
+For example, a warning exported using only ordinary Markdown shorthand might
+keep its words and bold title:
+
+```md
+**Before upgrading**
+
+Back up your data.
+```
 
 ::::: {.two}
 :::: {.example}
-**Markdown source**
+**Before export: a warning in the rich editor**
+
+> [!warn] Before upgrading
+> Back up your data.
+::::
+
+:::: {.example}
+**After reimporting that Markdown (illustrative)**
+
+**Before upgrading**
+
+Back up your data.
+::::
+:::::
+
+The file contains no warning type or separate title field. Even the same editor
+cannot reliably tell whether the bold paragraph was a warning title or ordinary
+formatted text. The information was lost in the export representation. Raw
+HTML or tool-specific extensions can carry extra information; restoring it
+still needs agreed import rules.
+
+Expressive Markdown defines readable extensions for that context:
 
 ```md
 ::: warning [Before upgrading]
 Back up your data.
 :::
 ```
-::::
 
-:::: {.example}
-**Rendered warning**
-
-> [!warn] Before upgrading
-> Back up your data.
-::::
-:::::
-
-Expressive Markdown defines **text syntax and a shared document tree**, with
-explicit fields for titles, content and attributes. Editors and publishers
-have a common representation to preserve through conversion, even when
-whitespace or presentation changes.
+The container names the warning and separates its title from its body. Shared
+attributes carry formatting and settings; YAML frontmatter carries document
+metadata. These details stay explicit in the text, with a shared document tree
+for tools to read and write consistently. That is the “expressive” part: richer
+documents without giving up readable Markdown.
 
 [See the warning example →](/expressive-markdown/language#named-constructs)
 
-### Tables can be hard to edit
+### Problem #2 - Tables can be hard to edit
 
 Pipe tables work well for short values. Long rows are harder to scan and
 require editing across columns. GFM cells cannot contain block content such
@@ -94,15 +121,17 @@ aligning neighboring columns, and cells can hold ordinary Markdown blocks:
 [Explore tables and merged cells →](/expressive-markdown/language#tables)
 Traditional pipe tables remain supported for compatibility.
 
-### Extensions vary between tools
+### Problem #3 - Extensions vary between tools
 
 Documentation tools provide callouts, tabs and other features through
 extensions. Their syntax and conventions vary, so moving a document can
 require translating those features individually.[^2][^3]
 
 CommonMark and GFM do not define a shared format for those features.
-Expressive Markdown proposes consistent syntax, common meanings and document
-data for them. Custom types use the same grammar.
+Expressive Markdown brings common extensions into **one well-defined syntax**,
+with shared meanings and a document model. Containers, inline extensions,
+attributes and YAML frontmatter carry rich structure, formatting context and
+metadata in readable source. Custom types use the same grammar.
 
 The format is independent of a component framework or site generator.
 

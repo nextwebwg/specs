@@ -31,9 +31,9 @@ W3C, WHATWG or a browser vendor, or require browsers to parse Markdown.
 
 ## Why Expressive Markdown
 
-Documentation often moves between text editors, rich editors and publishing
-tools. Those tools may preserve the words while losing the structure needed
-for further editing.
+Documentation is often edited both as Markdown source and in a rich editor.
+A document can make the round trip **Markdown → rich editor → Markdown**.
+That round trip needs to preserve the document's meaning as well as its words.
 
 CommonMark defines ordinary Markdown. GFM adds tables, task lists and
 strikethrough.[^1] Expressive Markdown builds on these formats to address three
@@ -41,13 +41,13 @@ recurring problems in richer documents:
 
 ### Problem #1 - Conversions can lose structure
 
-A warning can become a styled paragraph. A titled block can lose the
-distinction between its title and body. Saving the result as Markdown cannot
-reliably recover that information.
+Consider an editor that imports a warning as ordinary paragraphs with some
+formatting. If its document model stores only those paragraphs, an export can
+keep every word while losing the warning's type and its separate title and body:
 
 ::::: {.two}
 :::: {.example}
-**Markdown source**
+**Original Markdown**
 
 ```md
 ::: warning [Before upgrading]
@@ -57,17 +57,24 @@ Back up your data.
 ::::
 
 :::: {.example}
-**Rendered warning**
+**After a paragraph-only conversion (illustrative)**
 
-> [!warn] Before upgrading
-> Back up your data.
+```md
+**Before upgrading**
+
+Back up your data.
+```
 ::::
 :::::
 
+The export still contains the same words, but nothing identifies them as a
+warning. The bold text could be an ordinary paragraph or the warning's title;
+a writer cannot recover that distinction from the flattened version alone.
+
 Expressive Markdown defines **text syntax and a shared document tree**, with
-explicit fields for titles, content and attributes. Editors and publishers
-have a common representation to preserve through conversion, even when
-whitespace or presentation changes.
+explicit fields for a block's type, title and body. Editors that support these
+nodes can keep those distinctions through import, editing and export, even
+when whitespace or presentation changes.
 
 [See the warning example →](/expressive-markdown/language#named-constructs)
 

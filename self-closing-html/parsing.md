@@ -9,7 +9,7 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Parsing rules
 
-Define which elements can self-close, how recovery works, and where the new grammar applies.
+This chapter is the implementation reference: which elements can self-close, how the browser handles them, and which APIs can request the behavior. For the motivation and examples, start with the [proposal overview](/self-closing-html/). For what is fixed and what remains open, read the [issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme).
 
 ## Select the capability
 

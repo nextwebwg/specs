@@ -9,21 +9,39 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Security and evidence
 
-The reported text-to-markup exploit is blocked by the static reference design. The key change is to DOM containment: existing HTML still decides what is text and what is an element.
+Self-closing syntax must not turn harmless text into running code, expose hidden controls, or silently change how a library reads HTML. The proposal addresses these problems by keeping HTML’s existing decisions about text and tags, preserving sensitive containers, and requiring an explicit request for the new parsing behavior.
 
-## Two objections, two rules
+**There is a working experimental browser implementation, but this is not ready for browser shipment.** The tests below demonstrate specific fixes. Encoding restarts, broader conformance, and implementer security review remain open.
+
+## Issue checklist
+
+A checked item means the stated fix has evidence at the level described. It does not mean every possible browser input has been proved safe.
+
+- [x] **Apparent tags inside text stay text.** Do not let the slash close `style` or other text-sensitive elements. Keep HTML’s normal interpretation of later text and SVG boundaries. The mathematical proof checks the rearrangement rule; browser examples check selected parsing cases.
+- [x] **Hidden controls keep their protection in the tested cases.** Preserve sensitive containers and attributes, including a `popover` protection added after a test exposed a bug.
+- [x] **Existing library parsing calls keep their meaning.** The proposed contract requires an explicit request for new string-parsing behavior; the prototype tests check isolation.
+- [x] **Streaming, scripts, callbacks, pauses, and mutations work in the recorded native cases.** The experimental browser passes 31 targeted checks and 200 reference comparisons. This is evidence from one native engine, not production support.
+- [x] **Shadow roots stay with their hosts in the tested native cases.** A separate serialization shortcut failed and is not a general conversion method.
+- [ ] **Serialization is not generally proved safe.** Generated tests found no new monitored exposure, but do not remove the known conversion limitation.
+- [ ] **Fast look-ahead loading remains incomplete.** The native prototype disables that optimization rather than proving an optimized loader correct.
+- [ ] **Encoding restarts, memory stress, broader conformance, and security review remain open.** A timed-out stress run is not a pass.
+- [ ] **The newer profile selectors and parsing options need native implementation.** The native experiment tests only the earlier literal `PUBLIC "next"` opt-in.
+
+[Read each issue’s solution, evidence, and limits →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme)
+
+## The two main risks
 
 The 2023 WHATWG proposal already suggested a document opt-in. The objections concern what happens after opting in: old sanitizers can disagree with the parser, and a document flag can silently change a library's parsing behavior.[^1][^2]
 
 | Objection | Proposed answer |
 | --- | --- |
-| A sanitizer approves text that the browser exposes as executable markup. | Preserve HTML's recognition of text and namespaces. Change only eligible containment edges. The static construction blocks this text-to-markup mechanism. |
-| A library receives a different parsing grammar without requesting it. | Apply the doctype to document source only. Existing insertion APIs keep their grammar; dynamic Next parsing requires an explicit request. |
+| A sanitizer approves text that the browser exposes as executable markup. | Keep HTML’s decision about what is text and what is a tag. Change only where eligible nodes sit in the document tree. |
+| A library receives a different parsing grammar without requesting it. | Keep existing string-insertion calls on their current rules. New parsing behavior requires an explicit request. |
 
 The earlier #721 discussion also raises compatibility with existing authored markup, including names containing hyphens.[^3] Plain HTML keeps its meaning. Only the explicit Next declaration selects the new document profile; custom-element registration cannot change that profile. Unsupported browsers still need a correct fallback.
 
 > [!ex] What is resolved, and at what level?
-> The reported text-to-markup mechanism is eliminated by the reference construction. The distant-mode-switch problem is excluded by the proposed API contract. The experimental native implementation exercises both rules during execution; the bounded results below do not establish universal safety.
+> The model prevents rearrangement from turning text into tags. The proposed API rules keep existing library calls on their original behavior. The native prototype tests selected examples of both; that does not establish safety for every possible page.
 
 ## Block the direct style exploit
 
@@ -33,9 +51,9 @@ This is the sanitizer-mismatch example from the thread:[^1]
 <style/><img src onerror=alert(1)><style></style>
 ```
 
-Ordinary HTML ignores the slash on `style` and enters raw-text tokenization. The apparent image is character data inside the stylesheet. Expanding `<style/>` into `<style></style>` would instead leave that text container and expose an image with an event handler.
+Ordinary HTML ignores the slash on `style`. The apparent image is text inside the stylesheet. Expanding `<style/>` into `<style></style>` would instead leave that text container and expose an image with an event handler.
 
-**The proposal keeps `style` exempt from self-closing.** The slash therefore cannot end its text container. The tokenizer consumes the apparent image as text, so there is no image element to load and no `onerror` handler to attach.
+**The proposal keeps `style` exempt from self-closing.** The slash therefore cannot end its text container. The parser reads the apparent image as text, so there is no image element to load and no `onerror` handler to attach.
 
 The same rule covers `script`, `textarea`, and the other text-sensitive names in the [eligibility table](/self-closing-html/parsing#preserve-sensitive-elements). Parsing must also use the same scripting state: disagreement about `noscript` caused the Bleach mutation-XSS vulnerability.[^4]
 
@@ -46,6 +64,12 @@ Exempting `style` alone does not protect a later style element whose namespace c
 ```html
 <div/><svg></div><style><img data-probe></style></svg>
 ```
+
+The safe result is that the apparent image stays text. Merely replacing `<div/>` with `<div></div>` can break that result: the later closing tag no longer ends the same HTML/SVG context.
+
+The proposed parser remembers the div until ordinary HTML rules close it, even though the div is already empty in the output. That lets the later `</div>` exit SVG correctly. The following `style` is then read as an HTML stylesheet, keeping the apparent image as text.
+
+::: {.details summary="Technical walkthrough: HTML/SVG recovery, step by step"}
 
 ### What naive expansion gets wrong
 
@@ -83,6 +107,8 @@ At `</div>`, ordinary HTML recovery can still find the retained div in scope. It
 The stack follows ordinary HTML recovery throughout the parse. Entries expire when those rules pop them, including when an ancestor closes. Ignored start tags create no entry. Heading aliases, formatting state, form state, and namespace transitions retain their existing handling.
 
 This is more than remembering a tag name. A permanent list of previously self-closed names can treat an expired entry as live and exit SVG at the wrong time. The [recorded counterexamples](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence) show that failure.
+
+:::
 
 ## Keep a library's parsing contract stable
 
@@ -138,7 +164,13 @@ The [verification record](https://github.com/nextwebwg/specs/blob/main/self-clos
 
 The static prototype computes the ordinary recognized tree first, then applies containment changes. A native browser must maintain equivalent recognition state independently of output parenting and produce the specified DOM incrementally. The Ladybird prototype implements native output routing and tests script, custom-element reaction, and mutation checkpoints; production conformance remains an obligation.
 
-## What the experiments establish
+## Detailed test records
+
+The [issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme) translates the findings into problems and answers. Expand this section for counts, methods, and the native implementation’s precise limits.
+
+::: {.details summary="Technical evidence: test methods, counts, native coverage, and failed attempts"}
+
+### What the experiments establish
 
 The experiments test the reference construction and expose boundaries that a browser implementation must preserve. They use the earlier literal `PUBLIC "next"` opt-in. The proposed named selectors and preset-resolution contract in [HTML Feature Profiles](/html-feature-profiles/) are not implemented or proved by these results.
 
@@ -191,11 +223,14 @@ The [native patch](https://github.com/nextwebwg/specs/blob/main/self-closing-htm
 
 The first native routing attempt passed 30 of 31 execution checks but disagreed with 23 of 200 generated reference outputs. The retained initial results show why compilation was insufficient. Freezing eligibility before foreign-content recovery and replacing stale child offsets with live sibling boundaries corrected the recorded cases. The final normal run passes both suites without skipping a baseline disagreement. A separate allocation-by-allocation GC stress attempt timed out at 180 seconds without completing refinement; the remaining stress test was stopped. That attempt is inconclusive and supplies no passing memory-safety evidence. The initial patch and results remain evidence of falsification and regression, not current conformance claims. A separate existing upstream parser selection passes 16 tests with the patch; the full upstream suite was not run.
 
+
+:::
+
 ## Requirements before browser shipment
 
 A native implementation must construct the specified DOM incrementally and preserve its boundaries at script and custom-element reaction checkpoints. Rewriting an already active page after parsing does not implement this contract.
 
-Define parser pauses and encoding restarts, speculative loading, script-driven mutations, and document-writing isolation before shipment. Implement and verify shadow-root ownership under native execution. [Flexible HTML Nesting](/flexible-html-nesting/) is a separate proposal with its own recognition and safety obligations; these proofs do not establish its safety.
+Extend the tested pause, script, mutation, and shadow-root behavior to the full browser contract. Implement encoding restarts and verify any look-ahead loading optimization before enabling it. Finish memory stress tests, add shared browser conformance tests, and obtain implementer security review. [Flexible HTML Nesting](/flexible-html-nesting/) is a separate proposal with its own recognition and safety obligations; these proofs do not establish its safety.
 
 > [!warn] Implementation status
 > The static reference establishes text-to-markup preservation. Native streaming and execution now have passing bounded evidence in an experimental Ladybird implementation. Universal execution safety, production browser conformance, encoding restarts, Web Platform Tests, and implementer security review remain required before shipment.

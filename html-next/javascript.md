@@ -99,6 +99,9 @@ interface ComponentHost<
    *  Only paths rooted at a declared <state> are writable. */
   readonly state: State;
 
+  /** Returns one state, or every state, to its declared value. */
+  reset(name?: keyof State): void;
+
   /** One read-only resource per <data>; resource changes participate in effects. */
   readonly data: Readonly<Data>;
 
@@ -138,6 +141,7 @@ interface ComponentHost<
 | --- | --- | --- |
 | `host.root` | The component's root element, whose connection owns this controller's lifetime. | `:host` / the custom-element instance |
 | `host.state` | Read local mutable state, read-only computed state, and inherited `<context>` values. Only declared `<state>` entries are writable. Props and data resources are absent. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
+| <code>host.reset(<var>name</var>)</code> | Return a state to its declared `value`, or every state when no name is given. See [Resetting state](#resetting-state). | A form's `reset()`, which returns each control to its default |
 | <code>host.data.<var>name</var></code> | Read a declared `<data>` resource, including its `.pending`, `.value`, `.error`, and `.ok` fields. The resource is read-only. | The declared resource and its native fetch lifetime |
 | <code>host.scripts.<var>name</var></code> | Read a [declared script](/declarative-components/components#declared-scripts)'s status, wait for it with `ready`, or insert it now with `load()`. | The inserted `<script>` element's `load` and `error` events |
 | <code>host.props.<var>name</var></code> | Inspect a caller-supplied prop's accepted value, latest direct input, and validity. This is the controller's only path to a declared prop. | An HTML control separates its input and validity from the value its consumers read[^10] |
@@ -183,16 +187,33 @@ host.state.amount                 // undefined: props are absent from state
 host.props.amount.validity.badInput // true
 ```
 
+### Resetting state {#resetting-state}
+
+`host.reset(name)` returns one state to its declared `value`. `host.reset()` returns every state, in one batch. A form's `reset()` does the same for its controls.
+
+```js
+// <state name="count" type="integer" value="0">
+// <state name="filter" type="object({ text: string })" value="{ text: '' }">
+host.state.count = 5;
+host.state.filter.text = "ada";
+host.reset("count");   // count is 0 again
+host.reset();          // every state is back: count is 0 and filter is { text: '' }
+```
+
+The reset value is a fresh copy, so an object or list is a new one each time, never shared with an earlier reset. A state without a `value` resets to `null`. A name that is not a declared `<state>`, such as a computed value, a context or a prop, throws a `TypeError` that names it. A reset notifies its readers as any write does, only when the value changes, and renders in the next flush.
+
+Underneath, a reset is a `null` write: a state with a `value` always reads as its type, so writing `null` gives back that value ([Null and missing values](/declarative-components/types#null-and-missing-values)).
+
 ### State writes use the same checks as bindings {#state-writes-use-the-same-checks-as-bindings}
 
-A controller assignment proposes a value to the declared state, just as `<set>` or `bind:` does. The destination's type rules apply before the write. A `null` or `undefined` write is never wrong-typed: it resets the state to its declared `value`, or to `null` when it has none. A wrong-typed value is ignored, the state keeps its current value, and dependents are not notified. An attempt to assign computed state or an inherited context is likewise ignored because that destination is read-only.
+A controller assignment proposes a value to the declared state, just as `<set>` or `bind:` does. The destination's type rules apply before the write. A `null` or `undefined` write is never wrong-typed: a state with a `value` goes back to it, and one without stores `null`. A wrong-typed value is ignored, the state keeps its current value, and dependents are not notified. An attempt to assign computed state or an inherited context is likewise ignored because that destination is read-only.
 
 ```js
 // <state name="count" type="number" value="1">
 // <computed name="doubled" from="$count * 2">
 host.state.count = 2;          // accepted; doubled becomes 4
 host.state.count = 'blah';     // warning; count stays 2, doubled stays 4
-host.state.count = null;       // accepted; count resets to 1, doubled becomes 2
+host.state.count = null;       // accepted; count is 1 again, doubled becomes 2
 host.state.doubled = 10;       // warning; computed state stays read-only
 ```
 
@@ -1108,7 +1129,7 @@ Level
 
 ::: {.entry name="host" role="the instance window passed to a controller"}
 Provides
-: `element`, `state` (declared state only is writable), `refs`, `elements`, `scripts`, `on`, `effect`, `dispatch`, and `request` and `hasResponder` when the component declares a request
+: `element`, `state` (declared state only is writable), `reset`, `refs`, `elements`, `scripts`, `on`, `effect`, `dispatch`, and `request` and `hasResponder` when the component declares a request
 
 Effect lifetime
 : connected only; dependency changes are microtask-batched; cleanup runs before rerun and on disconnect; the returned stop function ends it early

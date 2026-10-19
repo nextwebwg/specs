@@ -37,9 +37,9 @@ for further editing.
 
 CommonMark defines ordinary Markdown. GFM adds tables, task lists and
 strikethrough.[^1] Expressive Markdown builds on these formats to address three
-recurring problems in richer documents.
+recurring problems in richer documents:
 
-### Conversions can lose structure
+### Problem #1 - Conversions can lose structure
 
 A warning can become a styled paragraph. A titled block can lose the
 distinction between its title and body. Saving the result as Markdown cannot
@@ -71,7 +71,7 @@ whitespace or presentation changes.
 
 [See the warning example →](/expressive-markdown/language#named-constructs)
 
-### Tables can be hard to edit
+### Problem #2 - Tables can be hard to edit
 
 Pipe tables work well for short values. Long rows are harder to scan and
 require editing across columns. GFM cells cannot contain block content such
@@ -94,7 +94,7 @@ aligning neighboring columns, and cells can hold ordinary Markdown blocks:
 [Explore tables and merged cells →](/expressive-markdown/language#tables)
 Traditional pipe tables remain supported for compatibility.
 
-### Extensions vary between tools
+### Problem #3 - Extensions vary between tools
 
 Documentation tools provide callouts, tabs and other features through
 extensions. Their syntax and conventions vary, so moving a document can

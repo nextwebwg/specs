@@ -368,9 +368,33 @@ the same document can be read in left-to-right and right-to-left contexts:
 
 ```md
 ::: layout {align=start dir=rtl lang=ar}
-مرحبًا بالعالم
+بداية السطر
+:::
+
+::: layout {align=center dir=rtl lang=ar}
+وسط السطر
+:::
+
+::: layout {align=end dir=rtl lang=ar}
+نهاية السطر
 :::
 ```
+
+:::: {.render title="RTL layout: start, center and end" height="220"}
+```html
+<div dir="rtl" lang="ar">
+  <div data-type="layout" data-align="start" style="display:flow-root;text-align:start;border-block-end:1px dashed GrayText">
+    <div style="inline-size:fit-content;max-inline-size:100%;margin-inline-start:0;margin-inline-end:auto"><p>بداية السطر</p></div>
+  </div>
+  <div data-type="layout" data-align="center" style="display:flow-root;text-align:center;border-block-end:1px dashed GrayText">
+    <div style="inline-size:fit-content;max-inline-size:100%;margin-inline:auto"><p>وسط السطر</p></div>
+  </div>
+  <div data-type="layout" data-align="end" style="display:flow-root;text-align:end;border-block-end:1px dashed GrayText">
+    <div style="inline-size:fit-content;max-inline-size:100%;margin-inline-start:auto;margin-inline-end:0"><p>نهاية السطر</p></div>
+  </div>
+</div>
+```
+::::
 
 Here start is the right edge. With `align=end`, the group aligns its content to
 the left edge; center stays centered. Hebrew follows the same direction rules.

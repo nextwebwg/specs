@@ -34,11 +34,15 @@ a { color: LinkText; }
 input[type="checkbox"]:disabled { appearance: none; display: inline-grid; place-content: center; inline-size: 1em; block-size: 1em; margin-inline: 0 .25em; vertical-align: -.1em; border: 2px solid currentColor; border-radius: .15em; color: CanvasText; background: Canvas; opacity: 1; }
 input[type="checkbox"]:disabled::before { content: "✓"; font: bold 1em/1 system-ui, sans-serif; visibility: hidden; }
 input[type="checkbox"]:disabled:checked::before { visibility: visible; }
-[role="tablist"] { display: flex; flex-wrap: wrap; gap: 6px; margin-block-end: 12px; }
-[role="tab"] { font: inherit; color: inherit; background: Canvas; border: 1px solid GrayText; border-radius: 6px; padding: 7px 12px; cursor: pointer; }
-[role="tab"][aria-selected="true"] { font-weight: 700; background: color-mix(in srgb, #2563eb 15%, Canvas); border-color: #2563eb; }
-[role="tab"]:focus-visible, [role="tabpanel"]:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
-[role="tabpanel"] > :first-child { margin-top: 0; }
+[role="tablist"] { display: flex; flex-wrap: wrap; gap: 0; margin: 0; border-block-end: 1px solid GrayText; }
+[role="tab"] { font: inherit; color: inherit; background: transparent; border: 0; border-block-end: 3px solid transparent; border-radius: 0; padding: 10px 18px; cursor: pointer; }
+[role="tab"]:hover { background: color-mix(in srgb, CanvasText 6%, Canvas); }
+[role="tab"][aria-selected="true"] { font-weight: 700; color: LinkText; border-block-end-color: LinkText; background: color-mix(in srgb, LinkText 8%, Canvas); }
+[role="tab"]:focus-visible, [role="tabpanel"]:focus-visible { outline: 2px solid LinkText; outline-offset: -3px; }
+[role="tabpanel"] { border: 1px solid GrayText; border-block-start: 0; border-radius: 0 0 6px 6px; padding: 18px; }
+[role="tabpanel"] > :is(header, h2, h3, h4):first-child { display: none; }
+[role="tabpanel"] > :is(p, pre):last-child { margin: 0; }
+
 `;
 
 export function renderPreview(html: string, title: string, height = "200", interactive?: string): string {

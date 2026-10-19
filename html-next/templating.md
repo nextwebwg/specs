@@ -145,7 +145,7 @@ An input may arrive later, or refresh while its previous value is still useful. 
 
 The three adjacent elements form one branch group. A usable accepted value selects `$await`. Without a usable value, a failure selects `$error`; otherwise `$else` is the unresolved fallback. The branches may be ordinary elements or `<template>` groups, and their directive attributes never appear in output.
 
-The subject names a declared binding: a prop, state, computed value, context read, or declared data source. `$await` observes that binding; it does not start a request or evaluate an arbitrary Promise-producing expression. Its value type is the subject declaration's type. A supplied value is immediately available, including valid `false`, zero, an empty string or list, and nullable null. Availability is not truthiness. An unavailable prerequisite makes a derived binding unavailable; failure propagates its cause. A pending caller binding still owns its destination input and does not activate that component's default source.
+The subject names a declared binding: a prop, state, computed value, context read, or declared data source. `$await` observes that binding; it does not start a request or evaluate an arbitrary Promise-producing expression. Its value type is the subject declaration's type. A supplied value is immediately available, including valid `false`, zero, an empty string or list, and valid null. Availability is not truthiness. An unavailable prerequisite makes a derived binding unavailable; failure propagates its cause. A pending caller binding still owns its destination input and does not activate that component's default source.
 
 ### Optional status name
 

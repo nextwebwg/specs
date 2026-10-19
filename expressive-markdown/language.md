@@ -2406,15 +2406,26 @@ Custom `info`, `important` or `caution` types are valid, not aliases for core ty
 
 Center a group of blocks and their text together:
 
-```md
+````md
 ::: layout {align=center}
-![Service diagram](services.svg){width=320 responsive}
+```text
+Client → API → Queue
+```
 
 Services communicate through a shared queue.
 :::
-```
+````
 
-The image block and caption paragraph are centered, and their text is centered.
+:::: {.render title="Centered layout: blocks and text" height="180"}
+```html
+<div data-type="layout" data-align="center" style="display:flow-root;text-align:center;border:1px dashed GrayText;padding:16px">
+  <div style="inline-size:fit-content;max-inline-size:100%;margin-inline:auto"><pre><code>Client → API → Queue</code></pre></div>
+  <div style="inline-size:fit-content;max-inline-size:100%;margin-inline:auto"><p>Services communicate through a shared queue.</p></div>
+</div>
+```
+::::
+
+The code block and caption paragraph are centered, and their text is centered.
 The body accepts any block content, including figures, quotations, code, lists,
 tables and nested layouts. A layout supplies presentation, not new document
 meaning or a heading level.
@@ -2443,14 +2454,35 @@ Physical `left`/`right` values have no layout meaning.
 Float a quotation and its attribution together, without making either an image:
 
 ```md
-::: layout {float=end & align=center}
+::: layout {float=end & align=center & style="inline-size:12rem"}
 > A small example is easier to understand.
 
 — The editor
 :::
 
-This paragraph can flow beside the quotation when there is enough room.
+This paragraph flows beside the quotation when there is enough room. The quote
+and its attribution stay together as one group, while this text continues in
+normal reading order. A layout can hold any group of blocks, so a sidebar does
+not need to be an image.
+
+As the paragraph grows beyond the group's height, its remaining lines use the
+full available width. The following paragraph stays in the same document flow.
+Use this pattern for a short aside or a compact group of supporting content;
+keep longer material in the main flow so it remains comfortable to read.
 ```
+
+:::: {.render title="Floating layout: text flows around the group" height="330"}
+```html
+<article style="display:flow-root">
+  <div data-type="layout" data-float="end" data-align="center" style="float:inline-end;display:flow-root;box-sizing:border-box;inline-size:12rem;max-inline-size:100%;margin-inline-start:16px;margin-block-end:12px;padding:14px;border-inline-start:4px solid LinkText;background:color-mix(in srgb,LinkText 8%,Canvas);text-align:center">
+    <blockquote style="margin:0"><p>A small example is easier to understand.</p></blockquote>
+    <p>— The editor</p>
+  </div>
+  <p>This paragraph flows beside the quotation when there is enough room. The quote and its attribution stay together as one group, while this text continues in normal reading order. A layout can hold any group of blocks, so a sidebar does not need to be an image.</p>
+  <p>As the paragraph grows beyond the group's height, its remaining lines use the full available width. The following paragraph stays in the same document flow. Use this pattern for a short aside or a compact group of supporting content; keep longer material in the main flow so it remains comfortable to read.</p>
+</article>
+```
+::::
 
 The group retains its source position and internal reading order. Floating
 does not reorder its children or turn them into columns. A renderer may keep
@@ -2585,7 +2617,7 @@ pnpm add example-package
 :::
 ````
 
-:::: {.render title="Choose an installation command" height="250" interactive="tabs"}
+:::: {.render title="Choose an installation command" height="180" interactive="tabs"}
 ```html
 <div data-tabs aria-label="Package manager">
   <section data-tab="npm"><h3>npm</h3><pre><code>npm install example-package</code></pre></section>
@@ -2664,7 +2696,7 @@ TypeScript example.
 ::::
 ```
 
-:::: {.render title="Tabs with explicit selection settings" height="240" interactive="tabs"}
+:::: {.render title="Tabs with explicit selection settings" height="180" interactive="tabs"}
 ```html
 <div data-tabs data-group="language" data-default="js" aria-label="Example language">
   <section data-tab="js"><h3>JavaScript</h3><p>JavaScript example.</p></section>

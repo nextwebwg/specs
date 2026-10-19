@@ -31,6 +31,9 @@ figcaption { margin-top: 8px; color: GrayText; }
 details { border: 1px solid GrayText; border-radius: 6px; padding: 12px; }
 summary { cursor: pointer; font-weight: 600; }
 a { color: LinkText; }
+input[type="checkbox"]:disabled { appearance: none; display: inline-grid; place-content: center; inline-size: 1em; block-size: 1em; margin-inline: 0 .25em; vertical-align: -.1em; border: 2px solid currentColor; border-radius: .15em; color: CanvasText; background: Canvas; opacity: 1; }
+input[type="checkbox"]:disabled::before { content: "✓"; font: bold 1em/1 system-ui, sans-serif; visibility: hidden; }
+input[type="checkbox"]:disabled:checked::before { visibility: visible; }
 [role="tablist"] { display: flex; flex-wrap: wrap; gap: 6px; margin-block-end: 12px; }
 [role="tab"] { font: inherit; color: inherit; background: Canvas; border: 1px solid GrayText; border-radius: 6px; padding: 7px 12px; cursor: pointer; }
 [role="tab"][aria-selected="true"] { font-weight: 700; background: color-mix(in srgb, #2563eb 15%, Canvas); border-color: #2563eb; }

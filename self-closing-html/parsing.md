@@ -21,7 +21,7 @@ For a navigated HTML resource, request this capability through [HTML Feature Pro
 
 A server may instead select `self-closing` through the proposed `HTML-Feature-Profile` response header, which takes precedence over the doctype. The shared proposal owns header handling, selector grammar, the alternative `PUBLIC "next"` preset, support detection, and operation-local precedence. A resolved feature set is fixed for the parse; later declarations, doctype DOM changes, styles, scripts, and custom-element registration cannot switch it. The resource remains `text/html`; no DTD is fetched and XML is not enabled.
 
-The recorded experimental implementation accepts the earlier exact public identifier `next`, with no system identifier. It does not implement the new response header, named-list selector, or preset-manifest system. Its evidence remains bounded to that pinned opt-in and the self-closing rules tested.
+The recorded experimental implementation accepts the earlier exact public identifier `next`, with no system identifier. It does not implement the new response header, named-list selector, or family selection contract. Its evidence remains bounded to that pinned opt-in and the self-closing rules tested.
 
 Plain HTML retains existing behavior. These profile declarations require a standards change; current standards rendering behavior is not native support for the proposed grammar.[^1]
 
@@ -105,7 +105,7 @@ Declarative shadow-root host selection uses the retained recognition context. Ke
 
 ## Parse independently of the caller's document
 
-An explicitly requested parsing operation may enable `self-closing` even when its caller's document uses ordinary HTML or a different profile. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) owns the proposed per-call option, selector validation, inertness, and failure rules. No ambient document flag is required or inherited. Omitting `profile` keeps existing behavior; `profile: "inherit"` explicitly copies the relevant document’s resolved snapshot, while `profile: "next"` resolves the current documented preset.
+An explicitly requested parsing operation may enable `self-closing` even when its caller's document uses ordinary HTML or a different profile. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) owns the proposed per-call option, selector validation, inertness, and failure rules. No ambient document flag is required or inherited. Omitting `profile` keeps existing behavior; `profile: "inherit"` explicitly copies the relevant document’s resolved snapshot, while `profile: "next"` opts into the HTML Next family of current and future proposals supported by the browser.
 
 ```js
 // profile is a proposed option on this existing API.

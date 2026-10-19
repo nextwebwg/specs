@@ -51,7 +51,7 @@ The proposal therefore combines:
 <!DOCTYPE html PUBLIC "self-closing, flexible-nesting">
 ```
 
-The named list requests both capabilities. `<!DOCTYPE html PUBLIC "next">` instead requests the implementation's documented preset. Resolve and freeze the request for the parsing operation. Registration, styles, and later doctype mutation cannot switch it. The declaration fetches no DTD and does not enable XML.
+The named list requests both capabilities. `<!DOCTYPE html PUBLIC "next">` instead requests the HTML Next family of current and future proposals supported by the browser. Resolve and freeze the request for the parsing operation. Registration, styles, and later doctype mutation cannot switch it. The declaration fetches no DTD and does not enable XML.
 
 The existing self-closing prototype does not implement named-list selection or flexible nesting. Existing string parsing APIs keep their current grammar. A document flag must not silently change a library's parsing behavior.
 
@@ -120,7 +120,7 @@ This proposed list owns two participating native items, while the host remains i
 
 ## Parse independently of the caller's document
 
-A caller may explicitly parse fetched HTML with `flexible-nesting` even if its own document has no profile enabled. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) defines the proposed per-call parsing option and selector/failure rules. The caller's doctype is not a prerequisite. Omitting `profile` keeps existing behavior; `profile: "inherit"` explicitly copies the relevant document’s resolved snapshot, while `profile: "next"` resolves the current documented preset.
+A caller may explicitly parse fetched HTML with `flexible-nesting` even if its own document has no profile enabled. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) defines the proposed per-call parsing option and selector/failure rules. The caller's doctype is not a prerequisite. Omitting `profile` keeps existing behavior; `profile: "inherit"` explicitly copies the relevant document’s resolved snapshot, while `profile: "next"` opts into the HTML Next family of current and future proposals supported by the browser.
 
 ```js
 // Proposed profile option; include the complete table/list context.

@@ -8,13 +8,13 @@ sectionNav: true
 
 # HTML Feature Profiles
 
-Select proposed HTML capabilities through an HTTP response header or document declaration, or opt into a documented `next` preset. This proposal defines the shared selection contract so individual features can specify their behavior without inventing competing switches.
+Select proposed HTML capabilities through an HTTP response header or document declaration, or opt into the `next` family of current and future HTML proposals. This proposal defines the shared selection contract so individual features can specify their behavior without inventing competing switches.
 
 ```html
 <!DOCTYPE html PUBLIC "self-closing, flexible-nesting">
 ```
 
-This requests the named capabilities. An author who wants the implementation's documented experimental preset can instead write:
+This requests the named capabilities. An author who wants the HTML Next family of current and future proposals can instead write:
 
 ```html
 <!DOCTYPE html PUBLIC "next">
@@ -32,20 +32,22 @@ The header can also carry `next`. `HTML-Feature-Profile` is a **proposed HTTP re
 Neither mechanism downloads a DTD or enables XML. These are proposed built-in HTML profile selectors, not syntax supported by current production browsers.[^1]
 
 > [!note] Status and authority
-> This Stage 0 proposal owns the response header, selector grammar, preset resolution, support detection, and precedence. [Opt-in Self-Closing HTML](/self-closing-html/) owns `self-closing`; [Flexible HTML Nesting](/flexible-html-nesting/) owns `flexible-nesting`. Feature behavior and safety remain obligations of those proposals. The API shapes below are candidates, not existing web APIs.
+> This Stage 0 proposal owns the response header, selector grammar, family selection, support detection, and precedence. [Opt-in Self-Closing HTML](/self-closing-html/) owns `self-closing`; [Flexible HTML Nesting](/flexible-html-nesting/) owns `flexible-nesting`. Feature behavior and safety remain obligations of those proposals. The API shapes below are candidates, not existing web APIs.
 
-## Named capabilities and the next preset
+## Named capabilities and the next family
 
 | Selector | Requested behavior |
 | --- | --- |
 | `self-closing` | Only the capability specified by Opt-in Self-Closing HTML, plus explicitly required dependencies. |
 | `flexible-nesting` | Only the structural capabilities specified by Flexible HTML Nesting, plus explicitly required dependencies. |
 | `self-closing, flexible-nesting` | The supported, compatible composition of those capabilities. |
-| `next` | The exact feature set and revision in the implementation's published preset manifest at parse start. |
+| `next` | Opt into the HTML Next family of current and future proposals supported by the browser. |
 
-`next` is not permission to enable every proposal on the web. A preset manifest must list included identifiers, semantic revisions, dependencies, and approved compositions. Adding an identifier to a registry does not include it in the preset. Inclusion requires compatibility, composition, and security review.
+`next` opts into a family of current and future HTML proposals. Authors choose it to receive additions to that family as their browser implements them, without listing each feature individually. The same meaning applies in a doctype, response header, or explicit parsing option.
 
-The same preset rules apply whether `next` came from the response header or the doctype. The preset may evolve between implementation releases. It must not evolve while a document is being parsed or remain dependent on a network lookup. Resolve it once, record the resolved revision and features, then freeze that document's parsing and feature contract. An origin's older `next` documents can still change behavior after a browser update; that compatibility risk must be evaluated before changing the preset. Named selectors are the more deliberate choice for authors who do not want new unrelated capabilities.
+A browser update can therefore enable more of the family for an existing document that selects `next`. Authors who want to select individual capabilities can name them instead. Browsers may support different members of the family; code that requires a particular capability must check that capability.
+
+The selected behavior stays fixed for each parsing operation. A browser determines which supported family features apply before parsing and does not change that selection partway through the operation. This does not require a manifest or a network lookup.
 
 Feature identifiers are durable contracts, not floating aliases to arbitrary incompatible semantics. A breaking revision needs a separately named contract or an explicit migration design. This draft does not invent a version suffix grammar.
 
@@ -59,8 +61,8 @@ Order does not give priority. Resolve dependencies and composition rules before 
 | --- | --- |
 | `self-closing` | Named request. |
 | ` self-closing , flexible-nesting ` | Two named requests after trimming surrounding ASCII whitespace. |
-| `next` | Preset request. |
-| `next,self-closing` | Invalid: preset and named selection are mutually exclusive. |
+| `next` | HTML Next family opt-in. |
+| `next,self-closing` | Invalid: family opt-in and named selection are mutually exclusive. |
 | `self-closing,` | Invalid: empty entry. |
 | `Self-Closing` | Invalid: identifiers are case-sensitive. |
 | `future-feature` | Syntactically valid but unsupported unless registered and implemented. |
@@ -77,7 +79,7 @@ The candidate field name is `HTML-Feature-Profile`. HTTP field names are case-in
 HTML-Feature-Profile: next
 ```
 
-This is a response-header field, not a trailer field. Trailers and informational responses cannot select or revise a profile after body processing begins. The final navigation response's header is authoritative for a `text/html` document. Resolve it before consuming profile-sensitive body source. A doctype profile selector is used only when the header is absent. If both are present, the header wins; the doctype cannot add features, remove them, or switch the preset. A developer diagnostic may report a conflicting source declaration, but that conflict does not change the selected profile.
+This is a response-header field, not a trailer field. Trailers and informational responses cannot select or revise a profile after body processing begins. The final navigation response's header is authoritative for a `text/html` document. Resolve it before consuming profile-sensitive body source. A doctype profile selector is used only when the header is absent. If both are present, the header wins; the doctype cannot add features, remove them, or switch the family selection. A developer diagnostic may report a conflicting source declaration, but that conflict does not change the selected profile.
 
 An empty, malformed, or unsupported header is an error under the same resolution rules as other requests. Do not silently fall back to the doctype or apply only supported entries. Multiple field lines are combined and parsed as one Structured Field List before feature validation; repeated identifiers and a combined `next`/named request remain invalid. Presence of a malformed header does not count as absence.
 
@@ -94,7 +96,7 @@ Before adoption, the field needs specification and HTTP field registration, comp
 ## Resolve before consuming profile-sensitive source
 
 1. Determine the parsing operation and its authoritative selector using the precedence table below.
-2. Validate the selector and resolve named capabilities or the local `next` manifest.
+2. Validate the selector and resolve named capabilities or the supported features in the HTML Next family.
 3. Verify that every required capability, dependency, semantic revision, and combination is supported. There is no comma-order override.
 4. Freeze a resolved feature record for that operation. Tokenization, tree construction, feature-specific rendering rules, and execution checkpoints use that record.
 5. If resolution fails, report an unsupported or invalid request before running profile-dependent source or applying a partial subset.
@@ -115,7 +117,7 @@ Each layer has a defined job. A later layer cannot silently replace an earlier o
 | CSS | Normal cascade plus feature-specific rendering rules enabled by the resolved document record. | CSS cannot select or switch HTML tokenization. Author declarations can override user-agent rendering defaults only as the feature specification permits; protected behavior is not bypassed by a style rule. |
 | JavaScript and custom elements | Explicit calls and feature APIs. | JavaScript cannot toggle the active document grammar, and registration timing cannot select a profile. DOM construction remains DOM construction, not source reparsing. |
 | User-land compiler or server renderer | An explicit build/transform target. | Resolve it against a declared tool manifest. If it conflicts with emitted source intent, require an explicit conversion or report a diagnostic; do not silently add or remove capabilities. |
-| User-land polyfill | Its explicit installation and transformation contract. | It cannot claim native support, change unrelated library parsing, or redefine the browser's native `next` manifest. |
+| User-land polyfill | Its explicit installation and transformation contract. | It cannot claim native support, change unrelated library parsing, or redefine the browser's native HTML Next family selection. |
 
 The precedence rule is operation-local authority, not a global priority such as “JavaScript beats CSS.” A parse call, a document navigation, and a CSS declaration affect different contracts. The current document's resolved feature record governs feature-specific rendering and behavior for nodes inserted later, but does not change how a legacy string API recognized those nodes.
 
@@ -143,17 +145,17 @@ The proposal extends the existing `Document.parseHTML(input, options)` and `Docu
 | Named selector such as `"self-closing"` | Resolve that supported feature set for this call. |
 | `"self-closing, flexible-nesting"` | Resolve and validate the named composition. |
 | `"inherit"` | Copy the relevant document's already resolved feature and revision record. |
-| `"next"` | Resolve the implementation's current documented preset at call time. |
+| `"next"` | Opt into the current and future HTML Next proposals supported by the browser. |
 
 ```js
 Document.parseHTML(html); // Existing parsing behavior.
 Document.parseHTML(html, { profile: "inherit" }); // Earlier document snapshot.
-Document.parseHTML(html, { profile: "next" }); // Current documented preset.
+Document.parseHTML(html, { profile: "next" }); // Current and future HTML Next proposals.
 ```
 
-`inherit` is an API-only selector, not a doctype/header feature identifier, and cannot be combined with other entries. A doctype or header request for `inherit` is unsupported. Its source document is the associated document of the Window in the invoked parsing method's relevant realm. This defines cross-realm calls explicitly; an arbitrary JavaScript receiver does not select another document. In an ordinary document, inheritance yields ordinary parsing. In a document that previously resolved `next`, inheritance copies that earlier snapshot; it does not resolve today's preset again. `next` explicitly requests the current preset instead.
+`inherit` is an API-only selector, not a doctype/header feature identifier, and cannot be combined with other entries. A doctype or header request for `inherit` is unsupported. Its source document is the associated document of the Window in the invoked parsing method's relevant realm. This defines cross-realm calls explicitly; an arbitrary JavaScript receiver does not select another document. In an ordinary document, inheritance yields ordinary parsing. In a document that previously resolved `next`, inheritance copies that earlier snapshot; it does not select newly supported family features. `next` explicitly selects the family features supported at the start of this operation instead.
 
-Copy and freeze the selected feature records before parsing; later document changes or preset updates cannot affect the operation. Validate that the implementation supports the inherited semantic revisions and combination rather than silently changing them. The returned document's proposed `htmlProfile` record uses `source: "api"` for explicit options and records the selected features and revision. The omitted-option path retains ordinary behavior and a legacy record.
+Copy and freeze the selected feature records before parsing; later document changes or browser updates cannot affect the operation. Validate that the implementation supports the inherited semantic revisions and combination rather than silently changing them. The returned document's proposed `htmlProfile` record uses `source: "api"` for explicit options and records the selected features and revision. The omitted-option path retains ordinary behavior and a legacy record.
 
 Apply the shared syntax and support errors before profile-dependent parsing: malformed selectors throw `SyntaxError`, and unsupported features, semantic revisions, dependencies, or combinations throw `NotSupportedError`. Web IDL conversion of the optional string still applies; `null` is not an inheritance shorthand. It converts to the string `"null"`, which is unsupported unless that identifier is explicitly defined. Empty strings are invalid. Omitting the member and explicitly passing `undefined` both retain the existing path.
 
@@ -188,27 +190,27 @@ A candidate read-only `document.htmlProfile` record exposes:
 | `requested` | Selector string, or `null` for ordinary HTML. |
 | `features` | Immutable array of resolved identifiers, in canonical order. |
 | `preset` | `"next"` or `null`. |
-| `revision` | Resolved manifest revision string, or `null` for ordinary HTML. |
+| `revision` | Implementation-defined identifier for the resolved selection, or `null` for ordinary HTML. This is diagnostic information, not an author-selected version. |
 | `source` | `"header"`, `"doctype"`, `"api"`, or `"legacy"`. |
 | `status` | `"active"`, `"legacy"`, or `"unsupported"`. |
 
 These resolved-record names and shapes need API review. The record reflects the parser's internal selection; changing the DOM doctype cannot change it. For header-selected documents, `requested` records the authoritative header selector and `source` is `"header"`. User-land objects with similar names are not native support evidence. A future worker or fragment API needs an operation result record rather than a mutable global default.
 
-For an evolving preset, support for `next` does not establish that two browsers include identical experimental capabilities. Code that needs particular features must validate the named combination and the native resolved record. A user-land imitation is not native support evidence.
+For this evolving family, support for `next` does not establish that two browsers include identical experimental capabilities. Code that needs particular features must validate the named combination and the native resolved record. A user-land imitation is not native support evidence.
 
 CSS feature queries retain their own meaning. `CSS.supports()` cannot establish support for an HTML parser profile. A future profile-aware CSS query would require separate syntax and privacy review; none is introduced here.
 
 ## Feature registration and composition
 
-A feature specification must define its identifier, parser changes, applicability to DOM-created nodes, rendering and API behavior, dependencies, conflict rules, security obligations, support conditions, and compatibility with other preset features. It must state which behavior is user-agent default styling and which is a required semantic boundary.
+A feature specification must define its identifier, parser changes, applicability to DOM-created nodes, rendering and API behavior, dependencies, conflict rules, security obligations, support conditions, and compatibility with other family features. It must state which behavior is user-agent default styling and which is a required semantic boundary.
 
 A combined selector is supported only when the implementation supports the combination, not merely each feature in isolation. Self-closing and flexible nesting can both affect a wrapper host and later native rows; their parser checkpoint and shadow ownership interactions need explicit tests. Removing or failing one feature is an error, not a silent downgrade.
 
-The registry and preset manifest need a governance and revision process before standardization. This proposal does not grant this publisher authority to define browser-wide experiments.
+The process for defining membership in the HTML Next family remains open for standardization review. This proposal does not grant this publisher authority to define browser-wide experiments.
 
 ## Evidence and current implementation limits
 
-The earlier self-closing experiments use the literal selector `next` and their pinned implementation rules. They establish the claims recorded in [that proposal's evidence](/self-closing-html/security), not support for this new named-list grammar, preset manifest system, detection API, failure document, or flexible nesting.
+The earlier self-closing experiments use the literal selector `next` and their pinned implementation rules. They establish the claims recorded in [that proposal's evidence](/self-closing-html/security), not support for this new named-list grammar, family selection contract, detection API, failure document, or flexible nesting.
 
 ### Recorded verification
 
@@ -220,11 +222,11 @@ The earlier self-closing experiments use the literal selector `next` and their p
 | Safe/unsafe sanitizer controls | The two available safe methods removed the tested scripts, handlers, JavaScript URLs, and custom hosts. Unsafe defaults retained them without executing the source script while parsing. | Selected probes, not an exhaustive sanitizer or side-effect proof. |
 | Optional unsafe sanitizer controls | Chromium and Firefox removed the tested scripts/handlers but retained the tested JavaScript URL with `sanitizer: "default"`; the WebKit unsafe result retained all three probes. | Optional sanitization and safe-method guarantees must not be treated as equivalent; option support differs by engine. |
 
-No native implementation of this orchestration proposal is reported. The [verification evidence](https://github.com/nextwebwg/specs/tree/main/html-feature-profiles/evidence) distinguishes an executable selector/precedence model, independent contract vectors, and current-browser API observations from native implementation of the proposed options. Required tests include explicit parsing from a legacy or differently profiled caller, existing inertness and measured resource/callback behavior, absent/undefined/null/invalid per-call options, inherit-versus-next snapshots, cross-realm inheritance, header-to-option forwarding, insertion into legacy and enabled destinations, header-only selection, header/doctype conflicts, malformed and repeated header fields, redirect isolation, iframe isolation, caching and intermediary handling, selector normalization and rejection, unsupported/dependency/conflict failures, fixed selection across scripts and doctype mutation, no accidental inheritance by legacy APIs, source/tool conflicts, preset revision stability during streaming, and combined feature execution. Compatibility tests must include historical doctypes and unsupported legacy browsers.
+No native implementation of this orchestration proposal is reported. The [verification evidence](https://github.com/nextwebwg/specs/tree/main/html-feature-profiles/evidence) distinguishes an executable selector/precedence model, independent contract vectors, and current-browser API observations from native implementation of the proposed options. Required tests include explicit parsing from a legacy or differently profiled caller, existing inertness and measured resource/callback behavior, absent/undefined/null/invalid per-call options, inherit-versus-next snapshots, cross-realm inheritance, header-to-option forwarding, insertion into legacy and enabled destinations, header-only selection, header/doctype conflicts, malformed and repeated header fields, redirect isolation, iframe isolation, caching and intermediary handling, selector normalization and rejection, unsupported/dependency/conflict failures, fixed selection across scripts and doctype mutation, no accidental inheritance by legacy APIs, source/tool conflicts, stable feature selection during streaming, and combined feature execution. Compatibility tests must include historical doctypes and unsupported legacy browsers.
 
 ## Review requested
 
-Review is requested on the response-header contract, selector grammar, the evolving preset's compatibility policy, unsupported-navigation behavior, operation-local precedence, detection API, and ownership of the registry and manifest. Discuss these separately from whether to adopt any individual feature in the [specifications repository](https://github.com/nextwebwg/specs/issues).
+Review is requested on the response-header contract, selector grammar, the evolving family's compatibility policy, unsupported-navigation behavior, operation-local precedence, detection API, and ownership of the feature registry and family membership. Discuss these separately from whether to adopt any individual feature in the [specifications repository](https://github.com/nextwebwg/specs/issues).
 
 Editor: [Matthew Dean](https://github.com/matthew-dean). Independent Stage 0 proposal; not a W3C or WHATWG deliverable.
 

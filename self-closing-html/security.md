@@ -15,18 +15,18 @@ Self-closing syntax must not turn harmless text into running code, expose hidden
 
 ## Issue checklist
 
-A checked item means the stated fix has evidence at the level described. It does not mean every possible browser input has been proved safe.
+✅ Demonstrated in the stated proof or tests · 🟡 Partial · ⬜ Open. A passing item is not a claim that every possible browser input is safe.
 
-- [x] **Apparent tags inside text stay text.** Do not let the slash close `style` or other text-sensitive elements. Keep HTML’s normal interpretation of later text and SVG boundaries. The mathematical proof checks the rearrangement rule; browser examples check selected parsing cases.
-- [x] **Hidden controls keep their protection in the tested cases.** Preserve sensitive containers and attributes, including a `popover` protection added after a test exposed a bug.
-- [x] **Existing library parsing calls keep their meaning.** The proposed contract requires an explicit request for new string-parsing behavior; the prototype tests check isolation.
-- [x] **Streaming, scripts, callbacks, pauses, and mutations work in the recorded native cases.** The experimental browser passes 31 targeted checks and 200 reference comparisons. This is evidence from one native engine, not production support.
-- [x] **Shadow roots stay with their hosts in the tested native cases.** A separate serialization shortcut failed and is not a general conversion method.
-- [ ] **Ignored slashes can mislead authors.** `<script />` still starts a script; following valid JavaScript can execute. Keeping existing parsing does not eliminate that authoring hazard. Tool diagnostics and author understanding remain unverified.
-- [ ] **Serialization is not generally proved safe.** Generated tests found no new monitored exposure, but do not remove the known conversion limitation.
-- [ ] **Fast look-ahead loading remains incomplete.** The native prototype disables that optimization rather than proving an optimized loader correct.
-- [ ] **Encoding restarts, memory stress, broader conformance, and security review remain open.** A timed-out stress run is not a pass.
-- [ ] **The newer profile selectors and parsing options need native implementation.** The native experiment tests only the earlier literal `PUBLIC "next"` opt-in.
+- ✅ **Apparent tags inside text stay text.** Do not let the slash close `style` or other text-sensitive elements. Keep HTML’s normal interpretation of later text and SVG boundaries. The mathematical proof checks the rearrangement rule; browser examples check selected parsing cases.
+- ✅ **Hidden controls keep their protection in the tested cases.** Preserve sensitive containers and attributes, including a `popover` protection added after a test exposed a bug.
+- ✅ **Existing library parsing calls keep their meaning.** The proposed contract requires an explicit request for new string-parsing behavior; the prototype tests check isolation.
+- ✅ **Streaming, scripts, callbacks, pauses, and mutations work in the recorded native cases.** The experimental browser passes 31 targeted checks and 200 reference comparisons. This is evidence from one native engine, not production support.
+- ✅ **Shadow roots stay with their hosts in the tested native cases.** A separate serialization shortcut failed and is not a general conversion method.
+- ⬜ **Ignored slashes can mislead authors.** `<script />` still starts a script; following valid JavaScript can execute. Keeping existing parsing does not eliminate that authoring hazard. Tool diagnostics and author understanding remain unverified.
+- 🟡 **Serialization is not generally proved safe.** Generated tests found no new monitored exposure, but do not remove the known conversion limitation.
+- 🟡 **Fast look-ahead loading remains incomplete.** The native prototype disables that optimization rather than proving an optimized loader correct.
+- ⬜ **Encoding restarts, memory stress, broader conformance, and security review remain open.** A timed-out stress run is not a pass.
+- ⬜ **The newer profile selectors and parsing options need native implementation.** The native experiment tests only the earlier literal `PUBLIC "next"` opt-in.
 
 [Read each issue’s solution, evidence, and limits →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme)
 

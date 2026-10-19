@@ -8,79 +8,79 @@ You do not need to read the code or JSON files to understand the findings. Start
 
 ## How to read the status
 
-- **Demonstrated:** the specific claim passed the stated proof or tests. This does not mean every possible browser case is solved.
-- **Partial:** there is a working approach and passing evidence, with an important gap still open.
-- **Open:** the required work has not been completed. A timed-out test does not count as a pass.
+- ✅ **Demonstrated:** the specific claim passed the stated proof or tests. This does not mean every possible browser case is solved.
+- 🟡 **Partial:** there is a working approach and passing evidence, with an important gap still open.
+- ⬜ **Open:** the required work has not been completed. A timed-out test does not count as a pass.
 
 ## Checklist: the problems and their answers
 
 ### Can harmless text turn into a running element?
 
-- [x] **Demonstrated for the tree-rearrangement rule.** Keep HTML’s decision about what is text and what is a tag. Only change where eligible empty elements and following nodes sit. For example, `<style/><img src onerror=alert(1)>` must keep the apparent image as stylesheet text.
+- ✅ **Demonstrated for the tree-rearrangement rule.** Keep HTML’s decision about what is text and what is a tag. Only change where eligible empty elements and following nodes sit. For example, `<style/><img src onerror=alert(1)>` must keep the apparent image as stylesheet text.
 
   **Evidence:** the [machine-checked proof](formal-results.json) establishes that rearrangement keeps node information, order, and designated protected ancestors. [800,000 generated comparisons](projection-results.json) check selected parsing properties. The proof assumes correct parsing and correct identification of protected containers; it does not prove those inputs correct.
 
 ### Can an earlier self-closing tag break later SVG or text parsing?
 
-- [x] **Demonstrated in the recorded cases.** Keep the parser’s normal memory of open tags even when an element is empty in the displayed document tree. A later closing tag can still end the right HTML/SVG context. Simply replacing `/>` with an end tag is not the solution.
+- ✅ **Demonstrated in the recorded cases.** Keep the parser’s normal memory of open tags even when an element is empty in the displayed document tree. A later closing tag can still end the right HTML/SVG context. Simply replacing `/>` with an end tag is not the solution.
 
   **Evidence:** [12 browser comparisons](recovery-chromium-results.json) cover selected recovery examples. The [native browser results](native-results.json) include 200 comparisons against the reference, with no disagreements in the final run. This is finite coverage, not every possible malformed document.
 
 ### Could hidden or inactive controls become exposed?
 
-- [x] **The discovered boundary failures are corrected.** Do not self-close sensitive containers or elements carrying `hidden`, `inert`, `disabled`, or `popover`. Their children stay inside them.
+- ✅ **The discovered boundary failures are corrected.** Do not self-close sensitive containers or elements carrying `hidden`, `inert`, `disabled`, or `popover`. Their children stay inside them.
 
   **Evidence:** [tests with protections deliberately removed](active-unprotected-chromium-results.json) show why the protections matter. The [popover failure record](popover-counterexample-results.json) shows a missing protection exposing controls; it was then added, and the [browser regressions](execution-results.json) pass. This does not prove that every future HTML feature has been classified correctly.
 
 ### Will a library’s existing HTML calls silently change meaning?
 
-- [x] **Addressed by the proposed contract and tested prototype cases.** Existing calls such as `innerHTML` keep their normal behavior. Using the new grammar for a string requires an explicit parsing request. The prototype also blocks document-writing calls that would mix the two grammars.
+- ✅ **Addressed by the proposed contract and tested prototype cases.** Existing calls such as `innerHTML` keep their normal behavior. Using the new grammar for a string requires an explicit parsing request. The prototype also blocks document-writing calls that would mix the two grammars.
 
   **Evidence:** [browser execution tests](execution-results.json) and [native tests](native-results.json) check API isolation. The newer named profiles, response header, and explicit `profile` option belong to [HTML Feature Profiles](https://nextwebwg.org/html-feature-profiles/); those new selection mechanisms are not implemented by this native patch.
 
 ### Does it work while HTML arrives over the network?
 
-- [x] **Demonstrated in the experimental native browser.** Build the result as chunks arrive, without waiting for the whole page. Scripts can run before the response ends.
+- ✅ **Demonstrated in the experimental native browser.** Build the result as chunks arrive, without waiting for the whole page. Scripts can run before the response ends.
 
   **Evidence:** [60,000 reference comparisons](streaming-results.json) check different input splits. [Native tests](native-results.json) exercise a script before end-of-response and pausing across a network chunk. Arbitrary encoding restarts remain open below.
 
 ### Do scripts and custom elements see the right document?
 
-- [x] **Demonstrated for the tested execution points.** Put the parsed nodes in their intended places before running scripts or custom-element callbacks. Pause when a blocking script requires it, then continue.
+- ✅ **Demonstrated for the tested execution points.** Put the parsed nodes in their intended places before running scripts or custom-element callbacks. Pause when a blocking script requires it, then continue.
 
   **Evidence:** [20 adapter cases in each of three engines](execution-results.json) and [31 targeted native checks](native-results.json) cover scripts, callbacks, upgrades, pauses, and other execution behavior. These counts cover whole suites, not 31 tests of each feature. The three-engine adapter supplies its own parser; only the Ladybird experiment changes native navigation parsing.
 
 ### What if a script moves or removes nodes during parsing?
 
-- [x] **The discovered mutation and insertion-order bugs are corrected.** Track live insertion positions and remove only nodes still owned by the parser. Preserve changes made by page scripts.
+- ✅ **The discovered mutation and insertion-order bugs are corrected.** Track live insertion positions and remove only nodes still owned by the parser. Preserve changes made by page scripts.
 
   **Evidence:** [focused regression tests](live-dom.test.mjs) retain the cases that failed before the fixes. [1,500 adapter comparisons](execution-results.json) and [200 native comparisons](native-results.json) pass. Arbitrary script effects are not proved equivalent to ordinary HTML.
 
 ### Can a shadow root end up attached to the wrong host?
 
-- [x] **Ownership is preserved in the tested native cases.** Keep each shadow root attached to its original host; do not move its declaration to another element.
+- ✅ **Ownership is preserved in the tested native cases.** Keep each shadow root attached to its original host; do not move its declaration to another element.
 
   **Evidence:** [six open-root browser checks](shadow-chromium-results.json) and [native execution checks](native-results.json) pass. The separate serialize-and-reparse shortcut **fails** an ownership case and must not be used as a general converter. Exhaustive closed-root and lifecycle coverage is not established.
 
 ### Could saving and reparsing the HTML create a new exposure?
 
-- [ ] **Partial.** [200,000 comparisons](roundtrip-results.json) found no new exposure of the monitored markers. That is useful evidence, but the shadow-root conversion failure above prevents a general claim that serialization is safe. Saving HTML does not save its parsing or sanitization history.
+- 🟡 **Partial.** [200,000 comparisons](roundtrip-results.json) found no new exposure of the monitored markers. That is useful evidence, but the shadow-root conversion failure above prevents a general claim that serialization is safe. Saving HTML does not save its parsing or sanitization history.
 
 ### Could the browser fetch something too early?
 
-- [ ] **Partial.** The native prototype disables its optional look-ahead loader for opted-in documents. [Native request checks](native-results.json) show the tested image waits until the blocking script is released. Making an optimized look-ahead loader follow the same rules remains open.
+- 🟡 **Partial.** The native prototype disables its optional look-ahead loader for opted-in documents. [Native request checks](native-results.json) show the tested image waits until the blocking script is released. Making an optimized look-ahead loader follow the same rules remains open.
 
 ### Could an ignored slash on `script` become dangerous?
 
-- [ ] **Open authoring risk.** `<script />` still starts a script. Following source can be consumed as script text; valid JavaScript can execute when the script closes. An example that produces a syntax error is not a safety guarantee. Keeping today’s parsing rule avoids a new parser mismatch, but does not remove this existing hazard or establish that authors understand the exception. Tool warnings are a proposed mitigation, not an implemented or tested result. [Read the example](https://nextwebwg.org/self-closing-html/parsing#what-happens-if-an-author-writes-script).
+- ⬜ **Open authoring risk.** `<script />` still starts a script. Following source can be consumed as script text; valid JavaScript can execute when the script closes. An example that produces a syntax error is not a safety guarantee. Keeping today’s parsing rule avoids a new parser mismatch, but does not remove this existing hazard or establish that authors understand the exception. Tool warnings are a proposed mitigation, not an implemented or tested result. [Read the example](https://nextwebwg.org/self-closing-html/parsing#what-happens-if-an-author-writes-script).
 
 ## Checklist: what is still required before shipment?
 
-- [ ] **Encoding restarts:** implement and test the case where a browser must reread earlier bytes using a different character encoding. Network chunk tests do not establish this.
-- [ ] **Memory and garbage-collection stress:** finish the stress run. The [recorded attempt](native-results.json) timed out after 180 seconds without completing; it supplies no passing memory-safety evidence.
-- [ ] **Broader browser conformance:** run shared Web Platform Tests, broader scheduling and reentrancy cases, and the full relevant engine suites. Only [16 selected existing parser regressions](native-legacy-test.log) were run alongside the native experiment.
-- [ ] **New profile selection:** implement and verify the named selector, HTTP header, and explicit parsing options in [HTML Feature Profiles](https://nextwebwg.org/html-feature-profiles/). The native experiment supports only the earlier literal `PUBLIC "next"` opt-in.
-- [ ] **Independent implementer security review:** obtain browser-engine review of the design and implementation. Passing experiments are not approval or production-browser support.
+- ⬜ **Encoding restarts:** implement and test the case where a browser must reread earlier bytes using a different character encoding. Network chunk tests do not establish this.
+- ⬜ **Memory and garbage-collection stress:** finish the stress run. The [recorded attempt](native-results.json) timed out after 180 seconds without completing; it supplies no passing memory-safety evidence.
+- ⬜ **Broader browser conformance:** run shared Web Platform Tests, broader scheduling and reentrancy cases, and the full relevant engine suites. Only [16 selected existing parser regressions](native-legacy-test.log) were run alongside the native experiment.
+- ⬜ **New profile selection:** implement and verify the named selector, HTTP header, and explicit parsing options in [HTML Feature Profiles](https://nextwebwg.org/html-feature-profiles/). The native experiment supports only the earlier literal `PUBLIC "next"` opt-in.
+- ⬜ **Independent implementer security review:** obtain browser-engine review of the design and implementation. Passing experiments are not approval or production-browser support.
 
 These tests do not establish the separate [Flexible HTML Nesting proposal](https://nextwebwg.org/flexible-html-nesting/). They also do not establish that self-closing syntax makes developers faster; [the proposal’s authoring rationale](https://nextwebwg.org/self-closing-html/#why-this-is-useful-to-authors) separates that claim from existing practice.
 

@@ -1,18 +1,18 @@
 ---
-title: HTML Next Parsing
+title: Opt-in Self-Closing HTML
 order: -1
-eyebrow: HTML Next · independent proposal
+eyebrow: Independent HTML proposal
 status: "Unofficial Editor's Draft · Stage 0"
 ---
 
-# HTML Next Parsing
+# Opt-in Self-Closing HTML
 
 Native self-closing tags, with forgiving HTML syntax. An explicit opt-in adds the shorthand while preserving HTML's boundaries between text and markup.
 
 ## Write the empty element once
 
 ```html
-<!DOCTYPE html PUBLIC "next">
+<!DOCTYPE html PUBLIC "self-closing">
 
 <user-avatar name="Ada" />
 <div class="divider" />
@@ -47,7 +47,7 @@ The proposal combines three rules: explicit opt-in, preserved parsing context, a
 
 ### Opt in without changing existing pages
 
-`<!DOCTYPE html PUBLIC "next">` selects a fixed parsing profile for document source. Plain `<!DOCTYPE html>` keeps today's behavior. `PUBLIC "next"` names a built-in profile: it fetches no DTD and does not enable XML. Current browsers retain standards rendering mode with this declaration, but do not implement the new syntax.[^6][^7]
+`<!DOCTYPE html PUBLIC "self-closing">` requests this capability for document source. The [HTML Feature Profiles proposal](/html-feature-profiles/) defines named selection and the alternative `PUBLIC "next"` preset. Plain `<!DOCTYPE html>` keeps today's behavior. The selector names a built-in profile: it fetches no DTD and does not enable XML. Current browsers retain standards rendering mode with this declaration, but do not implement the new syntax.[^6][^7]
 
 ### Close the DOM element; keep the parser's context
 
@@ -80,20 +80,9 @@ Sensitive elements retain their existing slash handling. For example:
 > [!ex] The rule behind the shorthand
 > Change eligible parent/child relationships while preserving recognized tags, text, namespaces, and protected containers. Existing HTML insertion APIs retain their current grammar.
 
-The [parsing rules](/html-parsing/parsing) define eligibility and recovery. [Security and evidence](/html-parsing/security) separates the sanitizer and distant-mode-switch objections, shows the retained stack token by token, and states what the reference construction establishes.
+The [parsing rules](/self-closing-html/parsing) define eligibility and recovery. [Security and evidence](/self-closing-html/security) separates the sanitizer and distant-mode-switch objections, shows the retained stack token by token, and states what the reference construction establishes.
 
-## Extension: more places for components {#placement-extension}
-
-> [!future] Extension · placement · Proposal
-> Preserve components as direct children in more contexts, including tables and templates.
->
-> ```html
-> <table>
->   <some-component></some-component>
-> </table>
-> ```
->
-> Today's parser moves this component outside the table. The extension would preserve the authored structure. It needs its own parsing and safety contract; `display: contents` alone cannot change parsing.[^8][^9]
+The recorded experimental implementation uses the earlier literal `PUBLIC "next"` opt-in. Named-selector resolution is proposed in HTML Feature Profiles and is not implemented by those evidence artifacts.
 
 ## Read the proposal
 
@@ -111,6 +100,4 @@ This is an independent Stage 0 draft. The reference model establishes a static t
 [^5]: WHATWG HTML, [#9491 sanitizer-mismatch example](https://github.com/whatwg/html/issues/9491#issuecomment-1623702790) and [concerns about parsing-mode switches at a distance](https://github.com/whatwg/html/issues/9491#issuecomment-1695514547).
 [^6]: W3C, [XML 1.0 external identifiers](https://www.w3.org/TR/xml/#sec-external-ent), for the historical distinction between public names and URI-based system identifiers.
 [^7]: WHATWG HTML, [initial insertion mode](https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode), [after DOCTYPE name](https://html.spec.whatwg.org/multipage/parsing.html#after-doctype-name-state), [fragment parsing](https://html.spec.whatwg.org/multipage/parsing.html#parsing-html-fragments), and [current doctype syntax](https://html.spec.whatwg.org/multipage/syntax.html#the-doctype).
-[^8]: WHATWG HTML, [unexpected markup in tables](https://html.spec.whatwg.org/multipage/parsing.html#unexpected-markup-in-tables), [in-template insertion mode](https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intemplate), and [in-body insertion mode](https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody). These rules explain table relocation and why a wrapper can change how following row and cell tags are parsed.
-[^9]: CSS Display, [box generation](https://drafts.csswg.org/css-display/#box-generation). `display` controls layout rather than the document tree or document-language semantics.
 :::

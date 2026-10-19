@@ -1,16 +1,45 @@
 ---
 title: The JavaScript Layer
 order: 6
-blurb: controllers · host · $ref · finding elements · effects · requests · componentRegistry
+blurb: modules · connect · host · $ref · effects · requests · componentRegistry
 eyebrow: Declarative HTML Components · reserved for Level 2
 status: Proposed direction · the imperative escape hatch
 ---
 
 # The JavaScript Layer
 
-Almost everything is declarative, and a component definition **contains no executable code**: code is referenced, never embedded. When behavior genuinely needs imperative JavaScript, a timer, a stream, an observer, a foreign library, it lives in an ordinary **ES module** outside the definition and attaches through a small, native-grounded seam: a **controller** declared by the component definition. The definition stays pure data; the module stays pure behavior; they meet only at the contract.
+A component links an ordinary **ES module** when it needs browser behavior such as an observer, timer or foreign library. Its named `connect` export attaches that behavior through the component’s `host`; the definition contains no executable code. This chapter describes that connection, the shared host API and the existing controller compatibility form.
 
-## Imperative behavior uses controllers
+## Component modules and browser connection {#modules}
+
+A component may link an ES module with `module="./product-card.js"`. Its optional named `connect` export supplies browser connection behavior:
+
+```html
+<template component="product-card" module="./product-card.js">
+  <defs><prop name="product" type="object({ name: string, price: number })" required>Product.</prop></defs>
+  <article><h2>{$product.name}</h2></article>
+</template>
+```
+
+```js
+export function connect(host, { signal }) {
+  const observer = new ResizeObserver(([entry]) => {
+    host.root.style.setProperty('--card-width', `${entry.contentRect.width}px`);
+  });
+  observer.observe(host.root);
+  return () => observer.disconnect();
+}
+```
+
+A module is imported under ordinary ESM URL resolution and lifetime rules. `connect` runs for each browser activation of an instance and may return cleanup, synchronously or asynchronously. Deactivation aborts its signal and runs cleanup. Cleanup resolving after deactivation runs immediately. A retained reconnection preserves component state and starts fresh connection behavior. A connected move does not create a new lifetime. Browser-only APIs in `connect` and `on:connect` are valid and are not invoked or shimmed by server rendering. Other module exports do not implicitly become expression names.
+
+A renderer may render the template with supplied typed props without importing browser behavior. Compatible source libraries may evaluate data separately and supply binding records for adoption, but no component is required to make its browser behavior runnable on a server. File discovery, private modules, data-source conventions and server execution phases belong to the host's integration.
+
+The existing `controller` default callback remains a compatibility form with its existing once-per-instance behavior. `controller` and `module` on the same definition are a conformance error. Migrating a callback to `connect` adopts connection-scoped cleanup; an automatic export rename is not sufficient for arbitrary effectful callbacks.
+
+## Imperative behavior and compatibility controllers {#imperative-behavior-uses-controllers}
+
+Existing definitions may use a default-exported controller instead of a named `connect` export. This compatibility form runs once per instance; its lifecycle listeners handle later connections. The host capabilities below apply to both forms.
 
 The declarative layers, templating, bindings, and reactivity, cover the large majority of interface work with no script. But some behavior is irreducibly imperative: a `setInterval` clock, a Server-Sent-Events stream, an `IntersectionObserver`, wrapping a mapping or charting library, or computation too involved for a [pure expression](/declarative-components/expressions). That work needs JavaScript, and pretending otherwise would push authors back into inline handlers and `eval`-shaped escapes.
 
@@ -19,7 +48,7 @@ So HTML Next draws a firm line. A **component definition is declarative data**: 
 > [!norm] Server rendering supplies the declarative baseline
 > The JavaScript layer only *enhances*: a controller adds live imperative behavior on top and is never load-bearing for the first render. But be precise about what "no JS" delivers, because it depends on where the markup comes from. On a **server-rendered** page the first render is real HTML that displays, is accessible, and is indexable with no script; a controller failing to load leaves that baseline intact. On a **client-only** page there is no such baseline: an invocation like `<x-app>` is an unknown element, so without the runtime it renders *nothing* (its inline children, if any, are all that shows). So the guarantee is: **no-JS renders the declarative baseline when the HTML was server-rendered**; client-only pages need the runtime to produce first paint. Determinism and adopt-in-place hydration are likewise SSR properties (see [Components](/declarative-components/components)), not client-only ones.
 
-## The controller
+## The compatibility controller {#the-controller}
 
 A component that needs imperative behavior gets a **controller**: the default-exported function from the ES module named by the component definition, run once per instance. It is the decoupled equivalent of a custom element's class plus its `ElementInternals`[^1], the same behavior a Web Component would put in a class, attached instead to a definition made of data.
 
@@ -57,7 +86,7 @@ The controller is written against the small `host` interface and exported as the
 
 ## host: the ElementInternals of a data component
 
-The controller receives one argument, `host`, its window onto the instance. The name is the platform's: Shadow DOM already calls the component element seen from inside `:host`[^3]. Every capability on it is a thin, framework-neutral surface with a native anchor, which is precisely what makes it portable across compile targets.
+A named `connect` export or compatibility controller receives `host`, its window onto the instance. The name is the platform's: Shadow DOM already calls the component element seen from inside `:host`[^3]. Every capability on it is a thin, framework-neutral surface with a native anchor, which is precisely what makes it portable across compile targets.
 
 ```ts
 type EffectCallback = () => void | (() => void);
@@ -724,6 +753,8 @@ Controllers never run on a server, so a server never makes or answers a request.
 
 ## Binding: the definition owns the controller edge
 
+A [component module](#modules) uses `module="…"` and a named `connect` export. The compatibility controller edge below follows the same URL resolution, module loading and trust rules.
+
 The runtime discovers definitions and instances in the document. Each definition names its controller entry module directly, and that module's default export supplies the behavior:
 
 ```html
@@ -1109,7 +1140,7 @@ The function prop exists only on the framework side, while the HTML component ke
 
 ## Lifecycle and hydration
 
-A controller's `connect` fires when the instance connects, on first mount *and* on any later reconnection, matching the custom-element reaction rather than a once-only *mount*[^1]. On a server-rendered page, the markup arrives already lowered and inert; the controller attaches at **hydration**, where `connect` first runs in the browser. `disconnect` fires on removal, running teardown. Because the first render never depends on the controller, hydration is adopt-in-place: the controller binds to existing nodes rather than rebuilding them (see [Components](/declarative-components/components)).
+A module’s named `connect` runs on first connection and later reconnections. In a compatibility controller, `host.on("connect", ...)` observes those same connections, matching the custom-element reaction rather than a once-only *mount*[^1]. On a server-rendered page, the markup arrives already lowered and inert; the controller attaches at **hydration**, where `connect` first runs in the browser. `disconnect` fires on removal, running teardown. Because the first render never depends on the controller, hydration is adopt-in-place: the controller binds to existing nodes rather than rebuilding them (see [Components](/declarative-components/components)).
 
 ## Reference
 

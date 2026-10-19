@@ -99,3 +99,84 @@ The Node model and DOMPurify's jsdom backend share parse5, so those comparisons 
 Selected event-handler, script, URL, and marker signals can miss CSS effects, DOM clobbering, application-defined components, and indirect execution. Parentage intentionally changes; arbitrary application behavior cannot be assumed equivalent. Sanitization must use the intended grammar and destination context.
 
 No complete native-browser security proof or browser-vendor endorsement follows from these experiments. The proposal's text-to-markup construction argument, tested cases, failed lowerings, and remaining implementation obligations are separate claims.
+
+## Incremental construction and live execution (19 October 2026)
+
+The new incremental model retains the same recognition parser while input arrives in chunks. `streaming.test.mjs` enumerates every two-chunk boundary of 12 selected witnesses, checks code-point feeding, script checkpoint pause/resume, and exact initial doctype selection. `streaming-check.mjs` records 60,000 comparisons (10,000 generated sources × three chunk schedules × two scripting states), seed `0x5354524d`. `streaming-results.json` records zero final-output differences from the shared static reference. This tests chunk invariance; shared recognition code means it is not an independent proof of HTML parsing correctness.
+
+`live-dom.mjs` applies changes at token boundaries to actual DOM nodes, preserving application mutations rather than replacing a completed document. `execution-browser.mjs` tests script checkpoints under four input schedules, callback construction and upgrade, observer and microtask timing, detached ancestors, moved shorthand elements, legacy innerHTML, raw-text/namespace boundaries, external classic-script blocking, rejection of document.write/writeln/open, reentrant-input rejection, streamed UTF-8, and a connected-image request control. `execution-results.json` records 20 passing targeted execution cases plus 500 generated recovery/refinement cases each in Chromium 156.0.8078.4, Firefox 157.0, and WebKit 26.5. The request log contains the image positive control and excludes the namespace witness's apparent image.
+
+The streamed source arrives through a local HTTP response. The server deliberately splits a four-byte UTF-8 character; the client incrementally decodes network bytes before feeding the parser. This demonstrates the prototype's UTF-8 input path, not native encoding sniffing or navigation restart.
+
+The adapter activates connected HTML classic scripts at end-tag checkpoints and explicitly performs a microtask checkpoint before resuming. It uses dynamic browser script elements. Native parser-inserted flags, modules/async/defer queues, stylesheets blocking scripts, CSP/Trusted Types integration, declarative shadow roots, customized built-ins, and speculative scanning are not implemented by this adapter. Existing static native-root tests remain separate. Its document-writing rejection and concurrent-input rejection are concrete experimental contracts, not evidence that browser engines already implement those restrictions.
+
+Reproduce sequentially with an accepted Node version:
+
+```sh
+npm ci --ignore-scripts --no-audit --no-fund
+npm run test:streaming
+npm run streaming
+npx playwright install chromium firefox webkit
+npm run execution
+```
+
+Playwright 1.62.1 is pinned. `CHROMIUM_EXECUTABLE`, `FIREFOX_EXECUTABLE`, and `WEBKIT_EXECUTABLE` may select existing compatible test binaries; the recorded versions identify the binaries actually used. `PLAYWRIGHT_MODULE` optionally selects an existing shared Playwright installation. No test starts more than one browser at once, and the local HTTP server is closed in the runner's finalizer.
+
+## Mechanized static proof
+
+`Projection.lean` models a forest of immutable recognized-node payloads with eligibility and protected-container flags. Structural induction proves preservation of the complete payload preorder and each node's protected-ancestor path. Payloads can include identity, namespace, attributes and text. Protected roots must be represented as barriers by the caller. This is an abstract model of the selected pure transformation, not verified HTML tokenization or a proved refinement of the JavaScript, Rust, DOM, or browser implementations.
+
+Run with Lean 4.35.0:
+
+```sh
+lean Projection.lean
+```
+
+`formal-results.json` records compiler identity, source SHA-256, successful exit, and Lean's reported axiom dependency (`propext`). The two proofs contain no admitted holes. The compiler distribution used was the official `lean-4.35.0-darwin_aarch64.tar.zst`, verified against release SHA-256 `c0c6f34f35ba1dcc5c4a5fd106fefab9eb5e8469712624dd2c868d51b63177c2`.
+
+The proposal's security chapter maps every proof method to its supported claim and limit. Construction arguments, mechanized universal statements about the abstract model, exhaustive partitions of selected strings, generated comparisons, independent inert native observations, live execution, and counterexample/positive controls are deliberately distinct evidence.
+
+### Recovery counterexample found by live refinement
+
+The generated DOM-refinement check uses seed `0x444f4d52`, 500 sources per engine. It compares actual DOM node kind, namespace, attributes, text, order, and template contents with the incremental output model. All 1,500 current comparisons pass. This checks the adapter’s output correspondence in those cases; recognition is still shared.
+
+The initial adapter failed `<body><table>text<div/>`: foster recovery exposes both a new text node and a new div before an existing table in a single token checkpoint. Using the not-yet-connected div as the text insertion anchor appended the text after the table. `live-dom.test.mjs` first reproduced `DIV, TABLE, #text` instead of `#text, DIV, TABLE`; the fix locates the next already-connected parser sibling. The focused regression and the three-engine generated corpus then passed. This is an output-order bug, not a demonstrated sanitizer exploit, and the counterexample remains in the suite.
+
+The live adapter creates inert script placeholders and replaces each with a dynamic script at its activation checkpoint. That differs from native parser-inserted script identity and mutation records. Its execution tests do not transfer the static model's node-identity theorem to these placeholder DOM nodes. Native parser identity, parser-inserted script flags and scheduling are separate obligations for the engine prototype.
+
+A second mutation counterexample uses an implicit body containing a hidden input. Script moves the input into the head; a following frameset replaces the implicit body. The first adapter removed every node no longer reachable in its recognition snapshot, wrongly deleting the moved input and detaching descendants individually from the removed body. The regression first verifies that frameset recovery actually happened, then checks preservation of the moved input and the detached script's parent. Removal now applies only to a removed subtree's root under its previous parser-owned parent. The focused test failed before this fix and passed after it. This tests mutation ownership, not equivalence of arbitrary script effects to legacy HTML.
+
+### Native popover boundary
+
+The containment audit found that `popover` was missing from the protected global attributes. Before the fix, `<div popover/><button>control</button>` lifted the button outside the closed popover. Empty and invalid attribute values each exposed a rendered button in Chromium, Firefox, and WebKit; five of the six recorded focus attempts also focused it. `popover-counterexample-results.json` preserves those failures. The shared recognition eligibility and protected-ancestor signature now treat `popover` as a barrier alongside `inert`, `hidden`, and `disabled`. The focused static test was observed failing before the fix and passing after. Browser regressions check containment, closed-state geometry/focus and an open-state visibility control. These are native visibility/ownership observations, not demonstrated sanitizer exploits.
+
+The relevant platform contract is [HTML's popover state](https://html.spec.whatwg.org/multipage/popover.html) and [rendering rule](https://html.spec.whatwg.org/multipage/rendering.html): closed popovers are not rendered; an invalid `popover` value selects the Manual state rather than removing the boundary. This also illustrates the mechanized theorem's classification premise: proving preservation of designated barriers does not prove that an implementation has designated every necessary barrier.
+
+Focus checks explicitly close open popovers, blur, remove each frame and await a rendering checkpoint before the next case. A Firefox invalid-value focus assertion passed in isolation but initially failed after earlier frames; explicit teardown removed that cross-case interference. Each popover case also compares focus behavior with an independently constructed native control using the same hidden-before-open call history. The closed-state containment/visibility assertions remain unconditional.
+
+Execution reports include source SHA-256 digests and a `caseFilter` field. `BROWSER_ENGINES` and `EXECUTION_CASE` support focused diagnosis; filtered runs are not complete three-engine evidence. The recorded full result has a null filter and all three engines.
+
+## Native navigation implementation
+
+`native-ladybird.patch` implements the experimental profile in Ladybird at the exact upstream commit in `native-results.json`. It preserves the native recognition stack and routes output insertion through recorded sibling boundaries. Navigation alone can select the profile; existing DOM parsing APIs retain legacy behavior. The native document rejects `write`, `writeln`, and the document-writing `open` overload. The optional speculative scanner is disabled for Next documents.
+
+The final native run passes both suites: 31 targeted checks and 200 differential inputs, 214 activations, zero baseline disagreements and zero mismatches. See the security chapter's six-obligation matrix for tested behavior and limits. `native-final-test.log` records the actual runner result. `native-initial-routing.patch`, `native-initial-execution-results.txt`, and `native-initial-refinement-results.json` retain the first executed failure: 30/31 targeted checks and 23/200 differential mismatches. Eligibility must be frozen before foreign recovery; output insertion boundaries must track live siblings rather than stale numeric offsets. These corrections pass the retained corpus, not all HTML.
+
+To reproduce, check out the pinned upstream commit, apply `native-ladybird.patch`, and copy `native-corpus.json` to `Tests/LibWeb/Text/input/HTML/next-parsing-corpus.json`. Follow Ladybird's build prerequisites and pinned vcpkg baseline. This run used Rust 1.98.0, CMake 4.4.4, Ninja 1.13.2, Apple Clang 21, Qt from Homebrew, and the Release preset with GUI targets enabled, LTO and Cranelift disabled. The vcpkg baseline was `20ceb8adbf0504d4b0d5e4058a32f9d4fc896391`. With that checkout bootstrapped and Rust 1.98.0 on PATH, configure and build:
+
+```sh
+cmake --preset Release -DENABLE_GUI_TARGETS=ON -DENABLE_LTO_FOR_RELEASE=OFF -DENABLE_LAGOM_CCACHE=OFF -DENABLE_CRANELIFT_JIT=OFF -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qtbase -DRUST_RUSTC="$(command -v rustc)" -DRUST_CARGO="$(command -v cargo)"
+cmake --build Build/release --target test-web --parallel 8
+```
+
+These are the recorded macOS settings, not portable build requirements. Build settings are not included in the algorithm patch. The patch also exposes bundled fonts to the test application, necessary for this machine's test startup.
+
+```sh
+LADYBIRD_SOURCE_DIR="$PWD" Build/release/bin/test-web --test-concurrency 1 --per-test-timeout 180 --filter 'Text/input/HTML/next-parsing-*.html' --results-dir /tmp/next-native-results -v -v
+```
+
+Use `--collect-garbage-on-every-allocation` for the separate GC stress run. Native baseline DOMParser output is first checked against parse5; disagreements are counted separately rather than silently accepted. The bounded native comparison is independent recognition evidence, whereas the adapter's refinement check shares recognition code. Neither proves universal implementation refinement. Ladybird's existing encoding-change path does not implement arbitrary byte-prefix restart; that is an explicit remaining obligation. No production browser adoption or security approval is implied.
+
+The extra allocation-by-allocation GC stress run is **inconclusive**: the refinement test reached its 180-second timeout without completing; the remaining execution stress test was interrupted after that timeout. `native-gc-test.log` and `native-results.json` record the attempt. The ordinary passing suites do not imply memory safety or a passing GC stress run.
+
+A separate existing upstream parser regression selection (`Text/input/HTML/parser-*.html`) passes all 16 tests with the patch. `native-legacy-test.log` records that bounded regression run; it is not the full upstream suite.

@@ -13,7 +13,7 @@
   ],
   "comparisons": 800000,
   "recognitionChanges": 0,
-  "activations": 180796,
+  "activations": 179640,
   "examples": [
     {
       "source": "<div/><span>Following</span>",
@@ -106,6 +106,12 @@
     {
       "source": "<div inert/><img data-probe>",
       "html": "<!DOCTYPE html><html><head></head><body><div inert=\"\"><img data-probe=\"\"></div></body></html>",
+      "sameRecognition": true,
+      "activations": []
+    },
+    {
+      "source": "<div popover/><button>control</button>",
+      "html": "<!DOCTYPE html><html><head></head><body><div popover=\"\"><button>control</button></div></body></html>",
       "sameRecognition": true,
       "activations": []
     },

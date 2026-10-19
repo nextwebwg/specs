@@ -1,0 +1,43 @@
+{
+  "upstreamCommit": "eb5262a610d8be85a5bf8210a34dc222af802513",
+  "patchSHA256": "580619b867e032da510acde280706b91b810b7b6505f41e38f5e81136889b698",
+  "corpusSHA256": "b97cffd8bd0bf1319aec9bfc1d5e3d516208007baf5c36cf47cf797ca7d4c703",
+  "executionChecks": 31,
+  "refinement": {
+    "seed": "0x4e415456",
+    "inputs": 200,
+    "compared": 200,
+    "baselineDisagreements": 0,
+    "activations": 214,
+    "mismatches": 0,
+    "examples": []
+  },
+  "normal": {
+    "passed": 2,
+    "failed": 0
+  },
+  "gcStress": {
+    "status": "inconclusive",
+    "refinementTimeoutSeconds": 180,
+    "completed": 0,
+    "remainingExecutionTest": "interrupted after first timeout",
+    "scope": "--collect-garbage-on-every-allocation; no successful GC-stress assertion or memory-safety proof"
+  },
+  "toolchain": {
+    "rust": "1.98.0",
+    "cmake": "4.4.4",
+    "ninja": "1.13.2",
+    "build": "Release, LTO off, Cranelift off, GUI on, parallel 8"
+  },
+  "scope": "Experimental native navigation implementation in Ladybird; finite conformance evidence, not a production security proof.",
+  "binarySHA256": {
+    "Build/release/bin/test-web": "8f7683cf355691be6067a70709dd063ddf89e047725d7fcde329f07f4fa49596",
+    "Build/release/bin/Ladybird.app/Contents/MacOS/WebContent": "5fc5e028ce5cf9ef0ad162cce733c261b1c08d01b1559e851de0a5c9ba81b34e"
+  },
+  "legacyParserRegressions": {
+    "filter": "Text/input/HTML/parser-*.html",
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0
+  }
+}

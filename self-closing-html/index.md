@@ -99,7 +99,7 @@ The [parsing rules](/html-parsing/parsing) define eligibility and recovery. [Sec
 
 ::chapter-index
 
-This is an independent Stage 0 draft. The reference model establishes a static text-to-markup preservation property; native browser streaming and execution still require implementation and verification.
+This is an independent Stage 0 draft. The reference model establishes a static text-to-markup preservation property; an experimental native Ladybird implementation now passes bounded streaming and execution checks. Production conformance and universal execution safety remain unproved.
 
 ## Sources
 

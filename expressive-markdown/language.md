@@ -2877,7 +2877,7 @@ unsupported. Recommend a labelled `<span>` where color supplements the text.
 
 A **mention** names a person or entity. `@[Ada Lovelace]` and `@ada-lovelace` are
 valid without a stored target; bracketed labels can use inline formatting.
-`:mention[Ada Lovelace]` uses the general inline syntax.
+Mentions use `@` rather than the generic colon-prefixed inline syntax.
 
 ```md
 @[Ada Lovelace]#user-123{#acknowledgement}
@@ -2892,7 +2892,7 @@ stored references or changing labels.
 Bare handles end outside letters, numbers, combining marks, `_` and `-`.
 Emails, URLs, code and escaped `\@` stay ordinary content. Recommend a labelled
 span, or link when a URL is present, with an optional visible `@`.
-See [complete mention boundaries](/expressive-markdown/parsing#mention-shorthand).
+See [complete mention boundaries](/expressive-markdown/parsing#mentions).
 
 ### Table of contents
 

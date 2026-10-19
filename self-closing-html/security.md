@@ -112,16 +112,29 @@ That containment step receives **nodes, not HTML strings**. It does not tokenize
 
 Text that the recognition step classified as stylesheet content therefore stays text. There is no operation in the containment step that could turn it into an image or attach an event-handler attribute. This is the construction argument behind the reported exploit's prevention; the experiments check the implementation against it.
 
-### Machine-checked static theorems
+### What the mathematical proof checks
 
-The [Lean model](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/Projection.lean) formalizes this containment operation over finite forests. Its payload represents a recognized node's identity and immutable data; eligibility and protected-container classification are inputs.
+After HTML has been read and its contents identified, this proposal changes where some nodes sit in the document tree. A machine-checked mathematical proof checks two promises about that rearrangement:
 
-Lean 4.35.0 checks two theorems for every forest in that model:
+- **Keep the same contents in the same order.** The rearrangement cannot add, remove, duplicate, or reorder nodes, or change the information attached to them.
+- **Keep protected boundaries intact.** A node inside a protected container stays inside that same container. For example, moving nodes around a self-closing wrapper cannot move them outside an enclosing protected container.
 
-- `preorder_project`: projection preserves the complete ordered payload sequence. It neither adds nor loses a recognized node, nor changes its namespace, attributes, or text when those are included in the payload.
-- `protectedPaths_project`: every recognized node retains the same ordered protected ancestors. Lifting a node out of an unprotected shorthand cannot lift it out of a protected container.
+This supports one part of the security argument: rearranging already identified content does not itself reinterpret text as an element or let content escape a protected boundary. It is not a proof that an entire browser is safe. The model assumes that the parser has correctly identified the content and classified the containers; browser code must still implement those steps and the rearrangement correctly. The execution tests below check other parts of that work.
 
-These proofs use structural induction, rather than enumeration. Lean reports `propext` as their axiom dependency; there are no admitted proof holes. The [verification record](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/formal-results.json) pins the compiler and source digest. The model does not prove HTML recognition, eligibility selection, correspondence of a browser implementation to the model, or safety of arbitrary execution and sanitization policies. Those are separate obligations.
+::: {.details summary="Technical details: the model, theorems, and proof limits"}
+
+The [Lean model](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/Projection.lean) describes a document as a collection of trees, called a *forest*. Each tree node carries a *payload*: the identity and information that the rearrangement must preserve. The model takes as inputs which wrappers may use self-closing syntax and which containers are protected. It does not establish whether those input classifications are correct.
+
+Lean is a proof checker. Version 4.35.0 verifies that the following claims hold for every finite tree collection described by this model, rather than only for a generated set of examples:
+
+- `preorder_project`: visiting the nodes in document order produces exactly the same sequence of payloads before and after rearrangement. When the payload includes a node’s namespace, attributes, and text, those values are preserved too.
+- `protectedPaths_project`: each node has exactly the same sequence of protected ancestors before and after rearrangement. An ancestor is a container surrounding that node; this claim prevents the rearrangement from moving a node across a protected boundary.
+
+The proofs establish the claims for individual nodes and show that combining those nodes into larger trees preserves them. This technique is called *structural induction*. Lean reports `propext`, its principle for treating logically equivalent propositions as equal, as an axiom dependency. There are no admitted proof holes: no step is left as an unchecked assertion.
+
+The [verification record](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/formal-results.json) identifies the compiler and the exact source checked. The proof does not cover reading HTML source, choosing eligible wrappers or protected containers, matching browser code to this mathematical model, script execution, or sanitization. Those require separate arguments and implementation tests.
+
+:::
 
 The static prototype computes the ordinary recognized tree first, then applies containment changes. A native browser must maintain equivalent recognition state independently of output parenting and produce the specified DOM incrementally. The Ladybird prototype implements native output routing and tests script, custom-element reaction, and mutation checkpoints; production conformance remains an obligation.
 

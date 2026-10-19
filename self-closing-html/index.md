@@ -35,6 +35,32 @@ Authors already use self-closing components in JSX and Vue templates. This bring
 
 Case-insensitive names, boolean attributes, unquoted values, optional tags, and error recovery retain their HTML rules. XML parsing is not required.
 
+## Why this is useful to authors
+
+An empty component often gets all its information from attributes. Repeating its name in a closing tag adds no child content:
+
+```html title="Existing HTML"
+<user-avatar name="Ada"></user-avatar>
+<status-badge state="ready"></status-badge>
+```
+
+```html title="With this proposal enabled"
+<user-avatar name="Ada" />
+<status-badge state="ready" />
+```
+
+The shorthand makes “this element has no authored children” visible at the end of the opening tag. Authors write the name once, and a rename does not require changing a matching closing tag. It also lets eligible empty components use the familiar self-closing spelling in HTML source without a template compiler just to interpret that spelling.
+
+These are concrete properties of the notation, not measured productivity results. [React’s JSX guide](https://react.dev/learn/writing-markup-with-jsx#2-close-all-the-tags) and [Vue’s component guide](https://vuejs.org/guide/essentials/component-basics.html#self-closing-tags) document existing use of the syntax. Vue explicitly distinguishes compiled templates, where components can self-close, from templates parsed as ordinary HTML, where explicit closing tags are required. This supports familiarity and identifies a real difference between authoring environments; it does not establish how much time this proposal would save.
+
+**What has not been measured:** authoring speed, readability, error rates, or developer preference for this proposal. The parsing experiments test correctness, not developer experience. A study comparing empty-component authoring and editing with both spellings would be needed to claim measured improvement.
+
+The benefit is deliberately limited to eligible empty elements. Elements with children still use closing tags, and sensitive elements such as `style` keep their existing rules. In particular, `<script />` still starts a script and can swallow following page source until `</script>`; write `<script></script>` for an empty script. [See the consequence of ignored slashes](/self-closing-html/parsing#what-happens-if-an-author-writes-script). The syntax does not provide component registration, table embedding, or automatic fallback in older browsers.
+
+## What has been checked?
+
+The [plain-language issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme) explains each problem, its proposed fix, the supporting evidence, and the remaining work. Start there for the findings; the [security chapter](/self-closing-html/security) explains the main examples. The [parsing rules](/self-closing-html/parsing) are the implementation reference.
+
 ## What held this back
 
 Browsers currently ignore the slash on ordinary HTML elements. Changing that everywhere would change existing pages.[^3][^4]
@@ -87,6 +113,10 @@ The recorded experimental implementation uses the earlier literal `PUBLIC "next"
 A server can also select this capability with the proposed `HTML-Feature-Profile` response header. [HTML Feature Profiles](/html-feature-profiles/#http-response-header) defines the header, its precedence over the doctype, and unsupported-request handling.
 
 You can also explicitly request self-closing parsing for fetched HTML while the caller remains ordinary HTML. [Per-call parsing and insertion boundaries](/self-closing-html/parsing#parse-independently-of-the-caller-s-document) explain the proposed API and what happens when those nodes are inserted elsewhere.
+
+## What feedback is needed?
+
+Review is requested on whether the authoring benefit justifies the [exceptions and their consequences](/self-closing-html/parsing#why-keep-exceptions), whether the retained parsing context adequately addresses sanitizer disagreement, and what native tests and implementation changes are needed next. Broader self-closing behavior is not ruled out, but is not established by the current evidence. The [work plan before shipment](/self-closing-html/security#work-plan-before-browser-shipment) separates discussion readiness from production readiness.
 
 ## Read the proposal
 

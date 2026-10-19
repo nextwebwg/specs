@@ -1,8 +1,113 @@
-# Opt-in Self-Closing HTML: reproducible evidence
+# Self-closing HTML: what is fixed, and what still needs work?
+
+This folder contains experiments for a proposed HTML shorthand: write `<user-avatar />` instead of `<user-avatar></user-avatar>` when the element has no children in the source.
+
+**The central security problem has a proposed solution, a mathematical proof of its tree-rearrangement rule, and passing prototype tests. This is not ready to ship in browsers.** Some implementation work and security review remain open.
+
+You do not need to read the code or JSON files to understand the findings. Start with this checklist. The linked files are the supporting records; reproduction instructions and technical explanations are collapsed below.
+
+## How to read the status
+
+- **Demonstrated:** the specific claim passed the stated proof or tests. This does not mean every possible browser case is solved.
+- **Partial:** there is a working approach and passing evidence, with an important gap still open.
+- **Open:** the required work has not been completed. A timed-out test does not count as a pass.
+
+## Checklist: the problems and their answers
+
+### Can harmless text turn into a running element?
+
+- [x] **Demonstrated for the tree-rearrangement rule.** Keep HTML’s decision about what is text and what is a tag. Only change where eligible empty elements and following nodes sit. For example, `<style/><img src onerror=alert(1)>` must keep the apparent image as stylesheet text.
+
+  **Evidence:** the [machine-checked proof](formal-results.json) establishes that rearrangement keeps node information, order, and designated protected ancestors. [800,000 generated comparisons](projection-results.json) check selected parsing properties. The proof assumes correct parsing and correct identification of protected containers; it does not prove those inputs correct.
+
+### Can an earlier self-closing tag break later SVG or text parsing?
+
+- [x] **Demonstrated in the recorded cases.** Keep the parser’s normal memory of open tags even when an element is empty in the displayed document tree. A later closing tag can still end the right HTML/SVG context. Simply replacing `/>` with an end tag is not the solution.
+
+  **Evidence:** [12 browser comparisons](recovery-chromium-results.json) cover selected recovery examples. The [native browser results](native-results.json) include 200 comparisons against the reference, with no disagreements in the final run. This is finite coverage, not every possible malformed document.
+
+### Could hidden or inactive controls become exposed?
+
+- [x] **The discovered boundary failures are corrected.** Do not self-close sensitive containers or elements carrying `hidden`, `inert`, `disabled`, or `popover`. Their children stay inside them.
+
+  **Evidence:** [tests with protections deliberately removed](active-unprotected-chromium-results.json) show why the protections matter. The [popover failure record](popover-counterexample-results.json) shows a missing protection exposing controls; it was then added, and the [browser regressions](execution-results.json) pass. This does not prove that every future HTML feature has been classified correctly.
+
+### Will a library’s existing HTML calls silently change meaning?
+
+- [x] **Addressed by the proposed contract and tested prototype cases.** Existing calls such as `innerHTML` keep their normal behavior. Using the new grammar for a string requires an explicit parsing request. The prototype also blocks document-writing calls that would mix the two grammars.
+
+  **Evidence:** [browser execution tests](execution-results.json) and [native tests](native-results.json) check API isolation. The newer named profiles, response header, and explicit `profile` option belong to [HTML Feature Profiles](https://nextwebwg.org/html-feature-profiles/); those new selection mechanisms are not implemented by this native patch.
+
+### Does it work while HTML arrives over the network?
+
+- [x] **Demonstrated in the experimental native browser.** Build the result as chunks arrive, without waiting for the whole page. Scripts can run before the response ends.
+
+  **Evidence:** [60,000 reference comparisons](streaming-results.json) check different input splits. [Native tests](native-results.json) exercise a script before end-of-response and pausing across a network chunk. Arbitrary encoding restarts remain open below.
+
+### Do scripts and custom elements see the right document?
+
+- [x] **Demonstrated for the tested execution points.** Put the parsed nodes in their intended places before running scripts or custom-element callbacks. Pause when a blocking script requires it, then continue.
+
+  **Evidence:** [20 adapter cases in each of three engines](execution-results.json) and [31 targeted native checks](native-results.json) cover scripts, callbacks, upgrades, pauses, and other execution behavior. These counts cover whole suites, not 31 tests of each feature. The three-engine adapter supplies its own parser; only the Ladybird experiment changes native navigation parsing.
+
+### What if a script moves or removes nodes during parsing?
+
+- [x] **The discovered mutation and insertion-order bugs are corrected.** Track live insertion positions and remove only nodes still owned by the parser. Preserve changes made by page scripts.
+
+  **Evidence:** [focused regression tests](live-dom.test.mjs) retain the cases that failed before the fixes. [1,500 adapter comparisons](execution-results.json) and [200 native comparisons](native-results.json) pass. Arbitrary script effects are not proved equivalent to ordinary HTML.
+
+### Can a shadow root end up attached to the wrong host?
+
+- [x] **Ownership is preserved in the tested native cases.** Keep each shadow root attached to its original host; do not move its declaration to another element.
+
+  **Evidence:** [six open-root browser checks](shadow-chromium-results.json) and [native execution checks](native-results.json) pass. The separate serialize-and-reparse shortcut **fails** an ownership case and must not be used as a general converter. Exhaustive closed-root and lifecycle coverage is not established.
+
+### Could saving and reparsing the HTML create a new exposure?
+
+- [ ] **Partial.** [200,000 comparisons](roundtrip-results.json) found no new exposure of the monitored markers. That is useful evidence, but the shadow-root conversion failure above prevents a general claim that serialization is safe. Saving HTML does not save its parsing or sanitization history.
+
+### Could the browser fetch something too early?
+
+- [ ] **Partial.** The native prototype disables its optional look-ahead loader for opted-in documents. [Native request checks](native-results.json) show the tested image waits until the blocking script is released. Making an optimized look-ahead loader follow the same rules remains open.
+
+### Could an ignored slash on `script` become dangerous?
+
+- [ ] **Open authoring risk.** `<script />` still starts a script. Following source can be consumed as script text; valid JavaScript can execute when the script closes. An example that produces a syntax error is not a safety guarantee. Keeping today’s parsing rule avoids a new parser mismatch, but does not remove this existing hazard or establish that authors understand the exception. Tool warnings are a proposed mitigation, not an implemented or tested result. [Read the example](https://nextwebwg.org/self-closing-html/parsing#what-happens-if-an-author-writes-script).
+
+## Checklist: what is still required before shipment?
+
+- [ ] **Encoding restarts:** implement and test the case where a browser must reread earlier bytes using a different character encoding. Network chunk tests do not establish this.
+- [ ] **Memory and garbage-collection stress:** finish the stress run. The [recorded attempt](native-results.json) timed out after 180 seconds without completing; it supplies no passing memory-safety evidence.
+- [ ] **Broader browser conformance:** run shared Web Platform Tests, broader scheduling and reentrancy cases, and the full relevant engine suites. Only [16 selected existing parser regressions](native-legacy-test.log) were run alongside the native experiment.
+- [ ] **New profile selection:** implement and verify the named selector, HTTP header, and explicit parsing options in [HTML Feature Profiles](https://nextwebwg.org/html-feature-profiles/). The native experiment supports only the earlier literal `PUBLIC "next"` opt-in.
+- [ ] **Independent implementer security review:** obtain browser-engine review of the design and implementation. Passing experiments are not approval or production-browser support.
+
+These tests do not establish the separate [Flexible HTML Nesting proposal](https://nextwebwg.org/flexible-html-nesting/). They also do not establish that self-closing syntax makes developers faster; [the proposal’s authoring rationale](https://nextwebwg.org/self-closing-html/#why-this-is-useful-to-authors) separates that claim from existing practice.
+
+## What the different kinds of evidence mean
+
+- **Mathematical proof:** checks a precise rule for every input in its simplified model. Its assumptions matter.
+- **Generated comparisons:** try many documents and compare results. A passing count is coverage, not a guarantee for all HTML.
+- **Browser execution tests:** run selected examples and observe scripts, callbacks, focus, and requests.
+- **Before/after regression:** first demonstrates a bug, then keeps that example to check the fix. Earlier failures are retained deliberately.
+- **Native experiment:** changes an actual browser parser. Here that is one experimental Ladybird build, not Chrome, Firefox, or Safari shipping this feature.
+
+## Technical records and reproduction
+
+The sections below retain the commands, pinned versions, test mechanics, failed approaches, and precise limitations. They are for readers who want to inspect or repeat the work.
+
+<details>
+<summary>Original experiment overview and scope</summary>
+
 
 The reference model preserves ordinary HTML recognition, then changes eligible containment edges. An empty element remains in the tree; its recognized children become following siblings. These experiments check that construction and identify boundaries a native implementation must preserve. Recorded 18 October 2026 in a Chromium-based Brave browser and Node 22.23.3.
 
-## What the evidence establishes
+
+</details>
+
+<details>
+<summary>What the evidence establishes</summary>
+
 
 | Check | Recorded result | Scope |
 | --- | --- | --- |
@@ -17,7 +122,12 @@ The structural argument is separate from these finite tests: projection does not
 
 Calling the reference function selects the experimental profile. It does not implement native browser doctype handling, streaming, or script checkpoints. Existing HTML insertion APIs retain their grammar in the proposal.
 
-## Reproduce
+
+</details>
+
+<details>
+<summary>Reproduce</summary>
+
 
 Use a Node version accepted by `package.json`. In this directory:
 
@@ -42,7 +152,12 @@ The active pages run sequential sandboxed, opaque-origin frames with scripts ena
 
 Commands overwrite the corresponding generated HTML or JSON in this directory. Run sequentially. Dependencies are pinned in `package-lock.json`; these experiments add no site runtime dependencies.
 
-## Recognition and recovery
+
+</details>
+
+<details>
+<summary>Recognition and recovery</summary>
+
 
 `projection-candidate.mjs` uses parse5 8.0.1 for ordinary HTML recognition and complete recovery state. Projection then changes only selected output edges. Protected names and attributes are explicit in its eligibility check. HTML special elements are also exempt while an active formatting scope is present, because formatting reconstruction can otherwise spoil the promised shorthand result.
 
@@ -52,7 +167,12 @@ Seed `0x50524f4a` generates 100,000 token sequences × four contexts (`document`
 
 `recovery-browser.html` uses marker attributes as a substitute for source-token metadata. Its 12 native Chromium comparisons include the raw-text/namespace witnesses, heading aliases, expired recovery records, templates, and explicit inert containment. `recovery-chromium-results.json` records them. It is an independent native recognition check for those cases, not an independent complete Next parser.
 
-## Native containment and execution checkpoints
+
+</details>
+
+<details>
+<summary>Native containment and execution checkpoints</summary>
+
 
 `active-build.mjs` generates `active-browser.html` from the current model. The page compares 16 original document sources with their serialized projections. `active-chromium-results.json` records the resulting 32 observations.
 
@@ -68,13 +188,23 @@ The proposed native rule instead selects the declarative host using retained rec
 
 This open-root check does not establish closed-root handling, scoped-registry behavior, script-driven root changes, constructor timing, or streaming integration. Those require native conformance cases.
 
-## Serialization and reparsing
+
+</details>
+
+<details>
+<summary>Serialization and reparsing</summary>
+
 
 `roundtrip-check.mjs` uses seed `0x52545250`: 20,000 inputs × five contexts × two scripting states = 200,000 comparisons. It compares marker exposure after legacy serialization/reparsing with marker exposure after projection and serialization/reparsing. Unique marker values distinguish individual images. No new active marker, marker namespace, or template-membership change was found in this corpus; `roundtrip-results.json` records the results.
 
 This is a finite search for the selected mechanism, not a proof that serialization is safe. In particular, it does not negate the separately demonstrated shadow-root lowering failure. Serialization carries no parser-state or sanitization provenance.
 
-## Earlier expansion experiments
+
+</details>
+
+<details>
+<summary>Earlier expansion experiments</summary>
+
 
 These files document why simple expansion and name-based repairs are insufficient. They do not define the selected profile.
 
@@ -92,7 +222,12 @@ npm run recovery
 - `audit.mjs` independently observes eligible tokens on the legacy trace. `normal-form.mjs`, seed `0x4e4f524d`, performs 160,000 audits; all 99,549 eligible-free traces match the expansion model. This checks a conditional transition-equivalence argument, without proving its precondition for all sanitizer outputs.
 - `recovery-candidates.mjs` records rejected repairs. A set of previously closed names can become stale after an ancestor closes; treating a later matching closing tag as live can exit SVG incorrectly and expose an image. Heading aliases defeat exact-name matching too. Changed-marker counts include changes in either direction, not exploit counts. The selected reference retains complete recognition state.
 
-## Limits
+
+</details>
+
+<details>
+<summary>Limits</summary>
+
 
 The Node model and DOMPurify's jsdom backend share parse5, so those comparisons are not independent browser engines. parse5 8.0.1 also has older select behavior than current Chromium; each model preserves its own baseline recognition. Native fragment state, declarative roots, scripting, custom-element registries, encoding restarts, speculative loading, and document writing are not fully modeled.
 
@@ -100,7 +235,12 @@ Selected event-handler, script, URL, and marker signals can miss CSS effects, DO
 
 No complete native-browser security proof or browser-vendor endorsement follows from these experiments. The proposal's text-to-markup construction argument, tested cases, failed lowerings, and remaining implementation obligations are separate claims.
 
-## Incremental construction and live execution (19 October 2026)
+
+</details>
+
+<details>
+<summary>Incremental construction and live execution (19 October 2026)</summary>
+
 
 The new incremental model retains the same recognition parser while input arrives in chunks. `streaming.test.mjs` enumerates every two-chunk boundary of 12 selected witnesses, checks code-point feeding, script checkpoint pause/resume, and exact initial doctype selection. `streaming-check.mjs` records 60,000 comparisons (10,000 generated sources × three chunk schedules × two scripting states), seed `0x5354524d`. `streaming-results.json` records zero final-output differences from the shared static reference. This tests chunk invariance; shared recognition code means it is not an independent proof of HTML parsing correctness.
 
@@ -122,7 +262,12 @@ npm run execution
 
 Playwright 1.62.1 is pinned. `CHROMIUM_EXECUTABLE`, `FIREFOX_EXECUTABLE`, and `WEBKIT_EXECUTABLE` may select existing compatible test binaries; the recorded versions identify the binaries actually used. `PLAYWRIGHT_MODULE` optionally selects an existing shared Playwright installation. No test starts more than one browser at once, and the local HTTP server is closed in the runner's finalizer.
 
-## Mechanized static proof
+
+</details>
+
+<details>
+<summary>Mechanized static proof</summary>
+
 
 `Projection.lean` models a forest of immutable recognized-node payloads with eligibility and protected-container flags. Structural induction proves preservation of the complete payload preorder and each node's protected-ancestor path. Payloads can include identity, namespace, attributes and text. Protected roots must be represented as barriers by the caller. This is an abstract model of the selected pure transformation, not verified HTML tokenization or a proved refinement of the JavaScript, Rust, DOM, or browser implementations.
 
@@ -156,7 +301,12 @@ Focus checks explicitly close open popovers, blur, remove each frame and await a
 
 Execution reports include source SHA-256 digests and a `caseFilter` field. `BROWSER_ENGINES` and `EXECUTION_CASE` support focused diagnosis; filtered runs are not complete three-engine evidence. The recorded full result has a null filter and all three engines.
 
-## Native navigation implementation
+
+</details>
+
+<details>
+<summary>Native navigation implementation</summary>
+
 
 `native-ladybird.patch` implements the experimental profile in Ladybird at the exact upstream commit in `native-results.json`. It preserves the native recognition stack and routes output insertion through recorded sibling boundaries. Navigation alone can select the profile; existing DOM parsing APIs retain legacy behavior. The native document rejects `write`, `writeln`, and the document-writing `open` overload. The optional speculative scanner is disabled for Next documents.
 
@@ -180,3 +330,5 @@ Use `--collect-garbage-on-every-allocation` for the separate GC stress run. Nati
 The extra allocation-by-allocation GC stress run is **inconclusive**: the refinement test reached its 180-second timeout without completing; the remaining execution stress test was interrupted after that timeout. `native-gc-test.log` and `native-results.json` record the attempt. The ordinary passing suites do not imply memory safety or a passing GC stress run.
 
 A separate existing upstream parser regression selection (`Text/input/HTML/parser-*.html`) passes all 16 tests with the patch. `native-legacy-test.log` records that bounded regression run; it is not the full upstream suite.
+
+</details>

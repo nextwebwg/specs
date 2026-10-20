@@ -7,118 +7,54 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Opt-in Self-Closing HTML
 
-Native self-closing tags, with forgiving HTML syntax. An explicit opt-in adds the shorthand while preserving HTML's boundaries between text and markup.
-
-## Write the empty element once
+**Write an empty HTML element once.** With an explicit opt-in, `/>` processes the opening tag and immediately closes it before reading more source.
 
 ```html
 <!DOCTYPE html PUBLIC "self-closing">
 
 <user-avatar name="Ada" />
-<div class="divider" />
-<br />
+<small />
+<button />
+<table />
+<script src="app.js" />
+<p>Following content</p>
 ```
 
-::: two
-> [!norm] Ordinary elements
-> `<div />` → `<div></div>`
->
-> `<x-card />` → `<x-card></x-card>`
+There is no blacklist of ordinary HTML elements or attributes. HTML void elements and SVG/MathML keep their existing behavior. HTML error recovery still applies, including invalid contexts and the document's required structure.
 
-> [!ex] Void elements
-> `<br />` → `<br>`
->
-> `<link />` → `<link>`
-:::
+## Why authors would use it
 
-Authors already use self-closing components in JSX and Vue templates. This brings the shorthand to HTML source.[^1] HTML's void-element allowlist remains explicit: **`<br />` never becomes `<br></br>`.**[^2]
+Instead of `<user-avatar name="Ada"></user-avatar>`, write `<user-avatar name="Ada" />`. The name appears once, and the end of the opening tag states that it has no authored children.
 
-Case-insensitive names, boolean attributes, unquoted values, optional tags, and error recovery retain their HTML rules. XML parsing is not required.
+JSX and Vue templates already use self-closing syntax; native HTML does not give ordinary elements that meaning.[^1] The proposal removes that syntax difference for empty elements. Existing practice supports familiarity, not a measured productivity claim: no study of authoring speed, readability, or error rates is reported.
 
-## Why this is useful to authors
+## One consistent mechanism
 
-An empty component often gets all its information from attributes. Repeating its name in a closing tag adds no child content:
+For a non-void HTML element, the parser processes its start tag and then its end-tag action. It does not wait for the complete document and move nodes afterward. A self-closing `select` therefore stops select parsing before following source; a self-closing `script` does not swallow the rest of the page.
 
-```html title="Existing HTML"
-<user-avatar name="Ada"></user-avatar>
-<status-badge state="ready"></status-badge>
-```
+The slash must be tag syntax, not part of an unquoted attribute value. Ignored tags remain subject to normal HTML recovery, and a self-closing document root cannot create siblings outside the root. [Read the exact rules](/self-closing-html/parsing).
 
-```html title="With this proposal enabled"
-<user-avatar name="Ada" />
-<status-badge state="ready" />
-```
+## Opt in deliberately
 
-The name appears once, and `/>` marks “no authored children” at the opening tag. Eligible empty components could use that spelling directly in HTML source.
+[HTML Feature Profiles](/html-feature-profiles/) defines the named `self-closing` selection, proposed response header, and `next` family opt-in. Documents and existing parsing APIs keep their current behavior unless they explicitly select the new grammar.
 
-[JSX](https://react.dev/learn/writing-markup-with-jsx#2-close-all-the-tags) and [Vue templates](https://vuejs.org/guide/essentials/component-basics.html#self-closing-tags) already use the syntax. That shows existing practice, not measured gains in speed, readability, or error rates. No study establishes whether this proposal’s benefit outweighs its exceptions.
+## Security: sanitize for the grammar you use
 
-**The main tradeoff:** not every element can self-close. `<script />` still starts a script and can swallow following source. [Read the exceptions and consequences](/self-closing-html/parsing#preserve-sensitive-elements). Elements with children keep closing tags. Component embedding in tables is a [separate proposal](/flexible-html-nesting/).
+A legacy sanitizer's output is not automatically safe when reparsed under a different grammar. The safe parsing path must parse the selected grammar first, sanitize its resulting tree, and insert sanitized nodes without a string round trip. The reference implementation demonstrates this composition; it does not make unsafe input safe merely by selecting a profile.
 
-## Current implementation gap
+[Security checklist and concrete sanitizer counterexample →](/self-closing-html/security)
 
-The draft no longer makes `hidden`, `inert`, `disabled`, or `popover` change self-closing eligibility, and removes container exclusions justified only by visibility/focus observations. The archived prototypes still use the older restrictions. Their results are evidence about that earlier algorithm, not verification of the revised rules. [Read the correction](/self-closing-html/security#what-the-containment-tests-actually-showed).
+## Implementation and feedback
 
-## What has been checked?
+The [reference implementation and results](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme) cover broad closure, chunking, sanitization of the selected grammar, and browser execution. Each result states which implementation it tests and what it establishes.
 
-The [plain-language issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme) explains each problem, its proposed fix, the supporting evidence, and the remaining work. Start there for the findings; the [security chapter](/self-closing-html/security) explains the main examples. The [parsing rules](/self-closing-html/parsing) are the implementation reference.
-
-## What held this back
-
-Browsers currently ignore the slash on ordinary HTML elements. Changing that everywhere would change existing pages.[^3][^4]
-
-A second obstacle is security. A sanitizer can treat apparent tags as harmless text, while a different parser exposes them as markup. A document opt-in alone does not fix that mismatch.[^5]
-
-## How the proposal resolves it
-
-The proposal combines three rules: explicit opt-in, preserved parsing context, and exemptions for sensitive elements.
-
-### Opt in without changing existing pages
-
-`<!DOCTYPE html PUBLIC "self-closing">` requests this capability for document source. The [HTML Feature Profiles proposal](/html-feature-profiles/) defines named selection and the alternative `PUBLIC "next"` preset. Plain `<!DOCTYPE html>` keeps today's behavior. The selector names a built-in profile: it fetches no DTD and does not enable XML. Current browsers retain standards rendering mode with this declaration, but do not implement the new syntax.[^6][^7]
-
-### Close the DOM element; keep the parser's context
-
-For ordinary shorthand, following content becomes a sibling:
-
-::: two
-```html title="Source"
-<div class="divider" />
-<span>Following</span>
-```
-
-```html title="Resulting DOM"
-<div class="divider"></div>
-<span>Following</span>
-```
-:::
-
-The parser still remembers the div for later closing tags and error recovery. Making it empty changes where following nodes sit, without changing HTML’s decisions about text and tags. [See the worked example](/self-closing-html/security#recover-at-namespace-boundaries).
-
-### Keep text parsing unchanged
-
-Sensitive elements retain their existing slash handling. For example:
-
-```html
-<style/><img src onerror=alert(1)><style></style>
-```
-
-`style` is exempt. The apparent image remains style text; no image or event-handler node is created. Retained recovery context also protects cases where an earlier ordinary element affects a later text or namespace boundary.
-
-> [!ex] The rule behind the shorthand
-> Change eligible parent/child relationships while preserving recognized tags, text, namespaces, and text-parsing boundaries. Existing HTML insertion APIs retain their current grammar.
-
-The native experiment tests the earlier literal `PUBLIC "next"` opt-in. The proposed [response header and profile selection](/html-feature-profiles/) and [explicit parsing calls](/self-closing-html/parsing#parse-independently-of-the-caller-s-document) are not implemented by that experiment.
-
-## What feedback is needed?
-
-Review is requested on whether the authoring benefit justifies the [exceptions and their consequences](/self-closing-html/parsing#why-keep-exceptions), whether the retained parsing context adequately addresses sanitizer disagreement, and what native tests and implementation changes are needed next. Broader self-closing behavior is not ruled out, but is not established by the current evidence. The [work plan before shipment](/self-closing-html/security#work-plan-before-browser-shipment) separates discussion readiness from production readiness.
+Review is requested on the token-level rule, its sanitizer integration contract, and native conformance. [Flexible HTML Nesting](/flexible-html-nesting/) remains a separate proposal.
 
 ## Read the proposal
 
 ::chapter-index
 
-This is an independent Stage 0 draft. The mathematical proof covers the node-rearrangement rule; an experimental native Ladybird implementation now passes bounded streaming and execution checks. Production conformance and universal execution safety remain unproved.
+Independent Stage 0 draft. Experimental results are scoped evidence, not production support or a universal security proof.
 
 ## Sources
 

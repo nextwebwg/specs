@@ -1,3 +1,28 @@
+# Self-closing HTML: current evidence
+
+The current implementation processes a self-closing HTML start followed immediately by its end-tag action. It does not use the earlier projection algorithm or its element/attribute blacklist.
+
+## What works, and what remains?
+
+- ✅ **Broad tag behavior:** parser-known names are compared with immediate pairs across ten contexts and both scripting states. Text tags and plaintext have explicit checks.
+- ✅ **Following markup:** formatting, table, select, template, and script cases use the updated parser state rather than the old tree's containment.
+- ✅ **Streaming:** 30,000 generated chunk comparisons and selected exhaustive two-chunk checks pass.
+- ✅ **Safe parsing:** parse the selected grammar, sanitize its nodes in place, then insert nodes without reparsing. The known custom-policy mismatch is removed by that pipeline; 1,000 generated inputs retain none of the monitored unsafe signals.
+- ✅ **Browser adapter:** 34 cases pass per engine in Chromium, Firefox, and WebKit, including scripts, callbacks, mutations, direct safe node insertion, and 500 DOM comparisons per engine. These share the reference parser, not native tokenization.
+- ✅ **Native verification:** a separate Ladybird implementation passes 50 execution checks, 810 document comparisons, six encoding cases, and 16 existing parser regressions. The focused garbage-collection-on-every-allocation test completes without failure. [Exact scope and reproduction](closure/native.md).
+- ⬜ **Shipment:** broader conformance, native header/API integration, arbitrary encoding restarts, optimized speculative loading, and independent implementer review remain required. No universal security or memory-safety proof is claimed.
+
+[Current code, result files, limitations, and reproduction →](closure/README.md)
+
+**Security contract:** old sanitized strings cannot simply be reparsed under the new grammar and assumed safe. The [custom-policy counterexample](closure/counterexample-results.json) demonstrates why. The safe path filters the actual target-grammar DOM before insertion. It is not a promise about arbitrary sanitizer policies or components.
+
+## Historical restricted-design experiments
+
+The records below concern the earlier projection algorithm, not the current implementation. They are retained to explain previous approaches and failures; their proofs and pass counts do not transfer to the replacement.
+
+<details>
+<summary>Earlier projection design: records and reproduction</summary>
+
 # Self-closing HTML: what is fixed, and what still needs work?
 
 This folder contains experiments for a proposed HTML shorthand: write `<user-avatar />` instead of `<user-avatar></user-avatar>` when the element has no children in the source.
@@ -82,7 +107,7 @@ You do not need to read the code or JSON files to understand the findings. Start
 - ⬜ **New profile selection:** implement and verify the named selector, HTTP header, and explicit parsing options in [HTML Feature Profiles](https://nextwebwg.org/html-feature-profiles/). The native experiment supports only the earlier literal `PUBLIC "next"` opt-in.
 - ⬜ **Independent implementer security review:** obtain browser-engine review of the design and implementation. Passing experiments are not approval or production-browser support.
 
-These tests do not establish the separate [Flexible HTML Nesting proposal](https://nextwebwg.org/flexible-html-nesting/). They also do not establish that self-closing syntax makes developers faster; [the proposal’s authoring rationale](https://nextwebwg.org/self-closing-html/#why-this-is-useful-to-authors) separates that claim from existing practice.
+These tests do not establish the separate [Flexible HTML Nesting proposal](https://nextwebwg.org/flexible-html-nesting/). They also do not establish that self-closing syntax makes developers faster; [the proposal’s authoring rationale](https://nextwebwg.org/self-closing-html/#why-authors-would-use-it) separates that claim from existing practice.
 
 ## What the different kinds of evidence mean
 
@@ -332,5 +357,7 @@ Use `--collect-garbage-on-every-allocation` for the separate GC stress run. Nati
 The extra allocation-by-allocation GC stress run is **inconclusive**: the refinement test reached its 180-second timeout without completing; the remaining execution stress test was interrupted after that timeout. `native-gc-test.log` and `native-results.json` record the attempt. The ordinary passing suites do not imply memory safety or a passing GC stress run.
 
 A separate existing upstream parser regression selection (`Text/input/HTML/parser-*.html`) passes all 16 tests with the patch. `native-legacy-test.log` records that bounded regression run; it is not the full upstream suite.
+
+</details>
 
 </details>

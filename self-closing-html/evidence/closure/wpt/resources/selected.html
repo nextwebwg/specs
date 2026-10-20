@@ -1,0 +1,13 @@
+<!DOCTYPE html PUBLIC "self-closing">
+<small id="small"/><span id="small-after">tail</span>
+<table id="table"/><span id="table-after">tail</span>
+<select id="select"/><span id="select-after">tail</span>
+<div id="hidden" hidden/><span id="hidden-after">tail</span>
+<style id="style"/><span id="style-after">tail</span>
+<textarea id="textarea"/><span id="textarea-after">tail</span>
+<script id="empty-script"/><span id="script-after">tail</span>
+<script>
+parent.postMessage({type:'closure-fixture',
+ results:['small','table','select','hidden','style','textarea'].map(id=>({id,empty:document.getElementById(id).childNodes.length===0,sibling:document.getElementById(id+'-after')?.parentNode===document.body})),
+ scriptClosed:document.getElementById('empty-script').childNodes.length===0&&document.getElementById('script-after')?.parentNode===document.body},'*');
+</script>

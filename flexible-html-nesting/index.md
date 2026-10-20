@@ -68,7 +68,7 @@ A server can also select this capability with the proposed `HTML-Feature-Profile
 
 The initial candidate wrapper set is `div`, `span`, and autonomous custom-element hosts with valid custom-element names. This is a reviewable starting point, not a demonstrated safe or complete allowlist. Registration is irrelevant to eligibility; HTML's custom-element-name rules include reserved-name exclusions.[^4]
 
-Native structural elements, text-sensitive elements, form controls, and protected containers do not become generic wrappers. The proposal must preserve hidden, inert, popover, template, and namespace boundaries. Exact eligibility and malformed-input recovery require independent security review.
+Native structural elements, text-sensitive elements, and form controls retain their own semantics rather than becoming generic wrappers. CSS box generation, ordinary hidden/inert behavior, template contents, and namespace parsing remain distinct rules. Exact eligibility and recovery need implementation and review; visibility differences alone do not establish a security vulnerability.
 
 Other constrained contexts, including `select`, need their own categories and interaction rules. Current customizable-select work must be considered rather than assuming an outdated option-only model.[^5]
 

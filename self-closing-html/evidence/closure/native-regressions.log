@@ -1,0 +1,96 @@
+2026-10-19 23:18:13.631 Compositor[98421:193829910] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 23:18:13.631 Compositor[98421:193829932] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 23:18:13.631 Compositor[98421:193829909] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+1157169.935 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157170.280 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157170.353 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157171.205 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157171.297 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157171.367 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157171.568 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157171.984 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157172.050 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157172.233 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157172.298 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157172.372 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157172.494 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157172.563 Compositor(98421): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+Running 16 tests...
+[0]  1/16:  Start Text/input/HTML/parser-streams-bytes.html
+[0]  1/16: Finish Text/input/HTML/parser-streams-bytes.html: 342ms
+[0]  2/16:  Start Text/input/HTML/parser-streams-style-split.html
+[0]  2/16: Finish Text/input/HTML/parser-streams-style-split.html: 280ms
+[0]  3/16:  Start Text/input/HTML/parser-streams-crlf-split.html
+[0]  3/16: Finish Text/input/HTML/parser-streams-crlf-split.html: 122ms
+[0]  4/16:  Start Text/input/HTML/parser-streams-script-split.html
+[0]  4/16: Finish Text/input/HTML/parser-streams-script-split.html: 118ms
+[0]  5/16:  Start Text/input/HTML/parser-insertion-into-detached-subtree-is-observable.html
+[0]  5/16: Finish Text/input/HTML/parser-insertion-into-detached-subtree-is-observable.html: 10ms
+[0]  6/16:  Start Text/input/HTML/parser-script-source-lines.html
+[0]  6/16: Finish Text/input/HTML/parser-script-source-lines.html: 10ms
+[0]  7/16:  Start Text/input/HTML/parser-streams-external-script.html
+[0]  7/16: Finish Text/input/HTML/parser-streams-external-script.html: 384ms
+[0]  8/16:  Start Text/input/HTML/parser-streams-late-meta-charset-blocked-parser.html
+[0]  8/16: Finish Text/input/HTML/parser-streams-late-meta-charset-blocked-parser.html: 109ms
+[0]  9/16:  Start Text/input/HTML/parser-tree-construction-edge-cases.html
+[0]  9/16: Finish Text/input/HTML/parser-tree-construction-edge-cases.html: 145ms
+[0] 10/16:  Start Text/input/HTML/parser-streams-named-character-reference-split.html
+[0] 10/16: Finish Text/input/HTML/parser-streams-named-character-reference-split.html: 125ms
+[0] 11/16:  Start Text/input/HTML/parser-streams-utf8-split.html
+[0] 11/16: Finish Text/input/HTML/parser-streams-utf8-split.html: 181ms
+[0] 12/16:  Start Text/input/HTML/parser-created-style-script-blocking.html
+[0] 12/16: Finish Text/input/HTML/parser-created-style-script-blocking.html: 240ms
+[0] 13/16:  Start Text/input/HTML/parser-streams-with-document-write.html
+[0] 13/16: Finish Text/input/HTML/parser-streams-with-document-write.html: 244ms
+[0] 14/16:  Start Text/input/HTML/parser-end-state-released-after-load.html
+[0] 14/16: Finish Text/input/HTML/parser-end-state-released-after-load.html: 137ms
+[0] 15/16:  Start Text/input/HTML/parser-streams-late-meta-charset.html
+[0] 15/16: Finish Text/input/HTML/parser-streams-late-meta-charset.html: 123ms
+[0] 16/16:  Start Text/input/HTML/parser-blocking-script-ready-during-sync-xhr.html
+[0] 16/16: Finish Text/input/HTML/parser-blocking-script-ready-during-sync-xhr.html: 658ms
+==========================================================
+Pass: 16, Fail: 0, Skipped: 0, Timeout: 0, Crashed: 0
+==========================================================
+Results: file://<native-checkout>-regressions/index.html

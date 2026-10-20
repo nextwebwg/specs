@@ -1,0 +1,59 @@
+{
+  "recordedAt": "2026-10-20T06:18:57.911779+00:00",
+  "upstream": "https://github.com/LadybirdBrowser/ladybird",
+  "revision": "eb5262a610d8be85a5bf8210a34dc222af802513",
+  "patchSHA256": "edf098fcfc7e7a2524d3ba915d82ce64a5e69041e54547b8957e7dcabbcc29ac",
+  "testBinarySHA256": "5d51d6da48fe19cf7caf45f24e0bb5934cb4e8029523d20356965ecf0c1109ce",
+  "platform": "ProductName:\t\tmacOS\nProductVersion:\t\t26.5.2\nBuildVersion:\t\t25F84",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "cmake": "4.4.4",
+  "ninja": "1.13.2.git.kitware.jobserver-pipe-1",
+  "rust": "1.98.0",
+  "configuration": "RelWithDebInfo, GUI targets on, Cranelift/LTO/ccache off, arm64-osx-dynamic, Qt /opt/homebrew/opt/qtbase",
+  "navigation": {
+    "fixtures": 4,
+    "passed": 4,
+    "failed": 0,
+    "timedOut": 0,
+    "crashed": 0,
+    "executionChecks": 50,
+    "encodingChecks": 6,
+    "comparisonInputs": 810,
+    "authoringPairComparisons": 610,
+    "referenceComparisons": 200,
+    "mismatches": 0,
+    "baselineDisagreements": 120
+  },
+  "legacyRegressions": {
+    "fixtures": 16,
+    "passed": 16,
+    "failed": 0,
+    "timedOut": 0,
+    "crashed": 0
+  },
+  "memoryStress": {
+    "status": "passed",
+    "fixtures": 1,
+    "passed": 1,
+    "failed": 0,
+    "timedOut": 0,
+    "crashed": 0,
+    "mode": "collect-garbage-on-every-allocation",
+    "fixtureDurationMs": 2092
+  },
+  "limitations": [
+    "Navigation doctype next/self-closing only; proposed response header and explicit native API options not implemented.",
+    "Optional speculative scanner disabled for selected grammar; normal recognized loading tested.",
+    "Arbitrary encoding navigation restart not implemented in upstream; six fixed encoding cases are not restart proof.",
+    "No ASan/UBSan run or universal memory-safety proof.",
+    "Not production browser support or vendor endorsement."
+  ],
+  "wptHarness": {
+    "fixtures": 1,
+    "assertions": 2,
+    "passed": 2,
+    "runnerFailed": 0,
+    "timedOut": 0,
+    "scope": "Vendored WPT testharness in native test-web; resource paths adapted. Not full WPT infrastructure."
+  }
+}

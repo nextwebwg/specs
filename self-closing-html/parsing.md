@@ -9,7 +9,7 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Parsing rules
 
-**The change is what the parser does with the slash in `/>`.** Today, an ordinary HTML opening tag stays open despite that slash. With the proposed opt-in, the parser processes the opening tag and its matching closing action together.
+**HTML already recognizes `/>`; the proposal changes what happens next.** For an ordinary non-void HTML element, the existing parser recognizes the self-closing marker but leaves the element open. An explicit opt-in makes that marker trigger the matching closing action before the parser reads more source.
 
 ## How HTML parses this today
 
@@ -24,11 +24,17 @@ HTML parsing has two cooperating parts. The **tokenizer** reads characters and i
 
 For `<div />`, today's tokenizer recognizes the slash and marks the opening-tag token as self-closing. The HTML tree builder creates the `div`, but ignores that marker for an ordinary non-void HTML element. This is a parse error with a defined recovery: continue with the `div` open.[^4]
 
+### Why not simply honor every slash?
+
+Existing pages can contain `<div/>` and depend on the following content remaining inside that `div`. Changing the rule globally would reinterpret those pages. Accepting the characters and continuing after a parse error is therefore different from treating the element as closed.
+
+The proposed `self-closing` or `next` opt-in selects the closing behavior for a document. Documents without that selection keep the existing behavior. The comparison below shows the same source under each selection.
+
 ## Follow the same source through both algorithms
 
 ::::: two
 :::: {.parser-path}
-### HTML today
+### Existing HTML parsing
 
 ::: flow
 - Read `<div class="badge" />`
@@ -45,7 +51,7 @@ body
 ```
 ::::
 :::: {.parser-path}
-### With the proposed opt-in
+### Parsing with the proposed opt-in
 
 ::: flow
 - Read `<div class="badge" />`
@@ -71,7 +77,7 @@ body
 | Read `Hello`, then `</p>` | Put the text in `p`, then close `p`. The current parent is `div`. | Put the text in `p`, then close `p`. The current parent is `body`. |
 | Reach the end of the source | Finish with the DOM already built: `p` remains inside `div`. | Finish with the DOM already built: `p` follows the empty `div`. |
 
-The recovery step is deliberate browser behavior. Today's parser accepts the malformed shorthand and continues; it does not infer the author's intended empty `div`.
+**The distinction is the action taken after recognizing the marker.** Existing HTML recovers by leaving `div` open. The opted-in parser performs its closing action immediately. That updates the current parent and, for text elements, how the next characters are read.
 
 ## Why parser context matters
 
@@ -160,7 +166,9 @@ The reference implementation is in [closure/parser.mjs](https://github.com/nextw
 
 **Loading an opted-in page does not sanitize its HTML.** The parsing rule above constructs the document, including authored scripts and event-handler attributes.
 
-The earlier security objection was that a sanitizer and a browser could read the same characters differently: the sanitizer sees harmless text, but the browser creates an element with an executable handler.[^5] **A document opt-in alone does not resolve that disagreement.**
+The opt-in separates existing documents from the new behavior. **The security question is what happens when untrusted content crosses that boundary.** If a sanitizer checks the content using existing HTML rules but it is later parsed with self-closing enabled, text can become an element with an executable handler.[^5]
+
+The proposal addresses this in two places: existing string-parsing APIs retain their existing rules even in an opted-in document, and the proposed safe API parses with self-closing enabled before sanitizing the elements it creates. The following comparison shows the failure these boundaries address and the safe path.
 
 ### The failure: checked as text, inserted as code
 

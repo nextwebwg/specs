@@ -70,6 +70,8 @@ Inside a document's `body`, consider:
 ::::
 :::::
 
+HTML already recognizes the self-closing marker. Existing pages can rely on the parser ignoring it for ordinary non-void HTML elements, so changing its meaning globally would reinterpret those pages. The explicit `self-closing` or `next` opt-in selects the new behavior; documents without that selection keep their existing interpretation.
+
 The parser already has rules for opening elements, closing them, and recovering from malformed markup. This proposal uses the matching closing action at the slash, before the next source is read. For text elements such as `style`, that also ends the context that reads following characters as text.
 
 [Follow each parsing and recovery step →](/self-closing-html/parsing)

@@ -44,7 +44,7 @@ Define the endpoint by where usable keys and plaintext are processed. A remote a
 | Independent witness | Check consistency of key publication | Candidate extension; independence and privacy need definition |
 | Conversation participant | Introduce another participant | Introduction evidence identifies its source and is scoped; it does not imply universal trust |
 
-No single global directory is required by this proposed architecture. Cross-provider discovery, delegation to a separate service, and self-hosting remain design requirements to resolve, not implemented interfaces.
+No single global directory is required by this proposed architecture. The [configured provider-control profile](provider-control.md) supports an explicitly authorized service, including a target service operated by another provider. Public service discovery and automatic credential acquisition remain unselected; configured access does not supply those interfaces.
 
 :::
 
@@ -67,7 +67,7 @@ The [discovery chapter](capability-discovery.md) defines the evidence needed for
 
 An ordinary outgoing message may advertise capabilities without requesting a machine reply. A standalone negotiation response requires a specified service exchange: a validated reply destination, a permitted state transition, duplicate suppression and a terminal state. It MUST NOT use reply-all or treat From, Reply-To, Sender or a delivery return address as interchangeable authenticated identities.
 
-Direct automatic responses use `Auto-Submitted: auto-replied`; independent automatic initiation uses `auto-generated`. These fields do not hide messages. Unknown automatic traffic MUST NOT initiate a negotiation response. Any permitted response to an automatic negotiation message must be expressly defined by the service state machine, rather than a general exception for every message carrying a recognizable header. The exact authenticated exchange and retry bounds remain unresolved.
+Direct automatic responses use `Auto-Submitted: auto-replied`; independent automatic initiation uses `auto-generated`. These fields do not hide messages. Unknown automatic traffic MUST NOT initiate a negotiation response. Any permitted response to an automatic negotiation message must be expressly defined by the service state machine, rather than a general exception for every message carrying a recognizable header. The [configured provider-control exchange](provider-control.md) defines signed HTTPS requests, responses and retry bounds. It does not select a standalone automatic-email negotiation protocol or authorize responses to an unfamiliar control marker.
 
 DSNs and MDNs MUST NOT be repurposed as hidden key-exchange messages. Suppressing delivery notifications does not prove successful delivery, capability support or participant presence. See the [automatic responses audit](audits/automatic-responses.md).
 
@@ -460,7 +460,7 @@ A comparison of MLS epoch authenticators verifies agreement for that group epoch
 
 Any exported secret used for attachments or another Email Next function must have a distinct purpose label and context, with its source group and epoch recorded. It must not be reused as an unrelated authentication token or treated as valid for a changed audience merely because the conversation identifier is unchanged. Retention of resumption secrets and refresh of exported values require explicit limits and transition rules in the security profile.
 
-Adding an external pre-shared key does not, by itself, establish stronger forward secrecy or post-compromise security. Its generation, distribution, storage and lifetime are part of the security claim. These boundaries follow RFC9420 Sections 8.4–8.7; the complete binding and verification interface remain unfinished.
+Adding an external pre-shared key does not, by itself, establish stronger forward secrecy or post-compromise security. Its generation, distribution, storage and lifetime are part of the security claim. These boundaries follow RFC9420 Sections 8.4–8.7. Exported-secret applications, external pre-shared keys and human epoch-authenticator comparisons need separately selected bindings before interoperable support can be claimed.
 
 ### Limits of compromise recovery
 
@@ -468,7 +468,7 @@ A proposed key update does not establish recovery from compromise. Recovery depe
 
 Compromise of an identity authority is a different threat from compromise of a relay. An authority able to bind arbitrary keys to an account can impersonate that account or introduce a fraudulent device unless the application requires additional continuity evidence. Device cross-signing and transparency mechanisms must be evaluated against that threat; their presence alone is not proof that every unauthorized binding will be prevented or detected.
 
-An accepted MLS commit is also not proof that every member can process it. A malicious member can construct an update that fails only for particular subtrees, including members currently offline. The group profile must define failure reporting and authorized recovery for this case. Requiring acknowledgments can improve detection but trades away availability when the needed members are offline; an arbitrary majority is not equivalent to the subtree coverage described in RFC9420 Section 16.12. The final profile must state which guarantee it provides.
+An accepted MLS commit is also not proof that every member can process it. A malicious member can construct an update that fails only for particular subtrees, including members currently offline. The group profile must define failure reporting and authorized recovery for this case. Requiring acknowledgments can improve detection but trades away availability when the needed members are offline; an arbitrary majority is not equivalent to the subtree coverage described in RFC9420 Section 16.12. The selected profiles do not guarantee that every member can process an accepted Commit. Failed local processing holds application effects; it does not authorize a competing branch. The [group lifecycle](group-conversations.md) defines selected recovery paths and their limits. A subtree-acknowledgment protocol is not selected.
 
 :::
 
@@ -514,12 +514,12 @@ Live exchange is an optimization and an opportunity to refresh state. Delivery m
 
 Ratchet protocols evolve keys as communication proceeds. Forward secrecy limits exposure of earlier traffic after later key compromise; post-compromise security can protect later traffic after fresh uncompromised contributions under the protocol’s assumptions. Neither repairs an endpoint that remains controlled by an attacker.[^3]
 
-The [experimental managed-conversation profile](security-profile.md) selects MLS 1.0 for both two-person and larger managed conversations. Its architecture separates authentication and delivery services from endpoints.[^4] The email-specific binding must still resolve delays, duplicate delivery, missing messages, concurrent changes, and recovery.
+The [experimental managed-conversation profile](security-profile.md) selects MLS 1.0 for both two-person and larger managed conversations. Its architecture separates authentication and delivery services from endpoints.[^4] The [transport](transport.md), [ordering exchange](ordering-exchange.md) and [group lifecycle](group-conversations.md) define the selected handling of delays, duplicates, missing messages, concurrent changes and recovery. Their local experiments do not establish complete distributed liveness.
 
-The [group conversation contract](group-conversations.md) defines proposed administrator authority, membership transitions, history sharing and delayed-message boundaries. The selected MLS profile must implement those rules through its still-unfinished application binding.
+The [group conversation contract](group-conversations.md) defines proposed administrator authority, membership transitions, history sharing and delayed-message boundaries. The versioned [application bindings](security-profile.md) select supported operations and transitions. Unsupported administrator changes, migration and other extensions retain explicit hold or terminal outcomes; the general application semantics do not imply wire support for every operation.
 
-> [!warn] Cryptographic composition is unresolved
-> MLS 1.0 with cipher suite 0x0001 is selected for the experimental managed-conversation baseline. Autocrypt, PQXDH and Double Ratchet are not concatenated into that suite. This draft defines no new cryptographic construction and makes no forward-secrecy or post-quantum conformance claim. Authentication bindings, replay protection and state transitions still require a complete reviewed profile and test vectors.
+> [!warn] Experimental profile; independent review required
+> MLS 1.0 with cipher suite 0x0001 is selected for the experimental managed-conversation baseline. Autocrypt, PQXDH and Double Ratchet are not concatenated into that suite. This draft defines no new cryptographic construction and makes no forward-secrecy or post-quantum conformance claim. The selected bindings define authentication, replay and transition rules with local test cases; these do not establish independent interoperability or security assurance.
 
 The [discovery decision contract](capability-discovery.md) defines per-feature evidence states, passive bootstrap, authorized control exchanges and interrupted-session behavior. It separates endpoint capability from provider support and requires positive usability tests as well as rejection tests.
 

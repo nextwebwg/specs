@@ -1,0 +1,39 @@
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="email-next-example-meeting-original"
+From: Alice <alice@example.org>
+To: Bob <bob@example.net>
+Date: Mon, 19 Oct 2026 10:00:00 -0700
+Subject: Meeting time
+Message-ID: <meeting-original-20261019@example.org>
+
+--email-next-example-meeting-original
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+TGV0J3MgbWVldCBhdCAzLg0K
+
+--email-next-example-meeting-original
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+PCFkb2N0eXBlIGh0bWw+PGh0bWw+PGhlYWQ+PG1ldGEgY2hhcnNldD0idXRmLTgiPjwvaGVhZD48
+Ym9keT48cHJlIHN0eWxlPSJ3aGl0ZS1zcGFjZTpwcmUtd3JhcDtvdmVyZmxvdy13cmFwOmFueXdo
+ZXJlIj5MZXQncyBtZWV0IGF0IDMuPC9wcmU+PC9ib2R5PjwvaHRtbD4NCg==
+
+--email-next-example-meeting-original
+Content-Type: application/vnd.threadlabs.email-next-event+json
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+eyJ2ZXJzaW9uIjoiMCIsInB1cnBvc2UiOiJjb250cmlidXRpb24iLCJldmVudCI6IjMzMzMzMzMz
+MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwiY29udmVyc2F0aW9uIjoiMjIyMjIyMjIyMjIyMjIy
+MjIyMjIyMjIyMjIyMjIyMjIiLCJwcmluY2lwYWwiOiJlbnAwOmFhYWFhYWFhYWFhYWFhYWFhYWFh
+YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJhdWRpZW5jZSI6
+WyJlbnAwOmFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh
+YWFhYWFhYWFhYWFhYWEiLCJlbnAwOmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJi
+YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIiXSwib3BlcmF0aW9uIjp7ImtpbmQiOiJtZXNz
+YWdlIiwidGV4dCI6IkxldCdzIG1lZXQgYXQgMy4iLCJyZXBseVRvIjpbXX19
+
+--email-next-example-meeting-original--

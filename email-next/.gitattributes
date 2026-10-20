@@ -1,0 +1,6 @@
+# Preserve protocol fixtures and digest-pinned source data byte-for-byte.
+examples/*.eml -text whitespace=cr-at-eol
+evidence/mls-smoke/fixtures/*.json -text
+evidence/unicode-17/*.txt -text
+evidence/language-data/*.txt -text
+evidence/legacy-demo-data/*.eml -text whitespace=cr-at-eol

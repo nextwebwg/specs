@@ -1,0 +1,53 @@
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="email-next-button-answer-example"
+From: bob@example.com
+To: alice@example.com
+Date: Mon, 19 Oct 2026 12:05:00 +0000
+Subject: Re: Which day?
+Message-ID: <button-answer@example.com>
+In-Reply-To: <button-question@example.com>
+References: <button-question@example.com>
+
+--email-next-button-answer-example
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+QW5zd2VyOiBUaHVyc2RheSA8YWZ0ZXJub29uPg0KUXVlc3Rpb246IFdoaWNoIGRheT8gLyDkvZXm
+m5zml6UNClF1ZXN0aW9uIGV2ZW50OiBbImVucDA6YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh
+YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsIjIyMjIyMjIyMjIyMjIyMjIy
+MjIyMjIyMjIyMjIyMjIyIiwiMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiXQ0K
+
+--email-next-button-answer-example
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+PCFkb2N0eXBlIGh0bWw+PGh0bWw+PGhlYWQ+PG1ldGEgY2hhcnNldD0idXRmLTgiPjwvaGVhZD48
+Ym9keT48cHJlIHN0eWxlPSJ3aGl0ZS1zcGFjZTpwcmUtd3JhcDtvdmVyZmxvdy13cmFwOmFueXdo
+ZXJlIj5BbnN3ZXI6IFRodXJzZGF5ICZsdDthZnRlcm5vb24mZ3Q7DQpRdWVzdGlvbjogV2hpY2gg
+ZGF5PyAvIOS9leabnOaXpQ0KUXVlc3Rpb24gZXZlbnQ6IFsmcXVvdDtlbnAwOmFhYWFhYWFhYWFh
+YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEmcXVv
+dDssJnF1b3Q7MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjImcXVvdDssJnF1b3Q7MTEx
+MTExMTExMTExMTExMTExMTExMTExMTExMTExMTEmcXVvdDtdPC9wcmU+PC9ib2R5PjwvaHRtbD4N
+Cg==
+
+--email-next-button-answer-example
+Content-Type: application/vnd.threadlabs.email-next-event+json
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+eyJ2ZXJzaW9uIjoiMCIsInB1cnBvc2UiOiJjb250cmlidXRpb24iLCJjb252ZXJzYXRpb24iOiIx
+MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMSIsImF1ZGllbmNlIjpbImVucDA6YWFhYWFh
+YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh
+YSIsImVucDA6YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJi
+YmJiYmJiYmJiYmJiYmJiYiJdLCJwcmluY2lwYWwiOiJlbnAwOmJiYmJiYmJiYmJiYmJiYmJiYmJi
+YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIiLCJldmVudCI6IjU1
+NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1Iiwib3BlcmF0aW9uIjp7ImtpbmQiOiJhbnN3
+ZXIiLCJxdWVzdGlvbiI6eyJwcmluY2lwYWwiOiJlbnAwOmFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh
+YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJldmVudCI6IjIyMjIy
+MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyIiwiY29udmVyc2F0aW9uIjoiMTExMTExMTExMTEx
+MTExMTExMTExMTExMTExMTExMTEifSwib3B0aW9uIjoiNDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0
+NDQ0NDQ0NDQiLCJyZXBsYWNlcyI6W119fQ==
+
+--email-next-button-answer-example--

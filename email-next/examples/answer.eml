@@ -1,0 +1,36 @@
+From: Bob <bob@example.net>
+To: Alice <alice@example.org>
+Date: Mon, 19 Oct 2026 10:05:00 -0700
+Subject: Re: Choose a meeting day
+Message-ID: <meeting-answer-20261019@example.net>
+In-Reply-To: <meeting-question-20261019@example.org>
+References: <meeting-question-20261019@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="email-next-readable-answer"
+
+--email-next-readable-answer
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+Answer to: Which day works for our meeting?
+Selected day: Thursday.
+Location preference: unanswered.
+
+This is a readable reply. It does not assert a cryptographically authenticate=
+d form submission.
+
+--email-next-readable-answer
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<!doctype html>
+<html><head><meta charset=3D"utf-8"></head><body>
+<h1>Answer to: Which day works for our meeting?</h1>
+<dl><dt>Selected day</dt><dd>Thursday</dd><dt>Location preference</dt><dd>Una=
+nswered</dd></dl>
+<p>This is a readable reply. It does not assert a cryptographically authentic=
+ated form submission.</p>
+</body></html>
+
+--email-next-readable-answer--

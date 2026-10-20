@@ -1,0 +1,2 @@
+# Optional trusted pairing QR display, using the existing image environment.
+qrcode==8.2

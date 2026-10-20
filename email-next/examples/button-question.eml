@@ -1,0 +1,47 @@
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="email-next-button-question-example"
+From: alice@example.com
+To: bob@example.com
+Date: Mon, 19 Oct 2026 12:00:00 +0000
+Subject: Which day?
+Message-ID: <button-question@example.com>
+
+--email-next-button-question-example
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+V2hpY2ggZGF5PyAvIOS9leabnOaXpQ0KDQpDaG9pY2VzOg0KMS4gVHVlc2RheQ0KMi4gVGh1cnNk
+YXkgPGFmdGVybm9vbj4NCg0KUmVwbHkgaW4geW91ciBlbWFpbCBjbGllbnQgdG8gYW5zd2VyLiBP
+cGVuaW5nIHRoaXMgbWVzc2FnZSBzdWJtaXRzIG5vdGhpbmcuDQo=
+
+--email-next-button-question-example
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+PCFkb2N0eXBlIGh0bWw+PGh0bWw+PGhlYWQ+PG1ldGEgY2hhcnNldD0idXRmLTgiPjwvaGVhZD48
+Ym9keT48cHJlIHN0eWxlPSJ3aGl0ZS1zcGFjZTpwcmUtd3JhcDtvdmVyZmxvdy13cmFwOmFueXdo
+ZXJlIj5XaGljaCBkYXk/IC8g5L2V5puc5pelDQoNCkNob2ljZXM6DQoxLiBUdWVzZGF5DQoyLiBU
+aHVyc2RheSAmbHQ7YWZ0ZXJub29uJmd0Ow0KDQpSZXBseSBpbiB5b3VyIGVtYWlsIGNsaWVudCB0
+byBhbnN3ZXIuIE9wZW5pbmcgdGhpcyBtZXNzYWdlIHN1Ym1pdHMgbm90aGluZy48L3ByZT48L2Jv
+ZHk+PC9odG1sPg0K
+
+--email-next-button-question-example
+Content-Type: application/vnd.threadlabs.email-next-event+json
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+eyJ2ZXJzaW9uIjoiMCIsInB1cnBvc2UiOiJjb250cmlidXRpb24iLCJjb252ZXJzYXRpb24iOiIx
+MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMSIsImF1ZGllbmNlIjpbImVucDA6YWFhYWFh
+YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh
+YSIsImVucDA6YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJi
+YmJiYmJiYmJiYmJiYmJiYiJdLCJwcmluY2lwYWwiOiJlbnAwOmFhYWFhYWFhYWFhYWFhYWFhYWFh
+YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJldmVudCI6IjIy
+MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyIiwib3BlcmF0aW9uIjp7ImtpbmQiOiJxdWVz
+dGlvbiIsInRleHQiOiJXaGljaCBkYXk/IFwvIOS9leabnOaXpSIsIm9wdGlvbnMiOlt7ImlkIjoi
+MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsYWJlbCI6IlR1ZXNkYXkifSx7Imlk
+IjoiNDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQiLCJsYWJlbCI6IlRodXJzZGF5IDxh
+ZnRlcm5vb24+In1dfX0=
+
+--email-next-button-question-example--

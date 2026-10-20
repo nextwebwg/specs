@@ -1,0 +1,10 @@
+From: Alice <alice@example.invalid>
+To: reader@example.invalid
+Subject: Synthetic conversation
+Message-ID: <delsp-parent@demo.invalid>
+Date: Tue, 20 Oct 2026 10:00:00 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+SW50ZXJuYXRpb25hbGl6YXRpb24gbWF0dGVycy4NCg==

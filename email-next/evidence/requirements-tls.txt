@@ -1,0 +1,2 @@
+# Local test-certificate generation; runtime TLS uses Python's ssl module.
+cryptography==50.0.2

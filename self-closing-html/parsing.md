@@ -187,11 +187,11 @@ The complete test includes surrounding SVG and table markup, retained in the evi
 ### Security problem
 
 ::: flow
-- An old sanitizer treats `<style/>` as an opening tag; the apparent image is stylesheet text
-- The sanitizer finds no image attribute to remove; `onerror="probe()"` survives in its output string {.acc}
-- The app passes that string to the self-closing parser, which closes `style` at `/>`
-- The parser creates a real image with the surviving handler
-- After insertion, an image load failure can run `probe()`
+- Old sanitizer: `<style/>` opens `style`; `<img …>` is stylesheet text
+- Sanitizer output: that text still contains `onerror="probe()"` {.acc}
+- Self-closing parser: `/>` closes `style`
+- Self-closing parser: create an image with the surviving `onerror`
+- Inserted image: a load failure can run `probe()`
 :::
 
 ```text
@@ -209,11 +209,11 @@ img
 ### Proposed safe handling
 
 ::: flow
-- The app gives the untrusted HTML to the proposed safe API with `self-closing` or `next` selected
-- The parser closes `style` and creates the image without running its handler
-- The sanitizer sees the real image and removes its `onerror` attribute {.acc}
-- The app inserts the cleaned nodes directly, without parsing another string
-- The inserted image has no handler to run
+- App: request safe parsing with `self-closing` or `next`
+- Parser: close `style`; create the image without running its handler
+- Sanitizer: remove the image's `onerror` attribute {.acc}
+- App: insert cleaned nodes without another HTML string parse
+- Inserted image: no handler remains to run
 :::
 
 ```text

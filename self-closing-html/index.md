@@ -74,6 +74,16 @@ The parser already has rules for opening elements, closing them, and recovering 
 
 [Follow each parsing and recovery step →](/self-closing-html/parsing)
 
+## The security blocker, and the proposed way through it
+
+Earlier discussion identified a concrete problem: a sanitizer can approve characters as stylesheet text, then a self-closing parser can expose those characters as an image with an executable `onerror` handler.[^5] A page opt-in alone does not fix that.
+
+The proposal addresses this at the parsing boundary. Existing string-parsing APIs keep their grammar, so opting in a page does not silently change a library's parser. An explicitly selected safe parse uses the new grammar first, removes unsafe content from the actual nodes, and returns those nodes for direct insertion.
+
+[Follow the unsafe case and the safe path side by side →](/self-closing-html/parsing#the-failure-checked-as-text-inserted-as-code)
+
+The reference implementation removes the handler in the reproduced case. Native safe API integration and security review remain required; legacy-filtered strings embedded into opted-in source still need migration.
+
 ## What this draft adds to earlier proposals
 
 Self-closing syntax and a document opt-in were already proposed in earlier discussions.[^4][^5] This draft develops three concrete parts for review:

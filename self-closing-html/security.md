@@ -13,26 +13,20 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 The parser processes a real closing-tag action at each self-closing marker. Formatting, controls, tables, and text elements use the same rule. The security requirement is to filter the document that this grammar actually produces.
 
-## Issue checklist
-
-✅ Demonstrated in the stated tests · 🟡 Partial · ⬜ Remaining work. Passing finite tests is not a universal safety guarantee.
-
-- ✅ **Ordinary tags can use the same rule.** Parser-known names are checked against immediate empty pairs in ten contexts with scripting enabled and disabled. `plaintext` has a separate token-boundary check.
-- ✅ **Attributes do not select a different algorithm.** Hidden, inert, and popover examples close normally. Visibility differences are not counted as vulnerabilities.
-- ✅ **Following markup is parsed in the updated context.** Formatting, select, table, template, and text-element tests check that the closing action takes effect before the parser reads following source.
-- ✅ **Chunking preserves the tested result.** 30,000 seeded comparisons and every two-chunk boundary of selected witnesses pass.
-- ✅ **The safe reference path sanitizes the selected-grammar tree.** It filters the actual nodes in place and returns nodes; 1,000 generated inputs retain none of the monitored script/handler/JavaScript-URL signals.
-- ✅ **Adapter execution checkpoints have browser evidence.** 34 cases pass in each of Chromium, Firefox, and WebKit, including callbacks, mutations, external-script blocking, streamed input, and direct safe node insertion. They share a parse5 parser and do not establish native support in those engines.
-- ✅ **The native experiment has separate results.** A patched Ladybird build passes 50 execution checks, 810 document comparisons, six encoding cases, and 16 existing parser regressions. A focused garbage-collection-on-every-allocation run also completes without failure. These are finite checks in one experimental engine, not a memory-safety proof.
-- ⬜ **Production review and interoperability remain required.** No browser-vendor endorsement or universal security proof is reported.
-
-[Current implementation and reproducible evidence →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme)
-
 ## Why a legacy sanitizer is not enough
 
-A concrete test uses a custom `sanitize-html` configuration permitting `style` and foreign structure, while disallowing event-handler attributes. It retains handler-looking source as text. Under the new grammar, an immediate close can expose that text as an image with an `onerror` handler.
+**The danger is executable code crossing a safety check.** A custom `sanitize-html` policy permits `style` and foreign structure but disallows event-handler attributes. It nevertheless retains image-looking source as text. Later, parsing that string with self-closing enabled creates an image whose `onerror` attribute can run JavaScript.
 
-Ordinary HTML produces no image or handler execution for the reduced sanitized source. The unsafe immediate-closure output produces one in Chromium, Firefox, and WebKit. This is evidence for that custom-policy mismatch, not a vulnerability claim against sanitizer defaults.
+[See the failure and safe path side by side →](/self-closing-html/parsing#the-failure-checked-as-text-inserted-as-code)
+
+| Stage | Filter under today's grammar, then parse with self-closing | Safe parsing with self-closing selected |
+| --- | --- | --- |
+| Read the decisive `<style/>` | The legacy check leaves `style` open. | The selected grammar immediately closes `style`. |
+| Read the apparent `<img … onerror="probe()">` | The check sees stylesheet text, so there is no image attribute to remove. | The inert parse creates an image node with an `onerror` attribute. |
+| Apply the safety policy | The handler-looking characters survive in the output string. | The filter sees and removes the actual handler attribute. |
+| Insert into the page | Changing grammar exposes an image with executable code. | Direct insertion uses the already-filtered image node. |
+
+In the browser experiment, ordinary parsing of the retained string creates no image. The unsafe new-grammar output executes the handler in Chromium, Firefox, and WebKit. This demonstrates the custom-policy mismatch; it is not a vulnerability claim against sanitizer defaults.
 
 ::: {.details summary="Reduced counterexample and observation method"}
 
@@ -56,15 +50,32 @@ The safe reference path does this:
 2. Construct an inert DOM and filter those same nodes with DOMPurify in place.
 3. Return the sanitized document. Insert its nodes directly, without serializing and reparsing.
 
-In the retained counterexample, this path removes the handler from the new grammar's image node before insertion. The reference uses DOMPurify's policy; it is not the native Sanitizer API and does not establish safety for arbitrary application-defined components, CSS policies, or URL policies.
+In the retained counterexample, this path removes the handler from the new grammar's image node before insertion. The [counterexample report](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/counterexample-results.json) shows the unsafe image with `onerror="probe()"`, the filtered image without it, and **zero remaining monitored handlers or script elements**. The [safe-parser test](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/safe-parse.test.mjs) checks that filtering keeps the same document root and uses no HTML-string insertion sink. The [browser tests](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/execution-browser.mjs) check direct node insertion in all three adapter engines.
 
-Existing parsing APIs keep their legacy grammar unless they explicitly request another. The proposed safe `Document.parseHTML()` extension must apply its mandatory sanitization under the selected grammar. The unsafe variant is not a sanitizer. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) owns that API contract.
+**This addresses the mismatch by making parsing and filtering agree about the nodes.** Existing string-parsing APIs keep their legacy grammar; selecting a document profile does not change them at a distance. The proposed safe `Document.parseHTML()` extension selects the new grammar and applies mandatory sanitization in the same operation. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) owns that API contract.
+
+The reference uses DOMPurify's policy. Native safe API integration and implementer security review remain required. Neither the document opt-in nor the unsafe parsing method protects an application that embeds a legacy-filtered string in source parsed with the new grammar. Arbitrary application-defined components, CSS policies, and URL policies also require their own review.
 
 ::: {.details summary="Earlier experiments and their limits"}
 
 Earlier experiments rearranged a legacy tree and proved properties of that rearrangement. Their Lean proof and native results remain [historical evidence](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme). They do not establish correctness of the current start-and-close algorithm. The [earlier analysis](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/earlier-security-analysis.md) is preserved alongside those records.
 
 :::
+
+## Issue checklist
+
+✅ Demonstrated in the stated tests · 🟡 Partial · ⬜ Remaining work. Passing finite tests is not a universal safety guarantee.
+
+- ✅ **Ordinary tags can use the same rule.** Parser-known names are checked against immediate empty pairs in ten contexts with scripting enabled and disabled. `plaintext` has a separate token-boundary check.
+- ✅ **Attributes do not select a different algorithm.** Hidden, inert, and popover examples close normally. Visibility differences are not counted as vulnerabilities.
+- ✅ **Following markup is parsed in the updated context.** Formatting, select, table, template, and text-element tests check that the closing action takes effect before the parser reads following source.
+- ✅ **Chunking preserves the tested result.** 30,000 seeded comparisons and every two-chunk boundary of selected witnesses pass.
+- ✅ **The safe reference path sanitizes the selected-grammar tree.** It filters the actual nodes in place and returns nodes; 1,000 generated inputs retain none of the monitored script/handler/JavaScript-URL signals.
+- ✅ **Adapter execution checkpoints have browser evidence.** 34 cases pass in each of Chromium, Firefox, and WebKit, including callbacks, mutations, external-script blocking, streamed input, and direct safe node insertion. They share a parse5 parser and do not establish native support in those engines.
+- ✅ **The native experiment has separate results.** A patched Ladybird build passes 50 execution checks, 810 document comparisons, six encoding cases, and 16 existing parser regressions. A focused garbage-collection-on-every-allocation run also completes without failure. These are finite checks in one experimental engine, not a memory-safety proof.
+- ⬜ **Production review and interoperability remain required.** No browser-vendor endorsement or universal security proof is reported.
+
+[Current implementation and reproducible evidence →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme)
 
 ## Remaining work before browser shipment
 

@@ -192,7 +192,7 @@
     "mls_receive.py": "4341d147c99c70019c92fd5d6f4fe5ce9886a30fe571bd158e783e5691ff993d",
     "navigation-browser-test.mjs": "caf689a1ce9d0dcbdbfebc21999ac1f9cb682da746f23d54da94805939c11d6c",
     "navigation-url.mjs": "12ee4a50003141c29e17b27e336ebd00bd245b9d1376ed8293a64cbe9c6dc20a",
-    "navigation-url.test.mjs": "c54cc590663fe0b252baa273db271eec33927f4a8a0d3baf3dd92a71efa70659",
+    "navigation-url.test.mjs": "cd20675363361f66609c2946e164d9f83c015b2a060d21a24c9fdb3e0f67630a",
     "ordering_carrier.py": "8c1404d00fcf5c7953e5dd7e368d1f3dda711165d5da6cc85db8ba9cefa13570",
     "ordering_certificates.py": "b93184120253a7b436a8572609b363fc2dfdccd3eb72d13fea612f495b276635",
     "ordering_mls.py": "093e4af7462aad1003e1b483e5aeb9ea29d4575edfb9a7d8e35d59bcca12dc8c",
@@ -355,7 +355,7 @@
       "description": "Signed SMTP question reaches the configured HTTPS service; an exact retry with renewed credentials retains one effect.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_signed_smtp_https_effect_exact_retry_and_renewal",
-      "detail": "test_signed_smtp_https_effect_exact_retry_and_renewal (test_joined_service.JoinedService.test_signed_smtp_https_effect_exact_retry_and_renewal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.288s\n\nOK\n"
+      "detail": "test_signed_smtp_https_effect_exact_retry_and_renewal (test_joined_service.JoinedService.test_signed_smtp_https_effect_exact_retry_and_renewal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.526s\n\nOK\n"
     },
     {
       "id": "registration-and-credential",
@@ -363,7 +363,7 @@
       "description": "Changed registration or absent credentials holds the control.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_registration_snapshot_and_missing_credentials_hold",
-      "detail": "test_registration_snapshot_and_missing_credentials_hold (test_joined_service.JoinedService.test_registration_snapshot_and_missing_credentials_hold) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 4.945s\n\nOK\n"
+      "detail": "test_registration_snapshot_and_missing_credentials_hold (test_joined_service.JoinedService.test_registration_snapshot_and_missing_credentials_hold) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.080s\n\nOK\n"
     },
     {
       "id": "uncertain-outcome",
@@ -371,7 +371,7 @@
       "description": "Lost response reconciles through authorized status; withdrawal preserves uncertainty.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_lost_response_status_reconciliation_and_withdrawal",
-      "detail": "test_lost_response_status_reconciliation_and_withdrawal (test_joined_service.JoinedService.test_lost_response_status_reconciliation_and_withdrawal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.389s\n\nOK\n"
+      "detail": "test_lost_response_status_reconciliation_and_withdrawal (test_joined_service.JoinedService.test_lost_response_status_reconciliation_and_withdrawal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.501s\n\nOK\n"
     },
     {
       "id": "revoked-device",
@@ -379,7 +379,7 @@
       "description": "A signed send-role revocation holds an existing control.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_current_device_send_revocation_holds_existing_control",
-      "detail": "test_current_device_send_revocation_holds_existing_control (test_joined_service.JoinedService.test_current_device_send_revocation_holds_existing_control) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 4.945s\n\nOK\n"
+      "detail": "test_current_device_send_revocation_holds_existing_control (test_joined_service.JoinedService.test_current_device_send_revocation_holds_existing_control) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.105s\n\nOK\n"
     },
     {
       "id": "source-and-destination",
@@ -387,7 +387,7 @@
       "description": "Unaccepted source or wrong registration cannot authorize a service request.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_wrong_registration_and_unaccepted_carrier",
-      "detail": "test_wrong_registration_and_unaccepted_carrier (test_joined_service.JoinedService.test_wrong_registration_and_unaccepted_carrier) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 4.893s\n\nOK\n"
+      "detail": "test_wrong_registration_and_unaccepted_carrier (test_joined_service.JoinedService.test_wrong_registration_and_unaccepted_carrier) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.404s\n\nOK\n"
     },
     {
       "id": "exact-profile",
@@ -395,7 +395,7 @@
       "description": "Older profiles and incomplete operation agreement cannot enable service questions.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_explicit_tuple_not_old_profile_or_partial_intersection",
-      "detail": "test_explicit_tuple_not_old_profile_or_partial_intersection (test_joined_service.JoinedService.test_explicit_tuple_not_old_profile_or_partial_intersection) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.587s\n\nOK\n"
+      "detail": "test_explicit_tuple_not_old_profile_or_partial_intersection (test_joined_service.JoinedService.test_explicit_tuple_not_old_profile_or_partial_intersection) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.936s\n\nOK\n"
     },
     {
       "id": "independent-service",

@@ -196,7 +196,7 @@
     "mls_receive.py": "4341d147c99c70019c92fd5d6f4fe5ce9886a30fe571bd158e783e5691ff993d",
     "navigation-browser-test.mjs": "caf689a1ce9d0dcbdbfebc21999ac1f9cb682da746f23d54da94805939c11d6c",
     "navigation-url.mjs": "12ee4a50003141c29e17b27e336ebd00bd245b9d1376ed8293a64cbe9c6dc20a",
-    "navigation-url.test.mjs": "c54cc590663fe0b252baa273db271eec33927f4a8a0d3baf3dd92a71efa70659",
+    "navigation-url.test.mjs": "cd20675363361f66609c2946e164d9f83c015b2a060d21a24c9fdb3e0f67630a",
     "ordering_carrier.py": "8c1404d00fcf5c7953e5dd7e368d1f3dda711165d5da6cc85db8ba9cefa13570",
     "ordering_certificates.py": "b93184120253a7b436a8572609b363fc2dfdccd3eb72d13fea612f495b276635",
     "ordering_mls.py": "093e4af7462aad1003e1b483e5aeb9ea29d4575edfb9a7d8e35d59bcca12dc8c",
@@ -387,7 +387,7 @@
       "description": "Initial7 admission retains independently signed witness exchange support without a configured support row.",
       "status": "pass",
       "test": "test_quorum_signed_exchange.SignedExchangeTests.test_initial7_admits_signed_exchange_support_without_configuration",
-      "detail": "test_initial7_admits_signed_exchange_support_without_configuration (test_quorum_signed_exchange.SignedExchangeTests.test_initial7_admits_signed_exchange_support_without_configuration) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 8.160s\n\nOK\n"
+      "detail": "test_initial7_admits_signed_exchange_support_without_configuration (test_quorum_signed_exchange.SignedExchangeTests.test_initial7_admits_signed_exchange_support_without_configuration) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 8.623s\n\nOK\n"
     },
     {
       "id": "signed-exchange-and-carrier",
@@ -395,7 +395,7 @@
       "description": "Actual signed exchange1 SMTP delivery and carrier2 installation require exact witness evidence and reject old or reordered forms.",
       "status": "pass",
       "test": "test_quorum_signed_exchange.SignedExchangeTests.test_signed_exchange1_and_carrier2_keep_old_versions_strict",
-      "detail": "test_signed_exchange1_and_carrier2_keep_old_versions_strict (test_quorum_signed_exchange.SignedExchangeTests.test_signed_exchange1_and_carrier2_keep_old_versions_strict) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 13.425s\n\nOK\n"
+      "detail": "test_signed_exchange1_and_carrier2_keep_old_versions_strict (test_quorum_signed_exchange.SignedExchangeTests.test_signed_exchange1_and_carrier2_keep_old_versions_strict) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 14.048s\n\nOK\n"
     },
     {
       "id": "sender-handshake-continuity",
@@ -403,7 +403,7 @@
       "description": "Consecutive signed7 candidates continue the durable predecessor handshake ratchet across restart and application traffic, while installing the earlier certified candidate preserves current message ratchets.",
       "status": "pass",
       "test": "test_quorum_signed_exchange.SignedExchangeTests.test_sender_handshake_continuity",
-      "detail": "test_sender_handshake_continuity (test_quorum_signed_exchange.SignedExchangeTests.test_sender_handshake_continuity) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 15.135s\n\nOK\n"
+      "detail": "test_sender_handshake_continuity (test_quorum_signed_exchange.SignedExchangeTests.test_sender_handshake_continuity) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 15.508s\n\nOK\n"
     },
     {
       "id": "validated-proposal-send-boundary",
@@ -411,7 +411,7 @@
       "description": "Validated signed-profile inline proposals durably hold old-epoch application and bound copy sending, while raw exchange receipt does not; certified carrier advancement permits new traffic without releasing stale prepared bytes.",
       "status": "pass",
       "test": "test_proposal_observation.SignedProposalObservationTests.test_signed_carrier_proposal_boundary",
-      "detail": "test_signed_carrier_proposal_boundary (test_proposal_observation.SignedProposalObservationTests.test_signed_carrier_proposal_boundary) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 15.067s\n\nOK\n"
+      "detail": "test_signed_carrier_proposal_boundary (test_proposal_observation.SignedProposalObservationTests.test_signed_carrier_proposal_boundary) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 16.841s\n\nOK\n"
     },
     {
       "id": "durable-established-release",
@@ -419,7 +419,7 @@
       "description": "Established7 Welcome uses its fixed durable sender path after predecessor control delivery; the older sender path cannot substitute.",
       "status": "pass",
       "test": "test_quorum_signed_exchange.SignedExchangeTests.test_established7_fixed_durable_release",
-      "detail": "test_established7_fixed_durable_release (test_quorum_signed_exchange.SignedExchangeTests.test_established7_fixed_durable_release) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 20.641s\n\nOK\n"
+      "detail": "test_established7_fixed_durable_release (test_quorum_signed_exchange.SignedExchangeTests.test_established7_fixed_durable_release) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 28.540s\n\nOK\n"
     },
     {
       "id": "assertion-domain-and-freshness",
@@ -427,7 +427,7 @@
       "description": "Assertion7 rejects old shapes and exchange versions, wrong signature purpose and expired support.",
       "status": "pass",
       "test": "test_quorum_signed_exchange.SignedExchangeTests.test_assertion7_schema_purpose_and_expiry",
-      "detail": "test_assertion7_schema_purpose_and_expiry (test_quorum_signed_exchange.SignedExchangeTests.test_assertion7_schema_purpose_and_expiry) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.496s\n\nOK\n"
+      "detail": "test_assertion7_schema_purpose_and_expiry (test_quorum_signed_exchange.SignedExchangeTests.test_assertion7_schema_purpose_and_expiry) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.703s\n\nOK\n"
     },
     {
       "id": "established-protected-traffic",
@@ -435,7 +435,7 @@
       "description": "A certified established7 join admits the recipient and exchanges actual protected application traffic.",
       "status": "pass",
       "test": "test_quorum_signed_exchange.SignedExchangeTests.test_established7_actual_protected_exchange",
-      "detail": "test_established7_actual_protected_exchange (test_quorum_signed_exchange.SignedExchangeTests.test_established7_actual_protected_exchange) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 20.410s\n\nOK\n"
+      "detail": "test_established7_actual_protected_exchange (test_quorum_signed_exchange.SignedExchangeTests.test_established7_actual_protected_exchange) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 21.406s\n\nOK\n"
     },
     {
       "id": "signed-atomic-recovery",
@@ -443,7 +443,7 @@
       "description": "Signed carrier2 recovery validates exact supplements and current final support, rolls back on crash, preserves exact retry, holds intervening application effects and permits a final protected reply.",
       "status": "pass",
       "test": "test_quorum_signed_recovery.SignedRecoveryTests.test_signed_recovery_revoked_intermediate_and_exact_supplements",
-      "detail": "test_signed_recovery_revoked_intermediate_and_exact_supplements (test_quorum_signed_recovery.SignedRecoveryTests.test_signed_recovery_revoked_intermediate_and_exact_supplements) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 20.808s\n\nOK\n"
+      "detail": "test_signed_recovery_revoked_intermediate_and_exact_supplements (test_quorum_signed_recovery.SignedRecoveryTests.test_signed_recovery_revoked_intermediate_and_exact_supplements) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 20.345s\n\nOK\n"
     },
     {
       "id": "independent-peers",

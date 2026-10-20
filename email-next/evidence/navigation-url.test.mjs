@@ -29,7 +29,9 @@ test('path normalization cannot consume query or fragment data',()=>{
   'https://example.test/b?x=/../#../');
 });
 test('browser-compatible parsing is distinct from strict domain and URI validation',()=>{
- assert.equal(check('https://xn--8i7caa/').href,'https://xn--8i7caa/');
+ // WHATWG host parsing permits underscores without STD3 domain rules. Unlike
+ // mapped A-label acceptance, this distinction is stable across supported Node versions.
+ assert.equal(check('https://a_b.example/').href,'https://a_b.example/');
  assert.equal(check('https://example.test/%s').href,'https://example.test/%s');
 });
 test('IPv6 destinations preserve brackets and reject malformed embedded addresses',()=>{

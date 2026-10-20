@@ -182,7 +182,7 @@
     "mls_mime.py": "1f17bfd65eecb95f5c8481ea857d1b9f389551d1fce6076a12f0784144ca524b",
     "mls_receive.py": "4341d147c99c70019c92fd5d6f4fe5ce9886a30fe571bd158e783e5691ff993d",
     "navigation-url.mjs": "12ee4a50003141c29e17b27e336ebd00bd245b9d1376ed8293a64cbe9c6dc20a",
-    "navigation-url.test.mjs": "c54cc590663fe0b252baa273db271eec33927f4a8a0d3baf3dd92a71efa70659",
+    "navigation-url.test.mjs": "cd20675363361f66609c2946e164d9f83c015b2a060d21a24c9fdb3e0f67630a",
     "ordering_carrier.py": "8c1404d00fcf5c7953e5dd7e368d1f3dda711165d5da6cc85db8ba9cefa13570",
     "ordering_certificates.py": "b93184120253a7b436a8572609b363fc2dfdccd3eb72d13fea612f495b276635",
     "ordering_mls.py": "093e4af7462aad1003e1b483e5aeb9ea29d4575edfb9a7d8e35d59bcca12dc8c",
@@ -405,7 +405,7 @@
       "description": "Send an established invitation through loopback SMTP and install the exact application agreements.",
       "status": "pass",
       "test": "test_established_application.EstablishedApplicationTests.test_actual_smtp_v1_admission_installs_exact_instance_agreements",
-      "detail": "test_actual_smtp_v1_admission_installs_exact_instance_agreements (test_established_application.EstablishedApplicationTests.test_actual_smtp_v1_admission_installs_exact_instance_agreements) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.966s\n\nOK\n"
+      "detail": "test_actual_smtp_v1_admission_installs_exact_instance_agreements (test_established_application.EstablishedApplicationTests.test_actual_smtp_v1_admission_installs_exact_instance_agreements) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.983s\n\nOK\n"
     },
     {
       "id": "established-v1.smtp-same-key-rejoin-keeps-old-pending-in-ended-instance",
@@ -413,7 +413,7 @@
       "description": "Remove and rejoin a device through SMTP; retain old pending replies in the ended membership instance.",
       "status": "pass",
       "test": "test_established_application.EstablishedApplicationTests.test_smtp_same_key_rejoin_keeps_old_pending_in_ended_instance",
-      "detail": "test_smtp_same_key_rejoin_keeps_old_pending_in_ended_instance (test_established_application.EstablishedApplicationTests.test_smtp_same_key_rejoin_keeps_old_pending_in_ended_instance) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.939s\n\nOK\n"
+      "detail": "test_smtp_same_key_rejoin_keeps_old_pending_in_ended_instance (test_established_application.EstablishedApplicationTests.test_smtp_same_key_rejoin_keeps_old_pending_in_ended_instance) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.882s\n\nOK\n"
     },
     {
       "id": "established-v1.expired-existing-confirmation-remains-historical-not-current-support",
@@ -421,7 +421,7 @@
       "description": "Keep expired confirmation as historical evidence without treating it as current support.",
       "status": "pass",
       "test": "test_established_application.EstablishedApplicationTests.test_expired_existing_confirmation_remains_historical_not_current_support",
-      "detail": "test_expired_existing_confirmation_remains_historical_not_current_support (test_established_application.EstablishedApplicationTests.test_expired_existing_confirmation_remains_historical_not_current_support) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.813s\n\nOK\n"
+      "detail": "test_expired_existing_confirmation_remains_historical_not_current_support (test_established_application.EstablishedApplicationTests.test_expired_existing_confirmation_remains_historical_not_current_support) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.913s\n\nOK\n"
     },
     {
       "id": "established-v1.changed-target-proof-cannot-replace-decided-selection",
@@ -429,7 +429,7 @@
       "description": "Reject a substituted target proof after membership selection is decided.",
       "status": "pass",
       "test": "test_established_application.EstablishedApplicationTests.test_changed_target_proof_cannot_replace_decided_selection",
-      "detail": "test_changed_target_proof_cannot_replace_decided_selection (test_established_application.EstablishedApplicationTests.test_changed_target_proof_cannot_replace_decided_selection) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.794s\n\nOK\n"
+      "detail": "test_changed_target_proof_cannot_replace_decided_selection (test_established_application.EstablishedApplicationTests.test_changed_target_proof_cannot_replace_decided_selection) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.851s\n\nOK\n"
     },
     {
       "id": "established-v1.target-interval-and-ref-substitution-reject-before-package-consumption",
@@ -437,7 +437,7 @@
       "description": "Reject invalid proof intervals and references without consuming the joining package.",
       "status": "pass",
       "test": "test_established_application.EstablishedApplicationTests.test_target_interval_and_ref_substitution_reject_before_package_consumption",
-      "detail": "test_target_interval_and_ref_substitution_reject_before_package_consumption (test_established_application.EstablishedApplicationTests.test_target_interval_and_ref_substitution_reject_before_package_consumption) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.964s\n\nOK\n"
+      "detail": "test_target_interval_and_ref_substitution_reject_before_package_consumption (test_established_application.EstablishedApplicationTests.test_target_interval_and_ref_substitution_reject_before_package_consumption) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.034s\n\nOK\n"
     },
     {
       "id": "established-v1.deployed-carriage",

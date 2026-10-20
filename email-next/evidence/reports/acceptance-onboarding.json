@@ -182,7 +182,7 @@
     "mls_mime.py": "1f17bfd65eecb95f5c8481ea857d1b9f389551d1fce6076a12f0784144ca524b",
     "mls_receive.py": "4341d147c99c70019c92fd5d6f4fe5ce9886a30fe571bd158e783e5691ff993d",
     "navigation-url.mjs": "12ee4a50003141c29e17b27e336ebd00bd245b9d1376ed8293a64cbe9c6dc20a",
-    "navigation-url.test.mjs": "c54cc590663fe0b252baa273db271eec33927f4a8a0d3baf3dd92a71efa70659",
+    "navigation-url.test.mjs": "cd20675363361f66609c2946e164d9f83c015b2a060d21a24c9fdb3e0f67630a",
     "ordering_carrier.py": "8c1404d00fcf5c7953e5dd7e368d1f3dda711165d5da6cc85db8ba9cefa13570",
     "ordering_certificates.py": "b93184120253a7b436a8572609b363fc2dfdccd3eb72d13fea612f495b276635",
     "ordering_mls.py": "093e4af7462aad1003e1b483e5aeb9ea29d4575edfb9a7d8e35d59bcca12dc8c",
@@ -406,7 +406,7 @@
       "description": "Ordinary mail bootstraps protected two-way exchange without a preloaded peer.",
       "status": "pass",
       "test": "test_client_onboarding.Onboarding.test_ordinary_smtp_without_seeded_peer_then_protected_exchange",
-      "detail": "test_ordinary_smtp_without_seeded_peer_then_protected_exchange (test_client_onboarding.Onboarding.test_ordinary_smtp_without_seeded_peer_then_protected_exchange) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.827s\n\nOK\n"
+      "detail": "test_ordinary_smtp_without_seeded_peer_then_protected_exchange (test_client_onboarding.Onboarding.test_ordinary_smtp_without_seeded_peer_then_protected_exchange) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.175s\n\nOK\n"
     },
     {
       "id": "retry-no-network",
@@ -414,7 +414,7 @@
       "description": "Ingestion is passive and exact retries retain their decision.",
       "status": "pass",
       "test": "test_client_onboarding.Onboarding.test_no_seed_ordinary_mail_and_exact_retry_no_network",
-      "detail": "test_no_seed_ordinary_mail_and_exact_retry_no_network (test_client_onboarding.Onboarding.test_no_seed_ordinary_mail_and_exact_retry_no_network) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.341s\n\nOK\n"
+      "detail": "test_no_seed_ordinary_mail_and_exact_retry_no_network (test_client_onboarding.Onboarding.test_no_seed_ordinary_mail_and_exact_retry_no_network) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.355s\n\nOK\n"
     },
     {
       "id": "atomic-policy",
@@ -422,7 +422,7 @@
       "description": "Verification-required mode and failed selection do not leave partial pins.",
       "status": "pass",
       "test": "test_client_onboarding.Onboarding.test_strict_and_crash_never_partially_pin",
-      "detail": "test_strict_and_crash_never_partially_pin (test_client_onboarding.Onboarding.test_strict_and_crash_never_partially_pin) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.511s\n\nOK\n"
+      "detail": "test_strict_and_crash_never_partially_pin (test_client_onboarding.Onboarding.test_strict_and_crash_never_partially_pin) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.537s\n\nOK\n"
     },
     {
       "id": "competing-first-contact",
@@ -430,7 +430,7 @@
       "description": "Visible competing claims remain ambiguous; unrelated identities cannot replace a pin.",
       "status": "pass",
       "test": "test_client_onboarding.Onboarding.test_competing_first_contact_and_later_unlinked_identity",
-      "detail": "test_competing_first_contact_and_later_unlinked_identity (test_client_onboarding.Onboarding.test_competing_first_contact_and_later_unlinked_identity) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.521s\n\nOK\n"
+      "detail": "test_competing_first_contact_and_later_unlinked_identity (test_client_onboarding.Onboarding.test_competing_first_contact_and_later_unlinked_identity) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.552s\n\nOK\n"
     },
     {
       "id": "device-coverage",
@@ -438,7 +438,7 @@
       "description": "Missing device evidence is visible and all-device policy waits.",
       "status": "pass",
       "test": "test_client_onboarding.Onboarding.test_missing_required_second_device_is_explicit",
-      "detail": "test_missing_required_second_device_is_explicit (test_client_onboarding.Onboarding.test_missing_required_second_device_is_explicit) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.763s\n\nOK\n"
+      "detail": "test_missing_required_second_device_is_explicit (test_client_onboarding.Onboarding.test_missing_required_second_device_is_explicit) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.827s\n\nOK\n"
     },
     {
       "id": "restart-stripping",
@@ -446,7 +446,7 @@
       "description": "Restart and stripped advertisements preserve accepted continuity.",
       "status": "pass",
       "test": "test_client_onboarding.Onboarding.test_restart_and_stripped_evidence_do_not_reset_pin",
-      "detail": "test_restart_and_stripped_evidence_do_not_reset_pin (test_client_onboarding.Onboarding.test_restart_and_stripped_evidence_do_not_reset_pin) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.337s\n\nOK\n"
+      "detail": "test_restart_and_stripped_evidence_do_not_reset_pin (test_client_onboarding.Onboarding.test_restart_and_stripped_evidence_do_not_reset_pin) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.380s\n\nOK\n"
     },
     {
       "id": "invalid-source",
@@ -454,7 +454,7 @@
       "description": "Expired evidence and mismatched From do not select a principal.",
       "status": "pass",
       "test": "test_client_onboarding.Onboarding.test_expired_or_mismatched_from_cannot_pin",
-      "detail": "test_expired_or_mismatched_from_cannot_pin (test_client_onboarding.Onboarding.test_expired_or_mismatched_from_cannot_pin) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.297s\n\nOK\n"
+      "detail": "test_expired_or_mismatched_from_cannot_pin (test_client_onboarding.Onboarding.test_expired_or_mismatched_from_cannot_pin) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.475s\n\nOK\n"
     },
     {
       "id": "identity-conflict",
@@ -462,7 +462,7 @@
       "description": "Authorized identity conflicts remain relevant despite an unusable advertisement.",
       "status": "pass",
       "test": "test_client_onboarding.Onboarding.test_authorized_successor_conflict_survives_unusable_advertisement",
-      "detail": "test_authorized_successor_conflict_survives_unusable_advertisement (test_client_onboarding.Onboarding.test_authorized_successor_conflict_survives_unusable_advertisement) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.406s\n\nOK\n"
+      "detail": "test_authorized_successor_conflict_survives_unusable_advertisement (test_client_onboarding.Onboarding.test_authorized_successor_conflict_survives_unusable_advertisement) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.426s\n\nOK\n"
     },
     {
       "id": "mixed-batch-conflict",
@@ -470,7 +470,7 @@
       "description": "An old-head candidate cannot roll back an authorized fork, regardless of batch order or exact retry.",
       "status": "pass",
       "test": "test_client_onboarding.Onboarding.test_old_head_candidate_cannot_roll_back_authorized_fork_in_either_order",
-      "detail": "test_old_head_candidate_cannot_roll_back_authorized_fork_in_either_order (test_client_onboarding.Onboarding.test_old_head_candidate_cannot_roll_back_authorized_fork_in_either_order) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.714s\n\nOK\n"
+      "detail": "test_old_head_candidate_cannot_roll_back_authorized_fork_in_either_order (test_client_onboarding.Onboarding.test_old_head_candidate_cannot_roll_back_authorized_fork_in_either_order) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.716s\n\nOK\n"
     },
     {
       "id": "deployed-carriage",

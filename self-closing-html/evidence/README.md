@@ -1,20 +1,12 @@
 # Self-closing HTML: current evidence
 
-The current implementation processes a self-closing HTML start followed immediately by its end-tag action.
+The current candidate preserves HTML recognition and changes eligible output containment. It does not rely on a sanitizer to prevent text becoming markup.
 
-## What works, and what remains?
+[Current parser, proof scope, tests and reproduction →](recognition/README.md)
 
-- ✅ **Broad tag behavior:** parser-known names are compared with immediate pairs across ten contexts and both scripting states. Text tags and plaintext have explicit checks.
-- ✅ **Following markup:** formatting, table, select, template, and script cases use the updated parser state rather than the old tree's containment.
-- ✅ **Streaming:** 30,000 generated chunk comparisons and selected exhaustive two-chunk checks pass.
-- ✅ **Safe parsing:** parse the selected grammar, sanitize its nodes in place, then insert nodes without reparsing. The known custom-policy mismatch is removed by that pipeline; 1,000 generated inputs retain none of the monitored unsafe signals.
-- ✅ **Browser adapter:** 34 cases pass per engine in Chromium, Firefox, and WebKit, including scripts, callbacks, mutations, direct safe node insertion, and 500 DOM comparisons per engine. These share the reference parser, not native tokenization.
-- ✅ **Native verification:** a separate Ladybird implementation passes 50 execution checks, 810 document comparisons, six encoding cases, and 16 existing parser regressions. The focused garbage-collection-on-every-allocation test completes without failure. [Exact scope and reproduction](closure/native.md).
-- ⬜ **Shipment:** broader conformance, native header/API integration, arbitrary encoding restarts, optimized speculative loading, and independent implementer review remain required. No universal security or memory-safety proof is claimed.
+The recorded results are 61 focused tests, 120,000 generated comparisons, and ten targeted DOM-adapter cases per engine in Chromium, Firefox and WebKit. Native integration of this replacement remains open.
 
-[Current code, result files, limitations, and reproduction →](closure/README.md)
-
-**Security contract:** old sanitized strings cannot simply be reparsed under the new grammar and assumed safe. The [custom-policy counterexample](closure/counterexample-results.json) demonstrates why. The safe path filters the actual target-grammar DOM before insertion. It is not a promise about arbitrary sanitizer policies or components.
+The [immediate-closure experiment](closure/README.md) changes recognition and retains a demonstrated text-to-markup activation case. Its previous native passes and safe-parser results do not establish the replacement's safety.
 
 ## Historical restricted-design experiments
 

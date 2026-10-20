@@ -1,10 +1,10 @@
 name: Self-closing parser
 on:
   pull_request:
-    paths: ['self-closing-html/evidence/closure/**', 'self-closing-html/evidence/package*.json', 'html-feature-profiles/evidence/resolver.mjs', '.github/workflows/closure.yml']
+    paths: ['self-closing-html/evidence/recognition/**', 'self-closing-html/evidence/closure/**', 'self-closing-html/evidence/package*.json', 'html-feature-profiles/evidence/resolver.mjs', '.github/workflows/closure.yml']
   push:
     branches: [main]
-    paths: ['self-closing-html/evidence/closure/**', 'self-closing-html/evidence/package*.json', 'html-feature-profiles/evidence/resolver.mjs', '.github/workflows/closure.yml']
+    paths: ['self-closing-html/evidence/recognition/**', 'self-closing-html/evidence/closure/**', 'self-closing-html/evidence/package*.json', 'html-feature-profiles/evidence/resolver.mjs', '.github/workflows/closure.yml']
 permissions:
   contents: read
 jobs:
@@ -20,4 +20,8 @@ jobs:
       - run: node --test closure/*.test.mjs
         working-directory: self-closing-html/evidence
       - run: node closure/check.mjs
+        working-directory: self-closing-html/evidence
+      - run: node --test recognition/*.test.mjs
+        working-directory: self-closing-html/evidence
+      - run: node recognition/check.mjs
         working-directory: self-closing-html/evidence

@@ -1,0 +1,155 @@
+{
+  "reports": [
+    {
+      "engine": "chromium",
+      "version": "156.0.8078.4",
+      "cases": [
+        {
+          "name": "recognized text remains text 0",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 1",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 2",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 3",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 4",
+          "pass": true
+        },
+        {
+          "name": "template execution and resource boundary",
+          "pass": true
+        },
+        {
+          "name": "handler positive control",
+          "pass": true
+        },
+        {
+          "name": "formatting closure and script checkpoint",
+          "pass": true
+        },
+        {
+          "name": "script mutation ownership",
+          "pass": true
+        },
+        {
+          "name": "custom element callback placement",
+          "pass": true
+        }
+      ],
+      "requests": [
+        "?positive"
+      ],
+      "resourceBoundary": true
+    },
+    {
+      "engine": "firefox",
+      "version": "157.0",
+      "cases": [
+        {
+          "name": "recognized text remains text 0",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 1",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 2",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 3",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 4",
+          "pass": true
+        },
+        {
+          "name": "template execution and resource boundary",
+          "pass": true
+        },
+        {
+          "name": "handler positive control",
+          "pass": true
+        },
+        {
+          "name": "formatting closure and script checkpoint",
+          "pass": true
+        },
+        {
+          "name": "script mutation ownership",
+          "pass": true
+        },
+        {
+          "name": "custom element callback placement",
+          "pass": true
+        }
+      ],
+      "requests": [
+        "?positive"
+      ],
+      "resourceBoundary": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "cases": [
+        {
+          "name": "recognized text remains text 0",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 1",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 2",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 3",
+          "pass": true
+        },
+        {
+          "name": "recognized text remains text 4",
+          "pass": true
+        },
+        {
+          "name": "template execution and resource boundary",
+          "pass": true
+        },
+        {
+          "name": "handler positive control",
+          "pass": true
+        },
+        {
+          "name": "formatting closure and script checkpoint",
+          "pass": true
+        },
+        {
+          "name": "script mutation ownership",
+          "pass": true
+        },
+        {
+          "name": "custom element callback placement",
+          "pass": true
+        }
+      ],
+      "requests": [
+        "?positive"
+      ],
+      "resourceBoundary": true
+    }
+  ],
+  "scope": "Browser DOM adapters share parse5 recognition; no native navigation-parser implementation or universal execution-safety proof."
+}

@@ -210,9 +210,11 @@ The process for defining membership in the HTML Next family remains open for sta
 
 ## Evidence and current implementation limits
 
-The [native self-closing experiment](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/native.md) recognizes `next` or `self-closing` in a navigation doctype. It does not implement combined named-list selection, the profile response header, native API options, detection, the unsupported-profile failure document, or flexible nesting.
+The current [recognition-preserving self-closing candidate](/self-closing-html/parsing) has a separate core parser and DOM-adapter evidence. The earlier native patch and safe-parser composition do not implement that replacement.
 
-The [immediate-closure reference implementation](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme) also composes this API selector model with actual target-grammar parsing and in-place DOMPurify sanitization. Its helper tests cover explicit `self-closing`, the supported `next` family, explicit inheritance, and an omitted option retaining legacy behavior. This is executable reference composition, not native support for the proposed `Document` options or an implementation of the browser Sanitizer API.
+The earlier [native immediate-closure experiment](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/native.md) recognizes `next` or `self-closing` in a navigation doctype. It does not implement combined named-list selection, the profile response header, native API options, detection, the unsupported-profile failure document, or flexible nesting.
+
+The superseded [immediate-closure reference implementation](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme) also composes this API selector model with actual target-grammar parsing and in-place DOMPurify sanitization. Its helper tests cover explicit `self-closing`, the supported `next` family, explicit inheritance, and an omitted option retaining legacy behavior. This is executable reference composition, not native support for the proposed `Document` options or an implementation of the browser Sanitizer API.
 
 ### Recorded verification
 

@@ -27,7 +27,10 @@
     "execution": "node execution-runner.mjs",
     "closure:test": "node --test closure/*.test.mjs",
     "closure:check": "node closure/check.mjs",
-    "closure:execution": "node closure/execution-runner.mjs"
+    "closure:execution": "node closure/execution-runner.mjs",
+    "recognition:test": "node --test recognition/*.test.mjs",
+    "recognition:check": "node recognition/check.mjs",
+    "recognition:browser": "node recognition/browser-runner.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

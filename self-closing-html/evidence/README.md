@@ -1,6 +1,6 @@
 # Self-closing HTML: current evidence
 
-The current implementation processes a self-closing HTML start followed immediately by its end-tag action. It does not use the earlier projection algorithm or its element/attribute blacklist.
+The current implementation processes a self-closing HTML start followed immediately by its end-tag action.
 
 ## What works, and what remains?
 

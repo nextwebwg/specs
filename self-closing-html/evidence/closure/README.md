@@ -1,6 +1,6 @@
 # Immediate self-closing HTML: current implementation
 
-This replacement processes a self-closing HTML start tag followed immediately by its corresponding end tag, before reading more source. It uses ordinary HTML recovery, including formatting, select, table, and template rules. It does not keep a blacklist of ordinary HTML names or attributes.
+This replacement processes a self-closing HTML start tag followed immediately by its corresponding end tag, before reading more source. It uses ordinary HTML recovery, including formatting, select, table, and template rules.
 
 - HTML void elements already finish at their start tag; do not invent end tags for them.
 - SVG/MathML start tags retain native foreign-content handling.

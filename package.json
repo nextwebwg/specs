@@ -10,9 +10,10 @@
   "scripts": {
     "check": "node --experimental-strip-types --disable-warning=ExperimentalWarning tools/check.ts",
     "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test tools/*.test.ts",
-    "verify:inner": "pnpm check && pnpm test && pnpm test:profiles",
+    "verify:inner": "pnpm check && pnpm test && pnpm test:profiles && pnpm test:email",
     "verify:pr": "pnpm verify:inner",
-    "test:profiles": "node --test html-feature-profiles/evidence/resolver.test.mjs"
+    "test:profiles": "node --test html-feature-profiles/evidence/resolver.test.mjs",
+    "test:email": "node --test email-next/evidence/*.test.mjs"
   },
   "dependencies": {
     "markdown-it": "15.0.2",

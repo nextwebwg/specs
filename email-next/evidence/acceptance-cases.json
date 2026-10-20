@@ -1,0 +1,79 @@
+{
+  "format": "email-next-acceptance-manifest-0",
+  "profile": "experimental-button-mime-0",
+  "cases": [
+    {
+      "id": "buttons.mime.roundtrip",
+      "requirement": "../messages.md#questions-and-answer-buttons",
+      "description": "Question and answer retain exact structured bytes and readable Unicode meaning through MIME packaging.",
+      "test": "test_button_mime.ButtonMimeTests.test_question_and_answer_survive_mime_with_exact_event_bytes"
+    },
+    {
+      "id": "buttons.missing-question",
+      "requirement": "../messages.md#answer-object",
+      "description": "An invalid unresolved question object cannot supply guessed answer wording.",
+      "test": "test_button_mime.ButtonMimeTests.test_missing_question_does_not_generate_guessed_fallback"
+    },
+    {
+      "id": "buttons.audience-boundary",
+      "requirement": "../messages.md#answer-object",
+      "description": "The projector refuses automatic question-context copying to an expanded audience.",
+      "test": "test_button_mime.ButtonMimeTests.test_expanded_audience_is_refused_before_packaging"
+    },
+    {
+      "id": "buttons.downloadable-fixtures",
+      "requirement": "../messages.md#questions-and-answer-buttons",
+      "description": "Complete example emails match the projected events and ordinary reply relationships.",
+      "test": "test_button_mime.ButtonMimeTests.test_downloadable_examples_match_projected_events_and_reply_headers"
+    },
+    {
+      "id": "buttons.legacy-client-display",
+      "requirement": "../adoption.md#email-client-adoption",
+      "description": "An actual legacy client presents the complete question and answer meaning.",
+      "unavailable": "No legacy-client adapter is included. MIME inspection does not establish displayed output."
+    },
+    {
+      "id": "buttons.provider-carriage",
+      "requirement": "../adoption.md#email-server-adoption",
+      "description": "A real provider preserves the fixture through submission, storage and retrieval.",
+      "unavailable": "No provider adapter or deployment is exercised by this offline runner."
+    },
+    {
+      "id": "buttons.authenticated-endpoint",
+      "requirement": "../service-answers.md",
+      "description": "A service authenticates a button submission and returns a bound, deduplicated result.",
+      "unavailable": "Candidate wire and carriage rules exist; configured credentials, authenticated HTTP execution and durable service effects are not exercised by this runner."
+    }
+  ],
+  "sources": [
+    "attachment-metadata.mjs",
+    "attachment-operation.mjs",
+    "button-operations.mjs",
+    "edit-operation.mjs",
+    "event-envelope.mjs",
+    "event-identifiers.mjs",
+    "event_encoding.py",
+    "form-operations.mjs",
+    "form-values.mjs",
+    "hosted-holder-operation.mjs",
+    "managed-presentation.mjs",
+    "message-operation.mjs",
+    "mime_package.py",
+    "mime_resources.py",
+    "principal-identifiers.mjs",
+    "reaction-operations.mjs",
+    "reaction-state.mjs",
+    "readable-projection.mjs",
+    "resource-manifest.mjs",
+    "rich-message-operation.mjs",
+    "run_acceptance.py",
+    "service-question.mjs",
+    "submission-target.mjs",
+    "test_button_mime.py",
+    "unicode-17/LICENSE.txt",
+    "unicode-17/emoji-test.txt",
+    "unicode-17/fully-qualified.json",
+    "unicode-17/sources.json",
+    "withdrawal-target.mjs"
+  ]
+}

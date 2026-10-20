@@ -1,0 +1,4580 @@
+[
+  {
+    "rfc": 1847,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text reviewed; zero errata in refreshed dataset; security protocol and dependencies open",
+    "title": "Security Multiparts for MIME: Multipart/Signed and Multipart/Encrypted",
+    "pub_date": "October 1995",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc1847.txt",
+        "sha256": "08cc11e880a7e0ee452649fdc48d8c575d406513ceae45c3d374fd5e7c507828",
+        "bytes": 23679
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc1847.json",
+        "sha256": "8a15e9afba8d4a2714055594334077085932fea1fc3c6ceba5882462e6c0bc30",
+        "bytes": 1349
+      }
+    }
+  },
+  {
+    "rfc": 1870,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; zero errata; encoded-size and per-recipient failure semantics recorded",
+    "title": "SMTP Service Extension for Message Size Declaration",
+    "pub_date": "November 1995",
+    "current_status": "INTERNET STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC1653"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc1870.txt",
+        "sha256": "7c560c3b4d017beeaf66a9a5c55f6e8449574b33f637c970259e4f54fe6498f9",
+        "bytes": 18226
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc1870.json",
+        "sha256": "4f45effeff572d90d9c06e5cf88d8a758d9546d611a1c732598930ecec83ff2a",
+        "bytes": 915
+      }
+    }
+  },
+  {
+    "rfc": 1939,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and four captured errata reviewed; UIDL, partial deletion and transport-byte boundaries recorded; dependency closure open",
+    "title": "Post Office Protocol - Version 3",
+    "pub_date": "May 1996",
+    "current_status": "INTERNET STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC1957",
+      "RFC2449",
+      "RFC6186",
+      "RFC8314"
+    ],
+    "obsoletes": [
+      "RFC1725"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc1939.txt",
+        "sha256": "1c02e8a3208e33416807597629dfab693354359563d4ae1a9b242374e05886c9",
+        "bytes": 47018
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc1939.json",
+        "sha256": "c1eb0d7838c633b1ba6dd6c821cd54836261947cd97dc4abce15194e8b1ee2dc",
+        "bytes": 825
+      }
+    }
+  },
+  {
+    "rfc": 1957,
+    "read": "Full informational memo reviewed; zero errata; historical client observations distinguished from requirements",
+    "title": "Some Observations on Implementations of the Post Office Protocol (POP3)",
+    "pub_date": "June 1996",
+    "current_status": "INFORMATIONAL",
+    "updates": [
+      "RFC1939"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc1957.txt",
+        "sha256": "31cca5512577278d90aa4db99579a8f274c7e3223e5bd694f18ae40e766aa46f",
+        "bytes": 2325
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc1957.json",
+        "sha256": "a01a98d39509714be817ea7b2583bc1a594bc190c9faebb06d44cafb1cd8a32b",
+        "bytes": 688
+      }
+    }
+  },
+  {
+    "rfc": 2045,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and five errata reviewed; section dispositions recorded; updates and dependencies open",
+    "title": "Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies",
+    "pub_date": "November 1996",
+    "current_status": "DRAFT STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC2184",
+      "RFC2231",
+      "RFC5335",
+      "RFC6532"
+    ],
+    "obsoletes": [
+      "RFC1521",
+      "RFC1522",
+      "RFC1590"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2045.txt",
+        "sha256": "9bb251635dd37fda97dcce6c08dea019432117a0f1e389051d2ecbf7b76350b0",
+        "bytes": 72932
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2045.json",
+        "sha256": "a8f9887312a22d6390823387a4057d2bab1d5cc58d3fb75dda654b8581769ba9",
+        "bytes": 934
+      }
+    }
+  },
+  {
+    "rfc": 2046,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and 14 errata reviewed; section dispositions recorded; updates and dependencies open",
+    "title": "Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types",
+    "pub_date": "November 1996",
+    "current_status": "DRAFT STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC2646",
+      "RFC3798",
+      "RFC5147",
+      "RFC6657",
+      "RFC8098"
+    ],
+    "obsoletes": [
+      "RFC1521",
+      "RFC1522",
+      "RFC1590"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2046.txt",
+        "sha256": "7ac4096b9263e11a704f06892638258ac1ddc0394dd75ffdc171e7b5ba0123e0",
+        "bytes": 105854
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2046.json",
+        "sha256": "1e9904223636d361018c0f4727e7129a87ef755b8d218989012c4271bf5f0a02",
+        "bytes": 949
+      }
+    }
+  },
+  {
+    "rfc": 2047,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and seven errata reviewed; section dispositions recorded; RFC2231 and internationalized-header dependencies open",
+    "title": "MIME (Multipurpose Internet Mail Extensions) Part Three: Message Header Extensions for Non-ASCII Text",
+    "pub_date": "November 1996",
+    "current_status": "DRAFT STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC2184",
+      "RFC2231"
+    ],
+    "obsoletes": [
+      "RFC1521",
+      "RFC1522",
+      "RFC1590"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2047.txt",
+        "sha256": "f3b1356151ae24d616076880115c5ac0c313a88bcbe76d32d0cacf4b5f24f01d",
+        "bytes": 33262
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2047.json",
+        "sha256": "72cb9795087d0bf48acf3c0f71e4351fd263ab554860ca355abd4e702c0c9607",
+        "bytes": 946
+      }
+    }
+  },
+  {
+    "rfc": 2049,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text, appendices and two errata reviewed; section dispositions recorded; dependencies open",
+    "title": "Multipurpose Internet Mail Extensions (MIME) Part Five: Conformance Criteria and Examples",
+    "pub_date": "November 1996",
+    "current_status": "DRAFT STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC1521",
+      "RFC1522",
+      "RFC1590"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2049.txt",
+        "sha256": "7b3f6345f7c9cfc8f46ec68ef5a651932803b83b475ba6b181d2e9993eab4600",
+        "bytes": 51207
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2049.json",
+        "sha256": "f3439685569d3db99b86a002c05f5f02627d44c3f1ecf7b9e1e29818f897b1f3",
+        "bytes": 1101
+      }
+    }
+  },
+  {
+    "rfc": 2104,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 7 errata reviewed; live errata listing reconciled; no cryptographic execution or dependency-closure claim",
+    "title": "HMAC: Keyed-Hashing for Message Authentication",
+    "pub_date": "February 1997",
+    "current_status": "INFORMATIONAL",
+    "updates": [],
+    "updated_by": [
+      "RFC6151"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2104.txt",
+        "sha256": "64d5245a9101929025336e470e3737f118704001249d503c85a86e19fe9fbb01",
+        "bytes": 22297
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2104.json",
+        "sha256": "db379dd9ea0251a64ec4420898024485fe32cfb808f02e6daa1ff3d5ee1a64bb",
+        "bytes": 1190
+      }
+    }
+  },
+  {
+    "rfc": 2119,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and captured errata reviewed; requirement vocabulary adopted; live errata freshness remains open",
+    "title": "Key words for use in RFCs to Indicate Requirement Levels",
+    "pub_date": "March 1997",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [],
+    "updated_by": [
+      "RFC8174"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2119.txt",
+        "sha256": "3c2ceb7bfc84cd34720f4a5271338ab9d8280d34bdd1eb250c64306202f2ed8b",
+        "bytes": 4723
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2119.json",
+        "sha256": "215a595c075be0595e6b4b1fa464e9c4c9ffd1932625d5a58e07164f5fa6a7a0",
+        "bytes": 1043
+      }
+    }
+  },
+  {
+    "rfc": 2183,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and four errata reviewed; section dispositions recorded; current disposition registry review open",
+    "title": "Communicating Presentation Information in Internet Messages: The Content-Disposition Header Field",
+    "pub_date": "August 1997",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC2184",
+      "RFC2231"
+    ],
+    "obsoletes": [
+      "RFC1806"
+    ],
+    "obsoleted_by": [],
+    "relationship_correction": "Verified erratum1457: obsoletes RFC1806",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2183.txt",
+        "sha256": "ae813297acfd928d2b8918eb2ee5ca8d73aa5874b568a4051e75f1392f9a7198",
+        "bytes": 23158
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2183.json",
+        "sha256": "219b01e462d0ab5df58d07b0b62bc6cbec8c7e442b8d2abd6461d7e070d83682",
+        "bytes": 1126
+      }
+    }
+  },
+  {
+    "rfc": 2184,
+    "read": "Complete base text and three verified errata reviewed; historical grammar defects mapped to RFC2231; dependencies open",
+    "title": "MIME Parameter Value and Encoded Word Extensions: Character Sets, Languages, and Continuations",
+    "pub_date": "August 1997",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2045",
+      "RFC2047",
+      "RFC2183"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [
+      "RFC2231"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2184.txt",
+        "sha256": "4a3b1f299f0e2d608e30d5c200398d30f9dbcc4d1b2819837a8b85ec37f9ee06",
+        "bytes": 17635
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2184.json",
+        "sha256": "d6e794d160314817f047065f6d9d68820f1f77b59b819f098eac33ad6a58383b",
+        "bytes": 861
+      }
+    }
+  },
+  {
+    "rfc": 2231,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and seven errata reviewed; section dispositions recorded; disposition, language and IMAP dependencies open",
+    "title": "MIME Parameter Value and Encoded Word Extensions: Character Sets, Languages, and Continuations",
+    "pub_date": "November 1997",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2045",
+      "RFC2047",
+      "RFC2183"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC2184"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2231.txt",
+        "sha256": "e69cbc8c05097736c5296575e7a2e0cb2a2a09c522640eb40ecc4a9dca56076d",
+        "bytes": 19280
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2231.json",
+        "sha256": "1261d32a3813de6259f4e947cc39ee9f07b42b287bce9780d64a834793e0cc55",
+        "bytes": 1091
+      }
+    }
+  },
+  {
+    "rfc": 2369,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text including appendices reviewed; no errata in retrieved dataset; URL/mailto dependencies open",
+    "title": "The Use of URLs as Meta-Syntax for Core Mail List Commands and their Transport through Message Header Fields",
+    "pub_date": "July 1998",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2369.txt",
+        "sha256": "659e81dbe0c700870b9ae35c765a70ad8c4c4127506df8c809d6e1393dc1998b",
+        "bytes": 30853
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2369.json",
+        "sha256": "3bb4c5e6172b7428d6b866b18ca9a1095f107589f251062fefac4658f832f156",
+        "bytes": 1232
+      }
+    }
+  },
+  {
+    "rfc": 2387,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and six errata reviewed; section dispositions recorded; dependencies open",
+    "title": "The MIME Multipart/Related Content-type",
+    "pub_date": "August 1998",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC2112"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2387.txt",
+        "sha256": "b92f065d32e774c1c6cc8d656f5dbf34a71a2714444f2aa7d4e1ad4fa1091aa6",
+        "bytes": 18864
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2387.json",
+        "sha256": "9aa4310d9f287c10ccbb0602888ad5b130e639e47099ed0ffcd0018ebe076bad",
+        "bytes": 838
+      }
+    }
+  },
+  {
+    "rfc": 2392,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and four errata reviewed; section dispositions recorded; current URL and identifier grammar dependencies open",
+    "title": "Content-ID and Message-ID Uniform Resource Locators",
+    "pub_date": "August 1998",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC2111"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2392.txt",
+        "sha256": "0094525a768e5ba689477203bb29b88a8fe9fa8dde4309c67347b2e4539f9cd9",
+        "bytes": 11141
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2392.json",
+        "sha256": "19f64c20852560d0b9c0bd363b83c188474399a4fc944dcce70987babb097288",
+        "bytes": 1080
+      }
+    }
+  },
+  {
+    "rfc": 2449,
+    "read": "Complete base text reviewed; no captured errata; state-sensitive capabilities and retention boundaries recorded; dependency closure open",
+    "title": "POP3 Extension Mechanism",
+    "pub_date": "November 1998",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC1939"
+    ],
+    "updated_by": [
+      "RFC5034"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2449.txt",
+        "sha256": "036020793acba032093245d9b133545f22f6d6ede2f851a0086319183ddd22ad",
+        "bytes": 35517
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2449.json",
+        "sha256": "8c68bd55e0b9140d7a7c94957b097e538e78652b15f5c1e999dcff5eb7e5914b",
+        "bytes": 814
+      }
+    }
+  },
+  {
+    "rfc": 2480,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; zero errata; gateway conversion distinguished from protected carriage; dependencies open",
+    "title": "Gateways and MIME Security Multiparts",
+    "pub_date": "January 1999",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2480.txt",
+        "sha256": "680edb08155f0231391845e782fd68c04c4299a51a20fa5f081d2ff7e58a07d6",
+        "bytes": 11751
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2480.json",
+        "sha256": "cf710d9c8e36a530a42ae31867d3ba488537be2ccb8444acf92e2d3154e74ab7",
+        "bytes": 716
+      }
+    }
+  },
+  {
+    "rfc": 2557,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and 11 errata reviewed; section dispositions recorded; current HTML/URL and MIME dependencies open",
+    "title": "MIME Encapsulation of Aggregate Documents, such as HTML (MHTML)",
+    "pub_date": "March 1999",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC2110"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2557.txt",
+        "sha256": "65b31b58aa2f5e2bab15745d8e0330031a20382a90f097fe0b392bcd9b8cd6c9",
+        "bytes": 61854
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2557.json",
+        "sha256": "9a876c7cc3b7cd331b17d45055c53e04c53936d1d82922774fdf19df5441c0c9",
+        "bytes": 1234
+      }
+    }
+  },
+  {
+    "rfc": 2634,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and all 1 current captured errata reviewed; see smime-ess.md; no implementation claim",
+    "title": "Enhanced Security Services for S/MIME",
+    "pub_date": "June 1999",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC5035"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2634.txt",
+        "sha256": "821cf38ae96ff02ce2f036fdf77400646dbc25db5dfb24df7970f1a3f1b8e897",
+        "bytes": 131153
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2634.json",
+        "sha256": "a858afea23b5a50829d0e7a2b5785c2488e2bed9642f7fa6ec8b465f62c93ac0",
+        "bytes": 781
+      }
+    }
+  },
+  {
+    "rfc": 2646,
+    "read": "Complete base text reviewed; no captured errata; superseded flowed behavior mapped to RFC3676; dependencies open",
+    "title": "The Text/Plain Format Parameter",
+    "pub_date": "August 1999",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2046"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [
+      "RFC3676"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2646.txt",
+        "sha256": "17745cef025e707f26a478174b8272cad123f1441c27899f8035ef2bdae08597",
+        "bytes": 29175
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2646.json",
+        "sha256": "849a9f76dc8d66e4460e06026ae5f6ca666bc5c8d257a1efd9a4d5a8c8dd487b",
+        "bytes": 956
+      }
+    }
+  },
+  {
+    "rfc": 2919,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and three errata reviewed; list identity is not authentication",
+    "title": "List-Id: A Structured Field and Namespace for the Identification of Mailing Lists",
+    "pub_date": "March 2001",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2919.txt",
+        "sha256": "aa78f55f7182a3d67dabdf861d27cfe0d0d47e5fd3565d71f9ed4a9d95458bb8",
+        "bytes": 18480
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2919.json",
+        "sha256": "f9d694306dacd080943b5d39048b87b23214d338ff41984569777792220bdf9d",
+        "bytes": 1086
+      }
+    }
+  },
+  {
+    "rfc": 2920,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; zero errata; ordered reply correlation and partial-recipient semantics recorded",
+    "title": "SMTP Service Extension for Command Pipelining",
+    "pub_date": "September 2000",
+    "current_status": "INTERNET STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC2197"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2920.txt",
+        "sha256": "679ed54a0afd15b7bbe0f84aa8f2fca620be93b3e4b9bfcfe58b436bde6fedcc",
+        "bytes": 17065
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc2920.json",
+        "sha256": "73d61dac1417b4378d2dca3da780aaffc3d65ef87fca2cfb09cb01808588d026",
+        "bytes": 898
+      }
+    }
+  },
+  {
+    "rfc": 3030,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and verified erratum349 reviewed; transport implementation untested",
+    "title": "SMTP Service Extensions for Transmission of Large and Binary MIME Messages",
+    "pub_date": "December 2000",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC1830"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3030.txt",
+        "sha256": "e21754fb6e2eece84b0754e31e3b997f1a7ec5731ad8c6449010af70ecfc7794",
+        "bytes": 23405
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3030.json",
+        "sha256": "cbcf2484b691508e8826661caac28257a3ec273af764f635cfb0fc6c4f10d72a",
+        "bytes": 816
+      }
+    }
+  },
+  {
+    "rfc": 3156,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and rejected erratum3443 reviewed; current OpenPGP and registry dependencies open",
+    "title": "MIME Security with OpenPGP",
+    "pub_date": "August 2001",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2015"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3156.txt",
+        "sha256": "ca68d1b7755dfea2672aeb7614e9c5153ce3accc296355d147afd243e44c3ae2",
+        "bytes": 26809
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3156.json",
+        "sha256": "6912d49f81de14013fd738b0142184de69ecbdf5f2177230a5d7483283552165",
+        "bytes": 1012
+      }
+    }
+  },
+  {
+    "rfc": 3207,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and two errata reviewed; RFC7817 and modern TLS policy dependencies open",
+    "title": "SMTP Service Extension for Secure SMTP over Transport Layer Security",
+    "pub_date": "February 2002",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC7817"
+    ],
+    "obsoletes": [
+      "RFC2487"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3207.txt",
+        "sha256": "b004a203791a1ca664d39a49d73369f88f5f3870486a6639e3f833df2118e4ac",
+        "bytes": 18679
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3207.json",
+        "sha256": "b9a8a825118e5d2068f3ef1611827d400fbb5cddd4ce5c94bf756544ed8ccfb8",
+        "bytes": 1100
+      }
+    }
+  },
+  {
+    "rfc": 3461,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and eight errata reviewed; command-length/example discrepancies and DSN dependency closure remain open",
+    "title": "Simple Mail Transfer Protocol (SMTP) Service Extension for Delivery Status Notifications (DSNs)",
+    "pub_date": "January 2003",
+    "current_status": "DRAFT STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC3798",
+      "RFC3885",
+      "RFC5337",
+      "RFC6533",
+      "RFC8098"
+    ],
+    "obsoletes": [
+      "RFC1891"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3461.txt",
+        "sha256": "7f9e2050ae8c38962d458bb4ee669100351e981f55a96e41f19cbb574b1c730d",
+        "bytes": 76076
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3461.json",
+        "sha256": "a5784af1c30c1530f1cc0e6aadddc4ae4baf0ce2c38a10c5f0ff23b46ab13226",
+        "bytes": 1328
+      }
+    }
+  },
+  {
+    "rfc": 3463,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and held erratum4368 reviewed; update/dependency closure pending",
+    "title": "Enhanced Mail System Status Codes",
+    "pub_date": "January 2003",
+    "current_status": "DRAFT STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC3886",
+      "RFC4468",
+      "RFC4865",
+      "RFC4954",
+      "RFC5248"
+    ],
+    "obsoletes": [
+      "RFC1893"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3463.txt",
+        "sha256": "ccfbf657f4d3ac7c89cca03bd1abed355efe3f4b170162e32a6ff344cebfe851",
+        "bytes": 31832
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3463.json",
+        "sha256": "2033c370d2e93a77c738daa59dbc8de40b5d122e14bcb06f701efda9b8380355",
+        "bytes": 1140
+      }
+    }
+  },
+  {
+    "rfc": 3464,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and two verified errata reviewed; parser profile and dependency closure remain open",
+    "title": "An Extensible Message Format for Delivery Status Notifications",
+    "pub_date": "January 2003",
+    "current_status": "DRAFT STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC4865",
+      "RFC5337",
+      "RFC6533"
+    ],
+    "obsoletes": [
+      "RFC1894"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3464.txt",
+        "sha256": "8d213b662d9c40a7a729db598beb1d3f0139b7532b3c9a7be06ef220c84c397c",
+        "bytes": 83060
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3464.json",
+        "sha256": "7f623106668991486abc15648577e7c619dbee90a23617befac172de9efa1b05",
+        "bytes": 1793
+      }
+    }
+  },
+  {
+    "rfc": 3492,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 3 errata reviewed; live errata listing reconciled; no IDNA implementation or property recalculation or dependency-closure claim",
+    "title": "Punycode: A Bootstring encoding of Unicode for Internationalized Domain Names in Applications (IDNA)",
+    "pub_date": "March 2003",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC5891"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3492.txt",
+        "sha256": "d1848b1b4f01e20708a64f42394e5f4b840141935bed7f09ad7baeb6693b8772",
+        "bytes": 67439
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3492.json",
+        "sha256": "b243734eb371a67036b948978b8c5bd81a70a2d146adff954ecb58afe77aaf77",
+        "bytes": 1504
+      }
+    }
+  },
+  {
+    "rfc": 3501,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text, grammar, appendices and seven current errata reviewed; optional rev1 adapter boundaries specified; separately negotiated extension bodies and interoperability remain separate",
+    "title": "INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1",
+    "pub_date": "March 2003",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC4466",
+      "RFC4469",
+      "RFC4551",
+      "RFC5032",
+      "RFC5182",
+      "RFC5738",
+      "RFC6186",
+      "RFC6858",
+      "RFC7817",
+      "RFC8314",
+      "RFC8437",
+      "RFC8474",
+      "RFC8996"
+    ],
+    "obsoletes": [
+      "RFC2060"
+    ],
+    "obsoleted_by": [
+      "RFC9051"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3501.txt",
+        "sha256": "4437974dde85859f2391f32215295e7b20ce157c3bd2adbe7e5b443e990f15cf",
+        "bytes": 227639
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3501.json",
+        "sha256": "50680f60cad49be3a809bb4096722265834d386fe0169616b5b2b6b2b5b01a72",
+        "bytes": 1991
+      }
+    }
+  },
+  {
+    "rfc": 3503,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; no errata in retrieved dataset; current IMAP/ACL dependencies and concurrency validation pending",
+    "title": "Message Disposition Notification (MDN) profile for Internet Message Access Protocol (IMAP)",
+    "pub_date": "March 2003",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3503.txt",
+        "sha256": "82151d011f42d2a458128ccce80f053f7e914a5791686465cfa7538c93496324",
+        "bytes": 16937
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3503.json",
+        "sha256": "04a303b0751693a46d00536af6197ed2c57418e997c8d4903288ade1b88d30c8",
+        "bytes": 1296
+      }
+    }
+  },
+  {
+    "rfc": 3629,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text reviewed; zero captured/live-listed errata; scoped Unicode definitions reviewed separately; no global dependency closure claim",
+    "title": "UTF-8, a transformation format of ISO 10646",
+    "pub_date": "November 2003",
+    "current_status": "INTERNET STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC2279"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3629.txt",
+        "sha256": "a2a3a39457d30420c812f87a38cc2b9194832f6982ef17e619de7d816879d6a6",
+        "bytes": 33856
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3629.json",
+        "sha256": "6a2dae7c5a91fde6510835b2598a0a32930bd6775ecfa97db3b898795db30544",
+        "bytes": 1243
+      }
+    }
+  },
+  {
+    "rfc": 3676,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and appendix reviewed; zero errata in refreshed dataset; dependencies and registry open",
+    "title": "The Text/Plain Format and DelSp Parameters",
+    "pub_date": "February 2004",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC2646"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3676.txt",
+        "sha256": "70da6cf9fa29640104feab81161fefcd2bf3ee3dc0f3ce8efd31ccc92db0aacf",
+        "bytes": 42441
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3676.json",
+        "sha256": "63f3bea41393ff0bb6078d17104da4ca9b759a6ab353281780161f7c7f48dacb",
+        "bytes": 1353
+      }
+    }
+  },
+  {
+    "rfc": 3798,
+    "read": "Complete historical base text and two captured errata reviewed; contradictory removed values recorded; RFC8098 governs current generation; dependencies open",
+    "title": "Message Disposition Notification",
+    "pub_date": "May 2004",
+    "current_status": "DRAFT STANDARD",
+    "updates": [
+      "RFC2046",
+      "RFC3461"
+    ],
+    "updated_by": [
+      "RFC5337",
+      "RFC6533"
+    ],
+    "obsoletes": [
+      "RFC2298"
+    ],
+    "obsoleted_by": [
+      "RFC8098"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3798.txt",
+        "sha256": "e3f41ae826f0c4d73596b191c5a75ecd2908e3f78af00fa1d1d278908312a6d1",
+        "bytes": 64049
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3798.json",
+        "sha256": "7437ec80f85f7a008bd272e436dd13b298098c8ca959c9a9f6a29914729a71be",
+        "bytes": 2157
+      }
+    }
+  },
+  {
+    "rfc": 3834,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and verified erratum223 reviewed; section dispositions recorded; RFC5436 reviewed separately; other dependencies open",
+    "title": "Recommendations for Automatic Responses to Electronic Mail",
+    "pub_date": "August 2004",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC5436"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3834.txt",
+        "sha256": "e8ac97cceb6205dd2a722b05fb6b1c1dd1dff0996287af2f513a2d90bb643820",
+        "bytes": 53119
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3834.json",
+        "sha256": "40540d5ca80f36dde75a27831e011de9d26cbe2d174bddaaa36ba508bb17d6fb",
+        "bytes": 1246
+      }
+    }
+  },
+  {
+    "rfc": 3864,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; no errata in retrieved dataset; current registry differs and emailcore revision audit pending",
+    "title": "Registration Procedures for Message Header Fields",
+    "pub_date": "September 2004",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [],
+    "updated_by": [
+      "RFC9110"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3864.txt",
+        "sha256": "eccd2d25dc110a55aff23ddc41a9b4e4aa105f567b2806546eeae3a7bd72764d",
+        "bytes": 36231
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3864.json",
+        "sha256": "9f9913c7f09ef6bf3b95d9cb884b62523efb587dce7edcdef349f12cacae48cf",
+        "bytes": 957
+      }
+    }
+  },
+  {
+    "rfc": 3885,
+    "read": "Full text reviewed; no listed errata; source inconsistencies and3887/3888 dependencies open",
+    "title": "SMTP Service Extension for Message Tracking",
+    "pub_date": "September 2004",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC3461"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3885.txt",
+        "sha256": "d5701fded4e50e1e3bfc957dc7ec3954b2b74e1bf051e8f9cb2faefdd783c1a4",
+        "bytes": 17458
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3885.json",
+        "sha256": "a825c8620aa8828a52ca4a2264fbfee38f6ef8b3f85db8194bf79d01c62f2ba2",
+        "bytes": 761
+      }
+    }
+  },
+  {
+    "rfc": 3886,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and four errata reviewed; query/model and grammar integration pending",
+    "title": "An Extensible Message Format for Message Tracking Responses",
+    "pub_date": "September 2004",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC3463"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3886.txt",
+        "sha256": "936aa7db35541816ca03d338ff8004ef7fdad9ea9144bd2aa8edd5443cbd2b14",
+        "bytes": 21746
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3886.json",
+        "sha256": "0a3d07f94f49c470054195d33795df90851f37289f91980c519cd8d52ae29840",
+        "bytes": 1532
+      }
+    }
+  },
+  {
+    "rfc": 3986,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 18 listed errata reviewed; implementation and dependency closure remain separate",
+    "title": "Uniform Resource Identifier (URI): Generic Syntax",
+    "pub_date": "January 2005",
+    "current_status": "INTERNET STANDARD",
+    "updates": [
+      "RFC1738"
+    ],
+    "updated_by": [
+      "RFC7320",
+      "RFC8820"
+    ],
+    "obsoletes": [
+      "RFC1808",
+      "RFC2396",
+      "RFC2732"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3986.txt",
+        "sha256": "3102dae4b68cebe40337730312fcb612297b8928547267e8b3d1ee6002b2d683",
+        "bytes": 141811
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3986.json",
+        "sha256": "e1b383b39087af1ff0b16764fd94226759169423a1dee4d340a091a8dacb7327",
+        "bytes": 1576
+      }
+    }
+  },
+  {
+    "rfc": 4468,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and two verified errata reviewed; URLAUTH/IMAP and registry reconciliation pending",
+    "title": "Message Submission BURL Extension",
+    "pub_date": "May 2006",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC3463"
+    ],
+    "updated_by": [
+      "RFC5248"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc4468.txt",
+        "sha256": "68a9f492de79176d7d404d1cda924a0817e5f1da70be9735891893c330eeffa4",
+        "bytes": 28614
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc4468.json",
+        "sha256": "4c6880e81a6cc2c8c17d6148cfaff4fd076f9485bae1825daaded4aeb48cff6b",
+        "bytes": 1280
+      }
+    }
+  },
+  {
+    "rfc": 4648,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base and six errata reviewed; current listing matches captured set; dependencies open",
+    "title": "The Base16, Base32, and Base64 Data Encodings",
+    "pub_date": "October 2006",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC3548"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc4648.txt",
+        "sha256": "84e14418f795d503be5f34bf23ce4ebaa119e9ec7c9f667d8caeb111385b178f",
+        "bytes": 35491
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc4648.json",
+        "sha256": "d1e59462989c4a92917774beabf76420d54c8dd204e479e106d8041e224f5a76",
+        "bytes": 1014
+      }
+    }
+  },
+  {
+    "rfc": 4865,
+    "read": "Full text and verified2040 reviewed; quota registry discrepancy and dependencies open",
+    "title": "SMTP Submission Service Extension for Future Message Release",
+    "pub_date": "June 2007",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC3463",
+      "RFC3464"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc4865.txt",
+        "sha256": "b9ac5c54c0ab7187c229f373557ef8a79acdf5f9e3b8c960608f1d9758ab13fc",
+        "bytes": 21495
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc4865.json",
+        "sha256": "d5e940940162957ce9509b057d047d28dc133b18c3aa9e88aaa6e0bc5a0152c1",
+        "bytes": 1174
+      }
+    }
+  },
+  {
+    "rfc": 4954,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and seven errata reviewed; session versus origin boundary specified; SASL dependencies open",
+    "title": "SMTP Service Extension for Authentication",
+    "pub_date": "July 2007",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC3463"
+    ],
+    "updated_by": [
+      "RFC5248"
+    ],
+    "obsoletes": [
+      "RFC2554"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc4954.txt",
+        "sha256": "6bf118f556749d08d1bfae92cefbdebf6084324ceba262a87af1efbe0e16d50a",
+        "bytes": 43493
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc4954.json",
+        "sha256": "5b13006fe2826f86d8ee9f3cd7deed7e15dab60b010ec1dd1c5d02999e1f863e",
+        "bytes": 1193
+      }
+    }
+  },
+  {
+    "rfc": 5034,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; zero errata in refreshed dataset; SASL/TLS dependencies open",
+    "title": "The Post Office Protocol (POP3) Simple Authentication and Security Layer (SASL) Authentication Mechanism",
+    "pub_date": "July 2007",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2449"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC1734"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5034.txt",
+        "sha256": "63cfc08a552add75d9bf22b0d977d40d5a105f67b71ed4c67015fe4670d68d8f",
+        "bytes": 24170
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5034.json",
+        "sha256": "ad4a54dd6411a83e5f0385b85103c996bf2d2c8688531016aa0187cf3237aad6",
+        "bytes": 1344
+      }
+    }
+  },
+  {
+    "rfc": 5035,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and all 7 current captured errata reviewed; see smime-ess.md; no implementation claim",
+    "title": "Enhanced Security Services (ESS) Update: Adding CertID Algorithm Agility",
+    "pub_date": "August 2007",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2634"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5035.txt",
+        "sha256": "7c4a793911463367bd777e6d6104e52ec709f0c553da237cdf6782ee49b6d32b",
+        "bytes": 32674
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5035.json",
+        "sha256": "3c531517cb12399686ee9ed42c99277460fea8bb255cfc966a048497b03c3cb6",
+        "bytes": 1050
+      }
+    }
+  },
+  {
+    "rfc": 5116,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 6 errata reviewed; live errata listing reconciled; no cryptographic execution or dependency-closure claim",
+    "title": "An Interface and Algorithms for Authenticated Encryption",
+    "pub_date": "February 2008",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5116.txt",
+        "sha256": "8762fee7c85e682fce609c75e0f5040ee7efa8fca96969ffd85df37585e0eda1",
+        "bytes": 50539
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5116.json",
+        "sha256": "97b0f70b75be2801ae0fdd89b91404b07c5f316a4eaf19e746e972d99573bade",
+        "bytes": 1095
+      }
+    }
+  },
+  {
+    "rfc": 5147,
+    "read": "Complete base text reviewed; no captured errata; range-order discrepancy recorded; dependencies open",
+    "title": "URI Fragment Identifiers for the text/plain Media Type",
+    "pub_date": "April 2008",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2046"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5147.txt",
+        "sha256": "c8fff6f21a8c68a15642d00ff0fbb97ae7cd1613ee02c2782ab7671d6b6a24f4",
+        "bytes": 37422
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5147.json",
+        "sha256": "0157366fe5e46afcf53611a11404231a03b92e2204d4244036b4c2f8790aa7ed",
+        "bytes": 1007
+      }
+    }
+  },
+  {
+    "rfc": 5173,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; zero errata in refreshed dataset; base Sieve dependencies open",
+    "title": "Sieve Email Filtering: Body Extension",
+    "pub_date": "May 2008",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5229"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5173.txt",
+        "sha256": "6127830c657e4721c2bc6f06b027e93424f7a73402e354aab74841885ae450b8",
+        "bytes": 17429
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5173.json",
+        "sha256": "85f2b3b94de8f40215515d2e0eaf140fdef9de640c048e0eaa76a1bb67af09fc",
+        "bytes": 805
+      }
+    }
+  },
+  {
+    "rfc": 5228,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and verified5579 reviewed; four update reviews linked; dependency closure pending",
+    "title": "Sieve: An Email Filtering Language",
+    "pub_date": "January 2008",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC5229",
+      "RFC5429",
+      "RFC6785",
+      "RFC9042"
+    ],
+    "obsoletes": [
+      "RFC3028"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5228.txt",
+        "sha256": "ffee094c9c6df0da69971b1fb058715d31e484f8b3410f4cb5539a075e1a1dc6",
+        "bytes": 87531
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5228.json",
+        "sha256": "059b04b5a293dc29e5652c6abf6d916fcba12fb772cb38f59647e75973818412",
+        "bytes": 1263
+      }
+    }
+  },
+  {
+    "rfc": 5229,
+    "read": "Complete base text and one verified erratum reviewed; filtering is not authentication or invisible delivery; dependencies open",
+    "title": "Sieve Email Filtering: Variables Extension",
+    "pub_date": "January 2008",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5228"
+    ],
+    "updated_by": [
+      "RFC5173"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5229.txt",
+        "sha256": "e78dc629bef36eb086da2e0aa37e3e828e8db70874e7795e2152afc0388c3820",
+        "bytes": 20023
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5229.json",
+        "sha256": "94b34941ca4496499c969d761db466df51cf21b8c29e0d2d578d07ef0df5d29e",
+        "bytes": 1018
+      }
+    }
+  },
+  {
+    "rfc": 5234,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and captured errata reviewed; grammar notation dependency; implementation and recursive applicability remain separate",
+    "title": "Augmented BNF for Syntax Specifications: ABNF",
+    "pub_date": "February 2008",
+    "current_status": "INTERNET STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5234.txt",
+        "sha256": "fc871020f53baa6b60fc6835c557b433f38d53c5cc41ab56d03622b084f53a12",
+        "bytes": 26359
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5234.json",
+        "sha256": "14aa1abd2418d96d9c371b8f25109204b58c101c2c103d3699bb346756b3a6fe",
+        "bytes": 1437
+      }
+    },
+    "updates": [],
+    "updated_by": [
+      "RFC7405"
+    ],
+    "obsoletes": [
+      "RFC4234"
+    ],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 5248,
+    "read": "Full text and Reported8207 reviewed; non-exclusive basic-code associations; dependencies open",
+    "title": "A Registry for SMTP Enhanced Mail System Status Codes",
+    "pub_date": "July 2008",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [
+      "RFC3463",
+      "RFC4468",
+      "RFC4954"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5248.txt",
+        "sha256": "b5d93474fead6927bcce9d233d7cf9ee8bb597c55c80ae6bc97ead8fd4a1c310",
+        "bytes": 23845
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5248.json",
+        "sha256": "331c7ee422532530534afb632307cef0c7a1bfe518f311e225905bc03cae03a7",
+        "bytes": 1401
+      }
+    }
+  },
+  {
+    "rfc": 5280,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile",
+    "pub_date": "May 2008",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC6818",
+      "RFC8398",
+      "RFC8399",
+      "RFC9549",
+      "RFC9598",
+      "RFC9608",
+      "RFC9618",
+      "RFC9925",
+      "RFC10007"
+    ],
+    "obsoletes": [
+      "RFC3280",
+      "RFC4325",
+      "RFC4630"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5280.txt",
+        "sha256": "a2f2628c0a83b873fc4786abd921f9b2c02395954b655d190bf16b831633345d",
+        "bytes": 352580
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5280.json",
+        "sha256": "bc66fa4c33b23ed0663d2255b3c9962872544945009a2c253c2d666cb00f1655",
+        "bytes": 1721
+      }
+    }
+  },
+  {
+    "rfc": 5321,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and 15 errata reviewed; section dispositions recorded; dependencies and update integration open",
+    "title": "Simple Mail Transfer Protocol",
+    "pub_date": "October 2008",
+    "current_status": "DRAFT STANDARD",
+    "updates": [
+      "RFC1123"
+    ],
+    "updated_by": [
+      "RFC7504"
+    ],
+    "obsoletes": [
+      "RFC2821"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5321.txt",
+        "sha256": "7d560eddff1b213c17d4e1e5f95005728b2f05bc2b3947f0fcc91717c6707634",
+        "bytes": 225929
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5321.json",
+        "sha256": "9787c6e31bdab3ed738a485ef3aa64ae806d6cfa0c5c3118ee5d51f6814d6f3e",
+        "bytes": 1264
+      }
+    }
+  },
+  {
+    "rfc": 5322,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and 31 errata reviewed; section dispositions recorded; dependent updates and standards audits remain open",
+    "title": "Internet Message Format",
+    "pub_date": "October 2008",
+    "current_status": "DRAFT STANDARD",
+    "updates": [
+      "RFC4021"
+    ],
+    "updated_by": [
+      "RFC6854"
+    ],
+    "obsoletes": [
+      "RFC2822"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5322.txt",
+        "sha256": "cb459acca15a2aa895863eaeff6f1d5b9c4ca15578ae3e3706f757787a385969",
+        "bytes": 122322
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5322.json",
+        "sha256": "7c91bd170debcafb493f2ddbb22ed8851f679e9e834686b6d84c190f4f26da38",
+        "bytes": 1669
+      }
+    }
+  },
+  {
+    "rfc": 5335,
+    "read": "Complete Experimental base text and two verified errata reviewed; obsolete alternate-address syntax is not recipient authority; dependencies open",
+    "title": "Internationalized Email Headers",
+    "pub_date": "September 2008",
+    "current_status": "EXPERIMENTAL",
+    "updates": [
+      "RFC2045",
+      "RFC2822"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [
+      "RFC6532"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5335.txt",
+        "sha256": "371877e3ecd35ff5bb94f84fa97edeec2ea4bb5655064883ab0445731c38f5ef",
+        "bytes": 27945
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5335.json",
+        "sha256": "0721015c1f67df4d9fe8d7294584a73ba0b5febd9f8e54489da7dd7e42d66a06",
+        "bytes": 1466
+      }
+    }
+  },
+  {
+    "rfc": 5337,
+    "read": "Complete Experimental base and four captured errata reviewed; historical syntax discrepancies recorded; RFC6533 remains baseline",
+    "title": "Internationalized Delivery Status and Disposition Notifications",
+    "pub_date": "September 2008",
+    "current_status": "EXPERIMENTAL",
+    "updates": [
+      "RFC3461",
+      "RFC3462",
+      "RFC3464",
+      "RFC3798"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [
+      "RFC6533"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5337.txt",
+        "sha256": "a4c9a94826036b7ebac5a2de680f939ab44354d6fb46b173acc284a9c004ec6a",
+        "bytes": 36324
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5337.json",
+        "sha256": "997b170591d3f3dfad17da7ddf1ff855682290c4cbfec36ae55b7181f67774da",
+        "bytes": 1496
+      }
+    }
+  },
+  {
+    "rfc": 5429,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and one held editorial erratum reviewed; recipient-specific rejection distinguished from downgrade authority; dependencies open",
+    "title": "Sieve Email Filtering: Reject and Extended Reject Extensions",
+    "pub_date": "March 2009",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5228"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC3028"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5429.txt",
+        "sha256": "65018bfee062e39baf291c44c61484ad5e45051363e276d7cca87925d2d6ef86",
+        "bytes": 28822
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5429.json",
+        "sha256": "e2189f3334aa47c9cff48f0272438425aaab1d6d94b5f3b1b3753e475342d1b8",
+        "bytes": 1728
+      }
+    }
+  },
+  {
+    "rfc": 5436,
+    "read": "Full base text reviewed; zero errata in refreshed dataset; keyword registry checked; dependencies open",
+    "title": "Sieve Notification Mechanism: mailto",
+    "pub_date": "February 2009",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC3834"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5436.txt",
+        "sha256": "1e76abbb8631c50ad28cd5bd64be2ab2c3ccbf3dd59b04ea2b176df354be3ef4",
+        "bytes": 26519
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5436.json",
+        "sha256": "ee83dd76892843e413eb79001771c4f7bb3f5d63361c5df205bfc0ad801e1d87",
+        "bytes": 772
+      }
+    }
+  },
+  {
+    "rfc": 5598,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and five captured errata reviewed; live errata refresh rate-limited; dependency closure pending",
+    "title": "Internet Mail Architecture",
+    "pub_date": "July 2009",
+    "current_status": "INFORMATIONAL",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5598.txt",
+        "sha256": "80702e8e4da554bac8270af89fbf01ca35f43957b659afc475e4b9e3fcc3f87c",
+        "bytes": 115741
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5598.json",
+        "sha256": "38d414e7e998ed87f2bf6aea481b24e3aff22a9c7b34f70a4986f8453fb0f5a8",
+        "bytes": 1979
+      }
+    }
+  },
+  {
+    "rfc": 5646,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and three captured errata reviewed; live errata, registry policy and applicable dependencies remain open",
+    "title": "Tags for Identifying Languages",
+    "pub_date": "September 2009",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC4646"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5646.txt",
+        "sha256": "5d9515f053163c80e7294a84d18217dc83471acc7caa9773da2ac40deeec8228",
+        "bytes": 208592
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5646.json",
+        "sha256": "296c3cf9294d28b517a33e478141e52a26c410ea877b01fc9fd820515b8034a8",
+        "bytes": 1151
+      }
+    }
+  },
+  {
+    "rfc": 5652,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and all 6 captured errata reviewed; source review only, no S/MIME implementation claim",
+    "title": "Cryptographic Message Syntax (CMS)",
+    "pub_date": "September 2009",
+    "current_status": "INTERNET STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5652.txt",
+        "sha256": "dbd209ae7844031f51722c4d9e2d1fa3fff3081319851d581f914f5f0147f918",
+        "bytes": 126813
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5652.json",
+        "sha256": "6b553bc33e6cb4d22ef9a5fa1b7674ee3bb696e216064fea9a11353402ee714a",
+        "bytes": 857
+      }
+    },
+    "updates": [],
+    "updated_by": [
+      "RFC8933",
+      "RFC9629"
+    ],
+    "obsoletes": [
+      "RFC3852"
+    ],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 5869,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 1 errata reviewed; live errata listing reconciled; no cryptographic execution or dependency-closure claim",
+    "title": "HMAC-based Extract-and-Expand Key Derivation Function (HKDF)",
+    "pub_date": "May 2010",
+    "current_status": "INFORMATIONAL",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5869.txt",
+        "sha256": "7a40eb3835b35fc947eb12a2ed614db079d43b26e50dbc537c31fba16397089c",
+        "bytes": 25854
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5869.json",
+        "sha256": "71bb0ebeb164b9f9ec583b21f8d72e3254822db3403eda7253a2e4d0e9e74bc3",
+        "bytes": 1073
+      }
+    }
+  },
+  {
+    "rfc": 5890,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 7 errata reviewed; live errata listing reconciled; no cryptographic execution or dependency-closure claim",
+    "title": "Internationalized Domain Names for Applications (IDNA): Definitions and Document Framework",
+    "pub_date": "August 2010",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC4343"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC3490"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5890.txt",
+        "sha256": "24d27002e26fedaec6c9f6479547e9d0855d952bc47d6ce1000851efd70b7430",
+        "bytes": 54245
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5890.json",
+        "sha256": "f7172a9ca2a17b82b69eee9a4ab8b865589d0d0da01a2b6c31e0716e2c109db1",
+        "bytes": 1085
+      }
+    }
+  },
+  {
+    "rfc": 5891,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 1 errata reviewed; live errata listing reconciled; no cryptographic execution or dependency-closure claim",
+    "title": "Internationalized Domain Names in Applications (IDNA): Protocol",
+    "pub_date": "August 2010",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC3492"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC3490",
+      "RFC3491"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5891.txt",
+        "sha256": "c9b898f6214c2241b25e4697d6b928ea805099bb136f0e92c48a531490672cda",
+        "bytes": 38105
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5891.json",
+        "sha256": "e91a93e5ac931ea88bd908873f9252737b162e781e2cb07387c0af86e8f84578",
+        "bytes": 1285
+      }
+    }
+  },
+  {
+    "rfc": 5892,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 1 errata reviewed; live errata listing reconciled; no IDNA implementation or property recalculation or dependency-closure claim",
+    "title": "The Unicode Code Points and Internationalized Domain Names for Applications (IDNA)",
+    "pub_date": "August 2010",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC8753"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5892.txt",
+        "sha256": "606dd3619e1d17b3625ef323ac44b0aad272712d067692185d1e417416b66c70",
+        "bytes": 187370
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5892.json",
+        "sha256": "977eb803506d67c8492725092c68aa90a376e63778f446634ecadd40dc307cb2",
+        "bytes": 1046
+      }
+    }
+  },
+  {
+    "rfc": 5893,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 0 errata reviewed; live errata listing reconciled; no IDNA implementation or property recalculation or dependency-closure claim",
+    "title": "Right-to-Left Scripts for Internationalized Domain Names for Applications (IDNA)",
+    "pub_date": "August 2010",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5893.txt",
+        "sha256": "d7daca034781d7f43c24f28c229aaba5aecbb76a68a6a59b70a5505adc23f42d",
+        "bytes": 38870
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5893.json",
+        "sha256": "2a06729f3b84fc90b93f87fc505a6bb484d4e70dc44d4c05ec5b74c20aaa96ee",
+        "bytes": 1045
+      }
+    }
+  },
+  {
+    "rfc": 6151,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 0 errata reviewed; live errata listing reconciled; no cryptographic execution or dependency-closure claim",
+    "title": "Updated Security Considerations for the MD5 Message-Digest and the HMAC-MD5 Algorithms",
+    "pub_date": "March 2011",
+    "current_status": "INFORMATIONAL",
+    "updates": [
+      "RFC1321",
+      "RFC2104"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6151.txt",
+        "sha256": "4e5599d99a0d335560c0a47a959e91469ee47d49edcd224aa2b7b0b0a6b8588d",
+        "bytes": 14662
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6151.json",
+        "sha256": "5aec96ea3373372090ba7ce7396235eda9123018781cd8846c648713dd2f4cdd",
+        "bytes": 978
+      }
+    }
+  },
+  {
+    "rfc": 6152,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and rejected erratum5646 reviewed; hop capability and protected conversion boundaries recorded",
+    "title": "SMTP Service Extension for 8-bit MIME Transport",
+    "pub_date": "March 2011",
+    "current_status": "INTERNET STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC1652"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6152.txt",
+        "sha256": "f3bb53c64929a09984fc2c34daaf3ea4d4e8e90e771decf3c2453ed6c9035ad7",
+        "bytes": 13034
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6152.json",
+        "sha256": "e64773f18e70c202c5fa26e82c2b62a4f42780c456c89138dd7152ffa8009cac",
+        "bytes": 892
+      }
+    }
+  },
+  {
+    "rfc": 6186,
+    "read": "Full text reviewed; no errata in retrieved dataset; updates8314 and8553 separately reviewed; broader dependencies open",
+    "title": "Use of SRV Records for Locating Email Submission/Access Services",
+    "pub_date": "March 2011",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC1939",
+      "RFC3501"
+    ],
+    "updated_by": [
+      "RFC8314",
+      "RFC8553"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6186.txt",
+        "sha256": "5aa0cbe29fa7106f5a41f37b5189cb1c259897f351dc4c304d82b031b297638c",
+        "bytes": 18895
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6186.json",
+        "sha256": "189052256553e7ebd9b3715b5a084aa4e001755ff4584b9c8a244dc647501b35",
+        "bytes": 792
+      }
+    }
+  },
+  {
+    "rfc": 6211,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base and both Reported errata reviewed; selected IANA OID conflict recorded; no implementation claim",
+    "title": "Cryptographic Message Syntax (CMS) Algorithm Identifier Protection Attribute",
+    "pub_date": "April 2011",
+    "current_status": "PROPOSED STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6211.txt",
+        "sha256": "d2c431d3529ce01a8bdea3706e88e39c130896dd8d845cfba3a06664c10e6afe",
+        "bytes": 22646
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6211.json",
+        "sha256": "889c2b0a31960ce3b98649bee11d0eb71ecf37577c7ae1dd6674e295407c2f98",
+        "bytes": 1407
+      }
+    },
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 6376,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and all23 errata reviewed; section dispositions recorded; registry and normative dependency closure open",
+    "title": "DomainKeys Identified Mail (DKIM) Signatures",
+    "pub_date": "September 2011",
+    "current_status": "INTERNET STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC8301",
+      "RFC8463",
+      "RFC8553",
+      "RFC8616"
+    ],
+    "obsoletes": [
+      "RFC4871",
+      "RFC5672"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6376.txt",
+        "sha256": "00ae1e26aa19e0b8a6087435a524d23e824e2c31ebd62544dd714923bf8553f0",
+        "bytes": 176999
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6376.json",
+        "sha256": "c05631133ff6601666e428ce31b156df7713fcdce45b31d65681df20d5135954",
+        "bytes": 1764
+      }
+    }
+  },
+  {
+    "rfc": 6409,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and Verified3995 with caveat reviewed; submission modification boundary specified; dependencies open",
+    "title": "Message Submission for Mail",
+    "pub_date": "November 2011",
+    "current_status": "INTERNET STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC8314"
+    ],
+    "obsoletes": [
+      "RFC4409"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6409.txt",
+        "sha256": "66ed4284fbd7bdc47aa1896f2898204111a09f83061cf02ebeb056961fb9cadf",
+        "bytes": 40153
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6409.json",
+        "sha256": "5984c386c681c4c6803d2ee52807a4df18f84e6b7d89f8492f8f15e44e812642",
+        "bytes": 1253
+      }
+    }
+  },
+  {
+    "rfc": 6452,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 0 errata reviewed; live errata listing reconciled; no IDNA implementation or property recalculation or dependency-closure claim",
+    "title": "The Unicode Code Points and Internationalized Domain Names for Applications (IDNA) - Unicode 6.0",
+    "pub_date": "November 2011",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6452.txt",
+        "sha256": "3ef89afc6f34f25b3d9c013a4c136f4a632b59aa05ad31e8a29322dc7cf47605",
+        "bytes": 6817
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6452.json",
+        "sha256": "da5247dd283fbb26626814f1681381c4ef00c070e26160c565f163c322804b5b",
+        "bytes": 1030
+      }
+    }
+  },
+  {
+    "rfc": 6522,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; no errata in retrieved dataset; DSN and internationalization dependencies open",
+    "title": "The Multipart/Report Media Type for the Reporting of Mail System Administrative Messages",
+    "pub_date": "January 2012",
+    "current_status": "INTERNET STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC6533"
+    ],
+    "obsoletes": [
+      "RFC3462"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6522.txt",
+        "sha256": "54f519e448093a7b045bea9e9074dfa89bbdf1593fcf7e39ea21ab3d6a03f27b",
+        "bytes": 15715
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6522.json",
+        "sha256": "74d0db7371dc335388aebf3887a358ca1fd6b2ad32cdf05bec32dc874a3760c6",
+        "bytes": 1295
+      }
+    }
+  },
+  {
+    "rfc": 6530,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; zero errata in refreshed dataset; dependency successors and closure open",
+    "title": "Overview and Framework for Internationalized Email",
+    "pub_date": "February 2012",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC4952",
+      "RFC5504",
+      "RFC5825"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6530.txt",
+        "sha256": "a755d85d9963e91c8cde3cfa471d1061c9734eb2dd750d95eb51cd30dc0231f6",
+        "bytes": 64371
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6530.json",
+        "sha256": "bd45a1ea721f576ec09d980a0e57d322a9744ce5f832c212d0b5fdb3c1634c42",
+        "bytes": 1472
+      }
+    }
+  },
+  {
+    "rfc": 6531,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and two errata reviewed; section dispositions recorded; non-exclusive registry association reconciled; DSN dependencies open",
+    "title": "SMTP Extension for Internationalized Email",
+    "pub_date": "February 2012",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC5336"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6531.txt",
+        "sha256": "4f48303f7b7659d0b3149730b51a03d59799a95b4d2ca7d913533f97b9db4b40",
+        "bytes": 40977
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6531.json",
+        "sha256": "f752a60c0519c8d2940a1ac7fb945125ce3459b2215efd4f4e518bd202f20672",
+        "bytes": 868
+      }
+    }
+  },
+  {
+    "rfc": 6532,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and two errata reviewed; section dispositions recorded; SMTPUTF8 and Unicode dependencies open",
+    "title": "Internationalized Email Headers",
+    "pub_date": "February 2012",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2045"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC5335"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6532.txt",
+        "sha256": "154317842bdd99e2030117a808d2d74039932d1c1c3d4b014cc865069066c6cb",
+        "bytes": 22725
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6532.json",
+        "sha256": "27c06362884b24504c11328906f3868109cca571062743056bd767cc260980d8",
+        "bytes": 1580
+      }
+    }
+  },
+  {
+    "rfc": 6533,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; no errata in retrieved dataset; grammar discrepancies and DSN/Unicode dependencies remain open",
+    "title": "Internationalized Delivery Status and Disposition Notifications",
+    "pub_date": "February 2012",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC3461",
+      "RFC3464",
+      "RFC3798",
+      "RFC6522"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC5337"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6533.txt",
+        "sha256": "9b852463bef94f202e9b53205212263c7fa5a932f40ee514f29f0c4ed27f7659",
+        "bytes": 37990
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6533.json",
+        "sha256": "37960501bbaf5ebbabaaa25d54c12f2efcd7ef78dacba372621aba2cc35cd5fc",
+        "bytes": 1407
+      }
+    }
+  },
+  {
+    "rfc": 6657,
+    "read": "Full text reviewed; zero errata in refreshed dataset; HTML/XML charset dependencies open",
+    "title": "Update to MIME regarding \"charset\" Parameter Handling in Textual Media Types",
+    "pub_date": "July 2012",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2046"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6657.txt",
+        "sha256": "34ac5be5f475756e14df79495d646a75f8b046c76422a7237e044728cbc5ca8d",
+        "bytes": 10111
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6657.json",
+        "sha256": "000cfc19f227509ebb0d78111ee3e495b4136ed76b9de84c25d0469e6c26ee33",
+        "bytes": 886
+      }
+    }
+  },
+  {
+    "rfc": 6749,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and all 31 captured errata reviewed; consolidated retained supplemental evidence, not new implementation conformance",
+    "title": "The OAuth 2.0 Authorization Framework",
+    "pub_date": "October 2012",
+    "current_status": "PROPOSED STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6749.txt",
+        "sha256": "f204fc8661d6c92d2ec6e0b54808f961a9ad26e792f57f312d9528335519bd71",
+        "bytes": 163498
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6749.json",
+        "sha256": "1af790e8bb080ae4c2a51b3a6efe226b92a35f542809616a68acd7812805b566",
+        "bytes": 1461
+      }
+    },
+    "updates": [],
+    "updated_by": [
+      "RFC8252",
+      "RFC8996",
+      "RFC9700"
+    ],
+    "obsoletes": [
+      "RFC5849"
+    ],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 6750,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and four Reported errata reviewed; RFC8996 and RFC9700 update reviews recorded; authorization dependencies and implementation coverage remain open",
+    "title": "The OAuth 2.0 Authorization Framework: Bearer Token Usage",
+    "pub_date": "October 2012",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC8996",
+      "RFC9700"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6750.txt",
+        "sha256": "9dc385cf4ecdd85024e5a95e447ede9230e11700bf35251906b25b37557d604b",
+        "bytes": 38949
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6750.json",
+        "sha256": "0640b58f5333246cd9791cc2312565d14480197c369919046797b8c109ab077d",
+        "bytes": 1491
+      }
+    }
+  },
+  {
+    "rfc": 6785,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text reviewed; no captured errata; IMAP storage side effects and draft exposure recorded; dependencies open",
+    "title": "Support for Internet Message Access Protocol (IMAP) Events in Sieve",
+    "pub_date": "November 2012",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5228"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6785.txt",
+        "sha256": "b72aadd08894ad52d5b964bfb4fb0b9f8b551f318cff15fa0237722e2fb338a6",
+        "bytes": 42644
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6785.json",
+        "sha256": "a28b4a6f2099797f62729c5392bb3f273b14f653202a7c41aa9acfc3f26358a5",
+        "bytes": 1223
+      }
+    }
+  },
+  {
+    "rfc": 6818,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "Updates to the Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile",
+    "pub_date": "January 2013",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5280"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6818.txt",
+        "sha256": "e6bb52bd92138bb36cfd01202f22153d98318c6f7e3e5b15171374aec67a829f",
+        "bytes": 17439
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6818.json",
+        "sha256": "1c9a9a7bc6b692be7821d07ff41def9757ceed9469b3a51ef6ccc4bb8c969166",
+        "bytes": 1168
+      }
+    }
+  },
+  {
+    "rfc": 6838,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text reviewed; no captured errata; RFC9694 update reviewed separately; dependency closure open",
+    "title": "Media Type Specifications and Registration Procedures",
+    "pub_date": "January 2013",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [],
+    "updated_by": [
+      "RFC9694"
+    ],
+    "obsoletes": [
+      "RFC4288"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6838.txt",
+        "sha256": "b08ccba7e5116e61085f2e1fe447d90eee785fb0efaa448a4b4ef6ea48b03b80",
+        "bytes": 72942
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6838.json",
+        "sha256": "2737667dc927a6aa58dd299adefa2d94d57a7c45944d1b373d7dbc247a2a1e9c",
+        "bytes": 858
+      }
+    }
+  },
+  {
+    "rfc": 6839,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and rejected4367 reviewed; current JSON suffix checked; XML update and dependencies separately scoped",
+    "title": "Additional Media Type Structured Syntax Suffixes",
+    "pub_date": "January 2013",
+    "current_status": "INFORMATIONAL",
+    "updates": [
+      "RFC3023"
+    ],
+    "updated_by": [
+      "RFC7303"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6839.txt",
+        "sha256": "f754a5e85371359a1b6609427ab9a759dc012af7f656a8741fdac4942abf8c13",
+        "bytes": 26071
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6839.json",
+        "sha256": "df0af40bb8cdba9f26bb6e81aa50fcc5177a89fd7d1c102add2e789bbad1e53c",
+        "bytes": 1368
+      }
+    }
+  },
+  {
+    "rfc": 6854,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and metadata reviewed; no errata in snapshot; section dispositions recorded; dependencies open",
+    "title": "Update to Internet Message Format to Allow Group Syntax in the \"From:\" and \"Sender:\" Header Fields",
+    "pub_date": "March 2013",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5322"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6854.txt",
+        "sha256": "9f3dee8d37209eabd4dea53b4458599df96fe01f4ed144b948f6bc57fcc3603c",
+        "bytes": 20190
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc6854.json",
+        "sha256": "db6407f30681dfff3417e9d2422081854f90519ae1a54810351208d0de8398f4",
+        "bytes": 966
+      }
+    }
+  },
+  {
+    "rfc": 7208,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and all17 errata reviewed; section dispositions recorded; normative dependencies and registry closure open",
+    "title": "Sender Policy Framework (SPF) for Authorizing Use of Domains in Email, Version 1",
+    "pub_date": "April 2014",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC7372",
+      "RFC8553",
+      "RFC8616"
+    ],
+    "obsoletes": [
+      "RFC4408"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7208.txt",
+        "sha256": "3cca3f2551f50d24a7b6423a7451d285df077863dab4bb261080ee87844f2d5b",
+        "bytes": 144189
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7208.json",
+        "sha256": "f014e64ac8dccc50d95bdb428068fdab22406b963eaa2da62ef386a585515453",
+        "bytes": 1274
+      }
+    }
+  },
+  {
+    "rfc": 7293,
+    "read": "Full text reviewed; no errata in retrieved dataset; removal wording discrepancy and dependencies open",
+    "title": "The Require-Recipient-Valid-Since Header Field and SMTP Service Extension",
+    "pub_date": "July 2014",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7293.txt",
+        "sha256": "b51b09678daf9b23cbf7f74f2eead08b708bc7d4bc9b9a194f56156c78c9ccdd",
+        "bytes": 54440
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7293.json",
+        "sha256": "600cc31cbf228f621faa8c596ff71c05e554f08dc81d80c6c7d3011a528d1472",
+        "bytes": 1458
+      }
+    }
+  },
+  {
+    "rfc": 7301,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and rejected5176 reviewed; selected8447 registry update reviewed; measured TLS wrapper behavior is not full ALPN conformance",
+    "title": "Transport Layer Security (TLS) Application-Layer Protocol Negotiation Extension",
+    "pub_date": "July 2014",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC8447"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7301.txt",
+        "sha256": "ba122aee58871c604c9e98e2c9f81d5042e4056bd497cd41e23ad80fe3123222",
+        "bytes": 17439
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7301.json",
+        "sha256": "d4fa200f5fd51a090d414ce4ca92fce346ef98592c6aef7343557541663fa3c4",
+        "bytes": 1054
+      }
+    }
+  },
+  {
+    "rfc": 7372,
+    "read": "Full text reviewed; no listed errata; IANA assignments checked; dependencies open",
+    "title": "Email Authentication Status Codes",
+    "pub_date": "September 2014",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC7208"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7372.txt",
+        "sha256": "40261ff2845448349a168b4bb9b9bc1520ffa28240bc5c7222f8c261686774cd",
+        "bytes": 14224
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7372.json",
+        "sha256": "1b0797c428d307a5b8763cb4346b6a65254b8484d708eda45249ad7b360b7e97",
+        "bytes": 924
+      }
+    }
+  },
+  {
+    "rfc": 7405,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and captured errata reviewed; grammar notation dependency; implementation and recursive applicability remain separate",
+    "title": "Case-Sensitive String Support in ABNF",
+    "pub_date": "December 2014",
+    "current_status": "PROPOSED STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7405.txt",
+        "sha256": "f85c88bcf8ca8035585b39f518adfe274bb095801c95ef665b49a27b61245f17",
+        "bytes": 6668
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7405.json",
+        "sha256": "223e67dfd9a9ff2e40765bd76039bf95daa6ab327d61f95de63800cfb7e67f57",
+        "bytes": 816
+      }
+    },
+    "updates": [
+      "RFC5234"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 7489,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete historical base text and 20 captured errata reviewed; successors govern current processing; live status and dependencies open",
+    "title": "Domain-based Message Authentication, Reporting, and Conformance (DMARC)",
+    "pub_date": "March 2015",
+    "current_status": "INFORMATIONAL",
+    "updates": [],
+    "updated_by": [
+      "RFC8553",
+      "RFC8616"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [
+      "RFC9989",
+      "RFC9990",
+      "RFC9991"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7489.txt",
+        "sha256": "1ac7c343cb45cad1b597a0fee05b66c80adcd0e55a2312df8c300762456d9a1b",
+        "bytes": 162707
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7489.json",
+        "sha256": "b412e0683eb93e6d0ab335db6f0c51815dd81f448fd6b0c8d2b5b5d3e71deb25",
+        "bytes": 1940
+      }
+    }
+  },
+  {
+    "rfc": 7504,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and metadata reviewed; no errata in snapshot; section dispositions recorded; dependencies open",
+    "title": "SMTP 521 and 556 Reply Codes",
+    "pub_date": "June 2015",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC1846",
+      "RFC5321"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7504.txt",
+        "sha256": "cc0f7c0774a7b3fb956ee38a314f56f415e6920856850190f15aa15df910ccc6",
+        "bytes": 13936
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7504.json",
+        "sha256": "0ec50ea0d6f1176db6905563b3a25618df11b8dc17a328cb2129a2963d38317c",
+        "bytes": 1204
+      }
+    }
+  },
+  {
+    "rfc": 7505,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "title": "A \"Null MX\" No Service Resource Record for Domains That Accept No Mail",
+    "pub_date": "June 2015",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "read": "Full text and metadata reviewed; no errata in snapshot; section dispositions recorded; dependencies open",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7505.txt",
+        "sha256": "c746618ea6f26fab7828075696be275d42f4aa134a3e9853cbc6f7ed4d859eb9",
+        "bytes": 12534
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7505.json",
+        "sha256": "f09454871abb6460db9ebe7cf04a33c1a6a187cf28a296a77a3c4f784a65da34",
+        "bytes": 1165
+      }
+    }
+  },
+  {
+    "rfc": 7578,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and all four current errata reviewed; one Verified and three Reported; recursive dependencies and interoperability open",
+    "title": "Returning Values from Forms: multipart/form-data",
+    "pub_date": "July 2015",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC2388"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7578.txt",
+        "sha256": "813277f91c6c65c9047da9e9a8f1f0c19c1fb4bb1aaeea944bcf3bbdcc2eef49",
+        "bytes": 30240
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7578.json",
+        "sha256": "978f91489235e01fe6f342e7a25855fa39393ca55716e919061886de91320c8b",
+        "bytes": 1005
+      }
+    }
+  },
+  {
+    "rfc": 7636,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and all 5 captured errata reviewed; consolidated retained supplemental evidence, not new implementation conformance",
+    "title": "Proof Key for Code Exchange by OAuth Public Clients",
+    "pub_date": "September 2015",
+    "current_status": "PROPOSED STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7636.txt",
+        "sha256": "1972e5d81cbaba7066cfd46374207bc2b4546b085ed5dd9b034e79e023e0ca31",
+        "bytes": 39482
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7636.json",
+        "sha256": "cd4251492d72e573b4072d0d1841a47f6768092ab9ef4d478e4cd5fda65ce457",
+        "bytes": 1184
+      }
+    },
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 7672,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and two errata reviewed; live metadata freshness and dependency closure pending",
+    "title": "SMTP Security via Opportunistic DNS-Based Authentication of Named Entities (DANE) Transport Layer Security (TLS)",
+    "pub_date": "October 2015",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7672.txt",
+        "sha256": "f42a3a4e0eada0c82195659c8e8b691d9e82bd51399009ed7ce1c173d8163ce7",
+        "bytes": 87943
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7672.json",
+        "sha256": "6f73281a1c6963a27bd641c1aa026417ee2a7d630c1239de4d20db99577f4fd4",
+        "bytes": 1102
+      }
+    }
+  },
+  {
+    "rfc": 7748,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 9 errata reviewed; live errata listing reconciled; no cryptographic execution or dependency-closure claim",
+    "title": "Elliptic Curves for Security",
+    "pub_date": "January 2016",
+    "current_status": "INFORMATIONAL",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7748.txt",
+        "sha256": "279ca0ecc5e92e2962e27b846986aeb74729d9dd34bd4a04a362f80dcb596ad3",
+        "bytes": 39298
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7748.json",
+        "sha256": "530dd9936682ff91683103476dea6afa9a029f97dd665428b28a2c25f696ab1d",
+        "bytes": 990
+      }
+    }
+  },
+  {
+    "rfc": 7817,
+    "read": "Full text reviewed; no errata in retrieved dataset; certificate and discovery dependencies open",
+    "title": "Updated Transport Layer Security (TLS) Server Identity Check Procedure for Email-Related Protocols",
+    "pub_date": "March 2016",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC2595",
+      "RFC3207",
+      "RFC3501",
+      "RFC5804"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7817.txt",
+        "sha256": "658ca5af0ef7fd952308032ce1d8d9fb10c50cd7c34f40fffff33f02279e603e",
+        "bytes": 29855
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc7817.json",
+        "sha256": "e917e15ebe799096a6cead05bf7aa8c370b15cb346f7ff37845158c958130fe2",
+        "bytes": 1154
+      }
+    }
+  },
+  {
+    "rfc": 8032,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 11 errata reviewed; live errata listing reconciled; no cryptographic execution or dependency-closure claim",
+    "title": "Edwards-Curve Digital Signature Algorithm (EdDSA)",
+    "pub_date": "January 2017",
+    "current_status": "INFORMATIONAL",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8032.txt",
+        "sha256": "ed63657ff389301282b169b0abde9b5dd2c7e4d524fdfa5da6ff3094fc93c4c3",
+        "bytes": 103210
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8032.json",
+        "sha256": "9e2673f051b554b22da6339851b56934b0a07a1b137ef14ba6d414a92c60e7bf",
+        "bytes": 917
+      }
+    }
+  },
+  {
+    "rfc": 8058,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and four errata reviewed; DKIM, list and HTTP dependencies open",
+    "title": "Signaling One-Click Functionality for List Email Headers",
+    "pub_date": "January 2017",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8058.txt",
+        "sha256": "94f4529f3545fd0d6e7faac0f57d59ab7933b8fdf6e700017114c783b526c68f",
+        "bytes": 18219
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8058.json",
+        "sha256": "0ecfdaf164ef195236c229f677f608984734f3b2e9dec809953deff1fd00c3d5",
+        "bytes": 981
+      }
+    }
+  },
+  {
+    "rfc": 8098,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and all sections reviewed; no errata in retrieved dataset; dependencies and implementation validation pending",
+    "title": "Message Disposition Notification",
+    "pub_date": "March 2017",
+    "current_status": "INTERNET STANDARD",
+    "updates": [
+      "RFC2046",
+      "RFC3461"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC3798"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8098.txt",
+        "sha256": "3cf52c2a77826e0ee3dd5a2d57b9d069d2f5b5a46f480f6c46e1d1c1066cea33",
+        "bytes": 80493
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8098.json",
+        "sha256": "1b7253116a97f025a3b3fbc34b092e145ab335cb703b898e50ed2b5008346361",
+        "bytes": 2185
+      }
+    }
+  },
+  {
+    "rfc": 8126,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and2errata reviewed; live listing reconciled; RFC9907 selected update scope reviewed; no YANG module selected; no allocation or process-closure claim",
+    "title": "Guidelines for Writing an IANA Considerations Section in RFCs",
+    "pub_date": "June 2017",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [],
+    "updated_by": [
+      "RFC9907"
+    ],
+    "obsoletes": [
+      "RFC5226"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8126.txt",
+        "sha256": "b8b5cc1e61e78352b5a12c4a92fa0573b3400d49522a448913455a478dd87401",
+        "bytes": 109907
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8126.json",
+        "sha256": "0f52d97924083ab3d9e1973cb381399f29a0b031032ab211ba4b0cb8df4f7457",
+        "bytes": 1776
+      }
+    }
+  },
+  {
+    "rfc": 8174,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and captured errata reviewed; requirement vocabulary adopted; live errata freshness remains open",
+    "title": "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words",
+    "pub_date": "May 2017",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [
+      "RFC2119"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8174.txt",
+        "sha256": "5ca0e2f90be0bc5928ee465f76518fee316dfa775aed885658a29a419cc293b7",
+        "bytes": 6071
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8174.json",
+        "sha256": "b42c01b1f5b9e1dcb208796915f026bd2f7758e948b83ca9ea86e60cdbfe43b8",
+        "bytes": 838
+      }
+    }
+  },
+  {
+    "rfc": 8252,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and all 2 captured errata reviewed; consolidated retained supplemental evidence, not new implementation conformance",
+    "title": "OAuth 2.0 for Native Apps",
+    "pub_date": "October 2017",
+    "current_status": "BEST CURRENT PRACTICE",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8252.txt",
+        "sha256": "4233c0650ec7e7918c20e0fde2dc565f85e2aa2d4c18123e3cd834295c2f68d0",
+        "bytes": 49680
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8252.json",
+        "sha256": "4bad2a56b486289bab4f941cb5f0c126afb711bcbfb2de3e57c7868fc69e58ba",
+        "bytes": 912
+      }
+    },
+    "updates": [
+      "RFC6749"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 8259,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 16 captured errata reviewed; explicit solidus compatibility decision; dependencies open",
+    "title": "The JavaScript Object Notation (JSON) Data Interchange Format",
+    "pub_date": "December 2017",
+    "current_status": "INTERNET STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC7159"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8259.txt",
+        "sha256": "61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7",
+        "bytes": 28360
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8259.json",
+        "sha256": "5de136e66c519d883f0fc66947ba25e88a6b11c54770429bf287b0ac5782c724",
+        "bytes": 1074
+      }
+    }
+  },
+  {
+    "rfc": 8301,
+    "read": "Full text reviewed; no listed errata; base DKIM and crypto dependencies open",
+    "title": "Cryptographic Algorithm and Key Usage Update to DomainKeys Identified Mail (DKIM)",
+    "pub_date": "January 2018",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC6376"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8301.txt",
+        "sha256": "49bb1d62ad5f51ff444bc93e33dd58a9a64834c3a1bdf378d5e8733319c211f8",
+        "bytes": 10075
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8301.json",
+        "sha256": "c5a6c433411cd92db5c90d4cc585e4343be73937c2a1d0ea36264a5c430d1bf6",
+        "bytes": 947
+      }
+    }
+  },
+  {
+    "rfc": 8314,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and reported erratum5326 reviewed;8997 applied; general TLS dependencies open",
+    "title": "Cleartext Considered Obsolete: Use of Transport Layer Security (TLS) for Email Submission and Access",
+    "pub_date": "January 2018",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC1939",
+      "RFC2595",
+      "RFC3501",
+      "RFC5068",
+      "RFC6186",
+      "RFC6409"
+    ],
+    "updated_by": [
+      "RFC8997"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8314.txt",
+        "sha256": "d626efa01a2176206b81742b77ca8f0d61e4a669f9ae7798e7ae556afc65aae6",
+        "bytes": 62605
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8314.json",
+        "sha256": "aea8b90c74e5bb8e23ef706c9488bea390048ab5978bc99023b0f1cf39d198f1",
+        "bytes": 1175
+      }
+    }
+  },
+  {
+    "rfc": 8460,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and five captured errata reviewed; registry gap and example discrepancies recorded; dependencies open",
+    "title": "SMTP TLS Reporting",
+    "pub_date": "September 2018",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8460.txt",
+        "sha256": "ee9bd333ca729ebeff46432d26e52e11d87f57d035028f0cf349fa1559fbaae3",
+        "bytes": 67126
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8460.json",
+        "sha256": "e47557870aa10ba348282815744cebaeb2c7964fa5256a9a33fbba63fa1d62be",
+        "bytes": 1363
+      }
+    }
+  },
+  {
+    "rfc": 8461,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and four reported errata reviewed; live freshness and dependency closure pending",
+    "title": "SMTP MTA Strict Transport Security (MTA-STS)",
+    "pub_date": "September 2018",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8461.txt",
+        "sha256": "31296488efa6ce89fb3a8a26a17ffe3b75f9379acc709aa5f82af6c9ae71283e",
+        "bytes": 59461
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8461.json",
+        "sha256": "4b0f4d0424a301b068447b86227e2ff27f66aebe17a8f92393f1ce670fcd2da9",
+        "bytes": 1035
+      }
+    }
+  },
+  {
+    "rfc": 8463,
+    "read": "Full text and rejected7930 reviewed; fixed Ed25519 vector reproduced; base DKIM dependencies open",
+    "title": "A New Cryptographic Signature Method for DomainKeys Identified Mail (DKIM)",
+    "pub_date": "September 2018",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC6376"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8463.txt",
+        "sha256": "0075de8a5f839be6df2db4588922ca3781ad2c43b1d5a9d9eca2f0443981c36b",
+        "bytes": 14152
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8463.json",
+        "sha256": "0709958cc1deb0312c110e3f11a677a4704579b410f7653be46d3f7802731262",
+        "bytes": 864
+      }
+    }
+  },
+  {
+    "rfc": 8550,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and all 0 captured errata reviewed; source review only, no S/MIME implementation claim",
+    "title": "Secure/Multipurpose Internet Mail Extensions (S/MIME) Version 4.0 Certificate Handling",
+    "pub_date": "May 2019",
+    "current_status": "PROPOSED STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8550.txt",
+        "sha256": "adf5aa630e6fd10f75de524e4af249302548a68d6cb7254bf3bfb99b544d6c7a",
+        "bytes": 63210
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8550.json",
+        "sha256": "ecff623e3d8e3b69e60b8a3f113b3247aec74add57537aef9df7585ede3c81bc",
+        "bytes": 1266
+      }
+    },
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC5750"
+    ],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 8551,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text reviewed; RFC9788 update reconciled; no captured errata, live refresh unavailable; dependencies open",
+    "title": "Secure/Multipurpose Internet Mail Extensions (S/MIME) Version 4.0 Message Specification",
+    "pub_date": "May 2019",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC9788"
+    ],
+    "obsoletes": [
+      "RFC5751"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8551.txt",
+        "sha256": "dac39f749a08d3422bd78d4e492195067e7bc03f5fc2d0dac515f0d7ed884ae2",
+        "bytes": 136849
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8551.json",
+        "sha256": "7cec2d8c86b4e4023dc566ca25d83d58b30e0e4b0cb5301585626a9e408f1ba9",
+        "bytes": 1091
+      }
+    }
+  },
+  {
+    "rfc": 8552,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and nine captured errata reviewed; live registry, errata freshness and applicable dependencies remain open",
+    "title": "Scoped Interpretation of DNS Resource Records through \"Underscored\" Naming of Attribute Leaves",
+    "pub_date": "March 2019",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8552.txt",
+        "sha256": "6ce80b1954ecf86a399e93a76ee894224bb057b2fbd9ce8e1f287c9bd954aecd",
+        "bytes": 35306
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8552.json",
+        "sha256": "5ff757ba666710ca27d2cb908227e975dc94fbba2cc542c6c24a639f5b36b978",
+        "bytes": 1559
+      }
+    }
+  },
+  {
+    "rfc": 8553,
+    "read": "Full text reviewed; zero retrieved errata; RFC8552 separately reviewed; live registry reconciliation open",
+    "title": "DNS Attrleaf Changes: Fixing Specifications That Use Underscored Node Names",
+    "pub_date": "March 2019",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [
+      "RFC2782",
+      "RFC3263",
+      "RFC3529",
+      "RFC3620",
+      "RFC3832",
+      "RFC3887",
+      "RFC3958",
+      "RFC4120",
+      "RFC4227",
+      "RFC4386",
+      "RFC4387",
+      "RFC4976",
+      "RFC5026",
+      "RFC5328",
+      "RFC5389",
+      "RFC5415",
+      "RFC5518",
+      "RFC5555",
+      "RFC5617",
+      "RFC5679",
+      "RFC5766",
+      "RFC5780",
+      "RFC5804",
+      "RFC5864",
+      "RFC5928",
+      "RFC6120",
+      "RFC6186",
+      "RFC6376",
+      "RFC6733",
+      "RFC6763",
+      "RFC7208",
+      "RFC7489",
+      "RFC8145"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8553.txt",
+        "sha256": "bd2397e9b08ebc0177971d8623c327190835c7e3625caa7575afe234bcadbf13",
+        "bytes": 33458
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8553.json",
+        "sha256": "550d5acbcd406f632ca6a735f496c8b56f880ee48a11e6dfb4029f6759246d18",
+        "bytes": 1865
+      }
+    }
+  },
+  {
+    "rfc": 8601,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and three reported errata reviewed; section dispositions recorded; registry and method dependencies open",
+    "title": "Message Header Field for Indicating Message Authentication Status",
+    "pub_date": "May 2019",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC7601"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8601.txt",
+        "sha256": "5b4508b7c948c1a296ef2e010a2d65f55635adb8a667f70420c4f479265586fb",
+        "bytes": 122384
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8601.json",
+        "sha256": "d8d8390acfbc3c5fb26ae4fc950676eef1b5e37ebc64a14c8fa52dc92ad48ea6",
+        "bytes": 1184
+      }
+    }
+  },
+  {
+    "rfc": 8616,
+    "read": "Full text reviewed; no listed errata; IDNA and authentication dependencies open",
+    "title": "Email Authentication for Internationalized Mail",
+    "pub_date": "July 2019",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC6376",
+      "RFC7208",
+      "RFC7489"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8616.txt",
+        "sha256": "fa9b3e0420940b22e34e449b9810949975e44536cbc4fbac997ded5b16cc1645",
+        "bytes": 14338
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8616.json",
+        "sha256": "89e8d27ccc9f99097a419daffd908240b1ce4fd728feb5bb59d00df144271c97",
+        "bytes": 1176
+      }
+    }
+  },
+  {
+    "rfc": 8617,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and two reported errata reviewed; dependency closure pending",
+    "title": "The Authenticated Received Chain (ARC) Protocol",
+    "pub_date": "July 2019",
+    "current_status": "EXPERIMENTAL",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8617.txt",
+        "sha256": "8eca988e695d12350ce1f5bf79c6ebf62037a26832a9c95c39d89b8779e43304",
+        "bytes": 70573
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8617.json",
+        "sha256": "1f47e0363c2c29458dfaca58b95907551ba21e1aee207a24f3b10b1be109ff22",
+        "bytes": 1709
+      }
+    }
+  },
+  {
+    "rfc": 8620,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and captured errata reviewed; update integration and dependency closure pending",
+    "title": "The JSON Meta Application Protocol (JMAP)",
+    "pub_date": "July 2019",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC9404",
+      "RFC9670"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8620.txt",
+        "sha256": "2faef52947b75a4a624154ae6bde930688c1a2f122f05925273c7d8a9a85cd25",
+        "bytes": 180653
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8620.json",
+        "sha256": "a4c91afc70ca608f5b53f86903c2399652ae87ae56141bbd0548a608872589ed",
+        "bytes": 889
+      }
+    }
+  },
+  {
+    "rfc": 8621,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text reviewed; no captured errata; dependency and live registry closure pending",
+    "title": "The JSON Meta Application Protocol (JMAP) for Mail",
+    "pub_date": "August 2019",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5788"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8621.txt",
+        "sha256": "2d805f15d6cc3ac4d90dbdce69c81591deadfc35d2e2927f89fb45db0efecc31",
+        "bytes": 201263
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8621.json",
+        "sha256": "f1d4769c11af28d68061cb0f95e9d1805100dea3a680282966a221c503647b2e",
+        "bytes": 964
+      }
+    }
+  },
+  {
+    "rfc": 8689,
+    "read": "Full text and two errata reviewed; DANE name-check issue and transport dependencies open",
+    "title": "SMTP Require TLS Option",
+    "pub_date": "November 2019",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8689.txt",
+        "sha256": "391d0bc5e980932b7539dd00cb538c7fc00a37935aebdce7c74df98f44d66598",
+        "bytes": 33793
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8689.json",
+        "sha256": "922ddb59cede6b4015b9727a754d21c1696f2d152919af6b48dbdc813aaad455",
+        "bytes": 1427
+      }
+    }
+  },
+  {
+    "rfc": 8753,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 0 errata reviewed; live errata listing reconciled; no IDNA implementation or property recalculation or dependency-closure claim",
+    "title": "Internationalized Domain Names for Applications (IDNA) Review for New Unicode Versions",
+    "pub_date": "April 2020",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5892"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8753.txt",
+        "sha256": "0a84789569881678418a507a3952379d7c60f2cfc9fc0e40d2d958e983a6ecc4",
+        "bytes": 35980
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8753.json",
+        "sha256": "ae030fb60750b229648d532e07b12b5f9630b4c531d257128c603e6281e6fa83",
+        "bytes": 1546
+      }
+    }
+  },
+  {
+    "rfc": 8820,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 0 listed errata reviewed; implementation and dependency closure remain separate",
+    "title": "URI Design and Ownership",
+    "pub_date": "June 2020",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [
+      "RFC3986"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC7320"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8820.txt",
+        "sha256": "d4872896c3beae79143cc5f3c085c6992e6c6f9427a94f6295dce2bc4746a12c",
+        "bytes": 18232
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8820.json",
+        "sha256": "c1b8f931f2a4fbd1a6f8ed96068e52ca65755c7b745680e4db1134ec92226c69",
+        "bytes": 1241
+      }
+    }
+  },
+  {
+    "rfc": 8933,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and all 0 captured errata reviewed; source review only, no S/MIME implementation claim",
+    "title": "Update to the Cryptographic Message Syntax (CMS) for Algorithm Identifier Protection",
+    "pub_date": "October 2020",
+    "current_status": "PROPOSED STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8933.txt",
+        "sha256": "a237cf9e82e013506fd1cd7b8938374acd106376eda9e174ca26691da44fb68e",
+        "bytes": 17671
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8933.json",
+        "sha256": "3f76b2c9e91a56c101de21e3307e4579445dd73b558e5741b60bd83ef8e91760",
+        "bytes": 949
+      }
+    },
+    "updates": [
+      "RFC5652"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 8996,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text and three errata reviewed; current TLS configuration and authorization dependencies pending",
+    "title": "Deprecating TLS 1.0 and TLS 1.1",
+    "pub_date": "March 2021",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [
+      "RFC3261",
+      "RFC3329",
+      "RFC3436",
+      "RFC3470",
+      "RFC3501",
+      "RFC3552",
+      "RFC3568",
+      "RFC3656",
+      "RFC3749",
+      "RFC3767",
+      "RFC3856",
+      "RFC3871",
+      "RFC3887",
+      "RFC3903",
+      "RFC3943",
+      "RFC3983",
+      "RFC4097",
+      "RFC4111",
+      "RFC4162",
+      "RFC4168",
+      "RFC4217",
+      "RFC4235",
+      "RFC4261",
+      "RFC4279",
+      "RFC4497",
+      "RFC4513",
+      "RFC4531",
+      "RFC4540",
+      "RFC4582",
+      "RFC4616",
+      "RFC4642",
+      "RFC4680",
+      "RFC4681",
+      "RFC4712",
+      "RFC4732",
+      "RFC4743",
+      "RFC4744",
+      "RFC4785",
+      "RFC4791",
+      "RFC4823",
+      "RFC4851",
+      "RFC4964",
+      "RFC4975",
+      "RFC4976",
+      "RFC4992",
+      "RFC5018",
+      "RFC5019",
+      "RFC5023",
+      "RFC5024",
+      "RFC5049",
+      "RFC5054",
+      "RFC5091",
+      "RFC5158",
+      "RFC5216",
+      "RFC5238",
+      "RFC5263",
+      "RFC5281",
+      "RFC5364",
+      "RFC5415",
+      "RFC5422",
+      "RFC5456",
+      "RFC5734",
+      "RFC5878",
+      "RFC5953",
+      "RFC6012",
+      "RFC6042",
+      "RFC6083",
+      "RFC6084",
+      "RFC6176",
+      "RFC6347",
+      "RFC6353",
+      "RFC6367",
+      "RFC6460",
+      "RFC6614",
+      "RFC6739",
+      "RFC6749",
+      "RFC6750",
+      "RFC7030",
+      "RFC7465",
+      "RFC7525",
+      "RFC7562",
+      "RFC7568",
+      "RFC8261",
+      "RFC8422"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC5469",
+      "RFC7507"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8996.txt",
+        "sha256": "a8250792df7fc533328f2021dbdcce847bbdfbc703de89a93e18ce165d4b8d14",
+        "bytes": 49676
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8996.json",
+        "sha256": "6f05d2db51940511912572dd6f9f442df655db99926255aa294498a9c1c6025d",
+        "bytes": 3109
+      }
+    }
+  },
+  {
+    "rfc": 8997,
+    "read": "Full text and seven replacements reviewed; no errata in retrieved dataset; TLS dependencies open",
+    "title": "Deprecation of TLS 1.1 for Email Submission and Access",
+    "pub_date": "March 2021",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC8314"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8997.txt",
+        "sha256": "4df431191472fbf96d94a8bc1196c6ed9b5e2f3b4cf06741cdeeaf13f264ed88",
+        "bytes": 9068
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc8997.json",
+        "sha256": "270c0a96b05d7453e6f555361da48546ba4d91f659b99668377b989ecb94637e",
+        "bytes": 887
+      }
+    }
+  },
+  {
+    "rfc": 9042,
+    "read": "Complete base text reviewed; no captured errata; stable routing and name fallback distinguished from control confidentiality; dependencies open",
+    "title": "Sieve Email Filtering: Delivery by MAILBOXID",
+    "pub_date": "July 2021",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5228"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9042.txt",
+        "sha256": "58dd06fb9e66dbec61a4449156c1ebe37ec7eec9df323bddf622da4abcc7450d",
+        "bytes": 13035
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9042.json",
+        "sha256": "990e008ea54a4e951d6b7039aa60387cb3f21e0b8229c061c48357598b5585b3",
+        "bytes": 968
+      }
+    }
+  },
+  {
+    "rfc": 9051,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and nine captured errata reviewed; source inconsistencies recorded; live status and dependencies open",
+    "title": "Internet Message Access Protocol (IMAP) - Version 4rev2",
+    "pub_date": "August 2021",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC3501"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9051.txt",
+        "sha256": "acf52a50eb748ea21b5ffdcb31c761d3fbba6242d53d4f53c2555de039c5c3cf",
+        "bytes": 367391
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9051.json",
+        "sha256": "994eeb60b5467ce83a10d585f97fd126be9cdde2a8ed11b666d655121167ae9b",
+        "bytes": 1662
+      }
+    }
+  },
+  {
+    "rfc": 9078,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text reviewed; zero errata in refreshed dataset; Unicode and disposition registry dependencies open",
+    "title": "Reaction: Indicating Summary Reaction to a Message",
+    "pub_date": "August 2021",
+    "current_status": "EXPERIMENTAL",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9078.txt",
+        "sha256": "f10570e2d61928812675d865f301ddc18a7c5040480b6e36482a39f71cf5f052",
+        "bytes": 18550
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9078.json",
+        "sha256": "4b3a4c1c36f04c037b86648323c61d8230073abf2a399aa4b188b820fb61501c",
+        "bytes": 1000
+      }
+    }
+  },
+  {
+    "rfc": 9110,
+    "read": "Complete base text and all 14 captured errata reviewed; dependency closure and implementation remain open",
+    "title": "HTTP Semantics",
+    "pub_date": "June 2022",
+    "current_status": "INTERNET STANDARD",
+    "updates": [
+      "RFC3864"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC2818",
+      "RFC7230",
+      "RFC7231",
+      "RFC7232",
+      "RFC7233",
+      "RFC7235",
+      "RFC7538",
+      "RFC7615",
+      "RFC7694"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9110.txt",
+        "sha256": "21c1cdce6ab0e5509b04d84a28000836c7a087cf786efe6f04877ebfff47232a",
+        "bytes": 502941
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9110.json",
+        "sha256": "368552906b5d265d745c562519756faee3a78957a58816548d98d4fba48fad08",
+        "bytes": 1479
+      }
+    }
+  },
+  {
+    "rfc": 9180,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete captured base text and eight captured errata reviewed; Appendix A vectors not executed; live errata freshness and implementation validation open",
+    "title": "Hybrid Public Key Encryption",
+    "pub_date": "February 2022",
+    "current_status": "INFORMATIONAL",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9180.txt",
+        "sha256": "f45a8b7c30231b26d668b1e8168074e5ab514b174d656b67e859895117f1f8f6",
+        "bytes": 192749
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9180.json",
+        "sha256": "83f16f4774390a8fc97291178c95cd18c72c5b67b8411a9265853caf2bf0b798",
+        "bytes": 1628
+      }
+    }
+  },
+  {
+    "rfc": 9207,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and all 0 captured errata reviewed; consolidated retained supplemental evidence, not new implementation conformance",
+    "title": "OAuth 2.0 Authorization Server Issuer Identification",
+    "pub_date": "March 2022",
+    "current_status": "PROPOSED STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9207.txt",
+        "sha256": "c9c17b9824315aca9bda5c0b5e3627cb24aa28d54324292f3761006209b705fd",
+        "bytes": 20488
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9207.json",
+        "sha256": "65a53c278a068463d69a6ca04a640aa5038ad583abf5d2309df201b9c02bb6ba",
+        "bytes": 932
+      }
+    },
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 9233,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and 0 errata reviewed; live errata listing reconciled; no IDNA implementation or property recalculation or dependency-closure claim",
+    "title": "Internationalized Domain Names for Applications 2008 (IDNA2008) and Unicode 12.0.0",
+    "pub_date": "April 2022",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9233.txt",
+        "sha256": "cf3f2a3d2aefb37acff9434cdc3b1ca9317d7dc3d8867a821e656b9ce11063e1",
+        "bytes": 70045
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9233.json",
+        "sha256": "e6cd8337d8b5f2675299d07476810d9f4321b2b79b03c5002a3994ec6c5eb657",
+        "bytes": 1353
+      }
+    }
+  },
+  {
+    "rfc": 9325,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text reviewed; no captured errata, live check unavailable; RFC9852 and RFC10015 update reviews recorded; configuration dependencies remain open",
+    "title": "Recommendations for Secure Use of Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS)",
+    "pub_date": "November 2022",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [
+      "RFC5288",
+      "RFC6066"
+    ],
+    "updated_by": [
+      "RFC9852",
+      "RFC10015"
+    ],
+    "obsoletes": [
+      "RFC7525"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9325.txt",
+        "sha256": "e3475381d056bde1eed65252954cce68250168454387f6799b38660806f215bc",
+        "bytes": 96608
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9325.json",
+        "sha256": "a6e02e623e0703a54c2596b22cfb45d13487d3975901d216afb58629c470801e",
+        "bytes": 1714
+      }
+    }
+  },
+  {
+    "rfc": 9404,
+    "read": "Complete base text reviewed; no captured errata; ranged digest examples reproduced and source inconsistencies recorded; dependencies open",
+    "title": "JSON Meta Application Protocol (JMAP) Blob Management Extension",
+    "pub_date": "August 2023",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC8620"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9404.txt",
+        "sha256": "a6bd3c4bc32ef0bea114246ef33bee6ae12458ad3b7f763d22e437ff7ffcd5bb",
+        "bytes": 36156
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9404.json",
+        "sha256": "2ba58c1f689c0a60fd7dc02dc919f895292bb2bf7f6b482cb1e1f9fa559deab1",
+        "bytes": 1089
+      }
+    }
+  },
+  {
+    "rfc": 9420,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and all5 captured errata reviewed; section dispositions recorded; application binding, dependencies and implementation verification open",
+    "title": "The Messaging Layer Security (MLS) Protocol",
+    "pub_date": "July 2023",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9420.txt",
+        "sha256": "251ab11076c43fd4b8dc080a068a8caaf55e2fc5e6aa61d4274961627f32624b",
+        "bytes": 299103
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9420.json",
+        "sha256": "7b6ea69d39144c5dda5158e8847aed3b9ae4c0578c0323f6f0bbe0151fa5ae0f",
+        "bytes": 1329
+      }
+    }
+  },
+  {
+    "rfc": 9525,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "Service Identity in TLS",
+    "pub_date": "November 2023",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC6125"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9525.txt",
+        "sha256": "ed8116c2435376dffe37ec2ca688c3a8515e36820852b29e0b6cdfbe92abd2c5",
+        "bytes": 69260
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9525.json",
+        "sha256": "bd81d2f6f8b5434602c4a8f2b48b667485d44e94b7fe04ec0372348533f46baa",
+        "bytes": 986
+      }
+    }
+  },
+  {
+    "rfc": 9549,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "Internationalization Updates to RFC 5280",
+    "pub_date": "March 2024",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5280"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC8399"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9549.txt",
+        "sha256": "28c505895b36bda33264cb7d12ea81a2c9fc8821982ca329f6a8c51e3d4bc0f4",
+        "bytes": 21733
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9549.json",
+        "sha256": "be5ea317877b745b8d3bfed5a0ea54bb27af7b89722883a202d9cf8c423f24dc",
+        "bytes": 1129
+      }
+    }
+  },
+  {
+    "rfc": 9580,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and all nine captured errata reviewed; live errata freshness, dependencies and implementation remain open",
+    "title": "OpenPGP",
+    "pub_date": "July 2024",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC4880",
+      "RFC5581",
+      "RFC6637"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9580.txt",
+        "sha256": "36540e57b63d24c0b17be0748b704bdeed3d643ce99a4fb1abb6469c1eb1ff18",
+        "bytes": 404977
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9580.json",
+        "sha256": "674cb83492e04f84d7d9c65793f8b34625923eab346201ab0eb1b665ea6ae0ff",
+        "bytes": 1631
+      }
+    }
+  },
+  {
+    "rfc": 9598,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "Internationalized Email Addresses in X.509 Certificates",
+    "pub_date": "May 2024",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5280"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC8398"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9598.txt",
+        "sha256": "df8f7adc70b6f18c9b72cc99e29d0e015b6970126c46d2392a2cad1ed10120ce",
+        "bytes": 27048
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9598.json",
+        "sha256": "cbc6a65ee7579e18d33eadaaad8164e2ee722689ec76cbbe91a73b011f0db17e",
+        "bytes": 1022
+      }
+    }
+  },
+  {
+    "rfc": 9608,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "No Revocation Available for X.509 Public Key Certificates",
+    "pub_date": "June 2024",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5280"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9608.txt",
+        "sha256": "4952984e5b76585753daf6bf7fc83ad891e6fc40488a2df19752fa90c9abb0c5",
+        "bytes": 20344
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9608.json",
+        "sha256": "100da96e2b5514ee8b75071c6bd53e8fdad4a081d7f8d5706b4c3287f98c1cee",
+        "bytes": 1511
+      }
+    }
+  },
+  {
+    "rfc": 9618,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "Updates to X.509 Policy Validation",
+    "pub_date": "August 2024",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5280"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9618.txt",
+        "sha256": "d36535f56c1425924e153cd2aa177346de838c3624a8158e638ebd0020e5c1d1",
+        "bytes": 42973
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9618.json",
+        "sha256": "cb0cf5889e92173084a19f6d4fdfc6ed8d320b4f9a573ab66fc2752d66377288",
+        "bytes": 894
+      }
+    }
+  },
+  {
+    "rfc": 9629,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text and all 0 captured errata reviewed; source review only, no S/MIME implementation claim",
+    "title": "Using Key Encapsulation Mechanism (KEM) Algorithms in the Cryptographic Message Syntax (CMS)",
+    "pub_date": "August 2024",
+    "current_status": "PROPOSED STANDARD",
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9629.txt",
+        "sha256": "97a356fa3bd0931338d820f79943a208aceb673629af8381dafdcd6c92dc7ba1",
+        "bytes": 33555
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9629.json",
+        "sha256": "5d2a02ef82a8c77f553f9aae343c8bf9e9cdea1484f776b4cc6a8fb58e18b4fd",
+        "bytes": 1131
+      }
+    },
+    "updates": [
+      "RFC5652"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": []
+  },
+  {
+    "rfc": 9670,
+    "read": "Complete base text reviewed; no captured errata; account sharing distinguished from cryptographic identity and membership; dependencies open",
+    "title": "JSON Meta Application Protocol (JMAP) Sharing",
+    "pub_date": "November 2024",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC8620"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9670.txt",
+        "sha256": "fd7efd8f7fb359d859a5e25ab895aceb255744dfa29a9c0da04812b12692020e",
+        "bytes": 32750
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9670.json",
+        "sha256": "a779d5c2c3f1740d676d0135d5623128877818ef4f949b1d1fd2b4039389c117",
+        "bytes": 866
+      }
+    }
+  },
+  {
+    "rfc": 9694,
+    "read": "Complete base text reviewed; no captured errata; application-subtype approach selected without new top-level type; dependencies open",
+    "title": "Guidelines for the Definition of New Top-Level Media Types",
+    "pub_date": "March 2025",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [
+      "RFC6838"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9694.txt",
+        "sha256": "ee205764bc0a4e7267a3bd9c3e04cca66bc5b87b0a27dcf51750af23589cf6ed",
+        "bytes": 26149
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9694.json",
+        "sha256": "aa50f0afdf8d3d942c7fd7f296c8ad75e8bce9c2078bd7e6f86f5a00c908ed7d",
+        "bytes": 864
+      }
+    }
+  },
+  {
+    "rfc": 9700,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text reviewed; no listed errata; grant, current TLS and sender-constraint dependencies open",
+    "title": "Best Current Practice for OAuth 2.0 Security",
+    "pub_date": "January 2025",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [
+      "RFC6749",
+      "RFC6750",
+      "RFC6819"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9700.txt",
+        "sha256": "9919d061d40a97886ca866b51c69389b6c81c65cd4b979056c14fdbebfcf622a",
+        "bytes": 124673
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9700.json",
+        "sha256": "f9397dcd338342df12cbc6d90b9bc968c54d301c8898cec63dbf97de02e29cd9",
+        "bytes": 1161
+      }
+    }
+  },
+  {
+    "rfc": 9750,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full text and captured erratum reviewed; section dispositions recorded; application binding and dependency closure open",
+    "title": "The Messaging Layer Security (MLS) Architecture",
+    "pub_date": "April 2025",
+    "current_status": "INFORMATIONAL",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9750.txt",
+        "sha256": "6aa156c5592f99802aae9c39510bf347cacee4abdb1c34baab4c933a6cd992dd",
+        "bytes": 113442
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9750.json",
+        "sha256": "bbcde598ca84a0e6aa3041c74ee775a9fabbbe88abfae26679f1eb9f0cc6e68d",
+        "bytes": 1929
+      }
+    }
+  },
+  {
+    "rfc": 9787,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text reviewed; no captured errata; dependency and implementation closure open",
+    "title": "Guidance on End-to-End Email Security",
+    "pub_date": "August 2025",
+    "current_status": "INFORMATIONAL",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9787.txt",
+        "sha256": "09f7f93348b802c857a8e4faa9a12fd955fde4fe49469f632ddce6cbf27184bf",
+        "bytes": 133621
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9787.json",
+        "sha256": "1d85956c2967a3370af8846a4bbe7323b9f717f7e8d59b47b2de1077716487b7",
+        "bytes": 1392
+      }
+    }
+  },
+  {
+    "rfc": 9788,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete prose and examples reviewed; signed-layer experiments recorded; no captured errata; dependency and implementation closure open",
+    "title": "Header Protection for Cryptographically Protected Email",
+    "pub_date": "August 2025",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC8551"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9788.txt",
+        "sha256": "0c9f361122b1ad11794389b50e1df3832663c76c6fa5a7a790abac162617cd64",
+        "bytes": 624648
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9788.json",
+        "sha256": "94c6ed672ca4af5e9efb560af98db656a3dac76bcabd4f1530fb0590555c4004",
+        "bytes": 1848
+      }
+    }
+  },
+  {
+    "rfc": 9846,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "The Transport Layer Security (TLS) Protocol Version 1.3",
+    "pub_date": "July 2026",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5705",
+      "RFC6066"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC5077",
+      "RFC5246",
+      "RFC6961",
+      "RFC7627",
+      "RFC8422",
+      "RFC8446"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9846.txt",
+        "sha256": "b1bee06a814f92ca4677c85b97519be53869b2bf8edc79ade955fb51c0402b17",
+        "bytes": 339413
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9846.json",
+        "sha256": "32a9ef2bf0c3fc620746aa2cd2474efd0df77c1073c7fd4e2f5071de0f926561",
+        "bytes": 1288
+      }
+    }
+  },
+  {
+    "rfc": 9852,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text reviewed; zero captured errata, live absence unconfirmed; dependencies and deployment evidence open",
+    "title": "New Protocols Using TLS Must Require TLS 1.3",
+    "pub_date": "July 2026",
+    "current_status": "BEST CURRENT PRACTICE",
+    "updates": [
+      "RFC9325"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9852.txt",
+        "sha256": "79059256740e9453965a1c922e2f4b95c67063fa79e002997eb6da6b4617a34d",
+        "bytes": 16477
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9852.json",
+        "sha256": "42a3e4916654fe534316cbc48eff1011d0ea3e99e4b72b6539631993f4ae1c9f",
+        "bytes": 1192
+      }
+    }
+  },
+  {
+    "rfc": 9925,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "Unsigned X.509 Certificates",
+    "pub_date": "February 2026",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5280"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9925.txt",
+        "sha256": "dbc7f877f180c511e954f32dac4dd9552ceed6d478fd83daa151f2b8c5ffaf6d",
+        "bytes": 19438
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9925.json",
+        "sha256": "0dc3b5f89a93f1335ce401b9787daa0410c756cf62118c13cf3b4166ab0561f5",
+        "bytes": 845
+      }
+    }
+  },
+  {
+    "rfc": 9963,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "Legacy RSASSA-PKCS1-v1_5 Code Points for TLS 1.3",
+    "pub_date": "April 2026",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9963.txt",
+        "sha256": "e55c7e2124e5d974db18ed971ea6243a91135c347f4bf873d003ef6d403ad697",
+        "bytes": 11836
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9963.json",
+        "sha256": "0d7d1b65576d95921990a1fffd638de523005a6d9e5724d10774cda96ab85416",
+        "bytes": 767
+      }
+    }
+  },
+  {
+    "rfc": 9989,
+    "read": "Full text and all3 captured errata reviewed; section dispositions recorded; source ambiguities, normative dependencies and live registry closure open",
+    "title": "Domain-Based Message Authentication, Reporting, and Conformance (DMARC)",
+    "pub_date": "May 2026",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC7489",
+      "RFC9091"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9989.txt",
+        "sha256": "cdd78e2918a210ca0f1bcd167dfd9e5555a9331506bcea988432793b71fd0c1e",
+        "bytes": 186641
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9989.json",
+        "sha256": "a0e7e016e046b830fe408072482dbf14c05f93579f52a04f81593fe6c62b09f1",
+        "bytes": 1259
+      }
+    }
+  },
+  {
+    "rfc": 9990,
+    "read": "Full text and schema reviewed; no errata in captured corpus; section dispositions and schema experiment recorded; dependency closure open",
+    "title": "Domain-Based Message Authentication, Reporting, and Conformance (DMARC) Aggregate Reporting",
+    "pub_date": "May 2026",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC7489"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9990.txt",
+        "sha256": "ff98ee63f9b2fa853dd6cfb50463caba7073295ab10e60397bb3eae483ce804d",
+        "bytes": 79172
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9990.json",
+        "sha256": "3f6dec7a66811c538d1fc8776765b42c87564c9b2e4f1b590f52235c065a4121",
+        "bytes": 1127
+      }
+    }
+  },
+  {
+    "rfc": 9991,
+    "read": "Full text and complete example reviewed; no errata in captured corpus; section dispositions recorded; ARF dependencies and registry closure open",
+    "title": "Domain-Based Message Authentication, Reporting, and Conformance (DMARC) Failure Reporting",
+    "pub_date": "May 2026",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC6591"
+    ],
+    "updated_by": [],
+    "obsoletes": [
+      "RFC7489"
+    ],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9991.txt",
+        "sha256": "d1d24520293a7621290ecc8ebf12a6739a414c324acd8085cff1a81c5a42e5e2",
+        "bytes": 30653
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9991.json",
+        "sha256": "303f54af19e782104a839c53da90afdd703c209fbc8ddeee9dea90c6571da18e",
+        "bytes": 1266
+      }
+    }
+  },
+  {
+    "rfc": 10007,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base and current errata reviewed; dependencies, registry and deployment evidence open",
+    "title": "Clarification to Processing Key Usage Values During Certificate Revocation List (CRL) Validation",
+    "pub_date": "June 2026",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC5280"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc10007.txt",
+        "sha256": "db490bb4765aad4fc2a0c12855d22b33ed37adc8e0e44cf42bcbfabbde88dbeb",
+        "bytes": 11372
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc10007.json",
+        "sha256": "d0a4dc0cddce6d763ec90173d25971a66df0b52d0ccf0ef3e48cafc426e9f2e2",
+        "bytes": 1266
+      }
+    }
+  },
+  {
+    "rfc": 10015,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Full base text reviewed; zero captured errata, live absence unconfirmed; dependencies and deployment evidence open",
+    "title": "Deprecating Obsolete Key Exchange Methods in TLS 1.2 and DTLS 1.2",
+    "pub_date": "July 2026",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC4162",
+      "RFC4279",
+      "RFC4346",
+      "RFC4785",
+      "RFC5246",
+      "RFC5288",
+      "RFC5289",
+      "RFC5469",
+      "RFC5487",
+      "RFC5932",
+      "RFC6209",
+      "RFC6347",
+      "RFC6367",
+      "RFC6655",
+      "RFC7905",
+      "RFC8422",
+      "RFC9325"
+    ],
+    "updated_by": [],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc10015.txt",
+        "sha256": "1cc53f068b7c02e7c49c77816d16d6453b6f094762fb16e361d358da96ac1086",
+        "bytes": 62635
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc10015.json",
+        "sha256": "e6e32ac66900631fc1e659df439d0f996d23fc4fd139e54c86dd411e1a8c1f57",
+        "bytes": 1666
+      }
+    }
+  }
+]

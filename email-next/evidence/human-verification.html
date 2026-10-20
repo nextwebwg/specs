@@ -1,0 +1,9 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Verify a correspondent</title><style>body{font:1rem system-ui;max-width:46rem;margin:2rem auto;padding:1rem}textarea{width:100%;min-height:10rem}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eee;padding:1rem}label{display:block;margin:1rem 0}button,select{font:inherit;padding:.5rem}#result{font-weight:600}</style>
+<h1>Verify a correspondent</h1><p>This optional comparison confirms who you intend to contact. You can use ordinary email without completing it. It does not prove provider-certified ownership of an address.</p>
+<p>Compare with the person in front of you, or through a separate conversation you already trust. Ask them to open their own identity display. A code from the email you are checking is not independent.</p>
+<h2>Identity observed in your mail</h2><pre id="observed"></pre>
+<form><label for="independent">Paste the complete comparison data from their independent identity display</label><textarea id="independent" spellcheck="false" autocomplete="off" required></textarea>
+<label for="channel">How did you compare?</label><select id="channel"><option value="in-person">In person</option><option value="preauthenticated-independent-channel">An already authenticated separate conversation</option></select>
+<label><input id="confirmed" type="checkbox" required> I compared the complete data with the intended person, and they confirmed this exact address and identity.</label>
+<p id="validity"></p><button type="submit" disabled>Confirm comparison</button></form><p id="result" role="status" aria-live="polite"></p>
+<script src="/ui.js"></script></html>

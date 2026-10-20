@@ -1,0 +1,15 @@
+From: Carol <carol@example.invalid>
+To: reader@example.invalid
+Subject: Synthetic conversation
+Message-ID: <edited@demo.invalid>
+Date: Tue, 20 Oct 2026 10:00:00 +0000
+In-Reply-To: <interleaved@demo.invalid>
+References: <interleaved@demo.invalid>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+PiBUaHVyc2RheSB3b3JrcyBmb3IgbWUuDQpJIGNoYW5nZWQgdGhlIHByb3Bvc2VkIGRheSBhYm92
+ZS4NCj4+IFdoaWNoIGRheSB3b3Jrcz8NCi0tIA0KS2VlcCB0aGlzIHNpZ25hdHVyZS1saWtlIG5v
+dGUuDQpGb3J3YXJkZWQgbWVzc2FnZTogcmV2aWV3IHRoZSBhdHRhY2htZW50IGJlZm9yZSByZXBs
+eWluZy4NCg==

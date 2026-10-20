@@ -1,0 +1,11 @@
+From: Alice <alice@example.invalid>
+To: reader@example.invalid
+Subject: Synthetic conversation
+Message-ID: <questions@demo.invalid>
+Date: Tue, 20 Oct 2026 10:00:00 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+V2hpY2ggZGF5IHdvcmtzPw0KV2hlcmUgc2hvdWxkIHdlIG1lZXQ/DQpTaG91bGQgSSBicmluZyB0
+aGUgZHJhZnQ/DQo=

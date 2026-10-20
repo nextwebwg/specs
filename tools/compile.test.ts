@@ -1,7 +1,17 @@
 // Publishing sites can give guide pages a shared frame without copying chapter text.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { compileChapter, headingId, MAX_HEADING_ID_LENGTH } from "./compile.ts";
+
+test("the Email Next draft publishes its actual status without HTML Next snapshot history", () => {
+  const draft = readFileSync(new URL("../email-next/index.md", import.meta.url), "utf8");
+  const { sfc } = compileChapter(draft, { proposalSnapshot: false, proposalImports: "" });
+  assert.match(sfc, /Independent discussion draft/);
+  assert.doesNotMatch(sfc, /Stage 0|NextWebWG consideration|Next Web Working Group/);
+  assert.match(sfc, /Status of this document/);
+  assert.doesNotMatch(sfc, /Latest snapshot|latestHtmlNextSnapshot/);
+});
 
 const source = `---
 title: A tools guide

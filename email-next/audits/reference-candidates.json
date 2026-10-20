@@ -1,0 +1,7277 @@
+{
+  "method": "RFC-number mentions across complete captured base texts, including body and reference lists. This intentionally over-includes historical and informative citations and does not detect non-RFC dependencies. Not a normative-reference closure claim.",
+  "inputs": [
+    {
+      "rfc": 1847,
+      "sha256": "08cc11e880a7e0ee452649fdc48d8c575d406513ceae45c3d374fd5e7c507828"
+    },
+    {
+      "rfc": 1870,
+      "sha256": "7c560c3b4d017beeaf66a9a5c55f6e8449574b33f637c970259e4f54fe6498f9"
+    },
+    {
+      "rfc": 1939,
+      "sha256": "1c02e8a3208e33416807597629dfab693354359563d4ae1a9b242374e05886c9"
+    },
+    {
+      "rfc": 1957,
+      "sha256": "31cca5512577278d90aa4db99579a8f274c7e3223e5bd694f18ae40e766aa46f"
+    },
+    {
+      "rfc": 2045,
+      "sha256": "9bb251635dd37fda97dcce6c08dea019432117a0f1e389051d2ecbf7b76350b0"
+    },
+    {
+      "rfc": 2046,
+      "sha256": "7ac4096b9263e11a704f06892638258ac1ddc0394dd75ffdc171e7b5ba0123e0"
+    },
+    {
+      "rfc": 2047,
+      "sha256": "f3b1356151ae24d616076880115c5ac0c313a88bcbe76d32d0cacf4b5f24f01d"
+    },
+    {
+      "rfc": 2049,
+      "sha256": "7b3f6345f7c9cfc8f46ec68ef5a651932803b83b475ba6b181d2e9993eab4600"
+    },
+    {
+      "rfc": 2104,
+      "sha256": "64d5245a9101929025336e470e3737f118704001249d503c85a86e19fe9fbb01"
+    },
+    {
+      "rfc": 2119,
+      "sha256": "3c2ceb7bfc84cd34720f4a5271338ab9d8280d34bdd1eb250c64306202f2ed8b"
+    },
+    {
+      "rfc": 2183,
+      "sha256": "ae813297acfd928d2b8918eb2ee5ca8d73aa5874b568a4051e75f1392f9a7198"
+    },
+    {
+      "rfc": 2184,
+      "sha256": "4a3b1f299f0e2d608e30d5c200398d30f9dbcc4d1b2819837a8b85ec37f9ee06"
+    },
+    {
+      "rfc": 2231,
+      "sha256": "e69cbc8c05097736c5296575e7a2e0cb2a2a09c522640eb40ecc4a9dca56076d"
+    },
+    {
+      "rfc": 2369,
+      "sha256": "659e81dbe0c700870b9ae35c765a70ad8c4c4127506df8c809d6e1393dc1998b"
+    },
+    {
+      "rfc": 2387,
+      "sha256": "b92f065d32e774c1c6cc8d656f5dbf34a71a2714444f2aa7d4e1ad4fa1091aa6"
+    },
+    {
+      "rfc": 2392,
+      "sha256": "0094525a768e5ba689477203bb29b88a8fe9fa8dde4309c67347b2e4539f9cd9"
+    },
+    {
+      "rfc": 2449,
+      "sha256": "036020793acba032093245d9b133545f22f6d6ede2f851a0086319183ddd22ad"
+    },
+    {
+      "rfc": 2480,
+      "sha256": "680edb08155f0231391845e782fd68c04c4299a51a20fa5f081d2ff7e58a07d6"
+    },
+    {
+      "rfc": 2557,
+      "sha256": "65b31b58aa2f5e2bab15745d8e0330031a20382a90f097fe0b392bcd9b8cd6c9"
+    },
+    {
+      "rfc": 2634,
+      "sha256": "821cf38ae96ff02ce2f036fdf77400646dbc25db5dfb24df7970f1a3f1b8e897"
+    },
+    {
+      "rfc": 2646,
+      "sha256": "17745cef025e707f26a478174b8272cad123f1441c27899f8035ef2bdae08597"
+    },
+    {
+      "rfc": 2919,
+      "sha256": "aa78f55f7182a3d67dabdf861d27cfe0d0d47e5fd3565d71f9ed4a9d95458bb8"
+    },
+    {
+      "rfc": 2920,
+      "sha256": "679ed54a0afd15b7bbe0f84aa8f2fca620be93b3e4b9bfcfe58b436bde6fedcc"
+    },
+    {
+      "rfc": 3030,
+      "sha256": "e21754fb6e2eece84b0754e31e3b997f1a7ec5731ad8c6449010af70ecfc7794"
+    },
+    {
+      "rfc": 3156,
+      "sha256": "ca68d1b7755dfea2672aeb7614e9c5153ce3accc296355d147afd243e44c3ae2"
+    },
+    {
+      "rfc": 3207,
+      "sha256": "b004a203791a1ca664d39a49d73369f88f5f3870486a6639e3f833df2118e4ac"
+    },
+    {
+      "rfc": 3461,
+      "sha256": "7f9e2050ae8c38962d458bb4ee669100351e981f55a96e41f19cbb574b1c730d"
+    },
+    {
+      "rfc": 3463,
+      "sha256": "ccfbf657f4d3ac7c89cca03bd1abed355efe3f4b170162e32a6ff344cebfe851"
+    },
+    {
+      "rfc": 3464,
+      "sha256": "8d213b662d9c40a7a729db598beb1d3f0139b7532b3c9a7be06ef220c84c397c"
+    },
+    {
+      "rfc": 3492,
+      "sha256": "d1848b1b4f01e20708a64f42394e5f4b840141935bed7f09ad7baeb6693b8772"
+    },
+    {
+      "rfc": 3501,
+      "sha256": "4437974dde85859f2391f32215295e7b20ce157c3bd2adbe7e5b443e990f15cf"
+    },
+    {
+      "rfc": 3503,
+      "sha256": "82151d011f42d2a458128ccce80f053f7e914a5791686465cfa7538c93496324"
+    },
+    {
+      "rfc": 3629,
+      "sha256": "a2a3a39457d30420c812f87a38cc2b9194832f6982ef17e619de7d816879d6a6"
+    },
+    {
+      "rfc": 3676,
+      "sha256": "70da6cf9fa29640104feab81161fefcd2bf3ee3dc0f3ce8efd31ccc92db0aacf"
+    },
+    {
+      "rfc": 3798,
+      "sha256": "e3f41ae826f0c4d73596b191c5a75ecd2908e3f78af00fa1d1d278908312a6d1"
+    },
+    {
+      "rfc": 3834,
+      "sha256": "e8ac97cceb6205dd2a722b05fb6b1c1dd1dff0996287af2f513a2d90bb643820"
+    },
+    {
+      "rfc": 3864,
+      "sha256": "eccd2d25dc110a55aff23ddc41a9b4e4aa105f567b2806546eeae3a7bd72764d"
+    },
+    {
+      "rfc": 3885,
+      "sha256": "d5701fded4e50e1e3bfc957dc7ec3954b2b74e1bf051e8f9cb2faefdd783c1a4"
+    },
+    {
+      "rfc": 3886,
+      "sha256": "936aa7db35541816ca03d338ff8004ef7fdad9ea9144bd2aa8edd5443cbd2b14"
+    },
+    {
+      "rfc": 3986,
+      "sha256": "3102dae4b68cebe40337730312fcb612297b8928547267e8b3d1ee6002b2d683"
+    },
+    {
+      "rfc": 4468,
+      "sha256": "68a9f492de79176d7d404d1cda924a0817e5f1da70be9735891893c330eeffa4"
+    },
+    {
+      "rfc": 4648,
+      "sha256": "84e14418f795d503be5f34bf23ce4ebaa119e9ec7c9f667d8caeb111385b178f"
+    },
+    {
+      "rfc": 4865,
+      "sha256": "b9ac5c54c0ab7187c229f373557ef8a79acdf5f9e3b8c960608f1d9758ab13fc"
+    },
+    {
+      "rfc": 4954,
+      "sha256": "6bf118f556749d08d1bfae92cefbdebf6084324ceba262a87af1efbe0e16d50a"
+    },
+    {
+      "rfc": 5034,
+      "sha256": "63cfc08a552add75d9bf22b0d977d40d5a105f67b71ed4c67015fe4670d68d8f"
+    },
+    {
+      "rfc": 5035,
+      "sha256": "7c4a793911463367bd777e6d6104e52ec709f0c553da237cdf6782ee49b6d32b"
+    },
+    {
+      "rfc": 5116,
+      "sha256": "8762fee7c85e682fce609c75e0f5040ee7efa8fca96969ffd85df37585e0eda1"
+    },
+    {
+      "rfc": 5147,
+      "sha256": "c8fff6f21a8c68a15642d00ff0fbb97ae7cd1613ee02c2782ab7671d6b6a24f4"
+    },
+    {
+      "rfc": 5173,
+      "sha256": "6127830c657e4721c2bc6f06b027e93424f7a73402e354aab74841885ae450b8"
+    },
+    {
+      "rfc": 5228,
+      "sha256": "ffee094c9c6df0da69971b1fb058715d31e484f8b3410f4cb5539a075e1a1dc6"
+    },
+    {
+      "rfc": 5229,
+      "sha256": "e78dc629bef36eb086da2e0aa37e3e828e8db70874e7795e2152afc0388c3820"
+    },
+    {
+      "rfc": 5234,
+      "sha256": "fc871020f53baa6b60fc6835c557b433f38d53c5cc41ab56d03622b084f53a12"
+    },
+    {
+      "rfc": 5248,
+      "sha256": "b5d93474fead6927bcce9d233d7cf9ee8bb597c55c80ae6bc97ead8fd4a1c310"
+    },
+    {
+      "rfc": 5280,
+      "sha256": "a2f2628c0a83b873fc4786abd921f9b2c02395954b655d190bf16b831633345d"
+    },
+    {
+      "rfc": 5321,
+      "sha256": "7d560eddff1b213c17d4e1e5f95005728b2f05bc2b3947f0fcc91717c6707634"
+    },
+    {
+      "rfc": 5322,
+      "sha256": "cb459acca15a2aa895863eaeff6f1d5b9c4ca15578ae3e3706f757787a385969"
+    },
+    {
+      "rfc": 5335,
+      "sha256": "371877e3ecd35ff5bb94f84fa97edeec2ea4bb5655064883ab0445731c38f5ef"
+    },
+    {
+      "rfc": 5337,
+      "sha256": "a4c9a94826036b7ebac5a2de680f939ab44354d6fb46b173acc284a9c004ec6a"
+    },
+    {
+      "rfc": 5429,
+      "sha256": "65018bfee062e39baf291c44c61484ad5e45051363e276d7cca87925d2d6ef86"
+    },
+    {
+      "rfc": 5436,
+      "sha256": "1e76abbb8631c50ad28cd5bd64be2ab2c3ccbf3dd59b04ea2b176df354be3ef4"
+    },
+    {
+      "rfc": 5598,
+      "sha256": "80702e8e4da554bac8270af89fbf01ca35f43957b659afc475e4b9e3fcc3f87c"
+    },
+    {
+      "rfc": 5646,
+      "sha256": "5d9515f053163c80e7294a84d18217dc83471acc7caa9773da2ac40deeec8228"
+    },
+    {
+      "rfc": 5652,
+      "sha256": "dbd209ae7844031f51722c4d9e2d1fa3fff3081319851d581f914f5f0147f918"
+    },
+    {
+      "rfc": 5869,
+      "sha256": "7a40eb3835b35fc947eb12a2ed614db079d43b26e50dbc537c31fba16397089c"
+    },
+    {
+      "rfc": 5890,
+      "sha256": "24d27002e26fedaec6c9f6479547e9d0855d952bc47d6ce1000851efd70b7430"
+    },
+    {
+      "rfc": 5891,
+      "sha256": "c9b898f6214c2241b25e4697d6b928ea805099bb136f0e92c48a531490672cda"
+    },
+    {
+      "rfc": 5892,
+      "sha256": "606dd3619e1d17b3625ef323ac44b0aad272712d067692185d1e417416b66c70"
+    },
+    {
+      "rfc": 5893,
+      "sha256": "d7daca034781d7f43c24f28c229aaba5aecbb76a68a6a59b70a5505adc23f42d"
+    },
+    {
+      "rfc": 6151,
+      "sha256": "4e5599d99a0d335560c0a47a959e91469ee47d49edcd224aa2b7b0b0a6b8588d"
+    },
+    {
+      "rfc": 6152,
+      "sha256": "f3bb53c64929a09984fc2c34daaf3ea4d4e8e90e771decf3c2453ed6c9035ad7"
+    },
+    {
+      "rfc": 6186,
+      "sha256": "5aa0cbe29fa7106f5a41f37b5189cb1c259897f351dc4c304d82b031b297638c"
+    },
+    {
+      "rfc": 6211,
+      "sha256": "d2c431d3529ce01a8bdea3706e88e39c130896dd8d845cfba3a06664c10e6afe"
+    },
+    {
+      "rfc": 6376,
+      "sha256": "00ae1e26aa19e0b8a6087435a524d23e824e2c31ebd62544dd714923bf8553f0"
+    },
+    {
+      "rfc": 6409,
+      "sha256": "66ed4284fbd7bdc47aa1896f2898204111a09f83061cf02ebeb056961fb9cadf"
+    },
+    {
+      "rfc": 6452,
+      "sha256": "3ef89afc6f34f25b3d9c013a4c136f4a632b59aa05ad31e8a29322dc7cf47605"
+    },
+    {
+      "rfc": 6522,
+      "sha256": "54f519e448093a7b045bea9e9074dfa89bbdf1593fcf7e39ea21ab3d6a03f27b"
+    },
+    {
+      "rfc": 6530,
+      "sha256": "a755d85d9963e91c8cde3cfa471d1061c9734eb2dd750d95eb51cd30dc0231f6"
+    },
+    {
+      "rfc": 6531,
+      "sha256": "4f48303f7b7659d0b3149730b51a03d59799a95b4d2ca7d913533f97b9db4b40"
+    },
+    {
+      "rfc": 6532,
+      "sha256": "154317842bdd99e2030117a808d2d74039932d1c1c3d4b014cc865069066c6cb"
+    },
+    {
+      "rfc": 6533,
+      "sha256": "9b852463bef94f202e9b53205212263c7fa5a932f40ee514f29f0c4ed27f7659"
+    },
+    {
+      "rfc": 6657,
+      "sha256": "34ac5be5f475756e14df79495d646a75f8b046c76422a7237e044728cbc5ca8d"
+    },
+    {
+      "rfc": 6749,
+      "sha256": "f204fc8661d6c92d2ec6e0b54808f961a9ad26e792f57f312d9528335519bd71"
+    },
+    {
+      "rfc": 6750,
+      "sha256": "9dc385cf4ecdd85024e5a95e447ede9230e11700bf35251906b25b37557d604b"
+    },
+    {
+      "rfc": 6785,
+      "sha256": "b72aadd08894ad52d5b964bfb4fb0b9f8b551f318cff15fa0237722e2fb338a6"
+    },
+    {
+      "rfc": 6818,
+      "sha256": "e6bb52bd92138bb36cfd01202f22153d98318c6f7e3e5b15171374aec67a829f"
+    },
+    {
+      "rfc": 6838,
+      "sha256": "b08ccba7e5116e61085f2e1fe447d90eee785fb0efaa448a4b4ef6ea48b03b80"
+    },
+    {
+      "rfc": 6839,
+      "sha256": "f754a5e85371359a1b6609427ab9a759dc012af7f656a8741fdac4942abf8c13"
+    },
+    {
+      "rfc": 6854,
+      "sha256": "9f3dee8d37209eabd4dea53b4458599df96fe01f4ed144b948f6bc57fcc3603c"
+    },
+    {
+      "rfc": 7208,
+      "sha256": "3cca3f2551f50d24a7b6423a7451d285df077863dab4bb261080ee87844f2d5b"
+    },
+    {
+      "rfc": 7293,
+      "sha256": "b51b09678daf9b23cbf7f74f2eead08b708bc7d4bc9b9a194f56156c78c9ccdd"
+    },
+    {
+      "rfc": 7301,
+      "sha256": "ba122aee58871c604c9e98e2c9f81d5042e4056bd497cd41e23ad80fe3123222"
+    },
+    {
+      "rfc": 7372,
+      "sha256": "40261ff2845448349a168b4bb9b9bc1520ffa28240bc5c7222f8c261686774cd"
+    },
+    {
+      "rfc": 7405,
+      "sha256": "f85c88bcf8ca8035585b39f518adfe274bb095801c95ef665b49a27b61245f17"
+    },
+    {
+      "rfc": 7489,
+      "sha256": "1ac7c343cb45cad1b597a0fee05b66c80adcd0e55a2312df8c300762456d9a1b"
+    },
+    {
+      "rfc": 7504,
+      "sha256": "cc0f7c0774a7b3fb956ee38a314f56f415e6920856850190f15aa15df910ccc6"
+    },
+    {
+      "rfc": 7505,
+      "sha256": "c746618ea6f26fab7828075696be275d42f4aa134a3e9853cbc6f7ed4d859eb9"
+    },
+    {
+      "rfc": 7578,
+      "sha256": "813277f91c6c65c9047da9e9a8f1f0c19c1fb4bb1aaeea944bcf3bbdcc2eef49"
+    },
+    {
+      "rfc": 7636,
+      "sha256": "1972e5d81cbaba7066cfd46374207bc2b4546b085ed5dd9b034e79e023e0ca31"
+    },
+    {
+      "rfc": 7672,
+      "sha256": "f42a3a4e0eada0c82195659c8e8b691d9e82bd51399009ed7ce1c173d8163ce7"
+    },
+    {
+      "rfc": 7748,
+      "sha256": "279ca0ecc5e92e2962e27b846986aeb74729d9dd34bd4a04a362f80dcb596ad3"
+    },
+    {
+      "rfc": 7817,
+      "sha256": "658ca5af0ef7fd952308032ce1d8d9fb10c50cd7c34f40fffff33f02279e603e"
+    },
+    {
+      "rfc": 8032,
+      "sha256": "ed63657ff389301282b169b0abde9b5dd2c7e4d524fdfa5da6ff3094fc93c4c3"
+    },
+    {
+      "rfc": 8058,
+      "sha256": "94f4529f3545fd0d6e7faac0f57d59ab7933b8fdf6e700017114c783b526c68f"
+    },
+    {
+      "rfc": 8098,
+      "sha256": "3cf52c2a77826e0ee3dd5a2d57b9d069d2f5b5a46f480f6c46e1d1c1066cea33"
+    },
+    {
+      "rfc": 8126,
+      "sha256": "b8b5cc1e61e78352b5a12c4a92fa0573b3400d49522a448913455a478dd87401"
+    },
+    {
+      "rfc": 8174,
+      "sha256": "5ca0e2f90be0bc5928ee465f76518fee316dfa775aed885658a29a419cc293b7"
+    },
+    {
+      "rfc": 8252,
+      "sha256": "4233c0650ec7e7918c20e0fde2dc565f85e2aa2d4c18123e3cd834295c2f68d0"
+    },
+    {
+      "rfc": 8259,
+      "sha256": "61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7"
+    },
+    {
+      "rfc": 8301,
+      "sha256": "49bb1d62ad5f51ff444bc93e33dd58a9a64834c3a1bdf378d5e8733319c211f8"
+    },
+    {
+      "rfc": 8314,
+      "sha256": "d626efa01a2176206b81742b77ca8f0d61e4a669f9ae7798e7ae556afc65aae6"
+    },
+    {
+      "rfc": 8460,
+      "sha256": "ee9bd333ca729ebeff46432d26e52e11d87f57d035028f0cf349fa1559fbaae3"
+    },
+    {
+      "rfc": 8461,
+      "sha256": "31296488efa6ce89fb3a8a26a17ffe3b75f9379acc709aa5f82af6c9ae71283e"
+    },
+    {
+      "rfc": 8463,
+      "sha256": "0075de8a5f839be6df2db4588922ca3781ad2c43b1d5a9d9eca2f0443981c36b"
+    },
+    {
+      "rfc": 8550,
+      "sha256": "adf5aa630e6fd10f75de524e4af249302548a68d6cb7254bf3bfb99b544d6c7a"
+    },
+    {
+      "rfc": 8551,
+      "sha256": "dac39f749a08d3422bd78d4e492195067e7bc03f5fc2d0dac515f0d7ed884ae2"
+    },
+    {
+      "rfc": 8552,
+      "sha256": "6ce80b1954ecf86a399e93a76ee894224bb057b2fbd9ce8e1f287c9bd954aecd"
+    },
+    {
+      "rfc": 8553,
+      "sha256": "bd2397e9b08ebc0177971d8623c327190835c7e3625caa7575afe234bcadbf13"
+    },
+    {
+      "rfc": 8601,
+      "sha256": "5b4508b7c948c1a296ef2e010a2d65f55635adb8a667f70420c4f479265586fb"
+    },
+    {
+      "rfc": 8616,
+      "sha256": "fa9b3e0420940b22e34e449b9810949975e44536cbc4fbac997ded5b16cc1645"
+    },
+    {
+      "rfc": 8617,
+      "sha256": "8eca988e695d12350ce1f5bf79c6ebf62037a26832a9c95c39d89b8779e43304"
+    },
+    {
+      "rfc": 8620,
+      "sha256": "2faef52947b75a4a624154ae6bde930688c1a2f122f05925273c7d8a9a85cd25"
+    },
+    {
+      "rfc": 8621,
+      "sha256": "2d805f15d6cc3ac4d90dbdce69c81591deadfc35d2e2927f89fb45db0efecc31"
+    },
+    {
+      "rfc": 8689,
+      "sha256": "391d0bc5e980932b7539dd00cb538c7fc00a37935aebdce7c74df98f44d66598"
+    },
+    {
+      "rfc": 8753,
+      "sha256": "0a84789569881678418a507a3952379d7c60f2cfc9fc0e40d2d958e983a6ecc4"
+    },
+    {
+      "rfc": 8820,
+      "sha256": "d4872896c3beae79143cc5f3c085c6992e6c6f9427a94f6295dce2bc4746a12c"
+    },
+    {
+      "rfc": 8933,
+      "sha256": "a237cf9e82e013506fd1cd7b8938374acd106376eda9e174ca26691da44fb68e"
+    },
+    {
+      "rfc": 8996,
+      "sha256": "a8250792df7fc533328f2021dbdcce847bbdfbc703de89a93e18ce165d4b8d14"
+    },
+    {
+      "rfc": 8997,
+      "sha256": "4df431191472fbf96d94a8bc1196c6ed9b5e2f3b4cf06741cdeeaf13f264ed88"
+    },
+    {
+      "rfc": 9042,
+      "sha256": "58dd06fb9e66dbec61a4449156c1ebe37ec7eec9df323bddf622da4abcc7450d"
+    },
+    {
+      "rfc": 9051,
+      "sha256": "acf52a50eb748ea21b5ffdcb31c761d3fbba6242d53d4f53c2555de039c5c3cf"
+    },
+    {
+      "rfc": 9078,
+      "sha256": "f10570e2d61928812675d865f301ddc18a7c5040480b6e36482a39f71cf5f052"
+    },
+    {
+      "rfc": 9110,
+      "sha256": "21c1cdce6ab0e5509b04d84a28000836c7a087cf786efe6f04877ebfff47232a"
+    },
+    {
+      "rfc": 9180,
+      "sha256": "f45a8b7c30231b26d668b1e8168074e5ab514b174d656b67e859895117f1f8f6"
+    },
+    {
+      "rfc": 9207,
+      "sha256": "c9c17b9824315aca9bda5c0b5e3627cb24aa28d54324292f3761006209b705fd"
+    },
+    {
+      "rfc": 9233,
+      "sha256": "cf3f2a3d2aefb37acff9434cdc3b1ca9317d7dc3d8867a821e656b9ce11063e1"
+    },
+    {
+      "rfc": 9325,
+      "sha256": "e3475381d056bde1eed65252954cce68250168454387f6799b38660806f215bc"
+    },
+    {
+      "rfc": 9404,
+      "sha256": "a6bd3c4bc32ef0bea114246ef33bee6ae12458ad3b7f763d22e437ff7ffcd5bb"
+    },
+    {
+      "rfc": 9420,
+      "sha256": "251ab11076c43fd4b8dc080a068a8caaf55e2fc5e6aa61d4274961627f32624b"
+    },
+    {
+      "rfc": 9525,
+      "sha256": "ed8116c2435376dffe37ec2ca688c3a8515e36820852b29e0b6cdfbe92abd2c5"
+    },
+    {
+      "rfc": 9549,
+      "sha256": "28c505895b36bda33264cb7d12ea81a2c9fc8821982ca329f6a8c51e3d4bc0f4"
+    },
+    {
+      "rfc": 9580,
+      "sha256": "36540e57b63d24c0b17be0748b704bdeed3d643ce99a4fb1abb6469c1eb1ff18"
+    },
+    {
+      "rfc": 9598,
+      "sha256": "df8f7adc70b6f18c9b72cc99e29d0e015b6970126c46d2392a2cad1ed10120ce"
+    },
+    {
+      "rfc": 9608,
+      "sha256": "4952984e5b76585753daf6bf7fc83ad891e6fc40488a2df19752fa90c9abb0c5"
+    },
+    {
+      "rfc": 9618,
+      "sha256": "d36535f56c1425924e153cd2aa177346de838c3624a8158e638ebd0020e5c1d1"
+    },
+    {
+      "rfc": 9629,
+      "sha256": "97a356fa3bd0931338d820f79943a208aceb673629af8381dafdcd6c92dc7ba1"
+    },
+    {
+      "rfc": 9670,
+      "sha256": "fd7efd8f7fb359d859a5e25ab895aceb255744dfa29a9c0da04812b12692020e"
+    },
+    {
+      "rfc": 9694,
+      "sha256": "ee205764bc0a4e7267a3bd9c3e04cca66bc5b87b0a27dcf51750af23589cf6ed"
+    },
+    {
+      "rfc": 9700,
+      "sha256": "9919d061d40a97886ca866b51c69389b6c81c65cd4b979056c14fdbebfcf622a"
+    },
+    {
+      "rfc": 9750,
+      "sha256": "6aa156c5592f99802aae9c39510bf347cacee4abdb1c34baab4c933a6cd992dd"
+    },
+    {
+      "rfc": 9787,
+      "sha256": "09f7f93348b802c857a8e4faa9a12fd955fde4fe49469f632ddce6cbf27184bf"
+    },
+    {
+      "rfc": 9788,
+      "sha256": "0c9f361122b1ad11794389b50e1df3832663c76c6fa5a7a790abac162617cd64"
+    },
+    {
+      "rfc": 9846,
+      "sha256": "b1bee06a814f92ca4677c85b97519be53869b2bf8edc79ade955fb51c0402b17"
+    },
+    {
+      "rfc": 9852,
+      "sha256": "79059256740e9453965a1c922e2f4b95c67063fa79e002997eb6da6b4617a34d"
+    },
+    {
+      "rfc": 9925,
+      "sha256": "dbc7f877f180c511e954f32dac4dd9552ceed6d478fd83daa151f2b8c5ffaf6d"
+    },
+    {
+      "rfc": 9963,
+      "sha256": "e55c7e2124e5d974db18ed971ea6243a91135c347f4bf873d003ef6d403ad697"
+    },
+    {
+      "rfc": 9989,
+      "sha256": "cdd78e2918a210ca0f1bcd167dfd9e5555a9331506bcea988432793b71fd0c1e"
+    },
+    {
+      "rfc": 9990,
+      "sha256": "ff98ee63f9b2fa853dd6cfb50463caba7073295ab10e60397bb3eae483ce804d"
+    },
+    {
+      "rfc": 9991,
+      "sha256": "d1d24520293a7621290ecc8ebf12a6739a414c324acd8085cff1a81c5a42e5e2"
+    },
+    {
+      "rfc": 10007,
+      "sha256": "db490bb4765aad4fc2a0c12855d22b33ed37adc8e0e44cf42bcbfabbde88dbeb"
+    },
+    {
+      "rfc": 10015,
+      "sha256": "1cc53f068b7c02e7c49c77816d16d6453b6f094762fb16e361d358da96ac1086"
+    }
+  ],
+  "missing_input_rfcs": [],
+  "candidates": [
+    {
+      "rfc": 733,
+      "cited_by": [
+        5234,
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 783,
+      "cited_by": [
+        2046,
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 791,
+      "cited_by": [
+        5280,
+        5598,
+        8126,
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 793,
+      "cited_by": [
+        8314,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 821,
+      "cited_by": [
+        1870,
+        1939,
+        2045,
+        2046,
+        2049,
+        2449,
+        2557,
+        2646,
+        2920,
+        3030,
+        3207,
+        3461,
+        3463,
+        3464,
+        3501,
+        5321,
+        5598,
+        6530
+      ],
+      "status": "Historical SMTP predecessor: RFC5321 section1.2 explicitly supersedes this source. Selected transport and routing behavior follows the reviewed RFC5321 contract and applicable updates; omitted historical transport models are not selected. This classification does not claim a review of the predecessor text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "smtp.md",
+      "basis": "Reviewed RFC5321 section1.2 explicitly states it obsoletes RFC821, RFC974 and RFC1869."
+    },
+    {
+      "rfc": 822,
+      "cited_by": [
+        1847,
+        1870,
+        1939,
+        2045,
+        2046,
+        2047,
+        2049,
+        2183,
+        2184,
+        2231,
+        2369,
+        2387,
+        2392,
+        2449,
+        2480,
+        2557,
+        2634,
+        2919,
+        3030,
+        3156,
+        3461,
+        3464,
+        3501,
+        3503,
+        3798,
+        3834,
+        3864,
+        3886,
+        5173,
+        5234,
+        5321,
+        5322,
+        5335,
+        5337,
+        5598,
+        6522,
+        6530,
+        6532,
+        6533,
+        6854,
+        8098,
+        8551,
+        8601,
+        8621,
+        9051,
+        9787,
+        9788,
+        9991
+      ],
+      "status": "Historical message-format predecessor: selected syntax and obsolete-syntax reception follow reviewed RFC5322 and applicable updates. RFC5322 describes the succession through RFC2822; this classification does not claim a review of every historical RFC822 behavior.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "message-format.md",
+      "basis": "Reviewed RFC5322 abstract and section1.1 describe the RFC822\u2192RFC2822\u2192RFC5322 succession."
+    },
+    {
+      "rfc": 850,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 934,
+      "cited_by": [
+        2045,
+        2046,
+        2047,
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 937,
+      "cited_by": [
+        5321
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 952,
+      "cited_by": [
+        3492,
+        3986,
+        5890,
+        8552
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 959,
+      "cited_by": [
+        2046,
+        2049,
+        5321
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 974,
+      "cited_by": [
+        1870,
+        5321
+      ],
+      "status": "Historical SMTP predecessor: RFC5321 section1.2 explicitly supersedes this source. Selected transport and routing behavior follows the reviewed RFC5321 contract and applicable updates; omitted historical transport models are not selected. This classification does not claim a review of the predecessor text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "smtp.md",
+      "basis": "Reviewed RFC5321 section1.2 explicitly states it obsoletes RFC821, RFC974 and RFC1869."
+    },
+    {
+      "rfc": 1034,
+      "cited_by": [
+        3492,
+        3986,
+        5280,
+        5322,
+        5598,
+        5890,
+        5891,
+        6376,
+        7208,
+        7672,
+        8552,
+        8820,
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1035,
+      "cited_by": [
+        5321,
+        5322,
+        5598,
+        5890,
+        5891,
+        7208,
+        7489,
+        7505,
+        7672,
+        8552,
+        8553,
+        8601,
+        9788,
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1036,
+      "cited_by": [
+        2557,
+        3864
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1047,
+      "cited_by": [
+        3464,
+        5321
+      ],
+      "status": "Informative explanation of SMTP duplicate delivery: the selected uncertainty and exact-retry rules remain required and are supplied by reviewed RFC5321 and RFC3464. This citation does not add a separately selected mechanism; RFC1047 base text remains unreviewed.",
+      "classification": "informative-context",
+      "review": "base-text-not-reviewed",
+      "evidence": "dsn-format.md",
+      "basis": "RFC3464 section 4.3 explains the duplicate-delivery race itself; RFC5321 section 6.1 states the response-time requirement and cites1047 for discussion."
+    },
+    {
+      "rfc": 1049,
+      "cited_by": [
+        2045,
+        2046,
+        2047,
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1056,
+      "cited_by": [
+        5321
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1064,
+      "cited_by": [
+        3501,
+        9051
+      ],
+      "status": "Historical IMAP2 predecessor: RFC9051 section10 explicitly supersedes RFC1064. Selected IMAP4rev2 behavior follows the reviewed successor; this citation does not select an IMAP2 adapter. The separate IMAP4rev1 compatibility dependency remains open under RFC3501. RFC1064 base text is not claimed reviewed.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "imap-access.md",
+      "basis": "RFC9051 section10 explicitly supersedes RFC1064; section13.2 lists it as informative history."
+    },
+    {
+      "rfc": 1123,
+      "cited_by": [
+        2045,
+        2046,
+        2480,
+        2557,
+        2920,
+        3461,
+        3464,
+        3886,
+        3986,
+        5280,
+        5321,
+        5322,
+        5890,
+        6530,
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1154,
+      "cited_by": [
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1176,
+      "cited_by": [
+        3501,
+        5321,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1211,
+      "cited_by": [
+        3461
+      ],
+      "status": "Historical mailing-list operational evidence motivating DSNs. Selected report syntax and delivery behavior come from reviewed RFC3461/3464; no RFC1211 implementation is selected. Base text unreviewed.",
+      "classification": "historical-context",
+      "review": "base-text-not-reviewed",
+      "evidence": "dsn-extension.md",
+      "basis": "RFC3461 section 1 cites1211 as operational motivation for structured delivery reports, not a command or report-format requirement."
+    },
+    {
+      "rfc": 1305,
+      "cited_by": [
+        5322
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1321,
+      "cited_by": [
+        1939,
+        2104,
+        2557,
+        5147,
+        6151,
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1341,
+      "cited_by": [
+        2046,
+        2049,
+        9694
+      ],
+      "status": "Historical MIME predecessor: the reviewed MIME series describes the RFC1341/RFC1342 \u2192 RFC1521/RFC1522 \u2192 RFC2045\u20132049 succession. Current body and encoded-header handling follows that reviewed series and its updates; historical syntax is not an independent sending profile. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "mime-conformance.md",
+      "basis": "Reviewed RFC2049 abstract and Appendix B; current RFC Editor metadata captured separately confirms the succession. Historical MIME predecessor: the reviewed MIME series describes the RFC1341/RFC1342 \u2192 RFC1521/RFC1522 \u2192 RFC2045\u20132049 succession. Current body and encoded-header handling follows that reviewed series and its updates; historical syntax is not an independent sending profile."
+    },
+    {
+      "rfc": 1342,
+      "cited_by": [
+        2049
+      ],
+      "status": "Historical MIME predecessor: the reviewed MIME series describes the RFC1341/RFC1342 \u2192 RFC1521/RFC1522 \u2192 RFC2045\u20132049 succession. Current body and encoded-header handling follows that reviewed series and its updates; historical syntax is not an independent sending profile. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "mime-conformance.md",
+      "basis": "Reviewed RFC2049 abstract and Appendix B; current RFC Editor metadata captured separately confirms the succession. Historical MIME predecessor: the reviewed MIME series describes the RFC1341/RFC1342 \u2192 RFC1521/RFC1522 \u2192 RFC2045\u20132049 succession. Current body and encoded-header handling follows that reviewed series and its updates; historical syntax is not an independent sending profile."
+    },
+    {
+      "rfc": 1344,
+      "cited_by": [
+        2045,
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1345,
+      "cited_by": [
+        2045,
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1421,
+      "cited_by": [
+        2045,
+        2046,
+        2049,
+        4648,
+        9180
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1422,
+      "cited_by": [
+        2046,
+        2049,
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1423,
+      "cited_by": [
+        2046,
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1424,
+      "cited_by": [
+        2046,
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1425,
+      "cited_by": [
+        2920
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1428,
+      "cited_by": [
+        2557
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1437,
+      "cited_by": [
+        9694
+      ],
+      "status": "Historical example in RFC9694 section3: an unregistered April Fools media type. Email Next proposes application subtypes under the reviewed registration rules, so this entertainment example supplies no required wire behavior. RFC1437 base text is not claimed reviewed.",
+      "classification": "historical-context",
+      "review": "base-text-not-reviewed",
+      "evidence": "media-top-level.md",
+      "basis": "RFC9694 section3 describes RFC1437 as an unregistered April Fools example, not a registration precedent."
+    },
+    {
+      "rfc": 1460,
+      "cited_by": [
+        1939
+      ],
+      "status": "Historical POP3 ancestry in RFC1939 section14. The selected command, UIDL and transaction semantics come from reviewed RFC1939 and applicable updates; no separate RFC1460 mode is selected. This disposition does not claim review of RFC1460 base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "pop-base.md",
+      "basis": "RFC1939 section14 identifies RFC1460 as historical POP3 ancestry; RFC1939 supplies the selected current protocol."
+    },
+    {
+      "rfc": 1496,
+      "cited_by": [
+        3864
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1505,
+      "cited_by": [
+        3864
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1506,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1521,
+      "cited_by": [
+        1847,
+        1870,
+        2049,
+        2183
+      ],
+      "status": "Historical MIME predecessor: selected body structure and conformance use reviewed RFC2045, RFC2046 and RFC2049. The MIME series explicitly obsoletes RFC1521; this is not a review of historical implementation deviations.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "mime-format.md",
+      "basis": "RFC2045 front matter; selected MIME composition contract"
+    },
+    {
+      "rfc": 1522,
+      "cited_by": [
+        1870,
+        2047,
+        2049
+      ],
+      "status": "Historical encoded-header predecessor: selected header decoding uses reviewed RFC2047 and applicable updates. RFC2047 explicitly obsoletes RFC1522; no independent legacy deviation is selected from this citation.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "header-text.md",
+      "basis": "RFC2047 front matter; selected header decoding contract"
+    },
+    {
+      "rfc": 1524,
+      "cited_by": [
+        2045,
+        2049,
+        2387
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1535,
+      "cited_by": [
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1543,
+      "cited_by": [
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1556,
+      "cited_by": [
+        2046,
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1590,
+      "cited_by": [
+        2049,
+        2387
+      ],
+      "status": "Historical MIME registration predecessor: the MIME revision incorporates RFC1590. New media-type registration follows reviewed RFC6838 and its applicable updates; this does not close the separate RFC2048/RFC4289 registration dependencies. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "mime-conformance.md",
+      "basis": "Reviewed RFC2049 abstract and Appendix B; RFC2045 abstract; current RFC Editor metadata captured separately confirms the succession. Historical MIME registration predecessor: the MIME revision incorporates RFC1590. New media-type registration follows reviewed RFC6838 and its applicable updates; this does not close the separate RFC2048/RFC4289 registration dependencies."
+    },
+    {
+      "rfc": 1591,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1602,
+      "cited_by": [
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1630,
+      "cited_by": [
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1652,
+      "cited_by": [
+        2045,
+        2049,
+        3030,
+        4468,
+        5321,
+        5335,
+        5598
+      ],
+      "status": "Historical predecessor, superseded by RFC6152. 8BITMIME transport follows RFC6152; the predecessor does not define an additional transport profile. This classification does not claim a review of the predecessor text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "eight-bit-mime.md",
+      "basis": "RFC Editor metadata records this source as obsoleted by RFC6152; selected successor review is linked."
+    },
+    {
+      "rfc": 1700,
+      "cited_by": [
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1725,
+      "cited_by": [
+        1939
+      ],
+      "status": "Historical POP3 predecessor: reviewed RFC1939 supplies current command, UIDL and transaction behavior, including its explicit corrections to RFC1725. Existing POP adoption uses that successor and applicable updates, not a separate RFC1725 mode. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "pop-base.md",
+      "basis": "Reviewed RFC1939 Appendix A and sections 3\u20137; current RFC Editor metadata captured separately confirms the succession. Historical POP3 predecessor: reviewed RFC1939 supplies current command, UIDL and transaction behavior, including its explicit corrections to RFC1725. Existing POP adoption uses that successor and applicable updates, not a separate RFC1725 mode."
+    },
+    {
+      "rfc": 1730,
+      "cited_by": [
+        1939,
+        3501,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1732,
+      "cited_by": [
+        3501,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1733,
+      "cited_by": [
+        3501,
+        5598,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1734,
+      "cited_by": [
+        1939,
+        2449,
+        5034
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1736,
+      "cited_by": [
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1737,
+      "cited_by": [
+        3864,
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1738,
+      "cited_by": [
+        2369,
+        2392,
+        2557,
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1741,
+      "cited_by": [
+        2045,
+        2049
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1750,
+      "cited_by": [
+        2919,
+        3885
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1766,
+      "cited_by": [
+        2184,
+        2231,
+        5646,
+        8753
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1767,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1806,
+      "cited_by": [
+        2183,
+        2387
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1808,
+      "cited_by": [
+        2557,
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1826,
+      "cited_by": [
+        2104
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1830,
+      "cited_by": [
+        3030
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1845,
+      "cited_by": [
+        6409
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1846,
+      "cited_by": [
+        6409,
+        7504
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1848,
+      "cited_by": [
+        3156
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1854,
+      "cited_by": [
+        2920
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1864,
+      "cited_by": [
+        3501,
+        3864,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1866,
+      "cited_by": [
+        2557,
+        2646,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1867,
+      "cited_by": [
+        7578
+      ],
+      "status": "Historical file-upload origin. Current multipart/form-data behavior follows reviewed RFC7578; this classification does not review RFC1867 or select its HTML extensions.",
+      "classification": "historical-context",
+      "review": "base-text-not-reviewed",
+      "evidence": "form-data.md",
+      "basis": "RFC7578 section 1 identifies the historical HTML file-upload origin; no old HTML form runtime is selected."
+    },
+    {
+      "rfc": 1869,
+      "cited_by": [
+        1870,
+        2920,
+        3030,
+        3885,
+        3886,
+        5321
+      ],
+      "status": "Historical SMTP predecessor: RFC5321 section1.2 explicitly supersedes this source. Selected transport and routing behavior follows the reviewed RFC5321 contract and applicable updates; omitted historical transport models are not selected. This classification does not claim a review of the predecessor text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "smtp.md",
+      "basis": "Reviewed RFC5321 section1.2 explicitly states it obsoletes RFC821, RFC974 and RFC1869."
+    },
+    {
+      "rfc": 1873,
+      "cited_by": [
+        2387
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1891,
+      "cited_by": [
+        3461
+      ],
+      "status": "Historical report predecessor: selected behavior follows reviewed RFC3461, including ASCII-before-xtext clarification and security considerations. The older text is not a separate compatibility profile and has not been reviewed in this classification.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "dsn-extension.md",
+      "basis": "Reviewed RFC3461 section 11; official current metadata confirms direct succession."
+    },
+    {
+      "rfc": 1892,
+      "cited_by": [
+        6522
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1893,
+      "cited_by": [
+        3463,
+        5248
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1894,
+      "cited_by": [
+        3464
+      ],
+      "status": "Historical report predecessor: selected behavior follows reviewed RFC3464, including corrected delayed report example and gateway MTA-name type. The older text is not a separate compatibility profile and has not been reviewed in this classification.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "dsn-format.md",
+      "basis": "Reviewed RFC3464 Appendix F; official current metadata confirms direct succession."
+    },
+    {
+      "rfc": 1896,
+      "cited_by": [
+        2046,
+        2049,
+        2646,
+        3676
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1919,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1945,
+      "cited_by": [
+        2557,
+        3864,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1950,
+      "cited_by": [
+        9110,
+        9580
+      ],
+      "status": "Selected PNG decompression dependency: RFC1950 sections 2.1\u20132.3 reviewed with current errata and update checks. The image-format audit defines the selected zlib/DEFLATE path. This is not a complete RFC base review, codec certification or review of every HTTP/OpenPGP compression use.",
+      "classification": "selected-normative-dependency",
+      "review": "selected-decompression-ranges-and-current-errata-reviewed",
+      "evidence": "image-formats.md",
+      "basis": "PNG Third Edition compression method0 and RFC1950 sections2.1\u20132.3; captured source fingerprints and exact scope in image-format audit."
+    },
+    {
+      "rfc": 1951,
+      "cited_by": [
+        9110,
+        9580
+      ],
+      "status": "Selected PNG decompression dependency: RFC1951 sections 3.1\u20133.3 reviewed with current errata and update checks. The image-format audit defines the selected zlib/DEFLATE path. This is not a complete RFC base review, codec certification or review of every HTTP/OpenPGP compression use.",
+      "classification": "selected-normative-dependency",
+      "review": "selected-decompression-ranges-and-current-errata-reviewed",
+      "evidence": "image-formats.md",
+      "basis": "PNG Third Edition compression method0 and RFC1951 sections3.1\u20133.3; captured source fingerprints and exact scope in image-format audit."
+    },
+    {
+      "rfc": 1952,
+      "cited_by": [
+        8460,
+        9110,
+        9990
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1983,
+      "cited_by": [
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1985,
+      "cited_by": [
+        5321,
+        5598,
+        6409
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 1991,
+      "cited_by": [
+        3156,
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2015,
+      "cited_by": [
+        3156,
+        3676,
+        4954
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2017,
+      "cited_by": [
+        2557
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2026,
+      "cited_by": [
+        3864,
+        5646,
+        6838,
+        6854,
+        8126,
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2028,
+      "cited_by": [
+        5646
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2033,
+      "cited_by": [
+        3886,
+        5429,
+        5598,
+        6531,
+        8689
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2034,
+      "cited_by": [
+        3207,
+        4468,
+        4954,
+        5429,
+        6409
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2044,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2048,
+      "cited_by": [
+        2045,
+        2046,
+        2047,
+        2049,
+        2183,
+        2184,
+        2231,
+        2557,
+        5228,
+        6838,
+        9694
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2060,
+      "cited_by": [
+        2184,
+        2231,
+        2449,
+        3461,
+        3501,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2061,
+      "cited_by": [
+        3501,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2062,
+      "cited_by": [
+        3501,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2068,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2070,
+      "cited_by": [
+        2557
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2076,
+      "cited_by": [
+        3834
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2077,
+      "cited_by": [
+        9051,
+        9694
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2086,
+      "cited_by": [
+        3503
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2087,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2110,
+      "cited_by": [
+        2557
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2111,
+      "cited_by": [
+        2387,
+        2392
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2112,
+      "cited_by": [
+        2387
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2130,
+      "cited_by": [
+        2184,
+        2231
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2132,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2136,
+      "cited_by": [
+        7672
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2141,
+      "cited_by": [
+        3864,
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2142,
+      "cited_by": [
+        2369,
+        5598,
+        7293,
+        7489,
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2144,
+      "cited_by": [
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2145,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2152,
+      "cited_by": [
+        3501,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2156,
+      "cited_by": [
+        3834,
+        3864,
+        5321
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2177,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2180,
+      "cited_by": [
+        3501,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2181,
+      "cited_by": [
+        5321,
+        5598,
+        5890,
+        7672,
+        8552
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2192,
+      "cited_by": [
+        4468
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2193,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2195,
+      "cited_by": [
+        4954
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2197,
+      "cited_by": [
+        2449,
+        2920
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2202,
+      "cited_by": [
+        6151
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2222,
+      "cited_by": [
+        2449,
+        3207,
+        3501
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2227,
+      "cited_by": [
+        3864
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2234,
+      "cited_by": [
+        2449,
+        2557,
+        2646,
+        2919,
+        3501,
+        3629,
+        3676,
+        3834,
+        3885,
+        3886,
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2244,
+      "cited_by": [
+        3501,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2245,
+      "cited_by": [
+        3501
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2246,
+      "cited_by": [
+        3207,
+        3501,
+        6749,
+        6750,
+        8996,
+        9325,
+        9846
+      ],
+      "status": "TLS1.0 is prohibited by reviewed RFC8996. Historical references do not authorize its negotiation or fallback in the selected service profile; no independent implementation of this obsolete version is selected.",
+      "classification": "historical-prohibited-protocol",
+      "review": "base-text-not-reviewed",
+      "evidence": "tls-deprecation.md",
+      "basis": "Complete RFC8996 review, sections4/5; selected service_tls.py sets TLS1.3 minimum."
+    },
+    {
+      "rfc": 2268,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2277,
+      "cited_by": [
+        5280,
+        5337,
+        5646,
+        6533
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2279,
+      "cited_by": [
+        2634,
+        3629,
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2295,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2298,
+      "cited_by": [
+        3503,
+        3798,
+        3864
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2308,
+      "cited_by": [
+        7208,
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2311,
+      "cited_by": [
+        2634,
+        5652,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2312,
+      "cited_by": [
+        2634,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2313,
+      "cited_by": [
+        5652,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2314,
+      "cited_by": [
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2315,
+      "cited_by": [
+        2634,
+        5652,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2324,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2342,
+      "cited_by": [
+        9042,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2368,
+      "cited_by": [
+        2369,
+        5436
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2388,
+      "cited_by": [
+        7578
+      ],
+      "status": "Historical predecessor replaced by reviewed RFC7578. Legacy nested multipart reception remains covered by the successor\u2019s explicit compatibility rule; the old base text is not separately reviewed.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "form-data.md",
+      "basis": "RFC7578 sections 1 and 4.3 and Appendix A explicitly replace RFC2388 and describe retained legacy nested multipart reception."
+    },
+    {
+      "rfc": 2389,
+      "cited_by": [
+        2557
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2396,
+      "cited_by": [
+        3864,
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2421,
+      "cited_by": [
+        3864
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2434,
+      "cited_by": [
+        2449,
+        3834,
+        3864,
+        5116,
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2437,
+      "cited_by": [
+        5652
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2440,
+      "cited_by": [
+        3156,
+        3676,
+        4648,
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2442,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2459,
+      "cited_by": [
+        5280,
+        9608
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2460,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2476,
+      "cited_by": [
+        3030,
+        3207,
+        6409
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2487,
+      "cited_by": [
+        3207
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2505,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2518,
+      "cited_by": [
+        3864,
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2554,
+      "cited_by": [
+        3207,
+        4468,
+        4954,
+        5034
+      ],
+      "status": "Historical SMTP AUTH predecessor: reviewed RFC4954 specifies AUTH, envelope authentication parameters, status handling and corrections to RFC2554. Its SASL and TLS dependencies remain separate; obsolete status behavior is not revived. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "smtp-authentication.md",
+      "basis": "Reviewed RFC4954 section 15 and sections 3\u20137; current RFC Editor metadata captured separately confirms the succession. Historical SMTP AUTH predecessor: reviewed RFC4954 specifies AUTH, envelope authentication parameters, status handling and corrections to RFC2554. Its SASL and TLS dependencies remain separate; obsolete status behavior is not revived."
+    },
+    {
+      "rfc": 2560,
+      "cited_by": [
+        5280,
+        5652
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2585,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2595,
+      "cited_by": [
+        3501,
+        5034,
+        6186,
+        7817,
+        8314,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2606,
+      "cited_by": [
+        2919
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2616,
+      "cited_by": [
+        3864,
+        5280,
+        5646,
+        5890,
+        6657,
+        6749,
+        6750,
+        6838,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2617,
+      "cited_by": [
+        3864,
+        6749,
+        6750,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2630,
+      "cited_by": [
+        2634,
+        5652,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2631,
+      "cited_by": [
+        5652,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2632,
+      "cited_by": [
+        2634,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2633,
+      "cited_by": [
+        2634,
+        5652,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2645,
+      "cited_by": [
+        5598,
+        6409
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2671,
+      "cited_by": [
+        5891,
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2672,
+      "cited_by": [
+        5893
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2673,
+      "cited_by": [
+        5890
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2683,
+      "cited_by": [
+        3501,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2717,
+      "cited_by": [
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2718,
+      "cited_by": [
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2732,
+      "cited_by": [
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2774,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2781,
+      "cited_by": [
+        3030,
+        5147,
+        5646
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2782,
+      "cited_by": [
+        5890,
+        6186,
+        7208,
+        7505,
+        8552,
+        8553,
+        8620,
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2785,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2797,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2818,
+      "cited_by": [
+        6749,
+        6750,
+        8461,
+        8620,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2821,
+      "cited_by": [
+        3207,
+        3501,
+        3676,
+        3798,
+        3864,
+        3885,
+        4468,
+        4865,
+        4954,
+        5228,
+        5248,
+        5280,
+        5321,
+        5335,
+        5337,
+        5598,
+        6530
+      ],
+      "status": "Historical SMTP predecessor: selected transport behavior is reviewed under RFC5321 and its applicable updates. RFC5321 explicitly obsoletes this document; this disposition does not claim a full review of historical differences.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "smtp.md",
+      "basis": "RFC5321 front matter; selected baseline/transport contract"
+    },
+    {
+      "rfc": 2822,
+      "cited_by": [
+        2919,
+        3501,
+        3676,
+        3798,
+        3834,
+        3864,
+        3885,
+        3886,
+        4865,
+        5173,
+        5228,
+        5322,
+        5335,
+        5337,
+        5598,
+        9580
+      ],
+      "status": "Historical message-format predecessor: selected behavior, including obsolete-syntax reception, is reviewed under RFC5322 and applicable updates. RFC5322 explicitly obsoletes this document; historical differences are not counted as reviewed.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "message-format.md",
+      "basis": "RFC5322 front matter and section4; selected baseline/messages contract"
+    },
+    {
+      "rfc": 2831,
+      "cited_by": [
+        3501
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2852,
+      "cited_by": [
+        3885,
+        4865,
+        6409,
+        8621
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2854,
+      "cited_by": [
+        5147,
+        6657
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2860,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2898,
+      "cited_by": [
+        5869
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2912,
+      "cited_by": [
+        3864
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2938,
+      "cited_by": [
+        4648
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2939,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2965,
+      "cited_by": [
+        3864
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2978,
+      "cited_by": [
+        3501,
+        3629,
+        3986,
+        5147,
+        6838,
+        9051,
+        9110,
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2979,
+      "cited_by": [
+        5321,
+        8314
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2985,
+      "cited_by": [
+        5280,
+        8550
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3023,
+      "cited_by": [
+        6657,
+        6838,
+        6839
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3028,
+      "cited_by": [
+        5228,
+        5429
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3040,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3066,
+      "cited_by": [
+        3501,
+        5646
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3114,
+      "cited_by": [
+        8550
+      ],
+      "status": "Company classification-label policy is not selected for Email Next. The parent citation illustrates an optional attribute-certificate application, not basic S/MIME key validation. Base text not reviewed.",
+      "classification": "out-of-scope-reference",
+      "evidence": "smime-certificates.md",
+      "basis": "RFC8550 section2.3 explicitly places attribute-certificate generation/use outside its scope and gives RFC3114 as one example.",
+      "review": "base-text-not-reviewed"
+    },
+    {
+      "rfc": 3161,
+      "cited_by": [
+        5280,
+        8933
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3192,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3206,
+      "cited_by": [
+        5034
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3211,
+      "cited_by": [
+        5652
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3218,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3228,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3230,
+      "cited_by": [
+        9404
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3249,
+      "cited_by": [
+        8098
+      ],
+      "status": "Fax application profile is outside the selected Email Next feature set. The MDN automatic-action label remains supported without implementing fax processing. This classification does not review RFC3249 or imply rejection of ordinary messages containing fax documents.",
+      "classification": "out-of-scope-feature",
+      "review": "base-text-not-reviewed",
+      "evidence": "disposition-notifications.md",
+      "basis": "RFC8098 section 3.2.6.1 cites fax-over-email only as an example of an automatic action."
+    },
+    {
+      "rfc": 3261,
+      "cited_by": [
+        3864,
+        8996,
+        9325,
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3263,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3274,
+      "cited_by": [
+        8551,
+        9787
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3279,
+      "cited_by": [
+        5280,
+        8550,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3280,
+      "cited_by": [
+        4954,
+        5035,
+        5280,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3281,
+      "cited_by": [
+        5652,
+        9608
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3282,
+      "cited_by": [
+        3864,
+        5646,
+        8621,
+        8753,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3297,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3305,
+      "cited_by": [
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3315,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3316,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3329,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3339,
+      "cited_by": [
+        4865,
+        5646,
+        7293,
+        8460,
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3348,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3369,
+      "cited_by": [
+        5652
+      ],
+      "status": "Historical CMS revision. Current CMS processing and explicit PKCS#7 compatibility follow RFC5652 and its reviewed updates; this does not review the old base or select an old CMS profile.",
+      "classification": "historical-predecessor",
+      "evidence": "cms.md",
+      "basis": "RFC5652 sections1.1.2\u20131.1.4 describe retained extensions and corrected earlier errata; current normative structures and compatibility are in the reviewed successor.",
+      "review": "base-text-not-reviewed"
+    },
+    {
+      "rfc": 3370,
+      "cited_by": [
+        5652,
+        6211,
+        8551,
+        9787
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3394,
+      "cited_by": [
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3403,
+      "cited_by": [
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3436,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3447,
+      "cited_by": [
+        6211,
+        6376,
+        8463,
+        8550
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3454,
+      "cited_by": [
+        4954,
+        5034,
+        5280,
+        5890,
+        5892,
+        5893,
+        8753,
+        9233
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3458,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3462,
+      "cited_by": [
+        3461,
+        3464,
+        3798,
+        5337,
+        5429,
+        5598,
+        6522
+      ],
+      "status": "Historical report predecessor: selected behavior follows reviewed RFC6522, including removal of the outermost-only multipart/report constraint. The older text is not a separate compatibility profile and has not been reviewed in this classification.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "report-container.md",
+      "basis": "Reviewed RFC6522 section 1; official current metadata confirms direct succession."
+    },
+    {
+      "rfc": 3470,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3489,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3490,
+      "cited_by": [
+        3492,
+        3986,
+        5280,
+        5890,
+        5891,
+        6818,
+        8753,
+        9233,
+        9549
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3491,
+      "cited_by": [
+        3492,
+        5890,
+        5891,
+        5892,
+        8753,
+        9233
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3502,
+      "cited_by": [
+        6785,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3513,
+      "cited_by": [
+        3986
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3516,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3529,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3546,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3548,
+      "cited_by": [
+        4648
+      ],
+      "status": "Historical predecessor; RFC4648 supplies the selected byte-encoding contract. No implementation of the obsolete version is selected.",
+      "classification": "historical-context",
+      "evidence": {
+        "source": "https://www.rfc-editor.org/rfc/rfc4648.json",
+        "relation": "obsoletes"
+      }
+    },
+    {
+      "rfc": 3552,
+      "cited_by": [
+        5646,
+        8126,
+        8601,
+        8996,
+        9750,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3553,
+      "cited_by": [
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3560,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3565,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3568,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3575,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3588,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3596,
+      "cited_by": [
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3602,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3620,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3647,
+      "cited_by": [
+        9608
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3656,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3688,
+      "cited_by": [
+        9990
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3691,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3692,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3696,
+      "cited_by": [
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3713,
+      "cited_by": [
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3734,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3748,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3749,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3766,
+      "cited_by": [
+        6376,
+        8551,
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3767,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3801,
+      "cited_by": [
+        3864,
+        5598,
+        8098
+      ],
+      "status": "Specialized VPIM voice gateway behavior is not selected. General message transport, opaque local parts and MDN labels do not require implementing voice gateway addressing or processing. Base text remains unreviewed; the cross-reference label mismatch is not treated as protocol evidence.",
+      "classification": "out-of-scope-feature",
+      "review": "base-text-not-reviewed",
+      "evidence": "disposition-notifications.md",
+      "basis": "RFC8098 section 3.2.6.1 gives a voice-system example; RFC5598 sections1 and3.1 describe specialized services/address conventions; RFC3864 section2.2 lists header-definition examples (its2421 label points to3801 reference21)."
+    },
+    {
+      "rfc": 3832,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3833,
+      "cited_by": [
+        6376,
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3848,
+      "cited_by": [
+        4954,
+        5321,
+        6531,
+        8314
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3850,
+      "cited_by": [
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3851,
+      "cited_by": [
+        4954,
+        5321,
+        5598,
+        5652,
+        8550,
+        8551,
+        9788
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3852,
+      "cited_by": [
+        5035,
+        5652,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3856,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3865,
+      "cited_by": [
+        6409
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3871,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3875,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3887,
+      "cited_by": [
+        3885,
+        3886,
+        8553,
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3888,
+      "cited_by": [
+        3885,
+        3886
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3894,
+      "cited_by": [
+        6785
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3903,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3920,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3921,
+      "cited_by": [
+        8552
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3941,
+      "cited_by": [
+        5890
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3942,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3943,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3958,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3968,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3974,
+      "cited_by": [
+        5321
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3978,
+      "cited_by": [
+        4648
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3979,
+      "cited_by": [
+        6838
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3983,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3987,
+      "cited_by": [
+        5147,
+        5280,
+        5891,
+        6530,
+        9549
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4013,
+      "cited_by": [
+        4954,
+        5034
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4021,
+      "cited_by": [
+        5322,
+        5598,
+        9788
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4025,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4033,
+      "cited_by": [
+        4648,
+        6376,
+        7208,
+        7489,
+        7672,
+        7817,
+        8314,
+        8461,
+        8689,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4034,
+      "cited_by": [
+        7672,
+        7817,
+        8689
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4035,
+      "cited_by": [
+        7672,
+        7817,
+        8689
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4044,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4055,
+      "cited_by": [
+        5280,
+        8550
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4056,
+      "cited_by": [
+        6211,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4086,
+      "cited_by": [
+        5116,
+        5652,
+        8032,
+        8551,
+        9580,
+        9629,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4097,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4106,
+      "cited_by": [
+        5116
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4107,
+      "cited_by": [
+        5116
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4111,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4120,
+      "cited_by": [
+        4468,
+        5280,
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4124,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4132,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4134,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4141,
+      "cited_by": [
+        6409
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4142,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4143,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4155,
+      "cited_by": [
+        6530
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4158,
+      "cited_by": [
+        9925
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4162,
+      "cited_by": [
+        8996,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4168,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4169,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4210,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4217,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4227,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4231,
+      "cited_by": [
+        6151
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4234,
+      "cited_by": [
+        4468,
+        4865,
+        4954,
+        5034,
+        5228,
+        5229
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4235,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4244,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4261,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4270,
+      "cited_by": [
+        6151,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4271,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4279,
+      "cited_by": [
+        8996,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4283,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4288,
+      "cited_by": [
+        5147,
+        5322,
+        5598,
+        6522,
+        6838,
+        8126
+      ],
+      "status": "Historical media-registration predecessor: reviewed RFC6838 replaces the registration process, structured suffix rules, review procedure and template. New Email Next registrations use that successor and updates; RFC4288 is not an alternative registration route. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "media-registration.md",
+      "basis": "Reviewed RFC6838 Appendix B and sections 3\u20135; current RFC Editor metadata captured separately confirms the succession. Historical media-registration predecessor: reviewed RFC6838 replaces the registration process, structured suffix rules, review procedure and template. New Email Next registrations use that successor and updates; RFC4288 is not an alternative registration route."
+    },
+    {
+      "rfc": 4289,
+      "cited_by": [
+        5322,
+        5598,
+        8551,
+        9110,
+        9787
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4291,
+      "cited_by": [
+        5321,
+        7208,
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4301,
+      "cited_by": [
+        6409
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4303,
+      "cited_by": [
+        5116
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4306,
+      "cited_by": [
+        5869
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4309,
+      "cited_by": [
+        5116
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4314,
+      "cited_by": [
+        8621,
+        9042,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4315,
+      "cited_by": [
+        6785,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4325,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4340,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4343,
+      "cited_by": [
+        7489,
+        9525,
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4346,
+      "cited_by": [
+        4954,
+        5034,
+        8314,
+        8996,
+        8997,
+        9325,
+        9846,
+        10015
+      ],
+      "status": "TLS1.1 is prohibited by reviewed RFC8996. Historical references do not authorize its negotiation or fallback in the selected service profile; no independent implementation of this obsolete version is selected.",
+      "classification": "historical-prohibited-protocol",
+      "review": "base-text-not-reviewed",
+      "evidence": "tls-deprecation.md",
+      "basis": "Complete RFC8996 review, sections4/5; selected service_tls.py sets TLS1.3 minimum."
+    },
+    {
+      "rfc": 4347,
+      "cited_by": [
+        8996,
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4356,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4366,
+      "cited_by": [
+        8996,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4386,
+      "cited_by": [
+        8552,
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4387,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4406,
+      "cited_by": [
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4408,
+      "cited_by": [
+        5321,
+        7208
+      ],
+      "status": "Historical SPF predecessor: reviewed RFC7208 retains deployed ptr/%p behavior while discouraging it, removes SPF RR type 99 and revises lookup limits. Current SPF assessment follows that successor and updates; RFC4408 is not an alternative policy. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "spf.md",
+      "basis": "Reviewed RFC7208 Appendix B and sections 3.1, 4.6.4, 5.5 and 7.2; current RFC Editor metadata captured separately confirms the succession. Historical SPF predecessor: reviewed RFC7208 retains deployed ptr/%p behavior while discouraging it, removes SPF RR type 99 and revises lookup limits. Current SPF assessment follows that successor and updates; RFC4408 is not an alternative policy."
+    },
+    {
+      "rfc": 4409,
+      "cited_by": [
+        4468,
+        4865,
+        4954,
+        5321,
+        5598,
+        6186,
+        6376,
+        6409
+      ],
+      "status": "Historical submission predecessor: RFC6409 Appendix A states the protocol is not substantively different, while updating references and clarifications. Selected submission behavior follows reviewed RFC6409 plus its TLS update rather than a separate RFC4409 profile. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "submission.md",
+      "basis": "Reviewed RFC6409 Appendix A and sections 3\u20139; current RFC Editor metadata captured separately confirms the succession. Historical submission predecessor: RFC6409 Appendix A states the protocol is not substantively different, while updating references and clarifications. Selected submission behavior follows reviewed RFC6409 plus its TLS update rather than a separate RFC4409 profile."
+    },
+    {
+      "rfc": 4422,
+      "cited_by": [
+        4954,
+        5034,
+        8126,
+        8314,
+        8621,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4446,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4466,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4467,
+      "cited_by": [
+        4468
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4491,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4492,
+      "cited_by": [
+        8996,
+        9846,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4493,
+      "cited_by": [
+        6151
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4497,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4505,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4507,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4510,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4511,
+      "cited_by": [
+        9787
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4512,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4513,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4514,
+      "cited_by": [
+        5280,
+        9525,
+        9925
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4516,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4518,
+      "cited_by": [
+        5280,
+        9549
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4519,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4520,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4523,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4531,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4540,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4549,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4550,
+      "cited_by": [
+        5598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4559,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4572,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4582,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4589,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4592,
+      "cited_by": [
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4616,
+      "cited_by": [
+        4954,
+        5034,
+        8621,
+        8996,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4627,
+      "cited_by": [
+        6749,
+        6839,
+        8259
+      ],
+      "status": "Historical predecessor, superseded by RFC7159, itself superseded by RFC8259. JSON encoding follows RFC8259 and the selected application constraints; the older object/array-only JSON definition is not a second decoding mode. This classification does not claim a review of the predecessor text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "json-encoding.md",
+      "basis": "RFC Editor metadata records this source as obsoleted by RFC7159; selected successor review is linked."
+    },
+    {
+      "rfc": 4630,
+      "cited_by": [
+        5280
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4632,
+      "cited_by": [
+        5280,
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4637,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4642,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4645,
+      "cited_by": [
+        5646
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4646,
+      "cited_by": [
+        5337,
+        5646
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4647,
+      "cited_by": [
+        5646,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4680,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4681,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4686,
+      "cited_by": [
+        5321,
+        6376,
+        7489
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4690,
+      "cited_by": [
+        5890,
+        5891,
+        5892,
+        6530,
+        8753
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4712,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4727,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4731,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4732,
+      "cited_by": [
+        6376,
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4735,
+      "cited_by": [
+        9694
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4743,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4744,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4752,
+      "cited_by": [
+        5034,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4785,
+      "cited_by": [
+        8996,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4790,
+      "cited_by": [
+        5228,
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4791,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4823,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4851,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4853,
+      "cited_by": [
+        5652
+      ],
+      "status": "Multiple-signer clarification incorporated into the reviewed CMS base. Selected behavior is recorded in RFC5652; RFC4853 has not been separately reviewed.",
+      "classification": "historical-context",
+      "evidence": "cms.md",
+      "basis": "RFC5652 section1.1.4 explicitly incorporates this multiple-signer clarification; sections5/5.1 publish the applicable per-signer rule and application-policy exception.",
+      "review": "base-text-not-reviewed"
+    },
+    {
+      "rfc": 4855,
+      "cited_by": [
+        6838
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4870,
+      "cited_by": [
+        6376,
+        8601,
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4871,
+      "cited_by": [
+        5321,
+        6376
+      ],
+      "status": "Historical DKIM predecessor: reviewed RFC6376 incorporates RFC5672 terminology/output rules and revises RFC4871 verification, including ignoring the deprecated g= key tag. Compatibility advice remains in the successor; current algorithm updates still apply. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "dkim.md",
+      "basis": "Reviewed RFC6376 Appendices C.2 and E; sections 2, 3 and 6; current RFC Editor metadata captured separately confirms the succession. Historical DKIM predecessor: reviewed RFC6376 incorporates RFC5672 terminology/output rules and revises RFC4871 verification, including ignoring the deprecated g= key tag. Compatibility advice remains in the successor; current algorithm updates still apply."
+    },
+    {
+      "rfc": 4880,
+      "cited_by": [
+        5321,
+        5598,
+        6376,
+        6409,
+        7208,
+        8689,
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4918,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4934,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4949,
+      "cited_by": [
+        6749,
+        7489,
+        7672,
+        8551,
+        9325,
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4952,
+      "cited_by": [
+        5335,
+        5891,
+        6530
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4959,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4964,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4975,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4976,
+      "cited_by": [
+        8553,
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4985,
+      "cited_by": [
+        7817,
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4992,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5018,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5019,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5023,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5024,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5026,
+      "cited_by": [
+        8552,
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5049,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5051,
+      "cited_by": [
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5054,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5068,
+      "cited_by": [
+        5598,
+        8314
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5077,
+      "cited_by": [
+        7301,
+        8996,
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5081,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5083,
+      "cited_by": [
+        8551,
+        8933,
+        9629,
+        9788
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5084,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5091,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5092,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5101,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5158,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5161,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5182,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5183,
+      "cited_by": [
+        6785
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5191,
+      "cited_by": [
+        5869
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5198,
+      "cited_by": [
+        5335,
+        6530,
+        6532,
+        8621,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5216,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5226,
+      "cited_by": [
+        5248,
+        5436,
+        5646,
+        5892,
+        6376,
+        6749,
+        6838,
+        7301,
+        7489,
+        7636,
+        8098,
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5230,
+      "cited_by": [
+        5429,
+        6785
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5231,
+      "cited_by": [
+        5229
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5232,
+      "cited_by": [
+        6785
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5233,
+      "cited_by": [
+        8098
+      ],
+      "status": "Subaddressing explains why two notification addresses may not match; it does not authorize stripping tags or treating mailboxes as identical. The selected exact-address comparison follows reviewed RFC8098. The Sieve subaddress extension itself is not selected by this citation; base text unreviewed.",
+      "classification": "informative-context",
+      "review": "base-text-not-reviewed",
+      "evidence": "disposition-notifications.md",
+      "basis": "RFC8098 section2.1 explicitly says receivers cannot reliably infer sender subaddressing and recommends no special handling."
+    },
+    {
+      "rfc": 5235,
+      "cited_by": [
+        5229,
+        5429,
+        5598,
+        6785
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5238,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5246,
+      "cited_by": [
+        5890,
+        6186,
+        6749,
+        6750,
+        7301,
+        7672,
+        8126,
+        8314,
+        8461,
+        8620,
+        8996,
+        8997,
+        9051,
+        9325,
+        9846,
+        9852,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5255,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5256,
+      "cited_by": [
+        8621,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5258,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5263,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5281,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5288,
+      "cited_by": [
+        9325,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5289,
+      "cited_by": [
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5293,
+      "cited_by": [
+        6785
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5328,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5336,
+      "cited_by": [
+        5335,
+        5337,
+        5598,
+        6530,
+        6531
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5364,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5378,
+      "cited_by": [
+        6838,
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5389,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5415,
+      "cited_by": [
+        8553,
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5422,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5435,
+      "cited_by": [
+        5436,
+        6785
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5448,
+      "cited_by": [
+        5869
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5451,
+      "cited_by": [
+        6376,
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5456,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5464,
+      "cited_by": [
+        6785
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5465,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5469,
+      "cited_by": [
+        8996,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5487,
+      "cited_by": [
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5490,
+      "cited_by": [
+        9042
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5504,
+      "cited_by": [
+        6530
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5507,
+      "cited_by": [
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5509,
+      "cited_by": [
+        8552
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5518,
+      "cited_by": [
+        8552,
+        8553,
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5530,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5555,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5581,
+      "cited_by": [
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5585,
+      "cited_by": [
+        6376,
+        7489
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5617,
+      "cited_by": [
+        6854,
+        7489,
+        8553,
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5630,
+      "cited_by": [
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5639,
+      "cited_by": [
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5645,
+      "cited_by": [
+        5646
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5672,
+      "cited_by": [
+        6376
+      ],
+      "status": "Historical DKIM predecessor: reviewed RFC6376 incorporates RFC5672 terminology/output rules and revises RFC4871 verification, including ignoring the deprecated g= key tag. Compatibility advice remains in the successor; current algorithm updates still apply. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "dkim.md",
+      "basis": "Reviewed RFC6376 Appendices C.2 and E; sections 2, 3 and 6; current RFC Editor metadata captured separately confirms the succession. Historical DKIM predecessor: reviewed RFC6376 incorporates RFC5672 terminology/output rules and revises RFC4871 verification, including ignoring the deprecated g= key tag. Compatibility advice remains in the successor; current algorithm updates still apply."
+    },
+    {
+      "rfc": 5679,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5703,
+      "cited_by": [
+        6785
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5705,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5721,
+      "cited_by": [
+        6530
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5734,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5738,
+      "cited_by": [
+        6530
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5741,
+      "cited_by": [
+        5869,
+        5890,
+        5891,
+        5892,
+        5893,
+        6151,
+        6152,
+        6186,
+        6211,
+        6376,
+        6409,
+        6452,
+        6522,
+        6530,
+        6531,
+        6532,
+        6533,
+        6657,
+        6749,
+        6750,
+        6785,
+        6818,
+        6838,
+        6839,
+        6854,
+        7208,
+        7293,
+        7301,
+        7372,
+        7405,
+        7489,
+        7504,
+        7505,
+        7578,
+        7636,
+        7672,
+        7748,
+        7817
+      ],
+      "status": "Publication-status context, not an email processing requirement. All cited parent occurrences refer to RFC status boilerplate; RFC5741 base text has not been reviewed.",
+      "classification": "informative-context",
+      "review": "base-text-not-reviewed",
+      "evidence": "reference-candidates.md",
+      "basis": "Every occurrence in all 34 cited parent texts was checked: each is the Status of This Memo reference to section 2 explaining RFC publication status."
+    },
+    {
+      "rfc": 5742,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5746,
+      "cited_by": [
+        9325,
+        9852
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5750,
+      "cited_by": [
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5751,
+      "cited_by": [
+        6376,
+        6409,
+        6530,
+        7208,
+        8550,
+        8551,
+        9788
+      ],
+      "status": "Conditional historical-message dependency: RFC8551 supersedes S/MIME 3.2 for current S/MIME 4.0 and separately discusses historic-email processing. Legacy protected-mail reception may require version-specific behavior; RFC5751 is not dismissed merely because superseded, nor does it authorize old algorithms for new messages. That compatibility review remains open. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "conditional-feature-dependency",
+      "review": "base-text-not-reviewed",
+      "evidence": "smime-message.md",
+      "basis": "Reviewed RFC8551 section 1, section 1.7 and Appendix B; current RFC Editor metadata captured separately confirms the succession. Conditional historical-message dependency: RFC8551 supersedes S/MIME 3.2 for current S/MIME 4.0 and separately discusses historic-email processing. Legacy protected-mail reception may require version-specific behavior; RFC5751 is not dismissed merely because superseded, nor does it authorize old algorithms for new messages. That compatibility review remains open."
+    },
+    {
+      "rfc": 5753,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5754,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5755,
+      "cited_by": [
+        8550
+      ],
+      "status": "Conditional dependency for recommended S/MIME v2 attribute-certificate handling. It is not an Email Next principal-authority mechanism; exact syntax/validation review remains pending before claiming that compatibility capability.",
+      "classification": "conditional-feature-dependency",
+      "evidence": "smime-certificates.md",
+      "basis": "RFC8550 sections2.2/2.3 recommend v2 attribute-certificate reception/decoding but explicitly leave generation and application use outside scope.",
+      "review": "base-text-review-pending"
+    },
+    {
+      "rfc": 5756,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5758,
+      "cited_by": [
+        8550
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5763,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5764,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5766,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5771,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5780,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5782,
+      "cited_by": [
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5785,
+      "cited_by": [
+        8461
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5788,
+      "cited_by": [
+        8621,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5789,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5795,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5804,
+      "cited_by": [
+        6785,
+        7817,
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5819,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5825,
+      "cited_by": [
+        6530
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5849,
+      "cited_by": [
+        6749
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5863,
+      "cited_by": [
+        6376,
+        6530,
+        7489
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5864,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5878,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5894,
+      "cited_by": [
+        5890,
+        5891,
+        5892,
+        6530,
+        8753,
+        9233,
+        9549
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5895,
+      "cited_by": [
+        9233
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5905,
+      "cited_by": [
+        7293,
+        9110,
+        9420
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5911,
+      "cited_by": [
+        9629
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5912,
+      "cited_by": [
+        6211,
+        9598,
+        9608,
+        9629,
+        9925
+      ],
+      "status": "Selected certificate ASN.1 modules and algorithm declarations are required syntax dependencies. The scoped review covers selected modules, object/table semantics and all ten current errata dispositions; it does not cover every module or establish backend compliance.",
+      "classification": "selected-normative-dependency",
+      "review": "selected-sections-reviewed",
+      "evidence": "rsa-certificate-signatures.md",
+      "basis": "rfc5912-selected-review-ledger.json"
+    },
+    {
+      "rfc": 5914,
+      "cited_by": [
+        6818,
+        9925
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5922,
+      "cited_by": [
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5928,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5929,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5932,
+      "cited_by": [
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5937,
+      "cited_by": [
+        6818
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5952,
+      "cited_by": [
+        8460
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5953,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5954,
+      "cited_by": [
+        8460
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5965,
+      "cited_by": [
+        7489,
+        9991
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5982,
+      "cited_by": [
+        8753
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5983,
+      "cited_by": [
+        6530
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 5987,
+      "cited_by": [
+        6838,
+        7578
+      ],
+      "status": "These parent citations do not select extended HTTP parameter encoding: RFC7578 forbids filename* for form-data and RFC6838 uses it as a transport comparison. Any independently selected HTTP header feature would require a separate applicability decision and current-source review; RFC5987 is not marked reviewed.",
+      "classification": "informative-context",
+      "review": "base-text-not-reviewed",
+      "evidence": "form-data.md",
+      "basis": "RFC7578 section 4.2 explicitly excludes filename* from multipart/form-data; RFC6838 section 4.3 cites HTTP parameter encoding as an illustration of transport-specific syntax."
+    },
+    {
+      "rfc": 6008,
+      "cited_by": [
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6012,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6014,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6042,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6055,
+      "cited_by": [
+        6530
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6066,
+      "cited_by": [
+        6186,
+        7672,
+        7817,
+        8314,
+        8461,
+        9325,
+        9525,
+        9846
+      ],
+      "status": "Selected SNI and security rules reviewed in audits/tls-service-negotiation.md; full extension suite not reviewed"
+    },
+    {
+      "rfc": 6068,
+      "cited_by": [
+        6530,
+        8460
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6083,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6084,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6090,
+      "cited_by": [
+        7748,
+        8550,
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6091,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6101,
+      "cited_by": [
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6117,
+      "cited_by": [
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6118,
+      "cited_by": [
+        8552
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6120,
+      "cited_by": [
+        8553,
+        9325,
+        9525,
+        9750
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6125,
+      "cited_by": [
+        6186,
+        6749,
+        7672,
+        7817,
+        8314,
+        8461,
+        8689,
+        9110,
+        9325,
+        9420,
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6154,
+      "cited_by": [
+        8621,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6176,
+      "cited_by": [
+        8996,
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6194,
+      "cited_by": [
+        8301,
+        8550,
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6209,
+      "cited_by": [
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6210,
+      "cited_by": [
+        6211,
+        8933
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6212,
+      "cited_by": [
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6230,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6234,
+      "cited_by": [
+        7636,
+        8032,
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6265,
+      "cited_by": [
+        6750,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6268,
+      "cited_by": [
+        8551,
+        9608,
+        9629
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6275,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6278,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6335,
+      "cited_by": [
+        8314,
+        8552,
+        8553,
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6347,
+      "cited_by": [
+        8996,
+        9325,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6353,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6365,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6367,
+      "cited_by": [
+        8996,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6377,
+      "cited_by": [
+        6376,
+        7489,
+        8617,
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6454,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6460,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6520,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6541,
+      "cited_by": [
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6570,
+      "cited_by": [
+        8620,
+        8820
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6577,
+      "cited_by": [
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6585,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6590,
+      "cited_by": [
+        9991
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6591,
+      "cited_by": [
+        7489,
+        9989,
+        9991
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6614,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6637,
+      "cited_by": [
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6647,
+      "cited_by": [
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6648,
+      "cited_by": [
+        6838,
+        7208,
+        8098,
+        9051,
+        9110,
+        9694
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6651,
+      "cited_by": [
+        7489,
+        9989,
+        9991
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6652,
+      "cited_by": [
+        7208,
+        7489,
+        9989,
+        9991
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6655,
+      "cited_by": [
+        9846,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6672,
+      "cited_by": [
+        7672
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6686,
+      "cited_by": [
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6692,
+      "cited_by": [
+        9991
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6698,
+      "cited_by": [
+        7672,
+        7817,
+        8126,
+        8314,
+        8460,
+        8552,
+        9325,
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6709,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6710,
+      "cited_by": [
+        8621
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6713,
+      "cited_by": [
+        7489,
+        8460,
+        9990
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6739,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6763,
+      "cited_by": [
+        8552,
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6764,
+      "cited_by": [
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6797,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6819,
+      "cited_by": [
+        7636,
+        8252,
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6851,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6855,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6891,
+      "cited_by": [
+        7208
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6895,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6901,
+      "cited_by": [
+        8620,
+        8820
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6912,
+      "cited_by": [
+        9233
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6943,
+      "cited_by": [
+        8820
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6960,
+      "cited_by": [
+        8461,
+        9325,
+        9608,
+        9846
+      ],
+      "status": "Selected OCSP response acceptance is required when the service consumes OCSP evidence. Responder authority, certificate binding, freshness and relevant corrections have scoped review; optional OCSP features and complete module imports remain outside that review.",
+      "classification": "selected-normative-dependency",
+      "review": "selected-sections-reviewed",
+      "evidence": "certificate-status.md",
+      "basis": "service-status-scoped-review.json"
+    },
+    {
+      "rfc": 6961,
+      "cited_by": [
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6962,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6979,
+      "cited_by": [
+        8550,
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 6994,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7001,
+      "cited_by": [
+        7208,
+        7293,
+        7372,
+        7489,
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7030,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7114,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7120,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7159,
+      "cited_by": [
+        8259
+      ],
+      "status": "Historical predecessor, superseded by RFC8259. JSON encoding follows RFC8259 and the selected application constraints; earlier encoding guidance does not authorize alternate network encodings. This classification does not claim a review of the predecessor text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "json-encoding.md",
+      "basis": "RFC Editor metadata records this source as obsoleted by RFC8259; selected successor review is linked."
+    },
+    {
+      "rfc": 7162,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7218,
+      "cited_by": [
+        7672
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7228,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7230,
+      "cited_by": [
+        7301,
+        8058,
+        8252,
+        8620,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7231,
+      "cited_by": [
+        8460,
+        8620,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7232,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7233,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7234,
+      "cited_by": [
+        8461,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7235,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7250,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7253,
+      "cited_by": [
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7281,
+      "cited_by": [
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7292,
+      "cited_by": [
+        9787
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7299,
+      "cited_by": [
+        9925
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7320,
+      "cited_by": [
+        8820
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7366,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7410,
+      "cited_by": [
+        8601
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7435,
+      "cited_by": [
+        7672,
+        8460,
+        9325,
+        9787
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7457,
+      "cited_by": [
+        8996,
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7465,
+      "cited_by": [
+        8996,
+        9325,
+        9846,
+        9852
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7469,
+      "cited_by": [
+        8314,
+        8460
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7493,
+      "cited_by": [
+        8460,
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7507,
+      "cited_by": [
+        8996,
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7519,
+      "cited_by": [
+        9207
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7521,
+      "cited_by": [
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7523,
+      "cited_by": [
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7525,
+      "cited_by": [
+        7636,
+        8314,
+        8461,
+        8620,
+        8689,
+        8996,
+        9051,
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7538,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7540,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7541,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7553,
+      "cited_by": [
+        8552,
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7562,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7564,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7566,
+      "cited_by": [
+        8552
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7568,
+      "cited_by": [
+        8996,
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7590,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7591,
+      "cited_by": [
+        8252,
+        9207,
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7595,
+      "cited_by": [
+        8126,
+        8252,
+        8820,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7601,
+      "cited_by": [
+        8601
+      ],
+      "status": "Historical Authentication-Results predecessor: reviewed RFC8601 supplies current grammar, trust-boundary handling, EAI guidance and revised property registrations. Earlier local authentication results do not acquire endpoint-authority status. This applicability classification does not claim review of the predecessor base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "authentication-results.md",
+      "basis": "Reviewed RFC8601 Appendix D and sections 2\u20135; current RFC Editor metadata captured separately confirms the succession. Historical Authentication-Results predecessor: reviewed RFC8601 supplies current grammar, trust-boundary handling, EAI guidance and revised property registrations. Earlier local authentication results do not acquire endpoint-authority status."
+    },
+    {
+      "rfc": 7615,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7616,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7617,
+      "cited_by": [
+        8620,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7624,
+      "cited_by": [
+        9846,
+        9990
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7627,
+      "cited_by": [
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7633,
+      "cited_by": [
+        9325
+      ],
+      "status": "TLS Feature enforcement is required for service certificates declaring required stapling. The selected review covers the declaration and enforcement rules; required-staple sessions use full handshakes. This is not a full base-text or backend-conformance claim.",
+      "classification": "selected-normative-dependency",
+      "review": "selected-sections-reviewed",
+      "evidence": "certificate-status.md",
+      "basis": "service-status-scoped-review.json"
+    },
+    {
+      "rfc": 7671,
+      "cited_by": [
+        7672,
+        8460,
+        8552
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7673,
+      "cited_by": [
+        7672,
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7677,
+      "cited_by": [
+        8621,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7685,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7694,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7696,
+      "cited_by": [
+        9420
+      ],
+      "status": "Algorithm-agility design rationale. The selected MLS suite/version behavior comes from RFC9420 and the application profile; this citation does not import an additional wire algorithm or negotiation mechanism. RFC7696 base text has not been reviewed.",
+      "classification": "informative-context",
+      "review": "base-text-not-reviewed",
+      "evidence": "mls.md",
+      "basis": "Sole inventoried citing parent RFC9420 section 13.1 uses RFC7696 to explain why algorithm agility matters, then specifies its own concrete suite/version rules."
+    },
+    {
+      "rfc": 7711,
+      "cited_by": [
+        7817
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7712,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7752,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7807,
+      "cited_by": [
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7838,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7841,
+      "cited_by": [
+        8032,
+        8058,
+        8098,
+        8126,
+        8174,
+        8252,
+        8259,
+        8301,
+        8314,
+        8460,
+        8461,
+        8463,
+        8550,
+        8551,
+        8552,
+        8553,
+        8601,
+        8616,
+        8617,
+        8620,
+        8621,
+        8689,
+        8753,
+        8820,
+        8933,
+        8996,
+        8997,
+        9042,
+        9051,
+        9078,
+        9110,
+        9180,
+        9207,
+        9233,
+        9325,
+        9404,
+        9420,
+        9525,
+        9549,
+        9580,
+        9598,
+        9608,
+        9618,
+        9629,
+        9670,
+        9694,
+        9700,
+        9750,
+        9787,
+        9788,
+        9846,
+        9852,
+        9925,
+        9963,
+        9989,
+        9990,
+        9991,
+        10007,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7858,
+      "cited_by": [
+        9525,
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7888,
+      "cited_by": [
+        9051,
+        9404
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7905,
+      "cited_by": [
+        8551,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7919,
+      "cited_by": [
+        9325,
+        9846,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7924,
+      "cited_by": [
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7925,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7929,
+      "cited_by": [
+        8552,
+        9787,
+        9788
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 7960,
+      "cited_by": [
+        8617,
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8017,
+      "cited_by": [
+        8301,
+        8463,
+        8933,
+        9180,
+        9580,
+        9846,
+        9963
+      ],
+      "status": "Required narrow HPKE dependency: sections4\u20134.2 integer/octet conversions and six captured errata reviewed. This does not select RSA for MLS. Full base review, live errata freshness and other citing profiles remain open.",
+      "classification": "required-normative-dependency",
+      "evidence": "hpke.md"
+    },
+    {
+      "rfc": 8018,
+      "cited_by": [
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8020,
+      "cited_by": [
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8030,
+      "cited_by": [
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8081,
+      "cited_by": [
+        9051,
+        9694
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8141,
+      "cited_by": [
+        8126
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8143,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8145,
+      "cited_by": [
+        8552,
+        8553
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8162,
+      "cited_by": [
+        8550,
+        8552,
+        9787,
+        9788
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8187,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8246,
+      "cited_by": [
+        8620,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8261,
+      "cited_by": [
+        8996
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8264,
+      "cited_by": [
+        8620,
+        9670
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8288,
+      "cited_by": [
+        8820,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8291,
+      "cited_by": [
+        8620
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8305,
+      "cited_by": [
+        9051,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8310,
+      "cited_by": [
+        9852
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8336,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8398,
+      "cited_by": [
+        8550,
+        9549,
+        9598
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8399,
+      "cited_by": [
+        9549
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8410,
+      "cited_by": [
+        8550
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8414,
+      "cited_by": [
+        9207,
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8418,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8419,
+      "cited_by": [
+        8551
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8422,
+      "cited_by": [
+        8996,
+        9325,
+        9846,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8438,
+      "cited_by": [
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8439,
+      "cited_by": [
+        9180,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8446,
+      "cited_by": [
+        8461,
+        8620,
+        8996,
+        8997,
+        9051,
+        9110,
+        9180,
+        9325,
+        9420,
+        9525,
+        9618,
+        9750,
+        9846,
+        9925,
+        9963
+      ],
+      "status": "Historical TLS 1.3 predecessor: the selected current protocol follows reviewed RFC9846, which obsoletes RFC8446 while preserving wire compatibility. Its explicit compatibility requirements remain applicable; this classification does not claim a complete independent RFC8446 review.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "tls13.md",
+      "basis": "RFC9846 metadata and complete review, including section1.2 changes and compatibility rules"
+    },
+    {
+      "rfc": 8447,
+      "cited_by": [
+        8996,
+        9846
+      ],
+      "status": "Selected ALPN registry name and alert120 update reviewed in audits/tls-service-negotiation.md; other registries and9847dependency separate"
+    },
+    {
+      "rfc": 8448,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8449,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8452,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8457,
+      "cited_by": [
+        8621
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8467,
+      "cited_by": [
+        9180
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8470,
+      "cited_by": [
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8474,
+      "cited_by": [
+        8621,
+        9042,
+        9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8484,
+      "cited_by": [
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8555,
+      "cited_by": [
+        8552,
+        9525,
+        9608
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8579,
+      "cited_by": [
+        9042
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8580,
+      "cited_by": [
+        9042
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8615,
+      "cited_by": [
+        8620,
+        8820,
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8696,
+      "cited_by": [
+        9180
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8701,
+      "cited_by": [
+        9420,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8705,
+      "cited_by": [
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8707,
+      "cited_by": [
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8773,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8823,
+      "cited_by": [
+        9787
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8844,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8870,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8879,
+      "cited_by": [
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8915,
+      "cited_by": [
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8937,
+      "cited_by": [
+        9180,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 8941,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9000,
+      "cited_by": [
+        9325,
+        9420,
+        9525,
+        9750
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9001,
+      "cited_by": [
+        9325,
+        9420,
+        9525,
+        9846,
+        9852
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9007,
+      "cited_by": [
+        9404
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9068,
+      "cited_by": [
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9091,
+      "cited_by": [
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9101,
+      "cited_by": [
+        9207,
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9106,
+      "cited_by": [
+        9580
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9111,
+      "cited_by": [
+        9110
+      ],
+      "status": "Selected framing/connection and cache handling reviewed in audits/http-framing.md; full base review and general HTTP/cache conformance not claimed"
+    },
+    {
+      "rfc": 9112,
+      "cited_by": [
+        9110,
+        9325,
+        9846
+      ],
+      "status": "Selected framing/connection and cache handling reviewed in audits/http-framing.md; full base review and general HTTP/cache conformance not claimed"
+    },
+    {
+      "rfc": 9113,
+      "cited_by": [
+        9110,
+        9325,
+        9420
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9114,
+      "cited_by": [
+        9110
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9126,
+      "cited_by": [
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9147,
+      "cited_by": [
+        9325,
+        9525,
+        9846,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9149,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9155,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9162,
+      "cited_by": [
+        9325,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9191,
+      "cited_by": [
+        9325
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9216,
+      "cited_by": [
+        9787,
+        9788
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9219,
+      "cited_by": [
+        9787
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9257,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9258,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9261,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9345,
+      "cited_by": [
+        9525,
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9364,
+      "cited_by": [
+        9989
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9396,
+      "cited_by": [
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9440,
+      "cited_by": [
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9449,
+      "cited_by": [
+        9700
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9460,
+      "cited_by": [
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9461,
+      "cited_by": [
+        9525
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9562,
+      "cited_by": [
+        9990
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9695,
+      "cited_by": [
+        9694
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9847,
+      "cited_by": [
+        9846,
+        10015
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9849,
+      "cited_by": [
+        9846
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9851,
+      "cited_by": [
+        9852
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9954,
+      "cited_by": [
+        9963
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 9958,
+      "cited_by": [
+        9852
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 53322,
+      "cited_by": [
+        9989
+      ],
+      "status": "Source-token anomaly in RFC9989: RFC53322.From. No RFC53322 dependency inferred; related message-format requirements remain governed by RFC5322.",
+      "classification": "citation-anomaly",
+      "evidence": {
+        "source": "https://www.rfc-editor.org/rfc/rfc9989.txt",
+        "capturedLine": 3301,
+        "literal": "RFC53322.From",
+        "decision": "Do not resolve or adopt a standard from this malformed citation token."
+      }
+    }
+  ]
+}

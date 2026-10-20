@@ -1,0 +1,14 @@
+From: Dana <dana@example.invalid>
+To: reader@example.invalid
+Subject: Synthetic HTML conversation
+Message-ID: <html-unsupported@demo.invalid>
+Date: Tue, 20 Oct 2026 10:00:00 +0000
+References: <html-parent@demo.invalid>
+In-Reply-To: <html-parent@demo.invalid>
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+PHAgY2xhc3M9ImNsaWVudC1zdHlsZSI+VW5zdXBwb3J0ZWQgbWFya3VwIHN0YXlzIHZpc2libGUu
+PC9wPjxibG9ja3F1b3RlPjxwPlF1ZWwgam91ciA/PC9wPjwvYmxvY2txdW90ZT48c2NyaXB0Pm5v
+dEV4ZWN1dGVkKCk8L3NjcmlwdD4NCg==

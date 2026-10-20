@@ -1,0 +1,44 @@
+/* Proposed client-owned defaults for an isolated message document.
+   This sheet is never supplied by a sender. Apply sender-approved inline styles
+   over these defaults, then enforce client accessibility/containment overrides. */
+:root { color-scheme: light dark; }
+html { font-size: 100%; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: CanvasText;
+  background: Canvas;
+  overflow-wrap: anywhere;
+  isolation: isolate;
+}
+p, blockquote, dl, ol, ul, pre, table { margin-block: 0 1rem; }
+h1, h2, h3, h4, h5, h6 { margin-block: 1rem 0.5rem; font-weight: bold; line-height: 1.25; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.125rem; }
+h5, h6 { font-size: 1rem; }
+blockquote { margin-inline: 0; padding-inline-start: 1rem; border-inline-start: 2px solid currentColor; }
+ol, ul { padding-inline-start: 2rem; list-style-position: inside; }
+dd { margin-inline-start: 2rem; }
+code, pre { font-family: monospace; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+strong, b { font-weight: bold; }
+em, i { font-style: italic; }
+small { font-size: 0.875em; }
+sub, sup { font-size: 0.75em; line-height: 0; position: relative; vertical-align: baseline; }
+sub { bottom: -0.25em; }
+sup { top: -0.5em; }
+s, del { text-decoration-line: line-through; }
+u { text-decoration-line: underline; }
+a { color: LinkText; text-decoration-line: underline; }
+bdi { unicode-bidi: isolate; }
+table { border-collapse: separate; border-spacing: 2px; }
+caption { text-align: start; }
+th { font-weight: bold; text-align: start; }
+td, th { padding: 0.25rem; vertical-align: top; }
+hr { border: 0; border-block-start: 1px solid currentColor; margin-block: 1rem; }
+img { max-inline-size: 100%; block-size: auto; }

@@ -19,7 +19,7 @@ The parser processes a real closing-tag action at each self-closing marker. Form
 
 [See the failure and safe path side by side →](/self-closing-html/parsing#the-failure-checked-as-text-inserted-as-code)
 
-| Stage | Filter under today's grammar, then parse with self-closing | Safe parsing with self-closing selected |
+| Stage | Security problem | Proposed safe handling |
 | --- | --- | --- |
 | Read the decisive `<style/>` | The legacy check leaves `style` open. | The selected grammar immediately closes `style`. |
 | Read the apparent `<img … onerror="probe()">` | The check sees stylesheet text, so there is no image attribute to remove. | The inert parse creates an image node with an `onerror` attribute. |

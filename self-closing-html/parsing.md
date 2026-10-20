@@ -170,39 +170,41 @@ Consider the decisive part of the [reproduced counterexample](/self-closing-html
 <style/><img data-probe src=x onerror="probe()">
 ```
 
-The complete test includes surrounding SVG and table markup, retained in the evidence. The excerpt shows the point where the two grammars disagree. `probe()` stands for attacker-supplied JavaScript; the test uses it to record whether a handler runs.
+Both paths below start with the same untrusted HTML. The left shows how an old sanitizer can miss a handler that the self-closing parser exposes. The right shows the proposed safe API removing that handler before insertion. `probe()` stands for attacker-supplied JavaScript; the test uses it to record whether a handler runs.
+
+The complete test includes surrounding SVG and table markup, retained in the evidence. This excerpt shows the decisive `style` boundary.
 
 ::::: two
 :::: {.parser-path}
-### Filter with today's grammar, then change grammar
+### Security problem
 
 ::: flow
-- The legacy filter reads the image-looking characters as stylesheet text
-- Its output string still contains `onerror="probe()"` {.acc}
-- A later parse with self-closing enabled closes `style` at `/>`
-- The following characters become an image element with a handler
-- If the image fails to load after insertion, the handler can run
+- An old sanitizer treats `<style/>` as an opening tag; the apparent image is stylesheet text
+- The sanitizer finds no image attribute to remove; `onerror="probe()"` survives in its output string {.acc}
+- The app passes that string to the self-closing parser, which closes `style` at `/>`
+- The parser creates a real image with the surviving handler
+- After insertion, an image load failure can run `probe()`
 :::
 
 ```text
-During the legacy check:
+What the old sanitizer sees:
 style
 └─ text: '<img … onerror="probe()">'
 
-After parsing with self-closing enabled:
+What the self-closing parser creates:
 style (empty)
 img
 └─ onerror: probe()
 ```
 ::::
 :::: {.parser-path}
-### Parse and filter together with the selected grammar
+### Proposed safe handling
 
 ::: flow
-- The safe call explicitly selects `self-closing` or `next`
-- Parse inertly: close `style`, then create the image node
-- Filter that actual node: remove its `onerror` attribute {.acc}
-- Return the filtered nodes for direct insertion
+- The app gives the untrusted HTML to the proposed safe API with `self-closing` or `next` selected
+- The parser closes `style` and creates the image without running its handler
+- The sanitizer sees the real image and removes its `onerror` attribute {.acc}
+- The app inserts the cleaned nodes directly, without parsing another string
 - The inserted image has no handler to run
 :::
 
@@ -218,14 +220,14 @@ img
 ::::
 :::::
 
-**The fix is the order and the shared grammar:** parse the selected syntax, filter the nodes it actually creates, then insert those nodes. The filter can now see the dangerous attribute. Returning nodes avoids another string parse changing their meaning after the check.
+**The safe API checks the elements that will actually be inserted.** It parses with self-closing enabled, removes dangerous attributes from the resulting elements, and returns the cleaned nodes. The app inserts those nodes directly, so another parser cannot reinterpret an already-checked string.
 
 ### How the proposal addresses the blocker
 
 Two boundaries work together:
 
-- **Existing HTML-string APIs keep today's grammar.** Opting a page into `next` does not silently change the grammar used by a library's `innerHTML` call. Its legacy filtering and insertion can continue to agree.
-- **The proposed safe API selects grammar and filtering in one call.** An application requesting the new syntax for untrusted content gets mandatory sanitization of the resulting nodes. It does not pass an old sanitizer's approval across to a different parser.
+- **Existing HTML-string APIs keep their existing parsing rules.** Opting a page into `next` does not change how a library's `innerHTML` call reads its string. An old sanitizer and that insertion API can continue to agree about which characters are text.
+- **The proposed safe API selects self-closing parsing and sanitization in one call.** An application requesting the new syntax for untrusted content gets mandatory sanitization of the resulting nodes. It does not pass an old sanitizer's approval across to a different parser.
 
 The proposed API makes that boundary visible at the call site:
 

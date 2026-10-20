@@ -677,7 +677,7 @@ A slot may expose data to the content projected into it. The definition declares
 A slot prop is given on the `<slot>` outlet the way a prop is given to a component invocation:
 
 - **Static.** Every plain attribute on the outlet other than `name` is a prop's input. It converts by the declared type exactly as an invocation attribute converts by a component `<prop>`: with `type="number"`, `count="3"` gives `$count` the number `3`.
-- **Bound.** `from:count="$items.length"` gives `$count` the expression's value, checked as an [accepted value](/declarative-components/javascript#accepted-values-and-prop-inputs) of the declared type, and follows it as it changes.
+- **Bound.** `from:count="$items.length"` gives `$count` the expression's value, checked as an [accepted value](/declarative-components/javascript#accepted-values-and-prop-inputs) of the declared type, and follows it as it changes. A value that is not present, `null` or `undefined`, takes the prop's `default`, or `null` without one. A value the declared type rejects does the same, and the implementation [should]{.kw} warn once, naming the slot and the prop.
 
 Static and bound props mix freely on one outlet. These are errors, each reported with a diagnostic that names the outlet:
 

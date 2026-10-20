@@ -53,7 +53,7 @@ The proposal therefore combines:
 
 The named list requests both capabilities. `<!DOCTYPE html PUBLIC "next">` instead requests the HTML Next family of current and future proposals supported by the browser. Resolve and freeze the request for the parsing operation. Registration, styles, and later doctype mutation cannot switch it. The declaration fetches no DTD and does not enable XML.
 
-The existing self-closing prototype does not implement named-list selection or flexible nesting. Existing string parsing APIs keep their current grammar. A document flag must not silently change a library's parsing behavior.
+The native self-closing experiment recognizes `next` or `self-closing` in a navigation doctype. It does not implement combined named-list selection, profile response headers, or flexible nesting. Its separate safe reference helper demonstrates per-call self-closing selection, not native API support. Existing string parsing APIs keep their current grammar.
 
 A server can also select this capability with the proposed `HTML-Feature-Profile` response header. [HTML Feature Profiles](/html-feature-profiles/#http-response-header) defines the header, its precedence over the doctype, and unsupported-request handling.
 
@@ -138,7 +138,7 @@ Context-sensitive fragment parsing also needs an explicit actual context, such a
 
 The [baseline evidence](https://github.com/nextwebwg/specs/tree/main/flexible-html-nesting/evidence) records ordinary parse5 8.0.1 behavior for custom and ordinary wrappers in tables and lists. The proposed-marker baseline is retained as a historical control: an unknown attribute did not itself change parsing. It does not justify requiring that marker. The pinned parser is not evidence about all current HTML behavior, especially select parsing.
 
-No native flexible-nesting implementation or safety proof is reported. Changing recognition requires its own argument; the self-closing projection theorem assumes ordinarily recognized input and cannot be transferred to this parser change.
+No native flexible-nesting implementation or safety proof is reported. Self-closing tests do not establish this proposal’s behavior. The historical self-closing projection theorem proves an earlier tree-rearrangement operation, not flexible-nesting recognition or layout.
 
 Required work includes sanitizer mismatches, text and namespace boundaries, protected containment, parser pauses, reactions, mutation, encoding restarts, speculative loading, serialization, and combined-profile behavior. Layout tests must cover empty and late content, mixed-content fallback, table spans and sizing, list numbering, slots, nested owners, closed-root encapsulation, keyboard behavior, and accessible structure.
 

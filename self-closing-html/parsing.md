@@ -9,7 +9,7 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Parsing rules
 
-**The change is what the parser does with the slash in `/>`.** Today, an ordinary HTML opening tag stays open despite that slash. With the proposed opt-in, the parser processes the opening tag and its matching closing action together.
+**HTML already recognizes `/>`; the proposal changes what happens next.** For an ordinary non-void HTML element, the existing parser recognizes the self-closing marker but leaves the element open. An explicit opt-in makes that marker trigger the matching closing action before the parser reads more source.
 
 ## How HTML parses this today
 
@@ -24,11 +24,17 @@ HTML parsing has two cooperating parts. The **tokenizer** reads characters and i
 
 For `<div />`, today's tokenizer recognizes the slash and marks the opening-tag token as self-closing. The HTML tree builder creates the `div`, but ignores that marker for an ordinary non-void HTML element. This is a parse error with a defined recovery: continue with the `div` open.[^4]
 
+### Why not simply honor every slash?
+
+Existing pages can contain `<div/>` and depend on the following content remaining inside that `div`. Changing the rule globally would reinterpret those pages. Accepting the characters and continuing after a parse error is therefore different from treating the element as closed.
+
+The proposed `self-closing` or `next` opt-in selects the closing behavior for a document. Documents without that selection keep the existing behavior. The comparison below shows the same source under each selection.
+
 ## Follow the same source through both algorithms
 
 ::::: two
 :::: {.parser-path}
-### HTML today
+### Existing HTML parsing
 
 ::: flow
 - Read `<div class="badge" />`
@@ -45,7 +51,7 @@ body
 ```
 ::::
 :::: {.parser-path}
-### With the proposed opt-in
+### Parsing with the proposed opt-in
 
 ::: flow
 - Read `<div class="badge" />`
@@ -71,7 +77,7 @@ body
 | Read `Hello`, then `</p>` | Put the text in `p`, then close `p`. The current parent is `div`. | Put the text in `p`, then close `p`. The current parent is `body`. |
 | Reach the end of the source | Finish with the DOM already built: `p` remains inside `div`. | Finish with the DOM already built: `p` follows the empty `div`. |
 
-The recovery step is deliberate browser behavior. Today's parser accepts the malformed shorthand and continues; it does not infer the author's intended empty `div`.
+**The distinction is the action taken after recognizing the marker.** Existing HTML recovers by leaving `div` open. The opted-in parser performs its closing action immediately. That updates the current parent and, for text elements, how the next characters are read.
 
 ## Why parser context matters
 
@@ -160,7 +166,9 @@ The reference implementation is in [closure/parser.mjs](https://github.com/nextw
 
 **Loading an opted-in page does not sanitize its HTML.** The parsing rule above constructs the document, including authored scripts and event-handler attributes.
 
-The earlier security objection was that a sanitizer and a browser could read the same characters differently: the sanitizer sees harmless text, but the browser creates an element with an executable handler.[^5] **A document opt-in alone does not resolve that disagreement.**
+The opt-in separates existing documents from the new behavior. **The security question is what happens when untrusted content crosses that boundary.** If a sanitizer checks the content using existing HTML rules but it is later parsed with self-closing enabled, text can become an element with an executable handler.[^5]
+
+The proposal addresses this in two places: existing string-parsing APIs retain their existing rules even in an opted-in document, and the proposed safe API parses with self-closing enabled before sanitizing the elements it creates. The following comparison shows the failure these boundaries address and the safe path.
 
 ### The failure: checked as text, inserted as code
 
@@ -170,40 +178,42 @@ Consider the decisive part of the [reproduced counterexample](/self-closing-html
 <style/><img data-probe src=x onerror="probe()">
 ```
 
-The complete test includes surrounding SVG and table markup, retained in the evidence. The excerpt shows the point where the two grammars disagree. `probe()` stands for attacker-supplied JavaScript; the test uses it to record whether a handler runs.
+Both paths below start with the same untrusted HTML. The left shows how an old sanitizer can miss a handler that the self-closing parser exposes. The right shows the proposed safe API removing that handler before insertion. `probe()` stands for attacker-supplied JavaScript; the test uses it to record whether a handler runs.
+
+The complete test includes surrounding SVG and table markup, retained in the evidence. This excerpt shows the decisive `style` boundary.
 
 ::::: two
 :::: {.parser-path}
-### Filter with today's grammar, then change grammar
+### Security problem
 
 ::: flow
-- The legacy filter reads the image-looking characters as stylesheet text
-- Its output string still contains `onerror="probe()"` {.acc}
-- A later parse with self-closing enabled closes `style` at `/>`
-- The following characters become an image element with a handler
-- If the image fails to load after insertion, the handler can run
+- Old sanitizer: `<style/>` opens `style`; `<img …>` is stylesheet text
+- Sanitizer output: that text still contains `onerror="probe()"` {.acc}
+- Self-closing parser: `/>` closes `style`
+- Self-closing parser: create an image with the surviving `onerror`
+- Inserted image: a load failure can run `probe()`
 :::
 
 ```text
-During the legacy check:
+What the old sanitizer sees:
 style
 └─ text: '<img … onerror="probe()">'
 
-After parsing with self-closing enabled:
+What the self-closing parser creates:
 style (empty)
 img
 └─ onerror: probe()
 ```
 ::::
 :::: {.parser-path}
-### Parse and filter together with the selected grammar
+### Proposed safe handling
 
 ::: flow
-- The safe call explicitly selects `self-closing` or `next`
-- Parse inertly: close `style`, then create the image node
-- Filter that actual node: remove its `onerror` attribute {.acc}
-- Return the filtered nodes for direct insertion
-- The inserted image has no handler to run
+- App: request safe parsing with `self-closing` or `next`
+- Parser: close `style`; create the image without running its handler
+- Sanitizer: remove the image's `onerror` attribute {.acc}
+- App: insert cleaned nodes without another HTML string parse
+- Inserted image: no handler remains to run
 :::
 
 ```text
@@ -218,14 +228,14 @@ img
 ::::
 :::::
 
-**The fix is the order and the shared grammar:** parse the selected syntax, filter the nodes it actually creates, then insert those nodes. The filter can now see the dangerous attribute. Returning nodes avoids another string parse changing their meaning after the check.
+**The safe API checks the elements that will actually be inserted.** It parses with self-closing enabled, removes dangerous attributes from the resulting elements, and returns the cleaned nodes. The app inserts those nodes directly, so another parser cannot reinterpret an already-checked string.
 
 ### How the proposal addresses the blocker
 
 Two boundaries work together:
 
-- **Existing HTML-string APIs keep today's grammar.** Opting a page into `next` does not silently change the grammar used by a library's `innerHTML` call. Its legacy filtering and insertion can continue to agree.
-- **The proposed safe API selects grammar and filtering in one call.** An application requesting the new syntax for untrusted content gets mandatory sanitization of the resulting nodes. It does not pass an old sanitizer's approval across to a different parser.
+- **Existing HTML-string APIs keep their existing parsing rules.** Opting a page into `next` does not change how a library's `innerHTML` call reads its string. An old sanitizer and that insertion API can continue to agree about which characters are text.
+- **The proposed safe API selects self-closing parsing and sanitization in one call.** An application requesting the new syntax for untrusted content gets mandatory sanitization of the resulting nodes. It does not pass an old sanitizer's approval across to a different parser.
 
 The proposed API makes that boundary visible at the call site:
 

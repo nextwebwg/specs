@@ -68,9 +68,13 @@ Both open the same container. The type comes first; optional title and attribute
 | Identifier | ASCII letter, then ASCII letters, digits, `_` or `-`. Types become lowercase; attribute names use the mapping below. Text, values and IDs retain Unicode. |
 | Container spacing | Zero–three spaces of block-relative indentation; optional spaces/tabs after colons and between header parts. |
 | Wrappers | No padding inside the outer `[…]` or `{…}`; internal word/attribute separation remains meaningful. |
-| Label/title | Inline Markdown. Escapes protect brackets, braces and backslashes; balanced inline link/code syntax does not close the label early. |
+| Label/title | Inline Markdown. Balanced brackets and matched code spans do not close the label early. Escape a literal bracket where it would close or unbalance the label. |
 | Inline/leaf scope | `:type[label]{attributes}` / `::type[label]{attributes}`. Inline needs a label or attributes, so bare `:word` stays text. Leaf occupies its own line. |
 | Repetition | Multiple attribute lists concatenate in source order. Repeated container title wrappers are malformed. |
+
+An unmatched backtick run stays literal and does not hide the label's closing
+bracket. Within a matched code span, backslashes are literal code characters;
+they do not escape the closing code delimiter.
 
 **Nesting uses longer outer fences:**
 
@@ -157,7 +161,18 @@ Canonical writers omit the group wrapper when no authored group settings, title 
 
 The `@` marker is syntax, not part of the label value. A bracketed mention uses the ordinary inline label grammar and optional immediately adjacent attribute lists. A bare handle starts with a Unicode letter, number or `_`; it continues through Unicode letters, combining marks, numbers, `_` and `-`. Preserve label casing and Unicode exactly. Bare handles also accept immediately adjacent attribute lists.
 
-Recognize a mention only when `@` is not immediately preceded by a letter, combining mark, number, `_`, `-`, `.`, `/` or another `@`. Escaped markers, code, raw HTML and link destinations retain their lexical rules; existing CommonMark/GFM email/URL recognition takes precedence. Invalid bracket/handle structure stays literal under local recovery.
+Recognize a mention only when `@` starts the inline source being parsed or
+immediately follows whitespace: a space, tab, line ending or Unicode whitespace.
+This boundary applies to both bare handles and bracketed labels. A preceding
+punctuation mark or formatting delimiter does not establish a boundary.
+For example, `@ada`, `Thanks, @ada` and a line beginning with `@[Ada]` contain
+mentions; `a@word`, `a@[Ada]`, `(@ada)` and `/@ada` are ordinary text and need
+no escape. A boundary alone is insufficient: the following label or handle must
+also be valid.
+
+Escaped markers, code, raw HTML and link destinations retain their lexical
+rules; existing CommonMark/GFM email/URL recognition takes precedence. Invalid
+bracket/handle structure stays literal under local recovery.
 
 Markdown mentions use the `@` syntax exclusively. The name `mention` is excluded from
 generic colon-prefixed inline directives: `:mention[...]` and its attribute-only
@@ -168,6 +183,13 @@ An immediately adjacent `#reference` suffix belongs to the mention, before optio
 For references containing other characters, use `@[Ada Lovelace]{ref="org/user-123"}`. The recognized string `ref` attribute is promoted to the node field, not duplicated in `attributes`. A suffix followed by a `ref` assignment resolves in source order, last occurrence wins. Unsupported non-string `ref` values preserve recoverable source and recommend a diagnostic rather than inventing a target.
 
 A missing target is valid. Host resolution does not implicitly populate `id` or `ref`. Generic `{#id}` still identifies this occurrence independently. Writers prefer `@[label]#reference{attributes}` when a reference fits the suffix grammar, the full-string attribute form otherwise, and omit absent parts. Optional provenance may retain bare spelling.
+
+An AST may place a semantic mention next to non-whitespace text or inside
+formatting where the Markdown spelling would have no valid boundary. Writers
+preserve that occurrence with supported semantic HTML rather than adding spaces
+or broadening mention recognition. For example,
+`(<span data-type="mention">Ada</span>)` preserves a mention inside parentheses;
+`(@Ada)` remains literal text.
 
 ## Leading-pipe line blocks
 
@@ -194,7 +216,10 @@ Each `| ` or pipe-plus-tab starts a represented line; a bare `|` requests an emp
 | Another represented line.
 ```
 
-Inline formatting may span represented lines; boundaries remain `break` nodes within that formatting. Inline code spans fit within one represented line. Escape a literal pipe or put it in code.
+Inline formatting may span represented lines; boundaries remain `break` nodes
+within that formatting. Inline code spans fit within one represented line.
+The line's initial pipe is structural; ordinary pipes within its payload are
+literal and need no escape.
 
 Parse the payload of each represented line as inline content, never as another
 block. Thus `| 1. item`, `| - item` and `| # item` contain literal block markers;
@@ -667,7 +692,7 @@ references and delimiters.
 | Writers use | Preserve |
 | --- | --- |
 | Lowercase directive names and dash-separated attribute names from camelCase AST keys; optional ` & ` separators | Values and metadata key casing. |
-| `::: type [Title] {attributes}`; no wrapper padding; one blank line around body | Content, with nested fence lengths calculated from depth. Escape literal structural punctuation. |
+| `::: type [Title] {attributes}`; no wrapper padding; one blank line around body | Content, with nested fence lengths calculated from depth. Escape punctuation where it would acquire structural meaning. |
 | Double quotes when strings need quoting; `{name}` / `{!name}` flags | Explicit false versus omission/default. |
 | Leading-pipe lines and bare empty pipes | Represented line divisions. |
 | Regenerated table markers; escaped literal markers | Numeric spans and originating cell IDs. |
@@ -679,12 +704,38 @@ Literal AST text must stay literal after reparsing. For example, write an AST
 value containing the six characters `&copy;` as `&amp;copy;`, so it does not
 become ©. This does not change CommonMark entity interpretation in authored source.
 
+Canonical writers preserve readable literal punctuation. Escape or encode text
+when its actual source context would interpret it as syntax or change its
+value; do not escape a character solely because it can introduce syntax
+elsewhere. Account for the enclosing block, inline delimiters, attachments and
+adjacent nodes. Text-node boundaries do not separate source characters.
+
+| Literal content and context | Writing behavior |
+| --- | --- |
+| Paragraph prose `[-1, 1]`, `{name}`, `x < 5`, `x > 2`, `a * b`, `~5` or `left \| right` | Keep the punctuation. None of these examples forms syntax. |
+| `a@word`, `a@[Ada]`, `(@ada)` or a standalone `@` | Keep `@`; no valid mention begins there. |
+| Unmatched backtick or emphasis delimiter | Keep it unless neighbouring source would complete a delimiter or change a surrounding construct. |
+| Paragraph starting `#hashtag`, `+5`, `-5` or `=value` | Keep the prefix; these are not heading/list/underline markers. |
+| Literal `*text*`, `[label](target)`, `:chip[Ready]` or a valid `@ada` in a paragraph | Protect the syntax opener or delimiters so the content remains text. |
+| Heading ending with literal `{name}` or ` #` | Protect the attachment opener or closing heading marker. |
+| Literal `[x] task` at the beginning of a list item | Protect the task marker; the same text outside a list needs no such escape. |
+| Literal pipe in a list-form table cell | Keep it unless the cell content itself forms another Markdown construct. Pipe-table delimiters have their own rules. |
+
+For example, a literal colon followed by a link node must not combine into an
+inline directive, and an unmatched bracket must not consume a surrounding
+label's delimiter. Apply these checks to the resulting source, including
+characters contributed by other nodes. Protect literal URLs/emails that would
+become autolinks while leaving actual link nodes as links.
+
+Writer verification must check readable source output as well as semantic
+round trips. A round-trip assertion alone cannot detect unnecessary escaping.
+
 Preserve whitespace inside formatting, adjacent/nested formatting boundaries,
 and empty or whitespace-only paragraphs. Use supported safe HTML when Markdown
 delimiters or blank source lines would change that content:
 
 ```md
-<strong>Hello </strong>@[Ada]#user-123
+<strong>Hello </strong><span data-type="mention" data-ref="user-123">Ada</span>
 
 <p></p>
 

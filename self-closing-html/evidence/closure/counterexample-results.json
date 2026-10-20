@@ -1,0 +1,9 @@
+{
+  "scope": "Custom permissive sanitize-html 2.18.1 policy explicitly allows vulnerable style tags but does not allow event-handler attributes. Not a default-policy vulnerability claim. Safe output is a DOM result, not reparsed source.",
+  "input": "<svg><mtext><style/><table/><style/><img data-probe src=x onerror=\"probe()\">",
+  "legacySanitized": "<svg><mtext><style><table/><style/><img data-probe src=x onerror=\"probe()\"></style></mtext></svg>",
+  "legacyDOM": "<html><head></head><body><svg><mtext><style></style></mtext></svg><table><style><img data-probe src=x onerror=\"probe()\"></style></table></body></html>",
+  "unsafeDOM": "<html><head></head><body><svg><mtext><style></style></mtext></svg><table></table><style></style><img data-probe=\"\" src=\"x\" onerror=\"probe()\"></body></html>",
+  "safeDOMForInspection": "<html><head></head><body><svg></svg><table></table><style></style><img data-probe=\"\" src=\"x\"></body></html>",
+  "safeHandlers": 0
+}

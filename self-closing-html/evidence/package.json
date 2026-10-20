@@ -24,7 +24,10 @@
     "active:build": "node active-build.mjs",
     "test:streaming": "node --test streaming.test.mjs live-dom.test.mjs",
     "streaming": "node streaming-check.mjs",
-    "execution": "node execution-runner.mjs"
+    "execution": "node execution-runner.mjs",
+    "closure:test": "node --test closure/*.test.mjs",
+    "closure:check": "node closure/check.mjs",
+    "closure:execution": "node closure/execution-runner.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

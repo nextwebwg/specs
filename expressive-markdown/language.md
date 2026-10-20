@@ -2892,7 +2892,9 @@ Use `{ref="org/user-123"}` for a target that needs more characters. An optional
 stored references or changing labels.
 
 Bare handles end outside letters, numbers, combining marks, `_` and `-`.
-Emails, URLs, code and escaped `\@` stay ordinary content. Recommend a labelled
+Both mention forms begin at the start of inline text or immediately after
+whitespace. `a@word`, `a@[Ada]` and `(@ada)` are ordinary text without escapes.
+Emails, URLs, code and escaped `\@` retain their own rules. Recommend a labelled
 span, or link when a URL is present, with an optional visible `@`.
 See [complete mention boundaries](/expressive-markdown/parsing#mentions).
 

@@ -1,0 +1,13 @@
+2026-10-19 23:19:59.950 Compositor[7027:193859208] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 23:19:59.950 Compositor[7027:193859164] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 23:19:59.950 Compositor[7027:193859209] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+1157276.302 Compositor(7027): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+Running 1 tests...
+[0] 1/1:  Start Text/input/HTML/closure-wpt/self-closing.tentative.html
+[0] 1/1: Finish Text/input/HTML/closure-wpt/self-closing.tentative.html: 126ms
+==========================================================
+Pass: 1, Fail: 0, Skipped: 0, Timeout: 0, Crashed: 0
+==========================================================
+Results: file://<native-checkout>-wpt-final/index.html

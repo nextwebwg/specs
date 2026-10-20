@@ -1,0 +1,7 @@
+Harness status: OK
+
+Found 2 tests
+
+2 Pass
+Pass	Selected grammar closes ordinary, structural, attribute-bearing and text elements consistently
+Pass	Existing DOMParser does not inherit the profile or select it from source

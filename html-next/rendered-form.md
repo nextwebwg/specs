@@ -94,6 +94,8 @@ Serialization appends an inert `<template carrier>` to the component root for ea
 
 A carrier is a `<template>` child of the component root whose `carrier` attribute is the tag of the component that holds its content. Only the component root carries a component marker, and a component's own template may contain a `<template>` element, so position alone cannot identify the carrier; the attribute does. Qwik keeps unprojected content for the same reason.[^9]
 
+Each projected node appears in exactly one carrier: that of the component whose consumer wrote it, since projected nodes keep their provenance. A component that forwards its own slot through an element it projects into another component, where that element is not rendered, leaves the element in the other component's carrier with the forwarding outlet's slot marks around an empty range. The consumer's node stays in the forwarding component's carrier, and the outlet renders it once its slot renders.
+
 `carrier` on a `<template>` is reserved for the rendered form. A component definition whose markup writes it is invalid, reported with a diagnostic.
 
 ### Components that share a root {#shared-root-carriers}
@@ -141,7 +143,7 @@ A consumer may write slot content under `$if` or `$each`. A slot whose only such
 1. Recover explicit props from the server-rendered instance's hydration data. The proposal has not fixed a wire format for that data; visible `data-<name>` attributes are not required.
 2. Collect the root's own slot ranges in document order: its subtree, minus its own ranges' contents (consumer content), minus nested components' own regions, plus the contents of nested components' ranges (what this component projected into them).
 3. The projected nodes are the contents of every range without `fallback` or `scoped`, each assigned that range's slot, then the marks of any consumer region that follow the fallback nodes in a `fallback` range (see [Conditional content in a slot](#conditional-content-in-a-slot)), assigned that range's slot, followed by the nodes of the carrier that names this component, which keep their own `slot` attribute. A consumer's [`<template slot>`](/declarative-components/components#content-that-renders-on-demand) is always in its receiving component's carrier: the live DOM holds what it renders, never the template. The carrier is removed.
-4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes, the fallback nodes and any empty consumer regions after them, or the nodes its `<template slot>` rendered, adopted in place so their bindings attach.
+4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes, the fallback nodes and any empty consumer regions after them, or the nodes its `<template slot>` rendered, adopted in place so their bindings attach. A forwarding outlet inside carried content adopts its marks and places its component's projected nodes between them.
 5. A nested component's server-rendered root is adopted, not re-rendered. The outer template's nodes inside it are matched against that component's slot ranges and its carrier, where lowering placed them, and the nested root hydrates as its own instance.
 
 A root that a framework rendered is owned by that framework, which hydrates from its own state. Framework output need not carry slot ranges; its element tree remains subject to [target equivalence](/declarative-components/targets).

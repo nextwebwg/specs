@@ -43,7 +43,7 @@
     "check-successor.mjs": "17ae6e6c8f831f41c44edb728a87732e055646c0944c71fbc85f5af6778f3749",
     "check-transition-context.mjs": "900d7ce9032bc99da262a8a7bc0ed24a813ccab2f9ac2de76dad3a74e9726b33",
     "client-flow-browser-test.mjs": "2449246af8713e33b30f43c690a9e146376f63a4864166d54ebbd1b73e8dc800",
-    "client-flow.css": "06e1694df4c17b6afa5c5c44ad5d2b87577c71df7ddabb1fd251902c17e92d03",
+    "client-flow.css": "c64b1c5f3eb85a8f477f68745052b5991d8ff4ada920ea58edff91665e8c2b3f",
     "client-flow.html": "53424866c557f0983244d57844e73eb558d9e07929ec5fdaac70636c39e69c37",
     "client-flow.mjs": "25075ee12a2e64cd239a69bd67b1d8e1a9d135683c4c05329d4c93f0462683ab",
     "client_flow.py": "c9fa75f1d61e1269190a9b27b1de5b887486a539d61b76646ca7f44f47bd79b7",
@@ -179,7 +179,7 @@
     "package-lifetime.mjs": "84417a0e1022b974872d88c61acddde0cb72e6a0b721c80bbf232c11e110bf61",
     "package-lifetime.test.mjs": "a1ab89662f9c506ff9a89a2325193b037f23320269af99938597223f533d99f7",
     "parse5-tree.mjs": "f0f5f6ede7b0eb043528f841daa798a5e4a81a448be55865ca30d31cd314f423",
-    "parser_process.py": "34d1334853f39122940822da931babb803e61799f285bd17db3fa06bf84ffafb",
+    "parser_process.py": "46edc6bcd53425edd2d83dd709d3e825911c1b62508ab77456681150cd0b6230",
     "passive_discovery.py": "ef59f1c2a2d65bf89710d02bf0a47527e1178b3ecc10f9a425c0fece6eee6cfd",
     "passive_discovery_package.py": "d1657d1f27c8cac8093f0d98d7d937e366f60dfcb31d396c6650177f13b5b2db",
     "passive_discovery_verify.py": "65798ddcaa1f16212b3fa14b6162bf245191c2da7183e9409ada78b527e021ee",
@@ -246,7 +246,7 @@
     "scoped_image_decode.py": "f79f53a2cb01cd90299026af170882d936ccac12e946dfe0f89037ef5416fa58",
     "secret_retention.py": "7840bc14b4311c7f7431fac77b3eec8dec7f3910a33c15053b2128330f67efe3",
     "sender_association.py": "d4a982d5a6119600579cb8050d23b40c7451ab814ecf9f3fc803c19a87383646",
-    "sender_release.py": "c42e17d1846a190060b5c9df074d5722d3fa3a443a5cf5d79a62910d8353a0f9",
+    "sender_release.py": "ba07f267db027b8fab2814ac82828017f740c9f2d9cdacc446e83ccc3f78e4f6",
     "sender_worker.py": "39527ed017e1eda068fb30d67e5693c6ada7f448dc0f7ebf5667e58983ff7b1e",
     "service-question.mjs": "783c0353b5b8b800cf955ddb67d3ce9c4190202b304c2a69c75ec748060aaceb",
     "service-question.test.mjs": "3fa7ac28ee8d722d1b83bef545791abd64693fc49b90537a88ae6dd1cc365d38",
@@ -309,7 +309,7 @@
       "description": "Actual smtp embedded admission and protected contribution.",
       "status": "pass",
       "test": "test_application_invitation.ApplicationInvitationTests.test_actual_smtp_embedded_admission_and_protected_contribution",
-      "detail": "test_actual_smtp_embedded_admission_and_protected_contribution (test_application_invitation.ApplicationInvitationTests.test_actual_smtp_embedded_admission_and_protected_contribution) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.787s\n\nOK\n"
+      "detail": "test_actual_smtp_embedded_admission_and_protected_contribution (test_application_invitation.ApplicationInvitationTests.test_actual_smtp_embedded_admission_and_protected_contribution) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.710s\n\nOK\n"
     },
     {
       "id": "invitation-v1.proof-substitution-cannot-poison-accepted-replay",
@@ -317,7 +317,7 @@
       "description": "Proof substitution cannot poison accepted replay.",
       "status": "pass",
       "test": "test_application_invitation.ApplicationInvitationTests.test_proof_substitution_cannot_poison_accepted_replay",
-      "detail": "test_proof_substitution_cannot_poison_accepted_replay (test_application_invitation.ApplicationInvitationTests.test_proof_substitution_cannot_poison_accepted_replay) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.606s\n\nOK\n"
+      "detail": "test_proof_substitution_cannot_poison_accepted_replay (test_application_invitation.ApplicationInvitationTests.test_proof_substitution_cannot_poison_accepted_replay) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.519s\n\nOK\n"
     },
     {
       "id": "invitation-v1.no-configured-flag-can-replace-missing-association",
@@ -325,7 +325,7 @@
       "description": "No configured flag can replace missing association.",
       "status": "pass",
       "test": "test_application_invitation.ApplicationInvitationTests.test_no_configured_flag_can_replace_missing_association",
-      "detail": "test_no_configured_flag_can_replace_missing_association (test_application_invitation.ApplicationInvitationTests.test_no_configured_flag_can_replace_missing_association) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.288s\n\nOK\n"
+      "detail": "test_no_configured_flag_can_replace_missing_association (test_application_invitation.ApplicationInvitationTests.test_no_configured_flag_can_replace_missing_association) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.269s\n\nOK\n"
     },
     {
       "id": "invitation-v1.transaction-failure-and-missing-embedded-tree-do-not-consume",
@@ -333,7 +333,7 @@
       "description": "Transaction failure and missing embedded tree do not consume.",
       "status": "pass",
       "test": "test_application_invitation.ApplicationInvitationTests.test_transaction_failure_and_missing_embedded_tree_do_not_consume",
-      "detail": "test_transaction_failure_and_missing_embedded_tree_do_not_consume (test_application_invitation.ApplicationInvitationTests.test_transaction_failure_and_missing_embedded_tree_do_not_consume) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.916s\n\nOK\n"
+      "detail": "test_transaction_failure_and_missing_embedded_tree_do_not_consume (test_application_invitation.ApplicationInvitationTests.test_transaction_failure_and_missing_embedded_tree_do_not_consume) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.871s\n\nOK\n"
     },
     {
       "id": "invitation-v1.version-domain-proof-coverage-and-context-are-exact",
@@ -341,7 +341,7 @@
       "description": "Version domain proof coverage and context are exact.",
       "status": "pass",
       "test": "test_application_invitation.ApplicationInvitationTests.test_version_domain_proof_coverage_and_context_are_exact",
-      "detail": "test_version_domain_proof_coverage_and_context_are_exact (test_application_invitation.ApplicationInvitationTests.test_version_domain_proof_coverage_and_context_are_exact) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.321s\n\nOK\n"
+      "detail": "test_version_domain_proof_coverage_and_context_are_exact (test_application_invitation.ApplicationInvitationTests.test_version_domain_proof_coverage_and_context_are_exact) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.328s\n\nOK\n"
     },
     {
       "id": "invitation-v1.process-exit-before-public-admission-commit",
@@ -349,7 +349,7 @@
       "description": "Process exit before public admission commit.",
       "status": "pass",
       "test": "test_application_invitation.ApplicationInvitationTests.test_process_exit_before_public_admission_commit",
-      "detail": "test_process_exit_before_public_admission_commit (test_application_invitation.ApplicationInvitationTests.test_process_exit_before_public_admission_commit) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.946s\n\nOK\n"
+      "detail": "test_process_exit_before_public_admission_commit (test_application_invitation.ApplicationInvitationTests.test_process_exit_before_public_admission_commit) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.809s\n\nOK\n"
     },
     {
       "id": "invitation-v1.signed-interval-before-binding-does-not-consume-package",
@@ -357,7 +357,7 @@
       "description": "Signed interval before binding does not consume package.",
       "status": "pass",
       "test": "test_application_invitation.ApplicationInvitationTests.test_signed_interval_before_binding_does_not_consume_package",
-      "detail": "test_signed_interval_before_binding_does_not_consume_package (test_application_invitation.ApplicationInvitationTests.test_signed_interval_before_binding_does_not_consume_package) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.323s\n\nOK\n"
+      "detail": "test_signed_interval_before_binding_does_not_consume_package (test_application_invitation.ApplicationInvitationTests.test_signed_interval_before_binding_does_not_consume_package) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.330s\n\nOK\n"
     },
     {
       "id": "invitation-v1.actual-preparation-smtp-admission-and-protected-followup",
@@ -365,7 +365,7 @@
       "description": "Actual preparation smtp admission and protected followup.",
       "status": "pass",
       "test": "test_application_invitation_release.InitialReleaseTests.test_actual_preparation_smtp_admission_and_protected_followup",
-      "detail": "test_actual_preparation_smtp_admission_and_protected_followup (test_application_invitation_release.InitialReleaseTests.test_actual_preparation_smtp_admission_and_protected_followup) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.233s\n\nOK\n"
+      "detail": "test_actual_preparation_smtp_admission_and_protected_followup (test_application_invitation_release.InitialReleaseTests.test_actual_preparation_smtp_admission_and_protected_followup) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.208s\n\nOK\n"
     },
     {
       "id": "invitation-v1.unprepared-no-socket-and-policy-change-before-data",
@@ -373,7 +373,7 @@
       "description": "Unprepared no socket and policy change before data.",
       "status": "pass",
       "test": "test_application_invitation_release.InitialReleaseTests.test_unprepared_no_socket_and_policy_change_before_data",
-      "detail": "test_unprepared_no_socket_and_policy_change_before_data (test_application_invitation_release.InitialReleaseTests.test_unprepared_no_socket_and_policy_change_before_data) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.728s\n\nOK\n"
+      "detail": "test_unprepared_no_socket_and_policy_change_before_data (test_application_invitation_release.InitialReleaseTests.test_unprepared_no_socket_and_policy_change_before_data) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.682s\n\nOK\n"
     },
     {
       "id": "invitation-v1.preparation-failure-rolls-back-initial-state-and-package-use",
@@ -381,7 +381,7 @@
       "description": "Preparation failure rolls back initial state and package use.",
       "status": "pass",
       "test": "test_application_invitation_release.InitialReleaseTests.test_preparation_failure_rolls_back_initial_state_and_package_use",
-      "detail": "test_preparation_failure_rolls_back_initial_state_and_package_use (test_application_invitation_release.InitialReleaseTests.test_preparation_failure_rolls_back_initial_state_and_package_use) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.859s\n\nOK\n"
+      "detail": "test_preparation_failure_rolls_back_initial_state_and_package_use (test_application_invitation_release.InitialReleaseTests.test_preparation_failure_rolls_back_initial_state_and_package_use) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.846s\n\nOK\n"
     },
     {
       "id": "invitation-v1.process-exit-uncertainty-preserves-exact-invitation",
@@ -389,7 +389,7 @@
       "description": "Process exit uncertainty preserves exact invitation.",
       "status": "pass",
       "test": "test_application_invitation_release.InitialReleaseTests.test_process_exit_uncertainty_preserves_exact_invitation",
-      "detail": "test_process_exit_uncertainty_preserves_exact_invitation (test_application_invitation_release.InitialReleaseTests.test_process_exit_uncertainty_preserves_exact_invitation) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.294s\n\nOK\n"
+      "detail": "test_process_exit_uncertainty_preserves_exact_invitation (test_application_invitation_release.InitialReleaseTests.test_process_exit_uncertainty_preserves_exact_invitation) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.228s\n\nOK\n"
     },
     {
       "id": "invitation-v1.invitation-lower-bound-is-checked-before-initial-state",
@@ -397,7 +397,7 @@
       "description": "Invitation lower bound is checked before initial state.",
       "status": "pass",
       "test": "test_application_invitation_release.InitialReleaseTests.test_invitation_lower_bound_is_checked_before_initial_state",
-      "detail": "test_invitation_lower_bound_is_checked_before_initial_state (test_application_invitation_release.InitialReleaseTests.test_invitation_lower_bound_is_checked_before_initial_state) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.451s\n\nOK\n"
+      "detail": "test_invitation_lower_bound_is_checked_before_initial_state (test_application_invitation_release.InitialReleaseTests.test_invitation_lower_bound_is_checked_before_initial_state) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.422s\n\nOK\n"
     },
     {
       "id": "invitation-v1.deployed-carriage",

@@ -45,7 +45,7 @@ Specification checks use Node24.20.0 and pnpm11.25.0. Site generation uses Node2
 
 ## Reusable acceptance reports
 
-The table records the latest completed source-hashed reports, including the sender-handshake correction and its signed-group regression. The parser cleanup correction and cosmetic source changes require refreshed reports before delivery; that refresh is pending. Each linked JSON report retains the manifest, source and mail-fixture fingerprints used by that run. Those fingerprints were compared with the current inputs after all eight reports completed. Later implementation changes require new reports; these are development results, not release certification.
+The table records the latest completed source-hashed reports, including the sender-handshake correction and its signed-group regression. The reports include the parser cleanup correction, sender-header layout and cosmetic source changes. Their manifest, implementation and declared mail-fixture hashes match the frozen inputs. Each linked JSON report retains the manifest, source and mail-fixture fingerprints used by that run. Those fingerprints were compared with the current inputs after all eight reports completed. Later implementation changes require new reports; these are development results, not release certification.
 
 | Manifest | Local result | Explicitly missing coverage |
 | --- | --- | --- |

@@ -86,7 +86,7 @@
     "ordering_certificates.py": "b93184120253a7b436a8572609b363fc2dfdccd3eb72d13fea612f495b276635",
     "ordering_mls.py": "d670eeb2ea33f8b9f46c5beb4c570f5f3a2125aea4faa776900e9189172b02d8",
     "ordering_scope.py": "f3d558ad72aed56c18dc6af69a1e0c46f90387cafeeba9b9626a31d562864871",
-    "parser_process.py": "34d1334853f39122940822da931babb803e61799f285bd17db3fa06bf84ffafb",
+    "parser_process.py": "46edc6bcd53425edd2d83dd709d3e825911c1b62508ab77456681150cd0b6230",
     "passive_discovery.py": "ef59f1c2a2d65bf89710d02bf0a47527e1178b3ecc10f9a425c0fece6eee6cfd",
     "passive_discovery_package.py": "d1657d1f27c8cac8093f0d98d7d937e366f60dfcb31d396c6650177f13b5b2db",
     "passive_discovery_verify.py": "65798ddcaa1f16212b3fa14b6162bf245191c2da7183e9409ada78b527e021ee",
@@ -163,7 +163,7 @@
       "description": "A signed MIME invitation with an encrypted embedded tree admits the intended device; exact payload/signature retries retain the result while a changed signature cannot reuse it.",
       "status": "pass",
       "test": "test_mls_invitation.InvitationTests.test_embedded_carrier_admission_and_replay_signature_boundary",
-      "detail": "test_embedded_carrier_admission_and_replay_signature_boundary (test_mls_invitation.InvitationTests.test_embedded_carrier_admission_and_replay_signature_boundary) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.545s\n\nOK\n"
+      "detail": "test_embedded_carrier_admission_and_replay_signature_boundary (test_mls_invitation.InvitationTests.test_embedded_carrier_admission_and_replay_signature_boundary) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.578s\n\nOK\n"
     },
     {
       "id": "invitation.authenticated-bindings",
@@ -171,7 +171,7 @@
       "description": "Missing embedded tree or mismatched signed target, group, context or Welcome prevents consumption; a valid retry still succeeds.",
       "status": "pass",
       "test": "test_mls_invitation.InvitationTests.test_missing_tree_and_signed_target_context_tampering_do_not_consume",
-      "detail": "test_missing_tree_and_signed_target_context_tampering_do_not_consume (test_mls_invitation.InvitationTests.test_missing_tree_and_signed_target_context_tampering_do_not_consume) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.632s\n\nOK\n"
+      "detail": "test_missing_tree_and_signed_target_context_tampering_do_not_consume (test_mls_invitation.InvitationTests.test_missing_tree_and_signed_target_context_tampering_do_not_consume) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.643s\n\nOK\n"
     },
     {
       "id": "invitation.welcome-signer",
@@ -179,7 +179,7 @@
       "description": "The validated MLS GroupInfo signer must match the separately signed invitation creator.",
       "status": "pass",
       "test": "test_mls_invitation.InvitationTests.test_validated_groupinfo_signer_differs_from_signed_creator",
-      "detail": "test_validated_groupinfo_signer_differs_from_signed_creator (test_mls_invitation.InvitationTests.test_validated_groupinfo_signer_differs_from_signed_creator) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.561s\n\nOK\n"
+      "detail": "test_validated_groupinfo_signer_differs_from_signed_creator (test_mls_invitation.InvitationTests.test_validated_groupinfo_signer_differs_from_signed_creator) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.498s\n\nOK\n"
     },
     {
       "id": "invitation.direct-carrier",
@@ -187,7 +187,7 @@
       "description": "Unknown schema fields, noncanonical encoding, duplicate attachments and forwarded nested carriers are rejected.",
       "status": "pass",
       "test": "test_mls_invitation.InvitationTests.test_strict_schema_and_direct_mime_scope",
-      "detail": "test_strict_schema_and_direct_mime_scope (test_mls_invitation.InvitationTests.test_strict_schema_and_direct_mime_scope) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.380s\n\nOK\n"
+      "detail": "test_strict_schema_and_direct_mime_scope (test_mls_invitation.InvitationTests.test_strict_schema_and_direct_mime_scope) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.480s\n\nOK\n"
     },
     {
       "id": "invitation.mime-ambiguity",

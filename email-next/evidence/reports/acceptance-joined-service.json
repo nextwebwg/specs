@@ -42,7 +42,7 @@
     "check-successor.mjs": "17ae6e6c8f831f41c44edb728a87732e055646c0944c71fbc85f5af6778f3749",
     "check-transition-context.mjs": "900d7ce9032bc99da262a8a7bc0ed24a813ccab2f9ac2de76dad3a74e9726b33",
     "client-flow-browser-test.mjs": "2449246af8713e33b30f43c690a9e146376f63a4864166d54ebbd1b73e8dc800",
-    "client-flow.css": "06e1694df4c17b6afa5c5c44ad5d2b87577c71df7ddabb1fd251902c17e92d03",
+    "client-flow.css": "c64b1c5f3eb85a8f477f68745052b5991d8ff4ada920ea58edff91665e8c2b3f",
     "client-flow.html": "53424866c557f0983244d57844e73eb558d9e07929ec5fdaac70636c39e69c37",
     "client-flow.mjs": "25075ee12a2e64cd239a69bd67b1d8e1a9d135683c4c05329d4c93f0462683ab",
     "client_flow.py": "c9fa75f1d61e1269190a9b27b1de5b887486a539d61b76646ca7f44f47bd79b7",
@@ -203,7 +203,7 @@
     "pairing_demo.py": "56c63f5962e648e246af5f43d86cc134e207ec0a29bfd4cc01fbd47a77017386",
     "pairing_relay.py": "e5411807e5418035e3b0ccd33a0b9d05d50fa96295d1ba45cf3fcc1cea5bb79a",
     "parse5-tree.mjs": "f0f5f6ede7b0eb043528f841daa798a5e4a81a448be55865ca30d31cd314f423",
-    "parser_process.py": "34d1334853f39122940822da931babb803e61799f285bd17db3fa06bf84ffafb",
+    "parser_process.py": "46edc6bcd53425edd2d83dd709d3e825911c1b62508ab77456681150cd0b6230",
     "passive_discovery.py": "ef59f1c2a2d65bf89710d02bf0a47527e1178b3ecc10f9a425c0fece6eee6cfd",
     "passive_discovery_package.py": "d1657d1f27c8cac8093f0d98d7d937e366f60dfcb31d396c6650177f13b5b2db",
     "passive_discovery_verify.py": "65798ddcaa1f16212b3fa14b6162bf245191c2da7183e9409ada78b527e021ee",
@@ -278,7 +278,7 @@
     "scoped_image_decode.py": "f79f53a2cb01cd90299026af170882d936ccac12e946dfe0f89037ef5416fa58",
     "secret_retention.py": "7840bc14b4311c7f7431fac77b3eec8dec7f3910a33c15053b2128330f67efe3",
     "sender_association.py": "d4a982d5a6119600579cb8050d23b40c7451ab814ecf9f3fc803c19a87383646",
-    "sender_release.py": "c42e17d1846a190060b5c9df074d5722d3fa3a443a5cf5d79a62910d8353a0f9",
+    "sender_release.py": "ba07f267db027b8fab2814ac82828017f740c9f2d9cdacc446e83ccc3f78e4f6",
     "sender_worker.py": "39527ed017e1eda068fb30d67e5693c6ada7f448dc0f7ebf5667e58983ff7b1e",
     "service-question-browser-test.mjs": "45083211ef15dd9a2628b3d011b2267fe21b3e736ec1300729c261e4438a1e21",
     "service-question.mjs": "783c0353b5b8b800cf955ddb67d3ce9c4190202b304c2a69c75ec748060aaceb",
@@ -313,7 +313,7 @@
     "test_managed_presentation_lifecycle.py": "d7fc34c057528556c7fbbad72bf2f07340645dacfc20d3e3eda14c4b11357196",
     "test_own_devices.py": "2073f8060f916bcad9407fbcc0bc73e127db3f10d6e40d0994eee2a0488e1f14",
     "test_passive_discovery.py": "c87ba85fc31c0a2c2d111eab888e38b03a279ad516e48240d734643f53a6de6d",
-    "test_private_copy_fanout.py": "73d6b810c2c564727869e5e6ed7f89ee2f66c03aba348bc68f3b60c104d4f9ad",
+    "test_private_copy_fanout.py": "4199d72d4fb491d26bf456d022794dc28a6526b009aebcdda83bf415d26919f0",
     "test_private_copy_lifecycle.py": "c1eb231ae7e3025ce271cf8a824ba356939f0dcb50a21c739bb165af2ca5d09a",
     "test_remote_pairing.py": "7ba85ecfc587dcbbd2a03004888a755fea99ecded38f7601f7b54000dda6876b",
     "test_sender_release.py": "7a4b2626088ee223341aa535135d7d0f269583ce366cb14131a28e31ac9553f6",
@@ -352,7 +352,7 @@
       "description": "Signed SMTP question reaches the configured HTTPS service; an exact retry with renewed credentials retains one effect.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_signed_smtp_https_effect_exact_retry_and_renewal",
-      "detail": "test_signed_smtp_https_effect_exact_retry_and_renewal (test_joined_service.JoinedService.test_signed_smtp_https_effect_exact_retry_and_renewal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.598s\n\nOK\n"
+      "detail": "test_signed_smtp_https_effect_exact_retry_and_renewal (test_joined_service.JoinedService.test_signed_smtp_https_effect_exact_retry_and_renewal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.482s\n\nOK\n"
     },
     {
       "id": "registration-and-credential",
@@ -360,7 +360,7 @@
       "description": "Changed registration or absent credentials holds the control.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_registration_snapshot_and_missing_credentials_hold",
-      "detail": "test_registration_snapshot_and_missing_credentials_hold (test_joined_service.JoinedService.test_registration_snapshot_and_missing_credentials_hold) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.687s\n\nOK\n"
+      "detail": "test_registration_snapshot_and_missing_credentials_hold (test_joined_service.JoinedService.test_registration_snapshot_and_missing_credentials_hold) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.732s\n\nOK\n"
     },
     {
       "id": "uncertain-outcome",
@@ -368,7 +368,7 @@
       "description": "Lost response reconciles through authorized status; withdrawal preserves uncertainty.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_lost_response_status_reconciliation_and_withdrawal",
-      "detail": "test_lost_response_status_reconciliation_and_withdrawal (test_joined_service.JoinedService.test_lost_response_status_reconciliation_and_withdrawal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 6.230s\n\nOK\n"
+      "detail": "test_lost_response_status_reconciliation_and_withdrawal (test_joined_service.JoinedService.test_lost_response_status_reconciliation_and_withdrawal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.961s\n\nOK\n"
     },
     {
       "id": "revoked-device",
@@ -376,7 +376,7 @@
       "description": "A signed send-role revocation holds an existing control.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_current_device_send_revocation_holds_existing_control",
-      "detail": "test_current_device_send_revocation_holds_existing_control (test_joined_service.JoinedService.test_current_device_send_revocation_holds_existing_control) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 7.600s\n\nOK\n"
+      "detail": "test_current_device_send_revocation_holds_existing_control (test_joined_service.JoinedService.test_current_device_send_revocation_holds_existing_control) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.382s\n\nOK\n"
     },
     {
       "id": "source-and-destination",
@@ -384,7 +384,7 @@
       "description": "Unaccepted source or wrong registration cannot authorize a service request.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_wrong_registration_and_unaccepted_carrier",
-      "detail": "test_wrong_registration_and_unaccepted_carrier (test_joined_service.JoinedService.test_wrong_registration_and_unaccepted_carrier) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 6.144s\n\nOK\n"
+      "detail": "test_wrong_registration_and_unaccepted_carrier (test_joined_service.JoinedService.test_wrong_registration_and_unaccepted_carrier) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.624s\n\nOK\n"
     },
     {
       "id": "exact-profile",
@@ -392,7 +392,7 @@
       "description": "Older profiles and incomplete operation agreement cannot enable service questions.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_explicit_tuple_not_old_profile_or_partial_intersection",
-      "detail": "test_explicit_tuple_not_old_profile_or_partial_intersection (test_joined_service.JoinedService.test_explicit_tuple_not_old_profile_or_partial_intersection) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.157s\n\nOK\n"
+      "detail": "test_explicit_tuple_not_old_profile_or_partial_intersection (test_joined_service.JoinedService.test_explicit_tuple_not_old_profile_or_partial_intersection) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.772s\n\nOK\n"
     },
     {
       "id": "independent-service",

@@ -19,7 +19,7 @@ The parser processes a real closing-tag action at each self-closing marker. Form
 
 - ✅ **Ordinary tags can use the same rule.** Parser-known names are checked against immediate empty pairs in ten contexts with scripting enabled and disabled. `plaintext` has a separate token-boundary check.
 - ✅ **Attributes do not select a different algorithm.** Hidden, inert, and popover examples close normally. Visibility differences are not counted as vulnerabilities.
-- ✅ **Following markup is parsed in the updated context.** Formatting, select, table, template, and text-element tests no longer depend on retaining the old open-element context.
+- ✅ **Following markup is parsed in the updated context.** Formatting, select, table, template, and text-element tests check that the closing action takes effect before the parser reads following source.
 - ✅ **Chunking preserves the tested result.** 30,000 seeded comparisons and every two-chunk boundary of selected witnesses pass.
 - ✅ **The safe reference path sanitizes the selected-grammar tree.** It filters the actual nodes in place and returns nodes; 1,000 generated inputs retain none of the monitored script/handler/JavaScript-URL signals.
 - ✅ **Adapter execution checkpoints have browser evidence.** 34 cases pass in each of Chromium, Firefox, and WebKit, including callbacks, mutations, external-script blocking, streamed input, and direct safe node insertion. They share a parse5 parser and do not establish native support in those engines.

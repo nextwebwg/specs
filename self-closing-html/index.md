@@ -20,7 +20,7 @@ status: "Unofficial Editor's Draft · Stage 0"
 <p>Following content</p>
 ```
 
-There is no blacklist of ordinary HTML elements or attributes. HTML void elements and SVG/MathML keep their existing behavior. HTML error recovery still applies, including invalid contexts and the document's required structure.
+HTML void elements and SVG/MathML keep their existing behavior. HTML error recovery still applies, including invalid contexts and the document's required structure.
 
 ## Why authors would use it
 
@@ -30,7 +30,7 @@ JSX and Vue templates already use self-closing syntax; native HTML does not give
 
 ## One consistent mechanism
 
-For a non-void HTML element, the parser processes its start tag and then its end-tag action. It does not wait for the complete document and move nodes afterward. A self-closing `select` therefore stops select parsing before following source; a self-closing `script` does not swallow the rest of the page.
+For a non-void HTML element, the parser processes its start tag and then its end-tag action as the source arrives. A self-closing `select` ends the select context before following source. A self-closing `script` finishes the script element, then parsing continues with the following markup.
 
 The slash must be tag syntax, not part of an unquoted attribute value. Ignored tags remain subject to normal HTML recovery, and a self-closing document root cannot create siblings outside the root. [Read the exact rules](/self-closing-html/parsing).
 

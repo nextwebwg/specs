@@ -9,7 +9,7 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Parsing rules
 
-**For an HTML element, `/>` finishes its opening tag and immediately processes its closing tag, before the parser reads more source.** There is no blacklist of formatting, control, or table elements.
+**For an HTML element, `/>` finishes its opening tag and immediately processes its closing tag, before the parser reads more source.**
 
 ```html
 <small />
@@ -61,7 +61,7 @@ Quoted strings, comments, and text already inside a script or stylesheet are not
 
 When an HTML start-tag token carries the self-closing flag, process its ordinary start-tag action once, then process the matching end-tag token in the resulting parser state. Reprocessing the start through insertion modes must not duplicate the synthetic end tag. Existing void handling and native foreign-element handling remain intact, including transitions back into HTML processing.
 
-Complete the synthetic end and restore the appropriate source-tokenizer state before consuming more characters. Clear a pending initial-newline suppression when that text element has already ended. HTML formatting recovery, form state, table placement, template insertion modes, and namespace transitions use the resulting state rather than a separate legacy recognition tree.
+Complete the synthetic end and restore the appropriate source-tokenizer state before consuming more characters. Clear a pending initial-newline suppression when that text element has already ended. HTML formatting recovery, form state, table placement, template insertion modes, and namespace transitions use the resulting parser state.
 
 Before running a parser-triggered script or delivering a callback, expose the DOM for completed processing. A self-closing external script keeps the normal blocking/async/defer/module rules; the slash does not make it inert. Preserve script mutations and normal pause/resume behavior. Declarative shadow-root host selection follows ordinary HTML placement; do not attach a following declaration to an already closed host.
 

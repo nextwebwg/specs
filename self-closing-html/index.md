@@ -20,29 +20,47 @@ status: "Unofficial Editor's Draft · Stage 0"
 <p>Following content</p>
 ```
 
-There is no blacklist of ordinary HTML elements or attributes. HTML void elements and SVG/MathML keep their existing behavior. HTML error recovery still applies, including invalid contexts and the document's required structure.
+HTML void elements and SVG/MathML keep their existing behavior. HTML error recovery still applies, including invalid contexts and the document's required structure.
 
-## Why authors would use it
+## The benefits of self-closing syntax
 
-Instead of `<user-avatar name="Ada"></user-avatar>`, write `<user-avatar name="Ada" />`. The name appears once, and the end of the opening tag states that it has no authored children.
+- **Less repeated markup.** Write `<user-avatar name="Ada" />` instead of `<user-avatar name="Ada"></user-avatar>`. The element name appears once.
+- **An explicit empty-element boundary.** The opening tag contains everything the author supplies: its name, its attributes, and the marker that closes it. Following markup starts after that boundary.
+- **A familiar spelling in native HTML.** JSX and Vue templates already use self-closing syntax.[^1] Authors could use the same notation for empty elements in HTML source without a compiler just for this syntax.
 
-JSX and Vue templates already use self-closing syntax; native HTML does not give ordinary elements that meaning.[^1] The proposal removes that syntax difference for empty elements. Existing practice supports familiarity, not a measured productivity claim: no study of authoring speed, readability, or error rates is reported.
+::: {.details summary="Evidence for these benefits"}
 
-## One consistent mechanism
+The shorter spelling and explicit closing marker are properties of the syntax. JSX and Vue demonstrate existing authoring practice and familiarity. No study of authoring speed, readability, or error rates is reported.
 
-For a non-void HTML element, the parser processes its start tag and then its end-tag action. It does not wait for the complete document and move nodes afterward. A self-closing `select` therefore stops select parsing before following source; a self-closing `script` does not swallow the rest of the page.
+:::
 
-The slash must be tag syntax, not part of an unquoted attribute value. Ignored tags remain subject to normal HTML recovery, and a self-closing document root cannot create siblings outside the root. [Read the exact rules](/self-closing-html/parsing).
+## The key insight: parsing and sanitization agree
 
-## Opt in deliberately
+The slash takes effect while the parser is building the document. It processes the element's opening action and its matching closing action before reading the next source character. The parser's memory of open elements, formatting, tables, and templates therefore advances at the same boundary. A self-closing `select` ends the select context; following markup is parsed in the resulting context.
 
-[HTML Feature Profiles](/html-feature-profiles/) defines the named `self-closing` selection, proposed response header, and `next` family opt-in. Documents and existing parsing APIs keep their current behavior unless they explicitly select the new grammar.
+That change also matters for security. Consider:
 
-## Security: sanitize for the grammar you use
+```html
+<style /><img src="x" onerror="runCode()">
+```
 
-A legacy sanitizer's output is not automatically safe when reparsed under a different grammar. The safe parsing path must parse the selected grammar first, sanitize its resulting tree, and insert sanitized nodes without a string round trip. The reference implementation demonstrates this composition; it does not make unsafe input safe merely by selecting a profile.
+Today's HTML parser treats the apparent image as stylesheet text. Under the proposed grammar, it is an image element with an event handler. A sanitizer using today's grammar could check the text while a later parser creates the active element.[^5]
 
-[Security checklist and concrete sanitizer counterexample →](/self-closing-html/security)
+**The safe path parses with the selected grammar first, then sanitizes the actual nodes it produces.** In this example, the sanitizer sees the image and removes its handler. The caller receives sanitized nodes to insert directly. This keeps parsing, filtering, and insertion in agreement.
+
+[Exact parsing rules →](/self-closing-html/parsing)
+
+## How this addresses the earlier concerns
+
+| Concern | Proposed answer |
+| --- | --- |
+| Existing pages and libraries depend on today's parsing. | [HTML Feature Profiles](/html-feature-profiles/) selects the grammar explicitly, through a document declaration, proposed response header, or proposed parsing option. Existing parsing APIs retain their grammar by default. |
+| A parsing change can expose markup that a sanitizer treated as text. | The safe entry point parses the selected grammar and sanitizes its resulting nodes before insertion. The reference implementation demonstrates removal of the handler in a retained sanitizer-mismatch case. |
+| Scripts, tables, formatting, and text elements have special parser behavior. | The matching closing action updates ordinary HTML parser state at the slash. Reference and native tests exercise those contexts, streaming, execution checkpoints, and mutations. |
+
+The proposal combines a consistent closure rule, explicit grammar selection, and sanitization of that grammar's actual result. Those are concrete, testable responses to the compatibility and security objections in earlier discussions.[^4][^5]
+
+The [evidence checklist](/self-closing-html/security) separates passing experiments from remaining shipment work, including native profile API integration, encoding restarts, and implementer security review. These results support incubation; adoption requires that review and broader interoperability work.
 
 ## Implementation and feedback
 

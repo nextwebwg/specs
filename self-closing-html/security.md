@@ -1,94 +1,91 @@
 ---
 title: Security and evidence
 order: 2
-blurb: sanitizer mismatch · worked solution · experiments · implementation requirements
+blurb: text recognition · inactive boundaries · tested results · remaining work
 sectionNav: true
-eyebrow: Opt-in Self-Closing HTML · security contract
+eyebrow: Opt-in Self-Closing HTML · security properties
 status: "Unofficial Editor's Draft · Stage 0"
 ---
 
 # Security and evidence
 
-**Self-closing syntax is not sanitization.** Trusted source can use the selected grammar directly. Untrusted HTML must be parsed and sanitized using that grammar before its nodes are inserted.
+**The parsing algorithm must not create executable markup out of characters HTML already treats as text.** The current candidate preserves recognition and protected containment, then changes ordinary output parentage. Its security argument is about that operation itself.
 
-The parser processes a real closing-tag action at each self-closing marker. Formatting, controls, tables, and text elements use the same rule. The security requirement is to filter the document that this grammar actually produces.
-
-## Why a legacy sanitizer is not enough
-
-**The danger is executable code crossing a safety check.** A custom `sanitize-html` policy permits `style` and foreign structure but disallows event-handler attributes. It nevertheless retains image-looking source as text. Later, parsing that string with self-closing enabled creates an image whose `onerror` attribute can run JavaScript.
-
-[See the failure and safe path side by side →](/self-closing-html/parsing#the-failure-checked-as-text-inserted-as-code)
-
-| Stage | Security problem | Proposed safe handling |
-| --- | --- | --- |
-| Read the decisive `<style/>` | The legacy check leaves `style` open. | The selected grammar immediately closes `style`. |
-| Read the apparent `<img … onerror="probe()">` | The check sees stylesheet text, so there is no image attribute to remove. | The inert parse creates an image node with an `onerror` attribute. |
-| Apply the safety policy | The handler-looking characters survive in the output string. | The filter sees and removes the actual handler attribute. |
-| Insert into the page | Changing grammar exposes an image with executable code. | Direct insertion uses the already-filtered image node. |
-
-In the browser experiment, ordinary parsing of the retained string creates no image. The unsafe new-grammar output executes the handler in Chromium, Firefox, and WebKit. This demonstrates the custom-policy mismatch; it is not a vulnerability claim against sanitizer defaults.
-
-::: {.details summary="Reduced counterexample and observation method"}
-
-The legacy-sanitized string is:
+## The problem the algorithm addresses
 
 ```html
-<svg><mtext><style><table/><style/><img data-probe src=x onerror="probe()"></style></mtext></svg>
+<style/><img src=x onerror="attack()"></style>
 ```
 
-The unsafe new parser changes a boundary that kept the apparent image as text. Simply moving the same legacy sanitizer before that parser does not protect it.
+Existing HTML reads the apparent image as stylesheet text. Immediately ending style at its slash would create an image with an event handler. The proposed algorithm keeps this text-reading boundary: there is no image element or handler to activate.
 
-The browser experiment compares ordinary source parsing with serialized experimental outputs in opaque sandbox frames. A controlled `probe()` handler records execution, image network access is blocked by CSP, and a positive control confirms the signal works. These are executions of candidate output, not a native implementation of the new grammar. The tested default sanitizer policies did not activate the new syntax, so their zero-difference results are not evidence of broad compatibility.
+A more subtle case changes the namespace of a later style element:
 
-:::
+```html
+<div/><svg></div><style><img src=x onerror="attack()"></style></svg>
+```
 
-## Parse first, sanitize the resulting nodes
+Making div empty in the output does not remove its internal recovery entry. The later `</div>` still exits SVG under ordinary HTML rules; the following HTML style reads the apparent image as text.
 
-The safe reference path does this:
+[Follow both algorithms step by step →](/self-closing-html/parsing#why-remembering-the-element-matters)
 
-1. Parse with the caller-selected grammar in an inert representation.
-2. Construct an inert DOM and filter those same nodes with DOMPurify in place.
-3. Return the sanitized document. Insert its nodes directly, without serializing and reparsing.
+## The preservation argument
 
-In the retained counterexample, this path removes the handler from the new grammar's image node before insertion. The [counterexample report](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/counterexample-results.json) shows the unsafe image with `onerror="probe()"`, the filtered image without it, and **zero remaining monitored handlers or script elements**. The [safe-parser test](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/safe-parse.test.mjs) checks that filtering keeps the same document root and uses no HTML-string insertion sink. The [browser tests](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/execution-browser.mjs) check direct node insertion in all three adapter engines.
+The output operation takes the HTML parser's existing nodes. It changes containment for eligible elements while preserving:
 
-**This addresses the mismatch by making parsing and filtering agree about the nodes.** Existing string-parsing APIs keep their legacy grammar; selecting a document profile does not change them at a distance. The proposed safe `Document.parseHTML()` extension selects the new grammar and applies mandatory sanitization in the same operation. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) owns that API contract.
+- Each node's identity, namespace, attributes and text.
+- The recognized node order.
+- Template-content ownership and foreign-namespace ancestry.
+- Explicit interaction-inert ancestry for an element with the HTML inert attribute.
 
-The reference uses DOMPurify's policy. Native safe API integration and implementer security review remain required. Neither the document opt-in nor the unsafe parsing method protects an application that embeds a legacy-filtered string in source parsed with the new grammar. Arbitrary application-defined components, CSS policies, and URL policies also require their own review.
+**It never turns a text node's contents into a new tag token.** It also keeps template contents in their inactive document. The tokenizer and recognition stack are not replaced by the output tree.
 
-::: {.details summary="Earlier experiments and their limits"}
-
-Earlier experiments rearranged a legacy tree and proved properties of that rearrangement. Their Lean proof and native results remain [historical evidence](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme). They do not establish correctness of the current start-and-close algorithm. The [earlier analysis](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/earlier-security-analysis.md) is preserved alongside those records.
-
-:::
+The existing [Lean projection theorem](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/Projection.lean) proves payload-order and protected-ancestor preservation for this abstract kind of forest transformation. Eligibility and barrier classification are inputs to that theorem. It is not a proof that the JavaScript implements every HTML rule or that arbitrary browser execution is safe.
 
 ## Issue checklist
 
-✅ Demonstrated in the stated tests · 🟡 Partial · ⬜ Remaining work. Passing finite tests is not a universal safety guarantee.
+✅ Demonstrated in the stated tests · ⬜ Remaining work. Test passes have the scope stated beside them.
 
-- ✅ **Ordinary tags can use the same rule.** Parser-known names are checked against immediate empty pairs in ten contexts with scripting enabled and disabled. `plaintext` has a separate token-boundary check.
-- ✅ **Attributes do not select a different algorithm.** Hidden, inert, and popover examples close normally. Visibility differences are not counted as vulnerabilities.
-- ✅ **Following markup is parsed in the updated context.** Formatting, select, table, template, and text-element tests check that the closing action takes effect before the parser reads following source.
-- ✅ **Chunking preserves the tested result.** 30,000 seeded comparisons and every two-chunk boundary of selected witnesses pass.
-- ✅ **The safe reference path sanitizes the selected-grammar tree.** It filters the actual nodes in place and returns nodes; 1,000 generated inputs retain none of the monitored script/handler/JavaScript-URL signals.
-- ✅ **Adapter execution checkpoints have browser evidence.** 34 cases pass in each of Chromium, Firefox, and WebKit, including callbacks, mutations, external-script blocking, streamed input, and direct safe node insertion. They share a parse5 parser and do not establish native support in those engines.
-- ✅ **The native experiment has separate results.** A patched Ladybird build passes 50 execution checks, 810 document comparisons, six encoding cases, and 16 existing parser regressions. A focused garbage-collection-on-every-allocation run also completes without failure. These are finite checks in one experimental engine, not a memory-safety proof.
-- ⬜ **Production review and interoperability remain required.** No browser-vendor endorsement or universal security proof is reported.
+| Issue | Status, mechanism and evidence |
+| --- | --- |
+| A self-closing change exposes apparent image source as markup. | ✅ Text-reading starts retain ordinary handling. Direct style and textarea cases create no image in reference and browser-adapter tests. |
+| An earlier shorthand changes later HTML/SVG recovery. | ✅ Recognition state follows ordinary HTML rules. Live-entry, expired-entry and heading-alias witnesses retain text classification. |
+| Template contents become active. | ✅ Template boundaries remain intact. In all three adapter engines, the tested template script/handler stays inactive and its image issues no observed request. An ordinary image handler/request supplies a positive control. |
+| Ordinary and formatting elements need broad exclusions. | ✅ Small, links, emphasis, buttons, forms and ordinary wrappers use one projection rule. The simple body-context inventory reports 76 eligible parser-known names, with no empty-pair output differences in those eligible examples. |
+| Chunks change recognition or projection. | ✅ Every two-chunk boundary of retained witnesses is checked. The generated corpus checks 120,000 document/fragment cases with both scripting flags and no recorded inventory failure. |
+| Scripts see incomplete output or lose their mutations. | ✅ Focused tests exercise a completed output checkpoint before a following script, pause/resume, its parent, later-source visibility and a script-owned child surviving further parsing. This is finite adapter coverage. |
+| A DOM adapter activates a template image while constructing it. | ✅ Nodes are created in a document without a browsing context before insertion. Browser request traces include the active positive control and no tested template/attack request. |
+| Native execution, form association and declarative shadow-root ownership. | ⬜ Require a native implementation and review of this algorithm. Earlier immediate-closure native results do not transfer. |
+| All scheduling, encoding restarts, speculative loading and arbitrary script interleavings. | ⬜ Remain native conformance and security work. |
 
-[Current implementation and reproducible evidence →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme)
+[Reference implementation, exact tests and recorded results →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/recognition#readme)
 
-## Remaining work before browser shipment
+## Reproduce the evidence
 
-Implementer security review, native integration of the proposed profile header and API options, broader engine conformance, arbitrary encoding restarts, and optimized look-ahead loading remain shipment work. The experiment disables the optional speculative scanner and tests recognized resource loading. Six fixed encoding cases and a completed focused memory-stress test do not establish every restart or memory behavior.
+From the evidence package with its pinned dependencies:
+
+```bash
+node --test recognition/*.test.mjs
+node recognition/check.mjs
+node recognition/browser-runner.mjs
+```
+
+The current records contain 61 focused test passes, 120,000 generated comparisons, and ten targeted cases per adapter engine. The browser runner uses one engine at a time. Its [report](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/recognition/browser-results.json) records versions, case results and request controls.
+
+The adapters share parse5 recognition. Chromium, Firefox and WebKit independently provide DOM, script, custom-element and resource behavior; these passes are not native navigation-parser interoperability.
+
+## Limits of the claim
+
+Preserving recognition addresses text-to-markup activation. It does not make all consequences of changed parentage harmless. Application-defined behavior, event propagation, form ownership, CSS and accessibility can depend on ancestry. Native parser associations and declarative shadow-root ownership need explicit integration before shipment.
+
+Untrusted HTML still requires normal application safety measures. A safe parsing API may sanitize its result; that separate operation is not the proof of recognition preservation. Opt-in selection also does not establish the property by itself: the algorithm must maintain it.
+
+::: {.details summary="Earlier algorithms and their evidence"}
+
+The earlier restricted projection preserved recognition but excluded many names and attributes. This candidate broadens its ordinary-element rule, keeps concrete text/inactive/structure boundaries and adds new tests.
+
+The later immediate-closure experiment instead delivered a synthetic end-tag action before reading more source. It broadened syntax support but changed recognition. Its native Ladybird results, safe-parser composition and retained activation counterexample remain [versioned experiment evidence](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme). They do not prove this replacement.
+
+:::
 
 [Parsing rules →](/self-closing-html/parsing)
-
-## Sources
-
-::: {.details summary="Sources and prior art"}
-[^1]: WHATWG HTML, [Simon Pieters: sanitizer mismatch and the style example](https://github.com/whatwg/html/issues/9491#issuecomment-1623702790), and [Keith Cirkel: updating libraries does not protect existing installations](https://github.com/whatwg/html/issues/9491#issuecomment-1623794848).
-[^2]: WHATWG HTML, [Henri Sivonen: parsing-mode switches at a distance](https://github.com/whatwg/html/issues/9491#issuecomment-1695514547).
-[^3]: WHATWG HTML, [#721: existing self-closing-looking markup](https://github.com/whatwg/html/issues/721#issuecomment-186914414), and [existing hyphenated names](https://github.com/whatwg/html/issues/721#issuecomment-187737022).
-[^4]: Mozilla, [CVE-2020-6802: Bleach mutation XSS in noscript handling](https://bugzilla.mozilla.org/show_bug.cgi?id=1615315).
-[^5]: WHATWG HTML, [HTML parsing and insertion methods](https://html.spec.whatwg.org/multipage/dynamic-markup-insertion.html#html-parsing-and-insertion-methods), including safe parsing with sanitization.
-:::

@@ -15,8 +15,6 @@ status: "Unofficial Editor's Draft · Stage 0"
 <user-avatar name="Ada" />
 <small />
 <button />
-<table />
-<script src="app.js" />
 <p>Following content</p>
 ```
 
@@ -40,67 +38,58 @@ The shorter spelling and explicit closing marker are properties of the syntax. J
 
 :::
 
-## What changes from HTML today
+## The insight: empty in the document, remembered by the parser
 
-Inside a document's `body`, consider:
+HTML already recognizes `/>`, but for ordinary non-void HTML elements it keeps the element open. This proposal makes an eligible element empty in the output **while retaining the parser state that determines what the following characters mean**.
 
 ```html
-<div />
-<p>Hello</p>
+<small/><span>Following content</span>
 ```
 
-::::: two
-:::: {.parser-path}
-### HTML today
+The output contains an empty small element followed by the span. Internally, HTML's ordinary recovery records still remember the small element until its rules close it. Formatting elements, ordinary wrappers and custom-element hosts use the same containment operation.
 
-::: flow
-- Create `div`; ignore the slash marker
-- Keep `div` open {.acc}
-- Put the following paragraph inside `div`
-:::
-::::
-:::: {.parser-path}
-### With this feature
+[See the two trees and each parsing step →](/self-closing-html/parsing)
 
-::: flow
-- Create `div`
-- Process its matching closing action {.acc}
-- Put the following paragraph after `div`
-:::
-::::
-:::::
+## Why immediate closing is not enough
 
-The parser already has rules for opening elements, closing them, and recovering from malformed markup. This proposal uses the matching closing action at the slash, before the next source is read. For text elements such as `style`, that also ends the context that reads following characters as text.
+The security objection is that changing parser state can turn text into executable markup. In this example, an early close can change how a later closing tag recovers from SVG:
 
-[Follow each parsing and recovery step →](/self-closing-html/parsing)
+```html
+<div/><svg></div><style><img src=x onerror="attack()"></style></svg>
+```
 
-## What this draft adds to earlier proposals
+The recognition-preserving algorithm makes div empty but retains its internal entry. The later `</div>` still exits SVG, so the following style is an HTML stylesheet and the apparent image stays text. No image handler is created.
 
-Self-closing syntax and a document opt-in were already proposed in earlier discussions.[^4][^5] This draft develops three concrete parts for review:
+**The protection comes from preserving HTML's interpretation, not from sanitizing a different interpretation afterward.**
 
-- **A boundary for each parsing operation.** A document can select the grammar. Existing string-parsing APIs keep their current grammar; proposed explicit options select a different grammar for an individual call.
-- **A specified safe path for untrusted HTML.** The proposed safe parsing method first creates nodes using the selected grammar, then removes unsafe content from those nodes before insertion. Ordinary page loading continues to parse authored HTML without that filtering.
-- **Reproducible implementation evidence.** A reference parser, a separate native browser patch, and retained counterexamples make the behavior and its limits testable.
+[Follow the unsafe immediate-close path and the proposed recovery →](/self-closing-html/parsing#why-remembering-the-element-matters)
 
-The closing action itself is the familiar idea. The contribution is the specified integration and its implementation evidence. A page that mixes the new grammar with strings filtered for the old grammar still has a security risk; the [security chapter](/self-closing-html/security) demonstrates it and explains the safe API boundary.
+## Consistent boundaries for exceptions
 
-## How this addresses the earlier concerns
+Text-reading elements such as `style`, `script` and `textarea` keep their ordinary closing behavior. Template contents stay inactive. Document scaffolding, dedicated table/select containers and explicit inert containers also keep their boundaries.
 
-| Concern | Proposed answer |
+These groups follow from text recognition, inactive ownership and child-placement rules. Attributes such as hidden, disabled and popover do not determine eligibility. Small, links, emphasis, buttons and forms participate in the same ordinary output rule.
+
+For example, `<script />` still opens a script and requires a closing tag. The [boundary table](/self-closing-html/parsing#text-and-inactive-contents-keep-their-boundaries) explains each category and its consequence.
+
+## What the current evidence establishes
+
+| Question | Evidence and limit |
 | --- | --- |
-| Existing pages and libraries depend on today's parsing. | [HTML Feature Profiles](/html-feature-profiles/) selects the grammar explicitly, through a document declaration, proposed response header, or proposed parsing option. Existing parsing APIs retain their grammar by default. |
-| A parsing change can expose markup that a sanitizer treated as text. | The safe entry point parses the selected grammar and sanitizes its resulting nodes before insertion. The reference implementation demonstrates removal of the handler in a retained sanitizer-mismatch case. |
-| Scripts, tables, formatting, and text elements have special parser behavior. | The matching closing action updates ordinary HTML parser state at the slash. Reference and native tests exercise those contexts, streaming, execution checkpoints, and mutations. |
+| Can recognized text become a new element through this operation? | Output uses the recognizer's existing nodes and data. The abstract projection theorem preserves payload order and protected ancestry. It is not a verified implementation of the complete HTML parser. |
+| Do the retained attacks stay inactive? | Reference and three-engine DOM-adapter tests retain text, template ownership and the tested inactive resources. These are targeted results, not universal execution safety. |
+| Does the rule support ordinary and formatting elements? | The simple body-context inventory includes 76 eligible parser-known names, including small, links, emphasis, buttons and forms. Complex recovery is specified by the containment algorithm, rather than literal source expansion. |
+| Is there a native implementation of this replacement? | Not yet. The earlier immediate-closure native experiment implements a different algorithm and does not establish this replacement. |
 
-The proposal combines a consistent closure rule, explicit grammar selection, and sanitization of that grammar's actual result. Those are concrete, testable responses to the compatibility and security objections in earlier discussions.[^4][^5]
+The reference passes 61 focused tests and 120,000 generated document/fragment comparisons. Ten targeted cases pass per engine in Chromium, Firefox and WebKit through a shared-recognizer DOM adapter. [Results, reproduction and limitations →](/self-closing-html/security)
 
-The [evidence checklist](/self-closing-html/security) separates passing experiments from remaining shipment work, including native profile API integration, encoding restarts, and implementer security review. These results support incubation; adoption requires that review and broader interoperability work.
+## Status and review
 
-## Implementation and feedback
+This is a recognition-preserving replacement for the earlier immediate-opening-and-closing draft. The earlier broad security claim was not supported by that algorithm; its counterexample remains evidence against it.
 
-The [reference implementation and results](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme) cover broad closure, chunking, sanitization of the selected grammar, and browser execution. Each result states which implementation it tests and what it establishes.
+Native integration, form association, declarative shadow-root ownership, modules and scheduling, encoding restarts, speculative loading and independent implementer review remain required. The current results support review of this candidate, not a claim that every browser security concern is resolved.
 
-Review is requested on the token-level rule, its sanitizer integration contract, and native conformance. [Flexible HTML Nesting](/flexible-html-nesting/) remains a separate proposal.
+[HTML Feature Profiles](/html-feature-profiles/) owns opt-in selection and explicit API options. [Flexible HTML Nesting](/flexible-html-nesting/) remains a separate proposal. Earlier self-closing and opt-in proposals are prior art.[^4][^5]
 
 ## Read the proposal
 

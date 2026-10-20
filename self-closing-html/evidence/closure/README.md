@@ -1,6 +1,8 @@
-# Immediate self-closing HTML: current implementation
+# Immediate self-closing HTML: superseded experiment
 
-This replacement processes a self-closing HTML start tag followed immediately by its corresponding end tag, before reading more source. It uses ordinary HTML recovery, including formatting, select, table, and template rules.
+The current recognition-preserving candidate is in [../recognition](../recognition/README.md). This experiment changes text recognition and must not be cited as resolving that security objection. Its recorded results apply only to this implementation.
+
+This experiment processes a self-closing HTML start tag followed immediately by its corresponding end tag, before reading more source. It uses ordinary HTML recovery, including formatting, select, table, and template rules.
 
 - HTML void elements already finish at their start tag; do not invent end tags for them.
 - SVG/MathML start tags retain native foreign-content handling.

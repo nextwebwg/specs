@@ -1,0 +1,628 @@
+{
+  "seed": "0x72656332",
+  "inputs": 10000,
+  "comparisons": 120000,
+  "failures": [],
+  "authoring": [
+    {
+      "name": "a",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "address",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "annotation-xml",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "applet",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "area",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "article",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "aside",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "b",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "base",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "basefont",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "bgsound",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "big",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "blockquote",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "body",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "br",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "button",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "caption",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "center",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "code",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "col",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "colgroup",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "dd",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "desc",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "details",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "dialog",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "dir",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "div",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "dl",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "dt",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "em",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "embed",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "fieldset",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "figcaption",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "figure",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "font",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "footer",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "foreignObject",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "form",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "frame",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "frameset",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "h1",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "h2",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "h3",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "h4",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "h5",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "h6",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "head",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "header",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "hgroup",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "hr",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "html",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "i",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "img",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "image",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "input",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "iframe",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "keygen",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "label",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "li",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "link",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "listing",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "main",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "malignmark",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "marquee",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "math",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "menu",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "meta",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "mglyph",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "mi",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "mo",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "mn",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "ms",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "mtext",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "nav",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "nobr",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "noframes",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "noembed",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "noscript",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "object",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "ol",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "optgroup",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "option",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "p",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "param",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "plaintext",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "pre",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "rb",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "rp",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "rt",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "rtc",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "ruby",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "s",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "script",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "search",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "section",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "select",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "source",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "small",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "span",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "strike",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "strong",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "style",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "sub",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "summary",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "sup",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "table",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "tbody",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "template",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "textarea",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "tfoot",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "td",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "th",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "thead",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "title",
+      "eligible": false,
+      "equalsEmptyPair": false
+    },
+    {
+      "name": "tr",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "track",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "tt",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "u",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "ul",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "svg",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "var",
+      "eligible": true,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "wbr",
+      "eligible": false,
+      "equalsEmptyPair": true
+    },
+    {
+      "name": "xmp",
+      "eligible": false,
+      "equalsEmptyPair": false
+    }
+  ],
+  "limits": [
+    "Reference parser shares parse5 recognition; this is not an independent native engine.",
+    "Identity/text/namespace/attribute and template/foreign/inert ancestry preservation; not equivalence of arbitrary scripts, CSS or application behavior.",
+    "Table and formatting recovery can differ from literal immediate empty-pair expansion."
+  ]
+}

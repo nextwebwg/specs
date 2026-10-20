@@ -95,7 +95,8 @@ Grouped rows give a disposition for every named section, including its examples 
 | 12 | Existing IMAP capability and SASL service registrations are not new Email Next assignments; erratum 261 adds the service-name registration clarification. |
 | Appendix A, A.1 | References identify dependency work; their presence is not a full review of their bodies. Correct the body-language reference under erratum 261. Historical compatibility references do not expand the optional adapter. |
 | Appendix B, changes 1–114 | Cross-check change notes against normative text and grammar. Later removal of NEWNAME supersedes its earlier addition; do not implement an obsolete intermediary change. Erratum261 adds change 115 for Content-Location. |
-| Appendix C, address, copyright and acknowledgement | Navigation, attribution and licensing only; no additional adapter behavior. |
+| Appendix C | The keyword index is navigation, not a separate command definition. Resolve each entry through the corresponding command, response and grammar rules. |
+| Author address, copyright and acknowledgement | Attribution and licensing only; no additional adapter behavior. |
 
 ::::
 

@@ -53,6 +53,7 @@
     "control_release.py",
     "conversation-context.mjs",
     "conversation-context.test.mjs",
+    "conversation_demo_samples.py",
     "credential-identity.mjs",
     "credential-identity.test.mjs",
     "css-values-browser-test.mjs",
@@ -223,6 +224,7 @@
     "private_copy_plan.py",
     "private_copy_view.py",
     "project-event.mjs",
+    "proposal_observation.py",
     "protected_attachment_carrier.py",
     "protected_carrier.py",
     "provider_control.py",
@@ -265,6 +267,7 @@
     "remediation_support.py",
     "remote_pairing.py",
     "renderer-nonce.test.mjs",
+    "requirements-images.txt",
     "requirements-tls.txt",
     "resolve-image-decode.mjs",
     "resource-assembly.mjs",
@@ -328,6 +331,7 @@
     "test_passive_discovery.py",
     "test_private_copy_fanout.py",
     "test_private_copy_lifecycle.py",
+    "test_proposal_observation.py",
     "test_quorum_join.py",
     "test_quorum_recovery.py",
     "test_quorum_release.py",
@@ -389,6 +393,12 @@
       "requirement": "../ordering-proofs.md#local-candidate-installation",
       "description": "Consecutive signed7 candidates continue the durable predecessor handshake ratchet across restart and application traffic, while installing the earlier certified candidate preserves current message ratchets.",
       "test": "test_quorum_signed_exchange.SignedExchangeTests.test_sender_handshake_continuity"
+    },
+    {
+      "id": "validated-proposal-send-boundary",
+      "requirement": "../group-conversations.md#pause-content-while-a-membership-plan-is-pending",
+      "description": "Validated signed-profile inline proposals durably hold old-epoch application and bound copy sending, while raw exchange receipt does not; certified carrier advancement permits new traffic without releasing stale prepared bytes.",
+      "test": "test_proposal_observation.SignedProposalObservationTests.test_signed_carrier_proposal_boundary"
     },
     {
       "id": "durable-established-release",

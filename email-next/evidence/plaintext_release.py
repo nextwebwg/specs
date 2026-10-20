@@ -123,6 +123,14 @@ class PlaintextRelease:
         if not isinstance(delivery,str) or not delivery or not delivery.isascii() or not delivery.isalnum():raise ValueError('Delivery ID')
         self.db.execute('BEGIN IMMEDIATE')
         try:
+            from proposal_observation import check_send
+            protected_metadata=self.db.execute('SELECT metadata FROM sender_prepared WHERE id=?',(protected_delivery,)).fetchone()
+            if protected_metadata:
+                from provider_mls import call
+                checkpoint=self.db.execute('SELECT group_id,snapshot FROM mls_checkpoint WHERE id=1').fetchone()
+                if checkpoint:
+                    current=call(self.sender.binary,op='inspect-send',checkpoint=json.loads(checkpoint[1]),group=checkpoint[0],key=json.loads(protected_metadata[0])['senderKey'])['metadata']
+                    check_send(self.db,current)
             prior=self.db.execute('SELECT protected_delivery,wire,envelope FROM plaintext_prepared WHERE id=?',(delivery,)).fetchone()
             if prior:
                 if prior[0]!=protected_delivery or (recipients is not None and json.loads(prior[2])['recipients']!=recipients):raise ValueError('Delivery ID conflict')

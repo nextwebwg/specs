@@ -53,6 +53,8 @@ def check_original(sender,db,create_operation,time):
     checkpoint=db.execute('SELECT group_id,snapshot FROM mls_checkpoint WHERE id=1').fetchone()
     if not checkpoint:raise ValueError('Current group required')
     metadata=call(sender.binary,op='inspect-send',checkpoint=json.loads(checkpoint[1]),group=checkpoint[0],key=json.loads(prepared[2])['key'])['metadata']
+    from proposal_observation import check_send
+    check_send(db,metadata)
     if _canonical(metadata)!=prepared[3] or _canonical(sender._authority(metadata,time,json.loads(policy[1])['trustPolicy']))!=prepared[4]:raise ValueError('Changed hosted author/context')
     return dict(application=plan[0],delivery=prepared[0],service=service,grant=grant,requestDigest=request_digest,route=json.loads(route))
 

@@ -100,6 +100,17 @@ try{
  await page.locator('#reply').fill('Draft for Maya');
  await page.locator('.thread-item[data-thread="sam"]').click();await page.locator('#thread-title').filter({hasText:'Sam Rivera'}).waitFor();
  assert.equal(await page.locator('#reply').inputValue(),'');
+ assert.equal(await page.locator('#conversation article:not([hidden])').count(),9);
+ await page.locator('#conversation article').filter({hasText:'The trail is open again.'}).getByRole('button',{name:'Open thread',exact:true}).click();
+ assert.equal(await page.locator('#conversation article:not([hidden])').count(),4);
+ assert.match(await page.locator('#conversation').innerText(),/north car park is closed/);
+ assert.doesNotMatch(await page.locator('#conversation').innerText(),/Photos from the coast/);
+ await page.locator('#all-messages').click();
+ await page.locator('#conversation article').filter({hasText:'Photos from the coast'}).getByRole('button',{name:'Open thread',exact:true}).click();
+ assert.equal(await page.locator('#conversation article:not([hidden])').count(),3);
+ assert.doesNotMatch(await page.locator('#conversation').innerText(),/Dinner after the hike/);
+ await page.locator('#all-messages').click();
+ assert.equal(await page.locator('#conversation article:not([hidden])').count(),9);
  await page.locator('.thread-item[data-thread="maya"]').click();await page.locator('#thread-title').filter({hasText:'Maya Chen'}).waitFor();
  assert.equal(await page.locator('#reply').inputValue(),'Draft for Maya');assert.match(await page.locator('#sender-account').innerText(),/carol@example.invalid/);
  await page.getByRole('button',{name:'Send message'}).click();await page.locator('#conversation').getByText('Draft for Maya',{exact:true}).first().waitFor();

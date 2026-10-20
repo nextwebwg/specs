@@ -2,11 +2,11 @@
   "format": "email-next-acceptance-report-0",
   "profile": "experimental-configured-joined-service-question-0",
   "scope": "local experiment; no independent client, server or security certification",
-  "manifestSha256": "48388aa224c857d4152d4b9c58b5da1ad1805b079a442c351ac4eff5244ce96a",
+  "manifestSha256": "5bd5dfeb42a6336b298277aaa637e705de14e3bbec27e2e46fb59be7e460c9aa",
   "python": "3.14.0",
   "fixturesSha256": {},
   "implementationSha256": {
-    "admitted_quorum.py": "58461cff6653332d89941ca7ab382929f6fd4aee02f82a1549932405c43b0f1c",
+    "admitted_quorum.py": "4397d050546cc046a5feadfd9a70ed2d8e94b4ee01ecc8c76e34b4bc88a50e84",
     "answer-state.mjs": "b8924887916521fe263c37a11964c7e8047a34b9ec2f2e7b8a42875a873e7d6b",
     "answer-state.test.mjs": "043549d233a43f2467bc1f501536b0a5542a0e77df5a86af4bc1d26d6dd7725c",
     "application_agreement.py": "cd61b3509ccbd48a82578d17864132cb8ea8be4e837a01d09b6eb6ea2291f2ed",
@@ -41,12 +41,12 @@
     "check-received-attachment.mjs": "9848e96eded8792252e8b32db4babd0189a13be4389e802c62fd2ec6160fd1dc",
     "check-successor.mjs": "17ae6e6c8f831f41c44edb728a87732e055646c0944c71fbc85f5af6778f3749",
     "check-transition-context.mjs": "900d7ce9032bc99da262a8a7bc0ed24a813ccab2f9ac2de76dad3a74e9726b33",
-    "client-flow-browser-test.mjs": "2449246af8713e33b30f43c690a9e146376f63a4864166d54ebbd1b73e8dc800",
+    "client-flow-browser-test.mjs": "27e3eeff4669d62ffa1143276a8c897afd1bbdf9363dbdd1b467803e78ebac83",
     "client-flow.css": "c64b1c5f3eb85a8f477f68745052b5991d8ff4ada920ea58edff91665e8c2b3f",
     "client-flow.html": "53424866c557f0983244d57844e73eb558d9e07929ec5fdaac70636c39e69c37",
     "client-flow.mjs": "25075ee12a2e64cd239a69bd67b1d8e1a9d135683c4c05329d4c93f0462683ab",
     "client_flow.py": "c9fa75f1d61e1269190a9b27b1de5b887486a539d61b76646ca7f44f47bd79b7",
-    "client_flow_server.py": "f3f43cf0809b901b4630346e6aa59841adca1bb6a7f363f81d76a5a58f698d3f",
+    "client_flow_server.py": "d73c64fbc84e6f130c9458f0b19a9be21b640dbf0de010307c077b4b7256ccdd",
     "client_onboarding.py": "24006a666e930bdfbe021045ea63ece4b6c27c727eb71aa35b802c78ccc4bb55",
     "client_reactions.py": "27078dbe005d5dcc35f0c28e4582b82f6ac8053b87dad8770003ecebee896610",
     "client_service.py": "388d35f97c1ba0a75a810adaf9873e364edf3a9f03f28c9a961b67a090f9e69a",
@@ -56,6 +56,7 @@
     "control_release.py": "5f004adcd078149627e7c3970cb85a9b8f476a42c445b739375dd182f2cf707a",
     "conversation-context.mjs": "49a8ca599c719cab8944623ee37022b6905af71bf2c5cec6c84229ae57685342",
     "conversation-context.test.mjs": "8862518ee2ca971564fcaf8741317ca2dcb88fb9906c334ab4c649a825577ef9",
+    "conversation_demo_samples.py": "9368393076d4aac901d9570d0cdbaaabfb8c73795cba251d2153d5f34611ee9a",
     "credential-identity.mjs": "74d607de4668435e6c53806a343f44c3ce3abe58d7957a6f3155b74e5724e0bd",
     "credential-identity.test.mjs": "9eb96743f45e1bb3d529473d1317fe95082fa386f8d03caf3d7431bcca42fb50",
     "css-values-browser-test.mjs": "408ba54338b3c9bee70ba9d299e2716dc162ae6863e2f518dd8b7d47608756d3",
@@ -101,7 +102,7 @@
     "hosted-response.js": "7627671d58425c8e03e1febbe10e07721dc0ec6d962bff503a3afa8e0e3d2140",
     "hosted-response.test.mjs": "e71a0444365c550101d7bd2c9fff3f9abc7c5275314b06f0c7cd35752570ea6d",
     "hosted_access.py": "1d91924ab34ba54aa32f81ec9b99bc748239160d04b604a7e28942523c7e28ec",
-    "hosted_disclosure.py": "b8b97c007e8f20b0c78c77529fd6682a8784db775d39a9a84b451de647a1acb4",
+    "hosted_disclosure.py": "744a715f573c308e93741b9f9465faa7cf42cab4d7f78d7201e8e5905a305d92",
     "hosted_https.py": "2a553b5d3a4b123fa55014f8a2b2174e6b7cbe84d700a8487cd9e45e2a4913c3",
     "hosted_notification.py": "7c609e96e8de37d6fd76e3c0834e6c02572fc0b57934c16cd3dcb3180bed76b7",
     "hosted_observer_release.py": "48af395d227da0534e342525a71ca0e37f3539e8dd60c5c2bbe592cad422ae61",
@@ -135,7 +136,7 @@
     "image-box-browser-test.mjs": "4334bb21224e41629bd33d43cdaca4dc69c887755c54f1cfdbd49a6137cf0d35",
     "image-resource.mjs": "6df2c004ba5307bda7861c17100dfb34a641874b7c252d0ec41e7e3702b1a9a5",
     "image-resource.test.mjs": "dc7c032ae558259074886b170cf05321201a80a743625ea78428aca5b316fa70",
-    "image_decode.py": "261fadb9265e047895fb15bac6f039bcac7d35b3b461ac70afad1c509512134d",
+    "image_decode.py": "6b943e9a89be107462d71cd4ec326887db4b62aa37468194321660f07d2aa300",
     "initial_roster.py": "260c5a7476fe99e3ff57bbec39e7c252415be50b000e071db80569a19eca7020",
     "initial_roster_lifecycle.py": "2333e4e76ddb4607121d85a084689e2882a8e72e2daaf223ab8a3ab10ab3387d",
     "initial_roster_support.py": "941be38a83b4292e38db2ccb6a84209319dc1a34f2f8fa665c6505fc20dbe966",
@@ -177,7 +178,7 @@
     "mls-smoke/fixtures/wrong-sender.json": "9e988f8f34e702ac8090c4ec05348bc288881cd12d05f47db76807c0d425f700",
     "mls-smoke/src/bin/discovery-chain-fixture.rs": "40ab17bb2259a26677317ca69d540b0579e8712a117d661b52c3cf6e7a451f5c",
     "mls-smoke/src/bin/discovery-package-fixture.rs": "463de007c0bc78e851faf58d3c2a5cf88b94778186fa8ce1cb61dcc716782799",
-    "mls-smoke/src/bin/group-transitions.rs": "4f02e620e76eb2e29d7585c43108663b30a416db4beb3975d82a60cf6086d22f",
+    "mls-smoke/src/bin/group-transitions.rs": "2b1cd185bf6c223fa1497a6b11fd45882ffbce3e99abe44e5c5296cd813a44bd",
     "mls-smoke/src/bin/provider-mls.rs": "13f7b935fa72edb3cc216f76eff18cb8ec6ac84a4c2bfa09f198d36e6683c01c",
     "mls-smoke/src/bin/receive-staged.rs": "e06f4bee1c75daaa208d36bee654b155611a36ce1b001a536ddf057c2c3b8536",
     "mls-smoke/src/bin/retention-staged.rs": "14fa60d40d1fb741da2b36841b724d3cdd67118e65789dd86b162de2949c7c3b",
@@ -194,7 +195,7 @@
     "navigation-url.test.mjs": "c54cc590663fe0b252baa273db271eec33927f4a8a0d3baf3dd92a71efa70659",
     "ordering_carrier.py": "8c1404d00fcf5c7953e5dd7e368d1f3dda711165d5da6cc85db8ba9cefa13570",
     "ordering_certificates.py": "b93184120253a7b436a8572609b363fc2dfdccd3eb72d13fea612f495b276635",
-    "ordering_mls.py": "d670eeb2ea33f8b9f46c5beb4c570f5f3a2125aea4faa776900e9189172b02d8",
+    "ordering_mls.py": "093e4af7462aad1003e1b483e5aeb9ea29d4575edfb9a7d8e35d59bcca12dc8c",
     "ordering_scope.py": "f3d558ad72aed56c18dc6af69a1e0c46f90387cafeeba9b9626a31d562864871",
     "own_devices.py": "eba4f811a40a607200681c1bb2f35b14becc23efa852a968adecb5f20a4160e3",
     "package-lifetime.mjs": "84417a0e1022b974872d88c61acddde0cb72e6a0b721c80bbf232c11e110bf61",
@@ -209,7 +210,7 @@
     "passive_discovery_verify.py": "65798ddcaa1f16212b3fa14b6162bf245191c2da7183e9409ada78b527e021ee",
     "plaintext_projection.mjs": "2dc5c4144656a5fde9bf44c067072adcf6bc4c748d0829d8ceb39aa9e3f6f97c",
     "plaintext_projection.py": "ce4332023436ea568b7b0e7dbb43b7098ce39c74af1e3bc9bbef9605ef68fe88",
-    "plaintext_release.py": "3c46ebf8bb320e95cb4f7d37a2960ba4cb87e4307134d5098d86d43658aee8d2",
+    "plaintext_release.py": "2a807cf1779f938151245d15e5f3d9a7b0f71e6c22a8c6a0b753543bef74a7f8",
     "plaintext_rich.py": "d53a558983782ee46aa9d09a22f9d3eeba606b282aca61c40a7e260e6536370f",
     "principal-identifiers.mjs": "9757c560ef53eff0af909bd2fe1bdf553d38e9b0fdd4655fe1068e3a43eb086b",
     "principal-identifiers.test.mjs": "53e1bb07d6c57d88c6705ee304f9f71e7118fc1741ad969a451aafaf1c96f456",
@@ -222,6 +223,7 @@
     "private_copy_plan.py": "a790d528266211e7ad5cc79f588c6b2d48e35ddbe0517ec4c7975af7f8ee17a9",
     "private_copy_view.py": "fcb2fc6ec95b92924ceb6bdb42829e6cd5e2447cc9b91eb69e4dfb5be0993c82",
     "project-event.mjs": "1895cc620f02e95d43070f7cfa2d52fc8ab17125efcc27b5ce0a2bf40a824b43",
+    "proposal_observation.py": "216215c4035fe5f618f9a920569d5b7446fe56d927185a9fd5cc61f4966e8a6d",
     "protected_attachment_carrier.py": "da22887fe977bba2f139995b2aa88bda7c2ffe6657a7312b05141eb3e175e691",
     "protected_carrier.py": "c9e785d507943975b3d414eefc7c5c05baec1ed3ef69f33b5a3da3b0a1c23641",
     "provider_control.py": "81778984973835a9da0ce2660b29859a3b5bbde6d75527b1d754b3b6db56c03f",
@@ -262,6 +264,7 @@
     "remediation_support.py": "77a2cdca33e237def75736476d472b4887cd21d32446ebe1da0be58a4bb631f6",
     "remote_pairing.py": "351315665e004825675f1a4807bd138656c8291640fab5e0573d1fcd06880724",
     "renderer-nonce.test.mjs": "2b5d5da0f3978280c910854a0b4679913a525a824a2e662b3c14e8051ce0b324",
+    "requirements-images.txt": "ac9c688161bd7ce4d1048956a276ce6940635be78568868a8e9f42c4716e4375",
     "requirements-tls.txt": "8ad5ff9929efc5428b221c4118a3c9c8b6a5da5fc0b814d2e8600342d284cc8a",
     "resolve-image-decode.mjs": "a473b9cd7896ea5147e6a97acaea925e00b701792418fbd7d061e5ec1625be5c",
     "resource-assembly.mjs": "45ad83e89c09805980bb8fbf32792d0f607521be4edda194466f08a23f573fa5",
@@ -278,8 +281,8 @@
     "scoped_image_decode.py": "f79f53a2cb01cd90299026af170882d936ccac12e946dfe0f89037ef5416fa58",
     "secret_retention.py": "7840bc14b4311c7f7431fac77b3eec8dec7f3910a33c15053b2128330f67efe3",
     "sender_association.py": "d4a982d5a6119600579cb8050d23b40c7451ab814ecf9f3fc803c19a87383646",
-    "sender_release.py": "ba07f267db027b8fab2814ac82828017f740c9f2d9cdacc446e83ccc3f78e4f6",
-    "sender_worker.py": "39527ed017e1eda068fb30d67e5693c6ada7f448dc0f7ebf5667e58983ff7b1e",
+    "sender_release.py": "649e8947e4cc6079ebaca1f66a46f02dbb06aa7d00f36de1efcd8238c380b42b",
+    "sender_worker.py": "550028d07769c405c30a29c88cdb7901d908e654480a20409a6da419fec9c937",
     "service-question-browser-test.mjs": "45083211ef15dd9a2628b3d011b2267fe21b3e736ec1300729c261e4438a1e21",
     "service-question.mjs": "783c0353b5b8b800cf955ddb67d3ce9c4190202b304c2a69c75ec748060aaceb",
     "service-question.test.mjs": "3fa7ac28ee8d722d1b83bef545791abd64693fc49b90537a88ae6dd1cc365d38",
@@ -316,7 +319,7 @@
     "test_private_copy_fanout.py": "4199d72d4fb491d26bf456d022794dc28a6526b009aebcdda83bf415d26919f0",
     "test_private_copy_lifecycle.py": "c1eb231ae7e3025ce271cf8a824ba356939f0dcb50a21c739bb165af2ca5d09a",
     "test_remote_pairing.py": "7ba85ecfc587dcbbd2a03004888a755fea99ecded38f7601f7b54000dda6876b",
-    "test_sender_release.py": "7a4b2626088ee223341aa535135d7d0f269583ce366cb14131a28e31ac9553f6",
+    "test_sender_release.py": "fa35b76d0d465129553d7bc3be2b0d7fa0c83b0d1d4d92e0f261bde44c9dff03",
     "test_service_tls.py": "8d5fad3121686c1803c6b1fd0c4fe26d84c837ed5b8b39e3209e251ff5538978",
     "test_signed_application_admission.py": "c4061e8d782c76177e79a8680b1011d1ee1d37b235caf6fda468b74d71e87061",
     "test_signed_rich.py": "e75c068e997f7ea574120a44dff034a099a7535499b14797c69723c18466ddd6",
@@ -352,7 +355,7 @@
       "description": "Signed SMTP question reaches the configured HTTPS service; an exact retry with renewed credentials retains one effect.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_signed_smtp_https_effect_exact_retry_and_renewal",
-      "detail": "test_signed_smtp_https_effect_exact_retry_and_renewal (test_joined_service.JoinedService.test_signed_smtp_https_effect_exact_retry_and_renewal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.482s\n\nOK\n"
+      "detail": "test_signed_smtp_https_effect_exact_retry_and_renewal (test_joined_service.JoinedService.test_signed_smtp_https_effect_exact_retry_and_renewal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.288s\n\nOK\n"
     },
     {
       "id": "registration-and-credential",
@@ -360,7 +363,7 @@
       "description": "Changed registration or absent credentials holds the control.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_registration_snapshot_and_missing_credentials_hold",
-      "detail": "test_registration_snapshot_and_missing_credentials_hold (test_joined_service.JoinedService.test_registration_snapshot_and_missing_credentials_hold) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.732s\n\nOK\n"
+      "detail": "test_registration_snapshot_and_missing_credentials_hold (test_joined_service.JoinedService.test_registration_snapshot_and_missing_credentials_hold) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 4.945s\n\nOK\n"
     },
     {
       "id": "uncertain-outcome",
@@ -368,7 +371,7 @@
       "description": "Lost response reconciles through authorized status; withdrawal preserves uncertainty.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_lost_response_status_reconciliation_and_withdrawal",
-      "detail": "test_lost_response_status_reconciliation_and_withdrawal (test_joined_service.JoinedService.test_lost_response_status_reconciliation_and_withdrawal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.961s\n\nOK\n"
+      "detail": "test_lost_response_status_reconciliation_and_withdrawal (test_joined_service.JoinedService.test_lost_response_status_reconciliation_and_withdrawal) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.389s\n\nOK\n"
     },
     {
       "id": "revoked-device",
@@ -376,7 +379,7 @@
       "description": "A signed send-role revocation holds an existing control.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_current_device_send_revocation_holds_existing_control",
-      "detail": "test_current_device_send_revocation_holds_existing_control (test_joined_service.JoinedService.test_current_device_send_revocation_holds_existing_control) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.382s\n\nOK\n"
+      "detail": "test_current_device_send_revocation_holds_existing_control (test_joined_service.JoinedService.test_current_device_send_revocation_holds_existing_control) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 4.945s\n\nOK\n"
     },
     {
       "id": "source-and-destination",
@@ -384,7 +387,7 @@
       "description": "Unaccepted source or wrong registration cannot authorize a service request.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_wrong_registration_and_unaccepted_carrier",
-      "detail": "test_wrong_registration_and_unaccepted_carrier (test_joined_service.JoinedService.test_wrong_registration_and_unaccepted_carrier) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 5.624s\n\nOK\n"
+      "detail": "test_wrong_registration_and_unaccepted_carrier (test_joined_service.JoinedService.test_wrong_registration_and_unaccepted_carrier) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 4.893s\n\nOK\n"
     },
     {
       "id": "exact-profile",
@@ -392,7 +395,7 @@
       "description": "Older profiles and incomplete operation agreement cannot enable service questions.",
       "status": "pass",
       "test": "test_joined_service.JoinedService.test_explicit_tuple_not_old_profile_or_partial_intersection",
-      "detail": "test_explicit_tuple_not_old_profile_or_partial_intersection (test_joined_service.JoinedService.test_explicit_tuple_not_old_profile_or_partial_intersection) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.772s\n\nOK\n"
+      "detail": "test_explicit_tuple_not_old_profile_or_partial_intersection (test_joined_service.JoinedService.test_explicit_tuple_not_old_profile_or_partial_intersection) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 1.587s\n\nOK\n"
     },
     {
       "id": "independent-service",

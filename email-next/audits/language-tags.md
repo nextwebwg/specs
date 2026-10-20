@@ -21,9 +21,9 @@ The validity checklist in section 2.2.9 is not the whole contract. Section 2.2.2
 
 ## Decision left to the rendering profile
 
-The profile still needs to choose whether its nonempty `lang` values require well-formedness, registry validity, or another explicitly defined subset. It also needs to define whether canonicalization affects generated content, comparisons, stored metadata or none of those. This audit does not make that choice.
+The [presentation profile](../presentation-profile.md#language-labels) selects registry-valid generated labels and preserves received labels without canonicalizing authenticated content. Its local snapshot/update policy supplies the processing choice; this audit explains the inherited distinctions.
 
-If registry-based processing is selected, its acceptance tests need an identified registry snapshot and update policy. A stable tag remains valid as the registry grows, but an older snapshot can reject a newly registered subtag, and preferred mappings can change. A deterministic fixture should therefore name the registry File-Date and content digest; extension-specific checks need their own specification/data versions. This is a proposed way to make tests reproducible, not a snapshot selected for the protocol.
+Registry-based acceptance tests need identified data. A stable tag remains valid as the registry grows, but an older snapshot can reject a newly registered subtag, and preferred mappings can change. The selected policy therefore identifies each snapshot by File-Date and content digest, separates authenticated updates from mail processing, and preserves original labels. Extension-specific semantic checks would need their own specification/data versions; they are not selected merely by base RFC5646 validity.
 
 Validation should work with local data. RFC5646 advises against depending on the registries being reachable and against frequent full downloads. A message's language label is not a request to contact a registry or extension service. Registry descriptions also cannot supply a complete localized language picker or reliable fallback-language map.
 

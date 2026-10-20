@@ -2,12 +2,12 @@
   "format": "email-next-acceptance-report-0",
   "profile": "experimental-initial-invitation-0",
   "scope": "local experiment; no independent client, server or security certification",
-  "manifestSha256": "0479ffe9b876ab51c07d462e3d815b87ef5e775f57ad959fe3eae73ecfb937ec",
+  "manifestSha256": "6073d6565f4d840d40626066f53f2b7d5a031b6f47026519648c757aedcf8d7a",
   "python": "3.14.0",
   "fixturesSha256": {},
   "implementationSha256": {
     "IDNA17.md": "8e2f0c3922e5f4c1650d3ab43f1983681d7d25917aebde2a28f3480a081aa70a",
-    "admitted_quorum.py": "58461cff6653332d89941ca7ab382929f6fd4aee02f82a1549932405c43b0f1c",
+    "admitted_quorum.py": "4397d050546cc046a5feadfd9a70ed2d8e94b4ee01ecc8c76e34b4bc88a50e84",
     "application_agreement.py": "cd61b3509ccbd48a82578d17864132cb8ea8be4e837a01d09b6eb6ea2291f2ed",
     "application_payload.py": "c87150e76f5a650cd2f08f62970a22193724109925d6707d35d0daef9a114997",
     "application_support.py": "f42c56294e0fa5d12b1624be730f3bf99ccfb385c2af57c8ccee441e7c56d640",
@@ -54,7 +54,7 @@
     "identity_store.py": "df11a91cad61495e33a2584ea78a6c170c7c2c9a04e70ed990af2b110e1819ea",
     "idna17_acceptance.py": "59c3d15a499e5905d8c117a31d26e938fb57e7bc5d51c83a4366beb9eb7e6f0a",
     "image-resource.mjs": "6df2c004ba5307bda7861c17100dfb34a641874b7c252d0ec41e7e3702b1a9a5",
-    "image_decode.py": "261fadb9265e047895fb15bac6f039bcac7d35b3b461ac70afad1c509512134d",
+    "image_decode.py": "6b943e9a89be107462d71cd4ec326887db4b62aa37468194321660f07d2aa300",
     "initial_roster.py": "260c5a7476fe99e3ff57bbec39e7c252415be50b000e071db80569a19eca7020",
     "invitation_mime.py": "b51d89c43a53ea8fd540f4478356157135b62b5950d70c7f5fd8e13342cdde0e",
     "journal_button_view.py": "e2a82cccd96643a39ebc1b6ac1cb86d11726df19045f55be39bdcb6ac9334753",
@@ -84,7 +84,7 @@
     "navigation-url.mjs": "12ee4a50003141c29e17b27e336ebd00bd245b9d1376ed8293a64cbe9c6dc20a",
     "ordering_carrier.py": "8c1404d00fcf5c7953e5dd7e368d1f3dda711165d5da6cc85db8ba9cefa13570",
     "ordering_certificates.py": "b93184120253a7b436a8572609b363fc2dfdccd3eb72d13fea612f495b276635",
-    "ordering_mls.py": "d670eeb2ea33f8b9f46c5beb4c570f5f3a2125aea4faa776900e9189172b02d8",
+    "ordering_mls.py": "093e4af7462aad1003e1b483e5aeb9ea29d4575edfb9a7d8e35d59bcca12dc8c",
     "ordering_scope.py": "f3d558ad72aed56c18dc6af69a1e0c46f90387cafeeba9b9626a31d562864871",
     "parser_process.py": "46edc6bcd53425edd2d83dd709d3e825911c1b62508ab77456681150cd0b6230",
     "passive_discovery.py": "ef59f1c2a2d65bf89710d02bf0a47527e1178b3ecc10f9a425c0fece6eee6cfd",
@@ -94,6 +94,7 @@
     "principal-identifiers.mjs": "9757c560ef53eff0af909bd2fe1bdf553d38e9b0fdd4655fe1068e3a43eb086b",
     "private-copy-context.mjs": "a0c3138941085865bef8b96e4792e941008290d7a817c037a9a382ae67e29c84",
     "private_copy.py": "7ba53a0d02e705cd1307d68cb05966ca558f5d40b0b22fb1eb86c649487cdadb",
+    "proposal_observation.py": "216215c4035fe5f618f9a920569d5b7446fe56d927185a9fd5cc61f4966e8a6d",
     "protected_attachment_carrier.py": "da22887fe977bba2f139995b2aa88bda7c2ffe6657a7312b05141eb3e175e691",
     "protected_carrier.py": "c9e785d507943975b3d414eefc7c5c05baec1ed3ef69f33b5a3da3b0a1c23641",
     "provider_control.py": "81778984973835a9da0ce2660b29859a3b5bbde6d75527b1d754b3b6db56c03f",
@@ -119,6 +120,7 @@
     "reevaluate-mls-answers.mjs": "04badfdadf0861b15ca1cdc9f5a066ef7a63f862f7bec036836d9588e2ffb334",
     "reevaluate-mls-edits.mjs": "a537780ed57a75447faddad8dfd97e5de4009c0bf6450ddd54ba5315b20253d5",
     "reevaluate-mls-reactions.mjs": "3da6868925d5d27eccfda56a229b2b4186db90d706b6bf78c90a9bdc0ae1ff0c",
+    "requirements-images.txt": "ac9c688161bd7ce4d1048956a276ce6940635be78568868a8e9f42c4716e4375",
     "requirements-tls.txt": "8ad5ff9929efc5428b221c4118a3c9c8b6a5da5fc0b814d2e8600342d284cc8a",
     "resolve-image-decode.mjs": "a473b9cd7896ea5147e6a97acaea925e00b701792418fbd7d061e5ec1625be5c",
     "resource-assembly.mjs": "45ad83e89c09805980bb8fbf32792d0f607521be4edda194466f08a23f573fa5",
@@ -163,7 +165,7 @@
       "description": "A signed MIME invitation with an encrypted embedded tree admits the intended device; exact payload/signature retries retain the result while a changed signature cannot reuse it.",
       "status": "pass",
       "test": "test_mls_invitation.InvitationTests.test_embedded_carrier_admission_and_replay_signature_boundary",
-      "detail": "test_embedded_carrier_admission_and_replay_signature_boundary (test_mls_invitation.InvitationTests.test_embedded_carrier_admission_and_replay_signature_boundary) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.578s\n\nOK\n"
+      "detail": "test_embedded_carrier_admission_and_replay_signature_boundary (test_mls_invitation.InvitationTests.test_embedded_carrier_admission_and_replay_signature_boundary) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.526s\n\nOK\n"
     },
     {
       "id": "invitation.authenticated-bindings",
@@ -171,7 +173,7 @@
       "description": "Missing embedded tree or mismatched signed target, group, context or Welcome prevents consumption; a valid retry still succeeds.",
       "status": "pass",
       "test": "test_mls_invitation.InvitationTests.test_missing_tree_and_signed_target_context_tampering_do_not_consume",
-      "detail": "test_missing_tree_and_signed_target_context_tampering_do_not_consume (test_mls_invitation.InvitationTests.test_missing_tree_and_signed_target_context_tampering_do_not_consume) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.643s\n\nOK\n"
+      "detail": "test_missing_tree_and_signed_target_context_tampering_do_not_consume (test_mls_invitation.InvitationTests.test_missing_tree_and_signed_target_context_tampering_do_not_consume) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.623s\n\nOK\n"
     },
     {
       "id": "invitation.welcome-signer",
@@ -179,7 +181,7 @@
       "description": "The validated MLS GroupInfo signer must match the separately signed invitation creator.",
       "status": "pass",
       "test": "test_mls_invitation.InvitationTests.test_validated_groupinfo_signer_differs_from_signed_creator",
-      "detail": "test_validated_groupinfo_signer_differs_from_signed_creator (test_mls_invitation.InvitationTests.test_validated_groupinfo_signer_differs_from_signed_creator) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.498s\n\nOK\n"
+      "detail": "test_validated_groupinfo_signer_differs_from_signed_creator (test_mls_invitation.InvitationTests.test_validated_groupinfo_signer_differs_from_signed_creator) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.562s\n\nOK\n"
     },
     {
       "id": "invitation.direct-carrier",
@@ -187,7 +189,7 @@
       "description": "Unknown schema fields, noncanonical encoding, duplicate attachments and forwarded nested carriers are rejected.",
       "status": "pass",
       "test": "test_mls_invitation.InvitationTests.test_strict_schema_and_direct_mime_scope",
-      "detail": "test_strict_schema_and_direct_mime_scope (test_mls_invitation.InvitationTests.test_strict_schema_and_direct_mime_scope) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.480s\n\nOK\n"
+      "detail": "test_strict_schema_and_direct_mime_scope (test_mls_invitation.InvitationTests.test_strict_schema_and_direct_mime_scope) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.457s\n\nOK\n"
     },
     {
       "id": "invitation.mime-ambiguity",
@@ -203,7 +205,7 @@
       "description": "The readable notice is strictly transfer-decoded as UTF-8; supported encodings yield the same candidate attachment without conferring authority.",
       "status": "pass",
       "test": "test_mls_invitation.InvitationMimeTests.test_notice_transfer_decoding_is_strict_and_not_authority",
-      "detail": "test_notice_transfer_decoding_is_strict_and_not_authority (test_mls_invitation.InvitationMimeTests.test_notice_transfer_decoding_is_strict_and_not_authority) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.009s\n\nOK\n"
+      "detail": "test_notice_transfer_decoding_is_strict_and_not_authority (test_mls_invitation.InvitationMimeTests.test_notice_transfer_decoding_is_strict_and_not_authority) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.008s\n\nOK\n"
     },
     {
       "id": "invitation.durable-sending",

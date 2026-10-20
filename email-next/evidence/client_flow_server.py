@@ -276,8 +276,11 @@ class Demo:
         self.fixture.tearDown()
 
 
-def serve(port=0, *, mime=False, rich=False, signed_rich=False):
+def serve(port=0, *, mime=False, rich=False, signed_rich=False, samples=False):
     demo=Demo(mime=mime or rich,rich=rich,signed_rich=signed_rich)
+    if samples:
+        from conversation_demo_samples import populate
+        populate(demo)
     class Handler(BaseHTTPRequestHandler):
         def setup(self):
             super().setup();self.connection.settimeout(5)
@@ -330,10 +333,10 @@ def serve(port=0, *, mime=False, rich=False, signed_rich=False):
     return server,demo
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=0);parser.add_argument('--mime',action='store_true');parser.add_argument('--rich',action='store_true');parser.add_argument('--signed-rich',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=0);parser.add_argument('--mime',action='store_true');parser.add_argument('--rich',action='store_true');parser.add_argument('--signed-rich',action='store_true');parser.add_argument('--minimal-fixture',action='store_true');args=parser.parse_args()
     import signal
     def stop(signum,frame):raise SystemExit(0)
     signal.signal(signal.SIGTERM,stop)
-    server,demo=serve(args.port,mime=args.mime,rich=args.rich,signed_rich=args.signed_rich);print(f'http://127.0.0.1:{server.server_port}',flush=True)
+    server,demo=serve(args.port,mime=args.mime,rich=args.rich,signed_rich=args.signed_rich,samples=not args.minimal_fixture);print(f'http://127.0.0.1:{server.server_port}',flush=True)
     try:server.serve_forever()
     finally:server.server_close();demo.close()

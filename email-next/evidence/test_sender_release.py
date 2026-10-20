@@ -29,7 +29,13 @@ class SenderPreparationTests(unittest.TestCase):
         row=self.identity.db.execute('SELECT revision,snapshot FROM mls_checkpoint').fetchone()
         self.assertEqual(row[0],1);self.assertNotEqual(row[1],before)
         self.identity.close();self.identity=IdentityStore(self.path);self.sender=SenderRelease(self.identity,self.binary)
-        with patch('sender_release.call',side_effect=AssertionError('Do not encrypt retry')):self.assertEqual(self.prepare(),wire)
+        # Current-state inspection enforces proposal holds without encrypting
+        # again or advancing the retained sender checkpoint.
+        def inspect_only(binary,**request):
+            self.assertEqual(request['op'],'inspect-send','Do not encrypt retry')
+            return call(binary,**request)
+        with patch('sender_release.call',side_effect=inspect_only),patch('socket.socket',side_effect=AssertionError('No transport before release')):
+            self.assertEqual(self.prepare(),wire)
         self.assertEqual(self.identity.db.execute('SELECT revision,snapshot FROM mls_checkpoint').fetchone(),row)
         self.assertIn(b'Message-ID:',wire)
     def test_precommit_failure_discards_staged_checkpoint_and_prepared_record(self):

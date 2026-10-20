@@ -44,6 +44,8 @@ class JoinedOrdering:
         CREATE TABLE IF NOT EXISTS qo_support(identity TEXT,key TEXT,application BLOB,PRIMARY KEY(identity,key));
         CREATE TABLE IF NOT EXISTS qo_decision(scope TEXT PRIMARY KEY, candidate TEXT NOT NULL, identity TEXT NOT NULL, proof BLOB NOT NULL);
         CREATE TABLE IF NOT EXISTS qo_outbox(identity TEXT PRIMARY KEY, bytes BLOB NOT NULL);''')
+        from proposal_observation import initialize
+        initialize(self.db)
     def install_fixture(self,state):
         context_valid(json.loads(bytes.fromhex(state['snapshot']['context'])))
         self.db.execute('INSERT INTO qo_checkpoint VALUES(1,?,?)',('genesis',encode(state)))
@@ -100,6 +102,9 @@ class JoinedOrdering:
         self.validate(candidate,result,time=time)
         if 'localStaged' in result:
             result['localStageBinding']=dict(library='openmls-0.9.1/staged-v0',candidate=candidate_id(candidate),group=before['group'],predecessor=before['predecessor'],digest=hashlib.sha256(encode(result['localStaged'])).hexdigest())
+        from proposal_observation import observe_locked,PROVENANCE
+        observe_locked(self.db,candidate_id(candidate),result)
+        result['proposalObservation']=PROVENANCE
         result['senderContinuity']='openmls-0.9.1/continued-v1'
         self._continue_locked(state,result)
         del result['continuedCheckpoint']
@@ -150,7 +155,19 @@ class JoinedOrdering:
     def check_support(self,member,application):
         support=self.db.execute('SELECT application FROM qo_support WHERE identity=? AND key=?',(member['identity'],member['key'])).fetchone()
         if support!=(encode(application),):raise ValueError('configured context7 support required')
-    def inspect_candidate(self,candidate,*,time):
+    def inspect_candidate(self,candidate,*,time,**options):
+        owned=not self.db.in_transaction
+        if owned:self.db.execute('BEGIN IMMEDIATE')
+        try:
+            result=self._inspect_candidate_locked(candidate,time=time,**options)
+            from proposal_observation import observe_locked
+            observe_locked(self.db,candidate_id(candidate),result)
+            if owned:self.db.execute('COMMIT')
+            return result
+        except BaseException:
+            if owned and self.db.in_transaction:self.db.execute('ROLLBACK')
+            raise
+    def _inspect_candidate_locked(self,candidate,*,time):
         previous,state=self.live();ident=candidate_id(candidate)
         local=self.db.execute('SELECT state FROM qo_staged WHERE candidate=?',(ident,)).fetchone()
         if local:
@@ -166,7 +183,7 @@ class JoinedOrdering:
     def vote(self,store,kind,proof_bytes,candidate,*,time,candidate_dependencies=None,before_vote=None):
         """Hold identity DB authorization stable while separate vote DB commits.
 
-        Identity transaction is read-only; its rollback cannot undo a durable vote.
+        Identity transaction retains validated proposal observations; its rollback cannot undo a durable vote.
         Every retry therefore preserves that vote, even if later authority holds.
         """
         self.db.execute('BEGIN IMMEDIATE')
@@ -176,6 +193,13 @@ class JoinedOrdering:
             self.inspect_candidate(candidate,time=time)
             parsed=Proof(proof_bytes,scope=store.scope,keys=store.keys,f=store.f)
             if parsed.result['candidate']!=candidate_id(candidate):raise ValueError('vote candidate')
+            # A separate vote DB can commit even if this DB's later commit fails.
+            # Make the validated observation durable before any vote is published,
+            # then reacquire authority and scope under the existing write lock.
+            self.db.execute('COMMIT');self.db.execute('BEGIN IMMEDIATE')
+            if store.scope!=scope_digest(self.scope()) or store.keys!=self.keys():raise ValueError('vote store scope')
+            self.current({'identity':self.device['identity'],'key':self.device['key']},'send',time)
+            self.inspect_candidate(candidate,time=time)
             if before_vote is not None:before_vote()
             output=store.vote(kind,proof_bytes,authority=lambda:True,candidate_bytes=[encode(c) for c in (candidate_dependencies if candidate_dependencies is not None else [candidate])])
             self.db.execute('COMMIT');return output

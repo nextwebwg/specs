@@ -53,7 +53,7 @@ class AdmittedQuorum(JoinedOrdering):
         except BaseException:
             if self.db.in_transaction:self.db.execute('ROLLBACK')
             raise
-    def inspect_candidate(self,candidate,*,time,terminal=False):
+    def _inspect_candidate_locked(self,candidate,*,time,terminal=False):
         local=self.db.execute('SELECT state FROM qo_staged WHERE candidate=?',(candidate_id(candidate),)).fetchone()
         if local:
             retained=json.loads(local[0]);state=self.live()[1];before=state['snapshot']
@@ -77,7 +77,7 @@ class AdmittedQuorum(JoinedOrdering):
                 self.validate(candidate,result,time=time)
                 result['selfRemoved']=True
             else:self.validate(candidate,result,time=time)
-        else:result=super().inspect_candidate(candidate,time=time)
+        else:result=super()._inspect_candidate_locked(candidate,time=time)
         old={(m['identity'],m['key']) for m in result['before']['members']}
         from quorum_join_support import current_added
         current_added(self,[m for m in result['after']['members'] if (m['identity'],m['key']) not in old],time=time)

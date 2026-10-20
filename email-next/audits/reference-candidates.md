@@ -9,7 +9,7 @@ This candidate list exposes RFC-number citations outside the current source inve
 
 Each candidate needs an applicability decision: required normative behavior, conditional feature dependency, historical context, or out of scope with rationale. Required and conditional dependencies need an appropriate source review and successor/errata checks. No candidate is marked reviewed by extraction. Non-RFC documents, registries and transitive references from these candidates remain separate work.
 
-52 candidates have explicit applicability classifications; classification does not mean their base texts were reviewed.
+54 candidates have explicit applicability classifications; classification does not mean their base texts were reviewed.
 
 The scan covered 160 captured texts from 160 inventory records and found 777 distinct out-of-inventory RFC candidates. Missing source texts: none. Input SHA-256 values and parent citations are recorded in `reference-candidates.json` alongside this chapter.
 
@@ -99,8 +99,8 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC1896](https://www.rfc-editor.org/rfc/rfc1896.html) | 2046, 2049, 2646, 3676 | Unclassified citation candidate; applicability and review not established |
 | [RFC1919](https://www.rfc-editor.org/rfc/rfc1919.html) | 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC1945](https://www.rfc-editor.org/rfc/rfc1945.html) | 2557, 3864, 9110 | Unclassified citation candidate; applicability and review not established |
-| [RFC1950](https://www.rfc-editor.org/rfc/rfc1950.html) | 9110, 9580 | Unclassified citation candidate; applicability and review not established |
-| [RFC1951](https://www.rfc-editor.org/rfc/rfc1951.html) | 9110, 9580 | Unclassified citation candidate; applicability and review not established |
+| [RFC1950](https://www.rfc-editor.org/rfc/rfc1950.html) | 9110, 9580 | Selected PNG decompression dependency: RFC1950 sections 2.1–2.3 reviewed with current errata and update checks. The image-format audit defines the selected zlib/DEFLATE path. This is not a complete RFC base review, codec certification or review of every HTTP/OpenPGP compression use. [Selected source review](image-formats.md). |
+| [RFC1951](https://www.rfc-editor.org/rfc/rfc1951.html) | 9110, 9580 | Selected PNG decompression dependency: RFC1951 sections 3.1–3.3 reviewed with current errata and update checks. The image-format audit defines the selected zlib/DEFLATE path. This is not a complete RFC base review, codec certification or review of every HTTP/OpenPGP compression use. [Selected source review](image-formats.md). |
 | [RFC1952](https://www.rfc-editor.org/rfc/rfc1952.html) | 8460, 9110, 9990 | Unclassified citation candidate; applicability and review not established |
 | [RFC1983](https://www.rfc-editor.org/rfc/rfc1983.html) | 7208 | Unclassified citation candidate; applicability and review not established |
 | [RFC1985](https://www.rfc-editor.org/rfc/rfc1985.html) | 5321, 5598, 6409 | Unclassified citation candidate; applicability and review not established |

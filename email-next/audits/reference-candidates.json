@@ -1506,7 +1506,11 @@
         9110,
         9580
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected PNG decompression dependency: RFC1950 sections 2.1\u20132.3 reviewed with current errata and update checks. The image-format audit defines the selected zlib/DEFLATE path. This is not a complete RFC base review, codec certification or review of every HTTP/OpenPGP compression use.",
+      "classification": "selected-normative-dependency",
+      "review": "selected-decompression-ranges-and-current-errata-reviewed",
+      "evidence": "image-formats.md",
+      "basis": "PNG Third Edition compression method0 and RFC1950 sections2.1\u20132.3; captured source fingerprints and exact scope in image-format audit."
     },
     {
       "rfc": 1951,
@@ -1514,7 +1518,11 @@
         9110,
         9580
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected PNG decompression dependency: RFC1951 sections 3.1\u20133.3 reviewed with current errata and update checks. The image-format audit defines the selected zlib/DEFLATE path. This is not a complete RFC base review, codec certification or review of every HTTP/OpenPGP compression use.",
+      "classification": "selected-normative-dependency",
+      "review": "selected-decompression-ranges-and-current-errata-reviewed",
+      "evidence": "image-formats.md",
+      "basis": "PNG Third Edition compression method0 and RFC1951 sections3.1\u20133.3; captured source fingerprints and exact scope in image-format audit."
     },
     {
       "rfc": 1952,

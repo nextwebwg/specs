@@ -120,6 +120,11 @@ class SenderRelease:
                 if not self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='hosted_observers'").fetchone():raise ValueError('Hosted provenance required')
                 binding=self.db.execute('SELECT application FROM hosted_observers WHERE delivery=?',(delivery_id,)).fetchone()
                 if not binding or binding[0]!=application:raise ValueError('Hosted provenance required')
+            from proposal_observation import check_send
+            current_checkpoint=self.db.execute('SELECT group_id,snapshot FROM mls_checkpoint WHERE id=1').fetchone()
+            if current_checkpoint:
+                current_metadata=call(self.binary,op='inspect-send',checkpoint=json.loads(current_checkpoint[1]),group=current_checkpoint[0],key=key)['metadata']
+                check_send(self.db,current_metadata)
             old=self.db.execute('SELECT request,wire FROM sender_prepared WHERE id=?',(delivery_id,)).fetchone()
             if old:
                 if old[0]!=request:raise ValueError('Delivery ID conflict')
@@ -136,7 +141,7 @@ class SenderRelease:
             row=self.db.execute('SELECT revision,group_id,snapshot FROM mls_checkpoint WHERE id=1').fetchone()
             if not row:raise ValueError('No accepted group')
             args=dict(checkpoint=json.loads(row[2]),key=key,group=row[1])
-            metadata=call(self.binary,op='inspect-send',**args)['metadata']
+            metadata=current_metadata
             context=decode_event(bytes.fromhex(metadata['context']))['value']
             principal='enp0:'+bytes.fromhex(metadata['senderIdentity'])[21:53].hex()
             if decoded.get('principal')!=principal or decoded.get('conversation')!=context['conversation']:raise ValueError('Application context')

@@ -249,3 +249,8 @@ The [grammar notation audit](grammar-notation.md) covers complete RFC5234 and RF
 ## Supplemental OAuth framework review
 
 The [OAuth framework audit](oauth-framework.md) provides complete RFC6749 section and appendix dispositions and all 31 captured errata decisions. It complements the [current OAuth security audit](oauth-security.md); RFC6749, RFC7636, RFC8252 and RFC9207 are included in the current source inventory and section ledger.
+
+
+## Image interpretation
+
+The [image-format audit](image-formats.md) records selected PNG, JPEG, Exif and ICC requirements, their compression dependencies and correction dispositions. It defines orientation, high-depth and color behavior separately from the decoder experiment. These scoped reviews do not increase the full-RFC base-review count.

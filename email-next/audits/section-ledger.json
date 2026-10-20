@@ -43890,6 +43890,720 @@
       "title": "2008 ASN.1 Module",
       "audit": "Full2008ASN.1 module reviewed, including imports, tags and exclusive alternatives; Reported9144 flags OID inconsistency. No module compilation claim.",
       "evidence": "cms-algorithm-protection.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "1",
+      "title": "How to Read This Document",
+      "audit": "Read prose, responses and grammar together. Connection and selected-mailbox session differ. Older fetch aliases and older protocol compatibility are explicit boundaries.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "1.1",
+      "title": "Organization of This Document",
+      "audit": "Read prose, responses and grammar together. Connection and selected-mailbox session differ. Older fetch aliases and older protocol compatibility are explicit boundaries.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "1.2",
+      "title": "Conventions Used in This Document",
+      "audit": "Read prose, responses and grammar together. Connection and selected-mailbox session differ. Older fetch aliases and older protocol compatibility are explicit boundaries.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "1.3",
+      "title": "Special Notes to Implementors",
+      "audit": "Read prose, responses and grammar together. Connection and selected-mailbox session differ. Older fetch aliases and older protocol compatibility are explicit boundaries.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2",
+      "title": "Protocol Overview",
+      "audit": "Reliable-stream framing and CRLF do not supply confidentiality or event authentication.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.1",
+      "title": "Link Level",
+      "audit": "Reliable-stream framing and CRLF do not supply confidentiality or event authentication.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.2",
+      "title": "Commands and Responses",
+      "audit": "Reliable-stream framing and CRLF do not supply confidentiality or event authentication.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.2.1",
+      "title": "Client Protocol Sender and Server Protocol Receiver",
+      "audit": "Tags correlate completions; unsolicited data can interleave. Finish continuation exchanges before starting another command.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.2.2",
+      "title": "Server Protocol Sender and Client Protocol Receiver",
+      "audit": "Tags correlate completions; unsolicited data can interleave. Finish continuation exchanges before starting another command.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.3",
+      "title": "Message Attributes",
+      "audit": "Cache the scoped unsigned UID/UIDVALIDITY pair; preserve immutable message identity across sessions and mailbox-name reuse. UIDNEXT is only a lower bound for later arrivals. Apply verified erratum 261.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.3.1",
+      "title": "Message Numbers",
+      "audit": "Cache the scoped unsigned UID/UIDVALIDITY pair; preserve immutable message identity across sessions and mailbox-name reuse. UIDNEXT is only a lower bound for later arrivals. Apply verified erratum 261.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.3.1.1",
+      "title": "Unique Identifier (UID) Message Attribute",
+      "audit": "Cache the scoped unsigned UID/UIDVALIDITY pair; preserve immutable message identity across sessions and mailbox-name reuse. UIDNEXT is only a lower bound for later arrivals. Apply verified erratum 261.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.3.1.2",
+      "title": "Message Sequence Number Message Attribute",
+      "audit": "Sequence numbers renumber immediately on expunge and cannot identify durable conversation events.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.3.2",
+      "title": "Flags Message Attribute",
+      "audit": "System flags, keywords and session/permanent flags differ. Seen/Answered are mailbox state, not authenticated receipts or structured answers. Recent cannot be set by the client and is ambiguous across connections.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.3.3",
+      "title": "Internal Date Message Attribute",
+      "audit": "Internal date, encoded size, parsed envelope/body structure and selected texts have distinct meanings. Obtain the protected verification input, not a convenient projection.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.3.5",
+      "title": "Envelope Structure Message Attribute",
+      "audit": "Internal date, encoded size, parsed envelope/body structure and selected texts have distinct meanings. Obtain the protected verification input, not a convenient projection.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.3.6",
+      "title": "Body Structure Message Attribute",
+      "audit": "Internal date, encoded size, parsed envelope/body structure and selected texts have distinct meanings. Obtain the protected verification input, not a convenient projection.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "2.4",
+      "title": "Message Texts",
+      "audit": "Internal date, encoded size, parsed envelope/body structure and selected texts have distinct meanings. Obtain the protected verification input, not a convenient projection.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "3",
+      "title": "State and Flow Diagram",
+      "audit": "Track authentication and selected-mailbox states. Failed selection can deselect; normal logout reads BYE and tagged completion before closing.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "3.1",
+      "title": "Not Authenticated State",
+      "audit": "Track authentication and selected-mailbox states. Failed selection can deselect; normal logout reads BYE and tagged completion before closing.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "3.2",
+      "title": "Authenticated State",
+      "audit": "Track authentication and selected-mailbox states. Failed selection can deselect; normal logout reads BYE and tagged completion before closing.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "3.3",
+      "title": "Selected State",
+      "audit": "Track authentication and selected-mailbox states. Failed selection can deselect; normal logout reads BYE and tagged completion before closing.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "3.4",
+      "title": "Logout State",
+      "audit": "Track authentication and selected-mailbox states. Failed selection can deselect; normal logout reads BYE and tagged completion before closing.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "4",
+      "title": "Data Formats",
+      "audit": "Parse atoms and numeric domains in context. Numeric grammar is unsigned 32-bit; never infer a signed integer domain from the old prose.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "4.1",
+      "title": "Atom",
+      "audit": "Parse atoms and numeric domains in context. Numeric grammar is unsigned 32-bit; never infer a signed integer domain from the old prose.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "4.2",
+      "title": "Number",
+      "audit": "Parse atoms and numeric domains in context. Numeric grammar is unsigned 32-bit; never infer a signed integer domain from the old prose.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "4.3",
+      "title": "String",
+      "audit": "Literal length counts octets. Even a zero-length client literal needs continuation. Base rev1 forbids NUL-containing strings; MIME transfer encoding is not an authenticated transformation by itself.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "4.4",
+      "title": "Parenthesized List",
+      "audit": "Preserve nested lists and context-specific distinctions between NIL, an empty string/list and a mailbox named NIL.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "4.5",
+      "title": "NIL",
+      "audit": "Preserve nested lists and context-specific distinctions between NIL, an empty string/list and a mailbox named NIL.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "5",
+      "title": "Operational Considerations",
+      "audit": "INBOX is case-insensitive; other mailbox case behavior is server-specific. Names and wildcards are not filesystem paths.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "5.1",
+      "title": "Mailbox Naming",
+      "audit": "INBOX is case-insensitive; other mailbox case behavior is server-specific. Names and wildcards are not filesystem paths.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "5.1.1",
+      "title": "Mailbox Hierarchy Naming",
+      "audit": "Use the returned hierarchy delimiter and respect namespace conventions. A namespace is not conversation membership.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "5.1.2",
+      "title": "Mailbox Namespace Naming Convention",
+      "audit": "Use the returned hierarchy delimiter and respect namespace conventions. A namespace is not conversation membership.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "5.1.3",
+      "title": "Mailbox International Naming Convention",
+      "audit": "Keep modified UTF-7 shifts, alphabet and encoded-case rules exact, with erratum 261. Do not apply mailbox decoding to signed message bytes.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "5.2",
+      "title": "Mailbox Size and Message Status Updates",
+      "audit": "Record size changes and unsolicited state. EXISTS cannot shrink a mailbox; base rev1 prohibits unsolicited EXPUNGE when no command is in progress.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "5.3",
+      "title": "Response when no Command in Progress",
+      "audit": "Record size changes and unsolicited state. EXISTS cannot shrink a mailbox; base rev1 prohibits unsolicited EXPUNGE when no command is in progress.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "5.4",
+      "title": "Autologout Timer",
+      "audit": "The corrected minimum idle timeout concerns authenticated sessions. It is not peer presence or an Email Next keepalive default.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "5.5",
+      "title": "Multiple Commands in Progress",
+      "audit": "Do not pipeline operations whose results depend on one another. UID operations permit expunge; a UID SEARCH can still contain sequence-number criteria. Apply erratum 261.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6",
+      "title": "Client Commands",
+      "audit": "Command state, BAD/NO and capability-use rules govern the exchange. Advertisement does not enable incompatible behavior.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.1",
+      "title": "Client Commands - Any State",
+      "audit": "Command state, BAD/NO and capability-use rules govern the exchange. Advertisement does not enable incompatible behavior.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.1.1",
+      "title": "CAPABILITY Command",
+      "audit": "Command state, BAD/NO and capability-use rules govern the exchange. Advertisement does not enable incompatible behavior.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.1.2",
+      "title": "NOOP Command",
+      "audit": "NOOP checks mailbox changes; LOGOUT has an ordered completion. Neither confirms a human action.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.1.3",
+      "title": "LOGOUT Command",
+      "audit": "NOOP checks mailbox changes; LOGOUT has an ordered completion. Neither confirms a human action.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.2",
+      "title": "Client Commands - Not Authenticated State",
+      "audit": "STARTTLS keeps the connection unauthenticated and invalidates earlier capabilities. Verify transport identity before credentials; no plaintext fallback from a failed upgrade.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.2.1",
+      "title": "STARTTLS Command",
+      "audit": "STARTTLS keeps the connection unauthenticated and invalidates earlier capabilities. Verify transport identity before credentials; no plaintext fallback from a failed upgrade.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.2.2",
+      "title": "AUTHENTICATE Command",
+      "audit": "Preserve SASL continuation, cancellation, strict base64 and security-layer transition boundaries. Base rev1 has no SASL initial-response argument. Historical suggested mechanisms are not a current security policy.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.2.3",
+      "title": "LOGIN Command",
+      "audit": "Respect LOGINDISABLED and protect credentials; account authentication is separate from contribution authorship.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3",
+      "title": "Client Commands - Authenticated State",
+      "audit": "Retain selection metadata, including conditional UNSEEN under erratum 3032. EXAMINE forbids permanent per-user changes; read-only SELECT has different allowances. Missing old-server metadata requires the specified compatibility fallback.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.1",
+      "title": "SELECT Command",
+      "audit": "Retain selection metadata, including conditional UNSEEN under erratum 3032. EXAMINE forbids permanent per-user changes; read-only SELECT has different allowances. Missing old-server metadata requires the specified compatibility fallback.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.2",
+      "title": "EXAMINE Command",
+      "audit": "Retain selection metadata, including conditional UNSEEN under erratum 3032. EXAMINE forbids permanent per-user changes; read-only SELECT has different allowances. Missing old-server metadata requires the specified compatibility fallback.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.3",
+      "title": "CREATE Command",
+      "audit": "Create/delete/rename must preserve UID identity guarantees and child-mailbox rules. INBOX rename moves its messages but leaves its children. Deleting a mailbox does not retract contributions elsewhere.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.4",
+      "title": "DELETE Command",
+      "audit": "Create/delete/rename must preserve UID identity guarantees and child-mailbox rules. INBOX rename moves its messages but leaves its children. Deleting a mailbox does not retract contributions elsewhere.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.5",
+      "title": "RENAME Command",
+      "audit": "Create/delete/rename must preserve UID identity guarantees and child-mailbox rules. INBOX rename moves its messages but leaves its children. Deleting a mailbox does not retract contributions elsewhere.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.6",
+      "title": "SUBSCRIBE Command",
+      "audit": "Subscriptions are account preferences and can name absent mailboxes. Their presence does not grant access or imply group membership.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.7",
+      "title": "UNSUBSCRIBE Command",
+      "audit": "Subscriptions are account preferences and can name absent mailboxes. Their presence does not grant access or imply group membership.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.8",
+      "title": "LIST Command",
+      "audit": "LIST reference/wildcard interpretation can hide accessible mailboxes. An empty pattern requests delimiter/root information, not all messages or folders.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.9",
+      "title": "LSUB Command",
+      "audit": "LSUB can return synthetic parent names and stale subscriptions; prefer LIST attributes when they conflict.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.10",
+      "title": "STATUS Command",
+      "audit": "STATUS does not select or mutate the mailbox and is not selected-mailbox polling. The corrected contract requires its STATUS response.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.3.11",
+      "title": "APPEND Command",
+      "audit": "APPEND stores one message, can re-encode eight-bit input and rolls back failed appends. It cannot submit SMTP recipients. Treat draft exceptions carefully, not as permission to send invalid protected messages.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.4",
+      "title": "Client Commands - Selected State",
+      "audit": "CHECK requests server housekeeping; it is not a reliable new-message poll or conversation checkpoint.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.4.1",
+      "title": "CHECK Command",
+      "audit": "CHECK requests server housekeeping; it is not a reliable new-message poll or conversation checkpoint.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.4.2",
+      "title": "CLOSE Command",
+      "audit": "CLOSE and EXPUNGE can remove other clients' deleted messages. Reconcile renumbering and Recent counts; do not turn deletion into an authenticated withdrawal.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.4.3",
+      "title": "EXPUNGE Command",
+      "audit": "CLOSE and EXPUNGE can remove other clients' deleted messages. Reconcile renumbering and Recent counts; do not turn deletion into an authenticated withdrawal.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.4.4",
+      "title": "SEARCH Command",
+      "audit": "Search combines criteria and may omit non-text/non-message MIME terminals. Decode comparisons under erratum 261. String search is case-insensitive substring matching, date searches ignore time/zone, flags remain mutable, and empty HEADER search tests presence. None proves exact identity or complete history.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.4.5",
+      "title": "FETCH Command",
+      "audit": "BODY.PEEK avoids implicit Seen changes. Preserve original section bytes, exact MIME nesting, header-subset boundaries and partial-fetch offsets. A truncated response cannot verify a complete object. RFC822 fetch aliases have explicit rev1 meanings.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.4.6",
+      "title": "STORE Command",
+      "audit": "STORE mutates flags, not message content. SILENT does not suppress unrelated updates; replacement can overwrite concurrent state.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.4.7",
+      "title": "COPY Command",
+      "audit": "COPY creates another mailbox record, preserves specified attributes and rolls back failed copies. A copy is not a new authenticated event.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.4.8",
+      "title": "UID Command",
+      "audit": "Missing UIDs yield successful no-ops. FETCH prefixes remain sequence numbers and UID-command FETCH responses include UID. Ranges are order-independent, including `n:*`; inspect returned UIDs.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.5",
+      "title": "Client Commands - Experimental/Expansion",
+      "audit": "Experimental commands and associated responses require explicit invocation. An X-prefixed capability is not a hidden message-discard mechanism.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "6.5.1",
+      "title": "X<atom> Command",
+      "audit": "Experimental commands and associated responses require explicit invocation. An X-prefixed capability is not a hidden message-discard mechanism.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7",
+      "title": "Server Responses",
+      "audit": "Process state separately from tagged completion. Machine-readable codes govern recovery; human text and ALERT do not authenticate a correspondent. Unknown codes must not grant authority.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.1",
+      "title": "Server Responses - Status Responses",
+      "audit": "Process state separately from tagged completion. Machine-readable codes govern recovery; human text and ALERT do not authenticate a correspondent. Unknown codes must not grant authority.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.1.1",
+      "title": "OK Response",
+      "audit": "Untagged OK/NO/BAD do not directly determine the outstanding command result; preserve the matching tagged completion.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.1.2",
+      "title": "NO Response",
+      "audit": "Untagged OK/NO/BAD do not directly determine the outstanding command result; preserve the matching tagged completion.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.1.3",
+      "title": "BAD Response",
+      "audit": "Untagged OK/NO/BAD do not directly determine the outstanding command result; preserve the matching tagged completion.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.1.4",
+      "title": "PREAUTH Response",
+      "audit": "PREAUTH is account state, not proof of secure transport. On an unprotected connection it leaves no base STARTTLS opportunity: close when required transport protection is absent. BYE handling differs between normal logout and failure; reconcile outcomes after disconnect.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.1.5",
+      "title": "BYE Response",
+      "audit": "PREAUTH is account state, not proof of secure transport. On an unprotected connection it leaves no base STARTTLS opportunity: close when required transport protection is absent. BYE handling differs between normal logout and failure; reconcile outcomes after disconnect.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.2",
+      "title": "Server Responses - Server and Mailbox Status",
+      "audit": "Capabilities apply to this server connection and can change after authentication or TLS. Unknown names are ignored.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.2.1",
+      "title": "CAPABILITY Response",
+      "audit": "Capabilities apply to this server connection and can change after authentication or TLS. Unknown names are ignored.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.2.2",
+      "title": "LIST Response",
+      "audit": "Respect LIST selectability combinations under erratum 261, hierarchy delimiters and LSUB differences. STATUS data belongs to the named mailbox.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.2.3",
+      "title": "LSUB Response",
+      "audit": "Respect LIST selectability combinations under erratum 261, hierarchy delimiters and LSUB differences. STATUS data belongs to the named mailbox.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.2.4",
+      "title": "STATUS Response",
+      "audit": "Respect LIST selectability combinations under erratum 261, hierarchy delimiters and LSUB differences. STATUS data belongs to the named mailbox.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.2.5",
+      "title": "SEARCH Response",
+      "audit": "SEARCH results use sequence numbers or UIDs according to the command. Record available FLAGS separately from permanent-write permissions.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.2.6",
+      "title": "FLAGS Response",
+      "audit": "SEARCH results use sequence numbers or UIDs according to the command. Record available FLAGS separately from permanent-write permissions.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.3",
+      "title": "Server Responses - Mailbox Size",
+      "audit": "Record EXISTS and RECENT updates. Recent messages need not be a contiguous suffix and do not prove new authenticated events.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.3.1",
+      "title": "EXISTS Response",
+      "audit": "Record EXISTS and RECENT updates. Recent messages need not be a contiguous suffix and do not prove new authenticated events.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.3.2",
+      "title": "RECENT Response",
+      "audit": "Record EXISTS and RECENT updates. Recent messages need not be a contiguous suffix and do not prove new authenticated events.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.4",
+      "title": "Server Responses - Message Status",
+      "audit": "Renumber immediately for each EXPUNGE and enforce its command-interleaving restrictions.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.4.1",
+      "title": "EXPUNGE Response",
+      "audit": "Renumber immediately for each EXPUNGE and enforce its command-interleaving restrictions.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.4.2",
+      "title": "FETCH Response",
+      "audit": "Parsed defaults, source-route/group address projection, encoded body sizes and extensible BODYSTRUCTURE are useful display/index data. BODY location is a string under erratum 261. Content-MD5 is not secure event authentication. ENVELOPE omits References.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "7.5",
+      "title": "Server Responses - Command Continuation Request",
+      "audit": "Wait for continuation before literal bytes and preserve the command remainder after the counted octets.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "8",
+      "title": "Sample IMAP4rev1 connection",
+      "audit": "The transcript is illustrative. It lacks UIDNEXT/PERMANENTFLAGS selection data and shows password login without a transport setup. It is not a modern secure conformance fixture.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "9",
+      "title": "Formal Syntax",
+      "audit": "Reconcile spaces, case, list nesting, literal lengths, numeric bounds, section syntax and correction 261. Do not extend fixed ENVELOPE shape from held erratum 6637.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "10",
+      "title": "Author's Note",
+      "audit": "Lineage does not imply support for obsolete commands or current suitability of old security dependencies.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "11",
+      "title": "Security Considerations",
+      "audit": "Apply current transport/certificate policy instead of obsolete TLS algorithms. Protect credentials, limit guessing and avoid user-enumerating errors. End-to-end encryption remains a separate layer.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "11.1",
+      "title": "STARTTLS Security Considerations",
+      "audit": "Apply current transport/certificate policy instead of obsolete TLS algorithms. Protect credentials, limit guessing and avoid user-enumerating errors. End-to-end encryption remains a separate layer.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "11.2",
+      "title": "Other Security Considerations",
+      "audit": "Apply current transport/certificate policy instead of obsolete TLS algorithms. Protect credentials, limit guessing and avoid user-enumerating errors. End-to-end encryption remains a separate layer.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "12",
+      "title": "IANA Considerations",
+      "audit": "Existing IMAP capability and SASL service registrations are not new Email Next assignments; erratum 261 adds the service-name registration clarification.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "A",
+      "title": "Normative References",
+      "audit": "References identify dependency work; their presence is not a full review of their bodies. Correct the body-language reference under erratum 261. Historical compatibility references do not expand the optional adapter.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "A.1",
+      "title": "Informative References",
+      "audit": "References identify dependency work; their presence is not a full review of their bodies. Correct the body-language reference under erratum 261. Historical compatibility references do not expand the optional adapter.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "B",
+      "title": "Changes from RFC 2060",
+      "audit": "Cross-check change notes against normative text and grammar. Later removal of NEWNAME supersedes its earlier addition; do not implement an obsolete intermediary change. Erratum261 adds change 115 for Content-Location.",
+      "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 3501,
+      "section": "C",
+      "title": "Key Word Index",
+      "audit": "The keyword index is navigation, not a separate command definition. Resolve each entry through the corresponding command, response and grammar rules.",
+      "evidence": "imap-rev1.md"
     }
   ]
 }

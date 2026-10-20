@@ -145,6 +145,9 @@ class SenderWorker:
             previous=json.loads(row[1]);checkpoint=self.db.execute('SELECT group_id,snapshot FROM mls_checkpoint WHERE id=1').fetchone()
             if not checkpoint or checkpoint[0]!=previous['group']:raise ValueError('Changed group')
             current=call(self.sender.binary,op='inspect-send',checkpoint=json.loads(checkpoint[1]),group=checkpoint[0],key=previous['senderKey'])['metadata']
+            if table in ('sender_prepared','plaintext_prepared'):
+                from proposal_observation import check_send
+                check_send(self.db,current)
             if not historical and current!=previous:raise ValueError('Changed group metadata')
             deps=self.sender._authority(current,time,json.loads(policy[1])['trustPolicy'])
             if not historical and canonical(deps)!=row[2]:raise ValueError('Changed identity dependency')
@@ -188,6 +191,7 @@ class SenderWorker:
                 if latest[0]!=evidence['policyRevision']:raise ValueError('Changed policy')
                 if checkpoint[0]!=current['group']:raise ValueError('Changed group')
                 observed=call(self.sender.binary,op='inspect-send',checkpoint=json.loads(checkpoint[1]),group=checkpoint[0],key=current['senderKey'])['metadata']
+                if table in ('sender_prepared','plaintext_prepared'):check_send(self.db,observed)
                 if observed!=current:raise ValueError('Changed group metadata')
                 if self.sender._authority(observed,time,json.loads(latest[1])['trustPolicy'])!=deps:raise ValueError('Changed identity')
                 if associations['mode']=='selected-association' and check_locked(self.sender.associations,selected,observed,time,json.loads(latest[1])['trustPolicy'],verification=self.sender._verification_enabled())!=association_checked:raise ValueError('Changed mailbox evidence')

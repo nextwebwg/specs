@@ -16,7 +16,7 @@ Transfer-decode the selected MIME entity, require an explicit UTF-8 charset, the
 
 The parser must not execute scripts, upgrade custom elements, fetch resources or submit forms while constructing the tree. Create a fresh allowed tree after parsing; never attach the unfiltered tree to the application. The [HTML parsing audit](audits/html-parsing.md) records the selected recovery rules, element semantics and implementation limits. Transfer only permitted nodes, attributes and parsed style values. A final permitted tree is a rendering projection, not a replacement for the authenticated original.
 
-HTML parsing follows the [HTML Standard](https://html.spec.whatwg.org/multipage/parsing.html#parsing). CSS declaration parsing follows [CSS Syntax Level 3](https://www.w3.org/TR/css-syntax-3/). A dated, reproducible source snapshot and parser conformance corpus remain required before this profile is frozen.
+This draft uses the reproducible HTML source revision identified in the [parsing audit](audits/html-parsing.md) and the CSS declaration-list rules identified in the [syntax audit](audits/css-syntax.md). HTTP(S) navigation uses the selected URL rules and source snapshot in the [navigation audit](audits/service-uris.md#browser-parser-review). Record reference changes with the profile version and its conformance cases; upgrading a runtime alone does not change the profile. The source pins make comparison reproducible, but do not establish parser conformance.
 
 ## Encoding declaration consistency
 
@@ -52,7 +52,11 @@ The common permitted attributes are `lang`, `dir`, `title` and `style`. `dir` ac
 
 ### Language labels
 
-Generators MUST emit a valid RFC5646 language tag or an empty `lang` value. Validity includes registry and structural checks; matching the grammar alone is insufficient. Deprecated tags remain permitted. Generation checks must identify their registry versions; the [authoring experiment](evidence/README.md#language-tag-authoring-validation) pins its local datasets, while client integration and the registry-update policy remain unfinished. See the [language-tag audit](audits/language-tags.md).
+Generators MUST emit a valid RFC5646 language tag or an empty `lang` value. Validity includes registry and structural checks; matching the grammar alone is insufficient. Deprecated tags remain permitted. Base validity checks allocated extension singletons and their syntax; this profile does not claim extension-specific semantic validation. See the [language-tag audit](audits/language-tags.md).
+
+Validate generated labels against locally installed IANA Language Subtag and Extension Registry snapshots. Conformance reports MUST identify each snapshot's File-Date and content digest. The [authoring experiment](evidence/README.md#language-tag-authoring-validation) supplies reproducible datasets; implementations may use newer identified snapshots. A label unavailable in the installed data produces an authoring diagnostic, not a guessed replacement language. The empty unknown-language value remains permitted.
+
+Registry updates are client maintenance, separate from message processing. Obtain them through an authenticated software or data update path using configured trusted registry sources. Check the dataset structure and its declared version and digest before activation; retain the previous usable snapshot if an update is unavailable or invalid. A received message MUST NOT select an update URL or trigger a registry fetch. Installing new data never rewrites existing messages or their authenticated labels.
 
 Receivers preserve the parsed `lang` value in the rendering projection. An empty value explicitly means unknown language; omission inherits from the parent. An unrecognized value remains an unknown language with that label, rather than being guessed, translated into another naming system, or discarded so that a different ancestor language takes over. This follows [HTML language handling](https://html.spec.whatwg.org/multipage/dom.html#the-lang-and-xml:lang-attributes). Preserving a received label is not certification of authoring conformance.
 
@@ -74,14 +78,16 @@ No other attributes survive, including event handlers, custom data attributes, I
 
 Integer-valued table spans accept decimal integers1–1000; rowspan zero is not supported. Image width/height accept decimal integers1–4096 as preferred CSS-pixel dimensions, bounded further by the available viewport. List counters accept signed decimal integers in the range−2147483648…2147483647. These are proposed profile limits, not inherited HTML limits. Invalid attributes are discarded with a recorded diagnostic.
 
-`img` requires alt text and a `cid:` source resolved through the message resource rules. A missing resource shows its alt text. The baseline image types are PNG and JPEG; animation, SVG, remote images and data URLs are outside this profile. A receiver must apply its explicit resource limits before displaying decoded pixels. The baseline’s shared interoperability limits remain to be selected; the local decoder experiment uses adjustable limits and is not a complete renderer.
+`img` requires alt text and a `cid:` source resolved through the message resource rules. A missing resource shows its alt text. The baseline image types are static PNG and JPEG; animation, SVG, remote images and data URLs are outside this profile. The [image interpretation rules](audits/image-formats.md) define required PNG depths/types/interlace, common JPEG interchange, primary-image orientation and color conversion. These requirements preserve the intended image rather than treating unmanaged pixel extraction as complete support.
+
+This profile uses explicit positive finite client-local budgets for encoded data, dimensions, decoded pixels/output, metadata expansion, memory and processing time; it defines no universal attachment-size guarantee. Check limits before allocation where possible, during expansion and again after transforms. Resource failure retains the alternative text and a client-owned explanation. Conformance reports state their budgets and exercise required image cases within them; a resource rejection cannot be misreported as absence of format support. These are resource-policy rules of the proposed profile.
 
 ::: {.details summary="Decoding an image resource"}
 Authenticate and resolve the resource within its selected message before decoding it. A matching Content-ID alone is insufficient. Check the declared format against the decoder's detected format, reject animation, and bound encoded bytes, dimensions, pixel count and decoded output. A decode failure leaves the alternative text available; it must not initiate a remote fetch.
 
 The [image decoder experiment](evidence/README.md#isolated-image-decoding) returns tightly packed RGBA pixels from a separate process. It tests PNG/JPEG input, format mismatch, malformed data, animation and adjustable resource limits. CPU, wall-time and output controls apply before decoding; a resident-memory watchdog also observes work before dimensions are known. The tested macOS watchdog is not a hard allocation ceiling or a security sandbox. Hard memory enforcement on supported platforms still needs validation. The host must not hand the original encoded file to another unrestricted decoder after these checks.
 
-A [scoped image adapter](evidence/README.md#scoped-resource-to-pixel-integration) connects resource scope, size and digest checks to decoding, using a manifest and compound selection authenticated by its caller. It does not perform upstream signature verification or browser display. EXIF orientation, ICC color handling, PNG/JPEG source-standard review, assistive-technology behavior and interoperable resource limits remain unfinished. Discarding metadata in this experiment is not a claim of rendering fidelity.
+A [scoped image adapter](evidence/README.md#scoped-resource-to-pixel-integration) connects resource scope, size and digest checks to decoding, using a manifest and compound selection authenticated by its caller. It does not perform upstream signature verification or browser display. The [image-format audit](audits/image-formats.md) maps selected standards and corrections. The decoder has focused evidence for primary orientation, color conversion and high-depth sample handling; comprehensive codec coverage, independent color-management agreement, assistive-technology behavior and hard decoder containment remain unproven.
 :::
 
 `a` permits absolute HTTPS and HTTP navigation only. No relative URLs, credentials in URLs, automatic navigation or sender-controlled target browsing context. The client exposes the destination before deliberate navigation, opens it outside the message context and sends no message-origin referrer. Additional link schemes, including mailto and mid, require distinct client navigation handlers rather than passing arbitrary schemes to a browser. Text remains when a link is rejected.
@@ -155,11 +161,11 @@ The evidence implements parts of this contract, not a conforming renderer. The c
 
 | Stage | Executable evidence | Remaining work |
 | --- | --- | --- |
-| CSS declarations | Thirteen declaration-filter tests cover parsing, allowed values, escaping and last-valid selection | Browser cascade and layout behavior |
-| HTML projection | Thirty-one Python HTML-stage tests cover element/attribute filtering, encoding diagnostics, URL integration, serialization and recovery cases | Authoring-client language integration, image decoding/rendering, broader malformed-input corpus and browser differential checks |
+| CSS declarations | Thirteen declaration-filter tests cover parsing, allowed values, escaping and last-valid selection | Broader cross-engine cascade and layout coverage |
+| HTML projection | Thirty-one Python HTML-stage tests cover element/attribute filtering, encoding diagnostics, URL integration, serialization and recovery cases | Authoring-client language integration, broader malformed-input corpus and browser differential checks; image/resource integration has separate evidence below |
 | Parser execution | Disposable html5lib worker and explicit parse5 adapter with input, CPU, wall-time and output limits; resident-memory watchdog | Hard allocation containment on tested macOS, Linux enforcement validation, complete parser migration and broader recovery fixtures |
-| Language labels | Received labels and inherited language survive projection; a standalone authoring validator uses pinned registry snapshots | Authoring-client integration, registry updates and assistive-technology behavior |
-| Images | Scoped Content-ID validation, isolated PNG/JPEG decoding and client-owned pixel display | OS memory containment, color/orientation fidelity and broader decoder coverage |
+| Language labels | Received labels and inherited language survive projection; a standalone authoring validator uses pinned registry snapshots | Authoring-client and authenticated update-path integration, plus assistive-technology behavior |
+| Images | Scoped Content-ID validation, isolated PNG/JPEG decoding and client-owned pixel display | OS memory containment, independent color-management agreement and broader decoder coverage |
 | Navigation | URL and HTML integration checks plus deliberate browser navigation without referrer or opener | Native link behavior, broader browser coverage and accessibility |
 | Presentation | Client-owned baseline, inert serializer and isolated Chromium host with bounded input and lifecycle checks | Native zoom, other engines, broader layout and assistive-technology validation |
 
@@ -173,7 +179,7 @@ The serializer consumes the internal filtered tree and emits a fresh preview wra
 
 ## Conformance still to establish
 
-The vocabulary, processing boundaries and proposed baseline styles are specified, but conformance remains unproven. Required work includes pinned HTML/CSS/URL/BCP47 references, complete language and image handling, validated decoder containment and parser memory enforcement, broader browser differential fixtures, cross-browser navigation/referrer verification, layout and accessibility testing, and real-client legacy rendering. Until these requirements pass, this is a proposed profile, not an implementation support claim.
+The vocabulary, source references, language-data policy, image interpretation and baseline styles are specified. Implementation conformance remains unproven. Evidence still needed includes authoring-client language/update integration, broader decoder and parser corpora, hard resource containment, independent color-management agreement, cross-engine navigation and layout, native accessibility, and real-client legacy rendering. The local experiments establish their recorded cases; they do not authorize a claim of complete profile support.
 
 ## Direction after projection
 

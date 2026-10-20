@@ -1,0 +1,5 @@
+'HTMLPlacement.check_sound' depends on axioms: [propext]
+'HTMLPlacement.choose_authorized' depends on axioms: [propext]
+'HTMLPlacement.choose_unique' depends on axioms: [propext]
+'HTMLPlacement.receipt_from_source' depends on axioms: [propext]
+'HTMLPlacement.selected_receipt_from_source' depends on axioms: [propext]

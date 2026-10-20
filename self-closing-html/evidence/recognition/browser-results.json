@@ -43,6 +43,30 @@
         {
           "name": "custom element callback placement",
           "pass": true
+        },
+        {
+          "name": "native table row/cell placement",
+          "pass": true
+        },
+        {
+          "name": "nested identical wrappers close predictably",
+          "pass": true
+        },
+        {
+          "name": "formatting reconstruction creates no ghost element",
+          "pass": true
+        },
+        {
+          "name": "pre newline belongs after the empty element",
+          "pass": true
+        },
+        {
+          "name": "a live script data-block switch stays inactive",
+          "pass": true
+        },
+        {
+          "name": "owned text survives protected-context recovery",
+          "pass": true
         }
       ],
       "requests": [
@@ -93,6 +117,30 @@
         {
           "name": "custom element callback placement",
           "pass": true
+        },
+        {
+          "name": "native table row/cell placement",
+          "pass": true
+        },
+        {
+          "name": "nested identical wrappers close predictably",
+          "pass": true
+        },
+        {
+          "name": "formatting reconstruction creates no ghost element",
+          "pass": true
+        },
+        {
+          "name": "pre newline belongs after the empty element",
+          "pass": true
+        },
+        {
+          "name": "a live script data-block switch stays inactive",
+          "pass": true
+        },
+        {
+          "name": "owned text survives protected-context recovery",
+          "pass": true
         }
       ],
       "requests": [
@@ -142,6 +190,30 @@
         },
         {
           "name": "custom element callback placement",
+          "pass": true
+        },
+        {
+          "name": "native table row/cell placement",
+          "pass": true
+        },
+        {
+          "name": "nested identical wrappers close predictably",
+          "pass": true
+        },
+        {
+          "name": "formatting reconstruction creates no ghost element",
+          "pass": true
+        },
+        {
+          "name": "pre newline belongs after the empty element",
+          "pass": true
+        },
+        {
+          "name": "a live script data-block switch stays inactive",
+          "pass": true
+        },
+        {
+          "name": "owned text survives protected-context recovery",
           "pass": true
         }
       ],

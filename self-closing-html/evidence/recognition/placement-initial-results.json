@@ -1,0 +1,121 @@
+{
+  "seed": "0x44585032",
+  "inputs": 10000,
+  "comparisons": 120000,
+  "checkpointAudits": 20500,
+  "failures": [
+    {
+      "source": "</math><b/><tr/></math></foreignObject><plaintext/><template></div><template/></b><button/>😀&amp;",
+      "context": "table",
+      "scriptingEnabled": true,
+      "error": "changed code/text owner plaintext\n+ actual - expected\n... Skipped lines\n\n  [\n    'plaintext',\n    'plaintext',\n    'http://www.w3.org/1999/xhtml',\n    [],\n...\n        undefined,\n+       [],\n-       [\n-         [\n-           '#text',\n-           undefined,\n-           undefined,\n-           undefined,\n-           '<template></div><template/></b><button/>😀&amp;',\n-           undefined,\n-           [],\n-           null\n-         ]\n-       ],\n        null\n      ],\n+     [\n+       '#text',\n+       undefined,\n+       undefined,\n+       undefined,\n+       '<template></div><template/></b><button/>😀&amp;',\n+       undefined,\n+       [],\n+       null\n+     ]\n    ],\n    null\n  ]\n"
+    },
+    {
+      "source": "</math><b/><tr/></math></foreignObject><plaintext/><template></div><template/></b><button/>😀&amp;",
+      "context": "table",
+      "scriptingEnabled": false,
+      "error": "changed code/text owner plaintext\n+ actual - expected\n... Skipped lines\n\n  [\n    'plaintext',\n    'plaintext',\n    'http://www.w3.org/1999/xhtml',\n    [],\n...\n        undefined,\n+       [],\n-       [\n-         [\n-           '#text',\n-           undefined,\n-           undefined,\n-           undefined,\n-           '<template></div><template/></b><button/>😀&amp;',\n-           undefined,\n-           [],\n-           null\n-         ]\n-       ],\n        null\n      ],\n+     [\n+       '#text',\n+       undefined,\n+       undefined,\n+       undefined,\n+       '<template></div><template/></b><button/>😀&amp;',\n+       undefined,\n+       [],\n+       null\n+     ]\n    ],\n    null\n  ]\n"
+    },
+    {
+      "source": "text<tr/><x-box/><script><x-box/><math><foreignObject><b/><mtext><select/><td/><a/></foreignObject>\n</foreignObject></template></b><select/>",
+      "context": "svg",
+      "scriptingEnabled": true,
+      "error": "changed code/text owner script\n+ actual - expected\n... Skipped lines\n\n  [\n    'script',\n    'script',\n    'http://www.w3.org/2000/svg',\n    [],\n...\n                undefined,\n+               [],\n+               null\n+             ],\n+             [\n+               'mtext',\n+               'mtext',\n+               'http://www.w3.org/1999/xhtml',\n+               [],\n+               undefined,\n+               undefined,\n                [\n                  [\n+                   'select',\n+                   'select',\n-                   'mtext',\n-                   'mtext',\n                    'http://www.w3.org/1999/xhtml',\n                    [],\n                    undefined,\n                    undefined,\n                    [\n                      [\n+                       '#text',\n-     "
+    },
+    {
+      "source": "text<tr/><x-box/><script><x-box/><math><foreignObject><b/><mtext><select/><td/><a/></foreignObject>\n</foreignObject></template></b><select/>",
+      "context": "svg",
+      "scriptingEnabled": false,
+      "error": "changed code/text owner script\n+ actual - expected\n... Skipped lines\n\n  [\n    'script',\n    'script',\n    'http://www.w3.org/2000/svg',\n    [],\n...\n                undefined,\n+               [],\n+               null\n+             ],\n+             [\n+               'mtext',\n+               'mtext',\n+               'http://www.w3.org/1999/xhtml',\n+               [],\n+               undefined,\n+               undefined,\n                [\n                  [\n+                   'select',\n+                   'select',\n-                   'mtext',\n-                   'mtext',\n                    'http://www.w3.org/1999/xhtml',\n                    [],\n                    undefined,\n                    undefined,\n                    [\n                      [\n+                       '#text',\n-     "
+    },
+    {
+      "source": "</div><b/></div><x-box/><div/><div inert/><math></textarea></table></style><tr/><style></x-box><mtext><a/><svg></table>",
+      "context": null,
+      "scriptingEnabled": true,
+      "error": "changed code/text owner style\n+ actual - expected\n... Skipped lines\n\n  [\n    'style',\n    'style',\n    'http://www.w3.org/1998/Math/MathML',\n    [],\n...\n            undefined,\n+           [],\n-           [\n-             [\n-               'svg',\n-               'svg',\n-               'http://www.w3.org/2000/svg',\n-               [],\n-               undefined,\n-               undefined,\n-               [],\n-               null\n-             ]\n-           ],\n            null\n          ],\n+         [\n+           'svg',\n+           'svg',\n+           'http://www.w3.org/2000/svg',\n+           [],\n+           undefined,\n+           undefined,\n+           [],\n+           null\n+         ]\n        ],\n        null\n      ]\n    ],\n    null\n"
+    },
+    {
+      "source": "</div><b/></div><x-box/><div/><div inert/><math></textarea></table></style><tr/><style></x-box><mtext><a/><svg></table>",
+      "context": "div",
+      "scriptingEnabled": true,
+      "error": "changed code/text owner style\n+ actual - expected\n... Skipped lines\n\n  [\n    'style',\n    'style',\n    'http://www.w3.org/1998/Math/MathML',\n    [],\n...\n            undefined,\n+           [],\n-           [\n-             [\n-               'svg',\n-               'svg',\n-               'http://www.w3.org/2000/svg',\n-               [],\n-               undefined,\n-               undefined,\n-               [],\n-               null\n-             ]\n-           ],\n            null\n          ],\n+         [\n+           'svg',\n+           'svg',\n+           'http://www.w3.org/2000/svg',\n+           [],\n+           undefined,\n+           undefined,\n+           [],\n+           null\n+         ]\n        ],\n        null\n      ]\n    ],\n    null\n"
+    },
+    {
+      "source": "</div><b/></div><x-box/><div/><div inert/><math></textarea></table></style><tr/><style></x-box><mtext><a/><svg></table>",
+      "context": "table",
+      "scriptingEnabled": true,
+      "error": "changed code/text owner style\n+ actual - expected\n... Skipped lines\n\n  [\n    'style',\n    'style',\n    'http://www.w3.org/1998/Math/MathML',\n    [],\n...\n            undefined,\n+           [],\n-           [\n-             [\n-               'svg',\n-               'svg',\n-               'http://www.w3.org/2000/svg',\n-               [],\n-               undefined,\n-               undefined,\n-               [],\n-               null\n-             ]\n-           ],\n            null\n          ],\n+         [\n+           'svg',\n+           'svg',\n+           'http://www.w3.org/2000/svg',\n+           [],\n+           undefined,\n+           undefined,\n+           [],\n+           null\n+         ]\n        ],\n        null\n      ]\n    ],\n    null\n"
+    },
+    {
+      "source": "</div><b/></div><x-box/><div/><div inert/><math></textarea></table></style><tr/><style></x-box><mtext><a/><svg></table>",
+      "context": "template",
+      "scriptingEnabled": true,
+      "error": "changed code/text owner style\n+ actual - expected\n... Skipped lines\n\n  [\n    'style',\n    'style',\n    'http://www.w3.org/1998/Math/MathML',\n    [],\n...\n            undefined,\n+           [],\n-           [\n-             [\n-               'svg',\n-               'svg',\n-               'http://www.w3.org/2000/svg',\n-               [],\n-               undefined,\n-               undefined,\n-               [],\n-               null\n-             ]\n-           ],\n            null\n          ],\n+         [\n+           'svg',\n+           'svg',\n+           'http://www.w3.org/2000/svg',\n+           [],\n+           undefined,\n+           undefined,\n+           [],\n+           null\n+         ]\n        ],\n        null\n      ]\n    ],\n    null\n"
+    },
+    {
+      "source": "</div><b/></div><x-box/><div/><div inert/><math></textarea></table></style><tr/><style></x-box><mtext><a/><svg></table>",
+      "context": "svg",
+      "scriptingEnabled": true,
+      "error": "changed code/text owner style\n+ actual - expected\n... Skipped lines\n\n  [\n    'style',\n    'style',\n    'http://www.w3.org/1998/Math/MathML',\n    [],\n...\n            undefined,\n+           [],\n-           [\n-             [\n-               'svg',\n-               'svg',\n-               'http://www.w3.org/2000/svg',\n-               [],\n-               undefined,\n-               undefined,\n-               [],\n-               null\n-             ]\n-           ],\n            null\n          ],\n+         [\n+           'svg',\n+           'svg',\n+           'http://www.w3.org/2000/svg',\n+           [],\n+           undefined,\n+           undefined,\n+           [],\n+           null\n+         ]\n        ],\n        null\n      ]\n    ],\n    null\n"
+    },
+    {
+      "source": "</div><b/></div><x-box/><div/><div inert/><math></textarea></table></style><tr/><style></x-box><mtext><a/><svg></table>",
+      "context": null,
+      "scriptingEnabled": false,
+      "error": "changed code/text owner style\n+ actual - expected\n... Skipped lines\n\n  [\n    'style',\n    'style',\n    'http://www.w3.org/1998/Math/MathML',\n    [],\n...\n            undefined,\n+           [],\n-           [\n-             [\n-               'svg',\n-               'svg',\n-               'http://www.w3.org/2000/svg',\n-               [],\n-               undefined,\n-               undefined,\n-               [],\n-               null\n-             ]\n-           ],\n            null\n          ],\n+         [\n+           'svg',\n+           'svg',\n+           'http://www.w3.org/2000/svg',\n+           [],\n+           undefined,\n+           undefined,\n+           [],\n+           null\n+         ]\n        ],\n        null\n      ]\n    ],\n    null\n"
+    },
+    {
+      "source": "</div><b/></div><x-box/><div/><div inert/><math></textarea></table></style><tr/><style></x-box><mtext><a/><svg></table>",
+      "context": "div",
+      "scriptingEnabled": false,
+      "error": "changed code/text owner style\n+ actual - expected\n... Skipped lines\n\n  [\n    'style',\n    'style',\n    'http://www.w3.org/1998/Math/MathML',\n    [],\n...\n            undefined,\n+           [],\n-           [\n-             [\n-               'svg',\n-               'svg',\n-               'http://www.w3.org/2000/svg',\n-               [],\n-               undefined,\n-               undefined,\n-               [],\n-               null\n-             ]\n-           ],\n            null\n          ],\n+         [\n+           'svg',\n+           'svg',\n+           'http://www.w3.org/2000/svg',\n+           [],\n+           undefined,\n+           undefined,\n+           [],\n+           null\n+         ]\n        ],\n        null\n      ]\n    ],\n    null\n"
+    },
+    {
+      "source": "</div><b/></div><x-box/><div/><div inert/><math></textarea></table></style><tr/><style></x-box><mtext><a/><svg></table>",
+      "context": "table",
+      "scriptingEnabled": false,
+      "error": "changed code/text owner style\n+ actual - expected\n... Skipped lines\n\n  [\n    'style',\n    'style',\n    'http://www.w3.org/1998/Math/MathML',\n    [],\n...\n            undefined,\n+           [],\n-           [\n-             [\n-               'svg',\n-               'svg',\n-               'http://www.w3.org/2000/svg',\n-               [],\n-               undefined,\n-               undefined,\n-               [],\n-               null\n-             ]\n-           ],\n            null\n          ],\n+         [\n+           'svg',\n+           'svg',\n+           'http://www.w3.org/2000/svg',\n+           [],\n+           undefined,\n+           undefined,\n+           [],\n+           null\n+         ]\n        ],\n        null\n      ]\n    ],\n    null\n"
+    }
+  ],
+  "placements": {
+    "normal-html": 108566,
+    "unrecognized element script": 1086,
+    "unrecognized element template": 1080,
+    "unrecognized element a": 567,
+    "unrecognized element textarea": 586,
+    "unrecognized element mtext": 527,
+    "unrecognized element noscript": 512,
+    "unrecognized element style": 1060,
+    "unrecognized element plaintext": 532,
+    "unrecognized element foreignObject": 584,
+    "unrecognized element x-box": 589,
+    "unrecognized element form": 611,
+    "unrecognized element tr": 707,
+    "unrecognized element option": 526,
+    "unrecognized element select": 558,
+    "unrecognized element td": 582,
+    "unrecognized element button": 542,
+    "unrecognized element math": 498,
+    "unrecognized element tbody": 21,
+    "protected context style": 4,
+    "protected context plaintext": 2,
+    "protected context option": 2,
+    "changed text owner script": 10,
+    "unrecognized element foreignobject": 10,
+    "protected context math": 8,
+    "protected context svg": 12,
+    "protected context script": 10,
+    "protected context noscript": 2,
+    "protected context table": 2,
+    "protected context small": 4,
+    "protected context textarea": 10,
+    "protected context td": 2,
+    "changed text owner style": 6,
+    "protected context x-box": 2,
+    "protected context p": 4,
+    "protected context div": 8,
+    "protected context tr": 2,
+    "protected context img": 8
+  },
+  "scope": "Authorized source elements/data, protected contexts, unchanged source recognition; finite shared-recognizer evidence, not universal browser safety."
+}

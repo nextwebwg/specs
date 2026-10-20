@@ -1,7 +1,7 @@
 ---
 title: Parsing rules
 order: 1
-blurb: recognition · empty output · recovery · protected contexts
+blurb: source reading · empty-element placement · recovery · boundaries
 sectionNav: true
 eyebrow: Opt-in Self-Closing HTML · proposed rules
 status: "Unofficial Editor's Draft · Stage 0"
@@ -9,30 +9,25 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Parsing rules
 
-**Make the element empty without changing which characters HTML recognizes as text or markup.** The proposed parser keeps HTML's existing reading and recovery state. For an eligible `/>`, it changes where the resulting nodes appear in the document.
+**Read the source with HTML's existing rules. Place eligible `/>` elements as empty elements.** The proposed parser keeps these two jobs separate so an empty-element shorthand cannot change previously recognized text into a tag.
 
-## What HTML already does
+## What the slash does in existing HTML
 
 ```html
-<div />
-<p>Hello</p>
+<div /><p>Hello</p>
 ```
 
-HTML's **tokenizer** recognizes the self-closing marker. Its **tree builder** nevertheless keeps this ordinary non-void HTML element open. That defined parse-error recovery puts the paragraph inside the div.[^1]
-
-The proposal also keeps the div in the parser's internal records, so later source is interpreted by those same HTML rules. The difference is the output document: the div is empty and its recognized children appear after it.
-
-## Same recognition, different containment
+HTML's **tokenizer** reads characters and recognizes the self-closing marker on `div`. Its **tree builder** decides where nodes go. For an ordinary non-void HTML element, existing tree-building rules leave the element open despite that marker. The paragraph becomes its child.[^1]
 
 ::::: two
 :::: {.parser-path}
-### Existing HTML output
+### Existing HTML
 
 ::: flow
-- Recognize the self-closing marker on `div`
-- Keep `div` in the parser's open-element records
-- Recognize the following paragraph as an element
-- Put the paragraph inside the div {.acc}
+- Read a div start tag with a self-closing marker
+- Open div; retain it in HTML's recovery records
+- Read a paragraph start tag and its text
+- Place the paragraph inside div {.acc}
 :::
 
 ```text
@@ -43,13 +38,13 @@ body
 ```
 ::::
 :::: {.parser-path}
-### Proposed output
+### Proposed opt-in
 
 ::: flow
-- Recognize the self-closing marker on `div`
-- Keep `div` in the parser's open-element records
-- Recognize the following paragraph as an element
-- Keep div empty; put the paragraph after it {.acc}
+- Read the same div start tag and marker
+- Retain div in the source reader's recovery records
+- The placement builder opens and closes div
+- Place the recognized paragraph after div {.acc}
 :::
 
 ```text
@@ -61,92 +56,100 @@ body
 ::::
 :::::
 
-**The parser remembers more than the output contains.** An empty output element can still have an entry in the parser's recovery state. A later real closing tag acts on that entry until ordinary HTML rules remove it.
+## The distinction: reading and placement have separate state
 
-Formatting elements such as `small`, `b`, `a` and `em` use this same rule. For example, `<small/><span>tail</span>` produces an empty small element followed by the span.
+The **source reader** determines which characters are tags, which are text, and which namespace and attributes each element has. It follows existing HTML recovery, including its open-element and formatting records.
+
+The **placement builder** receives those already-read tokens. For an eligible `/>`, it performs the normal opening action followed by the normal closing action. That gives authors ordinary empty-element placement, including formatting and table rules.
+
+**A placement action cannot authorize a different interpretation of the source.** Before output is exposed, each output element must correspond to an actual source-reader element with the same namespace and attributes. Template ownership, foreign-namespace ancestry, and script/style/text contents must also agree. If they do not, the parser uses the source reader's recovery result, as described below.
+
+This is the added mechanism beyond simply treating `/>` as an immediate end tag. The source reader retains the context needed to keep text as text, while the placement builder gives ordinary shorthand its expected result.
+
+### Ordinary nesting and tables
+
+```html
+<nav><nav /></nav><p>Outside both navs</p>
+<table><tr><td /><td>Second cell</td></tr></table>
+```
+
+The inner nav is empty; the real `</nav>` closes the outer nav. The paragraph follows both. The table has one row and two cells, with the first cell empty. Both examples produce the same tree as spelling out the empty element's start and end tags. Table rows and cells use HTML's normal table-placement rules.
 
 ## Why remembering the element matters
-
-Consider this source:
 
 ```html
 <div/><svg></div><style><img src=x onerror="attack()"></style></svg>
 ```
 
-The critical question is whether the apparent image stays stylesheet text or becomes an element with executable code. Simply processing an immediate `</div>` at the slash can change that answer.
+The security question is whether the apparent image stays stylesheet text or becomes an element with executable code. Closing div in the **source reader** too early changes how the later `</div>` recovers from SVG.[^2]
 
 ::::: two
 :::: {.parser-path}
-### Immediate opening-and-closing actions
+### If the source reader immediately closes div
 
 ::: flow
-- Open div and immediately close it
-- Read `svg`; the parser is now in SVG
-- The later `</div>` has no div left to close {.acc}
-- The following style is interpreted in SVG context
-- The apparent image becomes markup with a handler
+- Open div and immediately remove its recovery entry
+- Read svg; enter SVG context
+- The later closing div has no matching entry {.acc}
+- Interpret the following style in SVG context
+- Recognize an image with an event handler
 :::
 ::::
 :::: {.parser-path}
-### Proposed recognition-preserving rule
+### Proposed reader and checked placement
 
 ::: flow
-- Make div empty in the output; retain its parser entry
-- Read `svg` using ordinary HTML rules
-- The later `</div>` finds that entry and exits SVG and div {.acc}
-- The following style is an HTML stylesheet
-- The apparent image remains text; no image handler is created
+- Place an empty div; retain its source-reader entry
+- Read svg with existing HTML rules
+- The later closing div exits SVG and div {.acc}
+- Read the following HTML style and its text
+- Reject conflicting placement; keep the apparent image as text
 :::
 ::::
 :::::
 
-This is ordinary HTML recovery using retained parser state. It does not guess intent from future tags. The output changes as tokens arrive; the parser does not wait for the whole source before making the div empty.
+The placement builder receives a **text token** containing the apparent image. It never reads that string as HTML again. In this malformed example its attempted namespace placement conflicts with the source reader, so the checked recovery path preserves the HTML style and its contents. There is no image element or handler to activate.
 
-The [reference tests and browser observations](/self-closing-html/security) exercise this example and counterexamples where old entries have already expired. Retaining full HTML recovery state avoids treating a stale tag name as a live closing target.
+The parser uses the actual recovery records at that point. It does not infer intent from a future tag name or keep a stale closing target after HTML has removed it.
 
-## Text and inactive contents keep their boundaries
+## Boundaries that require a real closing tag
 
 ```html
 <style/><img src=x onerror="attack()"></style>
 ```
 
-Here the existing parser reads the apparent image as stylesheet text. **This proposal keeps that interpretation:** `style` retains its ordinary closing behavior, so the apparent image never becomes an element. A sanitizer is not involved in obtaining that result.
+Existing HTML reads the apparent image as stylesheet text. The proposal retains style's text-reading boundary, so that remains text. Similarly, `<script />` opens a script and requires `</script>`; an external script is written `<script src="app.js"></script>`.
 
-The same principle protects script text, textarea text and other starts that put the tokenizer into a special text-reading state. Template contents also remain in their inactive content document.
+| Boundary | Handling and reason |
+| --- | --- |
+| A start that enters a special text-reading state, such as HTML `script`, `style` or `textarea` | Keep ordinary closing behavior. An early close would expose text as markup. The actual tokenizer transition determines this category. |
+| `template` | Keep its content document and ordinary closing behavior. Its contents must remain in their inactive owner. Eligible shorthand inside that content document still works. |
+| `form` and `select` | Keep ordinary closing behavior. These parser-owned contexts can suppress subsequent elements: after `<form/>`, a second form start may be ignored; after `<select/>`, a second select start may be ignored. Emptying these contexts would require a different source interpretation. |
+| `html`, `head`, `body`, `frameset` | Keep document-construction handling. These elements govern the document's structure and parser mode. |
 
-| Boundary | Proposed handling | Reason |
-| --- | --- | --- |
-| A start that selects a special text-reading state, such as HTML `style`, `script` or `textarea` | Use its ordinary closing behavior. | Ending that state early can expose text as markup. |
-| `template` and its contents | Keep the template boundary and its content document. | Moving contents into the active document could activate scripts or resources. |
-| Document structure: `html`, `head`, `body`, `frameset` | Use existing document-structure handling. | These govern document construction. |
-| Table/select child-placement containers: `table`, `caption`, `colgroup`, `tbody`, `thead`, `tfoot`, `tr`, `td`, `th`, `select` | Use their ordinary closing behavior. | Their dedicated child-placement modes need their container boundaries. |
-| An element with the HTML `inert` attribute | Keep its containment boundary. | Its descendants retain their explicit interaction-inert ancestry. The attribute itself does not disable scripts. |
+Void elements and SVG/MathML elements use HTML's existing acknowledged self-closing handling. For other eligible elements, attributes apply to the resulting DOM in the usual way. Following siblings consequently do not acquire an empty element's attributes or ancestry.
 
-Existing void elements and native SVG/MathML self-closing handling continue to use their existing rules. Other attributes, including `hidden`, `disabled` and `popover`, do not choose the algorithm.
+## Recovery when the two jobs disagree
 
-For an exempt text element, writing `<script />` still opens a script: authors must supply its closing tag. Use `<script src="app.js"></script>` for an external script.
+Ordinary shorthand uses ordinary opening-and-closing placement. Malformed input can request a node, namespace, or protected context the source reader did not recognize. The proposed recovery is deterministic:
 
-## The proposed algorithm
+1. **Try ordinary placement.** Accept it only if every output element has a matching source-reader identity, namespace, attributes and protected context, with unchanged code/text-owner contents. Each source element can appear at most once.
+2. **Try recognition-based placement.** Keep eligible marked elements empty and move their recognized children immediately after them, recursively. Keep text/code owners and protected boundaries intact. Check this result against the same requirements.
+3. **Use the source tree if that check fails too.** HTML's source interpretation is the final authority, even when retaining it means the malformed shorthand does not produce an empty element.
 
-1. Process the source token with ordinary HTML tokenization, tree construction and recovery. Keep namespaces, formatting records, insertion modes and parser associations in that recognition state.
-2. When an unacknowledged self-closing marker creates an eligible HTML element, mark that element for empty output. Respect the boundaries listed above.
-3. Construct the output from the recognized nodes. Keep a marked element but place its recognized children immediately after it. Apply the same operation recursively.
-4. Preserve each node's identity and data, its order, its namespace ancestry, its template-content ownership and its explicit inert ancestry.
-5. At a completed token checkpoint, apply parser-owned output changes before exposing the result to a parser-triggered script or callback. Preserve application-owned DOM changes and normal pause/resume boundaries.
+A completed token checkpoint selects one valid result before a parser-triggered script observes output. Implementations must preserve application-owned DOM changes across later parser updates.
 
-**No text is tokenized a second time to create the output.** The operation changes containment among nodes the HTML parser already recognized. It does not manufacture an image, script or handler from a text node.
+**The normal authoring rule is an empty element; the recovery rule is source interpretation first.** The reference matches explicit empty pairs in 4,000 structured authoring cases and 1,000 generated table cases. It does not promise pair equivalence for arbitrary malformed HTML.
 
-Formatting repair retains the empty-output mark on reconstructed elements from the same marked start token.
+::: {.details summary="Implementation and proof details"}
 
-This is a containment rule. In complex formatting recovery, its output can differ from spelling a literal opening tag followed by a closing tag. The retained recognition state remains authoritative for subsequent source.
+[placement.mjs](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/recognition/placement.mjs) uses an ordinary parse5 source reader and a separate tree builder receiving cloned tokens. It associates written elements with source offsets, and implied elements with the token that caused their creation. Both normal placement and projected recovery are checked before selection.
 
-::: {.details summary="Reference implementation and proof scope"}
+The final check preserves element identity, namespace, attributes, template-content ownership, foreign ancestry and actual text/code-owner contents. It permits changes in ordinary parentage, order and formatting-repair output. It does not require the earlier projection design's total payload order.
 
-[recognition/parser.mjs](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/recognition/parser.mjs) retains an ordinary parse5 recognition tree and constructs output snapshots without mutating it. Text-state exceptions follow the actual tokenizer state after the start, including namespace and scripting state. HTML's existing acknowledged self-closing handling takes precedence.
+[Placement.lean](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/recognition/Placement.lean) checks the abstract selection rule: every selected element carries information authorized by the source, even when the first two choices fail. This is not a verified translation of the JavaScript or a complete browser parser proof.
 
-The [live DOM adapter](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/recognition/live-dom.mjs) applies node deltas and creates nodes in a document without a browsing context before insertion. This prevents the adapter from first constructing a template image as an active image. It uses the previous delta reconciler's mutation ownership rules.
-
-The abstract forest-projection theorem preserves payload order and protected ancestor paths. Generated comparisons and browser adapter tests check the reference implementation. They do not prove complete native scheduling, form association, declarative shadow-root ownership or all script interleavings. The earlier immediate-closure native patch implements a different algorithm.
+The [live adapter](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/recognition/live-dom.mjs) reconciles parser-owned output with application mutations. It constructs nodes in a document without a browsing context before insertion, preserving inactive template resources in the tested cases. Full-tree snapshots and checks are a correctness prototype; their cost has not been established as suitable for a production parser.
 
 :::
 

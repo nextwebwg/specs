@@ -1,56 +1,71 @@
-# Recognition-preserving self-closing parser
+# Self-closing HTML: source-authorized placement
 
-This candidate keeps HTML's existing recognition and recovery state, then changes output containment for eligible marked elements. It addresses the parser-created text-to-markup problem directly. It does not use a sanitizer to obtain that property.
+**Read source with existing HTML rules; place ordinary `/>` elements as empty elements.** Before exposing output, check that its elements and protected contents are authorized by what the source reader recognized.
 
-## The algorithm
+The [plain-language parsing rules](https://nextwebwg.org/self-closing-html/parsing) show existing HTML, normal shorthand and the security counterexample side by side. The [issue checklist](https://nextwebwg.org/self-closing-html/security) maps problems to mechanisms, evidence and remaining work.
 
-1. Feed each source token to the ordinary HTML parser without synthesizing an end tag or changing tokenizer state.
-2. If an unacknowledged self-closing marker creates an eligible HTML element, mark that element for empty output. HTML's existing void and foreign-content handling remains in charge of markers it already acknowledges.
-3. Keep the recognition element, stack entries, formatting records, form pointer and insertion modes under ordinary HTML recovery rules. Later real closing tags act on that state.
-4. At a completed token checkpoint, project the recognition tree into output: retain each marked element, make it empty, and place its recognized children immediately after it. Apply this recursively. Preserve node identity, namespaces, attributes, text, order, template-content ownership and protected ancestry.
-5. Apply only parser-owned output changes to the live DOM. Do not overwrite script mutations. Expose the completed output before a parser script runs; pause and resume recognition around that execution.
+## Implementation
 
-Formatting reconstruction carries a marked start token's provenance to its reconstructed elements; their output is empty too.
+1. `parser.mjs` retains an ordinary parse5 source tree, tokenizer state, formatting records, form pointer and recovery state. A closing slash does not remove the source-reader entry.
+2. `placement.mjs` sends cloned already-tokenized input to a separate tree builder. Eligible starts receive normal opening and closing actions there. It never lexes character-token strings.
+3. Planned elements must map to source-reader identities with the same namespace/attributes, each at most once. Written identities use source offsets; implied identities use the causing token's offset. Template ownership, foreign ancestry and actual text/code-owner contents must agree.
+4. If ordinary placement fails, try the recognition-based projection: eligible marked elements become empty and their recognized children follow them. Check that output too. If it fails, copy the authoritative source tree. `lastDecision` reports the selected path and rejection reason.
+5. `live-dom.mjs` reconciles parser-owned changes with application-owned DOM mutations. It exposes completed output checkpoints before parser-triggered execution. Nodes are created in a document without a browsing context before insertion; pending scripts use their live attributes/text when execution begins.
 
-`parseRecognition()` explicitly invokes the candidate core; this package does not yet integrate navigation doctype/header resolution. `parser.mjs` is the incremental reference. Its actual tokenizer-state check protects text-reading starts. `live-dom.mjs` reuses the prior mutation-preserving delta reconciler and constructs nodes in a document without a browsing context, before placing them in the live output. Template descendants consequently are not created as active images first.
+`parsePlacement()` selects this experimental core explicitly. Navigation/header/profile API integration is not implemented here. `parseRecognition()` retains the first pure-projection candidate as a source-reader/recovery component.
 
-## Boundaries that keep their ordinary closing behavior
+The result may omit source-reader formatting-repair nodes and alter ordinary parentage/order. It must preserve source authorization and protected ownership, not total payload order. Both candidate paths are checked. Recovery code itself cannot authorize different code/text.
 
-| Group | Reason |
+## Real-closing-tag boundaries
+
+| Boundary | Reason |
 | --- | --- |
-| Starts that select a non-data tokenizer state, including HTML script/style/textarea | Ending that state early can turn previously recognized text into markup. Classification uses the actual parser transition, including scripting state and namespace. |
-| Template elements and their content documents | Their children must not be projected into the active document. |
-| Document structure: html, head, body, frameset | These are parser/document scaffolding, rather than ordinary empty output wrappers. |
-| Dedicated table/select child-placement containers: table, caption, colgroup, tbody, thead, tfoot, tr, td, th, select | Their child-placement rules cannot be treated as ordinary sibling insertion. Early experiments retained recognition but produced surprising table order and select behavior. |
-| An element bearing the HTML inert attribute | Preserve its descendants' explicit interaction-inert ancestry. This is a separate interaction constraint; inert does not itself disable scripts. |
+| Starts that enter special text-reading states | Ending those states can expose text as markup. The actual tokenizer transition decides the category. |
+| Template owners | Contents remain in the inactive content document. Shorthand can operate within it. |
+| Form/select | Source reading can suppress a later nested form or select start. Empty-pair placement would otherwise create elements the source reader ignored. |
+| Html/head/body/frameset | These own document construction and insertion modes. |
 
-Attributes such as hidden, disabled and popover do not determine eligibility. Formatting elements, including small, b, a and em, use the same output-projection rule as ordinary divs and custom-element hosts. No custom-element registration or future-token intent guess selects the rule.
+Native void and SVG/MathML acknowledged slash rules retain their handling. Formatting, ordinary wrappers, custom hosts and table rows/cells use the ordinary placement path when the source-authority checks pass. Attributes apply to the resulting DOM; attribute names do not choose a different shorthand rule.
 
-## Evidence
+## Current evidence
 
-- `parser.test.mjs` and `live-dom.test.mjs`: 61 tests. Identity, text and protected ancestry are checked at token checkpoints; every two-chunk boundary of retained witnesses is compared. Other cases cover script pause/resume, template ownership, formatting, source attributes and script-owned DOM mutations.
-- `check.mjs` / `results.json`: 120,000 comparisons from 10,000 seeded inputs, both scripting flags and six document/fragment contexts. Zero recorded recognition or projection-inventory failures. This is finite coverage against the shared parse5 recognizer.
-- The simple body-context authoring inventory reports 76 eligible parser-known names. Its eligible examples match the corresponding empty-pair output. This is not a percentage of all HTML, or a claim of pair equivalence in every recovery context.
-- `browser-runner.mjs` / `browser-results.json`: ten cases per engine in Chromium, Firefox and WebKit. Direct and namespace text cases create no image; template scripts stay inactive and template images issue no observed request. An ordinary image request and handler supply the positive control. Other cases cover a script's projected parent/checkpoint, mutations and a custom-element callback. Engines supply native DOM/execution/resource behavior, but share parse5 recognition through the adapter.
-- The existing [Projection.lean](../Projection.lean) proves payload-order and protected-ancestor preservation for the abstract forest projection operation. This candidate uses that same form of transformation. The theorem is not a machine-checked refinement of this JavaScript, its eligibility rules, HTML tokenization or browser scheduling.
+| Record | What it establishes |
+| --- | --- |
+| `*.test.mjs` | 88 component and placement tests: recovery, text ownership, streaming splits, forms/select, tables, formatting, script checkpoints/mutations and rejected faulty recovery. |
+| `placement-check.mjs`, `placement-results.json` | 120,000 generated comparisons: 10,000 seeded inputs × two scripting flags × six document/fragment contexts. 20,504 checkpoint audits. No recorded failures. `audit-placement.mjs` independently checks source identities, namespaces/attributes, duplicate origins and protected/code contexts. |
+| `placement-initial-results.json` | Retained initial failures: reconstructed nodes inside text/code owners. Fixed by keeping those subtrees unchanged in recovery; witnesses remain regression tests. |
+| `dx-check.mjs`, `dx-results.json` | 4,000 structured authored examples and 1,000 table examples match explicit empty pairs. The first pure projection differed in 1,777 structured examples. Named boundary examples are checked against their documented ordinary-HTML handling instead. |
+| `browser-runner.mjs`, `browser-results.json` | 16 cases per engine: Chromium 156.0.8078.4, Firefox 157.0 and WebKit 26.5. Shared source reader; native DOM/script/resource/layout behavior. Tested text/template attacks stay inactive; only the positive resource control is requested. Also exercises native table geometry/APIs, same-name wrappers, formatting, LF and live script/mutation behavior. |
+| `Placement.lean`, `placement-proof-results.json`, `placement-proof.log` | Five compiled abstract theorems about source-receipt authorization and unique output identities. Lean 4.35.0; source/compiler hashes recorded. Unique output identities assume unique source identities. Not a JavaScript/HTML/native refinement proof. |
+| `check.mjs`, `results.json`, `parser.test.mjs` | First-candidate recognition/projection component coverage retained separately. Its inventory counts and payload-order theorem are not proof of the current normal placement path. |
 
-## What this establishes, and what it does not
+The pinned parse5 8.0.1 source reader predates the current customizable-select parsing rules. Its image-suppression tests describe that reader; the nested-select start witness also follows the current HTML rule. Updating the source reader and comparing against native recognition remain required.
 
-The construction does not create elements out of recognized text. Its output consists of the recognizer's nodes, with the same data and protected ancestry. In particular, a later closing tag can still cause ordinary HTML/SVG recovery even when the element has already been made empty in the output.
+These are finite results against shared parse5 reading, not universal browser security or native navigation-parser interoperability. A source-recognized handler is not removed by this parser.
 
-Output containment is intentionally different. This does not make arbitrary application code, CSS effects, form ownership, accessibility or event propagation equivalent to ordinary HTML. Formatting repair can produce output different from literal start/end source expansion. The algorithm is a containment rule, not that source expansion.
+## Proof in plain language
 
-A production implementation still needs native integration and conformance review: live form association, declarative shadow roots and their ownership, modules and native scheduling, encoding restarts, speculative loading and arbitrary parser/script interleavings. The prior immediate-closure Ladybird patch does not implement or prove this replacement. Browser-adapter passes must not be described as native navigation-parser support.
+An abstract source receipt records an element's identity, payload (namespace/attributes), protected ancestor identities and owned code/text. A proposed output is accepted only when its receipts occur in the source and its identities do not repeat. The same test applies to recovery. Source receipts are the final choice.
+
+`Placement.lean` proves the selection rule always returns authorized receipts. `check_sound`, `choose_authorized`, `choose_unique`, `receipt_from_source` and `selected_receipt_from_source` compiled without warnings or unfinished proofs; reported axioms contain only `propext`. This proves the abstract rule, not the receipt extraction or JavaScript implementation. The older `../Projection.lean` concerns the component forest projection only.
 
 ## Reproduce
 
-From `self-closing-html/evidence`, using the pinned dependencies:
+From `self-closing-html/evidence`, with its pinned dependencies:
 
 ```bash
 npm ci --ignore-scripts --no-audit --no-fund
 node --test recognition/*.test.mjs
-node recognition/check.mjs
+node recognition/placement-check.mjs
+node recognition/dx-check.mjs
 node recognition/browser-runner.mjs
+lean recognition/Placement.lean
 ```
 
-The browser runner needs compatible Playwright browser installations. `CHROMIUM_EXECUTABLE`, `FIREFOX_EXECUTABLE` and `WEBKIT_EXECUTABLE` can select existing local installations. It uses one engine at a time and closes each browser and the local server on completion.
+The proof command requires the recorded Lean version. CI reruns JavaScript tests, generated audits and authored comparisons; it does not currently rerun Lean or the three browser engines. Browser executable overrides are `CHROMIUM_EXECUTABLE`, `FIREFOX_EXECUTABLE` and `WEBKIT_EXECUTABLE`. The runner uses one engine at a time and closes its browsers/server.
+
+## Remaining integration
+
+Native form association, declarative shadow-root ownership, modules/scheduling, encoding restarts, speculative loading and arbitrary parser/script interleavings need native implementation and review. Legacy document writing needs rejection/isolation or a defined integration with both states. Full-tree snapshots and checking are a correctness prototype, not a demonstrated production cost. Changed ancestry can affect application code, events, CSS and accessibility.
+
+The older native patches implement other algorithms. Their counts must not be attributed to this one.

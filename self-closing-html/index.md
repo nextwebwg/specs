@@ -38,54 +38,53 @@ The shorter spelling and explicit closing marker are properties of the syntax. J
 
 :::
 
-## The insight: empty in the document, remembered by the parser
+## The insight: read once, place separately
 
-HTML already recognizes `/>`, but for ordinary non-void HTML elements it keeps the element open. This proposal makes an eligible element empty in the output **while retaining the parser state that determines what the following characters mean**.
+HTML already recognizes the slash in `<small/>`, but ordinarily leaves small open. Simply closing it in the parser can change whether later characters become text or executable markup.
+
+This proposal separates **reading the source** from **placing its nodes**. The source reader retains HTML's existing interpretation. A second builder places eligible self-closing elements using normal opening-and-closing actions. Every result is checked against what the source reader actually recognized.
 
 ```html
-<small/><span>Following content</span>
+<nav><nav /></nav><p>Outside both navs</p>
+<table><tr><td /><td>Second cell</td></tr></table>
 ```
 
-The output contains an empty small element followed by the span. Internally, HTML's ordinary recovery records still remember the small element until its rules close it. Formatting elements, ordinary wrappers and custom-element hosts use the same containment operation.
+The inner nav and first table cell are empty. The paragraph follows both navs; the table has two cells. Ordinary wrappers, formatting elements, custom-element hosts and table rows/cells share this behavior.
 
-[See the two trees and each parsing step →](/self-closing-html/parsing)
+[Compare existing HTML and the proposal, step by step →](/self-closing-html/parsing)
 
-## Why immediate closing is not enough
-
-The security objection is that changing parser state can turn text into executable markup. In this example, an early close can change how a later closing tag recovers from SVG:
+## How it addresses the text-to-markup objection
 
 ```html
 <div/><svg></div><style><img src=x onerror="attack()"></style></svg>
 ```
 
-The recognition-preserving algorithm makes div empty but retains its internal entry. The later `</div>` still exits SVG, so the following style is an HTML stylesheet and the apparent image stays text. No image handler is created.
+Removing div from the source reader too early can change SVG recovery and turn the apparent image into markup. This proposal retains that recovery entry: the later closing div exits SVG, the following style is HTML, and its contents remain text.
 
-**The protection comes from preserving HTML's interpretation, not from sanitizing a different interpretation afterward.**
+The placement builder receives that text as text. A conflicting placement is rejected in favor of the recognized HTML recovery. **The protection is part of parsing: only elements the source reader recognized may appear, with their original namespace, attributes and protected contents.**
 
-[Follow the unsafe immediate-close path and the proposed recovery →](/self-closing-html/parsing#why-remembering-the-element-matters)
+[Follow the security case and checked recovery →](/self-closing-html/parsing#why-remembering-the-element-matters)
 
-## Consistent boundaries for exceptions
+## A small set of understandable boundaries
 
-Text-reading elements such as `style`, `script` and `textarea` keep their ordinary closing behavior. Template contents stay inactive. Document scaffolding, dedicated table/select containers and explicit inert containers also keep their boundaries.
+Text-reading starts such as script/style/textarea, template owners, form/select contexts and document scaffolding retain their ordinary closing behavior. Each owns a reading or construction boundary that the source reader needs. Table rows and cells participate in the shorthand.
 
-These groups follow from text recognition, inactive ownership and child-placement rules. Attributes such as hidden, disabled and popover do not determine eligibility. Small, links, emphasis, buttons and forms participate in the same ordinary output rule.
+For example, `<script />` opens a script and still requires `</script>`. The [boundary table](/self-closing-html/parsing#boundaries-that-require-a-real-closing-tag) explains the categories and concrete reasons. Malformed input follows checked recovery; ordinary authored shorthand follows normal empty-element placement.
 
-For example, `<script />` still opens a script and requires a closing tag. The [boundary table](/self-closing-html/parsing#text-and-inactive-contents-keep-their-boundaries) explains each category and its consequence.
-
-## What the current evidence establishes
+## What the evidence establishes
 
 | Question | Evidence and limit |
 | --- | --- |
-| Can recognized text become a new element through this operation? | Output uses the recognizer's existing nodes and data. The abstract projection theorem preserves payload order and protected ancestry. It is not a verified implementation of the complete HTML parser. |
-| Do the retained attacks stay inactive? | Reference and three-engine DOM-adapter tests retain text, template ownership and the tested inactive resources. These are targeted results, not universal execution safety. |
-| Does the rule support ordinary and formatting elements? | The simple body-context inventory includes 76 eligible parser-known names, including small, links, emphasis, buttons and forms. Complex recovery is specified by the containment algorithm, rather than literal source expansion. |
-| Is there a native implementation of this replacement? | Not yet. The earlier immediate-closure native experiment implements a different algorithm and does not establish this replacement. |
+| Does ordinary shorthand behave as authors expect? | 4,000 structured authoring cases and 1,000 table cases match explicit empty pairs, including nested same-name wrappers and formatting. This is finite coverage. |
+| Can the output introduce an element the source reader rejected? | Both placement paths check source identity, namespace, attributes and protected context. A checked abstract theorem establishes source authorization for the selection rule; it does not verify the JavaScript or HTML parser. |
+| Do the retained security examples stay inactive? | 120,000 generated comparisons, 20,504 token-checkpoint audits and 16 targeted cases per browser adapter engine pass. The tested text/template attacks create no active image or observed attack request. |
+| Is this implemented in a native browser parser? | Not yet. Chromium, Firefox and WebKit supply DOM/execution/resource behavior through a shared parse5 adapter. Native integration remains required. |
 
-The reference passes 61 focused tests and 120,000 generated document/fragment comparisons. Ten targeted cases pass per engine in Chromium, Firefox and WebKit through a shared-recognizer DOM adapter. [Results, reproduction and limitations →](/self-closing-html/security)
+The suite also passes 88 component and placement tests. [Results, reproduction and limits →](/self-closing-html/security)
 
 ## Status and review
 
-This is a recognition-preserving replacement for the earlier immediate-opening-and-closing draft. The earlier broad security claim was not supported by that algorithm; its counterexample remains evidence against it.
+This is a proposed source-authorized placement algorithm. Its retained counterexamples and recovery checks are part of the evidence available for review.
 
 Native integration, form association, declarative shadow-root ownership, modules and scheduling, encoding restarts, speculative loading and independent implementer review remain required. The current results support review of this candidate, not a claim that every browser security concern is resolved.
 

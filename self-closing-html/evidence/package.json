@@ -29,8 +29,9 @@
     "closure:check": "node closure/check.mjs",
     "closure:execution": "node closure/execution-runner.mjs",
     "recognition:test": "node --test recognition/*.test.mjs",
-    "recognition:check": "node recognition/check.mjs",
-    "recognition:browser": "node recognition/browser-runner.mjs"
+    "recognition:check": "node recognition/placement-check.mjs && node recognition/dx-check.mjs",
+    "recognition:browser": "node recognition/browser-runner.mjs",
+    "recognition:component": "node recognition/check.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

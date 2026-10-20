@@ -9,42 +9,129 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Parsing rules
 
-**For an HTML element, `/>` finishes its opening tag and immediately processes its closing tag, before the parser reads more source.**
+**The change is what the parser does with the slash in `/>`.** Today, an ordinary HTML opening tag stays open despite that slash. With the proposed opt-in, the parser processes the opening tag and its matching closing action together.
+
+## How HTML parses this today
+
+Assume the parser is inside the document's `body`:
 
 ```html
-<small />
-<button />
-<table />
-<select />
-<script src="app.js" />
-<p>Following content</p>
+<div class="badge" />
+<p>Hello</p>
 ```
 
-The same HTML recovery rules apply as for explicit opening/closing pairs. Attributes do not select a different parsing rule.
+HTML parsing has two cooperating parts. The **tokenizer** reads characters and identifies tags or text. The **tree builder** creates elements and remembers which elements are open, so it knows where to put the next node.
 
-## Select the grammar
+For `<div />`, today's tokenizer recognizes the slash and marks the opening-tag token as self-closing. The HTML tree builder creates the `div`, but ignores that marker for an ordinary non-void HTML element. This is a parse error with a defined recovery: continue with the `div` open.[^4]
 
-Request `self-closing` through [HTML Feature Profiles](/html-feature-profiles/):
+## Follow the same source through both algorithms
+
+::::: two
+:::: {.parser-path}
+### HTML today
+
+::: flow
+- Read `<div class="badge" />`
+- Create the `div`; ignore its self-closing marker {.acc}
+- Keep `div` as the current parent
+- Read `<p>`; insert it inside `div`
+:::
+
+```text
+body
+└─ div.badge
+   └─ p
+      └─ "Hello"
+```
+::::
+:::: {.parser-path}
+### With the proposed opt-in
+
+::: flow
+- Read `<div class="badge" />`
+- Process the normal `div` opening action
+- Process its matching closing action {.acc}
+- Read `<p>`; insert it inside `body`
+:::
+
+```text
+body
+├─ div.badge
+└─ p
+   └─ "Hello"
+```
+::::
+:::::
+
+| Step | HTML today | Proposed behavior |
+| --- | --- | --- |
+| Read `<div class="badge" />` | Create `div`. It becomes the current parent. | Create `div`. It becomes the current parent. |
+| Handle the self-closing marker | Recover from the parse error by leaving `div` open. | Process the matching `div` closing action. The current parent becomes `body`. |
+| Read `<p>` | Create `p` inside `div`. | Create `p` inside `body`. |
+| Read `Hello`, then `</p>` | Put the text in `p`, then close `p`. The current parent is `div`. | Put the text in `p`, then close `p`. The current parent is `body`. |
+| Reach the end of the source | Finish with the DOM already built: `p` remains inside `div`. | Finish with the DOM already built: `p` follows the empty `div`. |
+
+The recovery step is deliberate browser behavior. Today's parser accepts the malformed shorthand and continues; it does not infer the author's intended empty `div`.
+
+## Why parser context matters
+
+Some opening tags also change how following characters are read. For example:
+
+```html
+<style />
+<p>Hello</p>
+```
+
+::::: two
+:::: {.parser-path}
+### HTML today
+
+::: flow
+- Open `style`; ignore its self-closing marker
+- Read following characters as stylesheet text
+- Keep `<p>Hello</p>` inside `style` as text
+:::
+::::
+:::: {.parser-path}
+### With the proposed opt-in
+
+::: flow
+- Open `style`
+- Process its closing action; return to reading HTML markup {.acc}
+- Read `<p>Hello</p>` as a paragraph
+:::
+::::
+:::::
+
+This changes both the element boundary and the context used to read the next characters. The same principle applies to `script` and `textarea`. A self-closing external script still loads and executes according to its normal script rules.
+
+## The proposed operation
+
+For a non-void HTML opening-tag token marked self-closing:
+
+1. Process its ordinary opening action once.
+2. Process a matching closing-tag token in the resulting parser state.
+3. Finish the resulting parser work, including any change out of a text-reading context, before reading more source.
+
+Formatting, tables, forms, and templates use their existing opening, closing, and recovery rules at those steps. Attributes follow ordinary parsing. For example, `<table />` starts and ends the table before the following source is read.
+
+HTML void elements such as `img` already finish at their opening tag. Their behavior stays the same. SVG and MathML retain their existing foreign-content self-closing rules. HTML recovery still governs invalid contexts and document roots: `<html />` does not permit siblings outside the document root. `plaintext` ends at the token boundary under this proposal; today's literal `</plaintext>` would itself be read as plaintext.
+
+## Select this behavior
+
+Use either declaration:
 
 ```html
 <!DOCTYPE html PUBLIC "self-closing">
 ```
 
-The shared proposal also defines the HTTP response header, the `next` family opt-in, and explicit parsing options. Plain HTML and existing string-parsing APIs keep their current behavior unless they explicitly select the new grammar. A later doctype mutation cannot switch a running parser.
+Selects this feature.
 
-## One operation, with existing HTML behavior
+```html
+<!DOCTYPE html PUBLIC "next">
+```
 
-| Input | Processing |
-| --- | --- |
-| `<small />` | Process `<small>`, then an end-tag token for `small`. |
-| `<script />` | Process the script start and end before reading following source. It does not swallow the rest of the page. |
-| `<textarea />` | Finish the element before reading more source; following source is ordinary markup. |
-| `<img />` | Existing void-element behavior; do not invent `</img>`. |
-| `<svg><path /></svg>` | Existing foreign-content self-closing behavior. |
-
-HTML's void elements remain `area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `source`, `track`, and `wbr`. Obsolete elements retain their existing parser behavior.
-
-This shorthand does not override HTML recovery. A tag ignored in an invalid context remains subject to those rules. Document roots still follow HTML's document structure; `<html />` cannot create siblings outside the document root. `plaintext` closes at the token boundary; a literal legacy `</plaintext>` is not an equivalent source spelling because legacy plaintext consumes it as text.
+Opts into the current and future HTML Next family supported by the browser, including this feature. [HTML Feature Profiles](/html-feature-profiles/) defines the declarations, proposed HTTP header, and explicit parsing options. A later doctype mutation does not switch a running parser.
 
 ### Preserve normal attribute parsing
 
@@ -69,9 +156,13 @@ The reference implementation is in [closure/parser.mjs](https://github.com/nextw
 
 :::
 
-## Parse and sanitize using the same grammar
+## Untrusted HTML and the separate safe parsing API
 
-Self-closing syntax changes parsing. **A string sanitized for legacy HTML is not automatically safe when reparsed under this grammar.** Parse with the intended grammar, sanitize that resulting tree, and insert the sanitized nodes without a string round trip.
+**Loading an opted-in page does not sanitize its HTML.** The parsing rule above constructs the document, including authored scripts and event-handler attributes.
+
+Sanitization is a separate operation for untrusted content. A safe parsing method first creates elements, text nodes, and attributes using the selected grammar, then removes unsafe content from those nodes. For example, it can remove an `onerror` attribute from an image before the caller inserts it.
+
+This order matters because changing the grammar can turn apparent text into an element. A string filtered under today's HTML rules can therefore become unsafe under the new rules. The proposed safe method filters the selected grammar's resulting nodes and returns them for direct insertion.
 
 [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) proposes a `profile` option for `Document.parseHTML()` and `Document.parseHTMLUnsafe()`. The safe method retains its mandatory safety protections under the selected grammar; the unsafe method is not a sanitizer. These are proposed native API extensions, not currently supported options.
 

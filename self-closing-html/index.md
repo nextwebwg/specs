@@ -7,7 +7,7 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Opt-in Self-Closing HTML
 
-**Write an empty HTML element once.** With an explicit opt-in, `/>` processes the opening tag and immediately closes it before reading more source.
+**Write an empty HTML element once.** Opt in with `self-closing` for this feature, or `next` for the current and future HTML Next family supported by the browser.
 
 ```html
 <!DOCTYPE html PUBLIC "self-closing">
@@ -20,7 +20,13 @@ status: "Unofficial Editor's Draft · Stage 0"
 <p>Following content</p>
 ```
 
-HTML void elements and SVG/MathML keep their existing behavior. HTML error recovery still applies, including invalid contexts and the document's required structure.
+The family opt-in uses:
+
+```html
+<!DOCTYPE html PUBLIC "next">
+```
+
+[HTML Feature Profiles](/html-feature-profiles/) defines both selections and the proposed HTTP response header.
 
 ## The benefits of self-closing syntax
 
@@ -34,21 +40,49 @@ The shorter spelling and explicit closing marker are properties of the syntax. J
 
 :::
 
-## The key insight: parsing and sanitization agree
+## What changes from HTML today
 
-The slash takes effect while the parser is building the document. It processes the element's opening action and its matching closing action before reading the next source character. The parser's memory of open elements, formatting, tables, and templates therefore advances at the same boundary. A self-closing `select` ends the select context; following markup is parsed in the resulting context.
-
-That change also matters for security. Consider:
+Inside a document's `body`, consider:
 
 ```html
-<style /><img src="x" onerror="runCode()">
+<div />
+<p>Hello</p>
 ```
 
-Today's HTML parser treats the apparent image as stylesheet text. Under the proposed grammar, it is an image element with an event handler. A sanitizer using today's grammar could check the text while a later parser creates the active element.[^5]
+::::: two
+:::: {.parser-path}
+### HTML today
 
-**The safe path parses with the selected grammar first, then sanitizes the actual nodes it produces.** In this example, the sanitizer sees the image and removes its handler. The caller receives sanitized nodes to insert directly. This keeps parsing, filtering, and insertion in agreement.
+::: flow
+- Create `div`; ignore the slash marker
+- Keep `div` open {.acc}
+- Put the following paragraph inside `div`
+:::
+::::
+:::: {.parser-path}
+### With this feature
 
-[Exact parsing rules →](/self-closing-html/parsing)
+::: flow
+- Create `div`
+- Process its matching closing action {.acc}
+- Put the following paragraph after `div`
+:::
+::::
+:::::
+
+The parser already has rules for opening elements, closing them, and recovering from malformed markup. This proposal uses the matching closing action at the slash, before the next source is read. For text elements such as `style`, that also ends the context that reads following characters as text.
+
+[Follow each parsing and recovery step →](/self-closing-html/parsing)
+
+## What this draft adds to earlier proposals
+
+Self-closing syntax and a document opt-in were already proposed in earlier discussions.[^4][^5] This draft develops three concrete parts for review:
+
+- **A boundary for each parsing operation.** A document can select the grammar. Existing string-parsing APIs keep their current grammar; proposed explicit options select a different grammar for an individual call.
+- **A specified safe path for untrusted HTML.** The proposed safe parsing method first creates nodes using the selected grammar, then removes unsafe content from those nodes before insertion. Ordinary page loading continues to parse authored HTML without that filtering.
+- **Reproducible implementation evidence.** A reference parser, a separate native browser patch, and retained counterexamples make the behavior and its limits testable.
+
+The closing action itself is the familiar idea. The contribution is the specified integration and its implementation evidence. A page that mixes the new grammar with strings filtered for the old grammar still has a security risk; the [security chapter](/self-closing-html/security) demonstrates it and explains the safe API boundary.
 
 ## How this addresses the earlier concerns
 

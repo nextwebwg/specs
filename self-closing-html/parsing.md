@@ -160,9 +160,84 @@ The reference implementation is in [closure/parser.mjs](https://github.com/nextw
 
 **Loading an opted-in page does not sanitize its HTML.** The parsing rule above constructs the document, including authored scripts and event-handler attributes.
 
-Sanitization is a separate operation for untrusted content. A safe parsing method first creates elements, text nodes, and attributes using the selected grammar, then removes unsafe content from those nodes. For example, it can remove an `onerror` attribute from an image before the caller inserts it.
+The earlier security objection was that a sanitizer and a browser could read the same characters differently: the sanitizer sees harmless text, but the browser creates an element with an executable handler.[^5] **A document opt-in alone does not resolve that disagreement.**
 
-This order matters because changing the grammar can turn apparent text into an element. A string filtered under today's HTML rules can therefore become unsafe under the new rules. The proposed safe method filters the selected grammar's resulting nodes and returns them for direct insertion.
+### The failure: checked as text, inserted as code
+
+Consider the decisive part of the [reproduced counterexample](/self-closing-html/security#why-a-legacy-sanitizer-is-not-enough):
+
+```html
+<style/><img data-probe src=x onerror="probe()">
+```
+
+The complete test includes surrounding SVG and table markup, retained in the evidence. The excerpt shows the point where the two grammars disagree. `probe()` stands for attacker-supplied JavaScript; the test uses it to record whether a handler runs.
+
+::::: two
+:::: {.parser-path}
+### Filter with today's grammar, then change grammar
+
+::: flow
+- The legacy filter reads the image-looking characters as stylesheet text
+- Its output string still contains `onerror="probe()"` {.acc}
+- A later parse with self-closing enabled closes `style` at `/>`
+- The following characters become an image element with a handler
+- If the image fails to load after insertion, the handler can run
+:::
+
+```text
+During the legacy check:
+style
+└─ text: '<img … onerror="probe()">'
+
+After parsing with self-closing enabled:
+style (empty)
+img
+└─ onerror: probe()
+```
+::::
+:::: {.parser-path}
+### Parse and filter together with the selected grammar
+
+::: flow
+- The safe call explicitly selects `self-closing` or `next`
+- Parse inertly: close `style`, then create the image node
+- Filter that actual node: remove its `onerror` attribute {.acc}
+- Return the filtered nodes for direct insertion
+- The inserted image has no handler to run
+:::
+
+```text
+Before filtering:
+img
+└─ onerror: probe()
+
+After filtering and direct insertion:
+img
+└─ no onerror attribute
+```
+::::
+:::::
+
+**The fix is the order and the shared grammar:** parse the selected syntax, filter the nodes it actually creates, then insert those nodes. The filter can now see the dangerous attribute. Returning nodes avoids another string parse changing their meaning after the check.
+
+### How the proposal addresses the blocker
+
+Two boundaries work together:
+
+- **Existing HTML-string APIs keep today's grammar.** Opting a page into `next` does not silently change the grammar used by a library's `innerHTML` call. Its legacy filtering and insertion can continue to agree.
+- **The proposed safe API selects grammar and filtering in one call.** An application requesting the new syntax for untrusted content gets mandatory sanitization of the resulting nodes. It does not pass an old sanitizer's approval across to a different parser.
+
+The proposed API makes that boundary visible at the call site:
+
+```js
+// Proposed profile option; not available in browsers today.
+const parsed = Document.parseHTML(untrustedHTML, { profile: "next" });
+container.replaceChildren(...parsed.body.childNodes);
+```
+
+`Document.parseHTML()` performs the safety filtering; `replaceChildren()` inserts the returned nodes without parsing another HTML string.
+
+The [reference test and browser results](/self-closing-html/security#parse-first-sanitize-the-resulting-nodes) demonstrate the mismatch handler being removed. The native safe API integration remains proposed. Applications that place legacy-filtered strings into opted-in source, or explicitly use an unsafe parse, still need to address that grammar mismatch; this design does not automatically repair those paths.
 
 [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) proposes a `profile` option for `Document.parseHTML()` and `Document.parseHTMLUnsafe()`. The safe method retains its mandatory safety protections under the selected grammar; the unsafe method is not a sanitizer. These are proposed native API extensions, not currently supported options.
 

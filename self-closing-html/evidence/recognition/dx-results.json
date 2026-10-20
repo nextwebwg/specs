@@ -1,0 +1,128 @@
+{
+  "seed": "0x44584332",
+  "generated": 4000,
+  "generatedMismatches": 0,
+  "previousProjectionMismatches": 1777,
+  "examples": [],
+  "improvements": [
+    {
+      "name": "generated 1",
+      "source": "<div><section/><ul><li>text</li></ul><h1><x-chip><u><b>text</b></u></x-chip>text</h1><aside><h2><s>texttext<mark>texttexttext</mark></s><q><i>texttext</i><sup/></q><small/></h2><h1>text</h1></aside></div>",
+      "expanded": "<div><section></section><ul><li>text</li></ul><h1><x-chip><u><b>text</b></u></x-chip>text</h1><aside><h2><s>texttext<mark>texttexttext</mark></s><q><i>texttext</i><sup></sup></q><small></small></h2><h1>text</h1></aside></div>",
+      "matches": true,
+      "previousMatches": false,
+      "placement": "normal-html"
+    },
+    {
+      "name": "generated 4",
+      "source": "<div><nav/><div><abbr><small>texttexttext</small><em/></abbr><aside><ol><li><q><u>texttext</u></q></li></ol><ul><li>text</li></ul></aside>text</div>text</div>",
+      "expanded": "<div><nav></nav><div><abbr><small>texttexttext</small><em></em></abbr><aside><ol><li><q><u>texttext</u></q></li></ol><ul><li>text</li></ul></aside>text</div>text</div>",
+      "matches": true,
+      "previousMatches": false,
+      "placement": "normal-html"
+    },
+    {
+      "name": "generated 5",
+      "source": "<div><s/><sub><sub><code/><b>texttext</b></sub><abbr/></sub><ul><li><p><sub>texttext</sub></p></li><li><ul><li><figure>text</figure></li></ul></li></ul><blockquote><h1><i><mark>texttext</mark></i><b>text<cite>texttexttext</cite></b>text</h1></blockquote></div>",
+      "expanded": "<div><s></s><sub><sub><code></code><b>texttext</b></sub><abbr></abbr></sub><ul><li><p><sub>texttext</sub></p></li><li><ul><li><figure>text</figure></li></ul></li></ul><blockquote><h1><i><mark>texttext</mark></i><b>text<cite>texttexttext</cite></b>text</h1></blockquote></div>",
+      "matches": true,
+      "previousMatches": false,
+      "placement": "normal-html"
+    },
+    {
+      "name": "generated 7",
+      "source": "<div><p><span/></p><strong><b/>text</strong><nav><nav/></nav><sub>text</sub></div>",
+      "expanded": "<div><p><span></span></p><strong><b></b>text</strong><nav><nav></nav></nav><sub>text</sub></div>",
+      "matches": true,
+      "previousMatches": false,
+      "placement": "normal-html"
+    }
+  ],
+  "tableCases": 1000,
+  "tableMismatches": 0,
+  "targeted": [
+    {
+      "name": "formatting siblings",
+      "source": "<small/><em>tail</em>",
+      "expanded": "<small></small><em>tail</em>",
+      "matches": true,
+      "previousMatches": true,
+      "placement": "normal-html",
+      "expectedHandling": "empty-pair placement",
+      "passes": true
+    },
+    {
+      "name": "formatting in a paragraph",
+      "source": "<p><strong><em/><span>tail</span></strong></p>",
+      "expanded": "<p><strong><em></em><span>tail</span></strong></p>",
+      "matches": true,
+      "previousMatches": true,
+      "placement": "normal-html",
+      "expectedHandling": "empty-pair placement",
+      "passes": true
+    },
+    {
+      "name": "repeated custom hosts",
+      "source": "<x-card/><x-card/><p>tail</p>",
+      "expanded": "<x-card></x-card><x-card></x-card><p>tail</p>",
+      "matches": true,
+      "previousMatches": true,
+      "placement": "normal-html",
+      "expectedHandling": "empty-pair placement",
+      "passes": true
+    },
+    {
+      "name": "list items",
+      "source": "<ul><li/><li>two</li></ul>",
+      "expanded": "<ul><li></li><li>two</li></ul>",
+      "matches": true,
+      "previousMatches": true,
+      "placement": "normal-html",
+      "expectedHandling": "empty-pair placement",
+      "passes": true
+    },
+    {
+      "name": "adjacent forms",
+      "source": "<form/><form><input></form>",
+      "expanded": "<form></form><form><input></form>",
+      "matches": false,
+      "previousMatches": false,
+      "placement": "normal-html",
+      "actual": "<!DOCTYPE html><html><head></head><body><form><input></form></body></html>",
+      "expected": "<!DOCTYPE html><html><head></head><body><form></form><form><input></form></body></html>",
+      "expectedHandling": "ordinary form boundary",
+      "passes": true
+    },
+    {
+      "name": "pre newline",
+      "source": "<pre/>\n<span>tail</span>",
+      "expanded": "<pre></pre>\n<span>tail</span>",
+      "matches": true,
+      "previousMatches": false,
+      "placement": "normal-html",
+      "expectedHandling": "empty-pair placement",
+      "passes": true
+    },
+    {
+      "name": "listing newline",
+      "source": "<listing/>\n<span>tail</span>",
+      "expanded": "<listing></listing>\n<span>tail</span>",
+      "matches": true,
+      "previousMatches": false,
+      "placement": "normal-html",
+      "expectedHandling": "empty-pair placement",
+      "passes": true
+    },
+    {
+      "name": "invalid block within formatting",
+      "source": "<b><div/><span>tail</span></b>",
+      "expanded": "<b><div></div><span>tail</span></b>",
+      "matches": true,
+      "previousMatches": false,
+      "placement": "normal-html",
+      "expectedHandling": "empty-pair placement",
+      "passes": true
+    }
+  ],
+  "scope": "Structured flow/phrasing/list authoring cases; a DX check, not universal HTML conformance."
+}

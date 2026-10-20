@@ -1,10 +1,10 @@
 # Self-closing HTML: current evidence
 
-The current candidate preserves HTML recognition and changes eligible output containment. It does not rely on a sanitizer to prevent text becoming markup.
+The current candidate reads source with existing HTML rules and uses a separate, checked placement builder for ordinary empty elements. Source interpretation remains authoritative.
 
 [Current parser, proof scope, tests and reproduction →](recognition/README.md)
 
-The recorded results are 61 focused tests, 120,000 generated comparisons, and ten targeted DOM-adapter cases per engine in Chromium, Firefox and WebKit. Native integration of this replacement remains open.
+The current records contain 88 component/placement tests, 120,000 generated comparisons, 20,504 checkpoint audits, 5,000 authored-output comparisons, 16 targeted DOM-adapter cases per engine, and five abstract Lean theorems. Native integration remains open.
 
 The [immediate-closure experiment](closure/README.md) changes recognition and retains a demonstrated text-to-markup activation case. Its previous native passes and safe-parser results do not establish the replacement's safety.
 

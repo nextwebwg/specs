@@ -25,3 +25,7 @@ jobs:
         working-directory: self-closing-html/evidence
       - run: node recognition/check.mjs
         working-directory: self-closing-html/evidence
+      - run: node recognition/placement-check.mjs
+        working-directory: self-closing-html/evidence
+      - run: node recognition/dx-check.mjs
+        working-directory: self-closing-html/evidence

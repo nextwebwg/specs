@@ -1,0 +1,19 @@
+{
+  "toolchain": "Lean 4.35.0, arm64-apple-darwin24.6.0, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc",
+  "source": "Placement.lean",
+  "sourceSHA256": "4c8f1ccf72711ba6636244aa48db56994cb6eea277072f8c324fc934feecb2c9",
+  "compilerArchiveSHA256": "c0c6f34f35ba1dcc5c4a5fd106fefab9eb5e8469712624dd2c868d51b63177c2",
+  "exitCode": 0,
+  "warnings": 0,
+  "theorems": [
+    "check_sound",
+    "choose_authorized",
+    "choose_unique",
+    "receipt_from_source",
+    "selected_receipt_from_source"
+  ],
+  "reportedAxioms": [
+    "propext"
+  ],
+  "scope": "Abstract source-receipt membership and identity uniqueness for selected placement. Source identities are assumed unique for choose_unique. Not a refinement proof of JavaScript, HTML tokenization, DOM realization, or native execution."
+}

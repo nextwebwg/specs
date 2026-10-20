@@ -9,6 +9,8 @@ sectionNav: true
 
 The complete base text, examples, grammar, references, appendices and end matter have been read. All nine records in the captured RFC Editor errata corpus were also read. This is a document review, not a tested IMAP implementation. Captured official metadata lists no updating or obsoleting RFC; fresh status and errata retrieval failed, so live closure remains open. Referenced extensions and security dependencies need their own reviews before an implementation claims their conformance.
 
+The [IMAP4rev1 compatibility audit](imap-rev1.md) covers RFC3501 separately, including its different base commands, mailbox encoding and errata. Rev2 review is not evidence that a rev1 adapter implements those rules.
+
 ## What Email Next can reuse
 
 A client can retrieve message headers and selected MIME parts, then build a conversation from messages already available in the account. It should use non-marking retrieval (`BODY.PEEK`) for background processing and verify the protected representation before accepting structured events. Server-parsed headers, search results and mailbox flags are useful indexes, not authenticated facts.

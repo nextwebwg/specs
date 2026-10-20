@@ -9,7 +9,7 @@ sectionNav: true
 
 A mailbox service stores and delivers messages; Email Next builds the conversation from the contributions inside them. Keeping those roles separate lets clients use an existing account without treating provider folders, threads or record identifiers as proof of authorship.
 
-This chapter defines proposed adapter behavior for IMAP4rev2, JMAP core, JMAP Mail and the reviewed blob and sharing extensions. It does not require a provider to adopt JMAP or replace SMTP. The [transport chapter](transport.md) governs sending and retrying deliveries; this chapter governs access to stored messages and optional mailbox services.
+This chapter defines proposed adapter behavior for IMAP4rev1, IMAP4rev2, JMAP core, JMAP Mail and the reviewed blob and sharing extensions. It does not require a provider to adopt JMAP or replace SMTP. The [transport chapter](transport.md) governs sending and retrying deliveries; this chapter governs access to stored messages and optional mailbox services.
 
 The adapter has four jobs:
 
@@ -40,7 +40,7 @@ Process unsolicited mailbox updates under the protocol's state and command rules
 
 Background conversation reconstruction SHOULD use non-marking retrieval such as `BODY.PEEK` so indexing does not itself mark messages read. Obtain the complete protected representation needed by the selected security profile before granting verified attribution or activating structured controls. A header search identifies candidates; substring matches cannot establish exact event identity.
 
-Do not substitute server-parsed ENVELOPE, BODYSTRUCTURE, selected header fields or an incomplete byte range for the original verification input. `BINARY` retrieval decodes content and can normalize text line endings; its offsets are not interchangeable with BODY offsets. Preserve the received representation alongside any convenient decoded views.
+Do not substitute server-parsed ENVELOPE, BODYSTRUCTURE, selected header fields or an incomplete byte range for the original verification input. `BINARY` retrieval, where supported by the negotiated protocol, decodes content and can normalize text line endings; its offsets are not interchangeable with BODY offsets. Preserve the received representation alongside any convenient decoded views.
 
 ### Storage, movement and submission
 
@@ -54,7 +54,11 @@ Avoid unintended deletion during synchronization: `CLOSE` can expunge messages m
 
 Refresh capabilities after TLS or authentication changes as required by IMAP. Advertisement and enablement are separate: on a dual rev1/rev2 server, use the required explicit rev2 enablement before depending on its incompatible behavior. An IMAP capability does not establish recipient-device support for Email Next.
 
-A rev1 adapter needs its own compatibility tests; passing rev2 cases is insufficient. Optional QRESYNC, CONDSTORE and OBJECTID support may improve synchronization, but their contracts and dependencies must be implemented separately. The [IMAP audit](audits/imap-access.md) records inherited rules, source discrepancies and required acceptance cases. No provider adapter is certified by this mapping.
+Base rev1 does not include IDLE, MOVE, UNSELECT or BINARY. Use NOOP polling when no applicable notification extension is enabled, and do not send newer commands or string encodings without their negotiated support. A `UID n:*` range can include an older highest UID even when `n` is larger, so inspect returned identifiers rather than treating every result as newly arrived. Original headers are needed for ordinary References relationships; the rev1 ENVELOPE has no References field.
+
+An APPEND can reversibly re-encode eight-bit data. Before reusing byte-sensitive verification after storage, retrieve and validate the representation required by the protection profile; a successful append alone does not establish byte equality. A permitted transfer-encoding change can preserve exact decoded protected payload or event bytes while changing outer MIME. Successful payload verification does not then prove preservation of the original SMTP bytes.
+
+A rev1 adapter needs its own compatibility tests; passing rev2 cases is insufficient. Optional QRESYNC, CONDSTORE and OBJECTID support may improve synchronization, but their contracts and dependencies must be implemented separately. The separate [rev1 compatibility audit](audits/imap-rev1.md) and [rev2 audit](audits/imap-access.md) record inherited rules, source discrepancies and required acceptance cases. No provider adapter is certified by this mapping.
 
 ::::
 

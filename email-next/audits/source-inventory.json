@@ -855,6 +855,49 @@
     }
   },
   {
+    "rfc": 3501,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text, grammar, appendices and seven current errata reviewed; optional rev1 adapter boundaries specified; separately negotiated extension bodies and interoperability remain separate",
+    "title": "INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1",
+    "pub_date": "March 2003",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC4466",
+      "RFC4469",
+      "RFC4551",
+      "RFC5032",
+      "RFC5182",
+      "RFC5738",
+      "RFC6186",
+      "RFC6858",
+      "RFC7817",
+      "RFC8314",
+      "RFC8437",
+      "RFC8474",
+      "RFC8996"
+    ],
+    "obsoletes": [
+      "RFC2060"
+    ],
+    "obsoleted_by": [
+      "RFC9051"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3501.txt",
+        "sha256": "4437974dde85859f2391f32215295e7b20ce157c3bd2adbe7e5b443e990f15cf",
+        "bytes": 227639
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc3501.json",
+        "sha256": "50680f60cad49be3a809bb4096722265834d386fe0169616b5b2b6b2b5b01a72",
+        "bytes": 1991
+      }
+    }
+  },
+  {
     "rfc": 3503,
     "text": "retrieved",
     "metadata": "retrieved",

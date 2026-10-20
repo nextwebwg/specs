@@ -5,7 +5,7 @@ sectionNav: true
 
 # Audit review index
 
-This index links recorded base-document reviews. It does not certify dependency closure, deployed interoperability or the complete Email Next design. The source inventory currently contains 159 RFCs; 159 have a recorded complete base-text review. Other documents may have individual reviewed points without a full audit.
+This index links recorded base-document reviews. It does not certify dependency closure, deployed interoperability or the complete Email Next design. The source inventory currently contains 160 RFCs; 160 have a recorded complete base-text review. Other documents may have individual reviewed points without a full audit.
 
 | RFC | Recorded review |
 | --- | --- |
@@ -38,6 +38,7 @@ This index links recorded base-document reviews. It does not certify dependency 
 | 3463 | [Enhanced status codes](enhanced-status.md) |
 | 3464 | [Delivery-status report format](dsn-format.md) |
 | 3492 | [Punycode domain encoding](punycode.md) |
+| 3501 | [IMAP4rev1 compatibility](imap-rev1.md) |
 | 3503 | [Shared-mailbox receipts](imap-receipts.md) |
 | 3629 | [UTF-8 encoding](utf8.md) |
 | 3676 | [Flowed plain text](flowed-text.md) |

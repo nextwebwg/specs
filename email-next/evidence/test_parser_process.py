@@ -46,6 +46,48 @@ class ParserIsolation(unittest.TestCase):
             with self.assertRaises(ParserFailure):run_parser([sys.executable,'-c',command],b'',ParserLimits(wall_seconds=.3))
             pid=int(pidfile.read_text());state=subprocess.run(['ps','-o','stat=','-p',str(pid)],capture_output=True,text=True).stdout.strip()
             self.assertTrue(not state or state.startswith('Z'),state)
+    def test_successful_group_kill_is_not_repeated_after_reaping(self):
+        # Darwin can return EPERM rather than ESRCH for a just-killed orphan
+        # group. Keep real workers/descendants; inject that result only if the
+        # caller incorrectly signals the same group again after success.
+        real_killpg=os.killpg
+        calls=[]
+        def once(group,sig):
+            calls.append(group)
+            if len(calls)>1:raise PermissionError('already killed group')
+            return real_killpg(group,sig)
+        with tempfile.TemporaryDirectory() as directory:
+            pidfile=Path(directory)/'pid'
+            command='import subprocess,time;from pathlib import Path;p=subprocess.Popen(['+repr(sys.executable)+',"-c","import time;time.sleep(20)"]);Path('+repr(str(pidfile))+').write_text(str(p.pid));time.sleep(20)'
+            with patch('parser_process.os.killpg',side_effect=once):
+                with self.assertRaisesRegex(ParserFailure,'parser-timeout'):
+                    run_parser([sys.executable,'-c',command],b'',ParserLimits(wall_seconds=.5))
+            self.assertEqual(len(calls),1)
+            pid=int(pidfile.read_text())
+            state=subprocess.run(['ps','-o','stat=','-p',str(pid)],capture_output=True,text=True).stdout.strip()
+            self.assertTrue(not state or state.startswith('Z'),state)
+    def test_initial_group_permission_denial_fails_closed_and_reaps_worker(self):
+        original=subprocess.Popen
+        for origin in ('main','watchdog'):
+            with self.subTest(origin=origin):
+                workers=[]
+                def track(*args,**kwargs):
+                    process=original(*args,**kwargs)
+                    if kwargs.get('stdin')==subprocess.PIPE:workers.append(process)
+                    return process
+                # Both paths use a real owned worker. A denied group signal may
+                # still leave descendants; its output must never be returned.
+                with patch('parser_process.subprocess.Popen',side_effect=track),patch('parser_process.os.killpg',side_effect=PermissionError('group denied')):
+                    if origin=='watchdog':
+                        with patch('parser_process.subprocess.run',side_effect=FileNotFoundError('ps unavailable')):
+                            with self.assertRaisesRegex(ParserFailure,'parser-group-termination-denied'):
+                                run_parser([sys.executable,'-c','import time;print("untrusted");time.sleep(5)'],b'',ParserLimits())
+                    else:
+                        with self.assertRaisesRegex(ParserFailure,'parser-group-termination-denied'):
+                            run_parser([sys.executable,'-c','import time;print("untrusted");time.sleep(5)'],b'',ParserLimits(wall_seconds=.1))
+                self.assertEqual(len(workers),1)
+                self.assertIsNotNone(workers[0].returncode)
+                self.assertTrue(workers[0].stdin.closed)
     def test_unsupported_hard_memory_and_rich_fallback(self):
         if sys.platform=='darwin':
             with self.assertRaises(ParserFailure):self.project(b'<p>Text</p>',process_limits=ParserLimits(require_hard_memory=True))

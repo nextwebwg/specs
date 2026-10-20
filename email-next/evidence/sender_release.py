@@ -123,7 +123,7 @@ class SenderRelease:
             old=self.db.execute('SELECT request,wire FROM sender_prepared WHERE id=?',(delivery_id,)).fetchone()
             if old:
                 if old[0]!=request:raise ValueError('Delivery ID conflict')
-                
+
                 if owned_transaction:self.db.execute('COMMIT')
                 return old[1]
             if source_token is not None and self.receiver.journal.snapshot_with_token(decoded['conversation'])['token']!=source_token:raise ValueError('Changed question snapshot')

@@ -31,9 +31,24 @@ def run_parser(command,input_bytes,limits):
     with tempfile.TemporaryFile() as output:
         process=subprocess.Popen(command,stdin=subprocess.PIPE,stdout=output,stderr=subprocess.DEVNULL,start_new_session=True)
         stopped=threading.Event();failure=[]
+        termination_lock=threading.Lock();group_terminated=False
         def kill():
-            try:os.killpg(process.pid,signal.SIGKILL)
-            except ProcessLookupError:pass
+            nonlocal group_terminated
+            # The watchdog and main thread share one group-termination attempt.
+            # Once SIGKILL succeeds (or the group is absent), do not signal its
+            # numeric ID again after reaping: Darwin can report EPERM during
+            # orphan-group teardown, and the ID could eventually be reused.
+            with termination_lock:
+                if group_terminated:return
+                try:os.killpg(process.pid,signal.SIGKILL)
+                except ProcessLookupError:group_terminated=True
+                except PermissionError:
+                    # A first-call denial is not evidence of an empty group.
+                    # Reject all output; killing the owned child only ensures
+                    # it can be reaped, not that its descendants were stopped.
+                    failure.append('parser-group-termination-denied')
+                    if process.poll() is None:process.kill()
+                else:group_terminated=True
         def monitor():
             while not stopped.is_set() and process.poll() is None:
                 try:
@@ -59,7 +74,7 @@ def run_parser(command,input_bytes,limits):
                 if process.stdin is not None:
                     try:process.stdin.close()
                     except BrokenPipeError:pass
-        if failure:raise ParserFailure(failure[0])
+        if failure:raise ParserFailure('parser-group-termination-denied' if 'parser-group-termination-denied' in failure else failure[0])
         if process.returncode:raise ParserFailure('parser-worker-rejected')
         if output.tell()>limits.max_output:raise ParserFailure('parser-output-limit')
         output.seek(0);result=output.read(limits.max_output+1)

@@ -33,7 +33,7 @@ A generic JSON processor may inspect the representation. Only an Email Next proc
 | Encoding considerations | Binary; one UTF-8 JSON object. No BOM. MIME transfer encoding is supplied by the email binding. |
 | Security considerations | See the analysis below and the draft's security, identity and interaction requirements. The representation supplies no confidentiality or sender authentication by itself. |
 | Interoperability considerations | A restricted JSON profile with explicit versioning; generic JSON validity is insufficient. Unsupported versions, parameters and operations remain inactive. Exact authenticated bytes must survive transfer decoding. |
-| Published specification | This Email Next editor's draft, especially event encoding, identifiers, messages and form operations. A stable public revision URL must replace this local reference before submission. |
+| Published specification | This Email Next editor's draft, especially event encoding, identifiers, messages and the selected operation schemas. Deferred general forms are outside the first-version scope. A stable public revision URL must replace this local reference before submission. |
 | Applications that use this media type | Experimental Email Next clients and conformance tools; this description is not an exhaustive application list or evidence of deployed support. |
 | Fragment identifier considerations | No additional fragment semantics; applicable generic +json rules take precedence. |
 | Deprecated alias names | N/A |
@@ -65,4 +65,4 @@ Legacy mail clients may display an attachment or select a readable alternative. 
 
 The [registration audit](audits/media-registration.md) and [suffix audit](audits/structured-suffixes.md) establish the applicable base rules. The [current IANA suffix entry](https://www.iana.org/assignments/media-type-structured-suffix) and RFC8259 supply the JSON encoding basis. The candidate name, parameter policy and restricted purpose are editorial choices of this draft.
 
-Before submission: complete the event operation set and MIME binding, publish a stable specification revision, nominate the responsible contact and change controller, confirm the candidate name through the registration process, and complete the required expert review. These are visible registration prerequisites, not claims that the protocol's broader implementation and security validation are complete.
+Before submission: freeze the proposed registration scope to a stable event schema and MIME binding, publish that specification revision, nominate the responsible contact and change controller, confirm the candidate name through the registration process, and complete the required expert review. These are visible registration prerequisites, not claims that the protocol's broader implementation and security validation are complete.

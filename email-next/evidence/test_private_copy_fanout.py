@@ -87,4 +87,3 @@ class PrivateFanout(unittest.TestCase):
         visible={k:events[0][k] for k in ('principal','conversation','event')}
         self.assertEqual(derive_button_view(self.groups[0]['sender'].receiver.journal,visible)['heads'],[])
         self.assertEqual(client.answer('answer',ref,'a'*32,view['sourceToken'],time=self.time),result)
-

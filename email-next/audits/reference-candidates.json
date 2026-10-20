@@ -122,6 +122,10 @@
       "sha256": "d1848b1b4f01e20708a64f42394e5f4b840141935bed7f09ad7baeb6693b8772"
     },
     {
+      "rfc": 3501,
+      "sha256": "4437974dde85859f2391f32215295e7b20ce157c3bd2adbe7e5b443e990f15cf"
+    },
+    {
       "rfc": 3503,
       "sha256": "82151d011f42d2a458128ccce80f053f7e914a5791686465cfa7538c93496324"
     },
@@ -691,6 +695,7 @@
         3461,
         3463,
         3464,
+        3501,
         5321,
         5598,
         6530
@@ -726,6 +731,7 @@
         3156,
         3461,
         3464,
+        3501,
         3503,
         3798,
         3834,
@@ -892,9 +898,14 @@
     {
       "rfc": 1064,
       "cited_by": [
+        3501,
         9051
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Historical IMAP2 predecessor: RFC9051 section10 explicitly supersedes RFC1064. Selected IMAP4rev2 behavior follows the reviewed successor; this citation does not select an IMAP2 adapter. The separate IMAP4rev1 compatibility dependency remains open under RFC3501. RFC1064 base text is not claimed reviewed.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "imap-access.md",
+      "basis": "RFC9051 section10 explicitly supersedes RFC1064; section13.2 lists it as informative history."
     },
     {
       "rfc": 1123,
@@ -927,6 +938,7 @@
     {
       "rfc": 1176,
       "cited_by": [
+        3501,
         5321,
         9051
       ],
@@ -1057,14 +1069,22 @@
       "cited_by": [
         9694
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Historical example in RFC9694 section3: an unregistered April Fools media type. Email Next proposes application subtypes under the reviewed registration rules, so this entertainment example supplies no required wire behavior. RFC1437 base text is not claimed reviewed.",
+      "classification": "historical-context",
+      "review": "base-text-not-reviewed",
+      "evidence": "media-top-level.md",
+      "basis": "RFC9694 section3 describes RFC1437 as an unregistered April Fools example, not a registration precedent."
     },
     {
       "rfc": 1460,
       "cited_by": [
         1939
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Historical POP3 ancestry in RFC1939 section14. The selected command, UIDL and transaction semantics come from reviewed RFC1939 and applicable updates; no separate RFC1460 mode is selected. This disposition does not claim review of RFC1460 base text.",
+      "classification": "historical-predecessor",
+      "review": "base-text-not-reviewed",
+      "evidence": "pop-base.md",
+      "basis": "RFC1939 section14 identifies RFC1460 as historical POP3 ancestry; RFC1939 supplies the selected current protocol."
     },
     {
       "rfc": 1496,
@@ -1217,6 +1237,7 @@
       "rfc": 1730,
       "cited_by": [
         1939,
+        3501,
         9051
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -1224,6 +1245,7 @@
     {
       "rfc": 1732,
       "cited_by": [
+        3501,
         9051
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -1231,6 +1253,7 @@
     {
       "rfc": 1733,
       "cited_by": [
+        3501,
         5598,
         9051
       ],
@@ -1365,6 +1388,7 @@
     {
       "rfc": 1864,
       "cited_by": [
+        3501,
         3864,
         9051
       ],
@@ -1613,6 +1637,7 @@
         2231,
         2449,
         3461,
+        3501,
         9051
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -1620,6 +1645,7 @@
     {
       "rfc": 2061,
       "cited_by": [
+        3501,
         9051
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -1627,6 +1653,7 @@
     {
       "rfc": 2062,
       "cited_by": [
+        3501,
         9051
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -1754,6 +1781,7 @@
     {
       "rfc": 2152,
       "cited_by": [
+        3501,
         9051
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -1777,6 +1805,7 @@
     {
       "rfc": 2180,
       "cited_by": [
+        3501,
         9051
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -1832,7 +1861,8 @@
       "rfc": 2222,
       "cited_by": [
         2449,
-        3207
+        3207,
+        3501
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
     },
@@ -1850,6 +1880,7 @@
         2557,
         2646,
         2919,
+        3501,
         3629,
         3676,
         3834,
@@ -1862,7 +1893,15 @@
     {
       "rfc": 2244,
       "cited_by": [
+        3501,
         9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 2245,
+      "cited_by": [
+        3501
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
     },
@@ -1870,6 +1909,7 @@
       "rfc": 2246,
       "cited_by": [
         3207,
+        3501,
         6749,
         6750,
         8996,
@@ -2147,6 +2187,7 @@
     {
       "rfc": 2595,
       "cited_by": [
+        3501,
         5034,
         6186,
         7817,
@@ -2258,6 +2299,7 @@
     {
       "rfc": 2683,
       "cited_by": [
+        3501,
         9051
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -2342,6 +2384,7 @@
       "rfc": 2821,
       "cited_by": [
         3207,
+        3501,
         3676,
         3798,
         3864,
@@ -2368,6 +2411,7 @@
       "rfc": 2822,
       "cited_by": [
         2919,
+        3501,
         3676,
         3798,
         3834,
@@ -2388,6 +2432,13 @@
       "review": "base-text-not-reviewed",
       "evidence": "message-format.md",
       "basis": "RFC5322 front matter and section4; selected baseline/messages contract"
+    },
+    {
+      "rfc": 2831,
+      "cited_by": [
+        3501
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
     },
     {
       "rfc": 2852,
@@ -2452,6 +2503,7 @@
     {
       "rfc": 2978,
       "cited_by": [
+        3501,
         3629,
         3986,
         5147,
@@ -2505,6 +2557,7 @@
     {
       "rfc": 3066,
       "cited_by": [
+        3501,
         5646
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -2827,36 +2880,6 @@
         9233
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
-    },
-    {
-      "rfc": 3501,
-      "cited_by": [
-        3503,
-        4468,
-        4648,
-        5228,
-        5321,
-        5598,
-        6186,
-        6409,
-        6530,
-        6785,
-        7817,
-        8098,
-        8314,
-        8460,
-        8601,
-        8621,
-        8689,
-        8996,
-        9042,
-        9051
-      ],
-      "status": "Conditional legacy-access dependency: RFC9051 supersedes RFC3501 for IMAP4rev2 but explicitly preserves a distinct rev1 compatibility mode and removes or changes some rev1 behavior. Adoption includes existing rev1 servers, so RFC3501 applicability remains live until that compatibility profile and its source review are completed. Rev2 review alone does not establish rev1 interoperability. This applicability classification does not claim review of the predecessor base text.",
-      "classification": "conditional-feature-dependency",
-      "review": "base-text-not-reviewed",
-      "evidence": "imap-access.md",
-      "basis": "Reviewed RFC9051 section 1.3, section 6.1.1 and Appendices A and E; current RFC Editor metadata captured separately confirms the succession. Conditional legacy-access dependency: RFC9051 supersedes RFC3501 for IMAP4rev2 but explicitly preserves a distinct rev1 compatibility mode and removes or changes some rev1 behavior. Adoption includes existing rev1 servers, so RFC3501 applicability remains live until that compatibility profile and its source review are completed. Rev2 review alone does not establish rev1 interoperability."
     },
     {
       "rfc": 3502,

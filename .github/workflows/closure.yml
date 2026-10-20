@@ -1,0 +1,23 @@
+name: Self-closing parser
+on:
+  pull_request:
+    paths: ['self-closing-html/evidence/closure/**', 'self-closing-html/evidence/package*.json', 'html-feature-profiles/evidence/resolver.mjs', '.github/workflows/closure.yml']
+  push:
+    branches: [main]
+    paths: ['self-closing-html/evidence/closure/**', 'self-closing-html/evidence/package*.json', 'html-feature-profiles/evidence/resolver.mjs', '.github/workflows/closure.yml']
+permissions:
+  contents: read
+jobs:
+  parser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: self-closing-html/evidence
+      - run: node --test closure/*.test.mjs
+        working-directory: self-closing-html/evidence
+      - run: node closure/check.mjs
+        working-directory: self-closing-html/evidence

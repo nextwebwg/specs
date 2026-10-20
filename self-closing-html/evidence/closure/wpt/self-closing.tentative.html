@@ -1,0 +1,21 @@
+<!doctype html>
+<title>Opt-in immediate self-closing HTML</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body>
+<script>
+promise_test(async t=>{
+ const frame=document.createElement('iframe');t.add_cleanup(()=>frame.remove());
+ const received=new Promise(resolve=>window.addEventListener('message',function listener(event){
+  if(event.source===frame.contentWindow&&event.data?.type==='closure-fixture'){window.removeEventListener('message',listener);resolve(event.data);}
+ }));
+ frame.src='resources/selected.html';document.body.append(frame);
+ const result=await received;
+ for(const item of result.results){assert_true(item.empty,item.id+' is empty');assert_true(item.sibling,item.id+' following content is a sibling');}
+ assert_true(result.scriptClosed,'self-closing script does not swallow later source');
+},'Selected grammar closes ordinary, structural, attribute-bearing and text elements consistently');
+test(()=>{
+ const parsed=new DOMParser().parseFromString('<!doctype html PUBLIC "self-closing"><body><div/><span id="tail">tail</span>','text/html');
+ assert_equals(parsed.getElementById('tail').parentNode.localName,'div');
+},'Existing DOMParser does not inherit the profile or select it from source');
+</script>

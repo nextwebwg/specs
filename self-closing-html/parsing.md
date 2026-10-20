@@ -1,7 +1,7 @@
 ---
 title: Parsing rules
 order: 1
-blurb: opt-in · eligible elements · recovery · insertion APIs
+blurb: opt-in · closure · recovery · insertion APIs
 sectionNav: true
 eyebrow: Opt-in Self-Closing HTML · proposed rules
 status: "Unofficial Editor's Draft · Stage 0"
@@ -9,192 +9,85 @@ status: "Unofficial Editor's Draft · Stage 0"
 
 # Parsing rules
 
-This chapter is the implementation reference: which elements can self-close, how the browser handles them, and which APIs can request the behavior. For the motivation and examples, start with the [proposal overview](/self-closing-html/). For what is fixed and what remains open, read the [issue checklist](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme).
+**For an HTML element, `/>` finishes its opening tag and immediately processes its closing tag, before the parser reads more source.** There is no blacklist of formatting, control, or table elements.
 
-## Select the capability
+```html
+<small />
+<button />
+<table />
+<select />
+<script src="app.js" />
+<p>Following content</p>
+```
 
-For a navigated HTML resource, request this capability through [HTML Feature Profiles](/html-feature-profiles/):
+The same HTML recovery rules apply as for explicit opening/closing pairs. Attributes do not select a different parsing rule.
+
+## Select the grammar
+
+Request `self-closing` through [HTML Feature Profiles](/html-feature-profiles/):
 
 ```html
 <!DOCTYPE html PUBLIC "self-closing">
 ```
 
-A server may instead select `self-closing` through the proposed `HTML-Feature-Profile` response header, which takes precedence over the doctype. The shared proposal owns header handling, selector grammar, the alternative `PUBLIC "next"` preset, support detection, and operation-local precedence. A resolved feature set is fixed for the parse; later declarations, doctype DOM changes, styles, scripts, and custom-element registration cannot switch it. The resource remains `text/html`; no DTD is fetched and XML is not enabled.
+The shared proposal also defines the HTTP response header, the `next` family opt-in, and explicit parsing options. Plain HTML and existing string-parsing APIs keep their current behavior unless they explicitly select the new grammar. A later doctype mutation cannot switch a running parser.
 
-The recorded experimental implementation accepts the earlier exact public identifier `next`, with no system identifier. It does not implement the new response header, named-list selector, or family selection contract. Its evidence remains bounded to that pinned opt-in and the self-closing rules tested.
+## One operation, with existing HTML behavior
 
-Plain HTML retains existing behavior. These profile declarations require a standards change; current standards rendering behavior is not native support for the proposed grammar.[^1]
-
-## Distinguish empty pairs from void elements
-
-An eligible self-closing start token creates an empty element. The slash closes its DOM containment; it does not make the element void.
-
-```html
-<x-card />
-<!-- Empty x-card element; it can gain children through DOM APIs later. -->
-```
-
-HTML's explicit void allowlist remains:
-
-`area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `source`, `track`, `wbr`.[^2]
-
-Match names case-insensitively in the HTML namespace. For a void element, process only a start tag, with or without the slash. Never synthesize an end tag. Preserve existing recovery for obsolete names.
-
-Eligible custom and unknown names do not depend on registration. Native SVG/MathML self-closing rules remain unchanged.[^3]
-
-## Preserve sensitive elements
-
-**The shorthand is for eligible empty HTML elements, not every tag.** For example, `<user-avatar />` can be empty, while `<script />` and `<table />` keep HTML’s existing slash handling. Eligibility also depends on the surrounding parsing context. That unevenness is a real tradeoff, not a minor implementation detail.
-
-### Attributes do not change self-closing eligibility
-
-For an otherwise eligible element, `hidden`, `inert`, `disabled`, and `popover` do not change what the slash means:
-
-```html
-<div hidden />
-<p>Following content</p>
-```
-
-The div is empty and hidden. The paragraph follows it outside the div. Visibility and focus differences caused by that intended parentage do not, by themselves, establish a security vulnerability.
-
-The earlier prototypes excluded these attributes and several native containers to preserve old containment. That restriction is withdrawn: no concrete sanitizer bypass or unauthorized action was established to justify it. Container-specific exclusions based only on those visibility observations are also removed. The archived implementations still use the old restrictions and have not been brought into agreement with these revised eligibility rules.
-
-### Why keep exceptions?
-
-Some elements control how following source is read; others use special placement rules. Making them empty can change those behaviors.
-
-The remaining exclusions concern text parsing, structure, formatting, and foreign contexts. The revised eligibility rules are not yet implemented by the archived prototypes. The evidence does not prove every remaining exception necessary.
-
-::: {.details summary="Exception rationale, evidence, and tradeoffs by category"}
-
-The draft retains conservative text, structure, formatting, and foreign-context rules. Visibility-based attribute/container restrictions are withdrawn. This is a draft design choice for review, not a claim that broader support is impossible.
-
-| Group | Why the draft keeps existing behavior | Consequence for authors and evidence |
-| --- | --- | --- |
-| Text and scripts | Closing early can turn text that an existing parser treats as inert into markup. | `<script />` starts a script; `<style />` starts a stylesheet. The worked security examples establish the mismatch risk, not that every text-element exception is the only possible design. |
-| Tables, forms, selects, and document structure | These elements have special rules for creating and placing nodes. Treating them like ordinary wrappers is outside the tested shorthand contract. | Use their normal explicit or optional closing-tag rules. Their inclusion is conservative; the evidence does not prove each listed exception individually necessary. |
-| Formatting and recovery | HTML can reconstruct formatting elements or close elements implicitly, so an apparent empty pair need not behave like an ordinary wrapper. | Eligibility can depend on surrounding formatting. Keep current rules until a broader interpretation is specified and tested; this is not a proof that each excluded name can never self-close. |
-| SVG, MathML, and their surrounding contexts | Preserve existing namespace and text decisions rather than reinterpret them through the new shorthand. | Native foreign-element self-closing behavior is unchanged. Recovery tests cover selected namespace transitions, not all foreign-content combinations. |
-
-The benefit remains concrete for eligible empty components and wrappers: write the element name once and mark the absence of authored children at the opening tag. The cost is that authors must learn exceptions and context rules. No usability study establishes that the benefit outweighs that cost. Incubation should review whether this conservative scope is useful enough, whether a narrower scope is clearer, and what evidence would permit safely broadening it. This draft does not add JavaScript-, JSON-, or CSS-aware tokenization.
-
-[Plain-language fixes and remaining issues →](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence#readme)
-
-
-:::
-
-### Exact exception list
-
-These names and contexts retain current slash handling in the reference profile:
-
-| Category | Exempt names or contexts |
+| Input | Processing |
 | --- | --- |
-| Text and scripting | `script`, `style`, `title`, `textarea`, `xmp`, `iframe`, `noembed`, `noframes`, `noscript`, `plaintext` |
-| Structure and controls | `html`, `head`, `body`, `frameset`, `frame`, `table`, `caption`, `colgroup`, `col`, `tbody`, `tfoot`, `thead`, `tr`, `td`, `th`, `template`, `select`, `option`, `optgroup`, `form`, `fieldset`, `button` |
-| Formatting and recovery | `a`, `b`, `big`, `code`, `em`, `font`, `i`, `nobr`, `s`, `small`, `strike`, `strong`, `tt`, `u`, `p`, `pre`, `listing`; HTML special elements while an active formatting scope is present |
-| Protected contexts | Foreign ancestors and their HTML integration points |
+| `<small />` | Process `<small>`, then an end-tag token for `small`. |
+| `<script />` | Process the script start and end before reading following source. It does not swallow the rest of the page. |
+| `<textarea />` | Finish the element before reading more source; following source is ordinary markup. |
+| `<img />` | Existing void-element behavior; do not invent `</img>`. |
+| `<svg><path /></svg>` | Existing foreign-content self-closing behavior. |
 
-Exemptions do not make an element void. Where HTML recognizes explicit end tags, use them. For example, `<style />` keeps existing HTML behavior; authors write `<style></style>` for an empty style element.
+HTML's void elements remain `area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `source`, `track`, and `wbr`. Obsolete elements retain their existing parser behavior.
 
-### What happens if an author writes `<script />`?
+This shorthand does not override HTML recovery. A tag ignored in an invalid context remains subject to those rules. Document roots still follow HTML's document structure; `<html />` cannot create siblings outside the document root. `plaintext` closes at the token boundary; a literal legacy `</plaintext>` is not an equivalent source spelling because legacy plaintext consumes it as text.
 
-The slash is ignored. The browser starts a script and treats the following source as script content until it reaches `</script>`. It does not create an empty script.
+### Preserve normal attribute parsing
 
-```html title="Mistake: the paragraph becomes script text"
-<script />
-<p>Hello</p>
-</script>
+The slash must be a self-closing marker, not part of an unquoted value:
+
+```html
+<div data-path=assets/ /> <!-- Self-closing; value is assets/ -->
+<div data-path=assets/>  <!-- Not self-closing; value is assets/ -->
 ```
 
-The paragraph becomes script text and ordinarily causes a JavaScript syntax error. Without `</script>`, the rest of the page can be swallowed. If that text is valid JavaScript, it can execute: a syntax error is not a safety guarantee.
+Quoted strings, comments, and text already inside a script or stylesheet are not searched and rewritten for slash syntax.
 
-Write `<script></script>` for an empty script, or `<script src="app.js"></script>` for an external one. `style` similarly reads following source as stylesheet text until `</style>`.
+::: {.details summary="Implementation contract: token processing and checkpoints"}
 
-This existing HTML behavior is an authoring and security hazard. New self-closing syntax may make the mistake more tempting; that risk is unmeasured. Helpful tool warnings are proposed, not implemented by these experiments.
+When an HTML start-tag token carries the self-closing flag, process its ordinary start-tag action once, then process the matching end-tag token in the resulting parser state. Reprocessing the start through insertion modes must not duplicate the synthetic end tag. Existing void handling and native foreign-element handling remain intact, including transitions back into HTML processing.
 
-The initial set must match the browser algorithm. Lifting an exemption requires a defined interpretation and safety argument for that context. [What the containment tests actually showed →](/self-closing-html/security#what-the-containment-tests-actually-showed)
+Complete the synthetic end and restore the appropriate source-tokenizer state before consuming more characters. Clear a pending initial-newline suppression when that text element has already ended. HTML formatting recovery, form state, table placement, template insertion modes, and namespace transitions use the resulting state rather than a separate legacy recognition tree.
 
-## Keep HTML attribute tokenization
+Before running a parser-triggered script or delivering a callback, expose the DOM for completed processing. A self-closing external script keeps the normal blocking/async/defer/module rules; the slash does not make it inert. Preserve script mutations and normal pause/resume behavior. Declarative shadow-root host selection follows ordinary HTML placement; do not attach a following declaration to an already closed host.
 
-The slash must be recognized as part of the tag syntax, rather than an unquoted attribute value.[^4]
+The reference implementation is in [closure/parser.mjs](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/parser.mjs). Its scope and browser-adapter limits are in the [current evidence](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme).
 
-::: two
-```html title="Self-closing"
-<div data-path=assets/ />
-```
-
-```html title="Not self-closing"
-<div data-path=assets/>
-```
 :::
 
-In the second example, the attribute value is `assets/`. The final slash belongs to that value.
+## Parse and sanitize using the same grammar
 
-## Retain recognition while changing containment
+Self-closing syntax changes parsing. **A string sanitized for legacy HTML is not automatically safe when reparsed under this grammar.** Parse with the intended grammar, sanitize that resulting tree, and insert the sanitized nodes without a string round trip.
 
-Use ordinary HTML tokenization and recovery to determine the recognized node tree in the actual parser context and scripting state. Keep its open-element, formatting, form, namespace, and template state. This recognition state follows ordinary HTML independently of output DOM parenting: an eligible shorthand's empty DOM element can still have a live open-element entry used for scope checks and later closing tags.
+[HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) proposes a `profile` option for `Document.parseHTML()` and `Document.parseHTMLUnsafe()`. The safe method retains its mandatory safety protections under the selected grammar; the unsafe method is not a sanitizer. These are proposed native API extensions, not currently supported options.
 
-For each eligible self-closing start token that creates an element:
+The [safe reference parser](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/safe-dom.mjs) demonstrates grammar-first parsing and in-place DOMPurify filtering. It is not a native Sanitizer API implementation or a proof that arbitrary sanitizer configurations are safe.
 
-1. Retain the element as an empty node in the output DOM.
-2. Place its recognized children immediately after it, in order, within the same containing root. Apply the rule recursively for consecutive shorthand elements.
-3. Resolve later opening and closing tags using the retained recognition state, rather than inferring that state from output DOM ancestry.
+### Parse independently of the caller's document
 
-> [!norm] Recovery records follow HTML's scope rules
-> Ignored start tokens create no record. Records expire when HTML recovery removes them, including through an ancestor's closing tag. Retain complete state: a set of previously closed names cannot represent heading aliases, namespace transitions, or formatting recovery.
+Explicitly selecting `self-closing` for fetched HTML does not require the caller's document to opt in. Omitting `profile` keeps existing behavior; `inherit` explicitly copies the relevant document's selection, and `next` selects the supported HTML Next family. The shared profile proposal owns normalization and failure rules.
 
-For example, HTML can use `</h2>` to close an `h1`. A recovery rule that checks only exact names would miss that relationship. [See the worked SVG-boundary example →](/self-closing-html/security#recover-at-namespace-boundaries)
+A fetched response's headers do not remain attached to a `.text()` string. Forward a selection explicitly when intended. Inserting nodes does not switch the destination document's parser profile or reparse their text. Full-document parsing does not supply a table-context fragment API; a fragment operation also needs its actual context.
 
-For example, after `<div/><svg>`, the recognition stack still contains the div below SVG, while the output DOM places the empty div and SVG as siblings. A later `</div>` can therefore pop both recognition entries before the next token is interpreted.
+### Keep existing insertion APIs stable
 
-The static reference is ordinary HTML recognition followed by this containment projection. When recovery depends on an ignored slash, the result can differ from parsing a literally expanded string. That conservative interpretation is part of the profile.
+`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `DOMParser`, existing fragment operations, and `iframe.srcdoc` retain their current grammar. Source text cannot change a legacy API's mode by embedding a doctype. Legacy `document.write`, `writeln`, and document-writing `open` must be rejected or explicitly isolated in an opted-in navigation rather than silently mixing grammars.
 
-### Incremental execution checkpoints
-
-Construct the output incrementally. Before running a parser-triggered script or delivering a custom-element reaction, expose the output corresponding to recognition completed at that checkpoint. Preserve application mutations rather than reconstructing the active document from a fresh snapshot. A script moving an output node does not rewrite the retained recognition stack. Parser pauses must prevent later source from becoming observable before resume.
-
-Speculative loading must obey the same recognition boundaries; disabling the optional scanner is the experimental native implementation’s conservative strategy. Arbitrary encoding restarts and full scheduling conformance remain unresolved shipment requirements. The [security evidence](/self-closing-html/security#native-execution-coverage-and-limitations) separates the formal static argument, live adapter tests, and native execution results.
-
-### Preserve shadow-root ownership
-
-Declarative shadow-root host selection uses the retained recognition context. Keep each root attached to that same host; project only light-DOM children. A template declaration cannot migrate to a following sibling or the body.
-
-## Parse independently of the caller's document
-
-An explicitly requested parsing operation may enable `self-closing` even when its caller's document uses ordinary HTML or a different profile. [HTML Feature Profiles](/html-feature-profiles/#explicit-parsing) owns the proposed per-call option, selector validation, inertness, and failure rules. No ambient document flag is required or inherited. Omitting `profile` keeps existing behavior; `profile: "inherit"` explicitly copies the relevant document’s resolved snapshot, while `profile: "next"` opts into the HTML Next family of current and future proposals supported by the browser.
-
-```js
-// profile is a proposed option on this existing API.
-const response = await fetch("/fragment.html");
-const parsed = Document.parseHTML(await response.text(), {
-  profile: "self-closing"
-});
-```
-
-The returned detached document contains the requested DOM structure. Importing or adopting its nodes into an ordinary document preserves those actual relationships; it does not switch the destination's profile. Parsing is not sanitization, and insertion still follows ordinary security and activation rules. Existing string parsing APIs do not gain this behavior implicitly. The historical prototype does not implement these new options. The safe method retains its mandatory sanitization under the selected grammar; the unsafe method retains its separate contract.
-
-## Keep existing insertion APIs stable
-
-A document's profile must not change the grammar of existing string insertion and parsing APIs:
-
-- `innerHTML`, `outerHTML`, and `insertAdjacentHTML`;
-- `Range.createContextualFragment` and `DOMParser`;
-- `Document.parseHTML*` and existing HTML insertion methods;
-- `iframe.srcdoc`.
-
-A doctype inside an input string cannot enable Next.
-
-Dynamic Next insertion requires an explicit request. Parse and sanitize together in the actual target context, then insert nodes directly. Reject unsupported requests before insertion. A legacy-sanitized string or existing TrustedHTML wrapper is not proof of safety in a different context.[^5][^6]
-
-`document.write/writeln` must not feed new-profile tokens through a legacy string API. Specify rejection before mutation or an equivalently isolated contract. `document.open` must not silently escalate grammar.
-
-## DOM behavior and fallback
-
-Elements gain no new interface or persistent self-closing flag. Ordinary DOM operations can add children later. Serialization remains HTML; serialized strings carry no safety or parser-state provenance.
-
-Unsupported browsers need expanded tag pairs. A lowering tool must implement the profile's recovery contract; regex replacement is insufficient. Before adoption, measure existing use of the exact declaration and define reliable capability detection. `document.doctype.publicId` records author intent, not implementation support.
-
-[Continue: security argument, browser requirements, and evidence →](/self-closing-html/security)
+[Security and evidence →](/self-closing-html/security)
 
 ## Sources
 

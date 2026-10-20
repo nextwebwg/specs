@@ -1,0 +1,39 @@
+2026-10-19 23:17:58.927 Compositor[97027:193823461] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 23:17:58.927 Compositor[97027:193823497] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+2026-10-19 23:17:58.927 Compositor[97027:193823494] CFURLCopyResourcePropertyForKey failed because it was passed a URL which has no scheme
+1157155.238 Compositor(97027): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157162.223 Compositor(97027): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157162.335 Compositor(97027): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157162.403 Compositor(97027): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157162.475 WebContent(97970): ImageDecoderClient: Failed to decode image with request token 0: Decoding failed: Could not find suitable image decoder plugin for data
+1157162.665 WebContent(97970): HTMLScriptElement: Refusing to run script because the element's result is null.
+1157162.937 WebContent(97970): Content Security Policy violation: Refusing access to resource 'inline' because it does not appear in the 'script-src-elem' directive.
+1157162.937 WebContent(97970): HTMLScriptElement: Refusing to run inline script because it violates the Content Security Policy.
+test-web: process exited: status 0
+test-web: process exited: status 0
+1157163.081 Compositor(97027): Handling message while connection closed: CompositorWebContentServer::DestroyContext
+test-web: process exited: status 0
+test-web: process exited: status 0
+Running 4 tests...
+[0] 1/4:  Start Text/input/HTML/next-parsing-refinement.html
+[0] 1/4: Finish Text/input/HTML/next-parsing-refinement.html: 6922ms
+[0] 2/4:  Start Text/input/HTML/next-parsing-encoding.html
+[0] 2/4: Finish Text/input/HTML/next-parsing-encoding.html: 192ms
+[0] 3/4:  Start Text/input/HTML/next-parsing-execution.html
+[0] 3/4: Finish Text/input/HTML/next-parsing-execution.html: 671ms
+[0] 4/4:  Start Text/input/HTML/next-parsing-stress.html
+[0] 4/4: Finish Text/input/HTML/next-parsing-stress.html: 158ms
+==========================================================
+Pass: 4, Fail: 0, Skipped: 0, Timeout: 0, Crashed: 0
+==========================================================
+Results: file://<native-checkout>-final/index.html

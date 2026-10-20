@@ -1,0 +1,946 @@
+{
+  "recordedAt": "2026-10-20T06:04:42.379Z",
+  "runtime": "v24.20.0",
+  "scope": "Immediate-closure parse5 prototype + browser DOM/classic scripts and in-place target-grammar DOMPurify sanitization; not native parser support",
+  "caseFilter": null,
+  "sourceDigests": {
+    "parser.mjs": "137cbb2fc578eb8f62951cec98d7875e5a93462d70a7e3e3066da0e6b7178067",
+    "live-dom.mjs": "b11bda8022b2867c5fc747f5a5136cc45ed999e94e38546acb2a50cd63e6ee0c",
+    "safe-dom.mjs": "1e91f71851324e195abd854acc2fa583ad2d279d847789ad71f199b40df37481",
+    "execution-browser.mjs": "d78a502f804ccce7ad2e2a05b122f2a82cd2b66531cea24c7ba68994f94b8a78",
+    "execution-runner.mjs": "5213088233416838caeffb6dd5759eeea868849e092115bff99ce68a24871d60"
+  },
+  "reports": [
+    {
+      "engine": "chromium",
+      "version": "156.0.8078.4",
+      "cases": [
+        {
+          "name": "script checkpoint, chunk 0",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "script checkpoint, chunk 1",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "script checkpoint, chunk 7",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "script checkpoint, chunk 31",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "custom element callbacks and script-added child",
+          "pass": true,
+          "trace": [
+            {
+              "constructor": true,
+              "connected": false
+            },
+            {
+              "connected": true,
+              "parent": "BODY"
+            },
+            {
+              "atScript": 1
+            }
+          ]
+        },
+        {
+          "name": "script detaches ordinary open ancestor",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "script moves shorthand node",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "unsafe input is not made safe by choosing a grammar",
+          "pass": true,
+          "trace": [
+            "UNSAFE"
+          ]
+        },
+        {
+          "name": "legacy innerHTML grammar remains independent",
+          "pass": true,
+          "trace": [
+            "X-LEGACY"
+          ]
+        },
+        {
+          "name": "external classic script blocks later parsing",
+          "pass": true,
+          "trace": [
+            {
+              "external": true,
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "mutation observer callback before resume",
+          "pass": true,
+          "trace": [
+            {
+              "observed": true,
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "document writing rejects before mutation",
+          "pass": true,
+          "trace": [
+            {
+              "method": "write",
+              "rejected": true
+            },
+            {
+              "method": "writeln",
+              "rejected": true
+            },
+            {
+              "method": "open",
+              "rejected": true
+            }
+          ]
+        },
+        {
+          "name": "reentrant prototype input rejects",
+          "pass": true,
+          "trace": [
+            "InvalidStateError"
+          ]
+        },
+        {
+          "name": "custom element upgrades during parsing",
+          "pass": true,
+          "trace": [
+            {
+              "upgraded": true,
+              "parent": "BODY",
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "doctype DOM mutation cannot switch the active profile",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "frameset recovery preserves script-moved nodes",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "real network stream with split UTF-8 character",
+          "pass": true,
+          "trace": [
+            {
+              "stream": true,
+              "later": false
+            },
+            {
+              "networkChunks": 4
+            }
+          ]
+        },
+        {
+          "name": "resource request positive control",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "popover attribute keeps consistent closure (empty)",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "popover attribute keeps consistent closure (invalid)",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing small",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing a",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing button",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing table",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing select",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing template",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing script",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing style",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing textarea",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing plaintext",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "self-closing external script blocks before following markup",
+          "pass": true,
+          "trace": [
+            {
+              "external": true,
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "safe selected-grammar parsing removes the sanitizer mismatch handler",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "safe parsing does not run custom-element constructors before filtering",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "generated live-DOM refinement",
+          "pass": true,
+          "trace": [
+            {
+              "seed": "0x444f4d52",
+              "comparisons": 500
+            }
+          ]
+        }
+      ],
+      "errors": [],
+      "requests": [
+        {
+          "path": "/probe",
+          "query": "?name=unsafe",
+          "time": 1792476276053
+        },
+        {
+          "path": "/delayed-script",
+          "query": "",
+          "time": 1792476276119
+        },
+        {
+          "path": "/streamed-source",
+          "query": "",
+          "time": 1792476276418
+        },
+        {
+          "path": "/probe",
+          "query": "?name=positive",
+          "time": 1792476276535
+        },
+        {
+          "path": "/delayed-script",
+          "query": "",
+          "time": 1792476276968
+        },
+        {
+          "path": "/x",
+          "query": "",
+          "time": 1792476277099
+        }
+      ],
+      "resourceIsolation": true,
+      "pass": true
+    },
+    {
+      "engine": "firefox",
+      "version": "157.0",
+      "cases": [
+        {
+          "name": "script checkpoint, chunk 0",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "script checkpoint, chunk 1",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "script checkpoint, chunk 7",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "script checkpoint, chunk 31",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "custom element callbacks and script-added child",
+          "pass": true,
+          "trace": [
+            {
+              "constructor": true,
+              "connected": false
+            },
+            {
+              "connected": true,
+              "parent": "BODY"
+            },
+            {
+              "atScript": 1
+            }
+          ]
+        },
+        {
+          "name": "script detaches ordinary open ancestor",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "script moves shorthand node",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "unsafe input is not made safe by choosing a grammar",
+          "pass": true,
+          "trace": [
+            "UNSAFE"
+          ]
+        },
+        {
+          "name": "legacy innerHTML grammar remains independent",
+          "pass": true,
+          "trace": [
+            "X-LEGACY"
+          ]
+        },
+        {
+          "name": "external classic script blocks later parsing",
+          "pass": true,
+          "trace": [
+            {
+              "external": true,
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "mutation observer callback before resume",
+          "pass": true,
+          "trace": [
+            {
+              "observed": true,
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "document writing rejects before mutation",
+          "pass": true,
+          "trace": [
+            {
+              "method": "write",
+              "rejected": true
+            },
+            {
+              "method": "writeln",
+              "rejected": true
+            },
+            {
+              "method": "open",
+              "rejected": true
+            }
+          ]
+        },
+        {
+          "name": "reentrant prototype input rejects",
+          "pass": true,
+          "trace": [
+            "InvalidStateError"
+          ]
+        },
+        {
+          "name": "custom element upgrades during parsing",
+          "pass": true,
+          "trace": [
+            {
+              "upgraded": true,
+              "parent": "BODY",
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "doctype DOM mutation cannot switch the active profile",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "frameset recovery preserves script-moved nodes",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "real network stream with split UTF-8 character",
+          "pass": true,
+          "trace": [
+            {
+              "stream": true,
+              "later": false
+            },
+            {
+              "networkChunks": 4
+            }
+          ]
+        },
+        {
+          "name": "resource request positive control",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "popover attribute keeps consistent closure (empty)",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "popover attribute keeps consistent closure (invalid)",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing small",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing a",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing button",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing table",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing select",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing template",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing script",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing style",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing textarea",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing plaintext",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "self-closing external script blocks before following markup",
+          "pass": true,
+          "trace": [
+            {
+              "external": true,
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "safe selected-grammar parsing removes the sanitizer mismatch handler",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "safe parsing does not run custom-element constructors before filtering",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "generated live-DOM refinement",
+          "pass": true,
+          "trace": [
+            {
+              "seed": "0x444f4d52",
+              "comparisons": 500
+            }
+          ]
+        }
+      ],
+      "errors": [],
+      "requests": [
+        {
+          "path": "/probe",
+          "query": "?name=unsafe",
+          "time": 1792476279039
+        },
+        {
+          "path": "/delayed-script",
+          "query": "",
+          "time": 1792476279091
+        },
+        {
+          "path": "/streamed-source",
+          "query": "",
+          "time": 1792476279345
+        },
+        {
+          "path": "/probe",
+          "query": "?name=positive",
+          "time": 1792476279458
+        },
+        {
+          "path": "/delayed-script",
+          "query": "",
+          "time": 1792476279785
+        }
+      ],
+      "resourceIsolation": true,
+      "pass": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "cases": [
+        {
+          "name": "script checkpoint, chunk 0",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "script checkpoint, chunk 1",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "script checkpoint, chunk 7",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "script checkpoint, chunk 31",
+          "pass": true,
+          "trace": [
+            {
+              "parent": "BODY",
+              "empty": 0,
+              "later": false
+            },
+            {
+              "microtask": false
+            }
+          ]
+        },
+        {
+          "name": "custom element callbacks and script-added child",
+          "pass": true,
+          "trace": [
+            {
+              "constructor": true,
+              "connected": false
+            },
+            {
+              "connected": true,
+              "parent": "BODY"
+            },
+            {
+              "atScript": 1
+            }
+          ]
+        },
+        {
+          "name": "script detaches ordinary open ancestor",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "script moves shorthand node",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "unsafe input is not made safe by choosing a grammar",
+          "pass": true,
+          "trace": [
+            "UNSAFE"
+          ]
+        },
+        {
+          "name": "legacy innerHTML grammar remains independent",
+          "pass": true,
+          "trace": [
+            "X-LEGACY"
+          ]
+        },
+        {
+          "name": "external classic script blocks later parsing",
+          "pass": true,
+          "trace": [
+            {
+              "external": true,
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "mutation observer callback before resume",
+          "pass": true,
+          "trace": [
+            {
+              "observed": true,
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "document writing rejects before mutation",
+          "pass": true,
+          "trace": [
+            {
+              "method": "write",
+              "rejected": true
+            },
+            {
+              "method": "writeln",
+              "rejected": true
+            },
+            {
+              "method": "open",
+              "rejected": true
+            }
+          ]
+        },
+        {
+          "name": "reentrant prototype input rejects",
+          "pass": true,
+          "trace": [
+            "InvalidStateError"
+          ]
+        },
+        {
+          "name": "custom element upgrades during parsing",
+          "pass": true,
+          "trace": [
+            {
+              "upgraded": true,
+              "parent": "BODY",
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "doctype DOM mutation cannot switch the active profile",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "frameset recovery preserves script-moved nodes",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "real network stream with split UTF-8 character",
+          "pass": true,
+          "trace": [
+            {
+              "stream": true,
+              "later": false
+            },
+            {
+              "networkChunks": 4
+            }
+          ]
+        },
+        {
+          "name": "resource request positive control",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "popover attribute keeps consistent closure (empty)",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "popover attribute keeps consistent closure (invalid)",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing small",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing a",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing button",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing table",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing select",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing template",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing script",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing style",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing textarea",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "broad self-closing plaintext",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "self-closing external script blocks before following markup",
+          "pass": true,
+          "trace": [
+            {
+              "external": true,
+              "later": false
+            }
+          ]
+        },
+        {
+          "name": "safe selected-grammar parsing removes the sanitizer mismatch handler",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "safe parsing does not run custom-element constructors before filtering",
+          "pass": true,
+          "trace": []
+        },
+        {
+          "name": "generated live-DOM refinement",
+          "pass": true,
+          "trace": [
+            {
+              "seed": "0x444f4d52",
+              "comparisons": 500
+            }
+          ]
+        }
+      ],
+      "errors": [],
+      "requests": [
+        {
+          "path": "/probe",
+          "query": "?name=unsafe",
+          "time": 1792476281169
+        },
+        {
+          "path": "/delayed-script",
+          "query": "",
+          "time": 1792476281233
+        },
+        {
+          "path": "/streamed-source",
+          "query": "",
+          "time": 1792476281550
+        },
+        {
+          "path": "/probe",
+          "query": "?name=positive",
+          "time": 1792476281659
+        },
+        {
+          "path": "/delayed-script",
+          "query": "",
+          "time": 1792476282083
+        },
+        {
+          "path": "/x",
+          "query": "",
+          "time": 1792476282229
+        }
+      ],
+      "resourceIsolation": true,
+      "pass": true
+    }
+  ]
+}

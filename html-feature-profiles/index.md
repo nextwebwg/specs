@@ -210,7 +210,9 @@ The process for defining membership in the HTML Next family remains open for sta
 
 ## Evidence and current implementation limits
 
-The earlier self-closing experiments use the literal selector `next` and their pinned implementation rules. They establish the claims recorded in [that proposal's evidence](/self-closing-html/security), not support for this new named-list grammar, family selection contract, detection API, failure document, or flexible nesting.
+The [native self-closing experiment](https://github.com/nextwebwg/specs/blob/main/self-closing-html/evidence/closure/native.md) recognizes `next` or `self-closing` in a navigation doctype. It does not implement combined named-list selection, the profile response header, native API options, detection, the unsupported-profile failure document, or flexible nesting.
+
+The [immediate-closure reference implementation](https://github.com/nextwebwg/specs/tree/main/self-closing-html/evidence/closure#readme) also composes this API selector model with actual target-grammar parsing and in-place DOMPurify sanitization. Its helper tests cover explicit `self-closing`, the supported `next` family, explicit inheritance, and an omitted option retaining legacy behavior. This is executable reference composition, not native support for the proposed `Document` options or an implementation of the browser Sanitizer API.
 
 ### Recorded verification
 

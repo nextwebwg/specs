@@ -1,0 +1,17 @@
+{
+  "scope": "Seeded static/incremental equivalence and target-grammar in-place sanitization. Not independent parsing proof, browser execution, native implementation, or universal sanitization guarantee.",
+  "seed": "0x434c4f53",
+  "inputs": 10000,
+  "chunkComparisons": 30000,
+  "chunkMismatches": [],
+  "safeInputs": 1000,
+  "safeFailures": [],
+  "sourceDigests": {
+    "parser.mjs": "137cbb2fc578eb8f62951cec98d7875e5a93462d70a7e3e3066da0e6b7178067",
+    "safe-dom.mjs": "1e91f71851324e195abd854acc2fa583ad2d279d847789ad71f199b40df37481",
+    "safe-parse.mjs": "727d1631e8d2ab728f086af713a4854549fefbfd67b71b13078c5c125d1f1375",
+    "check.mjs": "5404dcc245e072085e4ac4f2e5c94064bd059d79c2c31433d6480fffa6248d67",
+    "parser.test.mjs": "071c33b582913ff62c7111548917a236c06676fbf1bca9120356e5c12f2138c4",
+    "safe-parse.test.mjs": "4b81cfdea7d405164a7f5231f077c92274b16bd1cf04eb81635bd507387cff81"
+  }
+}

@@ -68,9 +68,13 @@ Both open the same container. The type comes first; optional title and attribute
 | Identifier | ASCII letter, then ASCII letters, digits, `_` or `-`. Types become lowercase; attribute names use the mapping below. Text, values and IDs retain Unicode. |
 | Container spacing | Zero–three spaces of block-relative indentation; optional spaces/tabs after colons and between header parts. |
 | Wrappers | No padding inside the outer `[…]` or `{…}`; internal word/attribute separation remains meaningful. |
-| Label/title | Inline Markdown. Escapes protect brackets, braces and backslashes; balanced inline link/code syntax does not close the label early. |
+| Label/title | Inline Markdown. Balanced brackets and matched code spans do not close the label early. Escape a literal bracket where it would close or unbalance the label. |
 | Inline/leaf scope | `:type[label]{attributes}` / `::type[label]{attributes}`. Inline needs a label or attributes, so bare `:word` stays text. Leaf occupies its own line. |
 | Repetition | Multiple attribute lists concatenate in source order. Repeated container title wrappers are malformed. |
+
+An unmatched backtick run stays literal and does not hide the label's closing
+bracket. Within a matched code span, backslashes are literal code characters;
+they do not escape the closing code delimiter.
 
 **Nesting uses longer outer fences:**
 

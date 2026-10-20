@@ -1,0 +1,147 @@
+{
+  "format": "email-next-image-source-review-0",
+  "captured": "2026-10-20",
+  "scope": "Selected static PNG/JPEG, orientation and color-management sources; capture does not mean full-publication review. Reviewed sections and correction dispositions are specified in image-formats.md.",
+  "sources": [
+    {
+      "url": "https://www.w3.org/TR/2025/REC-png-3-20250624/",
+      "bytes": 656574,
+      "sha256": "a3ac82bb9eb8664b93961a2a9ff6def3d70e3a9f63d92721143c1f391d04edec"
+    },
+    {
+      "url": "https://www.w3.org/2025/06/REC-PNG-20250624-errata",
+      "bytes": 3240,
+      "sha256": "e5348d0aa18909c62d021df5dd3f293ab0e5ffe3e8d20527619211e69c5a781c"
+    },
+    {
+      "url": "https://www.w3.org/Graphics/JPEG/itu-t81.pdf",
+      "bytes": 1058883,
+      "sha256": "631031d4ba56b06abee3e312a0f235b9422da9c7267d1c8f7604418795768bf0"
+    },
+    {
+      "url": "https://www.w3.org/Graphics/JPEG/jfif3.pdf",
+      "bytes": 17183,
+      "sha256": "1135325aa12ee6b3def5a374fecdf3d6d0de88dc4f205af7de8d25a9c949e173"
+    },
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc1950.txt",
+      "bytes": 20502,
+      "sha256": "8f0475a5c984657bf26277f73df9456c9b97f175084f0c1748f1eb1f0b9b10b9"
+    },
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc1951.txt",
+      "bytes": 36944,
+      "sha256": "5ebf4b5b7fe1c3a0c0ab9aa3ac8c0f3853a7dc484905e76e03b0b0f301350009"
+    },
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc1950.json",
+      "bytes": 815,
+      "sha256": "766141b06bf11862cc313a213244453f2f63155807f7dd742b1430fcbdadf28e"
+    },
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc1951.json",
+      "bytes": 1020,
+      "sha256": "f972e3d01436604528b4d49ca45b3ed08a3b19577ca71529f1e619a417ad4f40"
+    },
+    {
+      "url": "https://www.itu.int/rec/dologin_pub.asp?id=T-REC-T.871-201105-I!!PDF-E&lang=e&type=items",
+      "bytes": 201764,
+      "sha256": "ca3d749e7e04016f7695ba9d319eeeab3ad80c99265a883c14f03b9daf3e1c9a"
+    },
+    {
+      "url": "https://www.itu.int/rec/dologin_pub.asp?id=T-REC-T.871-201303-I!Err1!PDF-E&lang=e&type=items",
+      "bytes": 358663,
+      "sha256": "904404a523d6f7aa90e199a1448288028bc1c5feacb0fcdec4a9508be8c319c4"
+    },
+    {
+      "url": "https://www.cipa.jp/std/documents/download_e.html?CIPA_DC-008-2026-E",
+      "bytes": 4451181,
+      "sha256": "9cc36399a46ab7aa4a65473bb8a4945d3b044da739b8f16a01b0be11886dcff9"
+    },
+    {
+      "url": "https://www.cipa.jp/std/documents/download_e.html?DC-008-Translation-2023-E",
+      "bytes": 4476137,
+      "sha256": "563e0ccb3b3700b5e35f104a0207ef6d577dbad10b1f1dc91116a80682bda39c"
+    },
+    {
+      "url": "https://www.color.org/specification/ICC.1-2022-05.pdf",
+      "bytes": 905961,
+      "sha256": "aad8e33128635893e38ae780def3b29e661e4541be03cb235c67dd94d558001b"
+    },
+    {
+      "url": "https://www.color.org/technotes/ICC-Technote-ProfileEmbedding.pdf",
+      "bytes": 120148,
+      "sha256": "b5714bc115bcebb628366784c0a70b2c4dfb126e1dad5aef59f45c7a6f28b6e2"
+    },
+    {
+      "url": "https://errata.rfc-editor.org/search/?rfc_number=1950&status=any",
+      "bytes": 7061,
+      "sha256": "70f10951d6bc2d19e1cd258c22bdede484543bb51e412c77f895aea9fa4982dc"
+    },
+    {
+      "url": "https://errata.rfc-editor.org/search/?rfc_number=1951&status=any",
+      "bytes": 16707,
+      "sha256": "5e12f065bd8eeb4a650d200ac7d6ee25bba05d1a223aa3ea1d32c8c92b81fc8c"
+    },
+    {
+      "url": "https://www.itu.int/rec/T-REC-T.81/en",
+      "bytes": 10285,
+      "sha256": "a677456c26ca3de8e57c39196d1454c45399b73fefb02d03bfb75dba0a0075d2"
+    },
+    {
+      "url": "https://www.itu.int/rec/T-REC-T.871/en",
+      "bytes": 10066,
+      "sha256": "059e85c34ca04fd09c41fb61b540b6a59e16c7ad65764c11d3751708aee6241f"
+    },
+    {
+      "url": "https://www.cipa.jp/e/std/std-sec.html",
+      "bytes": 48117,
+      "sha256": "30cffc2b053d3fdced77e184b15d040c2076f238ca7d1958cdbaf7aeb6f99dc2"
+    },
+    {
+      "url": "https://www.color.org/icc_specs2/",
+      "bytes": 28269,
+      "sha256": "774bf01d0c8c0bd7c8b7b00e2f8dc429bd83c8fbd48eb509f05f39e4fba8f009"
+    },
+    {
+      "url": "https://archive.color.org/files/ICC_Minor_Revision_for_Web.pdf",
+      "bytes": 1203813,
+      "sha256": "7cd05639d187c697f04e9bb1711a05b37b044ec70f8bc99d13e85ac4c01defc3"
+    },
+    {
+      "url": "https://www.color.org/v2spec/",
+      "bytes": 25308,
+      "sha256": "1fef32dc27232d505a3941af1da89e878dedeb00bf418cf3900c751a98de015e"
+    },
+    {
+      "url": "https://www.color.org/v2profiles/",
+      "bytes": 26780,
+      "sha256": "11c97e08721ff8755427e81f523f874dd58f9031cfc09fd407ae28ab45fb4cdd"
+    },
+    {
+      "url": "https://registry.color.org/rgb-registry/files/sRGB.pdf",
+      "bytes": 183192,
+      "sha256": "ceed855c29808217a472954abb04cdc60a5bd3200387a93f5c5ffcef8ddf9f1f"
+    },
+    {
+      "url": "https://registry.color.org/rgb-registry/srgb",
+      "bytes": 11089,
+      "sha256": "4421e53533bec7fb98f0f643d790d177d67d3a02fe6abe1c62ddd3f0cff26d3c"
+    },
+    {
+      "url": "https://registry.color.org/tag-signatures/",
+      "bytes": 71700,
+      "sha256": "45cd62301b5fbb08d83ef7826d5df6a92c6adc8940957ad4d3277091a053a6dc"
+    },
+    {
+      "url": "https://registry.color.org/type-signatures/",
+      "bytes": 21348,
+      "sha256": "5e21b5fec12de13dc244a47a2563d9398babc6b65efccc2eef1442f83041375e"
+    },
+    {
+      "url": "https://archive.color.org/specification/ICC.1_Adaptive_Gain_Curve.pdf",
+      "bytes": 357873,
+      "sha256": "5efee7aec92de1a7c3d567e03c52da46e4477d5e8eb7fd7d977a1c4cf69dd449"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "messages": [
+    "questions",
+    "interleaved",
+    "edited",
+    "duplicate",
+    "ambiguous",
+    "flow-parent",
+    "flow-reply",
+    "delsp-parent",
+    "delsp-reply",
+    "html-parent",
+    "html-reply",
+    "html-edited",
+    "html-unsupported",
+    "html-localized",
+    "html-citation"
+  ],
+  "scenarios": [
+    {
+      "id": "fixed",
+      "title": "Interleaved answers",
+      "messages": [
+        "questions",
+        "interleaved",
+        "edited"
+      ]
+    },
+    {
+      "id": "ambiguous",
+      "title": "Ambiguous repeated question",
+      "messages": [
+        "questions",
+        "duplicate",
+        "ambiguous"
+      ]
+    },
+    {
+      "id": "flowed",
+      "title": "Flowed text and uncertain boundary",
+      "messages": [
+        "flow-parent",
+        "flow-reply"
+      ]
+    },
+    {
+      "id": "delsp",
+      "title": "Flowed text with DelSp=yes",
+      "messages": [
+        "delsp-parent",
+        "delsp-reply"
+      ]
+    },
+    {
+      "id": "missing",
+      "title": "A referenced message arrives later",
+      "messages": [
+        "interleaved"
+      ],
+      "optional": "questions"
+    },
+    {
+      "id": "html",
+      "title": "Narrow HTML quotes and visible unsupported source",
+      "messages": [
+        "html-parent",
+        "html-reply",
+        "html-edited",
+        "html-unsupported"
+      ]
+    },
+    {
+      "id": "localized",
+      "title": "Localized labels and attributed HTML quotes",
+      "messages": [
+        "html-parent",
+        "html-localized",
+        "html-citation"
+      ]
+    }
+  ]
+}

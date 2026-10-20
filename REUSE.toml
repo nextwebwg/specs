@@ -3,11 +3,57 @@
 version = 1
 
 [[annotations]]
-path = ["html-next/**", "html-forms/**", "expressive-markdown/**", "self-closing-html/*.md", "self-closing-html/evidence/*.md", "*.md", ".github/ISSUE_TEMPLATE/**", ".github/DISCUSSION_TEMPLATE/**", ".github/pull_request_template.md"]
+path = ["email-next/*.md", "email-next/audits/*.md", "email-next/audits/*.json", "email-next/evidence/*.md", "email-next/examples/*.eml", "html-next/**", "html-forms/**", "expressive-markdown/**", "self-closing-html/*.md", "self-closing-html/evidence/*.md", "*.md", ".github/ISSUE_TEMPLATE/**", ".github/DISCUSSION_TEMPLATE/**", ".github/pull_request_template.md"]
 SPDX-FileCopyrightText = "2026 Next Web Working Group"
 SPDX-License-Identifier = "CC-BY-4.0"
 
 [[annotations]]
-path = ["self-closing-html/evidence/*.mjs", "self-closing-html/evidence/*.html", "self-closing-html/evidence/*.json", "tools/**", ".github/scripts/**", ".github/workflows/**", ".github/labeler.yml", ".github/CODEOWNERS", "package.json", "pnpm-lock.yaml", "REUSE.toml", "threadlabs.config.json", ".threadlabs.lock.json", ".gitignore"]
+path = ["email-next/evidence/*.mjs", "email-next/evidence/*.py", "self-closing-html/evidence/*.mjs", "self-closing-html/evidence/*.html", "self-closing-html/evidence/*.json", "tools/**", ".github/scripts/**", ".github/workflows/**", ".github/labeler.yml", ".github/CODEOWNERS", "package.json", "pnpm-lock.yaml", "REUSE.toml", "threadlabs.config.json", ".threadlabs.lock.json", ".gitignore"]
 SPDX-FileCopyrightText = "2026 Next Web Working Group"
 SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["email-next/evidence/unicode-17/emoji-test.txt", "email-next/evidence/unicode-17/fully-qualified.json", "email-next/evidence/unicode-17/LICENSE.txt"]
+SPDX-FileCopyrightText = "1991-2026 Unicode, Inc."
+SPDX-License-Identifier = "Unicode-3.0"
+
+[[annotations]]
+path = ["email-next/evidence/unicode-17/sources.json"]
+SPDX-FileCopyrightText = "2026 Next Web Working Group"
+SPDX-License-Identifier = "MIT"
+
+# Locally authored experiment sources and fixtures follow the existing code license.
+# Third-party registry/Unicode snapshots retain separate provenance and licensing.
+[[annotations]]
+path = ["email-next/.gitattributes", "email-next/evidence/legacy-demo.html", "email-next/evidence/client-flow.html", "email-next/evidence/pairing-demo.html", "email-next/evidence/restore-demo.html", "email-next/evidence/hosted-response.js", "email-next/evidence/human-verification-ui.js", "email-next/evidence/human-verification.html", "email-next/evidence/language-data/manifest.json", "email-next/evidence/language-data/README.md", "email-next/evidence/acceptance-*.json", "email-next/evidence/reports/acceptance-*.json", "email-next/evidence/legacy-demo-data/**", "email-next/evidence/*.css", "email-next/evidence/requirements-*.txt", "email-next/evidence/.gitignore", "email-next/evidence/mls-smoke/src/**", "email-next/evidence/mls-smoke/fixtures/**", "email-next/evidence/mls-smoke/Cargo.toml", "email-next/evidence/mls-smoke/Cargo.lock", "email-next/evidence/mls-smoke/.gitignore"]
+SPDX-FileCopyrightText = "2026 Next Web Working Group"
+SPDX-License-Identifier = "MIT"
+
+# IANA protocol registry data: https://www.iana.org/help/licensing-terms
+[[annotations]]
+path = ["email-next/evidence/language-data/language-subtag-registry.txt", "email-next/evidence/language-data/language-tag-extensions-registry.txt"]
+SPDX-FileCopyrightText = ["Internet Corporation for Assigned Names and Numbers (ICANN)", "IETF Trust"]
+SPDX-License-Identifier = "CC0-1.0"
+
+# Numeric known-answer fixtures extracted from RFC5869 Appendix A.
+# Preserve its IETF Trust/Simplified BSD notice; these are not project-authored data.
+[[annotations]]
+path = ["email-next/evidence/hkdf-rfc5869-vectors.json", "email-next/evidence/hkdf-fixture-LICENSE.txt"]
+SPDX-FileCopyrightText = "2010 IETF Trust and the persons identified as the document authors (Hugo Krawczyk and Pasi Eronen)"
+SPDX-License-Identifier = "BSD-2-Clause"
+
+# Unmodified idna package retains upstream copyright and license.
+[[annotations]]
+path = ["email-next/evidence/vendor_idna17/idna/**", "email-next/evidence/vendor_idna17/LICENSE.md"]
+SPDX-FileCopyrightText = "2013-2026 Kim Davies and contributors"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = ["email-next/evidence/ucd17-source-hashes.json", "email-next/evidence/vendor_idna17/source-hashes.json"]
+SPDX-FileCopyrightText = "2026 Next Web Working Group"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["email-next/evidence/vendor_idna17/PROVENANCE.md"]
+SPDX-FileCopyrightText = "2026 Next Web Working Group"
+SPDX-License-Identifier = "CC-BY-4.0"

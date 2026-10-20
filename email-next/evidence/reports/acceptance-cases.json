@@ -1,0 +1,99 @@
+{
+  "format": "email-next-acceptance-report-0",
+  "profile": "experimental-button-mime-0",
+  "scope": "local experiment; no independent client, server or security certification",
+  "manifestSha256": "71b1f9612eb41f407f1b6c2b683ba002bcd729e9d108415729302ccca4641d82",
+  "python": "3.14.0",
+  "fixturesSha256": {
+    "button-question.eml": "7190f52ae857aa2c63828514bc0b46a9fdfeb5dd078b04252042e38d41c6c701",
+    "button-answer.eml": "4abd8c116d4ac6b619e2c63d7c5181322f2a0d62032775a3371aa10a2ed6d6e6"
+  },
+  "implementationSha256": {
+    "attachment-metadata.mjs": "16e2a62f9c55f59b974d68132fce8800e482425069ca84cf6f0f81e73292b6cc",
+    "attachment-operation.mjs": "61b1c8e41f66c4f17488f03e015766b8b0eea16c8f1f1304dbda1fc3bf1461c1",
+    "button-operations.mjs": "af66c26b9441aaf97147ce594f361692425defb3984522c527e77cefba56a1a0",
+    "edit-operation.mjs": "52692a0917e0521af9d6df7f431dc2e02cd122dee126e5995a28eead134f83b8",
+    "event-envelope.mjs": "515f83500d4a21b5a01c6ab564f9b7bbc8b496f9f66d618bc23688f27b56db9b",
+    "event-identifiers.mjs": "77408af2c06e690e1e2110961b2b85b588c5fb187bce645cbd4b97e5d5d4d129",
+    "event_encoding.py": "35903c37498d1399ae32f1893bae193719256955185aebaed079d335375f1929",
+    "form-operations.mjs": "62d3069d18cd893a9e329131bdbdbdea316d29e66ee386634cee1e340bf8009d",
+    "form-values.mjs": "290093dd593a8abc4f78bf9a81438882954d04059eb14a9bf3ccbe14a7d39775",
+    "hosted-holder-operation.mjs": "70715f5621fc3d257f9375ffaf21f920007502a641b7a97b08c394f13d3c3ff9",
+    "managed-presentation.mjs": "5689966aec91b83c09c951273e8ab0c803816dd404d89081e0b22eb891ad6128",
+    "message-operation.mjs": "f4c84a13d7734c92c9ae814e0e763a5304066114985997ca8650372b2b135490",
+    "mime_package.py": "164b93950440aa886c67169e04e17f9449e856027fa147cadb594364ed082ec9",
+    "mime_resources.py": "76ee11186ea3c562924ba86c0fb46a0c84708047d71f8123568004ad7103b48d",
+    "principal-identifiers.mjs": "9757c560ef53eff0af909bd2fe1bdf553d38e9b0fdd4655fe1068e3a43eb086b",
+    "reaction-operations.mjs": "1cd1c418499a848e684f377fb071ba5670c19c09e719dfe534a96b0f49727c8b",
+    "reaction-state.mjs": "51943d615c93f5fa2877da0b8547dd712e98ffeb9f5c96048a844313358f1a12",
+    "readable-projection.mjs": "a111d153fed8ff21b031f0c4432cd1ab60c5d1848d29f33f43d627223609b4bd",
+    "resource-manifest.mjs": "ca009637989d26de84058364d370ad7787ef20bee17d96217b3e8167895a071f",
+    "rich-message-operation.mjs": "de0f9f35b276256415f66de398a0367ec25d280ffd49999191052c4ad751eafe",
+    "run_acceptance.py": "c71bfdd433c9a88d46e2600e8e28398e1f028eaaee3f05ab9fa49842de3ad324",
+    "service-question.mjs": "783c0353b5b8b800cf955ddb67d3ce9c4190202b304c2a69c75ec748060aaceb",
+    "submission-target.mjs": "ff612fb2af7986190735fcb91f4dcccf10df7b047f5b6ec25d18bffb4ed91759",
+    "test_button_mime.py": "75d4056a059567b9f9f443c287785103ecf0163c14066b0a9301ddb3544e6a35",
+    "unicode-17/LICENSE.txt": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96",
+    "unicode-17/emoji-test.txt": "1d8a944f88d7952f7ef7c5167fef3c67995bcae24543949710231b03a201acda",
+    "unicode-17/fully-qualified.json": "86f18ec46417c22c2b9d22d654814b0ad8207ab7556c54d0af38eb7fd9c4fda7",
+    "unicode-17/sources.json": "63939e25f63c0aa0711146b36936e73d3d840366636a0a5c341a1b6d7cd00698",
+    "withdrawal-target.mjs": "66eace5c851c2cca2094bc6b8fe66cd2938980c138da792e3947a03568f4efd0"
+  },
+  "node": "v24.11.1",
+  "cases": [
+    {
+      "id": "buttons.mime.roundtrip",
+      "requirement": "../messages.md#questions-and-answer-buttons",
+      "description": "Question and answer retain exact structured bytes and readable Unicode meaning through MIME packaging.",
+      "status": "pass",
+      "test": "test_button_mime.ButtonMimeTests.test_question_and_answer_survive_mime_with_exact_event_bytes",
+      "detail": "test_question_and_answer_survive_mime_with_exact_event_bytes (test_button_mime.ButtonMimeTests.test_question_and_answer_survive_mime_with_exact_event_bytes) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.075s\n\nOK\n"
+    },
+    {
+      "id": "buttons.missing-question",
+      "requirement": "../messages.md#answer-object",
+      "description": "An invalid unresolved question object cannot supply guessed answer wording.",
+      "status": "pass",
+      "test": "test_button_mime.ButtonMimeTests.test_missing_question_does_not_generate_guessed_fallback",
+      "detail": "test_missing_question_does_not_generate_guessed_fallback (test_button_mime.ButtonMimeTests.test_missing_question_does_not_generate_guessed_fallback) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.034s\n\nOK\n"
+    },
+    {
+      "id": "buttons.audience-boundary",
+      "requirement": "../messages.md#answer-object",
+      "description": "The projector refuses automatic question-context copying to an expanded audience.",
+      "status": "pass",
+      "test": "test_button_mime.ButtonMimeTests.test_expanded_audience_is_refused_before_packaging",
+      "detail": "test_expanded_audience_is_refused_before_packaging (test_button_mime.ButtonMimeTests.test_expanded_audience_is_refused_before_packaging) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.032s\n\nOK\n"
+    },
+    {
+      "id": "buttons.downloadable-fixtures",
+      "requirement": "../messages.md#questions-and-answer-buttons",
+      "description": "Complete example emails match the projected events and ordinary reply relationships.",
+      "status": "pass",
+      "test": "test_button_mime.ButtonMimeTests.test_downloadable_examples_match_projected_events_and_reply_headers",
+      "detail": "test_downloadable_examples_match_projected_events_and_reply_headers (test_button_mime.ButtonMimeTests.test_downloadable_examples_match_projected_events_and_reply_headers) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.071s\n\nOK\n"
+    },
+    {
+      "id": "buttons.legacy-client-display",
+      "requirement": "../adoption.md#email-client-adoption",
+      "description": "An actual legacy client presents the complete question and answer meaning.",
+      "status": "not-tested",
+      "detail": "No legacy-client adapter is included. MIME inspection does not establish displayed output."
+    },
+    {
+      "id": "buttons.provider-carriage",
+      "requirement": "../adoption.md#email-server-adoption",
+      "description": "A real provider preserves the fixture through submission, storage and retrieval.",
+      "status": "not-tested",
+      "detail": "No provider adapter or deployment is exercised by this offline runner."
+    },
+    {
+      "id": "buttons.authenticated-endpoint",
+      "requirement": "../service-answers.md",
+      "description": "A service authenticates a button submission and returns a bound, deduplicated result.",
+      "status": "not-tested",
+      "detail": "Candidate wire and carriage rules exist; configured credentials, authenticated HTTP execution and durable service effects are not exercised by this runner."
+    }
+  ],
+  "complete": false
+}

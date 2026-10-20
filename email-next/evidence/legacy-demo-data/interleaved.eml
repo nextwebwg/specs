@@ -1,0 +1,14 @@
+From: Bob <bob@example.invalid>
+To: reader@example.invalid
+Subject: Synthetic conversation
+Message-ID: <interleaved@demo.invalid>
+Date: Tue, 20 Oct 2026 10:00:00 +0000
+In-Reply-To: <questions@demo.invalid>
+References: <questions@demo.invalid>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+PiBXaGljaCBkYXkgd29ya3M/DQpUdWVzZGF5IHdvcmtzIGZvciBtZS4NCj4gV2hlcmUgc2hvdWxk
+IHdlIG1lZXQ/DQpUaGUgbGlicmFyeS4NCj4gU2hvdWxkIEkgYnJpbmcgdGhlIGRyYWZ0Pw0KWWVz
+LCBwbGVhc2UgYnJpbmcgaXQuDQo=

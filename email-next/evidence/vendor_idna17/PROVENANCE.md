@@ -1,0 +1,1 @@
+Unmodified idna3.13 Python package from https://pypi.org/project/idna/3.13/ . BSD3-Clause license in LICENSE.md. Loaded under a private namespace with an explicitly bound Unicode17 provider; shared modules are not patched. Source hashes in source-hashes.json. No UTS46 mapping selected.

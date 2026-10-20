@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { compileScript, compileTemplate, parse } from "@vue/compiler-sfc";
 import { compileChapter } from "./compile.ts";
 
-const PROPOSALS = ["html-next", "html-forms", "expressive-markdown", "self-closing-html", "flexible-html-nesting", "html-feature-profiles"];
+const PROPOSALS = ["html-next", "html-forms", "expressive-markdown", "self-closing-html", "flexible-html-nesting", "html-feature-profiles", "email-next", "email-next/audits", "email-next/evidence"];
 let failures = 0;
 let chapters = 0;
 for (const dir of PROPOSALS) {
@@ -13,7 +13,10 @@ for (const dir of PROPOSALS) {
     const file = join(dir, name);
     chapters++;
     try {
-      const { sfc } = compileChapter(readFileSync(file, "utf8"));
+      const { sfc } = compileChapter(readFileSync(file, "utf8"), {
+        proposalSnapshot: !dir.startsWith("email-next"),
+        ...(dir.startsWith("email-next") ? { proposalImports: "" } : {}),
+      });
       const { descriptor, errors } = parse(sfc, { filename: `${file}.vue` });
       const problems = [...errors.map(String)];
       if (!descriptor.template) problems.push("no template produced");

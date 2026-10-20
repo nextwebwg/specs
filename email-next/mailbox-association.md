@@ -1,0 +1,196 @@
+---
+title: Mailbox associations
+order: 9.5
+blurb: exact addresses · first contact · continuity
+sectionNav: true
+---
+
+# Mailbox associations
+
+A client remembers which cryptographic identity it has associated with an email address. It keeps the evidence behind that decision and checks the identity's current authority before using it. A signed attachment can introduce a candidate; it cannot establish ownership of the address by itself.
+
+> [!ex] A familiar address, a different identity
+> Bob has already associated Alice's address with her identity. A new message from that address advertises another identity. Bob's client retains the new claim without replacing the existing association. If Alice has lost her keys—or the address now belongs to someone else—Bob can deliberately establish a new identity. That decision does not give the new identity access to the old conversation.
+
+This chapter proposes the local association behavior. The unverified selection path has an offline reference implementation. Independent mailbox verification still needs a selected mechanism. A [selected-association sender experiment](evidence/README.md#selected-mailbox-evidence-at-release) integrates the local selection with preparation and loopback release; broader deployment and restore coordination remain incomplete. The storage examples below are reference implementation choices, not an interoperable wire format or a requirement to use SQLite.
+
+## The two decisions
+
+Accepting a self-consistent [identity genesis](identity-state.md#genesis-and-first-contact) establishes a local continuity anchor for a principal. Associating a mailbox with that principal is a second decision. Each has its own evidence and policy; neither is implied by the other.
+
+The association policy is explicitly `allow-unverified` or `require-verification`, supplied from current local configuration. Under the first policy, a sole eligible first-contact candidate may become an unverified association. Under the second, it remains a candidate until an independently accepted verification result exists. Changing policy does not delete evidence or silently promote an ambiguous candidate. A stricter policy holds new operations even if an association was usable earlier.
+
+An unverified association and its authorized identity successors remain unverified. A cryptographic device proof, a matching From address, mailbox login, or successful delivery is not independent verification of the mailbox-to-principal binding. The UI may say “Encrypted to the identity first seen for this address; ownership not independently verified.” It must not summarize that state as verified correspondent identity.
+
+## Address and observation inputs
+
+The association key is the [discovery profile's exact supported mailbox spelling](passive-discovery.md#signed-assertion-schema): lowercase ASCII DNS domain, unchanged ASCII dot-string local-part, with its existing DNS/path limits and validated A-label requirement. No display name, comments, quoted local-part, address literal, trailing dot or internationalized local-part enters this initial key space. Unsupported spellings remain usable for ordinary mail but cannot enter this automated association path.
+
+A trusted mailbox parser, not a received string comparison alone, supplies the outer From result. Exactly one mailbox must be present. Normalize only its domain to the selected lowercase form and compare the whole result to the signed assertion mailbox. Preserve original header bytes and the parser/profile version as evidence. Reply-To, Sender, Return-Path, a forwarded From, SMTP forwarding information, plus-tag equivalence and local-part case folding cannot substitute for this check.
+
+An observation is eligible for first-contact selection only after:
+
+1. Carrier and strict assertion parsing succeed under the passive-discovery profile.
+2. The assertion's fixed-purpose signature verifies using the named binding key.
+3. The locally accepted identity resolves to the assertion principal; the device has current `receive` authority and its state/binding match the asserted references.
+4. The complete current time interval lies inside assertion and binding validity, with the selected freshness policy satisfied.
+5. The parsed sole outer From matches the claimed mailbox as specified above.
+
+An admission package is not required to record an association. Validating or consuming one is a later dependency of an invitation, not evidence of mailbox ownership. Invalid signatures and malformed carriers do not become association candidates. Missing identity dependencies, unsupported IDNA validation or uncertain time remain pending diagnostics, without automatic network activity.
+
+A replay cannot refresh an observation's signed validity. Message receipt time and Date are provenance only. Old evidence may remain available for history after losing operational eligibility.
+
+::: {.details summary="Reference storage records and atomic decisions"}
+
+### Implemented local selection store
+
+The [Python reference store](evidence/mailbox_association_store.py) shares the existing `IdentityStore` connection and database. Its 15 [focused tests](evidence/test_mailbox_association_store.py) exercise durable selection, restart, concurrent connections, exact retries, atomic rollback, replacement, disable/enable, and advertisement collisions. These are local storage tests; they do not demonstrate safe network release or mailbox ownership.
+
+The store exposes three operations:
+
+| Operation | Implemented boundary |
+| --- | --- |
+| `observe_validated_batch()` | Retain exact assertion bytes, proof/key variants and source provenance. The caller must already have verified each exact signature and supplied a trusted sole-From parse. This is a local API, not an incoming-mail validation endpoint. |
+| `snapshot()` | Read the current association and retained observation references in one transaction. The result is inspection data, not authorization to send. |
+| `decide()` | Compare the expected generation, recheck eligible evidence against accepted identity state, and atomically retain the decision and any association change. Exact request retries return their original result. |
+
+The normal ingestion path starts with a successful `verify_passive_discovery()` result. The store does not perform that signature verification itself. It independently checks identity authority, key, asserted head/binding and validity before admitting a record to its authenticated-record index. `observedAt` is local provenance and a point-time check; callers must already have validated the credible time interval and must not narrow uncertain time to make an assertion pass. Original headers and message retention remain the caller's responsibility; the store retains the source identifier, parsed mailbox and parser revision.
+
+The collision index spans mailboxes and uses authenticated `(principal, device, record)` identities. Different authenticated assertion bytes under one identity prevent selection from that record, even after one assertion expires. Independent records remain eligible. A collision does not delete an established association or suspend its principal. Proof/key variants remain retained: an unauthorized variant cannot block later admission of an authorized proof over the same assertion bytes or overwrite already authenticated evidence. This protection depends on the stated signature-validation boundary; the store is not a substitute for cryptographic verification of network input.
+
+Selection evaluates current identity authority and the full supplied time interval within the same SQLite transaction as the association decision. Multiple eligible initial principals return `ambiguous` under either policy. No eligible candidate returns `pending`; a sole eligible candidate under strict policy returns `verification-required`. Explicit user resolution, replacement and disable/enable are implemented; enabling checks the same principal again and advances the generation. No result grants send authorization. A queued operation must still pass the serialized release checks below; selection alone is insufficient.
+
+Schema initialization refuses an already active caller transaction. The tables are local implementation details: the conceptual records below describe the broader design, including verification evidence and provenance that this bounded store does not implement in full. Existing experimental databases need explicit schema/version migration planning before deployment.
+
+### Reference storage records
+
+The proposed complete design can place these records in the same transactional database as accepted identity heads. Other storage designs can provide the same atomicity and evidence-preservation behavior. These are local records, not received JSON objects or newly registered wire formats. All fields below are required unless expressly optional. Null is not used; an absent optional field is omitted. Timestamps and counters exposed through a JSON diagnostic interface use canonical unsigned-64 decimal strings. Exact payloads remain byte strings in storage.
+
+| Record | Required fields | Meaning and constraints |
+| --- | --- | --- |
+| Observation | `observationId`, `mailbox`, `principal`, `device`, `stateDigest`, `bindingDigest`, `assertionBytes`, `assertionDigest`, `signature`, `messageSourceId`, `outerFromEvidence`, `parserRevision`, `observedAt` | Local nonzero ObjectId; profile identifiers/digests/proof encodings; retain exact signed bytes and source-message reference. `outerFromEvidence` is local parser output plus a reference to original header bytes, not a sender-supplied trust result. |
+| Association decision | `decisionId`, `mailbox`, `generation`, `kind`, `principal`, `identityAnchor`, `observationIds`, `actor`, `policyRevision`, `decidedAt` | Immutable local record. `kind` is `first-contact`, `resolve-first-contact`, `replace-with-continuity-break`, `disable`, or `enable`. Actor is explicit configured policy or a local user action; received mail cannot supply it. `identityAnchor` is the accepted head at decision time, retained as history rather than a future-use head. `observationIds` is a nonempty distinct array for decisions selecting a principal, empty for disable. |
+| Current association | `mailbox`, `generation`, `decisionId`, `principal`, `enabled` | Exactly one current row per mailbox; `enabled` is Boolean. Positive generation increases by one per local decision without overflow. Disabled rows retain the previous principal and decision history. No deletion/recreation shortcut resets continuity. Enabling requires a disabled row; disabling requires an enabled row. An exact decision retry returns its original result, while a new request for a transition already satisfied makes no state change. |
+| Verification evidence | `evidenceId`, `mailbox`, `principal`, `anchorDigest`, `mechanism`, `mechanismRevision`, `evidenceRef`, `scope`, `continuityScope`, `notBefore`, `notAfter`, `status` | Local verifier result, never accepted directly from a discovery wrapper. `scope` must include `mailbox-principal`; other scopes alone are insufficient. `continuityScope` states whether accepted ordinary descendants of the anchor are covered. `status` is `accepted`, `withdrawn`, or `conflicted`, with immutable evidence plus retained status changes. The optional human-comparison experiment below implements one local mechanism; other mechanisms remain unspecified. |
+
+`messageSourceId` and `evidenceRef` identify retained local evidence; they are not URLs to fetch. Observation storage must not duplicate private message bodies merely to retain a public assertion. A retention implementation must keep enough original bytes and provenance to explain its decisions, and state when a source message is unavailable.
+
+Exact observation retransmissions are idempotent by mailbox, principal and assertion bytes/digest; additional source-message references may be attached as provenance. Distinct exact assertions sharing a remote record identifier remain separately retained. The identity of an observation does not depend on a parsed/re-serialized assertion. A discovered record collision must not overwrite either assertion or acquire the power to suspend an established mailbox association by copying a public identifier.
+
+The local decision ID is an idempotency key for an exact decision request. A retry returns the stored result; reuse with different request content is rejected. Every decision uses compare-and-swap against the expected association generation, including explicit “no row” for first contact. Record the decision and update the current row in one transaction before reporting success.
+
+:::
+
+## State and transition behavior
+
+Do not store a single trusted/untrusted flag. The current row stores the selected principal; derived use-time outcomes combine that row with observations, identity authority, policy and optional verification evidence.
+
+| Situation | Outcome |
+| --- | --- |
+| No association and no eligible candidate | `pending`, reason `no-eligible-candidate`. |
+| No association; eligible observations all name one principal | Under `allow-unverified`, a deliberate first-contact selection transaction may record `associated-unverified`. Under `require-verification`, return `verification-required`. |
+| No association; eligible observations name multiple principals | `ambiguous`. No arrival-order, timestamp or provider ranking selects a principal. A later permissive policy does not resolve it. |
+| Existing enabled association; new assertion names its principal | Retain the observation. It cannot rewrite the initial evidence, upgrade assurance or bypass current head/validity checks. |
+| Existing association; another principal claims the mailbox | Retain as `unlinked-claim`. Do not replace or suspend the established association merely because of this unsolicited claim. Show it on identity inspection without an attacker-triggered modal warning for every message. |
+| Existing association; its accepted identity has an authorized branch conflict | Hold operations requiring that identity with `identity-conflicted`. This is distinct from an unrelated self-signed claim. |
+| User explicitly selects among ambiguous initial principals | Record `resolve-first-contact`, identifying reviewed candidates and the chosen principal. This remains unverified unless separate accepted evidence supports it. |
+| User explicitly replaces the principal | Record `replace-with-continuity-break`; increment generation, preserve the prior principal/history, invalidate queued decisions and require new conversation/admission authorization. No history transfer follows. |
+| User disables this association | Record `disable`, preserve history and hold automatic use. Disabling is not key revocation or deletion of decryption history. |
+| User enables a disabled association | Record `enable` for the same principal only, after current identity, advertisement and policy checks. Increment generation; earlier queued authorizations do not revive. Another principal requires an explicit continuity break. |
+| Current policy becomes stricter, evidence expires or becomes unavailable | Hold the affected use without deleting the association or selecting plaintext fallback. |
+
+Initial selection evaluates all eligible observations already retained in one transaction snapshot, not merely the incoming message. Where a single receive/import operation contains several candidates, store and classify the whole bounded batch before attempting selection. If candidates were committed before first selection, their ambiguity cannot be hidden by choosing one.
+
+A claim arriving after a completed first-contact decision is an unlinked claim, even if delivered concurrently on another connection. This is the existing first-contact limitation: local atomicity prevents inconsistent decisions but cannot reveal an unseen competing claim or resist substitution before the initial pin. An implementation must not claim global first-contact consensus.
+
+Ordinary identity transitions keep the same principal and do not constitute mailbox reassignment. A new advertisement must still bind to the new accepted head under the passive-discovery contract. No proof format in the current profile authorizes cross-principal succession. Until one is specified, choosing another principal is a recorded continuity break, even when the user believes it is the same person.
+
+## Aliases and reassignment
+
+Each exact mailbox has a separate association row. A principal advertising a new mailbox creates a candidate for that new address; it does not inherit another address's association or verification. The same principal may legitimately be associated with several addresses after their separate decisions. An alias suggestion, forwarding reply or provider-specific delivery equivalence is only routing evidence.
+
+When an address is reassigned, an independently verified new controller still does not acquire the prior endpoint identity or history. Replacing the association requires the explicit continuity-break decision above. Pending messages retain the mailbox, principal and association generation they targeted; they cannot be silently retargeted to the new principal. Historical message attribution continues to refer to the original identity and evidence.
+
+::: {.details summary="Coordinating association, identity and operation release"}
+
+### Atomic use-time authorization
+
+This coordinator remains a proposed integration contract. Expose a coordinator operation rather than allowing callers to combine `lookup_mailbox()` with the current snapshot-only `check_device()` and then send later. The reference design can use a single SQLite transaction for mailbox association, identity checks and the local operation commitment; another implementation may use an equivalent serialization boundary. The coordinator needs transaction-aware identity checks; the existing `check_device()` opens its own transaction and returns a snapshot, not a durable permission.
+
+The coordinator receives the exact destination mailbox, expected association generation, authenticated target device/key, current policy revision, time interval, freshness mode, selected advertisement reference and a caller operation ID with exact operation-input digest. It performs the following in one serialization boundary:
+
+1. Read the enabled association and compare its generation and principal with the queued operation's intended target.
+2. Resolve the locally accepted identity head; reject a missing identity or hold an accepted conflict. Verify current `receive` authority, key, binding and validity using retained identity evidence.
+3. Recheck the assertion signature result against its exact retained bytes and current binding, require its asserted head/binding to match the current state, and recheck its signed interval. A historical association anchor is not a substitute for the current head.
+4. Apply current first-contact/verification and freshness policies. If independent verification is required, resolve accepted evidence through the interface below. No input flag supplied by a message can satisfy it.
+5. Recheck package, group membership, audience and pending operation dependencies appropriate to this operation. Mailbox association alone cannot add a device or disclose history.
+6. Commit a durable local operation intent with mailbox generation, principal, head, binding, policy revision, evidence references and exact intended bytes/digest. An exact operation retry returns the same committed result. Any changed dependency before commitment yields `stale` and requires recomputation; do not overwrite an earlier committed operation.
+
+The commitment is a local authorization point, not proof of SMTP delivery or an indefinitely valid send ticket. A worker performing a later release must re-enter the serialized release protocol and recheck these dependencies immediately before crossing its local release point, as required by the transport contract. Revocation and replacement updates must participate in the same coordinator. A database commit followed by an unrelated socket write is not sufficient to claim that races are solved.
+
+No transaction can recall bytes already released or make an unseen remote revocation locally known. Remote freshness and distributed delivery remain separate. Test and label the exact local release point; the local sender experiment supplies bounded retry/outbox coordination, while deployed transport and restored-state handling remain unvalidated.
+
+:::
+
+## Independent verification remains separate
+
+A local verifier accepts evidence through a selected, versioned mechanism and returns the verification-evidence record only after that mechanism establishes the exact mailbox-to-principal claim. The mechanism must define its authority, authenticated inputs, intended audience/purpose, expiry and revocation, replay handling, privacy cost, identity anchor and applicability to authorized successor states. The caller cannot replace that work with `verified: true`.
+
+An operation requiring verification receives one of `verified-for-use`, `verification-required`, `verification-expired`, `verification-conflicted`, or `unsupported-verification-mechanism`, together with evidence IDs and the exact checked identity head. The result is transaction-scoped. Unsupported evidence is retained as an observation if useful, never interpreted as successful verification. A stricter policy names the mechanisms/assurance scopes it accepts; all successful verifiers are not interchangeable.
+
+Without a selected verifier, an otherwise eligible sole candidate under strict policy returns `verification-required` and verified use remains unavailable. Missing candidates remain pending and competing initial principals remain ambiguous. Verifier integration must explicitly compose identity continuity and mailbox evidence; calling identity checks with `allow-unverified` and relabeling the result is not an implementation of verification. A legitimate composition may reuse the same cryptographic checks, but needs a separate reviewed evidence decision and distinct result provenance.
+
+### Optional human comparison
+
+Normal email and automatic unverified continuity do not require a manual comparison. A user who wants stronger assurance can compare the exact address, principal and identity-state digest with the intended person in person, or through a separate conversation they already trust. The local client records this as **human-confirmed correspondent identity**. It does not certify provider ownership or exclusive control of that mailbox.
+
+The [local comparison experiment](evidence/human_verification.py) requires complete matching data and an explicit independent-channel confirmation. A code supplied by the email being checked, a QR scan alone, a display name or a provider login cannot satisfy it. The [confirmation screen](evidence/human-verification.html) explains this distinction; it receives no sender HTML or script.
+
+Validity and continuity are adjustable client policies. The client can require a fresh comparison for every identity-head change, or allow ordinary account-authorized successors of the compared state. The latter trusts the account's existing device-enrollment authority; it does not grant historical conversation access to a new device. Forks, recovery/reset formats and continuity-break replacement do not inherit the comparison. Expiry or withdrawal holds strict use without deleting accepted history or selecting plaintext fallback.
+
+::: {.details summary="Comparison records and use-time checks"}
+
+### Exact comparison and trusted input
+
+The local comparison object has exactly `version: "0"`, `purpose: "manual-correspondent-comparison"`, `mailbox`, `principal`, `stateDigest` and `stateRevision`. It uses the existing full state digest and identity encodings; it is not a new signature, shortened safety-number algorithm or email wire version. The address preserves its local-part spelling. The peer must confirm that address as well as the identity.
+
+A client-owned session binds the original retained mail, candidate bundle, expected identity head, association generation and session expiry to one local account/profile. A separate trusted user gesture confirms independently obtained matching data. The local transaction rechecks the original cryptographic evidence, installs any first-contact pin, records the comparison and selects the association together. A changed snapshot or failed comparison leaves no partial verification. Exact retries cannot replace the comparison or extend its validity.
+
+### Separate assurance and delivery authority
+
+The composed authority adapter preserves the cryptographic device result and adds independent verification provenance. The cryptographic status alone is not evidence that comparison succeeded. Exact routed addresses still require their own verification; evidence for one alias cannot authorize another. The local user's own principal has a distinct client-setup source, and only explicitly configured own addresses can use that source for routing.
+
+The strict initial-roster and ordinary-message adapters bind verification evidence and status revision alongside the existing identity and association dependencies. Preparation, release and the check before SMTP DATA re-evaluate them. Withdrawal, expiry or changed evidence holds the prepared bytes rather than silently selecting replacement verification. The receiver separately checks current effect authority; accepted historical messages do not lose their original attribution when a comparison expires.
+
+The [focused checks](evidence/test_verified_delivery.py) connect signed initial-roster creation, loopback SMTP admission and protected replies through this explicit strict mode. The ordinary unverified path remains separate. Other invitation/control adapters, provider ownership attestations, authenticated introductions, transparency witnesses and independent deployments require their own integration; this mechanism does not make them available automatically.
+
+:::
+
+
+::: {.details summary="Acceptance scenarios"}
+
+### Acceptance cases
+
+This table covers the full proposed behavior. The local store tests cover selection and persistence; selected-association release races have separate sender tests. The optional human-comparison adapter has local strict-delivery checks. Complete original-header retention, backup reconciliation and independent interoperability remain unvalidated.
+
+| Case | Required observable result |
+| --- | --- |
+| Sole valid candidate, permissive policy | Genesis acceptance and mailbox decision remain separate; association is durable and visibly unverified after reopen. |
+| Sole candidate, strict policy | No usable association authorization; no outgoing mail or weaker fallback merely because verification is absent. |
+| Exact replay with another MIME folding/source message | Same signed assertion evidence and same decision; new receipt time does not extend validity. |
+| Copied assertion with different From, multiple From values, Reply-To substitution | No automatic association candidate; readable message remains available. |
+| Local-part case, plus suffix, dot variation, alias and domain case | Only allowed domain normalization matches; distinct local spellings retain distinct associations. Invalid A-label validation remains pending/unsupported, not accepted by LDH shape alone. |
+| Two retained principals before first selection | Ambiguous under both policies; an explicit user resolution records the selected evidence and remains unverified. |
+| Concurrent selection on separate connections | Generation comparison permits one local decision; the loser re-evaluates the complete committed state. No last-writer-wins replacement. |
+| Unlinked claim after pin | Original association stays usable under its existing policy; claimant cannot force an identity conflict by copying identifiers. |
+| Authorized identity fork, device revocation, changed binding or stale advertisement | Use holds or rejects for the specific reason; historical association and source evidence remain intact. |
+| Replacement/address reassignment | Explicit continuity break; old queued operations fail their generation check; old history is neither quoted nor re-encrypted automatically. |
+| Identity transition between check and operation commitment | Atomic recheck observes the new head or prevents interleaving; no commitment based on stale authority. |
+| Transition after intent commit but before transport release | Release coordinator revalidates; intent alone is insufficient permission. |
+| Crash before/after decision commit | Before commit leaves no partial mapping; after commit an exact retry returns the same decision. No duplicated operation commitment. |
+| Fake, expired, withdrawn or unsupported verification evidence | Cannot satisfy strict policy; no UI claim of verified ownership or continuity. |
+| Enable after disable | Require the same principal, fresh eligible evidence and current policy; retain history and advance generation. Revoked, expired or conflicted identity evidence cannot restore use. |
+| Disable and restore old backup | Disabling retains history; restored associations cannot overwrite newer generations/revocations without reconciliation. |
+
+
+:::

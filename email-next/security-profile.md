@@ -11,7 +11,7 @@ The experimental baseline selects MLS 1.0, as specified in RFC9420, for managed 
 
 ## Common protocol and suite
 
-Implementations of this profile MUST support MLS protocol version 1 and cipher suite `0x0001`, `MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519`. This is the mandatory baseline identified in RFC9420 Section 17.1; Email Next does not replace its component algorithms or packet encodings. The first experimental interoperability configuration uses that suite exclusively. Other suites require a separately specified negotiation and migration capability.
+Implementations of this profile MUST support MLS protocol version 1 and cipher suite `0x0001`, `MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519`. This is the mandatory baseline identified in RFC9420 Section 17.1; Email/2 does not replace its component algorithms or packet encodings. The first experimental interoperability configuration uses that suite exclusively. Other suites require a separately specified negotiation and migration capability.
 
 Implementations retain MLS's composition of its cryptographic components. Supporting an individual primitive does not establish support for this conversation profile.
 
@@ -34,7 +34,7 @@ The selected suite is not post-quantum. No interface or conformance claim may de
 
 [RFC9787 §§5.2–5.3](https://www.rfc-editor.org/rfc/rfc9787.html#section-5.2) recommends signing inside encryption and avoiding an encryption-only composition option. This profile follows those security goals through MLS rather than adding a separate PGP/MIME or S/MIME signature layer.
 
-An MLS PrivateMessage encrypts the application content together with its authentication data, including the sender's signature. The receiver validates that authentication data and resolves the signing leaf through the accepted identity and group state before enabling conversation effects. Decryption alone does not establish who authored the contribution. These are the framing and validation rules of [RFC9420 §§6.1 and 6.3](https://www.rfc-editor.org/rfc/rfc9420.html#section-6.3), not an additional Email Next cryptographic construction.
+An MLS PrivateMessage encrypts the application content together with its authentication data, including the sender's signature. The receiver validates that authentication data and resolves the signing leaf through the accepted identity and group state before enabling conversation effects. Decryption alone does not establish who authored the contribution. These are the framing and validation rules of [RFC9420 §§6.1 and 6.3](https://www.rfc-editor.org/rfc/rfc9420.html#section-6.3), not an additional Email/2 cryptographic construction.
 
 The difference is the selected wire protocol and its device-group model. A managed contribution does not need a second MIME signature to become authenticated, and an outer mail signature cannot substitute for the MLS checks. Separate legacy PGP/MIME and S/MIME profiles retain their own composition rules. The deliberate departure from RFC9787's recommendation for uniform protection across recipients is explained in the [mixed-delivery policy](delivery-policy.md#mixed-delivery-and-the-message-s-confidentiality-status).
 
@@ -60,7 +60,7 @@ Absent and failed signatures still receive equivalent ordinary treatment. An exp
 
 Each authorized device occupies its own MLS leaf. A person with two devices therefore normally has two leaves. Sharing one leaf's evolving secret state between independent concurrent devices is not the baseline device model. The authentication binding must map each leaf credential to its stable account principal, device identity and authorized roles under the identity lifecycle contract.
 
-An Email Next conversation identifier and an MLS group identifier are distinct. A conversation may contain ordinary contributions and separately authorized protected deliveries. The encrypted group's authenticated application context must bind its conversation identifier, security-profile version and membership policy. Matching a conversation identifier in an untrusted message does not establish that binding.
+An Email/2 conversation identifier and an MLS group identifier are distinct. A conversation may contain ordinary contributions and separately authorized protected deliveries. The encrypted group's authenticated application context must bind its conversation identifier, security-profile version and membership policy. Matching a conversation identifier in an untrusted message does not establish that binding.
 
 Two-person conversations use the same managed-group mechanism and device rules as larger groups. Adding a device still requires endpoint authorization. Removing a person removes all leaves representing that membership. A hidden recipient is not silently added to the member-visible group; any separate delivery follows the fallback and disclosure contract.
 
@@ -117,14 +117,14 @@ For a new local admission through Welcome, this profile also requires the joinin
 
 Clients must maintain a credible current-time estimate. If the client represents clock uncertainty as an interval, the entire interval must lie inside the package lifetime to accept it. A clock known to be unreliable leaves time validation unresolved. Message Date fields, provider response timestamps and a peer's assertion of when it sent an invitation MUST NOT extend the lifetime. There is no additional implicit grace period.
 
-After the lifetime ends, unused admission private material must be retired; a pending invitation cannot extend it indefinitely. Successfully consumed material follows MLS's secret-deletion requirements. The non-secret consumption record remains separately protected against rollback. Replaying the exact already accepted admission may return its recorded outcome after expiry, but MUST NOT decrypt the Welcome again using retained admission secrets or install another group instance.
+After the lifetime ends, unused admission private material must be retired; a pending invitation cannot extend it indefinitely. Successfully consumed material follows MLS's secret-deletion requirements. The [setup-secret lifecycle](setup-secret-retirement.md) makes retirement, expiry, restart and storage-copy boundaries explicit; a public handshake log must not retain admission-only private material. The non-secret consumption record remains separately protected against rollback. Replaying the exact already accepted admission may return its recorded outcome after expiry, but MUST NOT decrypt the Welcome again using retained admission secrets or install another group instance.
 
 The lifetime experiment checks unsigned bounds and uncertain-clock decisions. It does not supply trusted time, implement MLS parsing or validate a Welcome. Seven days is not a guarantee of delivery latency or protection against compromise during that interval.
 
 
 ## Provider directory and sharing boundaries
 
-A JMAP Principal record MUST NOT be used directly as an Email Next cryptographic principal merely because its name or email matches. Preserve its service and account scope and establish the security profile's identity binding independently. Provider authorization to read a mailbox is not authorization to add a device or principal to an MLS group.
+A JMAP Principal record MUST NOT be used directly as an Email/2 cryptographic principal merely because its name or email matches. Preserve its service and account scope and establish the security profile's identity binding independently. Provider authorization to read a mailbox is not authorization to add a device or principal to an MLS group.
 
 JMAP subscriptions and ShareNotifications MUST NOT be the authoritative cryptographic membership record. Notifications may be omitted, coalesced or removed; missing notifications do not prove unchanged permissions. Dismissing a notification does not revoke access. Translating a shareWith map to an encrypted audience must explicitly account for implicit owner rights and independently authorized endpoint devices. See the [JMAP sharing audit](audits/jmap-sharing.md).
 
@@ -224,7 +224,7 @@ A receiver integration MUST account for cryptographic library mutation on unsucc
 
 ## Authenticated conversation context
 
-The candidate MLS profile carries an application context in GroupContext extensions. The local experiment uses private-use extension type 0xff00, within the range reserved by [RFC 9420 section 17.3](https://www.rfc-editor.org/rfc/rfc9420.html#section-17.3). This is an experimental code point, not an assigned interoperable Email Next identifier. It MUST NOT be assumed unique across unrelated experiments. A published interoperable binding requires registration or an explicitly isolated deployment agreement.
+The candidate MLS profile carries an application context in GroupContext extensions. The local experiment uses private-use extension type 0xff00, within the range reserved by [RFC 9420 section 17.3](https://www.rfc-editor.org/rfc/rfc9420.html#section-17.3). This is an experimental code point, not an assigned interoperable Email/2 identifier. It MUST NOT be assumed unique across unrelated experiments. A published interoperable binding requires registration or an explicitly isolated deployment agreement.
 
 The extension payload is a strict JSON object under the event encoding limits, with exactly these fields:
 
@@ -346,3 +346,8 @@ Readable alternatives are the sender’s supplied bytes, not proof of equivalenc
 
 > [!note] Integration status
 > Exact context and capability validation are implemented. Configured body and attachment flows have passed local encrypted SMTP checks, including retained resource-integrity results and explicit byte retrieval. Signed tuple admission has passed a joined body-message and third-device invitation flow. The [joined attachment experiment](evidence/README.md#joined-protected-carriers-and-deliberate-attachment-download) also covers signed admission, encrypted delivery and deliberate browser download. These local fixtures do not establish independent interoperability or production client integration. The attachment codec alone does not establish supported encrypted attachment reception. Existing context versions retain their original byte interpretation.
+
+
+## Combined suite binding
+
+The separately versioned [required conversation suite](suite-profile.md) defines its new assertion, context, invitation, ordering-wrapper and payload selections. It does not change any older version defined here. Its design is specified separately from implementation and acceptance evidence.

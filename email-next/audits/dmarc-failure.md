@@ -30,7 +30,7 @@ The complete [RFC9991](https://www.rfc-editor.org/rfc/rfc9991.html), including i
 | 9.2 | Informative References | Independent DKIM/SPF report requests and historical DMARC dependencies identified. |
 | Appendix A | Example Failure Report | Entire multipart example and redaction notes read; illustrative headers are not verified cryptographic or canonical syntax vectors. |
 
-## Boundaries that affect Email Next
+## Boundaries that affect Email/2
 
 Failure reports are potentially a second delivery of the original content. Their destination authorization checks prevent unwanted report traffic; they do not prove that every conversation participant approved disclosure to that destination. Mailing-list member addresses and forwarding destinations can be exposed even when the original author did not know them. An apparently internal report address can itself forward elsewhere.
 
@@ -38,7 +38,7 @@ The [security contract](../security.md) therefore prohibits automatic disclosure
 
 The Identity-Alignment field is easy to misread: listed methods failed to authenticate an aligned identity; none means all attempted methods succeeded. It is not a list of trusted methods or an encryption-status field. The optional and potentially consolidated nature of reports prevents their use as a complete per-message event log.
 
-Section 2 forbids considering ruf with psd=y absent specific agreements. This receiver-side exception must be read alongside RFC9989's prohibition on multi-organizational PSDs publishing ruf. Email Next does not infer any such agreement from DNS presence alone.
+Section 2 forbids considering ruf with psd=y absent specific agreements. This receiver-side exception must be read alongside RFC9989's prohibition on multi-organizational PSDs publishing ruf. Email/2 does not infer any such agreement from DNS presence alone.
 
 ## Example limitations
 

@@ -7,7 +7,7 @@ sectionNav: true
 
 A valid signature must not be reinterpreted using a substituted algorithm. RFC6211 protects copies of the digest and signature or MAC identifiers inside authenticated attributes, then requires the receiver to compare them with the outer identifiers. RFC8933 recommends using this attribute; it separately requires the same content and signed-attribute digest algorithm.
 
-This is a S/MIME/CMS compatibility dependency. It does not change Email Next's MLS encoding or establish a CMS implementation.
+This is a S/MIME/CMS compatibility dependency. It does not change Email/2's MLS encoding or establish a CMS implementation.
 
 ## Comparison and placement
 

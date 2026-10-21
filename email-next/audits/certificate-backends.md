@@ -7,7 +7,7 @@ sectionNav: true
 
 A successful RSA fixture does not establish which certificates a TLS adapter accepts. Each adapter records its runtime, cryptographic backend, trust configuration and observed enforcement. RSA and P-256 ECDSA are initial interoperability test targets, not an exhaustive acceptance list. Additional accepted algorithms need their own source mapping and evidence.
 
-The local Python TLS adapter and the certificate-generation library use separate OpenSSL builds. Its explicit choices include TLS 1.3 or later, certificate verification and SAN-only DNS matching. Remaining algorithm choices come from the backend configuration. They must be reported as such rather than presented as a deliberate Email Next algorithm policy. See [TLS configuration](tls-configuration.md) and [RSA certificate signatures](rsa-certificate-signatures.md).
+The local Python TLS adapter and the certificate-generation library use separate OpenSSL builds. Its explicit choices include TLS 1.3 or later, certificate verification and SAN-only DNS matching. Remaining algorithm choices come from the backend configuration. They must be reported as such rather than presented as a deliberate Email/2 algorithm policy. See [TLS configuration](tls-configuration.md) and [RSA certificate signatures](rsa-certificate-signatures.md).
 
 ## Elliptic-curve certificates
 

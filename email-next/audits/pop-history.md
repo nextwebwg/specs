@@ -15,7 +15,7 @@ sectionNav: true
 | References | RFC1939 base POP3 audit remains pending. |
 | Author’s Address | Contact information reviewed; no protocol requirement. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Interoperability tests must distinguish protocol-valid input from behavior required by a particular deployed client. A tolerant receive path must not accidentally make optional response text mandatory. Compatibility workarounds need an identified client and evidence, not a universal requirement inferred from historical popularity.
 

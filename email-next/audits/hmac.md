@@ -11,7 +11,7 @@ The selected MLS suite uses HMAC-SHA256. [RFC2104](https://www.rfc-editor.org/rf
 
 HMAC hashes the key first when it exceeds the hash's block length, pads the resulting key to that block length, and performs the specified inner and outer hash operations. The two fixed pads and ordering are part of the construction. The held proposal to prohibit long keys is not an adopted correction.
 
-MLS and HKDF determine the keys, input bytes and output use for their respective operations. RFC2104's generic truncation discussion does not authorize shortening an MLS tag or replacing HKDF's output rules. Likewise, its general key-refresh advice does not define a new Email Next rotation interval. Precomputed inner and outer hash states must receive the same secrecy protection as keys.
+MLS and HKDF determine the keys, input bytes and output use for their respective operations. RFC2104's generic truncation discussion does not authorize shortening an MLS tag or replacing HKDF's output rules. Likewise, its general key-refresh advice does not define a new Email/2 rotation interval. Precomputed inner and outer hash states must receive the same secrecy protection as keys.
 
 RFC2104's MD5 and SHA-1 examples are historical. The [RFC6151 update](hmac-md5-update.md) discourages HMAC-MD5 in new designs. Neither those examples nor algorithm-replacement discussion permits unilateral changes to the selected suite.
 

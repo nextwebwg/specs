@@ -16,7 +16,7 @@ Sources: [RFC 2046](https://www.rfc-editor.org/rfc/rfc2046.html), [metadata](htt
 | Section | Disposition and consequence |
 | --- | --- |
 | 1 — Introduction | Inherited extensible type/parameter model; current registration procedure remains a dependency. |
-| 2 — Definition of a Top-Level Media Type | Inherited top-level definition requirements; Email Next proposes no new top-level type. |
+| 2 — Definition of a Top-Level Media Type | Inherited top-level definition requirements; Email/2 proposes no new top-level type. |
 | 3 — Overview Of The Initial Top-Level Media Types | Inherited discrete/composite distinction; historical initial list is not a current registry inventory. |
 | 4 — Discrete Media Type Values | Inherited opaque discrete bodies; MIME parsing alone does not validate their internal formats. |
 | 4.1 — Text Media Type | Inherited text semantics; display-only reconstruction must not interpret plain text as authored executable markup. |

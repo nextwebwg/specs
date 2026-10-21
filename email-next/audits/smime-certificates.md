@@ -7,7 +7,7 @@ sectionNav: true
 
 A certificate received in email is evidence to validate, not a new trusted authority. S/MIME requires certificate-path and revocation checks before key use, and treats certificate discovery, address association and signature verification as separate steps.
 
-These are legacy S/MIME compatibility requirements. They do not replace Email Next principal/device identity, exact-mailbox association or MLS authorization. In particular, S/MIME’s address-comparison rules must not silently become Email Next identity normalization.
+These are legacy S/MIME compatibility requirements. They do not replace Email/2 principal/device identity, exact-mailbox association or MLS authorization. In particular, S/MIME’s address-comparison rules must not silently become Email/2 identity normalization.
 
 ## Review coverage
 
@@ -29,7 +29,7 @@ Complete base texts, numbered sections, modules where present, references and en
 | 2.2 — Certificate Choices | X.509 v1/v3 reception and recommended v2 attribute certificates reviewed; PKCS#6 can be parsed without being used, and v1 attribute certificates are not sent. |
 | 2.2.1 — Historical Note about CMS Certificates | X.509 v1/v3 reception and recommended v2 attribute certificates reviewed; PKCS#6 can be parsed without being used, and v1 attribute certificates are not sent. |
 | 2.3 — Included Certificates | Unordered, unrelated and multiple chains must not be mistaken for trust. Sender-supplied self-signed certificates need an independent trust decision. |
-| 3 — Using Distinguished Names for Internet Mail | Address-free certificates remain possible; address association, ASCII/internationalized matching, From/Sender comparison and visible certificate identity are distinct checks. This does not change Email Next exact-address identity rules. |
+| 3 — Using Distinguished Names for Internet Mail | Address-free certificates remain possible; address association, ASCII/internationalized matching, From/Sender comparison and visible certificate identity are distinct checks. This does not change Email/2 exact-address identity rules. |
 | 4 — Certificate Processing | Retrieval, caching, certs-only import/export, overlapping CA certificates and fresh revocation evidence reviewed; discovery is not trust. |
 | 4.1 — Certificate Revocation Lists | Retrieval, caching, certs-only import/export, overlapping CA certificates and fresh revocation evidence reviewed; discovery is not trust. |
 | 4.2 — Certificate Path Validation | Path validation precedes key use; ESS certificate-binding attributes and encryption-key preference control certificate selection when present. |

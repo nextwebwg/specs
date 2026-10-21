@@ -5,7 +5,7 @@ sectionNav: true
 
 # Certificate paths and revocation audit
 
-RFC 5280 supplies the certificate-path and CRL foundation for Email Next's HTTPS services. It does not establish which service may receive a button answer, which trust roots a client should install, or whether a service accepted that answer. Those remain separate application decisions.
+RFC 5280 supplies the certificate-path and CRL foundation for Email/2's HTTPS services. It does not establish which service may receive a button answer, which trust roots a client should install, or whether a service accepted that answer. Those remain separate application decisions.
 
 **Review status:** The complete 151-page base document, including all ASN.1 modules, diagrams, four annotated examples, references and end matter, has been read. Current RFC Editor metadata and all 23 live errata records have been reviewed. The base review is complete; the current certificate profile is not closed because implementation evidence and underlying dependency reviews remain open. The local handshake experiment does not establish full path-validation conformance.
 
@@ -25,11 +25,11 @@ The base issuance profile is **not** a universal certificate-linting rejection p
 
 ## What this dependency does not select
 
-Email Next does not acquire a CA enrollment, certificate backup, cross-certification, LDAP directory, timestamp service, X.400 identity or certificate policy OID merely by referencing RFC 5280. Optional extensions still need correct handling if present and relevant; unsupported critical extensions cannot simply be ignored.
+Email/2 does not acquire a CA enrollment, certificate backup, cross-certification, LDAP directory, timestamp service, X.400 identity or certificate policy OID merely by referencing RFC 5280. Optional extensions still need correct handling if present and relevant; unsupported critical extensions cannot simply be ignored.
 
 The legacy RSA/DSA, 1024-bit and SHA-1 examples in Appendix C demonstrate encodings, not current service cryptographic defaults. SHA-1 examples for key identifiers likewise do not approve SHA-1 certificate signatures. Selected certificate algorithms and their parameter encodings remain library and algorithm-profile dependencies.
 
-RFC 5280 leaves wildcard identity semantics to applications. Email Next's HTTPS DNS-ID matching follows RFC 9525. Its base internationalization text still references IDNA2003; it must not be copied over the current internationalization updates. A service certificate's other names do not change the application-selected endpoint or establish a mailbox/device binding.
+RFC 5280 leaves wildcard identity semantics to applications. Email/2's HTTPS DNS-ID matching follows RFC 9525. Its base internationalization text still references IDNA2003; it must not be copied over the current internationalization updates. A service certificate's other names do not change the application-selected endpoint or establish a mailbox/device binding.
 
 AIA and distribution-point URLs locate potential certificate/status data; their contents still require validation. Section 8 also discusses malformed retrieval data and recursive HTTPS dependencies. A future network implementation needs bounded retrieval and an explicit network-destination policy. The existing service TLS helper performs no such retrieval.
 

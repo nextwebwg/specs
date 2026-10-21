@@ -5,15 +5,15 @@ sectionNav: true
 
 # Hybrid public-key encryption
 
-[HPKE](https://www.rfc-editor.org/rfc/rfc9180.html) supplies the public-key encryption component used by the [selected MLS suite](../security-profile.md). Email Next retains MLS's algorithm selection, Base-mode use and context binding. It does not define a second HPKE email envelope. Base-mode encryption does not authenticate the sender or establish mailbox ownership; accepted device bindings, message authentication and group admission remain separate checks.
+[HPKE](https://www.rfc-editor.org/rfc/rfc9180.html) supplies the public-key encryption component used by the [selected MLS suite](../security-profile.md). Email/2 retains MLS's algorithm selection, Base-mode use and context binding. It does not define a second HPKE email envelope. Base-mode encryption does not authenticate the sender or establish mailbox ownership; accepted device bindings, message authentication and group admission remain separate checks.
 
 ## Consequences for implementations
 
 Preserve the library's input validation, key serialization, labeled key derivation, nonce sequencing and failure handling. A decryption failure does not authorize a plaintext retry. Application context must retain its defined binding; the application `info` parameter is distinct from the internal inputs to labeled expansion.
 
-HPKE alone does not supply message ordering, loss recovery, replay protection or downgrade prevention. It does not provide forward secrecy against compromise of the recipient's private key. Email Next relies on its selected MLS construction and durable application state for the applicable group and message guarantees, rather than attributing them to HPKE alone. The selected suite is not post-quantum.
+HPKE alone does not supply message ordering, loss recovery, replay protection or downgrade prevention. It does not provide forward secrecy against compromise of the recipient's private key. Email/2 relies on its selected MLS construction and durable application state for the applicable group and message guarantees, rather than attributing them to HPKE alone. The selected suite is not post-quantum.
 
-Auth and AuthPSK modes, alternative curves and AEADs, and export-only operation appear in the source. Their presence does not add them to the Email Next profile. In particular, export-only operation does not encrypt email content.
+Auth and AuthPSK modes, alternative curves and AEADs, and export-only operation appear in the source. Their presence does not add them to the Email/2 profile. In particular, export-only operation does not encrypt email content.
 
 ## Integer and byte conversions
 

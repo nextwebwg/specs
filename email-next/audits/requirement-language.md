@@ -7,7 +7,7 @@ sectionNav: true
 
 # Requirement language audit
 
-[RFC2119](https://www.rfc-editor.org/rfc/rfc2119.html) and its update [RFC8174](https://www.rfc-editor.org/rfc/rfc8174.html) define the requirement vocabulary used by this draft. Both complete base texts, including front matter and closing material, were reviewed. They establish interpretation conventions; they do not confer standards status on Email Next.
+[RFC2119](https://www.rfc-editor.org/rfc/rfc2119.html) and its update [RFC8174](https://www.rfc-editor.org/rfc/rfc8174.html) define the requirement vocabulary used by this draft. Both complete base texts, including front matter and closing material, were reviewed. They establish interpretation conventions; they do not confer standards status on Email/2.
 
 | Source section | Disposition |
 | --- | --- |

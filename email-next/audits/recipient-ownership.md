@@ -52,7 +52,7 @@ RRVS is a useful provider-side misdelivery check. It cannot establish encryption
 | 14.2 | Rate/abuse controls needed against repeated historical probes. |
 | 14.3 | Header can expose envelope recipients absent from To/Cc; avoid multi-recipient tunnel and Bcc disclosure. |
 | 14.4 | Unremoved fields can leak on forwarding and signal valuable content. |
-| 15 | Existing registrations reviewed; no new Email Next registration claimed. |
+| 15 | Existing registrations reviewed; no new Email/2 registration claimed. |
 | 15.1 | RRVS SMTP registration points to3.1. |
 | 15.2 | Permanent mail header registered; changes require review. |
 | 15.3 | X.7.17 mailbox owner change, X.7.18 domain owner change, X.7.19 test unavailable; associated5XX. These are not cryptographic revocation events. |
@@ -64,7 +64,7 @@ RRVS is a useful provider-side misdelivery check. It cannot establish encryption
 
 | Front/end matter | Abstract, status, copyright and author addresses reviewed. |
 
-## Email Next integration
+## Email/2 integration
 
 The [identity lifecycle](../identity-lifecycle.md) keeps delivery evidence separate from endpoint authorization. A required failed check must not be removed automatically on retry. Header tunneling must not expose another recipient's address or confirmation timestamp, including Bcc recipients.
 

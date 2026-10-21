@@ -46,7 +46,7 @@ Complete 64-page [RFC7208](https://www.rfc-editor.org/rfc/rfc7208.html), all exa
 | 4.6.1 | Term Evaluation | Mechanism/modifier grammar and case-insensitive names read. |
 | 4.6.2 | Mechanisms | Left-to-right matching, qualifiers and exceptions reviewed. |
 | 4.6.3 | Modifiers | Modifiers are not predicates; redirect acts after unmatched mechanisms. |
-| 4.6.4 | DNS Lookup Limits | Global ten query-causing terms, MX/PTR bounds, elapsed-time and void-lookup rules read; source limits not Email Next defaults. |
+| 4.6.4 | DNS Lookup Limits | Global ten query-causing terms, MX/PTR bounds, elapsed-time and void-lookup rules read; source limits not Email/2 defaults. |
 | 4.7 | Default Result | No match defaults neutral unless redirected. |
 | 4.8 | Domain Specification | Invalid expanded targets explicitly unspecified; do not invent universally required behavior. |
 | 5 | Mechanism Definitions | Address-family/CIDR and DNS error rules reviewed. |
@@ -111,7 +111,7 @@ Complete 64-page [RFC7208](https://www.rfc-editor.org/rfc/rfc7208.html), all exa
 | Appendix F | MTA Relays | Boundary inputs and secondary-MX issues reviewed. |
 | Appendix G | Local Policy Considerations | All local policy considerations, queue-delay risks and end matter read. |
 
-## Consequences for Email Next
+## Consequences for Email/2
 
 SPF is useful transport-domain evidence. It does not authenticate encryption keys, visible authors or every user of a shared sending service. Forwarding can change SPF results without changing an endpoint-protected contribution. The [discovery contract](../capability-discovery.md) therefore separates capabilities and keys from SPF, limits diagnostic authority, and requires privacy-aware lookup and caching rules.
 

@@ -15,13 +15,13 @@ The service profile should reference RFC 5280 policy processing **as updated by 
 
 The graph merges duplicate policy nodes at each depth and permits multiple parents. Its size is bounded linearly by the number of policy entries and mappings in the input. That is not a guarantee that arbitrary certificates consume negligible resources. A caller must not reconstruct every graph path merely to retain an old tree-shaped result; doing so restores the original risk. Legacy tree output is deprecated and NOT RECOMMENDED, and implementations that require it SHOULD mitigate its cost. See §§4.1–4.2 and 5.6.
 
-If graph processing is unavailable, alternative mitigations SHOULD be applied. Verify signatures before or alongside policy checking; signature-first alone does not eliminate attacks by entities controlling otherwise trusted, insufficiently constrained intermediates. Depth/size limits and policy-mapping inhibition have compatibility consequences. The RFC specifies no numerical resource limits for Email Next, and this review adds none. See §§6–6.4.
+If graph processing is unavailable, alternative mitigations SHOULD be applied. Verify signatures before or alongside policy checking; signature-first alone does not eliminate attacks by entities controlling otherwise trusted, insufficiently constrained intermediates. Depth/size limits and policy-mapping inhibition have compatibility consequences. The RFC specifies no numerical resource limits for Email/2, and this review adds none. See §§6–6.4.
 
 **Disabling policy checking is not permission to ignore critical policy extensions.** Section 6.5 requires critical policy-related extensions, notably policy constraints, to be treated as unrecognized and rejected in that configuration. A successful ordinary TLS handshake does not verify this behavior.
 
 ## Client versus issuer guidance
 
-The graph/output recommendations and critical-extension handling apply to validators. Section 6.4 separately says CAs SHOULD NOT issue certificates with policy mappings and RECOMMENDS that applications managing trust-anchor policies forbid that extension in participating CAs. This does not automatically make every mapped chain invalid for every client. If Email Next selects mapping inhibition or a trust-program prohibition, state that choice and its compatibility effect separately.
+The graph/output recommendations and critical-extension handling apply to validators. Section 6.4 separately says CAs SHOULD NOT issue certificates with policy mappings and RECOMMENDS that applications managing trust-anchor policies forbid that extension in participating CAs. This does not automatically make every mapped chain invalid for every client. If Email/2 selects mapping inhibition or a trust-program prohibition, state that choice and its compatibility effect separately.
 
 ## Evidence and remaining dependencies
 

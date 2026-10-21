@@ -31,7 +31,7 @@ The registry prevents code collisions. Its associated basic SMTP codes are examp
 
 Reported erratum 8207 proposes changing the X.5.3 basic-code association from 451 to 452 for excessive recipients. Preserve its reported status. RFC 5321's explicit recipient-limit rule governs that condition; the non-exclusive registry table is not grounds to substitute 451 for a mandated 452.
 
-The term “Encryption Needed” for X.7.10 concerns a privacy layer for authentication. It is not evidence that a recipient supports an Email Next cryptographic suite. “Trust relationship required” for X.7.14 concerns submission-server access to third-party content, not proof that a human correspondent has verified an endpoint key.
+The term “Encryption Needed” for X.7.10 concerns a privacy layer for authentication. It is not evidence that a recipient supports an Email/2 cryptographic suite. “Trust relationship required” for X.7.14 concerns submission-server access to third-party content, not proof that a human correspondent has verified an endpoint key.
 
 Do not allocate new public enhanced status numbers merely by using them in this proposal. Proposed registrations need exact semantics, scope, reference, change controller and review. Local application errors remain separate from SMTP replies.
 

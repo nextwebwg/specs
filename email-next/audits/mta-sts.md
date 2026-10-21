@@ -5,7 +5,7 @@ sectionNav: true
 
 # MTA-STS audit
 
-The complete captured [RFC8461](https://www.rfc-editor.org/rfc/rfc8461.html) text has been reviewed, including both appendices and end matter. MTA-STS can protect a delivery route between providers. It does not authenticate an Email Next account or prevent providers from reading plaintext.
+The complete captured [RFC8461](https://www.rfc-editor.org/rfc/rfc8461.html) text has been reviewed, including both appendices and end matter. MTA-STS can protect a delivery route between providers. It does not authenticate an Email/2 account or prevent providers from reading plaintext.
 
 ## Section dispositions
 
@@ -33,7 +33,7 @@ The complete captured [RFC8461](https://www.rfc-editor.org/rfc/rfc8461.html) tex
 | 8.2 | Policy Delegation | Delegated hosting retains original policy-host certificate identity; proxy cache exception is distinct. |
 | 8.3 | Removing MTA-STS | Publish none policy before removal; wait for all previously served policies to expire. |
 | 8.4 | Preserving MX Candidate Traversal | Preserve candidate traversal and loop prevention; backup misconfiguration may remain latent. |
-| 9 | IANA Considerations | Existing registrations do not allocate an Email Next extension. |
+| 9 | IANA Considerations | Existing registrations do not allocate an Email/2 extension. |
 | 9.1 | Well-Known URIs Registry | Registered well-known mta-sts.txt path reviewed. |
 | 9.2 | MTA-STS TXT Record Fields | TXT v/id registry and Expert Review procedure reviewed. |
 | 9.3 | MTA-STS Policy Fields | Policy version/mode/max_age/mx registry and Expert Review procedure reviewed. |

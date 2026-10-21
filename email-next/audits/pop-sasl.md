@@ -36,4 +36,4 @@ Complete twelve-page RFC5034 read. No errata in refreshed dataset checked19Octob
 
 ## Proposed consequence
 
-Email Next discovery records carry their authenticated context. A session upgrade requires capability refresh; previous unauthenticated claims cannot become trusted merely because the connection is now protected. Account authentication does not prove a correspondent's end-to-end identity. Current TLS and SASL mechanism selection remains separate audit work.
+Email/2 discovery records carry their authenticated context. A session upgrade requires capability refresh; previous unauthenticated claims cannot become trusted merely because the connection is now protected. Account authentication does not prove a correspondent's end-to-end identity. Current TLS and SASL mechanism selection remains separate audit work.

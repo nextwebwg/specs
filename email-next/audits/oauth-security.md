@@ -9,7 +9,7 @@ RFC9700 strengthens the configured HTTPS button service's bearer-token boundary.
 
 ## Consequences for the service profile
 
-The configured bearer experiment can remain an explicit limited implementation choice, but server-side scope/audience checks, secret storage and proxy protection remain necessary. Service submission idempotency prevents repeating one business operation; it does not prevent an attacker using a stolen bearer token to create another authorized-looking submission. An Email Next device signature does not automatically turn an OAuth token into a sender-constrained token. Select and audit mTLS/RFC8705 or DPoP/RFC9449 if that property is claimed.
+The configured bearer experiment can remain an explicit limited implementation choice, but server-side scope/audience checks, secret storage and proxy protection remain necessary. Service submission idempotency prevents repeating one business operation; it does not prevent an attacker using a stolen bearer token to create another authorized-looking submission. An Email/2 device signature does not automatically turn an OAuth token into a sender-constrained token. Select and audit mTLS/RFC8705 or DPoP/RFC9449 if that property is claimed.
 
 For every request, reject a token intended for another service, resource or action. Map token subjects to enp0 only through an authoritative association that distinguishes a client identity from a human resource owner; a client-controlled client_id or sub string cannot impersonate an account. Do not log/store/forward plaintext access tokens. At a TLS-terminating proxy, sanitize attacker-supplied security headers and protect the backend connection against eavesdropping, injection and replay.
 
@@ -30,7 +30,7 @@ Complete46-page base text, all2569 lines, examples/pseudocode, references and en
 | 2 | Core best practices plus detailed section4 requirements reviewed. |
 | 2.1 | Exact redirect matching, CSRF, issuer mix-up defense and credential-safe redirect requirements apply to the selected native acquisition flow. |
 | 2.1.1 | Public clients require PKCE; confidential clients recommended; transaction-specific binding, S256 preference, verifier enforcement and detectable support required. |
-| 2.1.2 | Implicit/token-in-authorization-response discouraged; not selected for Email Next acquisition. |
+| 2.1.2 | Implicit/token-in-authorization-response discouraged; not selected for Email/2 acquisition. |
 | 2.2 | Token replay prevention is separate from business submission deduplication. |
 | 2.2.1 | Sender-constrained access tokens SHOULD be used; plain configured bearer baseline needs explicit bounded exception/rationale, not full BCP compliance claim. |
 | 2.2.2 | Public-client refresh tokens MUST be sender-constrained or rotated; confidential-client binding remains. |
@@ -116,7 +116,7 @@ Sources: https://www.rfc-editor.org/rfc/rfc9700.html ; https://www.rfc-editor.or
 
 ## PKCE dependency for client sign-in
 
-PKCE binds one authorization request to its token exchange. Generate a fresh high-entropy verifier for each request, send its S256 challenge to the authorization endpoint, and disclose the verifier only to the token endpoint. Select S256 explicitly; an error does not permit downgrading to plain. The server retains the challenge and method with the code and checks the verifier before issuing tokens. PKCE does not establish an Email Next principal, service ownership or action permission. [RFC 7636 §§4 and 7](https://www.rfc-editor.org/rfc/rfc7636.html#section-4)
+PKCE binds one authorization request to its token exchange. Generate a fresh high-entropy verifier for each request, send its S256 challenge to the authorization endpoint, and disclose the verifier only to the token endpoint. Select S256 explicitly; an error does not permit downgrading to plain. The server retains the challenge and method with the code and checks the verifier before issuing tokens. PKCE does not establish an Email/2 principal, service ownership or action permission. [RFC 7636 §§4 and 7](https://www.rfc-editor.org/rfc/rfc7636.html#section-4)
 
 Verified erratum 5687 corrects the compatibility text: the authorization request carries the challenge, not the verifier. Reports 6179 and 6471 remain unverified; rejected reports 8457 and 8458 do not change the ABNF names. The complete base text and appendix encoding vectors were reviewed; this source review does not prove an implemented authorization flow or deployed interoperability. [RFC 7636 errata](https://www.rfc-editor.org/errata/rfc7636)
 
@@ -126,13 +126,13 @@ A native mail client opens authorization in an external browser security context
 
 For a loopback callback, bind only a loopback interface and retain the exact selected URI with the pending authorization request. Register the complete address and path; the ephemeral port is the matching exception. Use an IP literal, allow the available IP version, and close the listener after the response. An incoming callback still needs the pending transaction's state, issuer and redirect checks before code redemption. Loopback HTTP is a specific native callback exception, not permission to send service credentials over ordinary HTTP. [RFC 8252 §§7.3–8.4](https://www.rfc-editor.org/rfc/rfc8252.html#section-7.3)
 
-The issuer response parameter identifies the authorization server, not the person or Email Next principal. Decode `iss` from form encoding and compare it as an exact string with the issuer retained for that attempt. Apply the check to success and error responses. When support is required, a missing or different issuer stops the flow; the callback cannot nominate another token endpoint. Issuer identifiers use HTTPS without a query or fragment, and distinct authorization servers must not share one identifier. Static trusted issuer configuration is permitted; automatic metadata discovery is a separate choice. [RFC 9207 §§2–4](https://www.rfc-editor.org/rfc/rfc9207.html#section-2)
+The issuer response parameter identifies the authorization server, not the person or Email/2 principal. Decode `iss` from form encoding and compare it as an exact string with the issuer retained for that attempt. Apply the check to success and error responses. When support is required, a missing or different issuer stops the flow; the callback cannot nominate another token endpoint. Issuer identifiers use HTTPS without a query or fragment, and distinct authorization servers must not share one identifier. Static trusted issuer configuration is permitted; automatic metadata discovery is a separate choice. [RFC 9207 §§2–4](https://www.rfc-editor.org/rfc/rfc9207.html#section-2)
 
 ::: {.details summary="Why the experiment selects one callback and token model"}
 
 The desktop experiment selects a loopback callback, an independently configured issuer and opaque tokens validated by the service's own authorization store. This gives the reference implementation a concrete sign-in path without requiring platform app-link registration, dynamic discovery or a new JWT validation profile. Those are scope choices, not limitations imposed by OAuth.
 
-The choice also limits the claim: it does not demonstrate mobile callback integration, a general authorization server or federation between independent token issuers and resource servers. Supporting those deployments requires their corresponding contracts and tests. The selected issuer check prevents a callback from redirecting code redemption to a different configured authority; it does not authenticate the Email Next principal or replace the service's account-link proof.
+The choice also limits the claim: it does not demonstrate mobile callback integration, a general authorization server or federation between independent token issuers and resource servers. Supporting those deployments requires their corresponding contracts and tests. The selected issuer check prevents a callback from redirecting code redemption to a different configured authority; it does not authenticate the Email/2 principal or replace the service's account-link proof.
 
 :::
 
@@ -159,7 +159,7 @@ These sections, their flow diagrams and complete examples were reviewed. The ref
 
 The [OAuth framework audit](oauth-framework.md) maps every RFC6749 section and appendix, including diagrams, examples, grammar, registry templates and all 31 captured errata, to the selected profile. These completed reviews are included in the current source inventory and section ledger; complete transitive dependency closure remains open.
 
-Its historical TLS and embedded-browser allowances are superseded by the reviewed security and native-app updates. Its registration procedures do not register Email Next fields or scopes. The live registry review remains limited to the 22 selected entries described above. Source review does not establish implementation conformance or independent interoperability.
+Its historical TLS and embedded-browser allowances are superseded by the reviewed security and native-app updates. Its registration procedures do not register Email/2 fields or scopes. The live registry review remains limited to the 22 selected entries described above. Source review does not establish implementation conformance or independent interoperability.
 
 
 ::: {.details summary="Supplemental OAuth section dispositions"}
@@ -168,8 +168,8 @@ Its historical TLS and embedded-browser allowances are superseded by the reviewe
 
 | Section | Disposition |
 | --- | --- |
-| 1 — Introduction | Authorization-code interception threat and full request/code/verifier/token flow reviewed; PKCE does not authenticate the Email Next principal. |
-| 1.1 — Protocol Flow | Authorization-code interception threat and full request/code/verifier/token flow reviewed; PKCE does not authenticate the Email Next principal. |
+| 1 — Introduction | Authorization-code interception threat and full request/code/verifier/token flow reviewed; PKCE does not authenticate the Email/2 principal. |
+| 1.1 — Protocol Flow | Authorization-code interception threat and full request/code/verifier/token flow reviewed; PKCE does not authenticate the Email/2 principal. |
 | 2 — Notational Conventions | Requirements, notation and terminology reviewed; verifier and challenge are distinct values. |
 | 3 — Terminology | Requirements, notation and terminology reviewed; verifier and challenge are distinct values. |
 | 3.1 — Abbreviations | Requirements, notation and terminology reviewed; verifier and challenge are distinct values. |

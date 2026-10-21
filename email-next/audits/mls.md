@@ -5,7 +5,7 @@ sectionNav: true
 
 # Messaging Layer Security audit
 
-The complete [RFC9420](https://www.rfc-editor.org/rfc/rfc9420.html), all structures, algorithms, figures, tables, appendices, references and end matter have been read. All five captured errata are covered in the [errata reconciliation](mls-errata.md). This base-text audit does not establish a complete Email Next MLS binding, dependency closure or verified implementation.
+The complete [RFC9420](https://www.rfc-editor.org/rfc/rfc9420.html), all structures, algorithms, figures, tables, appendices, references and end matter have been read. All five captured errata are covered in the [errata reconciliation](mls-errata.md). This base-text audit does not establish a complete Email/2 MLS binding, dependency closure or verified implementation.
 
 | Section | Topic | Disposition |
 | --- | --- | --- |
@@ -143,7 +143,7 @@ The [selected security profile](../security-profile.md) defines the credential e
 
 ## Selected registry bindings
 
-The [IANA MLS registry](https://www.iana.org/assignments/mls/) identifies suite `0x0001` as the selected X25519/AES-128-GCM/SHA-256/Ed25519 suite and credential type `0x0001` as `basic`. The extension range `0xF000–0xFFFF` remains private use. The experiment's `0xFF00` context is inside that range; this is not an Email Next allocation or a guarantee against collisions.
+The [IANA MLS registry](https://www.iana.org/assignments/mls/) identifies suite `0x0001` as the selected X25519/AES-128-GCM/SHA-256/Ed25519 suite and credential type `0x0001` as `basic`. The extension range `0xF000–0xFFFF` remains private use. The experiment's `0xFF00` context is inside that range; this is not an Email/2 allocation or a guarantee against collisions.
 
 The corresponding [HPKE registry](https://www.iana.org/assignments/hpke/) identifies KEM `0x0020` as DHKEM(X25519, HKDF-SHA256), KDF `0x0001` as HKDF-SHA256 and AEAD `0x0001` as AES-128-GCM. The AEAD sizes are 16-byte keys, 12-byte nonces and 16-byte tags. These entries describe identifiers and parameters, not implementation validation.
 

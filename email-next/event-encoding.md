@@ -29,7 +29,7 @@ The event's authenticated representation is its exact UTF-8 octet sequence after
 
 Object member order and insignificant JSON whitespace do not change interpretation, but changing either changes the authenticated representation. Two differently serialized records under the same authenticated event identity are therefore a conflict, even if they parse into equal objects. Implementations must reuse stored event bytes when retransmitting. This deliberate rule avoids requiring a JSON canonicalization algorithm in this experimental profile.
 
-The security profile MUST bind these bytes together with their protocol purpose, version and applicable author/audience context. Merely signing arbitrary JSON bytes is not the complete Email Next signature construction. MIME transfer re-encoding can preserve the event bytes; changing decoded content cannot.
+The security profile MUST bind these bytes together with their protocol purpose, version and applicable author/audience context. Merely signing arbitrary JSON bytes is not the complete Email/2 signature construction. MIME transfer re-encoding can preserve the event bytes; changing decoded content cannot.
 
 ## Unknown fields and unsupported versions
 
@@ -75,7 +75,7 @@ After strict decoding and schema checks, the receiver MUST compare the claimed v
 
 A matching envelope is still not an authorized operation. Reference resolution, device authority, membership policy, form-revision validation, replay/collision handling and atomic effects remain necessary. An attacker cannot create a verified context merely by supplying an object labeled verified; that label exists only in the experiment's trusted caller interface.
 
-Draft sync, key negotiation, group controls, rich-body binding, and edits need their own selected schemas and purpose bindings. They MUST NOT be smuggled into a form operation or accepted as unknown members. This initial envelope therefore defines message and form-event shapes without claiming that every Email Next contribution kind is already specified. Private or hidden recipients are not represented by secretly omitting principals from this audience; they require the separately specified delivery policy and cannot share a misleading common-group context.
+Draft sync, key negotiation, group controls, rich-body binding, and edits need their own selected schemas and purpose bindings. They MUST NOT be smuggled into a form operation or accepted as unknown members. This initial envelope therefore defines message and form-event shapes without claiming that every Email/2 contribution kind is already specified. Private or hidden recipients are not represented by secretly omitting principals from this audience; they require the separately specified delivery policy and cannot share a misleading common-group context.
 
 
 ## Version 0 event resource bounds
@@ -94,6 +94,10 @@ Transfer and cryptographic implementations must separately bound buffering of en
 The [serialized event pipeline](evidence/README.md#serialized-event-pipeline) connects strict UTF-8/JSON decoding to the envelope and operation validators. Duplicate decoded member names fail before schema validation, while structurally wrong events fail even when their JSON is valid. The original byte representation remains separate from the parsed value. These finite integration checks use fixture principal labels and do not implement the cryptographic context or MIME binding.
 
 
+## Indexed reply content
+
+The proposed [reply-message operation](reply-content.md) carries a chunk index and corresponding HTML Microdata, with exact source selectors for text quotations. It requires its own explicit application/carrier agreement; the old operation dispatchers and immutable profiles remain unchanged. Generic JSON or Microdata recognition cannot enable it.
+
 ## Media-type category
 
 The proposed event representation uses the application top-level category. It does not require or request a new top-level MIME type. The [registration proposal](media-type-registration.md) selects a vendor-tree candidate, +json suffix, parameter policy and template. It has not been submitted or assigned. A supplied Content-Type selects candidate parsing behavior; it MUST NOT substitute for schema validation, authenticated context or operation authorization. See the [top-level media type audit](audits/media-top-level.md).
@@ -108,7 +112,7 @@ The experimental security profile now selects [account and device identifier enc
 
 The [media-type registration audit](audits/media-registration.md) supplies the base registration requirements. The experimental implementation may pursue a vendor-tree registration with a complete public format specification; that tree also accommodates noncommercial producers. A standards-tree proposal requires its separately established review and organization eligibility. No candidate name in this document is an assigned or reserved identifier.
 
-The final registration MUST distinguish payload encoding from MIME transfer encoding, define all parameters and any fragment behavior, and describe bounded parsing, authenticated-byte preservation and interaction authorization. Duplicate parameters are errors; an unknown parameter MUST NOT silently enable a new operation or protection mode. Generic JSON handling does not establish Email Next capability. A media-type match cannot authorize automatic replies, form submission, resource fetching or key installation.
+The final registration MUST distinguish payload encoding from MIME transfer encoding, define all parameters and any fragment behavior, and describe bounded parsing, authenticated-byte preservation and interaction authorization. Duplicate parameters are errors; an unknown parameter MUST NOT silently enable a new operation or protection mode. Generic JSON handling does not establish Email/2 capability. A media-type match cannot authorize automatic replies, form submission, resource fetching or key installation.
 
 
 ## Service-question dispatch

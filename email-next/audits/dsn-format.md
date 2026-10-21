@@ -59,7 +59,7 @@ Appendix E explicitly gives protocol definitions precedence over examples. Its g
 
 ## Security consequences
 
-Section4.3 resolves a critical distinction: an authentic failed report is not proof of nonreceipt. A completed transfer with a lost acknowledgment can cause retransmission; one copy can succeed while another attempt fails. Email Next must preserve contribution identity across retry, retain conflicting delivery observations and avoid automatic duplicate actions.
+Section4.3 resolves a critical distinction: an authentic failed report is not proof of nonreceipt. A completed transfer with a lost acknowledgment can cause retransmission; one copy can succeed while another attempt fails. Email/2 must preserve contribution identity across retry, retain conflicting delivery observations and avoid automatic duplicate actions.
 
 Optional diagnostic information can be omitted for confidentiality, but this does not waive stronger requirements in an applicable SMTP profile. A provider must select a valid forwarding/reporting arrangement rather than simply deleting arbitrary required fields. Nonconforming downstream systems may still expose forwarding addresses through header-based responses; the specification cannot promise secrecy across such systems.
 

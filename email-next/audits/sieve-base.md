@@ -68,7 +68,7 @@ The complete captured [RFC5228](https://www.rfc-editor.org/rfc/rfc5228.html) tex
 | [5.9](https://www.rfc-editor.org/rfc/rfc5228.html#section-5.9) | Test size | Size counts IMF octets; strict under/over excludes equality and differs from decoded event size. |
 | [5.10](https://www.rfc-editor.org/rfc/rfc5228.html#section-5.10) | Test true | True is a constant predicate. |
 | [6](https://www.rfc-editor.org/rfc/rfc5228.html#section-6) | Extensibility | Extension interactions, version naming and loop suppression need explicit contracts. |
-| [6.1](https://www.rfc-editor.org/rfc/rfc5228.html#section-6.1) | Capability String | Case-sensitive names/vendor prefixes do not allocate an Email Next capability. |
+| [6.1](https://www.rfc-editor.org/rfc/rfc5228.html#section-6.1) | Capability String | Case-sensitive names/vendor prefixes do not allocate an Email/2 capability. |
 | [6.2](https://www.rfc-editor.org/rfc/rfc5228.html#section-6.2) | IANA Considerations | Registration procedure does not activate a user's filter. |
 | [6.2.1](https://www.rfc-editor.org/rfc/rfc5228.html#section-6.2.1) | Template for Capability Registrations | Registration template reviewed; no submission made. |
 | [6.2.2](https://www.rfc-editor.org/rfc/rfc5228.html#section-6.2.2) | Handling of Existing Capability Registrations | Historical registry field migration reviewed. |

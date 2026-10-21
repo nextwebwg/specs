@@ -22,7 +22,7 @@ The `noRevAvail` extension is OID `2.5.29.56`, with a NULL value (`05 00` in DER
 
 AIA issuer-certificate retrieval is not categorically prohibited. An absent OCSP URL or distribution-point extension is not equivalent to an explicit `noRevAvail` assertion. The exception skips that certificate's revocation step; it does not skip signature, validity, path, purpose or service-name checks, or the applicable checks on other certificates in its path.
 
-The RFC sets no numerical definition of “short-lived.” Its rationale compares lifetime with the time needed to detect, report and distribute a revocation. Do not invent an approved number of days. Its long-lived factory-device example does not require Email Next to accept never-expiring service certificates. Any additional service issuance/acceptance constraint would be a separate proposal.
+The RFC sets no numerical definition of “short-lived.” Its rationale compares lifetime with the time needed to detect, report and distribute a revocation. Do not invent an approved number of days. Its long-lived factory-device example does not require Email/2 to accept never-expiring service certificates. Any additional service issuance/acceptance constraint would be a separate proposal.
 
 ## Implementation and dependency boundaries
 

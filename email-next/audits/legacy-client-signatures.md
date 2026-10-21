@@ -11,7 +11,7 @@ RFC9963 permits an optional exception for legacy client certificate keys that ca
 
 RFC9846§9.1's mandatory-to-implement rsa_pss_rsae_sha256 support can coexist with RFC9963's optional choice of a different signature for a particular legacy client key. RFC9963§4 explicitly retains RSA-PSS for TLS1.3 servers using RSA keys. Its new codes are only for client CertificateVerify; they are neither server handshake signatures nor the existing rsa_pkcs1_* certificate-signature codes.
 
-The broad sentence in RFC9846§1.2 must therefore not be read as abolishing all PSS requirements. The operative interpretation is the limited client-key exception defined by9963. No erratum adjudicating that summary is claimed. Email Next's configured bearer service does not select client-certificate authentication, so this exception need not be enabled.
+The broad sentence in RFC9846§1.2 must therefore not be read as abolishing all PSS requirements. The operative interpretation is the limited client-key exception defined by9963. No erratum adjudicating that summary is claimed. Email/2's configured bearer service does not select client-certificate authentication, so this exception need not be enabled.
 
 ## If a future client-certificate profile selects it
 

@@ -97,7 +97,7 @@ A withdrawal uses normal readable/HTML/structured alternatives and no reaction-d
 
 The candidate generated-layout selector pairs one structured event with its first reaction part within the same compound/protection scope. Its decoded bytes must equal UTF-8 of the structured emoji followed by CRLF. A mismatch produces a projection diagnostic; the first part cannot override the independently authenticated structured event. That event may still be processed with the discrepancy visible.
 
-Once the structured event is processed, its paired reaction part is presentation, not another event. Pending, unsupported, malformed or failed structured processing MUST NOT silently promote the neighboring part into a trusted Email Next reaction. Legacy-only display retains its actual provenance.
+Once the structured event is processed, its paired reaction part is presentation, not another event. Pending, unsupported, malformed or failed structured processing MUST NOT silently promote the neighboring part into a trusted Email/2 reaction. Legacy-only display retains its actual provenance.
 
 Legacy reactions lacking structured evidence remain separate observations. Emoji equality, From, subject and target alone cannot prove equivalence after a gateway removes structured content. Perfect deduplication after such transformation is not claimed. Ambiguous multiple parts, wrong ordering or scope failures leave this generated-layout selector inactive with the source inspectable. Nested forwarded messages do not act as the enclosing author.
 

@@ -25,7 +25,7 @@ Source SHA-256: `33f3137b356687cc08d2500366125c6f28325a1535fd77a23ebb9f4983c74cd
 
 ## Inherited behavior and selected restrictions
 
-| Property | CSS behavior | Email Next selection |
+| Property | CSS behavior | Email/2 selection |
 | --- | --- | --- |
 | font-family | Inherited; generics can map to different fonts by language, platform and preferences. Quoted names are distinct from unquoted generics. | One of serif, sans-serif or monospace for sender content; no named fonts, lists or quoted family names |
 | font-weight | Inherited; normal corresponds to 400 and bold to 700. Missing faces can require fallback or synthesis. | Normal, bold, literal 400 or literal 700 |

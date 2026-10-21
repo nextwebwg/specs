@@ -28,6 +28,8 @@ To and Cc contain principals, not mailbox addresses. They describe the author's 
 
 A [private copy](private-copies.md) has its own audience and contribution. Its roles cannot mention recipients outside that audience. The same rule applies when several authorized devices belong to one principal: recipient roles describe the person or account, while device membership follows the group contract.
 
+The [required Email/2 suite](suite-profile.md) additionally carries [encrypted personal mailbox addresses](private-address-presentation.md) under envelope4. This chapter's envelope3 describes the earlier subject/role component; it does not establish complete Email/2 conformance. [Opaque provider routes](private-routing.md) remain a separate delivery capability whose provisioning/use and integration are unfinished.
+
 ## Confidentiality and ordinary copies
 
 Protected transport uses a generic outer subject. Implementations MUST NOT copy the protected subject into that field. SMTP addressing and other routing metadata remain visible to the transport; this profile does not conceal traffic relationships.

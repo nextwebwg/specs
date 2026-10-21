@@ -130,7 +130,7 @@ The [vector experiment](header-vector-checks.md) records exact verification scop
 
 The [transport contract](../transport.md) adopts baseline subject confidentiality for the legacy S/MIME composition path. The [rendering contract](../rendering.md) uses protected fields for threading while keeping sender signature validity separate from address binding. The [delivery policy](../delivery-policy.md) preserves inherited confidentiality through edits and derives decorative display content after final exposure decisions.
 
-Those last two composition choices are explicit proposal behavior. Appendix D.2.2 acknowledges that its exact-value ReferenceHCP mapping leaks an edited subject under a no-confidentiality local policy. Appendix D.2.2.1 includes a decoration that Section 5.2.1's earlier local-policy-only calculation would omit. Email Next's reconciliation is not an approved correction to the RFC.
+Those last two composition choices are explicit proposal behavior. Appendix D.2.2 acknowledges that its exact-value ReferenceHCP mapping leaks an edited subject under a no-confidentiality local policy. Appendix D.2.2.1 includes a decoration that Section 5.2.1's earlier local-policy-only calculation would omit. Email/2's reconciliation is not an approved correction to the RFC.
 
 ## Remaining source reconciliation
 

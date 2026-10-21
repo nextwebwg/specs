@@ -10,7 +10,7 @@ The complete base text of [RFC5229](https://www.rfc-editor.org/rfc/rfc5229.html)
 | Section | Topic | Disposition |
 | --- | --- | --- |
 | 1 | Introduction | Applies only when the script requires variables; requirement declarations themselves are not expanded. |
-| 2 | Capability Identifier | The variables capability denotes interpreter support, not recipient support for Email Next. |
+| 2 | Capability Identifier | The variables capability denotes interpreter support, not recipient support for Email/2. |
 | 3 | Interpretation of Strings | Expansion is single-pass, names are case-insensitive, unknown variables become empty; namespace use requires the relevant extension. |
 | 3.1 | Quoting and Encoded Characters | Backslash decoding precedes encoded-character decoding and then variable substitution; a backslash does not generally prevent expansion. |
 | 3.2 | Match Variables | Successful non-greedy matches populate numbered captures; evaluation short-circuits left-to-right; list iteration order is not fully fixed. Verified erratum5015 corrects fileinfo to fileinto. |
@@ -30,9 +30,9 @@ The complete base text of [RFC5229](https://www.rfc-editor.org/rfc/rfc5229.html)
 | 9 | Acknowledgments | Acknowledgments reviewed; no additional protocol behavior. |
 | 10 | References | Both reference lists and end matter reviewed. |
 | 10.1 | Normative References | Sieve, relational comparisons, UTF-8, ABNF and requirement-keyword dependencies remain separately scoped. |
-| 10.2 | Informative References | Historical Unicode reference, regex draft and spam-test extension do not establish Email Next trust. |
+| 10.2 | Informative References | Historical Unicode reference, regex draft and spam-test extension do not establish Email/2 trust. |
 
-## Consequences for Email Next
+## Consequences for Email/2
 
 Sieve variables can assist recipient-authorized sorting. They cannot establish the authenticity of a capability claim or key. A captured header remains sender-controlled data. Do not store serialized credentials, signed messages or key packages in these variables and then treat the resulting value as the authenticated original: truncation is explicitly allowed at runtime.
 

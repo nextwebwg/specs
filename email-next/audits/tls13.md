@@ -5,7 +5,7 @@ sectionNav: true
 
 # Current TLS 1.3 audit
 
-RFC9846 preserves TLS1.3 wire compatibility while tightening implementation requirements. Email Next can retain its selected HTTPS minimum of TLS1.3 and disabled early data. This review does not establish that any chosen TLS library or deployment implements the new requirements.
+RFC9846 preserves TLS1.3 wire compatibility while tightening implementation requirements. Email/2 can retain its selected HTTPS minimum of TLS1.3 and disabled early data. This review does not establish that any chosen TLS library or deployment implements the new requirements.
 
 ## Service consequences
 
@@ -17,7 +17,7 @@ For a selected library, check fresh generated key shares across connections (§4
 
 Resumption must preserve the original authenticated server identity constraints (§4.7.1), appropriate ticket lifetime and cumulative key lifetime policies. A ticket's wire maximum is seven days; this is separate from the proposed MLS package lifetime. PSK-only resumption lacks the asymmetric exchange's forward secrecy. Avoid tickets across deliberately isolated application contexts (AppendixC.4). Ordinary KeyUpdate does not recover after a traffic secret is compromised; a fresh asymmetric handshake is needed (AppendixF.2). Disabling static RSA on shared-key legacy endpoints also matters toTLS1.3 security (AppendixF.10).
 
-TLS exposes length/timing and may expose connection identifiers. TLS1.3 does not itself promise anonymous contacts, mailbox verification, MLS admission, or post-compromise recovery of Email Next history. ECH, externalPSKs, rawpublickeys, clientcertificates and new exporters are not selected merely because the RFC describes them.
+TLS exposes length/timing and may expose connection identifiers. TLS1.3 does not itself promise anonymous contacts, mailbox verification, MLS admission, or post-compromise recovery of Email/2 history. ECH, externalPSKs, rawpublickeys, clientcertificates and new exporters are not selected merely because the RFC describes them.
 
 ## Source issues and errata
 
@@ -105,7 +105,7 @@ All7397 source lines/137pages, every structure, diagram, example, table, referen
 | 7.4 | Sharedsecret chapter boundary read. |
 | 7.4.1 | FFDH secret leftpadding differs fromTLS1.2. |
 | 7.4.2 | ECDH leadingzeros and X25519/X448 allzerorejection read. |
-| 7.5 | Exporter formula/context distinction read; normalexporter default,earlyseparate; no Email Next channelbinding invented. |
+| 7.5 | Exporter formula/context distinction read; normalexporter default,earlyseparate; no Email/2 channelbinding invented. |
 | 8 | Replayclasses and distributed-instance constraints read; application retrydedup required independently ofTLS. |
 | 8.1 | Singleuseticket database tradeoff read; notMLSKeyPackage allocation. |
 | 8.2 | Full ClientHello replaystore, validatedkey, Bloomfilter, zones/startup handling read. |

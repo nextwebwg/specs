@@ -25,7 +25,7 @@ Upgraded transport peers can send MIME more efficiently without defining a new c
 | Appendix A | Changes from1830 include example count correction and zero-byte LAST illustration; no independent new requirements. |
 | End matter | Status,abstract,working-group history,conventions,copyright,warranty and funding acknowledgement reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Count the final transmitted message octets for every BDAT chunk. Do not add DATA dot-stuffing or a DATA terminator. Chunk boundaries do not divide application events, and a positive reply to an intermediate chunk does not establish final message acceptance.
 

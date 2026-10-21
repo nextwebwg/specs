@@ -28,6 +28,6 @@ Complete fifteen-page [RFC 8553](https://www.rfc-editor.org/rfc/rfc8553.html), a
 
 ## Proposal consequence
 
-A future DNS discovery binding must identify its RR type, global underscored label, subordinate naming rules and applicable registration. An underscore is neither a private namespace reservation nor proof that an endpoint controls a mailbox. Existing `_domainkey` interpretation remains DKIM-specific; a successful lookup does not advertise Email Next or authorize a correspondent key.
+A future DNS discovery binding must identify its RR type, global underscored label, subordinate naming rules and applicable registration. An underscore is neither a private namespace reservation nor proof that an endpoint controls a mailbox. Existing `_domainkey` interpretation remains DKIM-specific; a successful lookup does not advertise Email/2 or authorize a correspondent key.
 
 The header/metadata update list includes RFC6733 while the body does not discuss it, and the body expressly amends RFC7553 although that RFC is absent from the header list. This audit follows the explicit body amendments and records the discrepancy without inventing missing protocol requirements.

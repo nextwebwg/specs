@@ -28,7 +28,7 @@ The complete 1907-line captured text of [RFC8460](https://www.rfc-editor.org/rfc
 | 4.3.2.2 | MTA-STS-specific Policy Failures | Policy fetch, syntax and WebPKI failures are distinct. |
 | 4.3.3 | General Failures | Generic failure text must not execute or drive endpoint authorization. |
 | 4.3.4 | Transient Failures | Transient errors may be omitted; absence of reports is inconclusive. |
-| 4.4 | JSON Report Schema | Every field, numeric count, time, address and A-label requirement reviewed; this is not Email Next event JSON. |
+| 4.4 | JSON Report Schema | Every field, numeric count, time, address and A-label requirement reviewed; this is not Email/2 event JSON. |
 | 4.5 | Policy Samples | TLSA and MTA-STS arrays preserve applied policy, including errors; printed TLSA wrapping is not literal valid JSON. |
 | 5 | Report Delivery | SMTP and HTTPS paths are diagnostic transports. |
 | 5.1 | Report Filename | Filename is a recommendation and untrusted hint; rejected8582 confirms no semantic authority. |
@@ -66,7 +66,7 @@ Section6.3 incorrectly attributes Adler-32 integrity to gzip. [RFC1952 section2.
 
 Other discrepancies remain recorded rather than silently repaired: the TXT prefix filtering text is stricter than the field-delimiter whitespace grammar; the email example's Date is not a conforming fixture; the printed JSON examples include wrapped strings, and AppendixB contradicts the mx-host array requirement. The additional-information URI also contains broken wrapping and spaces. The published examples are explanatory material, not validated wire vectors.
 
-## Email Next integration
+## Email/2 integration
 
 Diagnostic delivery deliberately tolerates failures that protected conversation delivery cannot. Keep report generation separate from content, key exchange, identity-state changes and hosted-access tokens. Successful report submission means neither successful report analysis nor successful message delivery. Connection totals and overlapping failure categories cannot be converted into per-message receipts.
 

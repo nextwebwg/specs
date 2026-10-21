@@ -5,13 +5,13 @@ sectionNav: true
 
 # IDNA validation and lookup
 
-[RFC5891](https://www.rfc-editor.org/rfc/rfc5891.html) separates registration from lookup. Email Next's requirement for a validated A-label must not be satisfied by merely accepting an opaque `xn--` string under the protocol's more permissive lookup options.
+[RFC5891](https://www.rfc-editor.org/rfc/rfc5891.html) separates registration from lookup. Email/2's requirement for a validated A-label must not be satisfied by merely accepting an opaque `xn--` string under the protocol's more permissive lookup options.
 
 ## Applying the protocol
 
 Full label validation checks NFC, prohibited and unassigned code points, hyphen placement, leading combining marks, contextual conditions and applicable bidi rules. A valid U-label and its A-label must round-trip. A domain combines independently encoded labels under the applicable DNS and application length rules.
 
-Registration checks both CONTEXTJ and CONTEXTO conditions. Lookup requires CONTEXTJ evaluation, but may check only that a CONTEXTO rule exists; lookup bidi checking is a SHOULD with stated exceptions. RFC5891 §5.3 also permits opaque handling of apparent A-labels. These allowances explain why ordinary lookup success is weaker evidence than complete A-label validation. They are not an exemption from Email Next's expressly selected validated-label contract.
+Registration checks both CONTEXTJ and CONTEXTO conditions. Lookup requires CONTEXTJ evaluation, but may check only that a CONTEXTO rule exists; lookup bidi checking is a SHOULD with stated exceptions. RFC5891 §5.3 also permits opaque handling of apparent A-labels. These allowances explain why ordinary lookup success is weaker evidence than complete A-label validation. They are not an exemption from Email/2's expressly selected validated-label contract.
 
 The Unicode unassigned list must match the version used for the other validation requirements. This differs from ordinary event text, where an unassigned scalar is not malformed UTF-8. IDNA's NFC requirement is scoped to domain labels; it does not introduce message normalization or local-part case folding.
 

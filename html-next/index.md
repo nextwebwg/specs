@@ -342,6 +342,7 @@ Genuine design questions, not yet settled:
 | Rendered form | Recovering explicit prop inputs and logical owners through server-rendered portals; a shared range grammar for structural anchors; consumer `class` and `style` origin. See [Rendered Form & Hydration](/declarative-components/rendered-form#open-questions). |
 | Types | Parsing values when an untagged union admits more than one base type. See [Type System](/declarative-components/types#future-exploration). |
 | Bindings | Whether computed values should also provide a writable binding contract. See [Bindings & Events](/declarative-components/bindings#future-exploration-writable-computed-values). |
+| Configuration children | Names, presets, plain content, events, and typing for a component that renders its children's templates, such as a data table's columns. See [Components](/declarative-components/components#configuration-children-open-questions). |
 | Document head | Crawler-specific robots names as page-wide head entries; reading the status of an authored script that settled before the runtime looked. |
 
 > [!note] Prior art, credited

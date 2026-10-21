@@ -33,6 +33,8 @@ For a group, different people may support different features. The app must accou
 
 Once the conversation is established, you reply normally. The app remembers the contact and handles the changing encryption keys. It also remembers exactly which message you are answering.
 
+Setup keys have an expiry, and the app prepares replacements automatically. The default lifetime can be changed; everyone does not have to rotate on the same schedule. If valid replacement material is unavailable when needed, sending waits. Expiring a setup key does not delete your old messages. The [architecture explains which keys expire and how renewal works](security-profile.md#experimental-admission-lifetime).
+
 A recipient can be offline when you write. The design uses email's ability to carry messages later; routine encryption does not require both people to be present at once. Where setup or a required security check needs a device that is unavailable, the app preserves your draft and explains the wait.
 
 Encryption and identity verification are different. A message may be encrypted to a remembered contact whose real-world identity you have never independently checked. If you choose stronger verification, the app offers an independent comparison and remembers its scope. It must not display an unverified person as verified.

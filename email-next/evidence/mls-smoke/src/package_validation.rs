@@ -5,6 +5,7 @@ use openmls::prelude::{tls_codec::*, *};
 use openmls_rust_crypto::OpenMlsRustCrypto;
 
 pub const MAX_PACKAGE_OCTETS: usize = 1048576;
+pub const DEFAULT_MAX_PACKAGE_LIFETIME: u64 = 604800;
 const SUITE: Ciphersuite = Ciphersuite::MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519;
 
 /// The returned package passed this local profile, not recipient authorization.
@@ -14,6 +15,16 @@ pub fn validate_discovery_package(
     bytes: &[u8], principal: &[u8; 32], device: &[u8; 32],
     accepted_signing_key: &[u8; 32], earliest: u64, latest: u64,
 ) -> Result<KeyPackage, &'static str> {
+    validate_discovery_package_with_policy(bytes,principal,device,accepted_signing_key,earliest,latest,DEFAULT_MAX_PACKAGE_LIFETIME)
+}
+
+/// The maximum comes from trusted local configuration, never a peer assertion.
+/// OpenMLS's own range and system-clock checks remain additional limitations.
+pub fn validate_discovery_package_with_policy(
+    bytes: &[u8], principal: &[u8; 32], device: &[u8; 32],
+    accepted_signing_key: &[u8; 32], earliest: u64, latest: u64, maximum_lifetime: u64,
+) -> Result<KeyPackage, &'static str> {
+    if maximum_lifetime == 0 { return Err("lifetime-policy"); }
     if bytes.len() > MAX_PACKAGE_OCTETS { return Err("size"); }
     if principal == &[0;32] || device == &[0;32] { return Err("identifier"); }
     if earliest > latest { return Err("time-uncertain"); }
@@ -39,7 +50,8 @@ pub fn validate_discovery_package(
     if leaf.signature_key().as_slice() != accepted_signing_key { return Err("signing-key"); }
     let lifetime = package.life_time();
     let before = lifetime.not_before(); let after = lifetime.not_after();
-    if after < before || after-before > 604800 { return Err("lifetime-span"); }
+    if after < before { return Err("lifetime-span"); }
+    if after-before > maximum_lifetime { return Err("lifetime-policy"); }
     if earliest < before || latest > after { return Err("lifetime-interval"); }
     let caps = leaf.capabilities();
     if !caps.versions().contains(&ProtocolVersion::Mls10)
@@ -92,9 +104,18 @@ mod tests {
         let mut inner=b.clone();inner[5]=2;assert!(check(&inner,&k,n).is_err());
     }
     #[test]
+    fn configured_lifetime_accepts_longer_packages_without_extending_expiry() {
+        let span=2*DEFAULT_MAX_PACKAGE_LIFETIME;
+        let (b,k,n)=fixture(true,span,SUITE);
+        assert_eq!(check(&b,&k,n).unwrap_err(),"lifetime-policy");
+        assert!(validate_discovery_package_with_policy(&b,&[1;32],&[2;32],&k,n,n+1,span).is_ok());
+        assert_eq!(validate_discovery_package_with_policy(&b,&[1;32],&[2;32],&k,n,n+span,span).unwrap_err(),"lifetime-interval");
+        assert_eq!(validate_discovery_package_with_policy(&b,&[1;32],&[2;32],&k,n,n,0).unwrap_err(),"lifetime-policy");
+    }
+    #[test]
     fn profile_lifetime_capability_and_bounds_fail() {
         let (b,k,n)=fixture(false,604800,SUITE);assert_eq!(check(&b,&k,n).unwrap_err(),"required-capabilities");
-        let (b,k,n)=fixture(true,604801,SUITE);assert_eq!(check(&b,&k,n).unwrap_err(),"lifetime-span");
+        let (b,k,n)=fixture(true,604801,SUITE);assert_eq!(check(&b,&k,n).unwrap_err(),"lifetime-policy");
         let (b,k,n)=fixture(true,604800,SUITE);
         assert_eq!(validate_discovery_package(&b,&[1;32],&[2;32],&k,n-61,n).unwrap_err(),"lifetime-interval");
         assert_eq!(validate_discovery_package(&b,&[1;32],&[2;32],&k,n,n+604800).unwrap_err(),"lifetime-interval");

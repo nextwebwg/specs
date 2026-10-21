@@ -77,7 +77,7 @@ def parse(proof,kind):
         hex_value(v['response' if kind=='response' else 'publication'],32)
         if kind=='response':
             for k in ['exchange','sourceDigest','nonce']:hex_value(v[k])
-        elif v['scope']!='automatic-first-contact' or after-before>604800:raise ValueError('Publication scope/lifetime')
+        elif v['scope']!='automatic-first-contact':raise ValueError('Publication scope')
     return raw,v,bytes.fromhex(proof['signature'])
 
 
@@ -99,7 +99,6 @@ def advertisement(encoded,actor,address,time,*,package=False):
     if v['mailbox']!=address or v['features']!=['mls-1-0001'] or v['orderingExchanges']!=[dict(format='quorum-exchange-experiment',version='2')]:
         raise ValueError('Exact advertisement mailbox/features')
     validate_offers(v['applications']);interval(v,time)
-    if uint64(v['notAfter'])-uint64(v['notBefore'])>604800:raise ValueError('Advertisement lifetime')
     identity=decode_identity_bundle(encode_event(wrapper['identity']))
     if identity['principal']!=actor['principal'] or not any(s['digest']==actor['state'] for s in identity['states']) or not any(b['digest']==actor['binding'] for b in identity['bindings']):
         raise ValueError('Assertion bundle references')

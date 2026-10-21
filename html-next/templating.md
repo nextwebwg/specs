@@ -8,7 +8,7 @@ status: Stage 0 · Level 1 proposal
 
 # Templating
 
-Control flow is a family of **marked directives on ordinary elements**: `$each`, `$if`, `$match`, `$await`, `$with`, `$value`. A leading `$` marks a *structural* directive, it controls whether, how many times, or in what scope markup is produced, distinct from the `:` binding family that sets values. There are **no control-flow elements**: every directive rides on any element or a `<template>`, so it survives every parser context, and none appears in the output.
+Control flow is a family of **marked directives on ordinary elements**: `$each`, `$if`, `$match`, `$await`, `$with`, `$value`. A leading `$` marks a *structural* directive, it controls whether, how many times, or in what scope markup is produced, distinct from the `:` binding family that sets values. Control flow is written as **attributes**: each directive goes on an ordinary element or a `<template>`, so it survives every parser context, including tables, and leaves nothing of its own in the output.
 
 ## Structural directives
 

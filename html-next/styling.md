@@ -57,6 +57,28 @@ Content a component moves elsewhere with [`<portal>`](/declarative-components/co
 > [!note] Scoping, not a security boundary
 > Scoping decides where a component's rules apply. It does not protect markup from other code: nodes another script inserts inside a component's region are styled like the rest of that region.
 
+### Projected content is the consumer's {#projected-content-is-the-consumers}
+
+Markup a component writes inside another component's invocation is still its own markup. It renders below the receiving component's root, but it stays in the writing component's region: that component's rules match it there, at any depth, with the same two boundaries inside it. The receiving component's ordinary rules do not match it; its [`:slotted()`](#slotted) rules do, and lose ties to the consumer's own.
+
+```html
+<template component="x-page">
+  <main>
+    <x-frame>
+      <span class="menu" slot="menu">Menu</span>   <!-- x-page's markup, inside x-frame's root -->
+      <x-badge>New</x-badge>                       <!-- nested component: out of x-page's scope -->
+    </x-frame>
+  </main>
+  <style>
+    .menu { color: red; }   /* matches the projected span */
+  </style>
+</template>
+```
+
+Combinators relate that markup to the rest of what the component projects with it, as `.menu .label` finds a label inside the menu; they do not pass through the receiving component's markup in between. A rule that needs context above the receiving component names the root, as in `:host .menu`.
+
+This is how Shadow DOM treats a host's light-DOM children: the tree they are written in styles them, and the shadow tree that renders them reaches them only through `::slotted()`.[^5] Each element answers to the stylesheet of the component that wrote it, wherever a slot places it.
+
 ## The root: :host {#host}
 
 `:host` selects the component's own root. It is the only way to select the root; `:scope` is not part of the authoring syntax.

@@ -198,7 +198,7 @@ Discovery is an input to admission, not permanent permission to skip validation.
 
 Unknown optional capability values may be ignored where the underlying protocol requires it. An unknown required feature must not be treated as supported, silently removed from the group requirements or converted into plaintext fallback. Protocol-defined implicit defaults must be interpreted under that protocol's rules rather than requiring every default feature to appear explicitly in an advertisement.
 
-The selected [MLS admission lifetime](security-profile.md#experimental-admission-lifetime) limits version0 packages to seven days and checks validity at sender admission and receiver Welcome acceptance. A package that was valid when observed cannot be reused indefinitely. Delayed arrival alone is not evidence that the sender originally selected expired material; the receiving attempt can still require fresh material. Implementations must apply that authoritative profile rather than a separate discovery-cache lifetime.
+The selected [MLS admission lifetime](security-profile.md#experimental-admission-lifetime) checks each package’s signed expiry and the receiver’s configured maximum total lifetime at sender admission and receiver Welcome acceptance. Seven days is the recommended configurable default, not a fixed profile limit. A package that was valid when observed cannot be reused indefinitely. Delayed arrival alone is not evidence that the sender originally selected expired material; the receiving attempt can still require fresh material. Implementations must apply that authoritative profile rather than a separate discovery-cache lifetime.
 
 
 ### Cached group state and admission material

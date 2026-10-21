@@ -28,7 +28,7 @@ def parse(octets):
     if v['creator']['principal']==v['target']['principal']:raise ValueError('Distinct accounts required')
     if mailbox_syntax(v['target']['mailbox'])!='syntax-valid':raise ValueError('Mailbox dependency')
     before,after=uint64(v['notBefore']),uint64(v['notAfter'])
-    if after<before or after-before>604800:raise ValueError('Lifetime')
+    if after<before:raise ValueError('Lifetime')
     binary={k:canonical_base64(v[k]) for k in ['group','keyPackageRef','context','welcome']}
     if any(not b for b in binary.values()) or len(binary['welcome'])>1048576:raise ValueError('Protocol byte bound')
     if not hexadecimal(wrapper['signature'],128):raise ValueError('Signature')

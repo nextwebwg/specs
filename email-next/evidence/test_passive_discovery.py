@@ -32,12 +32,20 @@ class PassiveDiscoveryTests(unittest.TestCase):
         self.assertEqual(a['status'],'syntax-only-unverified')
 
     def test_schema_purpose_identifier_and_time_substitution(self):
-        for field,bad in [('purpose','contribution'),('version','1'),('record','0'*32),('principal','end0:'+'a'*64),('device','end0:'+'0'*64),('state','G'*64),('notBefore','01'),('notAfter',str(2**64)),('notAfter','9'),('notAfter','604811'),('extra','x')]:
+        for field,bad in [('purpose','contribution'),('version','1'),('record','0'*32),('principal','end0:'+'a'*64),('device','end0:'+'0'*64),('state','G'*64),('notBefore','01'),('notAfter',str(2**64)),('notAfter','9'),('extra','x')]:
             with self.subTest(field=field,bad=bad):
                 value=assertion();value[field]=bad
                 with self.assertRaises(ValueError):decode_assertion(encode_event(value))
         value=assertion();del value['binding']
         with self.assertRaises(ValueError):decode_assertion(encode_event(value))
+
+    def test_longer_signed_advertisement_retains_its_own_expiry(self):
+        value=assertion();value['notAfter']='1209610'
+        parsed=decode_assertion(encode_event(value))
+        self.assertEqual(assertion_time_status(parsed,earliest='1209610',latest='1209610'),'within-asserted-interval')
+        self.assertEqual(assertion_time_status(parsed,earliest='1209611',latest='1209611'),'expired')
+        # Syntax support does not bypass package, identity or binding validation.
+        self.assertEqual(parsed['status'],'syntax-only-unverified')
 
     def test_wrapper_substitution_and_identity_scope(self):
         for mutate in [lambda v:v.update(extra='x'),lambda v:v.update(signature='A'*128),lambda v:v.update(payload='Zh=='),lambda v:v['identity'].update(principal='enp0:'+'c'*64),lambda v:v.update(identity=[])]:

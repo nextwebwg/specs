@@ -569,7 +569,7 @@ Content projection uses the native-shaped `<slot>`. Level&nbsp;1 includes defaul
 
 A slot's name is written, never computed, on both sides:
 
-- An outlet's `name` is a literal [identifier](/declarative-components/expressions#identifier-spelling-and-case), with the spelling an expression name uses: letters, digits after the first character, and `_`, but no `-`. `<slot name="labelAction">` names a slot; `<slot name="label-action">` is an error.
+- An outlet's `name`, or the `$slot` value of a [`<template $slot>`](#parser-safe-outlets) outlet, is a literal [identifier](/declarative-components/expressions#identifier-spelling-and-case), with the spelling an expression name uses: letters, digits after the first character, and `_`, but no `-`. `<slot name="labelAction">` names a slot; `<slot name="label-action">` is an error.
 - A consumer's `slot` attribute, on an element or on a `<template slot>`, is the same kind of literal identifier, naming the slot it fills. A value that is not an identifier, such as `slot="$which"`, and a bound `from:slot` are errors.
 - An empty `slot=""` assigns content to the default slot, as having no `slot` attribute does.
 
@@ -687,7 +687,7 @@ Static and bound props mix freely on one outlet. These are errors, each reported
 
 An outlet with any prop is a scoped slot: it renders only a `<template slot>`, as below.
 
-A slot that owns iteration gives each row's props the same way:
+A slot that owns iteration gives each row's props the same way. Here the outlet sits in a table row, so it is written as a [`<template $slot>`](#parser-safe-outlets), which the HTML parser keeps in place:
 
 ```html
 <!-- definition: a list that owns iteration, slots each row out -->
@@ -699,7 +699,7 @@ A slot that owns iteration gives each row's props the same way:
     <prop name="index" type="number" required>The row's position.</prop>
   </slot>
 </defs>
-<table><tr $each="row of $rows" $key="$row.id"><slot name="row" kind="person" from:item="$row" from:index="$loop.index"></slot></tr></table>
+<table><tr $each="row of $rows" $key="$row.id"><template $slot="row" kind="person" from:item="$row" from:index="$loop.index"></template></tr></table>
 
 <!-- use: the template's scope is { kind, item, index } -->
 <x-list from:rows="$people">
@@ -708,6 +708,38 @@ A slot that owns iteration gives each row's props the same way:
 ```
 
 Vue gives a scoped slot's props the same two ways, a plain attribute on its `<slot>` and a bound `:prop`, with only `name` reserved, and types them with `defineSlots`.[^12]
+
+### Outlets in tables: `<template $slot>` {#parser-safe-outlets}
+
+A `<slot>` cannot sit directly in table structure. The HTML parser moves (foster-parents) a `<slot>` written directly in `<table>`, `<thead>`, `<tbody>`, `<tfoot>`, `<tr>`, or `<colgroup>` out to just before the `<table>`, so the rows or cells it renders would land outside the table.[^13] Write the outlet there as a `<template>` with `$slot`:
+
+```html
+<!-- definition: header cells and rows slotted into table parts -->
+<template component="x-table"> …
+  <table>
+    <thead><tr><template $slot><th>Name</th></template></tr></thead>
+    <tbody>
+      <template $slot="row" $each="row of $rows" $key="$row.id" from:item="$row">
+        <tr><td>{$row.name}</td></tr>
+      </template>
+    </tbody>
+  </table>
+</template>
+
+<!-- use: the consumer's table content is in <template slot> too -->
+<x-table from:rows="$people">
+  <template slot=""><th>Person</th></template>
+  <template slot="row"><tr><td>{$item.name}</td></tr></template>
+</x-table>
+```
+
+- `<template $slot>` is the default slot's outlet, and `<template $slot="row">` the outlet of the slot named `row`. The value follows the slot-name rules above; an empty value, like no value, means the default slot. `name` is not one of its attributes.
+- It is the same outlet as the matching `<slot>`, written another way. Every other plain attribute is a static slot prop and every `from:` attribute a bound one, its content is the fallback, it renders a consumer's `<template slot>` for a [scoped slot](#scoped-slots), and it may carry `$each` or `$if`. Slot props are declared with a `<slot>` in `<defs>` either way.
+- It renders no `<template>` element. Like a `<slot>` outlet, it is replaced by what it renders, and its [rendered form](/declarative-components/rendered-form#template-slot-outlets) is the same.
+- It is valid wherever a `<slot>` outlet is. Table parts need it; elsewhere the two forms are interchangeable.
+- A build tool [should]{.kw} report a `<slot>` that the parser moved out of a table, and suggest `<template $slot>`.
+
+A `<template>` is used for the same reason [structural directives ride on one](/declarative-components/templating#parser-contexts): the parser keeps it wherever it is written, including table parts, and parses its content in the context of its first element, so a `<tr>` inside it stays a `<tr>`. A consumer's table content goes in a `<template slot>` for that reason: inside `<x-table>`, the parser drops `<tr>`, `<th>`, and `<td>` tags it finds outside a table. The `$` marks `$slot` as changing what the `<template>` does, as `$each` does, and keeps it apart from `slot`, which says which slot a consumer's content fills.
 
 ### Component ancestry for shared state {#component-ancestry-for-shared-state}
 
@@ -720,7 +752,7 @@ Moving a component's rendered nodes with `<portal>` keeps that logical ancestry.
 > [!note] Proposed, for review
 > This section is a proposal and is not yet part of any Level. Its [open questions](#columns-open-questions) are listed at the end.
 
-A data table is easiest to read and change when its columns are written as markup: each column says what its header is and how its cells look, and the table renders a real row per item with one cell per column. PrimeVue's DataTable and Column popularized this shape.[^13] The table has to render the rows itself. If each column rendered its own cells, for example by reading the rows through [context](/declarative-components/reactivity), the cells would come out column by column, with no `<tr>` per row; screen readers announce a table by its rows, and row selection, hover, and keyboard navigation need a row element to target.
+A data table is easiest to read and change when its columns are written as markup: each column says what its header is and how its cells look, and the table renders a real row per item with one cell per column. PrimeVue's DataTable and Column popularized this shape.[^14] The table has to render the rows itself. If each column rendered its own cells, for example by reading the rows through [context](/declarative-components/reactivity), the cells would come out column by column, with no `<tr>` per row; screen readers announce a table by its rows, and row selection, hover, and keyboard navigation need a row element to target.
 
 The table reads its children as `$columns`, and `<slot of>` renders one column's slot wherever the table places it.
 
@@ -866,8 +898,8 @@ Each column's root `<th>` is placed by the table's default outlet, in the header
 
 ### Why this design {#columns-why}
 
-- **A parent reads its children of one kind.** A `<select>`'s `options` is a live collection of its `<option>` elements that looks through `<optgroup>`, as `as` looks through structural templates.[^14]
-- **The column is the header cell.** Each column is a real `<th>` in the table's header row, so it stays in the DOM with native semantics, as `<option>`, `<source>`, and `<track>` stay in theirs.[^14]
+- **A parent reads its children of one kind.** A `<select>`'s `options` is a live collection of its `<option>` elements that looks through `<optgroup>`, as `as` looks through structural templates.[^15]
+- **The column is the header cell.** Each column is a real `<th>` in the table's header row, so it stays in the DOM with native semantics, as `<option>`, `<source>`, and `<track>` stay in theirs.[^15]
 - **No native precedent** instantiates a child's content once per row. That part is new, and it is the one thing `<slot of>` adds; slot props, fallback, and on-demand rendering work as they already do.
 
 ### Server output and hydration {#columns-ssr}
@@ -1192,6 +1224,9 @@ Placement
 Children
 : fallback content used when nothing is projected
 
+Parser-safe form
+: <code>&lt;template $slot&gt;</code> for the default slot, <code>&lt;template $slot="<var>name</var>"&gt;</code> for a named one: the same outlet, with the same props, fallback as its content, and the same rendered form; the parser keeps it in table parts, where it moves a `<slot>` out (see [Outlets in tables](#parser-safe-outlets))
+
 Level
 : [L1]{.pill .l1} · default, named, fallback, and scoped slots
 :::
@@ -1229,5 +1264,6 @@ Level
 [^10]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.
 [^11]: WHATWG DOM, [assigning slottables](https://dom.spec.whatwg.org/#assign-slotables) and [`assignedNodes()`](https://dom.spec.whatwg.org/#dom-htmlslotelement-assignednodes); CSS Scoping, [slots and fallback content in the flat tree](https://drafts.csswg.org/css-scoping/#slots-in-shadow-tree): a slot with no assigned nodes renders its own children, and switches as nodes are assigned or removed.
 [^12]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved; [`defineSlots()`](https://vuejs.org/api/sfc-script-setup.html#defineslots) types each slot's props.
-[^13]: PrimeVue, [DataTable](https://primevue.org/datatable/): each `Column` child supplies a header and a `body` template that the table renders once per row.
-[^14]: WHATWG HTML: [`select.options`](https://html.spec.whatwg.org/multipage/form-elements.html#dom-select-options), the list of options, which includes `<option>` children of `<optgroup>`; [the `source` element](https://html.spec.whatwg.org/multipage/embedded-content.html#the-source-element); and [the `track` element](https://html.spec.whatwg.org/multipage/media.html#the-track-element).
+[^13]: WHATWG HTML, [foster parenting](https://html.spec.whatwg.org/multipage/parsing.html#foster-parent) in the [in table insertion mode](https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable): an element that is not table content is inserted before the table, while a `<template>` start tag is processed by the in head rules and inserted where it is written.
+[^14]: PrimeVue, [DataTable](https://primevue.org/datatable/): each `Column` child supplies a header and a `body` template that the table renders once per row.
+[^15]: WHATWG HTML: [`select.options`](https://html.spec.whatwg.org/multipage/form-elements.html#dom-select-options), the list of options, which includes `<option>` children of `<optgroup>`; [the `source` element](https://html.spec.whatwg.org/multipage/embedded-content.html#the-source-element); and [the `track` element](https://html.spec.whatwg.org/multipage/media.html#the-track-element).

@@ -60,6 +60,12 @@ A declared version is necessary but insufficient. Check the selected normalizati
 
 The same principle applies to HTML/CSS parsing and cryptographic adapters: identify the parser or library, its configuration and the rules supplied by the application. A library’s supported feature set does not prove that the application selected or enforced those rules. Test the integrated boundary as well as the underlying component.
 
+### Key expiry and renewal policy
+
+A protected-conversation report records the configured [maximum setup-key lifetime](security-profile.md#experimental-admission-lifetime), issuance defaults and any additional library limits. Seven days is a configurable default, not evidence that automatic renewal works. Test a shorter interval and a longer configured interval; the same signed package must still fail after its original expiry. Include uncertain time, malformed local policy, revocation before expiry, consumed-package retry, restart, and a publication or invitation attempting to outlive its underlying authority.
+
+A complete automatic-renewal claim also requires fresh replacement keys and references, authenticated publication, unchanged-contact continuity, an interrupted renewal with preserved drafts, and retirement of unused expired secrets. Historical reading must remain available without reactivating consumed transport keys. Component lifetime checks do not establish these joined outcomes or a universal rotation schedule.
+
 ## Report observable outcomes
 
 Each acceptance case identifies its governing requirement, input, setup and expected observable result. Reports retain the implementation versions, profile revision, relevant configuration, source/fixture digests and whether execution used one implementation or independent peers. Secrets and live credentials do not belong in reports.
@@ -77,7 +83,7 @@ Unsupported and not-tested cases never count as passes. A complete report has no
 
 A joined test must exercise the actual transitions between components. For a service button, receiving an authenticated question, linking a service account, authorizing an option and retaining a service receipt are separate checks. A preconfigured token-to-principal mapping cannot demonstrate account linking. A receipt for a service effect cannot demonstrate that a conversation reply was delivered.
 
-For a new device, enrollment, publication of supported profiles and admission to a conversation are separate transitions. A paired device does not acquire old message keys merely because its enrollment succeeded. For a membership change, a valid ordering decision does not by itself prove that the application installed it without losing newer message-processing state. Test the shared durable state at that boundary, including a crash or intervening message.
+For a new device, enrollment, confidential security-configuration staging, live trust reconciliation, mailbox connection, publication of supported profiles and admission to a conversation are separate transitions. The [setup transfer](identity-lifecycle.md#confidential-security-configuration-transfer) requires actual contact-store installation evidence before an installed receipt or send-ready claim. Test conflicting existing pins, newer revocations, withdrawn verification, original evidence expiry, a locally stronger policy, a cancelled or expired request and a crash before activation; a staged plaintext file cannot count as those outcomes. A paired device does not acquire old message keys merely because its enrollment succeeded. For a membership change, a valid ordering decision does not by itself prove that the application installed it without losing newer message-processing state. Test the shared durable state at that boundary, including a crash or intervening message.
 
 Manual evidence must identify the method and observed result. An accessibility-tree snapshot is not a screen-reader test; a MIME inspection is not an ordinary client's rendered display. Record these distinctions rather than treating automation as a substitute for the intended observation.
 

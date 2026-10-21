@@ -60,6 +60,28 @@ Every rendered slot is delimited by processing instructions:
 - Processing instructions are invisible to CSS: `:empty`, `:first-child`, `>`, and `+` behave exactly as if the marks were absent.[^7] They do not change layout, the accessibility tree, `legend`/`summary`/`caption` positions, or form submission, and they survive parsing inside tables and `select`.
 - Where a parser does not yet produce `ProcessingInstruction` nodes, the same text becomes a comment whose data is `?target data?`. Readers accept that form, and in those documents the runtime writes the comment the parser would, so lowered and hydrated DOM hold the same nodes.[^1]
 
+### Outlets written as `<template $slot>` {#template-slot-outlets}
+
+A definition may write an outlet as [`<template $slot>`](/declarative-components/components#parser-safe-outlets), the form the HTML parser keeps in table parts. Its rendered form is exactly the rendered form of the matching `<slot>`: the same marks around the same nodes, and no `<template>` element of its own. Server output does not record which form the definition used, and hydration does not need it: it walks the definition's outlets, written either way, against the ranges.
+
+```html
+<!-- definition -->
+<template component="x-table"> …
+  <table>
+    <thead><tr><template $slot><th>Name</th></template></tr></thead>
+    <tbody><template $slot="row" $each="row of $rows" from:item="$row"><tr><td>{$row}</td></tr></template></tbody>
+  </table>
+</template>
+
+<!-- rendered form, as serialized: no consumer content, so each outlet shows its fallback -->
+<table data-component="x-table">
+  <thead><tr><?start slot="" fallback=""?><th>Name</th><?end?></tr></thead>
+  <tbody><?start slot="row" fallback="" scoped=""?><tr><td>Ada</td></tr><?end?><?start slot="row" fallback="" scoped=""?><tr><td>Bea</td></tr><?end?></tbody>
+</table>
+```
+
+The marks stay where the outlet rendered, because processing instructions, and the comment form, survive parsing inside table sections and rows. So does a [carrier](#content-no-slot-renders-yet): the parser keeps a `<template>` that is a child of a `<table>`.
+
 ## Content no slot renders yet
 
 A slot under a false `$if`, content for an `$each` row that does not exist yet, or a slot in a `$match` branch that is not selected: the instance holds that content, and a later change can render it.
@@ -156,7 +178,7 @@ A consumer may write slot content under `$if` or `$each`. A slot whose only such
 1. Recover explicit props from the server-rendered instance's hydration data. The proposal has not fixed a wire format for that data; visible `data-<name>` attributes are not required.
 2. Collect the root's own slot ranges in document order: its subtree, minus its own ranges' contents (consumer content), minus ranges with `of` and their contents ([a child's slot](#borrowed-slot-ranges)), minus nested components' own regions, plus the contents of nested components' ranges (what this component projected into them).
 3. The projected nodes are the contents of every range without `fallback` or `scoped`, each assigned that range's slot, then the marks of any consumer region that follow the fallback nodes in a `fallback` range (see [Conditional content in a slot](#conditional-content-in-a-slot)), assigned that range's slot, followed by the nodes of the carrier that names this component, which keep their own `slot` attribute. A consumer's [`<template slot>`](/declarative-components/components#content-that-renders-on-demand) is always in its receiving component's carrier: the live DOM holds what it renders, never the template. The carrier is removed.
-4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes, the fallback nodes and any empty consumer regions after them, or the nodes its `<template slot>` rendered, adopted in place so their bindings attach. A forwarding outlet inside carried content adopts its marks and places its component's projected nodes between them.
+4. Walk the template against the existing DOM. Each rendered slot, whether its outlet is a `<slot>` or a `<template $slot>`, adopts the next range whole: its marks, and either the projected nodes, the fallback nodes and any empty consumer regions after them, or the nodes its `<template slot>` rendered, adopted in place so their bindings attach. A forwarding outlet inside carried content adopts its marks and places its component's projected nodes between them.
 5. A nested component's server-rendered root is adopted, not re-rendered. The outer template's nodes inside it are matched against that component's slot ranges and its carrier, where lowering placed them, and the nested root hydrates as its own instance.
 
 A root that a framework rendered is owned by that framework, which hydrates from its own state. Framework output need not carry slot ranges; its element tree remains subject to [target equivalence](/declarative-components/targets).

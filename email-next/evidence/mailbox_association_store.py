@@ -125,7 +125,13 @@ class MailboxAssociationStore:
 
     def _current(self,mailbox):
         row=self.db.execute('SELECT generation,principal,enabled,decision_id,identity_anchor FROM mailbox_associations WHERE mailbox=?',(mailbox,)).fetchone()
-        return dict(zip(['generation','principal','enabled','decisionId','identityAnchor'],row)) if row else None
+        if row is None:return None
+        value=dict(zip(['generation','principal','enabled','decisionId','identityAnchor'],row))
+        if self.db.execute("SELECT 1 FROM sqlite_master WHERE name='pairing_contact_origins'").fetchone():
+            origin=self.db.execute('SELECT account,transfer FROM pairing_contact_origins WHERE decision=?',(value['decisionId'],)).fetchone()
+            if origin and self.db.execute('SELECT 1 FROM pairing_setup_conflicts WHERE account=? AND transfer=?',origin).fetchone():
+                value.update(enabled=0,held='pairing-transfer-conflict')
+        return value
 
     def snapshot(self,mailbox):
         return self._transaction(lambda:{'association':self._current(mailbox),

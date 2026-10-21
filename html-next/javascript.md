@@ -785,7 +785,7 @@ An application may insert an inline `<template component>` definition or a new c
 
 Later discovery follows the same duplicate-definition, custom-element precedence, dependency, and trust rules as startup. A registered definition stays in the document registry after its carrier is consumed; inserting a second definition for that tag is an error. Inline definitions are inert data whose markup is validated before lowering. Their downstream live/imported dependencies still require application-owned resolution and import-map trust; a newly inserted definition cannot install policy. Sanitized `$html` and CMS content remain excluded from definition discovery.
 
-The observer batches additions and removals, ignores its own completed lowering, and connects each instance once. Removal disconnects the instance and disposes its owned work; later reinsertion reconnects it. A move that stays within the same document during one mutation batch preserves the connection. Compiled/AOT builds discover the graph ahead of time and use target lifecycle hooks; they do not use `MutationObserver` for component discovery.
+The observer batches additions and removals, ignores its own completed lowering, and connects each instance once. Removal disconnects the instance and disposes its owned work; later reinsertion reconnects it. A move that stays within the same document during one mutation batch preserves the connection. Compiled/AOT builds discover the graph ahead of time and use target lifecycle hooks; `MutationObserver` discovery belongs to the in-browser runtime alone.
 
 ### Loading a controller {#loading-a-controller}
 

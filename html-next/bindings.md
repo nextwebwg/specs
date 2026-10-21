@@ -115,7 +115,7 @@ Because the mapping is fixed and manifest-driven, every target serializes identi
 
 ## Two-way binding: bind:
 
-`bind:prop="path"` reflects the value and writes user input back to `path`. It is the forms workhorse, and it requires a **writable path** plus an element contract that supports updates. Because a two-way binding must write back to a location, its value is a **path field, not an expression field**: write the path without `$`, as in `search.query`. A leading `$` is optional. A bracketed index inside the path is an ordinary expression, as in `rows[$i].done`.
+`bind:prop="path"` reflects the value and writes user input back to `path`. It is the forms workhorse, and it requires a **writable path** plus an element contract that supports updates. Because a two-way binding must write back to a location, its value is a **path field**, which names that location itself: write the path without `$`, as in `search.query`. A leading `$` is optional. A bracketed index inside the path is an ordinary expression, as in `rows[$i].done`.
 
 ```html
 <input bind:value="search.query">

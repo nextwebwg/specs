@@ -302,7 +302,7 @@ A parameter consumed by the `src` URI template identifies the resource. Changing
 
 Disconnecting removes observations, pauses unsent queued work, and preserves its dirty latest snapshot and captured key. A sent write may finish, but it cannot schedule DOM work for a detached instance. On reconnect, preserved queues resume under their own keys. For the current key, the runtime samples the current body: an unseen key gets an initial no-send baseline; a known key remains dirty and resumes synchronization when its body differs from its last acknowledged baseline. While no instance is connected, nothing new is observed or scheduled.
 
-A writable data resource does not own controls or create a rendered `<form>`. The same state can feed several resources with different endpoints, methods, parameter subsets, and send options. The visible controls may be standalone, inside a native form owned by the component, or inside a form that already contains the component instance.
+A writable data resource is a declaration in `<defs>`; controls and any `<form>` belong to the rendered markup. The same state can feed several resources with different endpoints, methods, parameter subsets, and send options. The visible controls may be standalone, inside a native form owned by the component, or inside a form that already contains the component instance.
 
 > [!norm] Resource and control ownership
 > A `<data>` declaration lives in `<defs>` and owns request synchronization. It names parameters, selects a method, and serializes request data while producing no rendered or form-associated element. Visible controls keep their native form owner, validation, and submitter behavior. A component instance can therefore live inside an author-owned form without adding another submission scope.[^3]
@@ -370,7 +370,7 @@ Every expression exposes the paths it reads, and every `<param from:value>` name
 
 ## Relationship to TC39 Signals
 
-**Decision:** HTML Next integrates with, but does not depend on, the TC39 Signals proposal.[^4] Signals are a good optional substrate for a browser runtime and a potential implementation interoperability point. The authored markup remains the model and the one source of observable semantics; Signals are one implementation strategy among several. A runtime may use native Signals, a small userland graph, or a target framework's reactivity so long as the HTML Next result is equivalent.
+**Decision:** HTML Next treats the TC39 Signals proposal as an optional integration.[^4] Signals are a good optional substrate for a browser runtime and a potential implementation interoperability point. The authored markup remains the model and the one source of observable semantics; Signals are one implementation strategy among several. A runtime may use native Signals, a small userland graph, or a target framework's reactivity so long as the HTML Next result is equivalent.
 
 The TC39 proposal is intentionally lower-level than a UI system: it standardizes writable and computed cells plus dirtiness notification, while leaving effects, scheduling, DOM ownership, and automatic disposal to frameworks. HTML Next already has the missing owner: the connected template instance.
 

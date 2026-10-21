@@ -33,7 +33,7 @@ Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`
 
 ## Scope & name resolution
 
-A `$` reference resolves through the template's declared scope, and a reference that resolves to nothing is a **conformance error**. A bare word inside an expression is never a reference: it is a keyword literal, so `$mode = compact` compares the value of `mode` with the keyword `compact`. Scope has two parts.
+A `$` reference resolves through the template's declared scope, and a reference that resolves to nothing is a **conformance error**. A bare word inside an expression is always a keyword literal, so `$mode = compact` compares the value of `mode` with the keyword `compact`. Scope has two parts.
 
 ### Identifier spelling and case
 

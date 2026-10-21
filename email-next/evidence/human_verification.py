@@ -5,6 +5,12 @@ from discovery_mime import extract_discovery
 from client_onboarding import ClientOnboarding
 
 MECHANISM='human-comparison-v0'
+
+def stored_revision(value):
+    # SQLite INTEGER is signed64; a decimal BLOB preserves larger uint64 values.
+    if type(value) is not int or not 0<=value<2**64:raise ValueError('Verification revision exhausted or invalid')
+    return value if value<=2**63-1 else str(value).encode('ascii')
+
 def encoded(value):return json.dumps(value,sort_keys=True,separators=(',',':'))
 def interval(time):
     if not isinstance(time,dict) or set(time)!={'earliest','latest'} or uint64(time['earliest'])>uint64(time['latest']):raise ValueError('Credible time interval')
@@ -19,10 +25,12 @@ def resolve_locked(identity,mailbox,principal,time,*,evidence_id=None):
     if not current['head'] or current['conflicted']:return dict(status='verification-conflicted')
     # Own-account authority comes from explicit client setup, not an email claim.
     if config[1]==principal and db.execute('SELECT 1 FROM human_verification_own_mailboxes WHERE account=? AND mailbox=?',(config[0],mailbox)).fetchone():return dict(status='verified-for-use',mechanism='local-owned-account',account=config[0],mailbox=mailbox,head=current['head'])
-    rows=db.execute("SELECT id,anchor,not_before,not_after,continuity,status,revision FROM human_verification_evidence WHERE account=? AND mailbox=? AND principal=? ORDER BY id",(config[0],mailbox,principal)).fetchall()
-    for ident,anchor,before,after,continuity,status,revision in rows:
+    rows=db.execute("SELECT id,anchor,not_before,not_after,continuity,status,revision,record FROM human_verification_evidence WHERE account=? AND mailbox=? AND principal=? ORDER BY id",(config[0],mailbox,principal)).fetchall()
+    for ident,anchor,before,after,continuity,status,revision,record in rows:
         if evidence_id is not None and evidence_id!=ident:continue
         if status!='accepted' or not int(before)<=uint64(time['earliest'])<=uint64(time['latest'])<=int(after):continue
+        provenance=json.loads(record).get('pairingSetup')
+        if provenance and db.execute('SELECT 1 FROM pairing_setup_conflicts WHERE account=? AND transfer=?',(config[0],provenance['transfer'])).fetchone():continue
         cursor=current['head'];seen=set()
         while cursor!=anchor and continuity=='ordinary-authorized-descendants':
             if cursor in seen:break
@@ -33,12 +41,16 @@ def resolve_locked(identity,mailbox,principal,time,*,evidence_id=None):
             ordinary={'version','purpose','principal','record','revision','previous','issuedAt','bindings','revoked','signer'}
             if state is None or set(state)!=ordinary or state['version']!='0' or state['purpose']!='identity-state' or state['principal']!=principal or state['previous']!=[row[0]]:break
             cursor=row[0]
-        if cursor==anchor:return dict(status='verified-for-use',mechanism=MECHANISM,account=config[0],mailbox=mailbox,principal=principal,head=current['head'],evidence=ident,revision=str(revision),scope='human-confirmed-correspondent')
+        if cursor==anchor:return dict(status='verified-for-use',mechanism=MECHANISM,account=config[0],mailbox=mailbox,principal=principal,head=current['head'],evidence=ident,revision=str(int(revision)),scope='human-confirmed-correspondent')
     return dict(status='verification-required')
 
 class HumanVerification:
-    def __init__(self,identity,*,account,local_principal,own_mailboxes=None):
+    def __init__(self,identity,*,account,local_principal,own_mailboxes=None,local_device=None):
         if not isinstance(account,str) or not account or not isinstance(local_principal,str) or not local_principal.startswith('enp0:'):raise ValueError('Explicit local account setup')
+        if local_device is not None:
+            import re
+            if not isinstance(local_device,str) or not re.fullmatch(r'end0:[0-9a-f]{64}',local_device) or local_device=='end0:'+'0'*64:raise ValueError('Explicit local comparison device')
+        self.local_device=local_device
         self.identity=identity;self.db=identity.db;self.onboarding=ClientOnboarding(identity)
         if self.db.in_transaction:raise ValueError('Initialize outside transaction')
         self.db.executescript('''
@@ -114,6 +126,7 @@ class HumanVerification:
             v=decoded['assertion']['value'];binding=next(b for b in decoded['identity']['bindings'] if b['digest']==v['binding'])
             self.onboarding.associations._observe_validated_batch_locked([dict(assertion=decoded['assertion']['octets'],signature=decoded['signature'],signingKey=bytes.fromhex(binding['value']['signingKey']),outerFrom=[mailbox],sourceId=expected['source'],parserRevision='human-comparison-v0',observedAt=time['earliest'])])
             evidence=uuid.uuid4().hex;record=dict(mechanism=MECHANISM,scope='mailbox-principal',assurance='human-confirmed-correspondent',comparison=comparison,channel=channel,acceptedAt=time,source=expected['source'],session=session)
+            if self.local_device is not None:record.update(originDevice=self.local_device,originId=evidence)
             db.execute('INSERT INTO human_verification_evidence VALUES(?,?,?,?,?,?,?,?,?,?,?)',(evidence,self.account,mailbox,principal,comparison['stateDigest'],not_before,not_after,continuity,'accepted',1,encoded(record)))
             if association:
                 if association['principal']!=principal or not association['enabled']:raise ValueError('Separate association replacement or enable required')
@@ -137,8 +150,8 @@ class HumanVerification:
         db=self.db;db.execute('BEGIN IMMEDIATE')
         try:
             row=db.execute('SELECT revision,status FROM human_verification_evidence WHERE id=? AND account=?',(evidence_id,self.account)).fetchone()
-            if not row or row[0]!=expected_revision:raise ValueError('Stale verification revision')
-            if row[1]=='accepted':db.execute("UPDATE human_verification_evidence SET status='withdrawn',revision=revision+1 WHERE id=?",(evidence_id,))
+            if not row or int(row[0])!=expected_revision:raise ValueError('Stale verification revision')
+            if row[1]=='accepted':db.execute("UPDATE human_verification_evidence SET status='withdrawn',revision=? WHERE id=?",(stored_revision(min(int(row[0])+1,2**64-1)),evidence_id))
             db.execute('COMMIT')
         except BaseException:
             if db.in_transaction:db.execute('ROLLBACK')

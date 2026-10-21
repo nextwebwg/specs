@@ -296,10 +296,16 @@ class BootstrapTests(unittest.TestCase):
             with self.subTest(change=change),self.assertRaises(ValueError):
                 self.server.publish(self.publication(**change),slot=self.slot)
         with self.assertRaises(ValueError):self.server.publish(signed('publication',raw,Ed25519PrivateKey.generate()),slot=self.slot)
-        for change in [dict(scope='mailbox-directory'),dict(notAfter='604821')]:
+        for change in [dict(scope='mailbox-directory'),dict(notAfter='19')]:
             with self.subTest(change=change),self.assertRaises(ValueError):self.publication(**change)
         self.assertEqual(self.target_ids.db.execute('SELECT count(*) FROM bootstrap_publication').fetchone()[0],0)
         self.assertEqual(self.server.publish(proof,slot=self.slot),'stored-publication-candidate')
+
+    def test_longer_publication_is_syntax_valid_but_cannot_extend_underlying_authority(self):
+        proof=self.publication(notAfter='1209620')
+        self.assertEqual(parse(proof,'publication')[1]['notAfter'],'1209620')
+        with self.assertRaises(ValueError):self.server.publish(proof,slot=self.slot)
+        self.assertEqual(self.target_ids.db.execute('SELECT count(*) FROM bootstrap_publication').fetchone()[0],0)
 
     def test_invalid_publication_cannot_poison_id_and_valid_conflict_cannot_replace_bytes(self):
         proof=self.publication();raw,_,_=parse(proof,'publication')

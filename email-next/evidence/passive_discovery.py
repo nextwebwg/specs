@@ -18,7 +18,6 @@ TUPLE_DOMAIN = b'email-next/passive-discovery/v2\0'
 PRESENTATION_DOMAIN = b'email-next/passive-discovery/v5\0'
 PRIVATE_COPY_DOMAIN = b'email-next/passive-discovery/v4\0'
 RICH_DOMAIN = b'email-next/passive-discovery/v3\0'
-MAX_LIFETIME = 604800
 ATEXT = frozenset("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-/=?^_`{|}~")
 
 
@@ -89,7 +88,7 @@ def decode_assertion(octets):
     if not all(hexadecimal(value[name], 64) for name in ['state', 'binding']):
         raise ValueError('Invalid reference digest')
     before, after = uint64(value['notBefore']), uint64(value['notAfter'])
-    if after < before or after-before > MAX_LIFETIME:
+    if after < before:
         raise ValueError('Invalid advertisement interval')
     features = value['features']
     if not isinstance(features, list) or features not in [[], ['mls-1-0001']]:

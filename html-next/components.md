@@ -2,17 +2,17 @@
 title: Components & Composition
 order: 4
 blurb: <template component> · <defs> · slots · as
-eyebrow: Declarative HTML Components Level 1 · external composition in Level 2
-status: "Definitions, native roots, and slots: Level&nbsp;1 · external composition: Level&nbsp;2"
+eyebrow: Declarative HTML Components Level 1
+status: "Definitions, native roots, slots, and external composition: Level&nbsp;1"
 ---
 
 # Components & Composition
 
-A component is **typed markup that lowers to a real native element**: no class, no registry, no lifecycle ceremony. This is HTML Next's answer to Web Components: native semantics stay the browser's, the interface is inspectable markup, and the same source compiles to idiomatic React, Vue, and Svelte.
+A component is **typed markup that lowers to a real native element**, defined as data. This is HTML Next's answer to Web Components: native semantics stay the browser's, the interface is inspectable markup, and the same source compiles to idiomatic React, Vue, and Svelte.
 
 ## Definition: <template component>
 
-A component is defined by a native `<template component="tag">`. There is no custom-element-shaped wrapper. The `<template>` is **inert** (browsers parse its contents into a `DocumentFragment` and render nothing), so a definition degrades to inert markup with no runtime today, and could be consumed natively if the shape were adopted, the way `<template shadowrootmode>` went from inert to browser-native for Declarative Shadow DOM.[^4] Inertness is the transition guarantee, not the end state. `template[component]` is also a cheap selector for the polyfill. Its direct children are an optional `<defs>` region (the interface, behavior, and [head declarations](#head-declarations)), one markup root, and an optional `<style>`.
+A component is defined by a native `<template component="tag">`. The `<template>` is **inert** (browsers parse its contents into a `DocumentFragment` and render nothing), so a definition degrades to inert markup with no runtime today, and could be consumed natively if the shape were adopted, the way `<template shadowrootmode>` went from inert to browser-native for Declarative Shadow DOM.[^4] Inertness is the transition guarantee; native consumption is the end state. `template[component]` is also a cheap selector for the polyfill. Its direct children are an optional `<defs>` region (the interface, behavior, and [head declarations](#head-declarations)), one markup root, and an optional `<style>`.
 
 ```html title="button.html"
 <template component="x-button" status="early"
@@ -33,7 +33,7 @@ A component is defined by a native `<template component="tag">`. There is no cus
 </template>
 ```
 
-The interface is **declarative HTML**, not a data island. A `<prop>` states only what markup cannot already say: type, default, requiredness, description; its *target* is read from the `from:attribute`/`.property` binding and the native element from the markup root, so neither is restated. The invocation tag comes from the `component` attribute; a single hyphen keeps it collision-safe against native elements without registering a custom element. A compiler lowers all of this to a normalized JSON contract as build output (CSP-safe, no `eval()`, inspectable by docs and tooling), but JSON is the compiled artifact, never the authoring form.
+The interface is **declarative HTML**. A `<prop>` states only what markup cannot already say: type, default, requiredness, description; its *target* is read from the `from:attribute`/`.property` binding and the native element from the markup root, so neither is restated. The invocation tag comes from the `component` attribute; a single hyphen keeps it collision-safe against native elements. A compiler lowers all of this to a normalized JSON contract as build output (CSP-safe, inspectable by docs and tooling); JSON is the compiled artifact, and HTML is the authoring form.
 
 > [!note] Prop declarations follow platform precedents
 > `values` follows JSON Schema's finite-value constraint[^1]; `default` follows XML Schema's `default` attribute[^2]; `required` is the HTML boolean attribute of the same name[^3]; and a prop's description is its element text, as with `<option>`.
@@ -73,10 +73,10 @@ Some components need behavior from whoever uses them: a rich-text editor asks fo
 | `type` | The type of the request's detail, written as for an `<event>`. Omitted, the detail is `null`. |
 | `returns` | The type of the answer. Omitted, the answer is `unknown`. |
 | `<prop>` children | The detail's fields, when `type="object"`, as for an [expanded event declaration](/declarative-components/types#structured-values). |
-| one `<returns type>` child | The answer's type in expanded form, holding its own `<prop>` children. It replaces the `returns` attribute. |
+| one `<returns type>` child | The answer's type in expanded form, holding its own `<prop>` children. Use it in place of the `returns` attribute. |
 | text content | The request's description, as for a `<prop>`. |
 
-A request is not a prop: it is never reflected, never written into the [rendered form](/declarative-components/rendered-form), and never part of hydration data. Its detail and answer are JavaScript values, so they use the [request value types](/declarative-components/types#request-values). A generated framework component exposes each request as a [function prop](/declarative-components/javascript#framework-requests).
+A request lives in JavaScript alone: reflection, the [rendered form](/declarative-components/rendered-form), and hydration data all leave it out. Its detail and answer are JavaScript values, so they use the [request value types](/declarative-components/types#request-values). A generated framework component exposes each request as a [function prop](/declarative-components/javascript#framework-requests).
 
 ### Requests and events
 
@@ -161,7 +161,7 @@ The design keeps three rules from the rest of this chapter, explained in [Securi
 
 A `<link>` head declaration uses one of these `rel` keywords: the resource hints `preconnect`, `dns-prefetch`, `preload`, `modulepreload`, and `prefetch`; the metadata links `canonical`, `alternate`, `icon`, and `manifest`; or the annotations `author`, `license`, `help`, `privacy-policy`, and `terms-of-service`. A head element may carry the attributes HTML defines for it, such as `hreflang`, `sizes`, `media`, `as`, and `crossorigin` on a link, and no others.
 
-`<link rel="stylesheet">` is not a head declaration. A component's CSS is its [scoped `<style>`](/declarative-components/styling), including shared CSS through `@import`. An unscoped stylesheet link would style the whole document, so it would bypass scoping and give a component a second CSS path.
+A component's CSS is its [scoped `<style>`](/declarative-components/styling), including shared CSS through `@import`. An unscoped stylesheet link would style the whole document, bypassing scoping and giving a component a second CSS path, so `<link rel="stylesheet">` is invalid in a definition.
 
 These are invalid anywhere in a definition: an inline executable `<script>` (one with no `src` that is not a JSON-LD data block), any other script `type` (including `importmap` and `speculationrules`), `<meta http-equiv>`, `<meta charset>`, `<base>`, `<link rel="stylesheet">`, `<link rel="import">`, the `blocking` and `nonce` attributes, and event-handler attributes. A build reports each one as an error, and the live loader rejects the definition with a diagnostic.
 
@@ -486,7 +486,7 @@ For a checkout page inside a layout that loads Stripe.js eagerly, with an applic
 ```
 
 ```js title="What a conformance test checks"
-// Hydration adopts the server's nodes instead of replacing them.
+// Hydration adopts the server's nodes in place.
 assert.equal(document.querySelector("title"), serverTitle);
 assert.equal(document.title, "Checkout · Acme");
 // One Stripe.js element, run once.
@@ -507,7 +507,7 @@ assert.equal(document.querySelector("title"), authoredTitle);
 A generated React, Vue, or Svelte component [must]{.kw} produce the same head contributions, at the same lifecycle points, with the same marker, keys, precedence, page-wide head entry rule, reconciliation, and script sharing, through its host adapter. An adapter [may]{.kw} use its framework's own head mechanism when the observable result is the same.
 
 > [!note] Platform integration
-> A native implementation needs three things: DOM insertion, removal, and value changes in `document.head` when instances connect and disconnect; the reconciliation steps above; and HTML's existing `<script>` and `<link rel="preload">` elements. It [may]{.kw} track ownership internally, but it uses the `data-component-head` marker for the handoff from server output to the client, so output from any server hydrates under any client. It needs no new security primitive: CSP, Subresource Integrity, CORS, and mixed-content blocking apply because each contribution is an ordinary element in the document. It is also much smaller than [HTML Imports](#imported-definitions-are-inert): there is no second document, no parser-blocking load, and no new script-ordering model. Each declared script is one script inserted through the DOM.
+> A native implementation needs three things: DOM insertion, removal, and value changes in `document.head` when instances connect and disconnect; the reconciliation steps above; and HTML's existing `<script>` and `<link rel="preload">` elements. It [may]{.kw} track ownership internally, but it uses the `data-component-head` marker for the handoff from server output to the client, so output from any server hydrates under any client. Existing security primitives cover it: CSP, Subresource Integrity, CORS, and mixed-content blocking apply because each contribution is an ordinary element in the document. It is also much smaller than [HTML Imports](#imported-definitions-are-inert): it works within the one document, loads without blocking the parser, and keeps the existing script ordering. Each declared script is one script inserted through the DOM.
 
 ## Native lowering and explicit root branches
 
@@ -537,7 +537,7 @@ A polymorphic component declares `as` as a keyword prop constrained to its suppo
 
 ## Lowering, provenance & hydration
 
-Lowering is **destructive and directional**. The `<template component>` is the definition and renders nothing; `<x-button>` is the *invocation* the author writes; lowering **replaces** the invocation with the definition's native root. The invocation tag does not survive: `<x-button>` becomes a real `<button>`, never `<x-button><button>…</button></x-button>`. Children land where the `<slot>` was, declared props map to their targets, and undeclared attributes pass through.
+Lowering is **destructive and directional**. The `<template component>` is the definition and renders nothing; `<x-button>` is the *invocation* the author writes; lowering **replaces** the invocation with the definition's native root. `<x-button>` becomes a real `<button>`. Children land where the `<slot>` was, declared props map to their targets, and undeclared attributes pass through.
 
 ```html
 <!-- definition: written once, inert, renders nothing -->
@@ -555,25 +555,25 @@ Lowering is **destructive and directional**. The `<template component>` is the d
 > [!norm] Determinism: one DOM, either path
 > Lowering [must]{.kw} be a deterministic function of the invocation and the definition alone: no timestamps, generated ids, or client-only state. The converter running on the server and the polyfill running in the browser therefore produce **byte-identical** native DOM for the same source, so an SSR'd root and an in-browser-lowered root are indistinguishable. This is the equivalence contract applied to a single node.
 
-Every lowered root carries one provenance attribute, `data-component`, injected by the implementation rather than authored. Its value is a **space-separated token list**, outermost invocation first, exactly like `class` or `rel`: a component that lowers straight to a native element carries a single token (`data-component="x-button"`), and one whose root is another component carries the whole lineage (`data-component="x-primary x-button"`). Each token is a component tag, so it resolves through the ordinary component registry, the loaded `<template component>` definitions keyed by tag, exactly the way `customElements` resolves a custom-element tag to its definition; no separate provenance format exists or is needed. Because it is deterministic, the stamp is identical under SSR and in-browser, and it composes across nested components and imported partials. How server output records slot boundaries and content no slot renders yet, so hydration rebuilds the same instance, is defined in [Rendered form & hydration](/declarative-components/rendered-form). Content projected through a `<slot>` is the consumer's, not the component's, so it keeps whatever provenance it already had and is never re-stamped as the enclosing component.
+Every lowered root carries one provenance attribute, `data-component`, injected by the implementation. Its value is a **space-separated token list**, outermost invocation first, exactly like `class` or `rel`: a component that lowers straight to a native element carries a single token (`data-component="x-button"`), and one whose root is another component carries the whole lineage (`data-component="x-primary x-button"`). Each token is a component tag, so it resolves through the ordinary component registry, the loaded `<template component>` definitions keyed by tag, exactly the way `customElements` resolves a custom-element tag to its definition. Because it is deterministic, the stamp is identical under SSR and in-browser, and it composes across nested components and imported partials. How server output records slot boundaries and content no slot renders yet, so hydration rebuilds the same instance, is defined in [Rendered form & hydration](/declarative-components/rendered-form). Content projected through a `<slot>` is the consumer's, so it keeps the provenance it already had.
 
-The root's visible attributes come from the template, its bindings, and invocation attributes that pass through. A prop is input to that rendering; it is not automatically exposed as `data-<name>`. The reference runtime may carry prop data for hydration, but its storage format is not an authored or observable component contract. Recovering explicit prop values after server rendering remains a [rendered-form question](/declarative-components/rendered-form). See [Types](/declarative-components/types) for how authored values are parsed.
+The root's visible attributes come from the template, its bindings, and invocation attributes that pass through. A prop is input to that rendering; it is not automatically exposed as `data-<name>`. The reference runtime may carry prop data for hydration, in a storage format internal to the runtime. Recovering explicit prop values after server rendering remains a [rendered-form question](/declarative-components/rendered-form). See [Types](/declarative-components/types) for how authored values are parsed.
 
-A literal attribute on the invocation supplies the prop's **initial configuration**. Afterwards a prop changes through a parent template's `from:name` binding or the props a framework passes. Such a change updates bindings and state derived from that prop; it does not require a visible `data-<name>` attribute on the root.
+A literal attribute on the invocation supplies the prop's **initial configuration**. Afterwards a prop changes through a parent template's `from:name` binding or the props a framework passes. Such a change updates bindings and state derived from that prop.
 
-The stamp is also what makes hydration an **adopt-in-place**, not a rebuild. An implementation lowers where it finds an `<x-button>` invocation, and *adopts* where it finds an already-lowered `[data-component]` root: it binds reactivity and events onto the existing node instead of recreating it. An SSR'd tree therefore hydrates with no replacement and no flicker, and a client-only page lowers to the same result. The only difference is a pre-lowering moment that exists only client-side, where the unknown `<x-button>` shows its children inline; SSR skips it.
+The stamp is also what makes hydration an **adopt-in-place**. An implementation lowers where it finds an `<x-button>` invocation, and *adopts* where it finds an already-lowered `[data-component]` root: it binds reactivity and events onto the existing node. An SSR'd tree therefore hydrates in place, without flicker, and a client-only page lowers to the same result. The only difference is a pre-lowering moment that exists only client-side, where the unknown `<x-button>` shows its children inline; SSR skips it.
 
 ## Slots
 
 Content projection uses the native-shaped `<slot>`. Level&nbsp;1 includes default, named, fallback, and scoped slots because all four are part of the baseline component contract.
 
-A slot's name is written, never computed, on both sides:
+A slot's name is a literal, written on both sides:
 
 - An outlet's `name`, or the `$slot` value of a [`<template $slot>`](#parser-safe-outlets) outlet, is a literal [identifier](/declarative-components/expressions#identifier-spelling-and-case), with the spelling an expression name uses: letters, digits after the first character, and `_`, but no `-`. `<slot name="labelAction">` names a slot; `<slot name="label-action">` is an error.
 - A consumer's `slot` attribute, on an element or on a `<template slot>`, is the same kind of literal identifier, naming the slot it fills. A value that is not an identifier, such as `slot="$which"`, and a bound `from:slot` are errors.
 - An empty `slot=""` assigns content to the default slot, as having no `slot` attribute does.
 
-Fixed names keep a component's slots part of its public interface: tools list them, generated components type them, and a consumer's content never changes slots as data changes. Content that varies by item is one named [scoped slot](#scoped-slots) that passes the item as a prop.
+Fixed names keep a component's slots part of its public interface: tools list them, generated components type them, and a consumer's content stays in its slot as data changes. Content that varies by item is one named [scoped slot](#scoped-slots) that passes the item as a prop.
 
 ### Named & fallback {#named-fallback}
 
@@ -668,7 +668,7 @@ A slot may expose data to the content projected into it. The definition declares
 
 ### Declaring a slot's props {#slot-props}
 
-- A `<slot>` inside `<defs>` is a **declaration**, never an outlet: it renders nothing. Its `name` names the slot it declares; without `name` it declares the default slot. A component declares each slot once.
+- A `<slot>` inside `<defs>` is a **declaration**: it renders nothing. Its `name` names the slot it declares; without `name` it declares the default slot. A component declares each slot once.
 - Its children are `<prop>` elements with exactly the vocabulary of a component's [`<prop>`](#element-reference): `name`, `type`, `values`, `default`, `required`, and a description as element text. Each name must be a valid name in expression scope, and unique within the slot.
 - The declared props are part of the component's public interface, beside its props, events, and requests: tools list them, and generated components type them.
 
@@ -743,7 +743,7 @@ A `<template>` is used for the same reason [structural directives ride on one](/
 
 ### Component ancestry for shared state {#component-ancestry-for-shared-state}
 
-Each nested component has a logical parent: the component whose markup or slot outlet renders it. A component projected into a slot therefore sees the receiving component in its ancestry for [shared state](/declarative-components/reactivity); if content passes through more slots, each receiving component is in that chain. Its ordinary expressions still use the consumer's lexical scope, and its projected nodes keep their existing provenance rather than receiving the slot owner's `data-component` stamp. Context lookup and expression scope answer different questions.
+Each nested component has a logical parent: the component whose markup or slot outlet renders it. A component projected into a slot therefore sees the receiving component in its ancestry for [shared state](/declarative-components/reactivity); if content passes through more slots, each receiving component is in that chain. Its ordinary expressions still use the consumer's lexical scope, and its projected nodes keep their existing provenance. Context lookup and expression scope answer different questions.
 
 Moving a component's rendered nodes with `<portal>` keeps that logical ancestry. Moving the DOM nodes alone does not select a different state ancestor. The nearest ancestor with the requested state cell supplies it, whether or not its native root is a DOM ancestor.
 
@@ -834,7 +834,7 @@ The application names the concrete component files it directly uses. A same-orig
 <link rel="component" href="@acme/ui/dashboard.html">
 ```
 
-A package exposes concrete component files with the ordinary `package.json` `exports` field. It needs no HTML Next manifest and no registration script:
+A package exposes concrete component files with the ordinary `package.json` `exports` field. The `exports` field is the whole package contract:
 
 ```html title="node_modules/@acme/ui/package.json"
 {
@@ -864,34 +864,34 @@ The build resolves `@acme/ui/dashboard.html` to that file, then statically walks
 <link rel="component" href="@acme/ui/dashboard.html" crossorigin>
 ```
 
-For live loading, `<link rel="component">` retains the normal fetch vocabulary: `integrity`, `crossorigin`, `referrerpolicy`, `type`, and `fetchpriority`. Packaged output normally relies on the package lock and same-origin content-hashed assets. For a stricter live deployment, tooling can crawl the same static graph and generate the application's URL-keyed integrity metadata; component authors do not calculate or embed deployment hashes.
+For live loading, `<link rel="component">` retains the normal fetch vocabulary: `integrity`, `crossorigin`, `referrerpolicy`, `type`, and `fetchpriority`. Packaged output normally relies on the package lock and same-origin content-hashed assets. For a stricter live deployment, tooling can crawl the same static graph and generate the application's URL-keyed integrity metadata; deployment hashes belong to the application.
 
 ### Resolution
 
-All of these forms feed one document-level registry keyed by tag; when the parser meets `<x-button>` it looks the tag up there. A tag [must]{.kw} have exactly one definition in a document. Declaring the same tag more than once, inline or by pointer, is a conformance error rather than last-wins, so resolution stays deterministic.
+All of these forms feed one document-level registry keyed by tag; when the parser meets `<x-button>` it looks the tag up there. A tag [must]{.kw} have exactly one definition in a document. Declaring the same tag more than once, inline or by pointer, is a conformance error, so resolution stays deterministic.
 
-A definition that composes other components [should]{.kw} carry its own `<link rel="component">` edges, normally as relative URLs inside one live location or package. If it needs imperative behavior, its carrier declares one `controller` specifier. The complete HTML-to-HTML-to-JavaScript graph is therefore discoverable by a static walk, without relying on the consuming document to reconstruct it or executing a package entry point.
+A definition that composes other components [should]{.kw} carry its own `<link rel="component">` edges, normally as relative URLs inside one live location or package. If it needs imperative behavior, its carrier declares one `controller` specifier. The complete HTML-to-HTML-to-JavaScript graph is therefore discoverable by a static walk of the definitions.
 
-The definition's `<style>` may also declare CSS `@import` edges. A static graph walk includes their transitive stylesheet dependencies, using the [shared CSS resolution and scoping contract](/declarative-components/styling#shared-css). Resolving these stylesheets requires no controller execution.
+The definition's `<style>` may also declare CSS `@import` edges. A static graph walk includes their transitive stylesheet dependencies, using the [shared CSS resolution and scoping contract](/declarative-components/styling#shared-css). Resolving these stylesheets is part of the static walk.
 
 ### Imported definitions are inert {#imported-definitions-are-inert}
 
 `<link rel="import">` (HTML Imports)[^7] defined an imported `Document` graph together with its own parser-blocking, script-ordering, style-ordering, deduplication, `currentScript`, and custom-element processing rules. The later [HTML Modules proposal](https://github.com/WICG/webcomponents/blob/gh-pages/proposals/html-modules-proposal.md) explicitly identified global-object pollution and parse blocking among the problems and attempted to move the graph into ES modules. HTML Next keeps component definitions declarative and gives their one optional imperative edge to the existing ES-module loader.
 
-A component definition **contains no executable code: code is referenced, never embedded**. Its only children are an optional `<defs>` region, one markup root, and an optional `<style>`. It [must not]{.kw} contain an inline executable `<script>`, inline event handlers, or anything requiring `eval()`, and bindings use a restricted pure expression language rather than ambient JavaScript. Code reaches a component only through references the definition makes visible: the carrier's `controller` module and the `src` of each [declared script](#declared-scripts). The platform loads both under the page's CSP, and only when an instance connects. So importing a definition is a pure fetch, parse, and register: no code executes, no globals are shared, nothing changes in the document, and there is no lifecycle to order. Registration is idempotent, deduplicated by tag, with a duplicate tag a conformance error, precisely because there are no script side effects to double-run.
+A component definition **contains no executable code: code is referenced, never embedded**. Its only children are an optional `<defs>` region, one markup root, and an optional `<style>`. It [must not]{.kw} contain an inline executable `<script>`, inline event handlers, or anything requiring `eval()`, and bindings use a restricted pure expression language. Code reaches a component only through references the definition makes visible: the carrier's `controller` module and the `src` of each [declared script](#declared-scripts). The platform loads both under the page's CSP, and only when an instance connects. So importing a definition is a pure fetch, parse, and register: no code executes, no globals are shared, nothing changes in the document, and there is no lifecycle to order. Registration is idempotent, deduplicated by tag, with a duplicate tag a conformance error, precisely because there are no script side effects to double-run.
 
 > [!norm] Definitions stay declarative
-> The definition contains no executable code, and its reactivity lowers and compiles. Imperative behavior lives in code the definition references by URL: its controller in the **ES module system**, reserved for a later level, and any declared scripts. Both are the only parts with a real lifecycle, and both start when an instance connects. Code lives in referenced files while the component definition remains data.
+> The definition contains no executable code, and its reactivity lowers and compiles. Imperative behavior lives in code the definition references by URL: its controller in the **ES module system**, and any declared scripts. Both are the only parts with a real lifecycle, and both start when an instance connects. Code lives in referenced files while the component definition remains data.
 
 > [!note] The upstream surface stays small
-> The component-loading proposal needs `rel="component"`, external `<template src>`, and application of the existing module-specifier resolution algorithm to bare component references. It does not require a new import-map section, a global tag manifest, or a second package metadata format.
+> The component-loading proposal needs `rel="component"`, external `<template src>`, and application of the existing module-specifier resolution algorithm to bare component references. Everything else reuses existing import maps and package metadata.
 
 ## Roots: native or delegated
 
 A component has **exactly one significant root**. That single root is what gives it one native element and one place for its provenance stamp, so the rule earns its keep. The root may take either shape, and neither introduces a wrapper:
 
 1. a **native element**, the common case: the component lowers straight to it, and `nativeElement` is that tag; a polymorphic definition uses explicit conditional branches whose selected arm provides the native root;
-2. another **component invocation** (*delegation*): the component has no native element of its own and lowers to whatever the delegated component lowers to, so a preset such as `x-primary` is built as an `x-button` with a fixed variant.
+2. another **component invocation** (*delegation*): the component lowers to whatever the delegated component lowers to, so a preset such as `x-primary` is built as an `x-button` with a fixed variant.
 {.algo}
 
 Delegation still resolves to a single native element, transitively through the chain and with a cycle a conformance error, and it loses no provenance because `data-component` is a token list, outermost first:
@@ -953,7 +953,7 @@ Placement
 : a flat child of `<defs>` (no `<props>` wrapper); the public interface is the set of `<prop>` elements there. A `<prop>` inside a `<slot>` declaration in `<defs>` declares one of that slot's props instead
 
 Inferred
-: target from the first `from:attribute`/`.property` binding; not restated on the prop. A prop may be bound in more places; those only render it.
+: target from the first `from:attribute`/`.property` binding. A prop may be bound in more places; those only render it.
 
 Level
 : [L1]{.pill .l1}
@@ -973,7 +973,7 @@ Answered with
 : a `RequestEvent` listener calling `respondWith`, [`RequestEvent.respond()`](/declarative-components/javascript#outside-a-controller), or a framework function prop; the nearest responder answers
 
 Level
-: [L2+]{.pill .soon} reserved, with the JavaScript layer
+: [L1]{.pill .l1}
 :::
 
 ::: {.entry name='<title> · <meta> · <link> · <script type="application/ld+json">' role="head declarations"}
@@ -1007,7 +1007,7 @@ Semantics
 : one ordinary `<script>` element per URL and type in `document.head`, inserted once and never removed
 
 Level
-: [L2+]{.pill .soon} reserved, with the JavaScript layer
+: [L1]{.pill .l1}
 :::
 
 ::: {.entry name="data-component" role="provenance stamp (output)"}
@@ -1015,7 +1015,7 @@ Value
 : space-separated token list, outermost invocation first (`x-primary x-button`); a single token for a native-root component
 
 Emitted by
-: the implementation on every lowered native root; not authored
+: the implementation, on every lowered native root
 
 Resolves via
 : the component registry, the loaded `<template component>` definitions keyed by tag (like `customElements`)
@@ -1057,7 +1057,7 @@ Semantics
 : import/lazy-load a definition · relocate children while preserving bindings
 
 Level
-: [L2]{.pill .soon}
+: [L1]{.pill .l1}
 :::
 
 ## Sources

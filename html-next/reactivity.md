@@ -8,11 +8,11 @@ status: Stage 0 · Level 1 proposal
 
 # Reactivity & Data
 
-Reactivity is a **declared dependency graph in markup**: mutable state, computed state, and external resources, each with a distinct lifecycle. The graph is statically analyzable, so it lowers to React state, Vue refs, Svelte runes, or a signal-based browser runtime: one semantics, many backends, no `eval()`.
+Reactivity is a **declared dependency graph in markup**: mutable state, computed state, and external resources, each with a distinct lifecycle. The graph is statically analyzable, so it lowers to React state, Vue refs, Svelte runes, or a signal-based browser runtime: one semantics, many backends.
 
 ## Reactive values and resources
 
-HTML Next keeps a few concepts separate rather than overloading one element, because their lifecycles differ. All of them are declarations: they live in the definition's `<defs>` region, not in the visible markup (see [Components](/declarative-components/components)).
+HTML Next keeps a few concepts separate, because their lifecycles differ. All of them are declarations: they live in the definition's `<defs>` region (see [Components](/declarative-components/components)).
 
 | Element | Is | Changes when |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ HTML Next keeps a few concepts separate rather than overloading one element, bec
 <computed name="hasQuery" from="$query != ''">  <!-- derived boolean -->
 ```
 
-The design, a declared dependency graph that can be analyzed statically rather than traced at runtime, has deep prior art in signals and fine-grained reactivity[^5]: Solid signals and `createMemo` and Angular signals are its closest current relatives, with Knockout observables as the historical ancestor. RxJS is a deliberate contrast, it models push streams, not the settled value cells `<state>` and `<computed>` are.
+The design, a declared dependency graph that can be analyzed statically, has deep prior art in signals and fine-grained reactivity[^5]: Solid signals and `createMemo` and Angular signals are its closest current relatives, with Knockout observables as the historical ancestor. `<state>` and `<computed>` are settled value cells.
 
 A `<state>` uses the same type syntax as a prop (see [Types](/declarative-components/types)). When `type` is omitted, the state has type `unknown`; its initial value does not establish a type. For example, `value="1"` is a string, while `type="number" value="1"` is the number `1`. Declare the type of a state whose values need to be checked or used as numbers, booleans, or structured data.
 
@@ -57,7 +57,7 @@ Declare either `value` or a nonempty `from`, never both. Initialization expressi
 
 ## What counts as a change {#changes}
 
-A reader depends on the **paths** its expression reads, and on the paths that lead to them: `$items.0.name` depends on `items`, `items.0` and `items.0.name`. A path **changes** when its value is no longer `Object.is`-equal to the one it had,[^12] so `NaN` equals `NaN` and `0` differs from `-0`. The rule is the same at every depth; there is no separate shallow or deep mode.
+A reader depends on the **paths** its expression reads, and on the paths that lead to them: `$items.0.name` depends on `items`, `items.0` and `items.0.name`. A path **changes** when its value is no longer `Object.is`-equal to the one it had,[^12] so `NaN` equals `NaN` and `0` differs from `-0`. The rule is the same at every depth.
 
 Writing inside an object or list changes the paths it writes and nothing that contains them. `items.push(item)` changes `items.length` and the new index, but not `items`, so a reader of `$items.0.name` is unaffected. Assigning a different list to `items` changes `items`, so every reader of a path through it evaluates again. A reader that takes a whole object or list depends on its contents, so a change anywhere inside it, at any depth, reaches that reader. These readers are:
 
@@ -83,7 +83,7 @@ A live expression evaluates when its dependencies change. Each evaluation propos
 
 For an object or list, the immediate type check asks whether the result is an object or list. Nested fields are checked when expressions read those fields. A wrong-typed `items.0.name` therefore leaves that particular binding at its last value while another binding can still read a valid `items.0.id` from the same new list. This matches the typed-reference rule for `<data>` below; one bad field does not discard its siblings.
 
-The source is not rolled back. A form control keeps the user's edit under its native rules; a component prop keeps its latest direct `inputValue` even when its accepted `value` stays at the last good/default/null value; and a `<data>` resource keeps the response it received. A failed downstream binding does not supply the destination prop. This is different from a **well-typed** result that fails `min`, `max`, `values`, or another value constraint: that result is written, and the destination reports its invalidity (see [Validation](/declarative-components/validation)). A missing value is also different from a present value of the wrong type; [absence](/declarative-components/expressions#the-absent-value) has its ordinary empty/removal behavior.
+The source keeps its value. A form control keeps the user's edit under its native rules; a component prop keeps its latest direct `inputValue` even when its accepted `value` stays at the last good/default/null value; and a `<data>` resource keeps the response it received. A failed downstream binding does not supply the destination prop. This is different from a **well-typed** result that fails `min`, `max`, `values`, or another value constraint: that result is written, and the destination reports its invalidity (see [Validation](/declarative-components/validation)). A missing value is also different from a present value of the wrong type; [absence](/declarative-components/expressions#the-absent-value) has its ordinary empty/removal behavior.
 
 For example, the outer component accepts a directly supplied value. The inner component has a number prop with a default, and its invocation binds that prop to the outer value:
 
@@ -101,7 +101,7 @@ For example, the outer component accepts a directly supplied value. The inner co
 <x-reading-owner incoming="oops"></x-reading-owner>
 ```
 
-The authored invocation supplies the first value. The owner then updates its `incoming` prop through its framework adapter. Its `incoming` declaration has no default, so the accepted value is initially `null`; the invalid input remains separately readable through `host.props.incoming.inputValue`. `"oops"` is shown in quotation marks to make clear that it is a string, not a number:
+The authored invocation supplies the first value. The owner then updates its `incoming` prop through its framework adapter. Its `incoming` declaration has no default, so the accepted value is initially `null`; the invalid input remains separately readable through `host.props.incoming.inputValue`. `"oops"` is shown in quotation marks to make clear that it is a string:
 
 | Action | Outer `inputValue` | Outer accepted value | Inner accepted `amount` | What runs |
 | --- | --- | --- | --- | --- |
@@ -120,7 +120,7 @@ Controller writes through `host.state` follow these same type and invalid-write 
 
 ## Share state with descendant components
 
-A component can share a state value with components rendered inside it, including components supplied through a slot. This lets independently authored parts of a widget react to the same value without passing a prop through every component between them. A descendant declares which ancestor state it reads in its own `<defs>`; the ancestor's `<state>` needs no additional marker.
+A component can share a state value with components rendered inside it, including components supplied through a slot. This lets independently authored parts of a widget react to the same value without passing a prop through every component between them. A descendant declares which ancestor state it reads in its own `<defs>`; the ancestor's ordinary `<state>` serves as the provider.
 
 ```html
 <template component="x-steps">
@@ -144,18 +144,15 @@ A component can share a state value with components rendered inside it, includin
 </x-steps>
 ```
 
-`name` identifies the ancestor state cell; `from` names its component tag. Optional `as` names the value in the reader's expressions and defaults to `name`, so the example could use `current` directly. The reader sees the ancestor cell's current value and type, not a new cell or a synthetic `x-steps.current` object. When an existing `<set>` or `bind:` changes that state, bindings that read the context update through the same reactive graph.
+`name` identifies the ancestor state cell; `from` names its component tag. Optional `as` names the value in the reader's expressions and defaults to `name`, so the example could use `current` directly. The reader sees the ancestor cell itself, with its current value and type. When an existing `<set>` or `bind:` changes that state, bindings that read the context update through the same reactive graph.
 
 The nearest matching ancestor in the [logical component tree](/declarative-components/components) supplies the value, including when another instance of the same component is nested inside it. An ancestor matches if it has the component tag named by `from` and a `<state>` named by `name`; no state export declaration is required. If no ancestor matches, the reader has a conformance error when instantiated. The imported name shares the reader's flat declaration namespace. A context read is read-only: `<set>` and `bind:` cannot write through it. These rules add no event or command channel.
 
-This is an HTML Next declaration, not a native HTML element. The Web Components [Context Protocol](https://github.com/webcomponents-cg/community-protocols/blob/main/proposals/context.md) provides a useful event-based way for JavaScript components to exchange values, but its request follows DOM event propagation. HTML Next's lookup follows component ownership so projection and portals retain the same provider even when physical DOM ancestry differs. The browser runtime may use native observation primitives underneath; no authored callback is needed.
-
-> [!note] Level placement
-> This feature is part of the current proposal and its reference implementation. It could move to Level&nbsp;2 if the Level&nbsp;1 scope is narrowed later.
+`<context>` is an HTML Next declaration. The Web Components [Context Protocol](https://github.com/webcomponents-cg/community-protocols/blob/main/proposals/context.md) provides a useful event-based way for JavaScript components to exchange values, but its request follows DOM event propagation. HTML Next's lookup follows component ownership so projection and portals retain the same provider even when physical DOM ancestry differs. The browser runtime may use native observation primitives underneath; the declaration is the whole authored surface.
 
 ## <data>: a declared, reactive resource
 
-This is HTML Next's standards-shaped answer to htmx[^1]: instead of `hx-get`/`hx-trigger`/`hx-target` string attributes swapping opaque HTML, a `<data>` element declares a **typed, reactive resource** whose parameters are visible right where it lives. For a read, each `<param from:value>` subscribes to the state or prop it reads: change one and the resource refetches, and bindings that read it re-render. A `<param expr:value>` supplies a request-time expression without subscribing to it; its inputs alone do not refetch. This is the surface Solid `createResource` already ships[^6], a resource whose fetch re-runs on source change and exposes loading and error; TanStack and Vue Query are the same idea with a params-keyed cache.
+This is HTML Next's standards-shaped answer to htmx[^1]: a `<data>` element declares a **typed, reactive resource** whose parameters are visible right where it lives. For a read, each `<param from:value>` subscribes to the state or prop it reads: change one and the resource refetches, and bindings that read it re-render. A `<param expr:value>` supplies a request-time expression without subscribing to it; its inputs alone do not refetch. This is the surface Solid `createResource` already ships[^6], a resource whose fetch re-runs on source change and exposes loading and error; TanStack and Vue Query are the same idea with a params-keyed cache.
 
 ```html
 <data name="search" src="/api/search" type="object" debounce="200ms">
@@ -164,7 +161,7 @@ This is HTML Next's standards-shaped answer to htmx[^1]: instead of `hx-get`/`hx
 </data>
 ```
 
-Params are serialized, never interpolated into a URL string. A `{name}` placeholder in `src` is filled from the matching `<param>` (RFC&nbsp;6570 URI Templates)[^2]; on a read, params not named in the template become the query string. There is no string concatenation, and therefore no injection surface.
+Params are always serialized. A `{name}` placeholder in `src` is filled from the matching `<param>` (RFC&nbsp;6570 URI Templates)[^2]; on a read, params not named in the template become the query string. Serialization is the only path from a value into a URL, which closes the injection surface.
 
 > [!norm] Expanded request methods
 > `<data method>` is an **ASCII-case-insensitive enumerated attribute** with lowercase canonical keywords. Level&nbsp;1 keywords are `get`, `query`, `post`, `put`, `patch`, and `delete`. Before constructing a request, an implementation maps the selected keyword to `GET`, `QUERY`, `POST`, `PUT`, `PATCH`, or `DELETE`; `patch` and `PATCH` both produce HTTP `PATCH`. This rule is explicit because Fetch normalizes only a limited set of methods and does not uppercase `patch` for the caller.[^9]
@@ -187,7 +184,7 @@ A [declared script](/declarative-components/components#declared-scripts) exposes
 
 Controllers read the same resource through `host.data.search`: for example `host.data.search.pending` and `host.data.search.value`. A resource is absent from `host.state`. Its response and status fields are read-only; reads participate in `host.effect` dependency tracking. A mutable local copy belongs in a declared `<state>`.
 
-To refetch with unchanged inputs (a manual refresh, polling) there is no imperative call: bump a state param the source depends on, or declare a `poll` interval. For a read, a param change cancels the stale in-flight GET request. Reads are keyed by their resolved params, giving a natural cache key.
+To refetch with unchanged inputs (a manual refresh, polling), bump a state param the source depends on, or declare a `poll` interval. For a read, a param change cancels the stale in-flight GET request. Reads are keyed by their resolved params, giving a natural cache key.
 
 > [!ex] Locality of behaviour, end to end
 > ```html
@@ -210,7 +207,7 @@ GET /api/search?q=oat&page=1
 Accept: application/json
 ```
 
-The endpoint answers with JSON. The payload becomes `search.value` as it arrived; a declared `type` constrains the *references* into it rather than gating the response as a whole:
+The endpoint answers with JSON. The payload becomes `search.value` as it arrived; a declared `type` constrains the *references* into it:
 
 ```json
 {
@@ -221,10 +218,10 @@ The endpoint answers with JSON. The payload becomes `search.value` as it arrived
 }
 ```
 
-From there the result is ordinary reactive data: `search.pending` was true while the request was in flight, `search.value.results` now feeds the `$each` above, and `search.ok` is true. The last resolved value stays bound while the next read runs, so a refetch does not blank what the page already shows. Editing `query` again cancels the in-flight read before starting the next one, so a fast typist never renders an earlier answer over a later one.
+From there the result is ordinary reactive data: `search.pending` was true while the request was in flight, `search.value.results` now feeds the `$each` above, and `search.ok` is true. The last resolved value stays bound while the next read runs, so the page keeps its content during a refetch. Editing `query` again cancels the in-flight read before starting the next one, so a fast typist always sees the latest answer.
 
 > [!norm] A reference conforms or it is inert
-> A declared type is checked where a reference is read, not where its value arrived. If `results.0.title` holds a number where the declaration says `string`, that reference cannot participate in reactivity: a binding reading it does not update and keeps what it last rendered, and a `<computed>` reading it does not recompute, so nothing downstream of it moves either. The payload is left exactly as the endpoint sent it, and references into its conforming parts keep working.
+> A declared type is checked where a reference is read. If `results.0.title` holds a number where the declaration says `string`, that reference cannot participate in reactivity: a binding reading it does not update and keeps what it last rendered, and a `<computed>` reading it does not recompute, so nothing downstream of it moves either. The payload is left exactly as the endpoint sent it, and references into its conforming parts keep working.
 >
 > This is distinct from absence. A property that is not there is absence, which renders as empty text and is a normal state for data that has not arrived. A property that is present but breaks its declared type is a broken contract: rather than rendering a value the declaration forbids, or discarding a response a page may be mid-way through using, the offending reference goes quiet and the violation is reported to the author.
 >
@@ -252,7 +249,7 @@ Here is the effect across three responses when `record.value.label` is declared 
 
 The second response does not turn the whole resource back to its first payload. It changes `record.value.note` to `b` and leaves only the invalid `label` read without a new output. When the third response restores a string label, that binding updates again.
 
-The outbound half is symmetrical. A body param of a synchronized write is serialized as request content rather than a query parameter, while a param consumed by the `src` template identifies the resource:
+The outbound half is symmetrical. A body param of a synchronized write is serialized as request content, while a param consumed by the `src` template identifies the resource:
 
 ```text
 PATCH /api/posts/42
@@ -261,11 +258,11 @@ Content-Type: application/json
 { "title": "Draft title", "tags": ["design", "docs"], "clientRevision": 0 }
 ```
 
-`id` filled the `{id}` placeholder and therefore does not repeat in the body; `title`, `tags`, and the sampled `clientRevision` are the body. The same rule decides both directions, so an author reading a declaration can tell what the request will look like without reading any JavaScript.
+`id` filled the `{id}` placeholder and therefore does not repeat in the body; `title`, `tags`, and the sampled `clientRevision` are the body. The same rule decides both directions, so an author reading a declaration can tell from the markup what the request will look like.
 
 ## Writes: reactive data effects {#writes}
 
-A synchronized write is the outbound half of the same reactive resource model. A `<data>` with a modifying `method` and `send="change"` observes its `from:value` body parameters and sends their latest snapshot when they change, including a change inside an object or list parameter (see [What counts as a change](#changes)). An `expr:value` parameter is sampled when another parameter causes the resource to prepare a request; changing only that expression's inputs does not queue a request. This mode represents state synchronization: each body is the latest state, never a request to perform a one-shot command. `debounce` controls the quiet period before the effect runs, so autosave does not mean one request per keystroke. The declaration lives in `<defs>` and exposes `.dirty`, `.pending`, `.value`, `.error`, and `.ok`.
+A synchronized write is the outbound half of the same reactive resource model. A `<data>` with a modifying `method` and `send="change"` observes its `from:value` body parameters and sends their latest snapshot when they change, including a change inside an object or list parameter (see [What counts as a change](#changes)). An `expr:value` parameter is sampled when another parameter causes the resource to prepare a request; changing only that expression's inputs does not queue a request. This mode represents state synchronization: each body is the latest state. `debounce` controls the quiet period before the effect runs, so autosave coalesces keystrokes into one request. The declaration lives in `<defs>` and exposes `.dirty`, `.pending`, `.value`, `.error`, and `.ok`.
 
 ```html
 <defs>
@@ -274,7 +271,7 @@ A synchronized write is the outbound half of the same reactive resource model. A
          value="{ title: 'Draft title', tags: ['design', 'docs'] }"></state>
   <state name="revision" type="integer" value="0"></state>
   <event name="publish" type="object({ title: string, tags: list(string) })"></event>
-  <!-- A modifying <data> is a reactive sink, not a hidden form. -->
+  <!-- A modifying <data> is a reactive sink. -->
   <data name="saveDraft"
         method="patch"
         src="/api/posts/{id}"
@@ -315,7 +312,7 @@ A writable data resource does not own controls or create a rendered `<form>`. Th
 
 ### Commands remain explicit
 
-Publishing, charging, sending email, and deleting are commands, not synchronization. They must not run because a dependency happened to change. Their commitment point remains author-owned: native form submission, an imperative controller call, or a component event dispatched from an internal button. An internal button may itself be a native submit button associated with the surrounding form; when it is not, its handler can dispatch the command intent without owning the endpoint. HTML Next therefore adds no `<send>` handler step and does not distort reactive state into a command trigger.
+Publishing, charging, sending email, and deleting are commands, not synchronization. They must not run because a dependency happened to change. Their commitment point remains author-owned: native form submission, an imperative controller call, or a component event dispatched from an internal button. An internal button may itself be a native submit button associated with the surrounding form; when it is not, its handler can dispatch the command intent without owning the endpoint. Commands therefore go through these author-owned paths, and reactive state stays synchronization.
 
 > [!warn] Open for review
 > Direction: reads and synchronized writes are `<data>` resources; form/control ownership and one-shot commands remain separate. The initial write policy is `send="change"` with optional `debounce`. Still open: additional send policies, retry and conflict policy, resource identity carried outside the URI template (including query-shaped identity), the declarative bridge from an async lookup into an author-owned control's validity, pagination accumulation, optimistic updates, revalidation, request headers/auth, and real-time push (SSE/WebSocket) where the server drives change without a param bump. Outside-world reactions (timers, subscriptions) are the JavaScript layer's job, see Lifecycle below.
@@ -326,13 +323,13 @@ In a reactive component most of what framework lifecycle callbacks did is absorb
 
 ### What the graph already handles
 
-- **Prop changes**: when a prop changes, through a parent template's binding on the invocation or a framework passing a new value, the bindings, `<computed>`, and `<data>` that read it re-run automatically, so you never write `attributeChangedCallback`. A literal attribute on an invocation is the prop's initial configuration; the invocation is replaced when it lowers (see [Lowering, provenance & hydration](/declarative-components/components)).
+- **Prop changes**: when a prop changes, through a parent template's binding on the invocation or a framework passing a new value, the bindings, `<computed>`, and `<data>` that read it re-run automatically. A literal attribute on an invocation is the prop's initial configuration; the invocation is replaced when it lowers (see [Lowering, provenance & hydration](/declarative-components/components)).
 - **Fetch on mount, refetch on change**: declare a `<data>`; it runs when its params resolve and again when they change. This is the `connectedCallback` fetch.
 - **Initial and derived state**: `<state type value>` declares a writable cell and its literal initial value; `<computed from>` declares read-only computed state. Initial focus is `autofocus`.
 
 ### Declarative lifecycle events
 
-For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a [handler](/declarative-components/bindings) when the component is connected or disconnected, mirroring `connectedCallback`/`disconnectedCallback`[^7] and firing again on reconnect. Because handlers are declarative, they set state or `<dispatch>` an event, with no imperative code. They are **client-only**: SSR renders the static tree, and hydration is what connects, so nothing lifecycle-driven runs on the server.
+For a reaction to the component's lifecycle, `on:connect` and `on:disconnect` run a [handler](/declarative-components/bindings) when the component is connected or disconnected, mirroring `connectedCallback`/`disconnectedCallback`[^7] and firing again on reconnect. Because handlers are declarative, they set state or `<dispatch>` an event. They are **client-only**: SSR renders the static tree, and hydration is what connects, so lifecycle handlers run only in the browser.
 
 ```html
 <defs>
@@ -341,7 +338,7 @@ For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a 
   <handler name="hide"><set name="visible" value="false"></set></handler>
 </defs>
 
-<!-- lifecycle events run handlers; client-only (SSR never connects) -->
+<!-- lifecycle events run handlers; client-only (hydration connects) -->
 <section on:connect="show" on:disconnect="hide">…</section>
 ```
 
@@ -350,7 +347,7 @@ For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a 
 | `constructor` | none, the `<template component>` declaration *is* the definition |
 | `connectedCallback` | `on:connect` (declarative) · the JS behavior's connect (imperative, below) |
 | `disconnectedCallback` | `on:disconnect` · the JS behavior's teardown |
-| `attributeChangedCallback` | not written: a prop changes through a binding or a framework, and reactivity re-runs its dependents |
+| `attributeChangedCallback` | covered by reactivity: a prop changes through a binding or a framework, and reactivity re-runs its dependents |
 | `adoptedCallback` | `on:adopt` (rare, cross-document moves) |
 | form-associated callbacks | the forms & validation story (see [Validation](/declarative-components/validation)) |
 
@@ -358,11 +355,11 @@ For a reaction that is not a derivation, `on:connect` and `on:disconnect` run a 
 > `on:connect` fires each time an element joins a live, interactive document, including after a move and re-insertion. That boundary also fits **SSR**: the server produces static markup, then client [hydration](/declarative-components/components) adopts and connects the node. Framework developers can read connect/disconnect as the platform-specific counterpart to mount/unmount, with repeated connection made explicit.
 
 > [!norm] Imperative lifecycle is the JavaScript layer
-> Timers, subscriptions (SSE/WebSocket), `IntersectionObserver`, third-party libraries, imperative animation: these are genuinely imperative, with setup and teardown, and have no declarative form. They live in the reserved **JavaScript layer** (see [The JavaScript Layer](/declarative-components/javascript)), at a later Level, where a component may attach an ES-module *controller* whose connect hook returns a disposer run on disconnect, the shape `connectedCallback`/`disconnectedCallback` and React/Svelte effects already established.[^8] The declarative layer stays free of lifecycle ceremony; the imperative layer is the only part with a real lifecycle, and it is opt-in.
+> Timers, subscriptions (SSE/WebSocket), `IntersectionObserver`, third-party libraries, imperative animation: these are genuinely imperative, with setup and teardown. They live in the **JavaScript layer** (see [The JavaScript Layer](/declarative-components/javascript)), where a component may attach an ES-module *controller* whose connect hook returns a disposer run on disconnect, the shape `connectedCallback`/`disconnectedCallback` and React/Svelte effects already established.[^8] The imperative layer alone carries a real lifecycle, and it is opt-in.
 
 ## The dependency graph
 
-Every expression exposes the paths it reads, and every `<param from:value>` names a subscription, so the graph is known statically. This buys type-checkable expressions, predictable invalidation, ahead-of-time generation for any reactive framework, and a browser runtime that needs no dynamic code.
+Every expression exposes the paths it reads, and every `<param from:value>` names a subscription, so the graph is known statically. This buys type-checkable expressions, predictable invalidation, ahead-of-time generation for any reactive framework, and a CSP-clean browser runtime.
 
 | Target | Lowers reactivity to |
 | --- | --- |
@@ -373,7 +370,7 @@ Every expression exposes the paths it reads, and every `<param from:value>` name
 
 ## Relationship to TC39 Signals
 
-**Decision:** HTML Next integrates with, but does not depend on, the TC39 Signals proposal.[^4] Signals are a good optional substrate for a browser runtime and a potential implementation interoperability point. They are not the authored markup model, a required implementation strategy, or a second source of observable semantics. A runtime may use native Signals, a small userland graph, or a target framework's reactivity so long as the HTML Next result is equivalent.
+**Decision:** HTML Next integrates with, but does not depend on, the TC39 Signals proposal.[^4] Signals are a good optional substrate for a browser runtime and a potential implementation interoperability point. The authored markup remains the model and the one source of observable semantics; Signals are one implementation strategy among several. A runtime may use native Signals, a small userland graph, or a target framework's reactivity so long as the HTML Next result is equivalent.
 
 The TC39 proposal is intentionally lower-level than a UI system: it standardizes writable and computed cells plus dirtiness notification, while leaving effects, scheduling, DOM ownership, and automatic disposal to frameworks. HTML Next already has the missing owner: the connected template instance.
 
@@ -384,15 +381,15 @@ The TC39 proposal is intentionally lower-level than a UI system: it standardizes
 
 ### The minimum useful Signals subset
 
-If an implementation chooses TC39 Signals, HTML Next needs the semantics of `State`, `Computed`, and `Watcher`: writable cells, lazy cached and glitch-free derivations, and a notification that lets the DOM layer schedule a flush. The DOM layer owns when to call `watch`/`unwatch`; authors do not.
+If an implementation chooses TC39 Signals, HTML Next needs the semantics of `State`, `Computed`, and `Watcher`: writable cells, lazy cached and glitch-free derivations, and a notification that lets the DOM layer schedule a flush. The DOM layer owns when to call `watch`/`unwatch`.
 
 | Signals facility | HTML Next position |
 | --- | --- |
 | `Signal.State` | A suitable backing cell for declared `<state>` and changing props. |
 | `Signal.Computed` | A suitable backing cell for `<computed>`; HTML Next additionally knows its dependency paths statically. |
 | `Signal.subtle.Watcher` | An internal invalidation hook. One instance-owned scheduler batches affected DOM work into a microtask and unwatches it on disconnect. |
-| built-in effects and scheduling | Not supplied by TC39 and not requested from it. The [`host.effect` DOM API](/declarative-components/javascript) supplies lifecycle, scheduling, and cleanup. |
-| `Signal.subtle.untrack`, graph introspection, subclassing, custom equality | Not required by HTML Next's authored model. An implementation may use them, but markup semantics never expose them. |
+| built-in effects and scheduling | Supplied by the [`host.effect` DOM API](/declarative-components/javascript): lifecycle, scheduling, and cleanup. |
+| `Signal.subtle.untrack`, graph introspection, subclassing, custom equality | Optional internals. An implementation may use them, but markup semantics never expose them. |
 
 > [!note] Signals can advance independently
 > The TC39 proposal is currently Stage&nbsp;1 and explicitly treats DOM integration as separate future work. HTML Next should provide that integration evidence without freezing itself to the proposal's present class names or `subtle` surface. If Signals advance, a native runtime can adopt them underneath this contract; if they change or do not ship, the markup and its lifecycle semantics remain intact.
@@ -415,10 +412,10 @@ Attributes
 : `name`: ancestor state cell · `from`: ancestor component tag · `as?`: local name (defaults to `name`)
 
 Semantics
-: Reads the nearest matching ancestor's state reactively; cannot be written through `<set>` or `bind:`. The ancestor's `<state>` needs no marker.
+: Reads the nearest matching ancestor's state reactively; cannot be written through `<set>` or `bind:`. The ancestor's ordinary `<state>` is the provider.
 
 Level
-: [L1]{.pill .l1} · could move to Level&nbsp;2
+: [L1]{.pill .l1}
 :::
 
 ::: {.entry name="<data> · <param>" role="declared reactive resource"}

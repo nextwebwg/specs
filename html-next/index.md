@@ -36,13 +36,13 @@ This document specifies the component-authoring proposal in the [HTML Next colle
 
 **Declarative HTML Components proposes a reliable, reactive component-authoring model for HTML.** The platform gained a rendering engine, a networking stack, and a component *mechanism*, but never an **application authoring model**, so for fifteen years the primitives authors need most (reusable typed components, control flow, data sources, reactivity) were reinvented, incompatibly, in one JavaScript framework after another. This proposal expresses those primitives **as markup**, so the web gains a standard component layer that degrades to plain HTML and outlives any single framework. {.lede}
 
-**In plain terms:** you write components, control flow, and reactivity *as HTML*, and run the same file in the browser or compile it to React, Vue, or Svelte, with no build step and no `eval()`.
+**In plain terms:** you write components, control flow, and reactivity *as HTML*, and run the same file directly in the browser or compile it to React, Vue, or Svelte.
 
 ```html
 <!-- You write a component as markup -->
 <x-button variant="solid">Save</x-button>
 
-<!-- It becomes a real native button — no wrapper, no shadow root -->
+<!-- It becomes a real native button, in the light DOM -->
 <button data-component="x-button">Save</button>
 ```
 
@@ -66,7 +66,7 @@ Every cell in the right column is an incompatible *language*. Web Components add
 
 ### Use the platform
 
-The goal is to **use the platform** as much as possible. Each feature starts from real HTML and CSS patterns and from existing DOM interfaces: a component lowers to a native element, styles are scoped with CSS `@scope`, validity follows the Constraint Validation API, and events are DOM events. Where the platform has no pattern to draw on, the proposal adopts the shape that popular libraries have repeatedly and independently arrived at, such as conditional and repeated markup, two-way binding, and typed props, rather than inventing a new one.
+The goal is to **use the platform** as much as possible. Each feature starts from real HTML and CSS patterns and from existing DOM interfaces: a component lowers to a native element, styles are scoped with CSS `@scope`, validity follows the Constraint Validation API, and events are DOM events. Where the platform has no pattern to draw on, the proposal adopts the shape that popular libraries have repeatedly and independently arrived at, such as conditional and repeated markup, two-way binding, and typed props.
 
 ### The component model
 
@@ -84,11 +84,11 @@ A [markup-first authoring language]{.dfn} realized by two kinds of conforming im
 
 The proposal is both an authoring layer you can **use today**, through the [converter and polyfill](https://github.com/nextwebwg/html-next), and a set of **platform features** meant to graduate into HTML itself, feature by feature, the way Declarative Shadow DOM and invoker commands went from userland shim to shipped native syntax.
 
-The proposal is **purely additive markup**. You add one feature to an ordinary HTML file, one tag at a time, and everything else stays exactly as it was. A plain HTML file already satisfies the language, so adoption requires no file-format rewrite.
+The proposal is **purely additive markup**. You add one feature to an ordinary HTML file, one tag at a time, and everything else stays exactly as it was. A plain HTML file already satisfies the language, so adoption starts from the files you have.
 
 ### How the proposal versions
 
-There is no single umbrella version of the proposal, no big-bang *HTML&nbsp;Next&nbsp;1.0*. A number such as *HTML&nbsp;Next&nbsp;1.x* names a version of the reference tools, not of the proposal (see [Stability comes from pinning](#stability)). The proposal versions the way the platform itself does today, on three borrowed axes:
+A number such as *HTML&nbsp;Next&nbsp;1.x* names a version of the reference tools (see [Stability comes from pinning](#stability)). The proposal itself versions the way the platform does today, on three borrowed axes:
 
 ::: two
 
@@ -96,7 +96,7 @@ There is no single umbrella version of the proposal, no big-bang *HTML&nbsp;Next
 > CSS specifications advance by **Level** (Selectors&nbsp;4, Color&nbsp;5, Grid&nbsp;2): each Level is a complete specification that extends the one before. Declarative HTML Components is one such specification, and this draft is **Level&nbsp;1**. Its chapters are parts of one component model, so they advance together.
 
 > [!note] Stages, from proposals
-> HTML is a **Living Standard**; new features incubate as **proposals** (WICG explainers), and JavaScript proposals move through **TC39 stages**&nbsp;0 to 4. This proposal is at **Stage&nbsp;0** today; maturity is a stage, not a number announced in advance.
+> HTML is a **Living Standard**; new features incubate as **proposals** (WICG explainers), and JavaScript proposals move through **TC39 stages**&nbsp;0 to 4. This proposal is at **Stage&nbsp;0** today, and its maturity advances by stage.
 
 :::
 
@@ -107,7 +107,7 @@ There is no single umbrella version of the proposal, no big-bang *HTML&nbsp;Next
 
 ### Stability comes from pinning {#stability}
 
-The proposal is not stable, and will not be until a standards venue adopts it: the working draft can change on any day. Software built on it can be stable sooner, because a snapshot never changes. A tool that implements one snapshot can promise not to break that snapshot's syntax. A component library or an application built with that tool can then be stable for that tool's version, while the draft keeps moving.
+The proposal becomes stable when a standards venue adopts it; until then, the working draft can change on any day. Software built on it can be stable sooner, because a snapshot is fixed. A tool that implements one snapshot can promise to keep that snapshot's syntax working. A component library or an application built with that tool can then be stable for that tool's version, while the draft keeps moving.
 
 > [!norm] Name the snapshot you implement
 > An implementation [should]{.kw} state the snapshot it implements and the [extensions](#extensions) it supports, for example *Declarative HTML Components Level&nbsp;1, Stage&nbsp;0, snapshot of 25&nbsp;September&nbsp;2026, with no extensions*. The reference tools publish how their versions map to snapshots, and what they promise within a version, in [Versions and stability](/html-next/versions).
@@ -122,7 +122,7 @@ A complete component-authoring model needs reactivity, style scoping, and reliab
 
 ### Reactivity
 
-A dependency graph you can read, type, and lower, not a runtime you're married to.
+A dependency graph you can read, type, and lower.
 
 ##### Why it's broken
 
@@ -133,8 +133,8 @@ A dependency graph you can read, type, and lower, not a runtime you're married t
 ##### This proposal's answer
 
 - Reactivity is a **declarative dependency graph** in markup: `<state>`, `<computed>`, `<data>`, and `from:`/`bind:` bindings over a small pure expression language.
-- The graph is **statically analyzable**: dependencies are read off the parsed expression, not discovered at runtime.
-- One semantics, many backends: it lowers to React state, Vue refs, Svelte runes, or a signal-based browser runtime. **No `eval`**, CSP-clean.
+- The graph is **statically analyzable**: dependencies are read off the parsed expression before it runs.
+- One semantics, many backends: it lowers to React state, Vue refs, Svelte runes, or a signal-based browser runtime, CSP-clean.
 
 :::
 
@@ -153,9 +153,9 @@ The platform's own component mechanism is broken in ways a compiler cannot repai
 
 ##### Polyfill today, platform change upstream
 
-- HTML Next needs custom elements **not at all**: templating and native lowering emit a **real `<button>`**, so native semantics stay the browser's.
-- The component is **typed markup with a declarative contract** and compiles to idiomatic React, Vue, and Svelte: portable, not a walled garden.
-- What a compiler cannot fix (WebKit's refusal of customized built-ins, form association across a boundary) is platform work for a later Level and an **upstream proposal**.
+- Templating and native lowering emit a **real `<button>`**, so native semantics stay the browser's.
+- The component is **typed markup with a declarative contract** and compiles to idiomatic React, Vue, and Svelte: portable across frameworks.
+- What a compiler cannot fix (WebKit's refusal of customized built-ins, form association across a boundary) is platform work for an **upstream proposal**.
 - Its likely shape: templating that opts into an **extension of Declarative Shadow DOM**, closing the styling and form gaps DSD left open.
 
 :::
@@ -164,7 +164,7 @@ The platform's own component mechanism is broken in ways a compiler cannot repai
 
 ### Shadow DOM & scoping
 
-Styles scoped to the component without a shadow boundary, so you stop paying the isolation tax you never wanted.
+Styles scoped to the component in the light DOM, with isolation available when you choose it.
 
 ##### Why it's broken
 
@@ -175,10 +175,10 @@ Styles scoped to the component without a shadow boundary, so you stop paying the
 
 ##### This proposal's answer
 
-- **A component's styles are scoped to it by default**: its `<style>` affects only its own markup, not the whole page, and with no shadow boundary, the scoping the browser already offers with CSS `@scope`. Encapsulation without isolation.
+- **A component's styles are scoped to it by default**: its `<style>` affects only its own markup, in the light DOM, through the scoping the browser already offers with CSS `@scope`. Encapsulation and isolation are separate choices.
 - Degrades to plain CSS in the light DOM: theming, cascade, and shared design tokens keep working.
-- Real isolation becomes an **opt-in target capability**, never the mandatory tax Shadow DOM makes it today.
-- A **later Level** takes the isolation case further with an **extension of Declarative Shadow DOM** that fixes DSD's styling and form-participation gaps instead of inheriting them.
+- Real isolation is an **opt-in target capability**.
+- An **upstream proposal** takes the isolation case further with an **extension of Declarative Shadow DOM** that fixes DSD's styling and form-participation gaps.
 
 :::
 
@@ -262,13 +262,13 @@ Declarative HTML Components is a language specification: an implementation is a 
 
 ## Conformance & Levels
 
-Level&nbsp;1 defines the component language across these chapters, including templating and live reactive updates. A Level describes the specification's scope; it does not report how much a particular tool has implemented. The draft remains at Stage&nbsp;0, and implementations should identify the snapshot they support, as described in [How the proposal versions](#how-the-proposal-versions).
+Level&nbsp;1 is the whole component language across these chapters, including templating, live reactive updates, external composition, and the JavaScript layer; the optional [extensions](#extensions) sit beside it. A Level describes the specification's scope; each tool reports its own implementation coverage. The draft remains at Stage&nbsp;0, and implementations should identify the snapshot they support, as described in [How the proposal versions](#how-the-proposal-versions).
 
-Keywords follow RFC&nbsp;2119, scoped to conforming implementations. A tool [must]{.kw} emit an explicit unsupported-feature diagnostic, never silent literal fallback, for any construct above its level.
+Keywords follow RFC&nbsp;2119, scoped to conforming implementations. A tool [must]{.kw} emit an explicit unsupported-feature diagnostic, never silent literal fallback, for any construct it does not implement.
 
 | Area | Level 1 contract |
 | --- | --- |
-| **Components** | Typed native-root components; default, named, fallback, and scoped slots; explicit polymorphic roots. See [Components & Composition](/declarative-components/components). |
+| **Components** | Typed native-root components; default, named, fallback, and scoped slots; explicit polymorphic roots; external composition with `<template src>` and `<portal>`. See [Components & Composition](/declarative-components/components). |
 | **Targets** | Equivalent Vanilla DOM, React, Vue, and Svelte output, with CSS and API documentation. See [Targets & Equivalence](/declarative-components/targets). |
 | **Browser runtime** | Initial lowering and live updates to the native DOM from the declared dependency graph, without Custom Elements or `eval()`. See [Reactivity & Data](/declarative-components/reactivity). |
 | **Templating** | `$each`, `$if`, `$match`, `$with`, content directives, and `{expression}` text, with reactive bindings and keyed iteration. See [Templating](/declarative-components/templating). |
@@ -276,15 +276,16 @@ Keywords follow RFC&nbsp;2119, scoped to conforming implementations. A tool [mus
 | **Rendered form** | Server-rendered native HTML and the records needed to recover component instances during hydration; remaining recovery questions are identified in [Rendered Form & Hydration](/declarative-components/rendered-form). |
 | **Forms and validation** | Native form ownership and submission; declared types and constraints participate in validity. [HTML Forms](/html-forms) defines expanded methods and composable submission scopes as an independent proposal. |
 | **Types** | Scalar types including `keyword`, `integer`, URLs, dates, and CSS values; structured lists and objects; value constraints and selected types. See [Type System](/declarative-components/types). |
-| **Style scoping** | Component-scoped CSS in the light DOM, without a required shadow boundary. See [Style Scoping](/declarative-components/styling). |
+| **Style scoping** | Component-scoped CSS in the light DOM. See [Style Scoping](/declarative-components/styling). |
+| **JavaScript layer** | Component modules and controllers through `host`, requests, and the component registry. See [The JavaScript Layer](/declarative-components/javascript). |
 
-External composition remains marked as Level&nbsp;2 in [Components & Composition](/declarative-components/components). Native-element extension and deeper Declarative Shadow DOM integration remain upstream platform work. Optional extensions are listed separately below.
+Native-element extension and deeper Declarative Shadow DOM integration are upstream platform work. Optional extensions are listed separately below.
 
 ### Extensions {#extensions}
 
 An **extension** is an optional part of the language that sits outside every Level. Each one has a one-word name, so that tools and documentation can say exactly which extensions they support, and each moves through the proposal's own stages: **Proposal** (written down, not yet implemented), **Incubation** (implemented in the reference tools, still free to change), and finally adoption into a Level, or withdrawal.
 
-An implementation [may]{.kw} omit any extension. One that does [must]{.kw} report an unsupported-extension diagnostic that names the extension when it meets that syntax, under the same rule as any construct above its Level; each extension states what output, if any, such an implementation may still produce.
+An implementation [may]{.kw} omit any extension. One that does [must]{.kw} report an unsupported-extension diagnostic that names the extension when it meets that syntax, under the same rule as any construct it does not implement; each extension states what output, if any, such an implementation may still produce.
 
 | Extension | Adds | Chapter | Stage |
 | --- | --- | --- | --- |
@@ -309,7 +310,7 @@ A spec convinces no one; four things do, in order.
 ::: two
 
 > [!ex] 1 · It runs today
-> Author one component; compile it to the framework you already ship, *and* polyfill it in the browser with no build. Adoption risk is one file, not a rewrite.
+> Author one component; compile it to the framework you already ship, *and* polyfill it in the browser with no build. Adoption risk is one file.
 
 > [!ex] 2 · It deletes a problem
 > Each fix is a grievance a developer already has: reactivity lock-in, Custom Element ceremony, Shadow DOM pain.
@@ -335,7 +336,7 @@ The **Next Web Working Group** exists today as a GitHub organization. The path t
 
 ## Open questions
 
-Genuine design questions, not yet settled:
+Genuine design questions, still open:
 
 | Area | Question |
 | --- | --- |

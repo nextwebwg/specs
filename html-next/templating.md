@@ -8,11 +8,13 @@ status: Stage 0 · Level 1 proposal
 
 # Templating
 
-Control flow is a family of **marked directives on ordinary elements**: `$each`, `$if`, `$match`, `$await`, `$with`, `$value`. A leading `$` marks a *structural* directive, it controls whether, how many times, or in what scope markup is produced, distinct from the `:` binding family that sets values. There are **no control-flow elements**: every directive rides on any element or a `<template>`, so it survives every parser context, and none appears in the output.
+Control flow is a family of **marked directives on ordinary elements**: `$each`, `$if`, `$match`, `$await`, `$with`, `$value`. A leading `$` marks a *structural* directive, it controls whether, how many times, or in what scope markup is produced, distinct from the `:` binding family that sets values. Control flow is written as **attributes**: every directive rides on any element or a `<template>`, so it survives every parser context, and lowering removes it from the output.
+
+`$slot` is also a `$` directive: it turns a `<template>` into a slot outlet for places such as tables, where the HTML parser keeps a `<template>` in place (see [Outlets in tables](/declarative-components/components#parser-safe-outlets)).
 
 ## Structural directives
 
-A structural directive is a `$`-prefixed attribute. It goes on the element it applies to, or on a `<template>` to apply to a group of siblings. The `$` is deliberate: bindings (`from:x`, `bind:x`, `on:x`) set or wire *values*; a `$` directive changes *whether, how many times, or in what scope* markup is produced. At lowering the directive is evaluated and **removed**, so it never appears in the output (rendered DOM, compiled component, or serialized HTML alike), which is why its attribute name is free to be a directive.
+A structural directive is a `$`-prefixed attribute. It goes on the element it applies to, or on a `<template>` to apply to a group of siblings. The `$` is deliberate: bindings (`from:x`, `bind:x`, `on:x`) set or wire *values*; a `$` directive changes *whether, how many times, or in what scope* markup is produced. At lowering the directive is evaluated and **removed**, so the output (rendered DOM, compiled component, or serialized HTML alike) holds only the markup it produces, which is why its attribute name is free to be a directive.
 
 ```html
 <li $each="p of $products">…</li>          <!-- iterate this element -->
@@ -41,7 +43,7 @@ A structural directive is a `$`-prefixed attribute. It goes on the element it ap
 
 ## Inline text expressions
 
-Authored template text inserts a value with `{expression}`. Every insertion has explicit opening and closing braces, including a simple path such as `{$user.name}`. Each expression uses the same scope, reactive dependencies, escaped-text conversion, absent-value behavior, and invalid-result retention as `$value`. Surrounding text and elements are preserved, with no wrapper element. For a sole read, `<td>{$r.name}</td>` and `<td $value="$r.name"></td>` have the same observable output.
+Authored template text inserts a value with `{expression}`. Every insertion has explicit opening and closing braces, including a simple path such as `{$user.name}`. Each expression uses the same scope, reactive dependencies, escaped-text conversion, absent-value behavior, and invalid-result retention as `$value`. Surrounding text and elements stay as written. For a sole read, `<td>{$r.name}</td>` and `<td $value="$r.name"></td>` have the same observable output.
 
 ```html
 <table><tbody>
@@ -54,11 +56,11 @@ Authored template text inserts a value with `{expression}`. Every insertion has 
 <p>Price: $1.15. The text $ident stays literal.</p>
 ```
 
-Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read values and need no escape. In authored text, `\{` emits a literal opening brace and `\\` emits a literal backslash; other backslashes remain literal, including `\$`. These are text escapes, not identifier escapes. `$value` and `$html` continue to own their element's content when present.
+Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` render as written. In authored text, `\{` emits a literal opening brace and `\\` emits a literal backslash; other backslashes remain literal, including `\$`. These are text escapes. `$value` and `$html` continue to own their element's content when present.
 
 ## $if: single guard
 
-`$if="expr"` instantiates the element (or a `<template>`'s content) only when `expr` is truthy. While `expr` stays truthy the element and everything inside it stay as they are: a change to what `expr` reads updates the bindings inside, and creates nothing again. A test that turns falsy removes the element; one that turns truthy again creates it afresh (see [What counts as a change](/declarative-components/reactivity#changes)). It is a **single guard with no else**; multi-way branching is `$match`. The single-guard / multi-way split follows XSLT's `xsl:if` versus `xsl:choose`, rather than an imperative `if`/`else if`/`else`.[^1]
+`$if="expr"` instantiates the element (or a `<template>`'s content) only when `expr` is truthy. While `expr` stays truthy the element and everything inside it stay as they are: a change to what `expr` reads updates the bindings inside, and creates nothing again. A test that turns falsy removes the element; one that turns truthy again creates it afresh (see [What counts as a change](/declarative-components/reactivity#changes)). It is a **single guard**; multi-way branching is `$match`. The single-guard / multi-way split follows XSLT's `xsl:if` versus `xsl:choose`.[^1]
 
 ```html
 <p $if="$cart.items.length">You have items in your cart.</p>
@@ -75,9 +77,9 @@ Outside braces, `$` is ordinary text: `$ident`, `$HOME`, and `$1.15` do not read
 
 ## $each: iteration
 
-`$each="item of $items"` instantiates once per element of `items`, binding `item` in a fresh scope layer (with an optional index, `$each="item, i of $items"`). The value uses the `for…of` grammar, one bounded, familiar form, not a packed micro-syntax. Iteration *shaping* is expressed as sibling `$` modifiers, following XSLT's `xsl:sort` living inside `xsl:for-each` rather than a value pipeline.[^1]
+`$each="item of $items"` instantiates once per element of `items`, binding `item` in a fresh scope layer (with an optional index, `$each="item, i of $items"`). The value uses the `for…of` grammar, one bounded, familiar form. Iteration *shaping* is expressed as sibling `$` modifiers, following XSLT's `xsl:sort` living inside `xsl:for-each`.[^1]
 
-`$sort` takes a comma-separated list of keys, each optionally prefixed with `-` for descending, so `$sort="p.price,-p.name"` orders by price ascending then name descending, the convention JSON:API's `sort` parameter[^2] and Django's `order_by`[^3] use. Each key is a path from the loop item, not an expression: it starts with the item's name, so `p.price` reads the item's `price` and `p` alone sorts by the item itself. A bare field such as `price` is an error, because it could not be told apart from the item when a field shares the item's name. A leading `$` is accepted even though it is not required.
+`$sort` takes a comma-separated list of keys, each optionally prefixed with `-` for descending, so `$sort="p.price,-p.name"` orders by price ascending then name descending, the convention JSON:API's `sort` parameter[^2] and Django's `order_by`[^3] use. Each key is a path from the loop item: it starts with the item's name, so `p.price` reads the item's `price` and `p` alone sorts by the item itself. A bare field such as `price` is an error, because it could not be told apart from the item when a field shares the item's name. A leading `$` is optional.
 
 ```html
 <li $each="p of $products"
@@ -118,7 +120,7 @@ A multi-way decision is a container carrying `$match` whose **direct children ar
 
 ### Multi-way among rows and options
 
-Because the arms are direct children of the `<template>`, not wrapped in a `<when>` element, a `<tr>` or `<option>` arm keeps its table/select context and survives, the case the old element form could not express.
+Because the arms are direct children of the `<template>`, a `<tr>` or `<option>` arm keeps its table/select context and survives parsing.
 
 ```html
 <!-- multi-way among rows: arms are direct <template> children, so they survive -->
@@ -135,7 +137,7 @@ Because the arms are direct children of the `<template>`, not wrapped in a `<whe
 
 ## $await / $error / $else: asynchronous inputs {#await}
 
-An input may arrive later, or refresh while its previous value is still useful. `$await` chooses the markup for its availability. The input remains an ordinary typed value; loading does not wrap it in a resource object.
+An input may arrive later, or refresh while its previous value is still useful. `$await` chooses the markup for its availability. The input remains an ordinary typed value.
 
 ```html
 <h2 $await="$product">{$product.name}</h2>
@@ -145,7 +147,7 @@ An input may arrive later, or refresh while its previous value is still useful. 
 
 The three adjacent elements form one branch group. A usable accepted value selects `$await`. Without a usable value, a failure selects `$error`; otherwise `$else` is the unresolved fallback. The branches may be ordinary elements or `<template>` groups, and their directive attributes never appear in output.
 
-The subject names a declared binding: a prop, state, computed value, context read, or declared data source. `$await` observes that binding; it does not start a request or evaluate an arbitrary Promise-producing expression. Its value type is the subject declaration's type. A supplied value is immediately available, including valid `false`, zero, an empty string or list, and valid null. Availability is not truthiness. An unavailable prerequisite makes a derived binding unavailable; failure propagates its cause. A pending caller binding still owns its destination input and does not activate that component's default source.
+The subject names a declared binding: a prop, state, computed value, context read, or declared data source. `$await` only observes that binding; the binding's producer starts any request. Its value type is the subject declaration's type. A supplied value is immediately available, including valid `false`, zero, an empty string or list, and valid null. Availability and truthiness are separate. An unavailable prerequisite makes a derived binding unavailable; failure propagates its cause. A pending caller binding still owns its destination input and does not activate that component's default source.
 
 ### Optional status name
 
@@ -161,7 +163,7 @@ Name the binding only when its status is needed:
 <p $else>Loading…</p>
 ```
 
-`binding` is an author-chosen local name for a read-only status view. `$product` remains the declared value. The status name is in scope throughout this branch group, including its error and unresolved branches, and nowhere after it. Its type is known from this directive; it is not an undeclared global. A status name [must not]{.kw} shadow a declaration or another enclosing local. Omitting it introduces no status variable, implicit `$$pending`, or global `$$bindings` namespace.
+`binding` is an author-chosen local name for a read-only status view. `$product` remains the declared value. The status name is in scope throughout this branch group, including its error and unresolved branches, and nowhere after it. Its type is known from this directive. A status name [must not]{.kw} shadow a declaration or another enclosing local. Omitting it leaves the scope unchanged.
 
 | Status field | Meaning |
 | --- | --- |
@@ -182,7 +184,7 @@ An error branch may name the public failure:
 <p $else>Loading…</p>
 ```
 
-`problem` is a read-only, non-null public failure record scoped to that error branch. Bare `$error` introduces no name. This describes a loading error, like HTML's resource-loading terminology; it is not an exception-catching statement. Errors in authored expressions and invalid declarations remain conformance errors rather than source-loading failures.
+`problem` is a read-only, non-null public failure record scoped to that error branch. Bare `$error` introduces no name. This describes a loading error, like HTML's resource-loading terminology. Errors in authored expressions and invalid declarations remain conformance errors.
 
 ### Grouping, updates and failure handling
 
@@ -192,11 +194,11 @@ Branches are optional. An omitted unresolved branch renders nothing. A failure w
 
 The selected branch retains its nodes and local ownership while it keeps winning; changes update bindings in place. Switching branches releases the previous branch's owned effects and creates the newly selected branch. A same-input refresh does not reconnect the component or recreate its success branch. Existing structural root, slot, reference and table/select parsing constraints apply.
 
-The host renderer owns accepted values, their availability and their input provenance. A source publishes through the declared input's normal type/constraint acceptance, never by writing an unrelated state cell or impersonating a caller override. Invalid source results do not replace an accepted value. Transport, cache identity, retries, polling, server requests and deployment are source-library or host concerns, not effects of this directive.
+The host renderer owns accepted values, their availability and their input provenance. A source publishes only through the declared input's normal type/constraint acceptance. Invalid source results do not replace an accepted value. Transport, cache identity, retries, polling, server requests and deployment are source-library or host concerns.
 
 ## $with: scope alias
 
-Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). A new value updates what reads `name` in place; the children are not created again. It takes an explicit **alias** rather than spreading the value's members as bare names: spreading reproduces the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/declarative-components/expressions)).
+Introducing a value under a name is a separate, *visible* operation. `$with="expr as name"` binds `expr` to `name` for the element's children (use it on a `<template>` for a wrapper-free scope). A new value updates what reads `name` in place; the children are not created again. It takes an explicit **alias**, so every name has one visible origin: spreading the value's members as bare names would reproduce the JavaScript `with` statement's ambiguity about where a name resolves, and defeats static scope analysis (see [Scope & name resolution](/declarative-components/expressions)).
 
 ```html
 <section $with="$account.owner as owner">
@@ -229,44 +231,43 @@ A single opening brace starts an expression; its matching closing brace ends it.
 Mixed literal text and expression segments retain one native text node per authored text node. Each segment retains its own last accepted value when a typed read or built-in operation becomes invalid; a segment with no accepted value remains empty. An absent or `null` result clears the segment, as it does for `$value`. Adjacent markup and text-node identity survive updates and hydration.
 
 > [!norm] Aligned with the HTML Sanitizer API
-> `$html="expr"` renders markup, but **does not raw-inject** it. The string is parsed as an inert HTML fragment in a `<template>` context, then filtered with one versioned copy of the **HTML Sanitizer API's safe-default policy**[^5] before insertion. The filter drops `<script>`, inline `on*` handlers, and `javascript:` URLs. Browsers and servers must use the same policy.
+> `$html="expr"` renders **sanitized** markup. The string is parsed as an inert HTML fragment in a `<template>` context, then filtered with one versioned copy of the **HTML Sanitizer API's safe-default policy**[^5] before insertion. The filter drops `<script>`, inline `on*` handlers, and `javascript:` URLs. Browsers and servers must use the same policy.
 >
-> `$html` must **not** call native `Element.setHTML()`, even when it exists. Firefox currently reorders malformed table content differently from Chromium, WebKit, and the reference HTML parser. Using native `setHTML()` would make the result depend on the browser and could break server-rendered hydration. It remains useful for comparing sanitizer policies, not for rendering `$html`.
+> `$html` must **not** call native `Element.setHTML()`, even when it exists. Firefox currently reorders malformed table content differently from Chromium, WebKit, and the reference HTML parser. Using native `setHTML()` would make the result depend on the browser and could break server-rendered hydration. It remains useful for comparing sanitizer policies.
 >
-> The result renders markup but cannot execute code, the same guarantee a `<template component>` import receives: no embedded code. Raw, *unsanitized* HTML is not available here; it requires the dedicated trusted-HTML type (see [Types](/declarative-components/types)), the only path that can carry script and therefore the only one gated.
+> The result renders markup but cannot execute code, the same guarantee a `<template component>` import receives: no embedded code. Raw, *unsanitized* HTML requires the dedicated trusted-HTML type (see [Types](/declarative-components/types)), the only path that can carry script and therefore the only one gated.
 
 ## Whitespace & mixed content
 
-HTML Next does **not** transform the whitespace an author writes. A template is HTML, so its whitespace is **HTML whitespace**: the parser preserves the text nodes, and runs of spaces, tabs, and newlines collapse at **render time through CSS** (`white-space`)[^6], exactly as they do in a hand-written `.html` file. There is no condensing pass, no whitespace flag, and nothing to learn: indent your source however reads best, and CSS collapses it the same way it always has. To keep whitespace, reach for CSS (`white-space: pre`, `<pre>`); to space things out, reach for CSS (`gap`, margins), never for whitespace-as-layout.
+HTML Next **keeps** the whitespace an author writes. A template is HTML, so its whitespace is **HTML whitespace**: the parser preserves the text nodes, and runs of spaces, tabs, and newlines collapse at **render time through CSS** (`white-space`)[^6], exactly as they do in a hand-written `.html` file. Indent your source however reads best, and CSS collapses it the same way it always has. To keep whitespace, reach for CSS (`white-space: pre`, `<pre>`); to space things out, reach for CSS (`gap`, margins).
 
 ```html
 <!-- Whitespace is HTML's. The space around the value is significant and stays. -->
 <p>Total: {$cart.total} due today</p>
 
 <!-- Indentation and line breaks are preserved as text nodes, then collapse at
-     RENDER through CSS white-space — exactly as in a hand-written .html file,
-     not through a template build step. -->
+     RENDER through CSS white-space — exactly as in a hand-written .html file. -->
 <ul>
   <li $each="t of $tags">{$t}</li>
 </ul>
 
-<!-- Opt out the way any HTML page does: with CSS, not a template flag. -->
+<!-- Opt out the way any HTML page does: with CSS. -->
 <pre style="white-space: pre">  spaces and newlines, kept  </pre>
 
 <!-- $value / $html own the element's whole content: authored children
-     alongside them are a conformance error, never a silent merge. -->
+     alongside them are a conformance error. -->
 <p $value="$user.name">welcome</p>   <!-- ✗ text child + $value -->
 ```
 
-Text expressions, elements, and `<template $value>` interleave as ordinary **mixed content**. The space in `Total: {$cart.total}` is significant and is preserved; `$each` emits the whitespace inside and around it like any repeated markup, with no join or separator behaviour of its own. The one hard rule is the content-owning directives: `$value` and `$html` set an element's *entire* content, so authored children beside them are a **conformance error** rather than a silent merge, the same constraint a content-replacing property binding carries.
+Text expressions, elements, and `<template $value>` interleave as ordinary **mixed content**. The space in `Total: {$cart.total}` is significant and is preserved; `$each` emits the whitespace inside and around it like any repeated markup. The one hard rule is the content-owning directives: `$value` and `$html` set an element's *entire* content, so authored children beside them are a **conformance error**, the same constraint a content-replacing property binding carries.
 
 > [!note] Coming from a framework
-> This will surprise anyone migrating from React, Vue, or Svelte, which **condense** whitespace in a build step (collapsing runs, dropping whitespace-only nodes between elements). HTML Next does not, for one reason: **it is not a framework, it is a standard.** A framework owns its own runtime and may rewrite your markup on the way to it; HTML Next lowers to the *real* native DOM, and the browser already defines what template whitespace means. Condensing would make the same markup produce a different DOM through HTML Next than as plain HTML, and it would stop being HTML.
+> This will surprise anyone migrating from React, Vue, or Svelte, which **condense** whitespace in a build step (collapsing runs, dropping whitespace-only nodes between elements). HTML Next keeps it, for one reason: **it is a standard.** A framework owns its own runtime and may rewrite your markup on the way to it; HTML Next lowers to the *real* native DOM, and the browser already defines what template whitespace means. Condensing would make the same markup produce a different DOM through HTML Next than as plain HTML, and it would stop being HTML.
 >
 > **What this means in practice, and how to adapt:**
 >
 > - The **rendered result is identical** to the condensed frameworks under normal `white-space`. The only difference is that insignificant whitespace-only text nodes remain in the DOM; they never affect layout.
-> - Use CSS for spacing (`gap`, margins) instead of relying on markup whitespace being stripped, the platform-first habit that is good practice in plain HTML anyway.
+> - Use CSS for spacing (`gap`, margins), the platform-first habit that is good practice in plain HTML anyway.
 > - If a test asserts on exact `childNodes` or untrimmed `textContent`, assert on the **rendered output** or trimmed text instead. Whitespace-only nodes are not part of the contract (see below).
 
 > [!norm] What observable equivalence covers
@@ -296,7 +297,7 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 ```
 
 > [!note] Context-safe formatting
-> Inline text expressions and `$value` attributes preserve their native parser context, so formatted output works in cells and options without a special output element.
+> Inline text expressions and `$value` attributes preserve their native parser context, so formatted output works directly in cells and options.
 
 ## Transitions extension {#transitions-extension}
 
@@ -314,7 +315,7 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 >
 > The panel flies in and out. Each todo fades in and out, and glides to its new place when the list reorders. When a photo is selected, its thumbnail grows into the hero image.
 >
-> **`$transition`** says how an element animates when a structural directive adds or removes it, or when it moves. The value is a literal in the form of the CSS `animation` shorthand[^10]: a keyframes name, then an optional duration, easing, and delay. It is not an expression, so, like `$sort`, it can never take references. The name is a built-in (`fade`, `fly`, `scale`, `blur`) or any `@keyframes` in the component's `<style>`. Keyframes describe *arriving*; leaving plays them in reverse. With no value, the element uses the browser's default crossfade.
+> **`$transition`** says how an element animates when a structural directive adds or removes it, or when it moves. The value is a literal in the form of the CSS `animation` shorthand[^10]: a keyframes name, then an optional duration, easing, and delay. The name is a built-in (`fade`, `fly`, `scale`, `blur`) or any `@keyframes` in the component's `<style>`. Keyframes describe *arriving*; leaving plays them in reverse. With no value, the element uses the browser's default crossfade.
 >
 > ```html
 > <p $if="$saved" $transition="pop 150ms">Saved</p>
@@ -333,9 +334,9 @@ Because control flow is entirely `$` **attributes**, it survives every parser co
 > - plays each element's keyframes on its picture, forwards when it arrives and reversed when it leaves, and applies its timing to the browser's own move;
 > - skips the animation when the user prefers reduced motion.
 >
-> An implementation without this extension reports `$transition` and `$transition-name` as unsupported, as it does any construct above its Level (see [Extensions](/declarative-components/#extensions)). Because the extension only animates, such an implementation may still build the component, without animation.
+> An implementation without this extension reports `$transition` and `$transition-name` as unsupported, as it does any construct it does not implement (see [Extensions](/declarative-components/#extensions)). Because the extension only animates, such an implementation may still build the component, without animation.
 >
-> Authors can still write `::view-transition-*` rules; the extension removes the requirement, not the option.
+> Authors can still write `::view-transition-*` rules; the extension makes them optional.
 >
 > **Why pictures instead of delayed removal.** Svelte and Vue keep a leaving node in the DOM until its animation ends. Here the DOM always holds the true state: a removed `$if` branch is gone at once, so refs, keyed rows, focus, and form submission never see a node on its way out. A framework target only has to wrap its state update, rather than map onto that framework's own transition component. CSS alone cannot cover removal: `@starting-style`[^12] animates an element's arrival, but nothing animates an element leaving the DOM.
 >
@@ -370,7 +371,7 @@ Value
 : `expr`; the element/template instantiates only when truthy
 
 Semantics
-: single guard, no else; multi-way is `$match`
+: single guard; multi-way is `$match`
 
 Level
 : [L1]{.pill .l1}
@@ -392,7 +393,7 @@ Level
 
 ::: {.entry name="$with" role="scope alias directive"}
 Value
-: `expr as name`; binds one alias for the children, never spreads
+: `expr as name`; binds one alias for the children
 
 Semantics
 : the alias is a lexical layer that shadows outer names

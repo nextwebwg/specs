@@ -15,7 +15,7 @@ Text inserts values with `{$name}` and full expressions with `{expression}`; see
 
 ## A minimal component
 
-One prop, one native root, a scoped style. It lowers to a real `<button>`, no wrapper, no shadow root, with a `data-component` provenance stamp.
+One prop, one native root, a scoped style. It lowers to a real `<button>` in the light DOM, with a `data-component` provenance stamp.
 
 ```html title="button.html"
 <!-- button.html — a minimal component: one prop, one native root, scoped style. -->
@@ -57,7 +57,7 @@ Structural `$`-directives ride on ordinary elements (or a `<template>`), so they
 
 ## A stateful component, with a controller
 
-The definition declares `<state>`, exposes a `$ref`, and names its controller on the carrier with `controller="./counter.js"`. The module loads lazily when the first instance connects; its default export receives the instance host and drives state while the runtime reflects state to the DOM. It needs no library import or repeated tag registration. Importing the component means trusting that declared dependency graph under the application's loading policy. See [The JavaScript Layer](/declarative-components/javascript).
+The definition declares `<state>`, exposes a `$ref`, and names its controller on the carrier with `controller="./counter.js"`. The module loads lazily when the first instance connects; its default export receives the instance host and drives state while the runtime reflects state to the DOM. The definition supplies both the module and the tag. Importing the component means trusting that declared dependency graph under the application's loading policy. See [The JavaScript Layer](/declarative-components/javascript).
 
 ::: two
 
@@ -73,11 +73,11 @@ The definition declares `<state>`, exposes a `$ref`, and names its controller on
 ```
 
 ```js title="counter.js"
-// counter.js — the definition names this module; no library import is required.
+// counter.js — the definition names this module.
 export default function controller(host) {
   host.state.count = host.props.start.value;
   host.refs.btn.addEventListener("click", () => {
-    // Drive STATE, never the DOM directly. The runtime updates the button text.
+    // Drive STATE; the runtime updates the button text.
     host.state.count = host.state.count + 1;
   });
 }
@@ -123,7 +123,7 @@ A component declares its own component and controller dependencies; the page imp
 
 ```html title="app.html"
 <!-- app.html — purely declarative composition. It declares ONLY the components it uses;
-     the graph composes transitively, like an ES-module graph. No controller, no <script>. -->
+     the graph composes transitively, like an ES-module graph. Markup only. -->
 <link rel="component" href="./counter.html">
 <link rel="component" href="./chart.html">
 
@@ -156,7 +156,7 @@ A component declares its own component and controller dependencies; the page imp
 
 ## Run it yourself
 
-This exact example, a base `index.html`, component definitions as `.html` files, controllers as `.js` modules, and a small runtime, is a complete, unbundled, runnable demo at `examples/poc/` in the [`html-next` implementation repository](https://github.com/nextwebwg/html-next). Serve that directory with any static server and open it: the counter increments and the chart draws, with no build step.
+This exact example, a base `index.html`, component definitions as `.html` files, controllers as `.js` modules, and a small runtime, is a complete, unbundled, runnable demo at `examples/poc/` in the [`html-next` implementation repository](https://github.com/nextwebwg/html-next). Serve that directory with any static server and open it: the counter increments and the chart draws, served straight from the files.
 
 > [!note] Proof of concept, honestly scoped
 > The demo proves composition, definition-owned controller binding, and lazy controller loading end to end. It is deliberately simplified in places (eager definition loading, coarse reactivity, no SSR); its README says exactly what is demonstrated versus deferred.

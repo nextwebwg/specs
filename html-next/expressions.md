@@ -8,17 +8,17 @@ status: Level 1 · reserved direction
 
 # Expressions & Formatting
 
-Declarative HTML Components uses a small expression language for live values and conditions. It can read declared values, calculate with them, and choose a fallback without running JavaScript from an HTML attribute. Formatting is an expression operation, so the same formatted string can appear in template text, bindings, handler steps, and computed values.
+Declarative HTML Components uses a small expression language for live values and conditions. It reads declared values, calculates with them, and chooses a fallback, and the browser evaluates it as a parsed tree. Formatting is an expression operation, so the same formatted string can appear in template text, bindings, handler steps, and computed values.
 
 ## The expression language
 
-Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`), structural directives, and inline text expressions (`{expression}`). A handler evaluates `expr:value` only when that step runs; `from:x` and `<computed from>` keep their dependencies live. Every root reference [must]{.kw} resolve through the template's declared binding scope: props, mutable and computed state, data, imports, loop locals. Handler expressions may additionally read their reserved triggering-event reference, `$$event`. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. No `eval()`, no `new Function()`. The closest mainstream precedent is Angular template expressions, a restricted, AOT-compiled, non-`eval` subset; Alpine.js and Lit are the contrast, interpolating real JavaScript and inheriting the CSP hazard this avoids.[^9]
+Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`), structural directives, and inline text expressions (`{expression}`). A handler evaluates `expr:value` only when that step runs; `from:x` and `<computed from>` keep their dependencies live. Every root reference [must]{.kw} resolve through the template's declared binding scope: props, mutable and computed state, data, imports, loop locals. Handler expressions may additionally read their reserved triggering-event reference, `$$event`. Ambient JavaScript globals are not in scope. The browser evaluates a parsed tree; ahead-of-time targets compile the same tree. The closest mainstream precedent is Angular template expressions, a restricted, parsed, AOT-compiled subset.[^9]
 
 ```html
 <!-- Expressions look like this: plain reads, comparisons, and arithmetic. -->
 <p $if="$user.isAdmin">…</p>                        <!-- a boolean guard -->
 <progress from:value="$cart.items.length"></progress>  <!-- a bound value -->
-{($price - $discount) * 1.08}     <!-- arithmetic, no filters -->
+{($price - $discount) * 1.08}     <!-- arithmetic -->
 ```
 
 ::: two
@@ -33,17 +33,17 @@ Expressions appear in bindings (`from:x`, `bind:x`), handler steps (`expr:value`
 
 ## Scope & name resolution
 
-A `$` reference resolves through the template's declared scope, never an ambient JavaScript global, and a reference that resolves to nothing is a **conformance error**. A bare word inside an expression is never a reference: it is a keyword literal, so `$mode = compact` compares the value of `mode` with the keyword `compact`. Scope has two parts.
+A `$` reference resolves through the template's declared scope, and a reference that resolves to nothing is a **conformance error**. A bare word inside an expression is never a reference: it is a keyword literal, so `$mode = compact` compares the value of `mode` with the keyword `compact`. Scope has two parts.
 
 ### Identifier spelling and case
 
 Expression identifiers are **case-sensitive**. A reference in an expression or through the JavaScript interface [must]{.kw} use the declaration's exact spelling: `$count` and `$Count` read different names. Public props [must not]{.kw} differ only in ASCII casing, because the HTML parser lowercases attribute names; `<prop name="count">` and `<prop name="Count">` cannot both be declared. Other scope names retain their case-sensitive identity.
 
-An identifier starts with a CSS Syntax **ident-start code point** and continues with ident-start code points or ASCII digits.[^18] This reuses CSS's defined character repertoire, including `_` and permitted non-ASCII characters, but **not** CSS identifier tokenization: dashes are not allowed at any position, and names have no escape sequences. `$` is a reference marker, never part of a name. Thus `_name`, `first_name`, `firstName`, and `name2` are identifiers; `-name`, `--name`, `first-name`, `$name`, and `1name` are not identifier spellings. `$first-$name` is subtraction between two references. External keys outside this grammar remain accessible through a quoted bracket key, such as `$record['first-name']`.
+An identifier starts with a CSS Syntax **ident-start code point** and continues with ident-start code points or ASCII digits.[^18] This reuses CSS's defined character repertoire, including `_` and permitted non-ASCII characters; a dash at any position or an escape sequence makes a name invalid. `$` is a reference marker that precedes a name. Thus `_name`, `first_name`, `firstName`, and `name2` are identifiers; `-name`, `--name`, `first-name`, `$name`, and `1name` are invalid identifier spellings. `$first-$name` is subtraction between two references. External keys outside this grammar remain accessible through a quoted bracket key, such as `$record['first-name']`.
 
 ### The component layer is flat, and collisions are errors
 
-A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, `<context>`, and named [declared scripts](/declarative-components/components#declared-scripts), share **one flat namespace**. Each uses its `name`, except `<context>` uses `as` when supplied. Two declarations introducing the same local name are a **conformance error**, not a silent precedence: the author disambiguates rather than memorizing which kind wins. Each `<data>` is named, so datasets are referenced individually (`search.value`, `orders.pending`). A context name reads the provider's state with the same type and reactive behavior, but is read-only in this scope (see [Reactivity](/declarative-components/reactivity)).
+A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, `<context>`, and named [declared scripts](/declarative-components/components#declared-scripts), share **one flat namespace**. Each uses its `name`, except `<context>` uses `as` when supplied. Two declarations introducing the same local name are a **conformance error**: the author gives each one a distinct name. Each `<data>` is named, so datasets are referenced individually (`search.value`, `orders.pending`). A context name reads the provider's state with the same type and reactive behavior, but is read-only in this scope (see [Reactivity](/declarative-components/reactivity)).
 
 ### Inner layers are lexical, and they shadow
 
@@ -52,7 +52,7 @@ A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, `<c
 | Element | Adds to scope |
 | --- | --- |
 | `$each="item, i of $items"` | `item`, `i`, and `loop` (`.index`/`.first`/`.last`/`.count`) |
-| `$with="expr as owner"` | `owner`, a single alias, never a spread |
+| `$with="expr as owner"` | `owner`, a single alias |
 | `$match="expr as plan"` | `plan`, one alias, available to every arm |
 | scoped `<slot>` | the slot's declared props (e.g. `item`, `index`) |
 
@@ -61,7 +61,7 @@ A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, `<c
 
 ### Reserved handler reference
 
-`$$event` references the native event that invoked the current handler. It is reserved, cannot be declared or assigned, and is available only in that invocation's expressions and guards. Member access reads the native event's properties; it does not enable arbitrary method calls or ambient JavaScript access. Each nested handler invocation has its own event reference. See [The triggering event](/declarative-components/bindings#triggering-event) for typed payload forwarding and storing selected fields.
+`$$event` references the native event that invoked the current handler. It is reserved, cannot be declared or assigned, and is available only in that invocation's expressions and guards. Member access only reads the native event's properties. Each nested handler invocation has its own event reference. See [The triggering event](/declarative-components/bindings#triggering-event) for typed payload forwarding and storing selected fields.
 
 ## Grammar
 
@@ -82,14 +82,14 @@ reference := "$" id
 id        := ident-start (ident-start | digit)*  (* CSS ident-start; no dashes or escapes *)
 dimension := css-number css-unit | css-number "%" (* units from Types; no whitespace *)
 integer   := digit+
-call      := fn "(" (expr ("," expr)*)? ")"    (* fixed, typed, CSS-style — not arbitrary calls *)
+call      := fn "(" (expr ("," expr)*)? ")"    (* fixed, typed, CSS-style functions *)
 fn        := "round" | "clamp" | "min" | "max" | "abs" | "default" | "concat" | "join" | "format" | "formatRange" | "formatParts"
 object    := "{" (pair ("," pair)* ","?)? "}"
 pair      := (id | string) ":" expr
 array     := "[" (expr ("," expr)* ","?)? "]"
 ```
 
-`css-number` is a finite CSS number token; `css-unit` is a unit accepted by `length` or `duration` in [Types](/declarative-components/types). A numeric token immediately followed by a known unit or `%` forms one dimensional literal before the parser considers the `%` remainder operator. Thus `25%` is a percentage; `25 % 4` is remainder. Unary `-` negates a number or dimensional literal, so `-2rem` is a length. Binary operators follow the [typed arithmetic rules](#arithmetic-with-units) below. Conventional precedence with parentheses applies. Equality, missing data, truthiness, and coercion are specified explicitly (see **Value semantics**, next) rather than inherited from JavaScript or any template language.
+`css-number` is a finite CSS number token; `css-unit` is a unit accepted by `length` or `duration` in [Types](/declarative-components/types). A numeric token immediately followed by a known unit or `%` forms one dimensional literal before the parser considers the `%` remainder operator. Thus `25%` is a percentage; `25 % 4` is remainder. Unary `-` negates a number or dimensional literal, so `-2rem` is a length. Binary operators follow the [typed arithmetic rules](#arithmetic-with-units) below. Conventional precedence with parentheses applies. Equality, missing data, truthiness, and coercion are specified explicitly (see **Value semantics**, next).
 
 A `$`-prefixed name reads a declared value. A literal list index can be dotted or bracketed: `$items.0.name` and `$items[0].name` both read the first item's `name` and have the dependency path `items.0.name`, without the expression's `$` reference marker. Directly written integer keys retain their exact spelling in either form, so `$byId.9007199254740993` and `$byId[9007199254740993]` read the same object key without rounding it. Brackets also accept a computed key, such as `$items[$index]`, or a quoted object key that cannot be written as a dot segment.
 
@@ -108,14 +108,14 @@ Equality and string matching are spelled the way **CSS attribute selectors** alr
 
 ## Value semantics
 
-Equality, missing data, truthiness, and coercion are defined here explicitly, so nothing is inherited by accident from JavaScript or a template language. The whole model follows one platform instinct: **the platform does not throw**. CSS drops an invalid declaration and falls back; the HTML parser recovers from any malformed input. Absence is a value, not a crash.
+Equality, missing data, truthiness, and coercion are defined here explicitly. The whole model follows one platform instinct: **the platform recovers and continues**. CSS drops an invalid declaration and falls back; the HTML parser recovers from any malformed input. Absence is a value.
 
 ### The absent value
 
-Reading a property that is not present at runtime, `order.error.message` when `error` is null, yields a single first-class **absent value** rather than an error, and further access on it is absent too, safe navigation everywhere. The absent value behaves consistently in every position: it renders as **empty text**, reads as **false** in a condition, and **removes the attribute** in `from:attr` position, exactly the serialization already defined for `null`/`undefined` (see [Bindings](/declarative-components/bindings)). It also **propagates**: any operation with an absent operand is itself absent, the way an invalid value invalidates a whole CSS declaration[^7] and a SQL `NULL` propagates through an expression.
+Reading a property that is not present at runtime, `order.error.message` when `error` is null, yields a single first-class **absent value**, and further access on it is absent too, safe navigation everywhere. The absent value behaves consistently in every position: it renders as **empty text**, reads as **false** in a condition, and **removes the attribute** in `from:attr` position, exactly the serialization already defined for `null`/`undefined` (see [Bindings](/declarative-components/bindings)). It also **propagates**: any operation with an absent operand is itself absent, the way an invalid value invalidates a whole CSS declaration[^7] and a SQL `NULL` propagates through an expression.
 
 > [!note] Absent is runtime; undeclared is an error
-> The absent value covers *data* gaps, a field a fetch did not return. It is distinct from an *undeclared root identifier*, a name that resolves to nothing in the component scope: that is a typo or a reach for an ambient global, and it is a conformance error (see Scope & name resolution above), never silently absent. Structure is checked; data is tolerated.
+> The absent value covers *data* gaps, a field a fetch did not return. It is distinct from an *undeclared root identifier*, a name that resolves to nothing in the component scope: that is a typo or a reach for an ambient global, and it is a conformance error (see Scope & name resolution above). Structure is checked; data is tolerated.
 
 ### Truthiness: the empty value of each type is false
 
@@ -130,13 +130,13 @@ Reading a property that is not present at runtime, `order.error.message` when `e
 | list | `[]` | any non-empty |
 | object | `{}` | any object with an own key |
 
-*Empty* values are false: no characters, no count, no items. This makes ordinary guards work without a length check: `$if="$cart.items"` hides on `[]`, and `$if="$unread.count"` hides on `0`. `and`, `or`, and `not` return a **boolean** rather than one of their operands. Fallback for absence is explicit (below), never a side effect of `or`.
+*Empty* values are false: no characters, no count, no items. This makes ordinary guards work without a length check: `$if="$cart.items"` hides on `[]`, and `$if="$unread.count"` hides on `0`. `and`, `or`, and `not` return a **boolean**. Fallback for absence is explicit, through `default()` (below).
 
 ### Equality is typed; operators never coerce
 
-Comparison is **typed**. Two values of different types are not equal, and comparing operands whose types are statically known to be disjoint, a `number` against a string literal, is a **conformance error**, a caught bug rather than a silent `false`. Where a type mismatch can only be known at runtime, the result is simply `false`; it never throws.
+Comparison is **typed**. Two values of different types are not equal, and comparing operands whose types are statically known to be disjoint, a `number` against a string literal, is a **conformance error**, a caught bug. Where a type mismatch can only be known at runtime, the result is simply `false`.
 
-Arithmetic follows the operand types. `+` is *not* overloaded for string concatenation, so `"1" + 1` can never silently become `"11"`. An incompatible combination is a type error where it is statically known, and absent otherwise. Operators never coerce across types. Conversion happens at **typed edges**: a `number` prop converts its incoming string once, on the way in, the way `<input>` exposes both `value` and `valueAsNumber`, never mid-expression. Number arithmetic is [decimal to the operands' precision](#decimal-arithmetic), so `0.1 + 0.2` is `0.3`. The [rules for dimensions](#arithmetic-with-units) give each valid operation a result type.
+Arithmetic follows the operand types. `+` adds numbers and dimensions; text assembly uses `concat()`. An incompatible combination, such as `"1" + 1`, is a type error where it is statically known, and absent otherwise. Operators never coerce across types. Conversion happens at **typed edges**: a `number` prop converts its incoming string once, on the way in, the way `<input>` exposes both `value` and `valueAsNumber`. Number arithmetic is [decimal to the operands' precision](#decimal-arithmetic), so `0.1 + 0.2` is `0.3`. The [rules for dimensions](#arithmetic-with-units) give each valid operation a result type.
 
 `concat(value, …)` is an explicit conversion edge for constructing a string. One argument converts an accepted scalar value to text; further arguments append their text in order. It does not bypass a declaration's type check. Its arguments and errors are defined under [Functions](#functions).
 
@@ -180,7 +180,7 @@ Each click raises the level by `0.1`: it reads `0.1`, `0.2`, `0.3`, and so on to
 | `9999999999.9999 + 0.0002` | `10000000000.0001` | `10000000000.000101` |
 | `99999999999.9999 + 0.0002` | `100000000000.00009`: 16 digits at *p* = 4, so the double result | `100000000000.00009` |
 
-The rule keeps a `number` an ordinary double at every boundary. Props, state, controllers, and the DOM see the same JavaScript `Number` values as before; only arithmetic rounds its result to the precision its operands were written with. A decimal type, such as the decimal.js library or the TC39 Decimal proposal, would also give exact results, but it would change what crosses into JavaScript.[^19] Division stays a double because most quotients, such as `1 / 3`, have no exact decimal at any precision.
+The rule keeps a `number` an ordinary double at every boundary. Props, state, controllers, and the DOM see ordinary JavaScript `Number` values; only arithmetic rounds its result to the precision its operands were written with. A decimal type, such as the decimal.js library or the TC39 Decimal proposal, would also give exact results, but it would change what crosses into JavaScript.[^19] Division stays a double because most quotients, such as `1 / 3`, have no exact decimal at any precision.
 
 ### Fallback for absence
 
@@ -191,7 +191,7 @@ Because `or` returns a boolean, fallback has an explicit form. `default($user.na
 
 ## Object & array expressions
 
-The grammar includes **object** and **array** expressions for structured values. They resemble JSON and a JS object but are **neither**: an object expression is a production of this pure, typed language, evaluated deterministically with no `eval()`, whose values are ordinary expressions from this same grammar, not arbitrary JavaScript. In shape they are simply `{ [key: string]: Expression }` and `[...Expression]`, so they **nest recursively**: any value may itself be another object or array expression.
+The grammar includes **object** and **array** expressions for structured values. They resemble JSON and JavaScript object literals. An object expression is a production of this pure, typed language, evaluated deterministically, whose values are ordinary expressions from this same grammar. In shape they are simply `{ [key: string]: Expression }` and `[...Expression]`, so they **nest recursively**: any value may itself be another object or array expression.
 
 ```html
 <state name="draft" type="object({ title: string, tags: list(string), done: boolean })"
@@ -205,13 +205,13 @@ The grammar includes **object** and **array** expressions for structured values.
 
 A declared structured prop or state can parse a fixed object or array from a plain attribute, as `rows` and `draft` do above. A `from:` binding or `<computed from>` evaluates an expression and updates when the values it reads change. A plain `value` attribute accepts literal contents.
 
-Two rules keep them unambiguous, and both reuse positions defined elsewhere rather than inventing new ones:
+Two rules keep them unambiguous, and both reuse positions defined elsewhere:
 
 - a **key** is *attribute-position*: a bare identifier and a quoted string are the same string key, so `{ open: … }` equals `{ 'open': … }`;
 - a **value inside an expression** may be a reference or a literal: `{ label: $name }` reads `name`, while `{ label: name }` contains the literal keyword `name`. A plain typed attribute, including `<state value>`, accepts only literal values.
 
 > [!note] Object expressions are the authoring syntax
-> **JSON** is the *wire* format: it mandates double quotes because it is for machines. A **JS object** literal would imply arbitrary JavaScript. An **object expression** is the *authoring* form, lighter than JSON (bare keys, single-quoted strings, trailing commas) and safer than JS (pure, typed, no calls). Structured values are authored as object expressions and serialized to JSON only when they cross a boundary (see [Types](/declarative-components/types)).
+> **JSON** is the *wire* format: it mandates double quotes because it is for machines. A **JS object** literal would imply arbitrary JavaScript. An **object expression** is the *authoring* form, lighter than JSON (bare keys, single-quoted strings, trailing commas) and safer than JS (pure, typed, fixed functions only). Structured values are authored as object expressions and serialized to JSON only when they cross a boundary (see [Types](/declarative-components/types)).
 
 ## Functions
 
@@ -230,14 +230,14 @@ Functions cover operations that an operator or an existing HTML/CSS feature does
 | `clamp(minimum, value, maximum)` | `clamp(0, $volume, 100)` | Return `max(minimum, min(value, maximum))`. The minimum wins when the bounds conflict. Dimensional arguments must share one written unit.[^6] | CSS `clamp()`[^6] |
 | `abs(value)` | `abs(-2rem)` → `2rem` | Return a number's or a dimensional quantity's magnitude. A numeric result is `number`; a dimensional result keeps its dimension type.[^6] | CSS `abs()`[^6] |
 | `default(value, fallback)` | `default($count, 0)` | Return the fallback only for absent or `null`; otherwise return the original value. It does not replace `0`, `false`, `''`, or an empty list.[^7][^10] | CSS `var()` fallback; Jinja `default`[^7][^10] |
-| `concat(value, …)` | `concat($progress, '%')` → `'40%'` | Convert one accepted scalar to text, or join several in order; return a string. This is text assembly, not locale formatting.[^11] | XPath `concat()`[^11] |
+| `concat(value, …)` | `concat($progress, '%')` → `'40%'` | Convert one accepted scalar to text, or join several in order; return a string. This is text assembly; locale formatting uses `format()`.[^11] | XPath `concat()`[^11] |
 | `join(list, separator)` | `join($tags, ', ')` → `'red, blue'` | Convert a list of accepted scalar items to text, placing the string separator between items; return a string.[^16] | XPath `string-join()`; Liquid and Twig `join`[^16] |
 
 `round` uses CSS's default *nearest* strategy: an exact halfway case goes toward positive infinity. Thus `round(2.5)` is `3` and `round(-2.5)` is `-2`. An omitted step rounds the numeric part of a dimensional value to a whole number in its current unit: `round(8.8px)` is `9px`, `round(25.5%)` is `26%`, and `round(1.6s)` is `2s`. `round(1600ms)` remains `1600ms`: the function rounds the value as written. CSS requires an explicit step for dimensions; this proposal makes it optional.[^6] A supplied step must use the same written unit, so `round(8.8px, 1px)` is valid and `round(8.8px, 1rem)` is invalid. A negative step has the same multiples as its positive magnitude; a step of zero has no result. Other CSS rounding strategies (`up`, `down`, `to-zero`) are not included in this level; adding them later will use CSS's leading strategy argument rather than changing the meaning of these calls.[^6]
 
 ### Values with units
 
-The `length`, `percentage`, and `duration` types are strings at the JavaScript boundary, but they are **typed quantities** while an expression calculates with them. A literal such as `8.8px`, `25%`, or `200ms` has that type. A reference declared as one of those types supplies its accepted numeric part and written unit to a calculation. The result crosses back to a prop, state, or DOM binding in the [type's written form](/declarative-components/types), such as `9px`; it is not exposed as a JavaScript number. The HTML clock-time type `time` is not a CSS duration.
+The `length`, `percentage`, and `duration` types are strings at the JavaScript boundary, but they are **typed quantities** while an expression calculates with them. A literal such as `8.8px`, `25%`, or `200ms` has that type. A reference declared as one of those types supplies its accepted numeric part and written unit to a calculation. The result crosses back to a prop, state, or DOM binding in the [type's written form](/declarative-components/types), such as `9px`. The HTML clock-time type `time` is not a CSS duration.
 
 For a function with more than one dimensional argument, every argument must have the same type **and the same written unit**. `min(1px, 2px)` and `min(1rem, 2rem)` work; `min(1in, 100px)` and `max(200ms, 0.5s)` are invalid, even though CSS defines conversion ratios for those units.[^12] The functions do not convert units or silently choose an output unit. `abs` has one argument, so `abs(-2rem)` simply returns `2rem`. Percentages compare with percentages, never with lengths. Calculations that need unit conversion or layout and font context belong in a [controller](/declarative-components/javascript); CSS math remains available in CSS properties where that context exists.
 
@@ -317,7 +317,7 @@ Wrong argument counts, incompatible types or units, a zero rounding step, and a 
 
 ### Why this set
 
-The admission test for a built-in is concrete: it must express a recurring typed operation that an operator, element, or CSS property does not already express at that use site; it must be pure; and both the browser interpreter and compiled targets must be able to give it the same result. `round($width, 1px)` passes because a computed length may feed a prop or attribute, not just a CSS property. `concat($progress, '%')` passes because `+` is numeric-only and a live attribute may need a string. `join($tags, ', ')` assembles a list for an attribute with a chosen separator. Locale presentation uses `format()` below, so it works in computed values and bindings as well as displayed text.
+The admission test for a built-in is concrete: it must express a recurring typed operation that an operator, element, or CSS property does not already express at that use site; it must be pure; and both the browser interpreter and compiled targets must be able to give it the same result. `round($width, 1px)` passes because a computed length may feed a prop or attribute as well as a CSS property. `concat($progress, '%')` passes because `+` is numeric-only and a live attribute may need a string. `join($tags, ', ')` assembles a list for an attribute with a chosen separator. Locale presentation uses `format()` below, so it works in computed values and bindings as well as displayed text.
 
 Template languages show a need for transformations but disagree on what a broad library should contain. Liquid and Twig supply dozens of filters, including arithmetic and formatting; Jinja supplies a configurable filter library. Angular pipes cover locale formatting and arbitrary presentation transformations, while Vue 3 removed its template filters.[^14] Handlebars and Mustache show a smaller expression surface but rely on helpers or lambdas for custom work.[^15] Declarative Components places the recurring jobs where its existing syntax already puts them:
 
@@ -330,9 +330,9 @@ Template languages show a need for transformations but disagree on what a broad 
 | Locale presentation | `format()` and the globalization standard |
 | Uppercase or truncation for display | CSS `text-transform`, `text-overflow`, or `line-clamp` |
 | Sort, filter, or limit repeated items | `$sort`, `$where`, `$limit` on `$each` |
-| Split, replace, regex, or application-specific computation | Component JavaScript and the reactive graph, not a callable template library |
+| Split, replace, regex, or application-specific computation | Component JavaScript and the reactive graph |
 
-`join()` uses an author-chosen separator; `format($names, 'list')` assembles a list using locale rules. Both return strings for any expression destination. Space- and comma-separated typed attributes also have their own written forms, so they do not need `join` just to parse a list.
+`join()` uses an author-chosen separator; `format($names, 'list')` assembles a list using locale rules. Both return strings for any expression destination. Space- and comma-separated typed attributes also have their own written forms, which parse a list directly.
 
 This keeps the browser interpreter and generated Vue/React expressions deterministic. It also avoids silently choosing a different fallback rule from Liquid or Twig, both of which replace some present false or empty values.[^10]
 
@@ -368,7 +368,7 @@ An object in the options position selects inferred formatting; a string in the f
 | `displayName` | `Intl.DisplayNames` | String code; required `type` (`language`, `region`, `script`, `currency`, `calendar`, `dateTimeField`), optional `style` and `fallback` |
 | `plural` | `Intl.PluralRules` plus message selection | Number; `type` (`cardinal`, `ordinal`), precision options, and required `forms` record described below |
 
-The explicit numeric presets set the native `style`; a conflicting authored `style` is invalid. Other options are delegated to the selected native constructor, including its defaults, accepted combinations, and treatment of unknown option names. HTML Next does not add a second options schema or rename the native options.
+The explicit numeric presets set the native `style`; a conflicting authored `style` is invalid. Other options are delegated to the selected native constructor, including its defaults, accepted combinations, and treatment of unknown option names. The native option names and schema apply unchanged.
 
 ```html
 <p>Total: {format($cart.total, 'currency', { currency: 'USD' })}</p>
@@ -408,17 +408,17 @@ format($names, 'list', { style: 'long' })
 format($elapsed, 'duration', { style: 'long' })
 ```
 
-Inference is a convenience, not a promise that every shorthand is readable without its declaration. Authors can always make intent visible with an explicit formatter.
+Inference is a convenience, and a shorthand's meaning comes from its declaration. Authors can always make intent visible with an explicit formatter.
 
 ### Typed values and native input
 
 `date`, `time`, and `datetime-local` are civil values without a time zone. Formatting [must]{.kw} preserve their calendar and clock fields without shifting them to the machine's zone or inventing a zone label. The JavaScript adapter uses an internal UTC anchor and removes zone-name parts from long or full time styles. Explicit `timeZone` or `timeZoneName` options on those zone-free values are invalid. A `datetime` is an instant; it uses the selected native time zone. An explicit date/time formatter also accepts HTML date/time strings or numeric epoch milliseconds. A date-only input cannot supply clock fields, and a time-only input cannot supply calendar fields. Invalid dates [must not]{.kw} roll over into another calendar day.
 
-A typed CSS percentage such as `15%` supplies the ratio `0.15` to number formatting. A typed CSS duration such as `1500ms` supplies a balanced hours/minutes/seconds/subseconds record; signs are preserved. A structured duration record passes its fields to Intl unchanged. These adapters preserve type meaning rather than treating every serialized value as an ordinary string.
+A typed CSS percentage such as `15%` supplies the ratio `0.15` to number formatting. A typed CSS duration such as `1500ms` supplies a balanced hours/minutes/seconds/subseconds record; signs are preserved. A structured duration record passes its fields to Intl unchanged. These adapters preserve type meaning.
 
 ### Plural messages
 
-`plural` selects one of the CLDR categories `zero`, `one`, `two`, `few`, `many`, or `other` using `Intl.PluralRules`, then selects the corresponding string from `forms`. `other` is required and supplies the fallback. Every `#` in that selected string is replaced with the number formatted in the same locale and precision. This is a small message-selection operation layered on Intl, rather than an assertion that Intl itself interpolates messages.[^5]
+`plural` selects one of the CLDR categories `zero`, `one`, `two`, `few`, `many`, or `other` using `Intl.PluralRules`, then selects the corresponding string from `forms`. `other` is required and supplies the fallback. Every `#` in that selected string is replaced with the number formatted in the same locale and precision. This is a small message-selection operation layered on Intl.[^5]
 
 ```js
 format($count, 'plural', { forms: { one: '# item', other: '# items' } })
@@ -441,7 +441,7 @@ Absence or null produces absence. An invalid input, formatter, argument count, n
 
 ## Reactive dependencies
 
-A parsed expression exposes exactly which paths it reads, so dependencies are statically known. `$subtotal`, `$discount`, and `$rate` in `($subtotal - $discount) * $rate` are all discoverable without runtime tracking: the browser subscribes to those paths, and each framework target translates them to its own reactive model. See [Reactivity](/declarative-components/reactivity).
+A parsed expression exposes exactly which paths it reads, so dependencies are statically known. `$subtotal`, `$discount`, and `$rate` in `($subtotal - $discount) * $rate` are all discoverable from the parse: the browser subscribes to those paths, and each framework target translates them to its own reactive model. See [Reactivity](/declarative-components/reactivity).
 
 ## References
 

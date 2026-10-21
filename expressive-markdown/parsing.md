@@ -52,7 +52,7 @@ Use YAML 1.2 Core interpretation with JSON-compatible values: strings, finite nu
 
 Each field has one home: no duplicate root ID/title in metadata. Custom keys cannot replace AST structure: YAML `version: product-v2` becomes `metadata.version`; root `version` remains integer `1`. Description stays a metadata string, outside generic node traversal.
 
-Plain-text projection concatenates readable inline text, link labels, image alternative text and code text; breaks become spaces and formatting delimiters disappear. Duplicate exact YAML keys are invalid YAML: diagnose and recover using the final value. Preserve other invalid/unsupported blocks as recoverable source; never guess or discard their values.
+Plain-text projection concatenates readable inline text, link labels, image and image-reference alternative text and code text; breaks become spaces and formatting delimiters disappear. Duplicate exact YAML keys are invalid YAML: diagnose and recover using the final value. Preserve other invalid/unsupported blocks as recoverable source; never guess or discard their values.
 
 ## Named constructs
 
@@ -692,6 +692,55 @@ of the document; definitions render nothing in place:
   which contain letters, numbers, marks and hyphens.
 - `aria-label="Footnotes"` names the notes region without imposing a heading rank.
 - An unresolved supplied reference renders as its literal text.
+## Link references
+
+```md
+[Setup guide][guide], the [FAQ][] and the [changelog].
+
+[guide]: /docs/setup "Setup guide"
+```
+
+CommonMark decides what is a link reference definition and what is a
+reference link: its [link reference definitions](https://spec.commonmark.org/0.31.2/#link-reference-definitions)
+and its full, collapsed and shortcut [reference links](https://spec.commonmark.org/0.31.2/#reference-link),
+for links and images. Expressive Markdown keeps both in their authored form.
+
+| Source | AST |
+| --- | --- |
+| `[label]: url "title"` | `definition` with the authored `label`, `url` and optional `title`, at its source position. |
+| `[text][label]` | `linkReference`, `referenceType: "full"`, `label` from the second brackets, inline content from the first. |
+| `[text][]` / `[text]` | `linkReference`, `referenceType: "collapsed"` / `"shortcut"`, `label` holding the bracketed source text. |
+| `![alt][label]`, `![alt][]`, `![alt]` | `imageReference` with the same `label` and `referenceType`, and string `alt`. |
+
+- Labels match as CommonMark matches them: after trimming, collapsing
+  whitespace and Unicode case folding. `label` keeps the authored spelling.
+- A label's target is its first definition in document order. Later
+  definitions of that label are kept in place and resolve nothing.
+- A reference whose label has no definition remains text, using CommonMark's
+  literal fallback.
+- Definitions are recognized in every block context and stay in their
+  enclosing block array. Parsers and writers do not move, merge or remove them.
+
+**Rendering.** Resolve each reference to its label's definition when rendering:
+a `linkReference` renders as a link and an `imageReference` as an image, with
+the definition's `url` and `title`. A definition renders nothing in place. A
+supplied reference with no definition renders as its literal source text.
+
+**Writing.** Write each definition where it sits in the tree, as
+`[label]: destination` and an optional quoted title, using the inline-link
+destination rules. Write a reference in its `referenceType` form:
+
+- `collapsed` and `shortcut` name their label with their text. When the
+  written text no longer matches the label, write the `full` form.
+- When the characters after a `shortcut` would extend it, such as `(`, `[` or
+  `:`, write the `collapsed` form.
+- Protect literal bracketed text that names a defined label, so it stays text.
+- A supplied reference with no definition writes its form, reads back as text,
+  and recommends a diagnostic.
+
+A tool that changes a link's target or title updates its definition in place.
+Definitions have no attribute attachment; report an ID or attributes on one as
+unsupported conversion.
 
 ## Code presentation
 
@@ -758,6 +807,7 @@ without writing them back as authored document IDs.
 | Invalid merged table | Whole table as block `literal`. |
 | Footnote reference without a definition | Text. Recommend a warning. |
 | Unused or repeated footnote definition | Kept in place; renders nothing. Recommend a warning. |
+| Link reference without a definition | Text, using CommonMark's literal fallback. |
 
 Recovery nodes keep original source in `value` and a `display` context. Recommend escaped inline text or block text with visible source-line breaks. Recovery is not an executable-content mechanism.
 
@@ -771,8 +821,9 @@ Quoting suppresses this advisory. Assigned values remain strings either way.
 Round-tripping preserves meaning, order, explicit lines, authored IDs, unknown
 types, supported metadata and presentation. Discarded unsafe HTML is excluded
 and must never be restored from source records. Byte-identical output is
-optional; it needs original whitespace, quotes, overwritten attributes, link
-references and delimiters.
+optional; it needs original whitespace, quotes, overwritten attributes and
+delimiters. Content stays where it was written: writers keep each block,
+including footnote and link reference definitions, at its place in the tree.
 
 | Writers use | Preserve |
 | --- | --- |
@@ -783,6 +834,7 @@ references and delimiters.
 | Regenerated table markers; escaped literal markers | Numeric spans and originating cell IDs. |
 | YAML strings for title/ID; string lists for tags | Custom metadata, quoting strings YAML would otherwise type differently. |
 | `[^label]` and `[^label]:` with four-space continuation | Each footnote definition at its place in the tree. |
+| Reference links in their authored form; `[label]: destination "title"` | Each definition at its place in the tree. |
 
 ### Text and formatting boundaries
 
@@ -980,9 +1032,10 @@ The point format follows [unist positions](https://github.com/syntax-tree/unist#
 shared fields above. Each feature disclosure defines its required content and additional fields.
 
 Block content admits paragraph, heading, quote, list, code, line block, table,
-container, leaf, horizontal rule, footnote definition and block-display
-group/HTML/literal. Inline content admits text, inline formatting, inline code,
-link, image, footnote reference, break/soft break, inline directive and
+container, leaf, horizontal rule, footnote definition, link reference
+definition and block-display group/HTML/literal. Inline content admits text,
+inline formatting, inline code, link, image, link and image reference, footnote
+reference, break/soft break, inline directive and
 inline-display group/HTML/literal.
 `title` is a designated title-field node, not an ordinary paragraph body child.
 Lists contain list items; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.

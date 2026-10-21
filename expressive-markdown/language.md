@@ -269,9 +269,62 @@ Both keep `url` and optional tooltip `title`; a link holds inline content,
 while an image holds string `alt`. The result is a labelled link and the supplied
 image; no separate asset preview is needed here.
 
-Reference-style and inline links produce the same nodes. Unresolved references
-use CommonMark's literal fallback. An isolated image stays in its paragraph;
-only an explicit figure supplies a caption, separate from image alternative text.
+An isolated image stays in its paragraph; only an explicit figure supplies a
+caption, separate from image alternative text.
+
+### Reference-style links
+
+Name a link's target once and refer to it by label. The definition can sit
+anywhere in the document, often under the section that uses it:
+
+```md
+Read the [setup guide][guide], then the [FAQ][] and the [changelog].
+
+[guide]: /docs/setup "Setup guide"
+[FAQ]: /faq
+[changelog]: /changes
+```
+
+**HTML representation**
+
+```html
+<p>Read the <a href="/docs/setup" title="Setup guide">setup guide</a>, then the <a href="/faq">FAQ</a> and the <a href="/changes">changelog</a>.</p>
+```
+
+::: {.details #link-reference-ast summary="AST"}
+```json
+[
+  {
+    "type": "paragraph",
+    "children": [
+      { "type": "text", "value": "Read the " },
+      { "type": "linkReference", "label": "guide", "referenceType": "full", "value": "setup guide" },
+      { "type": "text", "value": ", then the " },
+      { "type": "linkReference", "label": "FAQ", "referenceType": "collapsed", "value": "FAQ" },
+      { "type": "text", "value": " and the " },
+      { "type": "linkReference", "label": "changelog", "referenceType": "shortcut", "value": "changelog" },
+      { "type": "text", "value": "." }
+    ]
+  },
+  { "type": "definition", "label": "guide", "url": "/docs/setup", "title": "Setup guide" },
+  { "type": "definition", "label": "FAQ", "url": "/faq" },
+  { "type": "definition", "label": "changelog", "url": "/changes" }
+]
+```
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
+| `definition` | String `label`, string `url`. | Block. Optional string tooltip `title`. Stays where it was written. |
+| `linkReference` | String `label`, `referenceType`; inline content. | `referenceType` is `full` (`[text][label]`), `collapsed` (`[text][]`) or `shortcut` (`[text]`). No `url` field: the definition holds the target. |
+| `imageReference` | String `label`, `referenceType`, string `alt`. | The image form, such as `![Logo][logo]`. No content field. |
+:::
+
+The reference keeps its form and its label; the definition keeps its place.
+That keeps the source readable after an edit: changing a target or tooltip
+changes the definition, and every reference to it follows. Renderers resolve
+each reference to its definition. A reference with no matching definition is
+ordinary text, following CommonMark. See the
+[link reference rules](/expressive-markdown/parsing#link-references).
 
 ### Lists and literal markers
 

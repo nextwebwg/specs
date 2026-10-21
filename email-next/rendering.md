@@ -3,6 +3,7 @@ title: Rendering and existing email
 order: 13
 blurb: HTML · CSS · conversation reconstruction
 sectionNav: true
+navGroup: guide
 ---
 
 # Rendering and existing email

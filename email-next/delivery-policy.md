@@ -3,6 +3,7 @@ title: Delivery protection and fallback
 order: 12
 blurb: encrypted delivery · ordinary copies · hosted access
 sectionNav: true
+navGroup: guide
 ---
 
 # Delivery protection and fallback

@@ -3,18 +3,63 @@ title: The encryption journey
 order: 7.1
 blurb: first contact · everyday sending · devices · recovery · failure cases
 sectionNav: true
+navGroup: guide
 ---
 
 # The encryption journey
 
 A person should be able to use an existing email address, start a conversation and let their client handle encryption. They should not need to exchange keys manually, choose cryptographic algorithms or repeat a security decision on every reply. When the client cannot preserve the selected protection, it keeps the writing and explains the next available step.
 
-Encryption is not one switch. The client must know which identity it is addressing, which devices are authorized, whether it can establish the selected conversation, and whether any copy will be disclosed through ordinary email or hosted access. This chapter joins those decisions into one user journey and traces each step to its protocol mechanism.
+The app checks who a message is for, which devices may receive it, and whether it can protect every intended copy. You see the outcome and any decision you need to make; the app handles the mechanics.
 
-> [!note] Contract and readiness
-> The journey below is the proposed client behavior. The mechanism table distinguishes defined contracts, local experiments and missing integration. In particular, universal silent first contact and public provider onboarding are not supplied. The [archive contract](encrypted-archives.md) now defines encrypted history recovery, with a local container experiment rather than whole-client support. The initial suite does not provide emergency identity recovery. A recover role or a convenient interface cannot substitute for those missing protocols.
+> [!note] A draft, not a finished service
+> This describes the intended experience. Some parts have local demonstrations; the complete journey still needs implementation and independent evaluation. The architecture and acceptance details below identify those gaps.
 
-## Set up once
+## Write normally
+
+Use your existing address and choose the people you want to reach. If they have compatible encryption setup, your app prepares a protected conversation before sending your writing. You do not exchange a password or paste a key into an email.
+
+An upgraded provider can ask for the recipient's public setup information without sending the message itself. The recipient's enabled app can answer automatically, or its provider can supply information the device has already authorized for that purpose. The person does not need to write a reply just to enable encryption.
+
+If that information is unavailable, the draft waits. A clear waiting state tells you what has not finished. A network failure does not turn your private message into ordinary email.
+
+## Choose what happens with an older app
+
+You can require encryption, allow ordinary delivery, or allow a particular hosted-link arrangement. The app remembers your choice and makes the actual result clear. A hosted link is a different arrangement with its own access risks; it is not automatically equivalent to encryption between two email apps.
+
+For a group, different people may support different features. The app must account for each copy and keep anyone awaiting setup from causing an unauthorized ordinary copy to be sent.
+
+## Reply without repeating setup
+
+Once the conversation is established, you reply normally. The app remembers the contact and handles the changing encryption keys. It also remembers exactly which message you are answering.
+
+A recipient can be offline when you write. The design uses email's ability to carry messages later; routine encryption does not require both people to be present at once. Where setup or a required security check needs a device that is unavailable, the app preserves your draft and explains the wait.
+
+Encryption and identity verification are different. A message may be encrypted to a remembered contact whose real-world identity you have never independently checked. If you choose stronger verification, the app offers an independent comparison and remembers its scope. It must not display an unverified person as verified.
+
+## Scan to add a device
+
+Approve a QR pairing request on an authorized device. The new device makes its own keys. The app brings across the contact security setup, connects the account and automatically prepares encrypted sending; unchanged contacts do not need to verify you again.
+
+A device can be allowed to send and receive without being allowed to add or remove other devices. More than one device can have that administrative permission.
+
+Your saved messages are separate. Copying them is not a prerequisite for future encrypted sending. Existing encrypted groups still need to accept the new device through the protocol; the app handles that work and shows any remaining wait rather than leaving you to manage it.
+
+## Remove a lost device
+
+Use another authorized device to remove it. Once a sender learns and validates that change, future sends must exclude it. Removal cannot erase messages already on the lost device, and an offline sender may not have learned the change yet.
+
+## Recover correspondence without reviving old keys
+
+An encrypted archive can preserve readable messages and their attachments. Set up its recovery material somewhere you can still reach if the original device is lost. Neither an email password reset nor a billing receipt can decrypt such an archive.
+
+Restoring correspondence does not authorize a replacement device to act as you. If an authorized device survives, pair from it. If every authorized device is lost, the current design starts a new identity rather than secretly overriding the old one. The app must explain that boundary before you rely on recovery.
+
+## Architecture and implementation
+
+::: {.details summary="Architecture, required behavior and acceptance cases"}
+
+### Set up once
 
 The person connects their email account and chooses how incompatible recipients should be handled. The client remembers the effective policy in a visible, changeable setting: require an encrypted endpoint, allow ordinary email, or allow a particular hosted-access model. There is no automatic permission to use an unselected fallback. A product may offer a starting policy, but it must disclose and record that choice; this draft does not select a universal default.
 
@@ -24,7 +69,7 @@ Setup also establishes the first-contact policy: permit an unverified address-to
 
 The setup view identifies where keys and plaintext are processed. A service that decrypts is an endpoint with content access. Browser-local keys do not by themselves establish protection against whoever can replace the browser code. Drafts follow the [private working-state rules](security.md#drafts-are-private-working-state); they must not leak into ordinary server drafts merely because sending has not started.
 
-## Start a conversation
+### Start a conversation
 
 ### No usable recipient evidence yet
 
@@ -54,7 +99,7 @@ Validated discovery is an input, not completed encryption. A signature on an adv
 
 A missing or already consumed admission package, unsupported tuple, stale identity state or unresolved ordering leaves the affected delivery held. Re-evaluate before release. Do not choose an older or different tuple merely because it happens to parse.
 
-## Continue without repeated decisions
+### Continue without repeated decisions
 
 The person replies, selects a predefined answer or reacts. The client retains the exact target, checks current sending authority, and applies the remembered policy. It does not ask for keys or a password on every contribution. New content and deliberately included quotations stay inside the protection envelope; a readable plaintext alternative beside ciphertext would disclose the same content.
 
@@ -64,7 +109,7 @@ On restart, the client resumes retained immutable sends and pending transitions.
 
 Opening a message, reconstructing a thread or refreshing capabilities does not send a receipt, submit an answer or disclose history. Reading and transport handoff are distinct states.
 
-## Include someone who cannot decrypt
+### Include someone who cannot decrypt
 
 The client calculates the result for every intended recipient. Ready protected copies may proceed while others remain held, when the selected policy permits partial delivery. The sent view distinguishes that partial result from delivery to everyone.
 
@@ -74,7 +119,7 @@ A contribution with an authorized ordinary or hosted disclosure is not summarize
 
 Every reply gets its own policy and audience check. The original sender's permission does not authorize fallback on the replying person's behalf. Forwarding or quoting an earlier protected passage requires authorization for the actual new audience. A new participant does not receive old history simply by joining.
 
-## Add a second device
+### Add a second device
 
 The person connects the mailbox on the new device and approves enrollment from an existing device with enrollment authority. The selected pairing experiment uses reciprocal scans of full commitments, with full-value independent comparison as an accessible alternative. The client shows the account and requested permissions before approval; routine users need not inspect cryptographic keys.
 
@@ -84,7 +129,7 @@ The [send-ready pairing contract](identity-lifecycle.md#finish-pairing-with-usab
 
 Camera scanning, production relay setup and protected history transfer are not demonstrated by the local pairing experiment. The separate [history-transfer contract](history-transfer.md) now defines recipient-specific encrypted history and its source approval; its local experiment does not make it part of pairing automatically. A client must not hide those limitations behind a successful enrollment badge.
 
-## Remove or lose a device
+### Remove or lose a device
 
 From an authorized surviving device, the person removes the lost device. The client commits the signed revocation, distributes it through the configured authorized paths, stops local release to the revoked target, and performs the required group membership transitions. It preserves affected sends while membership ordering is unresolved. Pending valid membership proposals do not permit continuing to send under the old audience.
 
@@ -92,7 +137,7 @@ The result is future exclusion under the accepted state, not remote erasure. The
 
 If an administrator, ordering participant or necessary peer is unavailable, use only the selected profile's defined recovery path. A timeout is not permission to invent a new quorum, skip an authorization or switch ordering protocols. The reader keeps accessible history while affected live sends remain held.
 
-## Recover after every authorized device is lost
+### Recover after every authorized device is lost
 
 The first question is whether an existing, previously authorized recovery construction can preserve continuity. The current identity configuration names a recover role but does not define the emergency recovery operation, protected state transfer and conflict resolution needed to use it. That route is therefore unavailable in this baseline; a client must not present it as an implemented password-reset recovery feature.
 
@@ -106,7 +151,7 @@ The managed restore path imports selected history into an inert historical store
 
 The current import experiment is not an encrypted backup format or a protected device-to-device history transfer. It does not recover attachment resources or rich HTML presentation. The separate [archive contract](encrypted-archives.md) and [collection catalog](archive-sets.md) define encryption, independent unlock material, complete/omitted resource coverage, multi-file acceptance, versioning and tamper/rollback handling. Integrating that contract with the full client remains required; transport forward secrecy does not protect plaintext archives.
 
-## Handle changed identity, address or account
+### Handle changed identity, address or account
 
 An authorized successor follows the selected transition proof and preserves prior attribution. An unrelated new identity claiming a familiar address does not replace or suspend the established association. An actual authorized identity fork holds affected operations and preserves both branches. The client distinguishes these cases rather than showing a generic key-change warning for every unsolicited attachment.
 
@@ -114,7 +159,7 @@ If the person deliberately accepts a new principal, record a continuity break, i
 
 Changing the sending account rechecks the local identity, membership, routes and effective policy while retaining the draft. Aliases do not create enrollment authority. A provider password reset changes account access; it does not establish endpoint-key continuity.
 
-## Interruptions and concise explanations
+### Interruptions and concise explanations
 
 Protection status is a set of facts, not a single lock bit. Retain separately: content encryption, author authentication, address-binding assurance, contribution-wide exposure, delivery outcome and current ability to send. A held future send does not remove the protection of a previously accepted message; an encrypted copy does not hide another copy's exposure.
 
@@ -133,7 +178,7 @@ Protection status is a set of facts, not a single lock bit. Retain separately: c
 
 These phrases illustrate the required distinctions, not mandatory English strings. Use compact controls with accessible names and details, preserving the [client behavior contract](client-behavior.md). Routine successful transitions do not need repeated confirmation dialogs. Decisions that grant new enrollment, replacement identity, history disclosure or weaker delivery authority must be backed by the corresponding explicit authorization; receipt of a message cannot grant them.
 
-## Mechanism coverage and release gates
+### Mechanism coverage and release gates
 
 “Defined” means the owning chapter specifies a contract. “Local evidence” means selected experiments exist, not deployed interoperability or whole-journey assurance. The gates below must be met before claiming the corresponding journey works end to end.
 
@@ -154,7 +199,7 @@ These phrases illustrate the required distinctions, not mandatory English string
 | Resolve a competing identity or reassigned address | [Association transitions](mailbox-association.md#state-and-transition-behavior), [identity changes](identity-lifecycle.md#key-transitions) | Defined ordinary transitions and deliberate continuity break; automatic fork repair and universal ownership verification are not supplied |
 | Protect rich/indexed replies | [Rich carrier](rich-messages.md), [reply-content integration](reply-content.md#integration-and-acceptance) | Existing rich path has local evidence; new indexed reply operation has an [exact suite binding](suite-profile.md) and needs its implementation and joined acceptance |
 
-## Acceptance journeys and failure cases
+### Acceptance journeys and failure cases
 
 Each case needs two independently running endpoint stores, retained originals and before/after snapshots of identity, policy, conversation state, queued sends and effects. Independent interoperability additionally requires independently developed implementations. Tests must check visible meaning and actual protected bytes; a badge or successful HTTP response alone is insufficient.
 
@@ -189,10 +234,13 @@ Each case needs two independently running endpoint stores, retained originals an
 | EJ-27 | Send an indexed reply under an older immutable application tuple | Unsupported operation held; no widening of that tuple; valid new binding must be tested separately |
 | EJ-28 | Turn off the network during routine reply, pairing, revocation and hosted submission | Preserve draft or exact pending transaction; show the operation-specific outcome; reconnect never repeats a completed effect or grants weaker authority |
 
-## What must be settled before the baseline is frozen
+### What must be settled before the baseline is frozen
 
 The [required conversation suite](suite-profile.md) defines the exact joined profile, including indexed replies. Its implementation and acceptance run through real accounts remain required. Public provider onboarding is a separate deployment path, not a prerequisite for the human-email introduction path. The suite must not claim universal encrypted first contact while relying on that introduction.
 
 Recovery needs an explicit product boundary. A baseline can honestly provide surviving-device enrollment and a new-identity route after total loss. The [archive profile](encrypted-archives.md) defines historical recovery and still needs full client integration. The initial suite deliberately offers no emergency identity override; any future continuity-preserving recovery protocol needs separate definition and evaluation. The absence of those features must be explained during setup, before someone relies on recoverability.
 
 Finally, test whether ordinary people can complete first contact, interpret an unverified encrypted identity, add a device and understand total loss without learning key terminology. Protocol fixtures establish mechanisms; usability studies, native accessibility checks, independent security review and real-provider trials establish whether the joined experience is usable and dependable.
+
+
+:::

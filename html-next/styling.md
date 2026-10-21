@@ -1,14 +1,14 @@
 ---
 title: Style Scoping
 order: 9
-blurb: scoped styles without shadow cost
+blurb: scoped styles in the light DOM
 eyebrow: Declarative HTML Components Level 1
 status: Level 1 · stable direction
 ---
 
 # Style scoping
 
-A component's `<style>` is **scoped to that component**: its rules match the component's own markup and no further, without a shadow boundary. This is the styling half of fixing Web Components: the scoping authors actually wanted, without the cascade and theming losses that kept them away from Shadow DOM.
+A component's `<style>` is **scoped to that component**: its rules match the component's own markup, in the light DOM. This is the styling half of fixing Web Components: the scoping authors actually wanted, with the cascade and theming intact.
 
 ## The scope: what a rule matches
 
@@ -33,12 +33,12 @@ The rules in a component's `<style>` match the component's **region**: its root 
 
 ## Where the scope ends
 
-A component's subtree can contain markup that is not the component's to style. Two boundaries close the region, so it is a range with a lower limit, not just a starting point.
+A component's subtree can contain markup that belongs to others. Two boundaries close the region, so it is a range: a root and a lower limit.
 
 | Boundary | Rule |
 | --- | --- |
 | Nested components | A nested component is its **own** scope, root included. The enclosing component's rules [must not]{.kw} match the nested component's root or anything inside it. The enclosing component lays its children out from its own markup (`gap`, grid, and flex on its container); a consumer that needs to adjust one child's box puts its own `class` on that invocation. |
-| Projected content | Content a consumer passes through a `<slot>` belongs to the consumer, not the component (see [Components](/declarative-components/components)). The component's rules [must not]{.kw} match projected nodes unless it opts in with [`:slotted()`](#slotted). |
+| Projected content | Content a consumer passes through a `<slot>` belongs to the consumer (see [Components](/declarative-components/components)). The component's rules [must not]{.kw} match projected nodes unless it opts in with [`:slotted()`](#slotted). |
 
 Content a component moves elsewhere with [`<portal>`](/declarative-components/components) stays logically owned by it, so it stays in the component's region: the component's rules keep matching it after the move, and the same two boundaries apply inside it.
 
@@ -90,11 +90,11 @@ A rule may be conditioned on context outside the component by placing that conte
   :host .label { color: var(--x-card-text, CanvasText); }
   .dark :host .label { color: var(--x-card-text, Canvas); }  /* .dark anywhere above the component */
   x-sidebar :host { inline-size: 100%; }                     /* inside an x-sidebar */
-  .dark .label { … }   /* a .dark inside this component, not a page theme */
+  .dark .label { … }   /* a .dark inside this component */
 </style>
 ```
 
-Styling the page itself (its `<body>`, other components, or unrelated elements) is never a component's to do. Page-wide rules belong in the page's stylesheets, or in a stylesheet a package ships alongside its components for the page to include. At-rules that are document-wide in CSS, such as `@font-face`, `@property`, and `@keyframes` names, keep that meaning inside a component's `<style>`.
+Page-wide styling (the `<body>`, other components, or unrelated elements) belongs in the page's stylesheets, or in a stylesheet a package ships alongside its components for the page to include. At-rules that are document-wide in CSS, such as `@font-face`, `@property`, and `@keyframes` names, keep that meaning inside a component's `<style>`.
 
 ## Shared component CSS: @import {#shared-css}
 
@@ -117,7 +117,7 @@ A component shares defaults or other styles with ordinary CSS `@import` inside i
 }
 ```
 
-The universal selector `*` selects elements, not `::before` or `::after`; the baseline lists those pseudo-elements explicitly. `box-sizing` is not inherited by default. The card's own markup uses `border-box`; nested components and projected content remain outside these rules. Slotted content that declares `box-sizing: content-box` keeps that box model. Another component adopts the same baseline by importing the same file. HTML Next supplies no automatic reset: defaults come from native CSS, the application, and styles the component explicitly authors or imports. [Inheritance still crosses](#inheritance-still-crosses): slotted content with `box-sizing: inherit` can inherit the receiving parent's box model even though the card's selectors do not match it.
+The universal selector `*` selects elements, not `::before` or `::after`; the baseline lists those pseudo-elements explicitly. `box-sizing` is not inherited by default. The card's own markup uses `border-box`; nested components and projected content remain outside these rules. Slotted content that declares `box-sizing: content-box` keeps that box model. Another component adopts the same baseline by importing the same file. Defaults come from native CSS, the application, and styles the component explicitly authors or imports. [Inheritance still crosses](#inheritance-still-crosses): slotted content with `box-sizing: inherit` can inherit the receiving parent's box model even though the card's selectors do not match it.
 
 ### Resolution and CSS meaning
 
@@ -126,7 +126,7 @@ The import graph is resolved before component scoping is applied. A conforming i
 - **Source-relative URLs.** An inline import resolves against the containing component resource's final response URL. A nested import resolves against the final response URL of the stylesheet containing it. Relative asset references, such as `url("./icons.svg")` or a font source, retain that stylesheet's base URL when CSS is moved or bundled. A component inline in an application document uses that document's base URL.
 - **Ordinary CSS imports.** CSS defines valid import placement, import order, `layer` and `layer(name)`, `supports()`, media conditions, and cycle handling.[^6] Imported rules participate at the import's authored position. Nested imports follow the same rules; a cyclic edge contributes no further rules. Repeated imports retain their separate cascade positions and anonymous-layer identities. CSS constructs local to a stylesheet, such as `@namespace`, retain their original stylesheet boundaries.
 - **The importing component owns the rules.** `:host`, prop and state selectors, and `:slotted()` are interpreted against the importing component's contract. Ordinary rules stop at its nested-component and projected-content boundaries; imported `:slotted()` rules use the same explicit opt-in as inline rules. Importing a stylesheet does not install its ordinary selectors globally.
-- **Existing resolution policy.** Live imports use CSS URL resolution, not JavaScript bare-specifier resolution: `@import "defaults.css"` names a relative URL. They obey the application's component-resource loading policy, including live trust scopes, redirects, CORS, and CSP (see [Security](/declarative-components/security#shared-stylesheet-resources)). A build [may]{.kw} use its host resolver for package paths or aliases, provided its output preserves these CSS semantics and asset bases; this does not create a browser CSS import-map mechanism.
+- **Existing resolution policy.** Live imports use CSS URL resolution: `@import "defaults.css"` names a relative URL. They obey the application's component-resource loading policy, including live trust scopes, redirects, CORS, and CSP (see [Security](/declarative-components/security#shared-stylesheet-resources)). A build [may]{.kw} use its host resolver for package paths or aliases, provided its output preserves these CSS semantics and asset bases; this does not create a browser CSS import-map mechanism.
 
 An unresolved, blocked, or failed import contributes no rules, as in CSS, and [must]{.kw} produce a diagnostic identifying the source stylesheet and import. An implementation [must not]{.kw} substitute an unscoped stylesheet or bypass application policy to recover. Invalid CSS imports retain CSS's normal parsing behavior and do not become dependency edges.
 
@@ -175,7 +175,7 @@ A test inside `:host(...)` names a declared prop. The selected value must be a s
 
 ### State: :state() {#state}
 
-`:state()` tests a component's state, so a component styles what its controller changes without writing attributes for its own stylesheet:
+`:state()` tests a component's state directly, so a component styles what its controller changes:
 
 ```html
 <template component="x-disclosure">
@@ -202,7 +202,7 @@ A test inside `:host(...)` names a declared prop. The selected value must be a s
 - The selected value [must]{.kw} be a string, number, boolean, or keyword union. Only equality and presence are supported; structured values are diagnostics.
 - `value` is written as in an attribute selector: an identifier as is, anything else quoted. `:state(tone=warm)` and `:state(tone="warm")` are the same test; a value that is not an identifier needs quotes: one that starts with a digit or with a hyphen and a digit (`"2"`, `"2x"`, `"-1"`), or that contains spaces or punctuation, as in `:state(step="2")`.
 - Combine tests by repeating the pseudo-class: `:host(:state(open):state(tone=warm))`.
-- Every declared state of a scalar type is selectable. Like the states of a built-in element, a component's state needs no separate opt-in to be visible to selectors.
+- Every declared state of a scalar type is selectable. Like the states of a built-in element, a component's state is visible to selectors automatically.
 
 The boolean form is the native `:state()` pseudo-class, which tests the custom states of an element's [`ElementInternals`](/declarative-components/javascript). The value form and `of` extend it for the same reason [`host.state`](/declarative-components/javascript) generalizes custom states from flags to values.
 
@@ -236,8 +236,8 @@ An element can be the root of more than one component: a component whose markup 
 
 `of x-tag` limits the test to one of those components. It is needed only where two components at the same element declare the same state name. A component tag before the pseudo-class does not limit it: `x-base:state(open)` tests that the element is an `x-base` and, separately, that some component at it has `open`, as with any compound selector.
 
-> [!note] Resolved values, not reflected attributes
-> `:host([prop])` sees the prop's resolved value, including its default; `:state()` sees mutable or computed state. Styling does not depend on whether an implementation reflects a value as a `data-*` attribute.
+> [!note] Resolved values
+> `:host([prop])` sees the prop's resolved value, including its default; `:state()` sees mutable or computed state. Styling is independent of whether an implementation reflects a value as a `data-*` attribute.
 
 > [!warn] Alignment with native :state()
 > A rendered component root is an ordinary element, not a custom element, so it has no `ElementInternals` today. This chapter defines `:state()` matching for component roots by their declared state. Whether the CSS Working Group adopts a value form of `:state()`, and with what syntax, is open; this proposal keeps the boolean form identical to native so only the extensions would need to change.
@@ -262,7 +262,7 @@ When a component *wants* to style what a consumer projects, such as a form contr
 - `:slotted(sel)` matches projected content at **any depth**: a projected node, or any node inside one, that matches `sel`.
 - The argument is a full selector, and nested rules work inside a `:slotted()` rule.
 - Matching stops at any nested component.
-- `:slotted()` rules are a **low-specificity baseline**: a consumer's own rules on their projected nodes win ties, so a component sets a default look without seizing control. `:slotted(*) { all: unset }` is the idiomatic clean slate.
+- `:slotted()` rules are a **low-specificity baseline**: a consumer's own rules on their projected nodes win ties, so a component sets a default look that consumers refine. `:slotted(*) { all: unset }` is the idiomatic clean slate.
 
 > [!note] Deeper than ::slotted()
 > Shadow DOM's `::slotted()` accepts only a compound selector on top-level nodes, a restriction adopted because matching from a shadow tree into light-DOM descendants was costly; authors have asked for years to lift it.[^5] Here, projected content stays in one document and is matched like any other markup, so the restriction has no reason to exist. A component ported from Shadow DOM rewrites `::slotted(x)` as `:slotted(x)`.
@@ -271,7 +271,7 @@ When a component *wants* to style what a consumer projects, such as a form contr
 
 A component's customizable surface is its **custom properties**. The component reads each one with its default, `var(--x-button-radius, 6px)`, and an application or an enclosing component sets it on any ancestor, or on the invocation itself through `class` or `style`. Custom properties inherit, so they reach the component across every boundary without selecting anything inside it.
 
-A component never reaches into another component's internals. There is deliberately no `:deep()`: a selector into someone else's private structure couples the caller to it and breaks when that structure is refactored. What a component does not expose as a custom property is not part of its styling contract.
+A component styles another component only through that component's custom properties. A selector into someone else's private structure would couple the caller to it and break when that structure is refactored, so this proposal leaves out `:deep()` by design. A component's styling contract is exactly the custom properties it exposes.
 
 ## Validity selectors
 
@@ -279,7 +279,7 @@ A component never reaches into another component's internals. There is deliberat
 
 ## Inheritance still crosses
 
-Scoping constrains **selector matching**, not the cascade. Inherited properties (`color`, `font`, and custom properties such as design tokens) flow across every boundary above, into nested components and projected content alike, exactly as they do in ordinary light-DOM HTML. Authors get encapsulation of their *own selectors* while global theming, shared tokens, and the cascade keep working, which is the trade Shadow DOM refused to offer.
+Scoping constrains **selector matching**; the cascade works as usual. Inherited properties (`color`, `font`, and custom properties such as design tokens) flow across every boundary above, into nested components and projected content alike, exactly as they do in ordinary light-DOM HTML. Authors get encapsulation of their *own selectors* while global theming, shared tokens, and the cascade keep working.
 
 > [!note] Selector scoping preserves the cascade
 > Vue and Svelte scoped styles, and Angular ViewEncapsulation.Emulated as the shipped default,[^3] won in practice over Shadow DOM because most authors want *scoping* (my selectors do not leak) and not *isolation* (nothing gets in or out). Shadow DOM, and Lit built on it, forces both.[^4] HTML Next makes scoping the default and treats isolation as the special case.
@@ -310,26 +310,26 @@ In HTML Next the nested component is out of the parent's scope, root included, s
 | | HTML Next | Vue `<style scoped>` | Svelte |
 | --- | --- | --- | --- |
 | A nested component's root | Out of scope. Lay it out from your own markup, or give the invocation a `class` | In scope: a child's root takes both the parent's scoped rules and its own | Out of scope |
-| Inside a nested component | Never. There is no `:deep()`; use the component's custom properties | `:deep()` reaches in | `:global()` reaches in |
+| Inside a nested component | Through the component's custom properties | `:deep()` reaches in | `:global()` reaches in |
 | The component's own root | `:host`, `:host([prop])` for resolved props, and `:host(:state(name))` for mutable or computed state | A class the author puts on the root element | A class the author puts on an element; a component may have several top-level elements |
 | Content passed in through a slot | Opt in with `:slotted()`: a full selector, matching at any depth, stopping at nested components, and losing ties to the consumer's own rules | Opt in with `:slotted()` | Not matched; `:global()` reaches it |
 
 Why HTML Next draws the lines this way:
 
 - **One owner per element.** Vue lets a child's root answer to two stylesheets as a convenience for layout. The cost is that a child renaming or restructuring its root changes what the parent's rules hit, with no error. Here a parent's rules never match another component's elements, so that coupling cannot form.
-- **A public surface instead of a way in.** `:deep()` and `:global()` let a caller depend on another component's private markup. HTML Next gives components [custom properties](#customization-custom-properties) as their styling contract and no selector into someone else's internals.
+- **A public surface instead of a way in.** `:deep()` and `:global()` let a caller depend on another component's private markup. HTML Next gives components [custom properties](#customization-custom-properties) as their styling contract.
 - **State without attributes.** Vue and Svelte style a component's state through classes or attributes the component writes on itself. `:host([prop])` and `:state()` test resolved props and state directly, defaults included, so nothing is written just so a stylesheet can see it.
-- **Defined by the platform.** The region, a root with a lower limit at nested components and projected content, is the shape of CSS [`@scope`](https://www.w3.org/TR/css-cascade-6/#scoped-styles) with its range form, rather than a selector rewrite particular to one build tool. An implementation may still rewrite selectors, for example when it compiles to Vue, but what matches is what this page defines.
+- **Defined by the platform.** The region, a root with a lower limit at nested components and projected content, is the shape of CSS [`@scope`](https://www.w3.org/TR/css-cascade-6/#scoped-styles) with its range form. An implementation may still rewrite selectors, for example when it compiles to Vue, but what matches is what this page defines.
 
 Porting a component: move a parent's rules for a child's root into layout on the parent's own container, or into a class on the invocation; turn each `:deep()` into a custom property the child reads; replace classes toggled for prop styling with `:host([prop])`, and state styling with `:host(:state(name))`. For how a lowered component looks in the page, see [Rendered form](/declarative-components/rendered-form).
 
 ## Isolation: opt-in, later
 
-Full isolation via a real shadow boundary [may]{.kw} be requested explicitly; it is never the default cost. A **later Level** specifies it as an *extension of Declarative Shadow DOM* driven by the template, closing the styling and form-participation gaps that kept authors away from Shadow DOM, rather than inheriting them.
+Full isolation via a real shadow boundary [may]{.kw} be requested explicitly. An **upstream proposal** would specify it as an *extension of Declarative Shadow DOM* driven by the template, closing the styling and form-participation gaps that kept authors away from Shadow DOM.
 
 ## Open issues
 
-- **Declared custom properties.** Whether a definition declares its public custom properties in `<defs>`, with a type and a default like a prop, so the customization surface is documented, typed, and checkable instead of being discovered from the stylesheet.
+- **Declared custom properties.** Whether a definition declares its public custom properties in `<defs>`, with a type and a default like a prop, so the customization surface is documented, typed, and checkable.
 
 ---
 

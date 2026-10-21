@@ -50,7 +50,7 @@ In the [JavaScript layer](/declarative-components/javascript), `number` and `int
 
 ## Value constraints
 
-Constraints narrow a declared type. They apply to `<prop>` declarations, including fields nested in an object or list. They do not change the JavaScript type of a valid value.
+Constraints narrow a declared type. They apply to `<prop>` declarations, including fields nested in an object or list. A valid value keeps its JavaScript type.
 
 | Attribute | Applicable types | Effect when the value fails |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ An omitted optional prop without a default resolves to `null`; constraints other
 
 ### Finite choices
 
-The `values` attribute limits a prop to a comma-separated set of values of its declared type. Each item is parsed and checked against `type` before the constraint is applied. The prop keeps one type; `values` does not convert a value into another type. A TypeScript target can expose the allowed values as a literal union within that type. This follows HTML's enumerated attributes, whose permitted keywords are defined separately from the attribute's value syntax, and JSON Schema's `enum` constraint.[^14][^15]
+The `values` attribute limits a prop to a comma-separated set of values of its declared type. Each item is parsed and checked against `type` before the constraint is applied. The prop keeps its one declared type. A TypeScript target can expose the allowed values as a literal union within that type. This follows HTML's enumerated attributes, whose permitted keywords are defined separately from the attribute's value syntax, and JSON Schema's `enum` constraint.[^14][^15]
 
 ```html
 <prop name="size" type="keyword" values="sm, md, lg" default="md"></prop>
@@ -108,7 +108,7 @@ Every list has one item type. These three declarations all produce a JavaScript 
 | `keyword+` | `red blue` | `["red", "blue"]` |
 | `keyword#` | `red, blue` | `["red", "blue"]` |
 
-`list(T)` uses a bracketed value, accepts an empty list (`[]`), and can give its items a structured type such as `object({ id: number })`. `keyword+` and `keyword#` are shorter written forms for **one or more keywords**: space-separated and comma-separated, respectively, following CSS value definition syntax.[^12] They do not change the JavaScript representation. Whitespace around a comma is allowed; an empty item is invalid.
+`list(T)` uses a bracketed value, accepts an empty list (`[]`), and can give its items a structured type such as `object({ id: number })`. `keyword+` and `keyword#` are shorter written forms for **one or more keywords**: space-separated and comma-separated, respectively, following CSS value definition syntax.[^12] They produce the same JavaScript array as `list(keyword)`. Whitespace around a comma is allowed; an empty item is invalid.
 
 ## Structured values
 
@@ -154,7 +154,7 @@ A shared or external schema can instead be referenced with `schema`, using JSON 
 <prop name="rows" type="list" schema="/schemas/rows.json"></prop>
 ```
 
-JSON Schema also has `enum` for a fixed set of values. An object schema can use it to constrain one field, and an enum can contain values of different JSON types.[^14] This JSON document is a schema, not an authored component value:
+JSON Schema also has `enum` for a fixed set of values. An object schema can use it to constrain one field, and an enum can contain values of different JSON types.[^14] This JSON document is a JSON Schema:
 
 ```json
 {
@@ -167,7 +167,7 @@ JSON Schema also has `enum` for a fixed set of values. An object schema can use 
 
 ### Writing structured values
 
-Structured values use the object and array literal syntax of [HTML Next expressions](/declarative-components/expressions), **not JSON**. A plain attribute supplies a fixed value, parsed according to the declared prop type. A `from:` binding evaluates an expression that may read other values and change with them:
+Structured values use the object and array literal syntax of [HTML Next expressions](/declarative-components/expressions). A plain attribute supplies a fixed value, parsed according to the declared prop type. A `from:` binding evaluates an expression that may read other values and change with them:
 
 ```html
 <x-plot point="{ x: 3, y: 5 }"></x-plot>
@@ -175,11 +175,11 @@ Structured values use the object and array literal syntax of [HTML Next expressi
 <x-plot from:point="{ x: $currentX, y: 5 }"></x-plot>
 ```
 
-Bare keys, single-quoted strings, and trailing commas are allowed in both forms. A plain attribute contains only literal values; `point="{ x: $currentX }"` is invalid because `$currentX` is a reference. Use `from:point="{ x: $currentX }"` to read it, or `from:point="$point"` to pass an existing object from `<state>` or `<data>`. The `from:` prefix marks a binding, not an object. These expressions are pure and typed, not arbitrary JavaScript. JSON is used only as a wire format when structured data crosses an SSR, network, or interop boundary.
+Bare keys, single-quoted strings, and trailing commas are allowed in both forms. A plain attribute contains only literal values; `point="{ x: $currentX }"` is invalid because `$currentX` is a reference. Use `from:point="{ x: $currentX }"` to read it, or `from:point="$point"` to pass an existing object from `<state>` or `<data>`. The `from:` prefix marks a binding. These expressions are pure and typed. JSON is used only as a wire format when structured data crosses an SSR, network, or interop boundary.
 
 ## Native event values
 
-The `event` type accepts a native DOM `Event`, including its subclasses such as `PointerEvent`, `KeyboardEvent`, and `CustomEvent`.[^18] It is a JavaScript value with no HTML literal form. A handler obtains its triggering event through `$$event` and may pass it as an event payload or place it in a typed structure. Type checking does not clone the event or turn a plain object with similar fields into an event.
+The `event` type accepts a native DOM `Event`, including its subclasses such as `PointerEvent`, `KeyboardEvent`, and `CustomEvent`.[^18] It exists only as a JavaScript value. A handler obtains its triggering event through `$$event` and may pass it as an event payload or place it in a typed structure. Type checking does not clone the event or turn a plain object with similar fields into an event.
 
 ```html
 <event name="activate" type="event"></event>
@@ -193,7 +193,7 @@ In the first declaration the entire `CustomEvent.detail` must be a native event.
 
 ## Request values {#request-values}
 
-A [request](/declarative-components/components#requests)'s detail and answer pass between JavaScript on both sides and are never written in HTML. Their types are written as for an event's detail, and they may use types that a prop cannot:
+A [request](/declarative-components/components#requests)'s detail and answer pass between JavaScript on both sides, so they exist only as JavaScript values. Their types are written as for an event's detail, and they may use types that a prop cannot:
 
 ```html
 <request name="extensions" returns="list(unknown)">Tiptap extensions added to the built-in set.</request>
@@ -207,7 +207,7 @@ A [request](/declarative-components/components#requests)'s detail and answer pas
 ```
 
 - `unknown` and `event` may appear at the top level of `type` and `returns`, since neither needs an HTML attribute form.
-- A JavaScript object that has no type of its own here, such as a `File` or a library's extension object, is typed `unknown`. An `unknown` value is passed through unchecked, and generated TypeScript types it as `unknown`.
+- A JavaScript object outside these types, such as a `File` or a library's extension object, is typed `unknown`. An `unknown` value is passed through unchecked, and generated TypeScript types it as `unknown`.
 - An answer of `null` is always accepted: it means the consumer has no answer, as an omitted prop means no value. `returns` constrains every other answer.
 
 The runtime checks the detail when a controller asks and the answer when it arrives; the [request steps](/declarative-components/javascript#host-request) define both checks.
@@ -247,7 +247,7 @@ The same type can be named once under `<defs>` and referenced by a declaration's
 
 The selector has one base type and a finite `values` constraint:
 
-- `from` names one declared prop or state value. It is a name lookup, not an expression.
+- `from` names one declared prop or state value. It is a name lookup.
 - Each permitted selector value needs exactly one `<option>`. The option's `value` is parsed as the selector's base type. An invalid `values` constraint makes the type declaration invalid.
 - A selecting prop must be `required` or have a default. Its effective value selects the type before the dependent attribute is parsed, regardless of attribute order. A selecting state uses its initialized value.
 - The dependent prop exists for every option. It is `null` when omitted without a default. A `null` selector also permits only a `null` dependent value because it selects no option.
@@ -289,7 +289,7 @@ A declared value keeps its type, as HTML's reflected attributes do. `tabIndex` i
 - A state with [`from`](/declarative-components/reactivity#state-initialization) is unavailable until its first accepted seed or local write. A local `null` write ends that wait and stores `null`.
 - A missing field of an object reads `null`, or the [absent value](/declarative-components/expressions#the-absent-value) in expressions. Writing `null` to a field below a state gives it back its value in the state's declared `value`, or `null` where that has none.
 
-`undefined` means the same as `null` wherever a value is written. A `null` write is therefore never a wrong-typed write; the declared type constrains every value that is present. No declaration opts a value into `null`. `required` makes a value that is not present invalid: it sets `valueMissing`. An explicit empty string is present and remains a string value.
+`undefined` means the same as `null` wherever a value is written. A `null` write is therefore never a wrong-typed write; the declared type constrains every value that is present. Every declaration accepts `null`. `required` makes a value that is not present invalid: it sets `valueMissing`. An explicit empty string is present and remains a string value.
 
 ```html
 <!-- Given <prop name="label" type="string"></prop> and <prop name="tone" type="string" default="plain"></prop> -->

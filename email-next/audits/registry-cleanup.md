@@ -23,7 +23,7 @@ sectionNav: true
 
 ## Submission discrepancies explained
 
-The draft explicitly proposes correcting the submission column that caused the BURL and FUTURERELEASE discrepancies in the [SMTP revision audit](smtp-revision.md). This provides a documented correction path, not evidence that the live registry has applied it. Email Next continues to use each applicable extension's defined submission scope and records the inconsistent registry summary separately.
+The draft explicitly proposes correcting the submission column that caused the BURL and FUTURERELEASE discrepancies in the [SMTP revision audit](smtp-revision.md). This provides a documented correction path, not evidence that the live registry has applied it. Email/2 continues to use each applicable extension's defined submission scope and records the inconsistent registry summary separately.
 
 A submission permission of MAY does not require a provider to implement the extension, and does not establish endpoint support for encrypted or interactive messages. Required transport and disclosure policy still governs failed negotiation.
 

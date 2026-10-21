@@ -10,7 +10,7 @@ sectionNav: true
 | Section | Disposition |
 | --- | --- |
 | 1 | Defines OpenPGP MIME control, signature and public-key types; updates2015. Packaging does not select modern algorithms or identity policy. |
-| 2 | ASCII armor required for transfer; message/partial preferred to multipart armor if fragmentation is needed. Email Next has not adopted automatic fragmentation. |
+| 2 | ASCII armor required for transfer; message/partial preferred to multipart armor if fragmentation is needed. Email/2 has not adopted automatic fragmentation. |
 | 3 | Signed content, including signed-then-encrypted, constrained to7bit after MIME encoding and no unprotected trailing whitespace. Preserve meaningful spaces through encoding; whitespace-only headers must not become accidental header/body separators. From-space protection recommended. Encryption-only allowance is distinct. Accepting received encodings does not authorize canonical-byte guessing. |
 | 4 | Encryption wraps canonical MIME entity; exactlytwo parts, quoted application/pgp-encrypted protocol, Version:1 control and application/octet-stream ciphertext. Historical cipher example is not an approved generation vector. |
 | 5 | Signed container uses application/pgp-signature, exactlyone pgp-prefixed micalg and twoparts. Canonicalize content then transfer-encode then include MIMEheaders. Detachedsignature coversheadersandencodedbody. Boundary-precedingCRLF belongsdelimiter,notautomaticallysigneddata; absentfinalCRLFmustnotbeinvented. Historic hash list is not adopted as modern policy. |

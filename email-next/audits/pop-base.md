@@ -18,10 +18,10 @@ The complete base text of [RFC1939](https://www.rfc-editor.org/rfc/rfc1939.html)
 | 7 | Optional POP3 Commands | TOP, UIDL, USER, PASS and APOP fully reviewed. UIDL persists across sessions, allows identical copies to share an ID, and verified erratum529 extends nonreuse to the maildrop lifetime. Preview and authentication identifiers are not message authorship evidence. |
 | 8 | Scaling and Operational Considerations | Quota and site retention can remove read or unread messages outside ordinary protocol deletion; download-once policy requires durable storage before successful session completion. POP lacks general folder/push semantics. |
 | 9 | POP3 Command Summary | Command summary reviewed; its placement of USER/PASS under minimal commands conflicts with Section7 and AppendixA making them optional. Do not infer a required plaintext authentication method from this table. |
-| 10 | Example POP3 Session | Complete example session reviewed; its clear transport and APOP flow are historical examples, not Email Next security recommendations. |
+| 10 | Example POP3 Session | Complete example session reviewed; its clear transport and APOP flow are historical examples, not Email/2 security recommendations. |
 | 11 | Message Format | Size reflects CRLF message representation and excludes extra dot-stuffing octets. Local storage line endings are not the transmitted byte representation. |
 | 12 | References | All references reviewed; historical SMTP, message format, MD5, IMAP and AUTH dependencies require separate applicability/current-successor work. |
-| 13 | Security Considerations | Clear passwords/mail, username enumeration and historical APOP security assumptions reviewed. None establishes endpoint identity or protects modern Email Next transport by itself. |
+| 13 | Security Considerations | Clear passwords/mail, username enumeration and historical APOP security assumptions reviewed. None establishes endpoint identity or protects modern Email/2 transport by itself. |
 | 14 | Acknowledgements | Acknowledgments and historical lineage reviewed; no additional protocol behavior. |
 | 15 | Authors' Addresses | Author end matter reviewed; no protocol requirements. |
 | Appendix A | Differences from RFC 1725 | All listed changes reviewed, including optional USER/PASS, UID length, state/error clarifications and deletion policy. |
@@ -36,7 +36,7 @@ The complete base text of [RFC1939](https://www.rfc-editor.org/rfc/rfc1939.html)
 
 ## Retrieval is not event commitment
 
-A POP message number is session-local. UIDL is maildrop-scoped bookkeeping and can be shared by identical copies; it is neither a cryptographic identity nor a substitute for an Email Next event reference. Preserve occurrence information separately from verified event deduplication. A repeated retrieval must not repeat an external effect, and a new session number must not create a new conversation contribution.
+A POP message number is session-local. UIDL is maildrop-scoped bookkeeping and can be shared by identical copies; it is neither a cryptographic identity nor a substitute for an Email/2 event reference. Preserve occurrence information separately from verified event deduplication. A repeated retrieval must not repeat an external effect, and a new session number must not create a new conversation contribution.
 
 DELE marks a message until UPDATE. A failing QUIT may leave a partial deletion result, and a lost final response leaves the client uncertain about the server outcome. Durable receipt and event processing must survive either replay or disappearance on the next retrieval. RSET clears marks in the active session; it is not a distributed rollback of application actions.
 

@@ -39,7 +39,7 @@ Automatic setup can prefer protected services while respecting existing account 
 | 5.4 | Exception pinning is setup-only, account-scoped and revocable; not offered on validation failure for an existing account. Distinguish this from authenticated key continuity and HTTP pinning. |
 | 5.5 | Client certificates require account-specific authorization and a server request. Installing one for another account is not permission to disclose it. Supporting clients implement SASL EXTERNAL. |
 | 6 | Intermediary scanners must meet the same transport requirements. End-to-end encryption limits server-side content scanning; this does not authorize decryption or silent fallback. |
-| 7 | Registration changes are specified in the following subsections; no Email Next registration is established. |
+| 7 | Registration changes are specified in the following subsections; no Email/2 registration is established. |
 | 7.1 | Updates TCP pop3s995 registration. |
 | 7.2 | Updates TCP imaps993 registration; no UDP registration changes. |
 | 7.3 | Registers TCP submissions465 as an alternate use. Reported erratum5326 clarifies historical smtps wording and submission/relay distinction; not an accepted normative correction. |
@@ -52,7 +52,7 @@ Automatic setup can prefer protected services while respecting existing account 
 
 | Front and end matter | Abstract, standards status, copyright, acknowledgements and author addresses reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Filter discovered services against the account's security requirements before ranking eligible endpoints. Do not send credentials merely to test whether a discovered configuration works when its connection fails the configured minimum. A connection failure does not amend account policy or enable ordinary-mail fallback.
 

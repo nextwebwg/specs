@@ -5,7 +5,7 @@ sectionNav: true
 
 # No-mail-service signaling audit
 
-Email Next preserves explicit no-mail-service failures. They must not become discovery invitations, encryption downgrade triggers or repeated attempts to contact a nonexistent mailbox.
+Email/2 preserves explicit no-mail-service failures. They must not become discovery invitations, encryption downgrade triggers or repeated attempts to contact a nonexistent mailbox.
 
 **Coverage:** complete RFC 7504 and RFC 7505 texts, references and metadata reviewed on 19 October 2026. Neither has an erratum in the consulted datasets. Both are Proposed Standards; retrieved metadata lists no subsequent updates or replacements. Dependency and current-registry review remain open.
 

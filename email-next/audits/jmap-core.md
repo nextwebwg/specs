@@ -18,7 +18,7 @@ The complete captured [RFC8620](https://www.rfc-editor.org/rfc/rfc8620.html) tex
 | 1.4 | The Date and UTCDate Data Types | Date formats do not establish causal ordering or trusted time. |
 | 1.5 | JSON as the Data Encoding Format | I-JSON decoding precedes object interpretation. |
 | 1.6 | Terminology | User, account and record roles remain distinct. |
-| 1.6.1 | User | A service user is not automatically an Email Next principal. |
+| 1.6.1 | User | A service user is not automatically an Email/2 principal. |
 | 1.6.2 | Accounts | Shared accounts and primary accounts do not define conversation authority. |
 | 1.6.3 | Data Types and Records | Records belong to account/type namespaces. |
 | 1.7 | The JMAP API Model | Batched method calls and separate binary transfers are retrieval mechanisms. |
@@ -74,13 +74,13 @@ The complete captured [RFC8620](https://www.rfc-editor.org/rfc/rfc8620.html) tex
 | 8.6 | Connection to Unknown Push Server | Constrain outbound destinations, subscription count and creation rates; verification is not proof of benign service. |
 | 8.7 | Push Encryption | Third-party push requires encryption and rejection of unprotected notifications; algorithm agility is external. |
 | 8.8 | Traffic Analysis | Encryption does not conceal correlated request and notification timing. |
-| 9 | IANA Considerations | Registration rules do not establish adoption of Email Next. |
+| 9 | IANA Considerations | Registration rules do not establish adoption of Email/2. |
 | 9.1 | Assignment of jmap Service Name | Service-name allocation supports discovery, not endpoint trust. |
 | 9.2 | Registration of Well-Known URI Suffix for JMAP | The jmap well-known suffix locates a session resource. |
 | 9.3 | Registration of the jmap URN Sub-namespace | Registered JMAP URNs have a defined namespace owner and registry. |
 | 9.4 | Creation of "JMAP Capabilities" Registry | Capability URI registration is administrative; review depends on intended use. |
 | 9.4.1 | Preliminary Community Review | Community review is recommended for common-use capabilities. |
-| 9.4.2 | Submit Request to IANA | Submission destination is specified; no Email Next registration was submitted. |
+| 9.4.2 | Submit Request to IANA | Submission destination is specified; no Email/2 registration was submitted. |
 | 9.4.3 | Designated Expert Review | Expert review checks documentation, collisions and relevant IETF work. |
 | 9.4.4 | Change Procedures | Changes use review procedures; entries become obsolete rather than being deleted. |
 | 9.4.5 | JMAP Capabilities Registry Template | Registration template includes security/privacy and change control. |
@@ -100,7 +100,7 @@ The [RFC information page](https://www.rfc-editor.org/info/rfc8620/) identifies 
 
 The captured errata registry contains verified [5791](https://www.rfc-editor.org/errata/eid5791), correcting a missing comma and the plural maxConcurrentRequests property in the session example. It also contains five Reported entries: [6603](https://www.rfc-editor.org/errata/eid6603) on upToId and old/new result positions, [6604](https://www.rfc-editor.org/errata/eid6604) on sparse-query invalidation, [6605](https://www.rfc-editor.org/errata/eid6605) on empty-result position, [6606](https://www.rfc-editor.org/errata/eid6606) on explicitly requesting core capability, and [6607](https://www.rfc-editor.org/errata/eid6607) on creation identifiers in update/destroy keys. They are not treated as approved corrections. The live all-status listing on 20 October 2026 matches all six captured records, including original/corrected text and notes; current metadata matches the recorded relationships.
 
-The adapter conservatively rebuilds an uncertain sparse query view instead of retaining potentially shifted positions. This is an Email Next requirement addressing the reported issue, not silent amendment of RFC8620.
+The adapter conservatively rebuilds an uncertain sparse query view instead of retaining potentially shifted positions. This is an Email/2 requirement addressing the reported issue, not silent amendment of RFC8620.
 
 ## Examples and implementation limits
 

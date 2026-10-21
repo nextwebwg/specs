@@ -16,6 +16,10 @@ The sender decides what should happen when someone cannot receive an encrypted c
 
 The policy applies to this contribution and its intended audience. An encrypted copy does not make every other copy confidential.
 
+The [encryption journey](encryption-journey.md) applies these permissions to first contact, mixed recipients, device changes and recovery without requiring repeated routine decisions.
+
+The [module framework](modules.md) also treats content encryption, sender masking, recipient masking and identity verification independently. Remembered address-privacy requirements can hold an otherwise encrypted copy; permitted automatic upgrades select newly available protection without asking the person to edit addresses. The [swap sequence](private-routing.md#when-the-addresses-change) defines the exact composition, encryption, outer origination and receive-display boundaries.
+
 ## Per-recipient outcomes
 
 | Effective permission | Compatible authenticated endpoint available | No compatible endpoint available |
@@ -49,9 +53,9 @@ Readable alternatives of a protected copy belong inside its protection envelope.
 
 ### Mixed delivery and the message's confidentiality status
 
-[RFC9787 Section 3.2](https://www.rfc-editor.org/rfc/rfc9787.html#section-3.2) recommends avoiding copies of one message with different end-to-end protection. Email Next deliberately permits sender-selected fallbacks for incremental adoption. This is a scoped departure from that recommendation, not a claim that mixed delivery provides uniform confidentiality.
+[RFC9787 Section 3.2](https://www.rfc-editor.org/rfc/rfc9787.html#section-3.2) recommends avoiding copies of one message with different end-to-end protection. Email/2 deliberately permits sender-selected fallbacks for incremental adoption. This is a scoped departure from that recommendation, not a claim that mixed delivery provides uniform confidentiality.
 
-[Section 9.6](https://www.rfc-editor.org/rfc/rfc9787.html#section-9.6) explains the downstream problem: a recipient who receives an encrypted copy may assume that a reply to everyone can also be encrypted. Email Next makes the fallback permission explicit and carries the contribution's broader disclosure status to upgraded recipients. It also composes replies as new contributions, without automatically quoting earlier content. This permits gradual adoption while retaining encryption on compatible deliveries. It does not recover confidentiality lost through an ordinary copy, and a legacy recipient may not understand the structured disclosure indication.
+[Section 9.6](https://www.rfc-editor.org/rfc/rfc9787.html#section-9.6) explains the downstream problem: a recipient who receives an encrypted copy may assume that a reply to everyone can also be encrypted. Email/2 makes the fallback permission explicit and carries the contribution's broader disclosure status to upgraded recipients. It also composes replies as new contributions, without automatically quoting earlier content. This permits gradual adoption while retaining encryption on compatible deliveries. It does not recover confidentiality lost through an ordinary copy, and a legacy recipient may not understand the structured disclosure indication.
 
 A reply therefore gets its own recipient plan. The original sender's fallback permission is not permission on behalf of the replying person. If that person's effective policy requires encryption, an unavailable recipient remains pending; receipt of a mixed-protection message does not weaken that policy. Deliberately including earlier protected content still requires evaluating its disclosure to the new audience.
 
@@ -163,7 +167,7 @@ The absence of a Bcc field does not prove that no blind recipients existed. A cl
 
 [RFC 9787 §9.4.1](https://www.rfc-editor.org/rfc/rfc9787.html#section-9.4.1) offers a certificate-based construction: one main copy and a separate copy for each blind recipient, with that separate copy also decryptable by the named recipients. Its cryptographic payload contains no Bcc field, and blind-recipient certificates are not distributed with the message.
 
-Email Next's managed MLS group has a member-visible roster. Adding a blind recipient to that group would disclose their membership, so this profile prohibits doing so. A private recipient instead needs a separately authorized delivery under the selected policy. This is a structural difference from the certificate-based construction, not evidence that MLS hides recipients. Creating a separate group with all named recipients would still reveal its membership to those members.
+Email/2's managed MLS group has a member-visible roster. Adding a blind recipient to that group would disclose their membership, so this profile prohibits doing so. A private recipient instead needs a separately authorized delivery under the selected policy. This is a structural difference from the certificate-based construction, not evidence that MLS hides recipients. Creating a separate group with all named recipients would still reveal its membership to those members.
 
 The ordinary-header alternatives above do not override the stricter no-Bcc-payload rule when implementing RFC 9787's certificate-based construction. Likewise, a hidden delivery must not leak through shared event audiences, device advertisements or history. A fresh reply needs its own audience and protection decision; a blind copy does not establish that its recipient can reply through the visible MLS group.
 
@@ -204,7 +208,7 @@ An SMTP/LMTP refusal, Sieve rejection, DSN or MDN MUST NOT by itself authorize c
 
 ### Historical receipt semantics
 
-A legacy disposition report MUST NOT establish reading comprehension, consent, structured-answer submission, device-key possession or irreversible deletion. Its absence MUST NOT trigger an encryption downgrade or be treated as proof of client incompatibility. Manual message action and manual permission to send a report are distinct report modes, not authorization for an Email Next operation.
+A legacy disposition report MUST NOT establish reading comprehension, consent, structured-answer submission, device-key possession or irreversible deletion. Its absence MUST NOT trigger an encryption downgrade or be treated as proof of client incompatibility. Manual message action and manual permission to send a report are distinct report modes, not authorization for an Email/2 operation.
 
 Use RFC8098 for current MDN generation rather than copying contradictory removed disposition values from RFC3798. Preserve unknown historical reports for inspection without synthesizing actions or error-response loops. See the [historical MDN audit](audits/mdn-history.md).
 

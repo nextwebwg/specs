@@ -31,7 +31,7 @@ The complete base text of [RFC2646](https://www.rfc-editor.org/rfc/rfc2646.html)
 | 8 | IANA Considerations | Requests text/plain registration reference; current registry verification remains separate. |
 | 9 | Internationalization Considerations | Bidi and charset-sensitive wrapping require care; historical internationalization limits help explain replacement DelSp support. |
 | 10 | Acknowledgments | Acknowledgments reviewed. |
-| 11 | References | All references reviewed; historical SMTP, ABNF and HTML references are not adopted as current Email Next baselines. |
+| 11 | References | All references reviewed; historical SMTP, ABNF and HTML references are not adopted as current Email/2 baselines. |
 | 12 | Editor's Address | Editor contact end matter reviewed; no protocol requirements. |
 | 13 | Full Copyright Statement | Copyright and closing acknowledgment reviewed; no additional wire semantics. |
 

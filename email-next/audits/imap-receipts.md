@@ -32,7 +32,7 @@ sectionNav: true
 
 `$MDNSent` means that another receipt must be suppressed. It may represent a refusal to send, a saved sent copy or an unfinished draft. It does not prove an MDN was transmitted, delivered or read. A client must preserve that distinction in its interface and state model.
 
-The profile does not specify an atomic claim spanning IMAP state and SMTP submission. Concurrent clients can both observe an absent marker, and a crash can occur between storage and sending. This is an inference from the described operations, not a claim that the RFC promises exactly-once behavior. Any stronger Email Next guarantee requires an explicit coordination and recovery contract.
+The profile does not specify an atomic claim spanning IMAP state and SMTP submission. Concurrent clients can both observe an absent marker, and a crash can occur between storage and sending. This is an inference from the described operations, not a claim that the RFC promises exactly-once behavior. Any stronger Email/2 guarantee requires an explicit coordination and recovery contract.
 
 ## Current-protocol reconciliation
 

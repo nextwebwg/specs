@@ -7,7 +7,7 @@ sectionNav: true
 
 # Mailbox integration
 
-A mailbox service stores and delivers messages; Email Next builds the conversation from the contributions inside them. Keeping those roles separate lets clients use an existing account without treating provider folders, threads or record identifiers as proof of authorship.
+A mailbox service stores and delivers messages; Email/2 builds the conversation from the contributions inside them. Keeping those roles separate lets clients use an existing account without treating provider folders, threads or record identifiers as proof of authorship.
 
 This chapter defines proposed adapter behavior for IMAP4rev1, IMAP4rev2, JMAP core, JMAP Mail and the reviewed blob and sharing extensions. It does not require a provider to adopt JMAP or replace SMTP. The [transport chapter](transport.md) governs sending and retrying deliveries; this chapter governs access to stored messages and optional mailbox services.
 
@@ -23,7 +23,7 @@ The adapter has four jobs:
 
 ## IMAP access
 
-An IMAP client can retrieve messages and learn about mailbox changes without a server upgrade specific to Email Next. It then verifies contributions locally and reconstructs the conversation. The mailbox remains usable by ordinary clients; IMAP does not supply an invisible control-message format.
+An IMAP client can retrieve messages and learn about mailbox changes without a server upgrade specific to Email/2. It then verifies contributions locally and reconstructs the conversation. The mailbox remains usable by ordinary clients; IMAP does not supply an invisible control-message format.
 
 > [!ex] A message moves to another folder
 > Bob moves an answer from Inbox to a project folder. Its mailbox UID changes, but its authenticated contribution identity does not. The conversation still contains one answer, and moving it does not submit the answer again.
@@ -52,7 +52,7 @@ Avoid unintended deletion during synchronization: `CLOSE` can expunge messages m
 
 ### Capabilities and compatibility
 
-Refresh capabilities after TLS or authentication changes as required by IMAP. Advertisement and enablement are separate: on a dual rev1/rev2 server, use the required explicit rev2 enablement before depending on its incompatible behavior. An IMAP capability does not establish recipient-device support for Email Next.
+Refresh capabilities after TLS or authentication changes as required by IMAP. Advertisement and enablement are separate: on a dual rev1/rev2 server, use the required explicit rev2 enablement before depending on its incompatible behavior. An IMAP capability does not establish recipient-device support for Email/2.
 
 Base rev1 does not include IDLE, MOVE, UNSELECT or BINARY. Use NOOP polling when no applicable notification extension is enabled, and do not send newer commands or string encodings without their negotiated support. A `UID n:*` range can include an older highest UID even when `n` is larger, so inspect returned identifiers rather than treating every result as newly arrived. Original headers are needed for ordinary References relationships; the rev1 ENVELOPE has no References field.
 
@@ -67,7 +67,7 @@ A rev1 adapter needs its own compatibility tests; passing rev2 cases is insuffic
 > [!ex] The same message in two accounts
 > Alice keeps a message in her personal mailbox and a copy in a shared project mailbox. The mail service may assign different record identifiers to the copies. That does not create two independently authored contributions or authorize an interaction to run twice.
 
-A mailbox adapter MUST scope a JMAP record identifier by service, account and data type. A record identifier alone is not globally unique. A JMAP account is a collection of data that may be shared by several users; access to that collection MUST NOT be treated as proof that those users are one Email Next principal.
+A mailbox adapter MUST scope a JMAP record identifier by service, account and data type. A record identifier alone is not globally unique. A JMAP account is a collection of data that may be shared by several users; access to that collection MUST NOT be treated as proof that those users are one Email/2 principal.
 
 Reconstruct conversation relationships from authenticated event identities and available message records, not from equality of provider record identifiers. Preserve the distinction between removing a mailbox copy and withdrawing a contribution under the conversation protocol.
 
@@ -79,7 +79,7 @@ These adapter boundaries use the account and record scopes defined in [RFC8620 �
 
 A JMAP capability advertisement describes the authenticated service and, where applicable, the particular account. A sender MUST NOT infer recipient-device support, encryption keys or permission to perform a conversation action from a server-level capability. Before using an account method, check that account's advertised capability and opt into the extension in the request's `using` list. Unknown capability properties do not grant additional authority.
 
-Treat the session state as an opaque change indicator. When it changes, refresh the session information and reconcile accessible accounts, permissions and service endpoints. A removed account or reduced permission must not trigger a retry against another account merely because it is marked primary. Primary-account selection is a service default, not a binding between a mailbox and an Email Next principal.
+Treat the session state as an opaque change indicator. When it changes, refresh the session information and reconcile accessible accounts, permissions and service endpoints. A removed account or reduced permission must not trigger a retry against another account merely because it is marked primary. Primary-account selection is a service default, not a binding between a mailbox and an Email/2 principal.
 
 Apply the service's advertised request, upload and concurrency limits to that connection. These limits do not define conversation membership limits or authorize dropping authenticated history. The session and account capability rules are defined in [RFC8620 §2](https://www.rfc-editor.org/rfc/rfc8620.html#section-2).
 
@@ -89,7 +89,7 @@ Discovering a JMAP session URL does not itself authorize sending credentials to 
 
 JMAP method-call identifiers correlate responses with requests; they are not deduplication tokens for conversation events. A method may emit more than one response with the same call identifier. An adapter MUST NOT interpret response count as the number of new contributions or use a repeated call identifier as proof that a retried mutation had no additional effect.
 
-Service discovery and invocation formats are defined in [RFC8620 §§2.2–3.3](https://www.rfc-editor.org/rfc/rfc8620.html#section-2.2). Credential scoping and separation from event identity are Email Next adapter requirements.
+Service discovery and invocation formats are defined in [RFC8620 §§2.2–3.3](https://www.rfc-editor.org/rfc/rfc8620.html#section-2.2). Credential scoping and separation from event identity are Email/2 adapter requirements.
 
 ## Partial mailbox operations
 
@@ -138,7 +138,7 @@ A JMAP query state describes the ordered identifiers matching one type, filter a
 
 Keep query caches scoped to the account, type, filter, sort and applicable query options that produced them. For Email/query, preserve the collapseThreads setting when requesting changes; collapsed and uncollapsed results are different views. On a changed query state, refresh the identifier list or apply a valid query change response to the matching prior state. If the server cannot calculate changes, rebuild that query cache. Missing anchors and unsupported filters are retrieval outcomes; they do not establish that the conversation or its messages no longer exist.
 
-A query change may remove and reinsert the same identifier to reflect its changed position. Apply removals before ordered insertions as specified by JMAP. Removal from a search result MUST NOT be treated as deletion of the underlying message, withdrawal of an answer or revocation of a participant. A stable provider sort order likewise does not establish authenticated causal order. If a sparse query cache cannot place a removed identifier, invalidate and rebuild the affected query view rather than retain uncertain positions beyond its gaps. This is an Email Next adapter requirement addressing the ambiguity described in [reported erratum 6604](https://www.rfc-editor.org/errata/eid6604), not a claim that the proposed RFC correction has been approved.
+A query change may remove and reinsert the same identifier to reflect its changed position. Apply removals before ordered insertions as specified by JMAP. Removal from a search result MUST NOT be treated as deletion of the underlying message, withdrawal of an answer or revocation of a participant. A stable provider sort order likewise does not establish authenticated causal order. If a sparse query cache cannot place a removed identifier, invalidate and rebuild the affected query view rather than retain uncertain positions beyond its gaps. This is an Email/2 adapter requirement addressing the ambiguity described in [reported erratum 6604](https://www.rfc-editor.org/errata/eid6604), not a claim that the proposed RFC correction has been approved.
 
 These query rules follow [RFC8620 §§5.5–5.6](https://www.rfc-editor.org/rfc/rfc8620.html#section-5.5). Reconstruct the conversation from validated individual contributions, independently of how the mailbox service pages or sorts their records.
 
@@ -158,16 +158,16 @@ A JMAP push notification tells a client which account data may need synchronizat
 
 A push may arrive while a mailbox write is still in progress. Reconcile the returned state and the client's prior state before deciding that a further fetch is unnecessary. A notification state token is not an ordered counter; do not compare tokens numerically or use notification arrival order to choose between competing answers.
 
-For subscriptions through a third-party push service, use the encryption required by JMAP and reject notifications that do not satisfy that protection. Protect subscription URLs and keys as device-private data. Subscription lifetime follows the credentials that created it; revoking those credentials must not leave a live notification channel. Subscription delivery proves neither ownership of an Email Next author identity nor consent to a new conversation participant.
+For subscriptions through a third-party push service, use the encryption required by JMAP and reject notifications that do not satisfy that protection. Protect subscription URLs and keys as device-private data. Subscription lifetime follows the credentials that created it; revoking those credentials must not leave a live notification channel. Subscription delivery proves neither ownership of an Email/2 author identity nor consent to a new conversation participant.
 
 A direct event stream avoids a separate push intermediary where the platform permits a persistent connection. Its reconnect cursor and ping events serve mailbox synchronization and connection health only. Neither is a conversation event identifier or a freshness proof for identity keys. These mechanisms are specified in [RFC8620 §7](https://www.rfc-editor.org/rfc/rfc8620.html#section-7), with third-party encryption requirements in [§8.7](https://www.rfc-editor.org/rfc/rfc8620.html#section-8.7).
 
-An Email Next provider operating push callbacks must constrain outbound destinations and request rates, including verification requests. Verification proves receipt of a challenge, not that the destination is a safe service. Prevent access to internal services through destination resolution or redirects; retain those restrictions on subsequent requests. Push metadata encryption does not conceal traffic timing from observers.
+An Email/2 provider operating push callbacks must constrain outbound destinations and request rates, including verification requests. Verification proves receipt of a challenge, not that the destination is a safe service. Prevent access to internal services through destination resolution or redirects; retain those restrictions on subsequent requests. Push metadata encryption does not conceal traffic timing from observers.
 
 
 ## Optional blob and sharing capabilities
 
-Negotiate JMAP extensions at their defined session and account scopes. Core JMAP support alone does not imply support for inline blob methods or principal-directory methods. A directory principal identifier remains scoped to its containing service and account; an editable name, email substring match or account-owner link cannot substitute for verified Email Next identity binding.
+Negotiate JMAP extensions at their defined session and account scopes. Core JMAP support alone does not imply support for inline blob methods or principal-directory methods. A directory principal identifier remains scoped to its containing service and account; an editable name, email substring match or account-owner link cannot substitute for verified Email/2 identity binding.
 
 When using [JMAP blob management](https://www.rfc-editor.org/rfc/rfc9404.html), distinguish a complete attachment from a returned range. The returned size describes the whole blob, while a returned digest describes the selected bytes. A partial or truncated response MUST NOT satisfy a full-attachment integrity check. Validate the final assembled bytes against the contribution's authenticated resource binding. Provider-supported digest preferences do not override the selected content-protection profile.
 
@@ -175,12 +175,12 @@ Blob reverse lookup must preserve the protocol's indistinguishable result for in
 
 Under [JMAP sharing](https://www.rfc-editor.org/rfc/rfc9670.html), an unsubscribed shared account may disappear from the session and its push updates without loss of access permission. Conversely, a stored sharing notification may outlive the permission it described. Fetch current permissions when the operation needs them, and validate encrypted-conversation membership independently. Dismissing a notification changes neither permission nor group membership.
 
-Sharing notifications can be coalesced, expired, evicted or omitted for groups. They MUST NOT serve as a complete membership history or as proof that rights remained unchanged. Account-owner rights are implicit in JMAP sharing, so a shareWith map alone is not a complete audience. Mapping provider access to an Email Next audience requires an explicit authorized operation; merely discovering existing mailbox access must not add recipients or devices to encrypted content.
+Sharing notifications can be coalesced, expired, evicted or omitted for groups. They MUST NOT serve as a complete membership history or as proof that rights remained unchanged. Account-owner rights are implicit in JMAP sharing, so a shareWith map alone is not a complete audience. Mapping provider access to an Email/2 audience requires an explicit authorized operation; merely discovering existing mailbox access must not add recipients or devices to encrypted content.
 
 
 ## Mail access, sending and new-message signals
 
-JMAP Mail advertises mail access, submission and vacation-response support separately for each account. A client with access to a shared mailbox must not assume it can send as that account. Select the account and its supported submission identity explicitly; mailbox visibility does not authorize an Email Next author identity.
+JMAP Mail advertises mail access, submission and vacation-response support separately for each account. A client with access to a shared mailbox must not assume it can send as that account. Select the account and its supported submission identity explicitly; mailbox visibility does not authorize an Email/2 author identity.
 
 The advertised attachment-size limit measures unencoded attachment bytes. It does not guarantee that the resulting MIME message fits the server's separate message-size limit. Account for message bodies, headers and transfer encoding before submission, and preserve a server rejection without silently removing attachments or weakening protection.
 
@@ -189,7 +189,7 @@ The EmailDelivery push type signals new Email objects added to a store. It is no
 
 ## Provider thread changes and mailbox permissions
 
-A provider's thread is a retrieval grouping, not the authenticated Email Next conversation. JMAP Mail permits different threading algorithms and orders a thread's messages by received date. It may merge threads by deleting and reinserting affected Email records with new identifiers. Preserve event deduplication across those provider-record changes: the same authenticated contribution must not apply an answer or reaction twice merely because it now has another mailbox identifier.
+A provider's thread is a retrieval grouping, not the authenticated Email/2 conversation. JMAP Mail permits different threading algorithms and orders a thread's messages by received date. It may merge threads by deleting and reinserting affected Email records with new identifiers. Preserve event deduplication across those provider-record changes: the same authenticated contribution must not apply an answer or reaction twice merely because it now has another mailbox identifier.
 
 Retain the distinction between mailbox access and conversation authority. JMAP permits fetching an Email when at least one containing mailbox grants read access, while changing seen status or other keywords requires the corresponding permission across all containing mailboxes. Do not infer those write permissions from successful retrieval. Provider read flags and unread counts are display metadata, not signed read receipts or evidence of conversation completeness.
 
@@ -204,23 +204,23 @@ For checks that cover the original message or MIME representation, retrieve the 
 
 Individual JMAP header properties select the last matching field unless all instances are requested. A convenience From or Message-ID value therefore does not establish that the original contains only one such field. Checks that depend on uniqueness or header order must inspect all relevant original fields.
 
-A best-effort parsed address may not be syntactically valid for delivery. Validate a proposed destination before sending, and establish identity through the selected security profile. A provider's parsed From value, mailbox keyword or received timestamp does not authenticate an Email Next author. These distinctions follow [RFC8621 §§4.1.1–4.1.2](https://www.rfc-editor.org/rfc/rfc8621.html#section-4.1.1).
+A best-effort parsed address may not be syntactically valid for delivery. Validate a proposed destination before sending, and establish identity through the selected security profile. A provider's parsed From value, mailbox keyword or received timestamp does not authenticate an Email/2 author. These distinctions follow [RFC8621 §§4.1.1–4.1.2](https://www.rfc-editor.org/rfc/rfc8621.html#section-4.1.1).
 
 
 ## Body previews and interactive content
 
 A JMAP body value can use heuristic charset decoding, normalize line endings and replace malformed text. Its truncation and encoding-problem indicators must remain attached to that projection. A truncated preview is not the complete question, answer, authorization statement or authenticated structured payload.
 
-Before enabling an Email Next control, obtain and validate its complete structured contribution and required readable binding under the selected profile. Do not activate a control inferred from a provider preview, repaired text, attachment flag or flattened body list. A client may show a clearly identified preview while the complete content is unavailable, without presenting omitted content as verified or authorizing an action from it.
+Before enabling an Email/2 control, obtain and validate its complete structured contribution and required readable binding under the selected profile. Do not activate a control inferred from a provider preview, repaired text, attachment flag or flattened body list. A client may show a clearly identified preview while the complete content is unavailable, without presenting omitted content as verified or authorizing an action from it.
 
 Provider textBody and htmlBody lists can contain multiple parts and overlap with the attachment list. Their decomposition algorithm is not mandated by JMAP. Preserve part identity and MIME context when resolving resources; do not duplicate a contribution because one part appears in several projections. A part identifier is local to its Email object. Attached message bodies require separate parsing and must not be merged into the enclosing author's contribution.
 
-Unknown transfer encodings and charset repairs in provider projections do not relax Email Next's strict payload decoding. Use the original representation where those checks require it. These boundaries follow [RFC8621 §§4.1.3–4.2](https://www.rfc-editor.org/rfc/rfc8621.html#section-4.1.3).
+Unknown transfer encodings and charset repairs in provider projections do not relax Email/2's strict payload decoding. Use the original representation where those checks require it. These boundaries follow [RFC8621 §§4.1.3–4.2](https://www.rfc-editor.org/rfc/rfc8621.html#section-4.1.3).
 
 
 ## Expanding search results into a conversation
 
-A collapsed JMAP Mail query returns at most one matching Email per provider thread, selected after filtering and sorting. It does not return the complete thread or prove that all conversation contributions are present. Use the representative to retrieve the accessible thread records as needed, then resolve authenticated Email Next relationships independently. Keep missing or inaccessible predecessors explicit.
+A collapsed JMAP Mail query returns at most one matching Email per provider thread, selected after filtering and sorting. It does not return the complete thread or prove that all conversation contributions are present. Use the representative to retrieve the accessible thread records as needed, then resolve authenticated Email/2 relationships independently. Keep missing or inaccessible predecessors explicit.
 
 Provider text search is a discovery aid. Matching rules can include case folding, tokenization, stemming and provider-specific indexing; a matching From search is not exact address verification. Absence from search results is not proof that an authenticated event never existed. A provider cannot be assumed to search plaintext that it cannot decrypt, so encrypted content search requires an explicitly defined client or service mechanism.
 
@@ -247,7 +247,7 @@ Associate each snippet using its emailId and account, not response position. A n
 
 ## Submission identity and recipient status
 
-A JMAP Identity supplies sending preferences and provider permission, not an Email Next cryptographic identity. Apply its suggested Reply-To, Bcc and signature before finalizing the authorized audience and protected content. An automatic archive Bcc must not silently add a reader after encryption policy has been selected. HTML signatures pass through the same content rules as other composed HTML.
+A JMAP Identity supplies sending preferences and provider permission, not an Email/2 cryptographic identity. Apply its suggested Reply-To, Bcc and signature before finalizing the authorized audience and protected content. An automatic archive Bcc must not silently add a reader after encryption policy has been selected. HTML signatures pass through the same content rules as other composed HTML.
 
 Bind the selected submission envelope to the authorized transport recipients. If relying on provider-generated envelope defaults, verify that they preserve that selection; header-derived defaults and provider identity substitutions must not silently change who receives the contribution. A wildcard send-from permission does not establish a verified key binding for every address in that domain.
 
@@ -268,7 +268,7 @@ JMAP submission removes Bcc headers and permits other provider-policy alteration
 
 A provider vacation response is a separate automated message. It must not be represented as the user's structured answer, a key-verification response or consent to an action. Apply the existing automatic-response loop and disclosure rules. If the provider cannot meet the configured protection policy for automated replies, the client must make that limitation visible when configuring them; account access alone does not authorize release of endpoint encryption keys to generate a response.
 
-Submission effects and vacation behavior are specified in [RFC8621 §§7.5–8](https://www.rfc-editor.org/rfc/rfc8621.html#section-7.5). An ordinary automatic reply does not gain Email Next authentication merely because it was triggered by an encrypted incoming message.
+Submission effects and vacation behavior are specified in [RFC8621 §§7.5–8](https://www.rfc-editor.org/rfc/rfc8621.html#section-7.5). An ordinary automatic reply does not gain Email/2 authentication merely because it was triggered by an encrypted incoming message.
 
 
 ## Partial account views

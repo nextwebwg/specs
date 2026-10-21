@@ -7,8 +7,18 @@ sectionNav: true
 
 # Presentation profile 1
 
-This is a proposed interoperable rendering vocabulary for newly generated Email Next messages. It is an editorial draft, not a registered profile or a claim of implementation conformance. Legacy display uses a separate compatibility path and preserves the received source.
+This is a proposed interoperable rendering vocabulary for newly generated Email/2 messages. It is an editorial draft, not a registered profile or a claim of implementation conformance. Legacy display uses a separate compatibility path and preserves the received source.
 
+
+## Required Email/2 presentation {#required-presentation}
+
+The defined HTML/CSS presentation is a required part of the Email/2 client baseline. A conforming reading client MUST implement `html-css-v0` as specified in this chapter, including parsing, filtering, resource handling, client-owned styles and failure behavior. A composing client MUST generate supported HTML whenever it supplies an HTML body. There is no text-only Email/2 client conformance class: substituting a plain-text alternative because the client lacks the required renderer does not satisfy this requirement. A transport-only server does not need to render messages.
+
+HTML/CSS is the shared presentation format, not an optional enhancement that each client may approximate differently. This does not require arbitrary web content, identical pixels or an HTML body on every protocol event. Text-bearing operations and client-owned interaction controls retain their exact schemas; their readable presentation is constructed under the selected presentation contract. The separately versioned reply-content extension is not enabled merely by baseline support.
+
+Plain-text MIME alternatives remain compatibility representations for existing email clients. Existing carriers that require them still require them. Structured `text` fields remain available for matching, indexing, accessible reading and explicit text views; they do not provide an alternative route to client conformance. This requirement does not remove text fields or change an immutable wire schema.
+
+A reader may choose a simpler text view, and accessibility preferences may override sender styling. Malformed content, failed authentication, unavailable resources and processing limits retain their specified safe handling. A client may expose a diagnostic text view or the original when rich presentation fails, but MUST NOT treat that recovery as successful rendering of a conforming HTML/CSS message. An unsupported optional extension stays unsupported; no such failure authorizes interactive effects or weakened delivery protection.
 
 ## Processing order
 
@@ -36,7 +46,7 @@ Document wrappers `html`, `head` and `body` are structural. Only `meta charset="
 
 Remove comments. Remove these elements with their subtrees: `script style template iframe frame frameset object embed applet noscript textarea select option button input video audio source track canvas` and all foreign-namespace subtrees. They cannot supply hidden required meaning. Remove any other unlisted wrapper while retaining and recursively filtering its children. In particular, an imported `form` wrapper cannot submit anything; its surviving text may remain readable. New generators emit only the allowed vocabulary.
 
-A plain-text alternative must contain every substantive contribution. If discarded content carries indispensable meaning, the authoring client must correct the message before sending; a receiver can expose the readable alternative and a nonconformance notice.
+A plain-text compatibility alternative must contain every substantive contribution. It does not replace the required Email/2 HTML/CSS presentation. If discarded content carries indispensable meaning, the authoring client must correct the message before sending; a receiver can expose the readable alternative and a nonconformance notice.
 
 ## Prohibited-container recovery policy
 
@@ -74,7 +84,9 @@ Language processing MUST NOT fetch registry data in response to a message, rewri
 | th | scope: row, col, rowgroup, colgroup |
 | col, colgroup | span |
 
-No other attributes survive, including event handlers, custom data attributes, IDs, classes, ARIA overrides, hidden, tabindex, contenteditable, download, target, ping and srcset. Native semantic elements supply accessibility roles. Client-rendered interaction controls are outside this sender-authored tree.
+The separately proposed [reply-content presentation](reply-content.md#microdata-vocabulary) permits only its scoped Microdata, wrapper IDs and metadata under a new profile. It does not widen this baseline or allow a renderer to claim support before implementing that profile.
+
+No other baseline attributes survive, including event handlers, custom data attributes, IDs, classes, ARIA overrides, hidden, tabindex, contenteditable, download, target, ping and srcset. Native semantic elements supply accessibility roles. Client-rendered interaction controls are outside this sender-authored tree.
 
 Integer-valued table spans accept decimal integers1–1000; rowspan zero is not supported. Image width/height accept decimal integers1–4096 as preferred CSS-pixel dimensions, bounded further by the available viewport. List counters accept signed decimal integers in the range−2147483648…2147483647. These are proposed profile limits, not inherited HTML limits. Invalid attributes are discarded with a recorded diagnostic.
 

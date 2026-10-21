@@ -53,7 +53,7 @@ A disposition receipt is an optional report of a limited action, not proof of hu
 | 8.2 | Preserve useful recipient/message correlation through translation or tunneling; do not invent exact semantics from lossy mappings. |
 | 8.3 | Drop requests whose distinct notification destination cannot be represented by the foreign system; do not silently redirect to its sender field. |
 | 9 | Full illustrative transcript read; abbreviated returned original is not a complete fixture, grammar wins over example. |
-| 10 | Media registration and three Specification Required parameter registries reviewed; no Email Next registration performed. |
+| 10 | Media registration and three Specification Required parameter registries reviewed; no Email/2 registration performed. |
 | 10.1 | Option registration needs name, grammar, ASCII encoding and public semantic specification. |
 | 10.2 | Modifier registration needs name and stable public semantics. |
 | 10.3 | Extension-field registration needs grammar, encoding and semantics; copied reference to Options header is a wording concern, not alternate field placement. |
@@ -64,7 +64,7 @@ A disposition receipt is an optional report of a limited action, not proof of hu
 
 ## Interpretation boundaries
 
-Section 2.4 says to ignore request fields on individual message fragments, then describes fragment-associated fields during reassembly. Email Next does not turn that wording into permission to emit fragment receipts: use the reassembled inner message and preserve the no-duplicate-report requirement. No retrieved erratum resolves the wording.
+Section 2.4 says to ignore request fields on individual message fragments, then describes fragment-associated fields during reassembly. Email/2 does not turn that wording into permission to emit fragment receipts: use the reassembled inner message and preserve the no-duplicate-report requirement. No retrieved erratum resolves the wording.
 
 Section 3.2.6.3 describes extension modifiers while the grammar and section 3.2.7 retain `error`. Preserve the explicit grammar and Error-field behavior. Section 10.3's encoding instruction mentions the Options header despite discussing extension fields; this audit does not move extension data to that header.
 

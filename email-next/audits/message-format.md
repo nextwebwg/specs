@@ -5,7 +5,7 @@ sectionNav: true
 
 # Internet message format audit
 
-RFC 5322 provides the existing message grammar. Email Next can extend message contents and presentation without replacing that grammar. Author, sender, reply destination, transport trace and conversation relationships remain distinct.
+RFC 5322 provides the existing message grammar. Email/2 can extend message contents and presentation without replacing that grammar. Author, sender, reply destination, transport trace and conversation relationships remain distinct.
 
 **Coverage:** the complete RFC 5322 text, including appendices and references, and all 31 errata in the retrieved snapshot were read and individually assessed on 19 October 2026. This completes the base-document review; dependency, internationalization, registry and deployment audits remain open. RFC 6854 updates originator and resent grammar and is tracked separately. RFC Editor metadata identifies RFC 5322 as Draft Standard; this is its standards maturity label, not an Internet-Draft.
 

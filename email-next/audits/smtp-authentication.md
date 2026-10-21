@@ -39,7 +39,7 @@ Verified erratum 1 fixes three single-line greetings to use a space after 220. V
 
 Held 1019 is editorial; rejected 1020 is not an adopted replacement. The historical 12,288-octet observation for authentication lines is not a universal contemporary buffer limit. Implementations must support the sizes needed by their selected mechanisms.
 
-## Email Next integration
+## Email/2 integration
 
 The [transport contract](../transport.md) preserves session identity, claimed submitter and endpoint author as separate facts. It forbids using login success or a trace label to enroll a key or validate a contribution. Required channel security survives authentication failure, and capability knowledge is refreshed after a negotiated security-layer reset.
 

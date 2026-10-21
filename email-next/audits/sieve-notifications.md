@@ -23,7 +23,7 @@ sectionNav: true
 | 2.7.1 | auto-notified requires owner-email or owner-token, placed above retained original Received fields. Trace segmentation is not authentication; owner-token is an administrative lookup handle, not a secret capability. |
 | 3 | Examples illustrate fresh message identity and retained trace boundary. The prose calls owner-email optional because owner-token is an alternative; at least one remains mandatory. |
 | 4 | Internationalization delegated to Sieve and notification framework; no new Unicode identity normalization. |
-| 5 | Forwarded content can leak confidential information; administrative complaint and loop-remediation mechanisms required. Rate example30/hour is illustrative, not an Email Next limit. Gateways may strip loop markers. Reassigned or mistyped notification addresses remain a risk. |
+| 5 | Forwarded content can leak confidential information; administrative complaint and loop-remediation mechanisms required. Rate example30/hour is illustrative, not an Email/2 limit. Gateways may strip loop markers. Reassigned or mistyped notification addresses remain a risk. |
 | 6 | Registrations change extension governance without changing visibility guarantees. |
 | 6.1 | Registers mailto notification mechanism; original2368 reference needs6068 successor review. |
 | 6.2 | Creates Auto-Submitted keyword registry with Specification Required policy, superseding3834 IETF Consensus requirement for keywords. Does not create an unrestricted negotiation-header namespace. |
@@ -38,7 +38,7 @@ sectionNav: true
 
 The [IANA Auto-Submitted registry](https://www.iana.org/assignments/auto-submitted-keywords/) was checked19October2026. It lists four keywords and uses Specification Required. This closes the specific keyword-registry check, not all registration or dependency work.
 
-## Email Next consequences
+## Email/2 consequences
 
 A Sieve notification is not a hidden negotiation channel. Its configured destination can be different from both the original author and the envelope sender. A notification that quotes or references a structured event must not be processed as a fresh authenticated event merely because it includes familiar fields.
 

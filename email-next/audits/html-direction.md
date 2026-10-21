@@ -11,7 +11,7 @@ Direction belongs to a boundary in the message tree. Copying a direction attribu
 
 This is a scoped review of WHATWG HTML revision `c97dc912b4121294569d6701a21e88880b1e4e1f`, not a complete HTML parser, CSS or Unicode bidi audit. The source file SHA-256 is `d2b3e690add4730aa7f6c3f4575546a1028ba707a425425db9f5ca8995652416`.
 
-| Source lines | Reviewed behavior | Email Next consequence |
+| Source lines | Reviewed behavior | Email/2 consequence |
 | --- | --- | --- |
 | 14760–14875 | Language attributes and language determination | Preserve explicit empty/unknown labels and inheritance; ordinary HTML `xml:lang` is not a substitute |
 | 15004–15388 | Direction attributes and automatic, parent and text direction algorithms | Keep direction boundaries and automatic detection; do not infer direction from language |
@@ -48,7 +48,7 @@ Mixed Hebrew or Arabic text, Latin names, numbers and parentheses can require se
 | Numbers, neutrals and brackets | Resolve weak types, paired brackets and surrounding strong context before assigning implicit levels. Bracket matching is not ordinary punctuation matching. The specified bracket equivalences do not authorize source normalization. |
 | Lines and glyphs | Resolve levels before per-line reordering. Line breaking and shaping need their own rules; mirrored display does not replace stored code points. |
 
-The explicit-depth limit 125 and bracket-stack limit 63 come from UAX9. They are algorithm rules, not Email Next message-size quotas. [Basic algorithm](https://www.unicode.org/reports/tr9/tr9-51.html#Basic_Display_Algorithm).
+The explicit-depth limit 125 and bracket-stack limit 63 come from UAX9. They are algorithm rules, not Email/2 message-size quotas. [Basic algorithm](https://www.unicode.org/reports/tr9/tr9-51.html#Basic_Display_Algorithm).
 
 The selected data dependencies are Unicode17 `Bidi_Class`, `Bidi_Paired_Bracket`, `Bidi_Paired_Bracket_Type` and `Bidi_Mirrored`. The extracted class file includes range-specific defaults: unlisted characters cannot all be treated as left-to-right. Later `@missing` ranges override earlier defaults. `BidiBrackets.txt` supplies the normative bracket properties; `BidiMirroring.txt` is an informative character mapping for only part of mirrored display. A missing mapping does not remove a character's mirroring requirement. [UCD defaults](https://www.unicode.org/reports/tr44/tr44-36.html#Missing_Conventions), [class data](https://www.unicode.org/Public/17.0.0/ucd/extracted/DerivedBidiClass.txt), [bracket data](https://www.unicode.org/Public/17.0.0/ucd/BidiBrackets.txt), [mirroring data](https://www.unicode.org/Public/17.0.0/ucd/BidiMirroring.txt).
 

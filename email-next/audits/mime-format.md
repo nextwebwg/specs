@@ -5,7 +5,7 @@ sectionNav: true
 
 # MIME body-format audit
 
-MIME already separates content type, character encoding and transfer encoding. Email Next retains those layers and adds a versioned content contract. Its version is independent of MIME-Version.
+MIME already separates content type, character encoding and transfer encoding. Email/2 retains those layers and adds a versioned content contract. Its version is independent of MIME-Version.
 
 **Coverage:** complete RFC 2045 text and collected grammar, plus all five retrieved errata records, read and assessed on 19 October 2026. This completes the base-document review. Parameter/internationalization updates, MIME companion documents and current registration rules remain open; in particular, do not extrapolate the original composite-encoding prohibition past later updates without review.
 
@@ -35,7 +35,7 @@ Sources: [RFC 2045](https://www.rfc-editor.org/rfc/rfc2045.html), [metadata](htt
 | 6 — Content-Transfer-Encoding Header Field | Inherited transfer encoding separates transport representation from content meaning. |
 | 6.1 — Content-Transfer-Encoding Syntax | Inherited encoding tokens and default 7bit; casing of the encoding label is insignificant. |
 | 6.2 — Content-Transfer-Encodings Semantics | Inherited single-valued decoding and accurate domain labels; multiple encoded forms may represent identical octets. Later binary transport standards supersede the historical absence of binary SMTP. |
-| 6.3 — New Content-Transfer-Encodings | Inherited discouragement of new transfer encodings; Email Next introduces no new one. Current registration process remains under review. |
+| 6.3 — New Content-Transfer-Encodings | Inherited discouragement of new transfer encodings; Email/2 introduces no new one. Current registration process remains under review. |
 | 6.4 — Interpretation and Use | Inherited entity-local decoding, composite encoding restrictions and opaque handling of unknown encoding. RFC 6532’s update concerning message media types must be reviewed before asserting a universal composite ban. |
 | 6.5 — Translating Encodings | Inherited QP/base64 translation preserves canonical octets; hard line breaks and binary bytes need distinct treatment. |
 | 6.6 — Canonical Encoding Model | Canonicalization dependency: RFC 2049 supplies the full model; not yet reviewed. |

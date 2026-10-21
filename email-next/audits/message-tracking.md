@@ -22,10 +22,10 @@ Tracking retention, transport correlation and recipient disclosure are distinct 
 | 4 | Tracking has retention-resource and confidentiality concerns; it supplies no recipient encryption keys. |
 | 4.1 | Database flooding can lead to shorter retention. Missing tracking knowledge is not evidence that delivery failed. |
 | 4.2 | Protect unpredictable nonreused secrets, including in shared Sent stores. Operators may stop tracking at aliases to preserve identity and topology privacy. |
-| 5 | Registers MTRK extension; no Email Next registration or invisible message type. |
+| 5 | Registers MTRK extension; no Email/2 registration or invisible message type. |
 | 6 | Acknowledgements reviewed. |
 | 7 | Reference classification reviewed; tracking dependencies remain open. |
-| 7.1 | 3887 query and3888 model plus cryptographic/randomness dependencies require review before implementation; no SHA1 construction adopted for Email Next. |
+| 7.1 | 3887 query and3888 model plus cryptographic/randomness dependencies require review before implementation; no SHA1 construction adopted for Email/2. |
 | 7.2 | DSN3461 and modern MDN8098 remain pending; lifetime and randomness references identify additional dependencies. |
 | 8 | Author addresses reviewed; no protocol semantics. |
 | 9 | Copyright, warranty, IPR and funding end matter reviewed. |
@@ -38,7 +38,7 @@ The text calls SHA-1 output 128 bits in section 3.1 but 160 bits in section 3.2.
 
 These observations prevent treating the text as a ready-made new security profile. They do not justify changing the deployed MTRK wire format locally or claiming that a particular interpretation interoperates.
 
-## Email Next consequence
+## Email/2 consequence
 
 Keep tracking authorization and secrets out of public conversation metadata. Never use a tracking token as an encryption key or proof of authorship. Preserve the difference between a transport submission identifier, a message identifier and an application event identifier.
 

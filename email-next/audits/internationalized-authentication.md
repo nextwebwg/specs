@@ -25,7 +25,7 @@ DNS lookup representation and authenticated message representation have differen
 
 | Front/end matter | Abstract, status, copyright and author address reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Maintain the original authenticated bytes separately from parsed addresses and DNS lookup names. An equivalent A-label representation may locate the same verification record, but substituting it into the signed input can invalidate the signature. Apply only the canonicalization defined by the selected authentication protocol.
 

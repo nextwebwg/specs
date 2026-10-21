@@ -18,7 +18,7 @@ This profile deliberately uses explicit client-local resource budgets rather tha
 
 Only the finished raster and client-owned diagnostics cross into the message renderer. Comments, GPS data, thumbnails, profile descriptions and embedded application data do not become HTML, external requests or conversation instructions. Retaining the original attachment is separate from returning its metadata to the display process. An original can contain location information or invisible pixels even when the preview shows neither.
 
-A corrupt or unsupported image leaves its alternative text and an accessible explanation. A receiver MUST NOT silently substitute an unmanaged image for a color-managed result, clip high-depth samples, or fetch another representation. This failure behavior is an Email Next restriction; image standards permit differing degrees of recovery.
+A corrupt or unsupported image leaves its alternative text and an accessible explanation. A receiver MUST NOT silently substitute an unmanaged image for a color-managed result, clip high-depth samples, or fetch another representation. This failure behavior is an Email/2 restriction; image standards permit differing degrees of recovery.
 
 ## PNG
 
@@ -52,7 +52,7 @@ For Exif-bearing JPEG and PNG, the receiver MUST apply one well-formed primary-i
 
 This uses [CIPA Exif 3.1 §4.6.5.1.6](https://www.cipa.jp/e/std/std-sec.html)'s row/column meanings. Reading the primary IFD requires bounded TIFF-header/entry processing under §§4.5.2, 4.6.2 and 4.7.2. Offsets and counts remain inside the containing metadata; cycles or out-of-range references cannot authorize another read. Full camera metadata, thumbnail decoding, XMP, Flashpix and annotation processing are not selected by this orientation rule.
 
-PNG §11.3.4.5 cautions that Exif can be historical and stale. Applying a valid primary Orientation to the received raster is therefore an explicit Email Next presentation decision, not a PNG requirement or proof that the metadata is truthful. New generators SHOULD normalize the intended raster orientation before authentication and omit Orientation or set it to 1. A receiver never rewrites authenticated bytes to make that normalization appear original.
+PNG §11.3.4.5 cautions that Exif can be historical and stale. Applying a valid primary Orientation to the received raster is therefore an explicit Email/2 presentation decision, not a PNG requirement or proof that the metadata is truthful. New generators SHOULD normalize the intended raster orientation before authentication and omit Orientation or set it to 1. A receiver never rewrites authenticated bytes to make that normalization appear original.
 
 ## Color interpretation
 
@@ -64,7 +64,7 @@ For incomplete PNG color descriptions, this profile assumes sRGB primaries when 
 
 For JPEG, interpret JFIF/Exif component and color declarations before color management. Reassemble embedded ICC APP2 segments by their declared sequence/count and reject missing, repeated or inconsistent segments. A valid applicable ICC profile takes precedence over the generic Exif color-space label. Untagged images use the client's documented sRGB display assumption; `Uncalibrated` is not evidence that the photographer actually used sRGB. New generators SHOULD convert to sRGB with consistent metadata before authentication for predictable baseline display.
 
-These color-management requirements are Email Next choices for usable rich messages. PNG permits ancillary information to be ignored, and JFIF promises only basic color fidelity. Neither permission establishes that an unmanaged preview meets this profile. Unsupported newer color encodings, invalid profiles or contradictory declarations require an explicit image fallback; a client may separately offer a clearly identified approximate preview. Such a preview cannot establish renderer conformance. HDR tone mapping and printer/proofing fidelity are not promised by the sRGB output path.
+These color-management requirements are Email/2 choices for usable rich messages. PNG permits ancillary information to be ignored, and JFIF promises only basic color fidelity. Neither permission establishes that an unmanaged preview meets this profile. Unsupported newer color encodings, invalid profiles or contradictory declarations require an explicit image fallback; a client may separately offer a clearly identified approximate preview. Such a preview cannot establish renderer conformance. HDR tone mapping and printer/proofing fidelity are not promised by the sRGB output path.
 
 ::: {.details summary="Color-management source boundary"}
 

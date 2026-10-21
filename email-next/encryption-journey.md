@@ -1,0 +1,198 @@
+---
+title: The encryption journey
+order: 7.1
+blurb: first contact · everyday sending · devices · recovery · failure cases
+sectionNav: true
+---
+
+# The encryption journey
+
+A person should be able to use an existing email address, start a conversation and let their client handle encryption. They should not need to exchange keys manually, choose cryptographic algorithms or repeat a security decision on every reply. When the client cannot preserve the selected protection, it keeps the writing and explains the next available step.
+
+Encryption is not one switch. The client must know which identity it is addressing, which devices are authorized, whether it can establish the selected conversation, and whether any copy will be disclosed through ordinary email or hosted access. This chapter joins those decisions into one user journey and traces each step to its protocol mechanism.
+
+> [!note] Contract and readiness
+> The journey below is the proposed client behavior. The mechanism table distinguishes defined contracts, local experiments and missing integration. In particular, universal silent first contact and public provider onboarding are not supplied. The [archive contract](encrypted-archives.md) now defines encrypted history recovery, with a local container experiment rather than whole-client support. The initial suite does not provide emergency identity recovery. A recover role or a convenient interface cannot substitute for those missing protocols.
+
+## Set up once
+
+The person connects their email account and chooses how incompatible recipients should be handled. The client remembers the effective policy in a visible, changeable setting: require an encrypted endpoint, allow ordinary email, or allow a particular hosted-access model. There is no automatic permission to use an unselected fallback. A product may offer a starting policy, but it must disclose and record that choice; this draft does not select a universal default.
+
+The client creates a device identity and retains its secrets locally under the endpoint's storage protections. First-device genesis establishes the initial identity authority; mailbox login supplies account access, not proof of continuity with an existing identity. If the account already has an accepted identity, use enrollment instead of silently creating a replacement. Publishing public device evidence is a separately enabled setting, not a side effect of reading an email.
+
+Setup also establishes the first-contact policy: permit an unverified address-to-identity association, or require independent verification. These choices are separate from ordinary-email fallback. The former can make routine encryption automatic without claiming to defeat an active attacker who substitutes the first identity. The latter can hold an otherwise encrypted send until the binding is verified.
+
+The setup view identifies where keys and plaintext are processed. A service that decrypts is an endpoint with content access. Browser-local keys do not by themselves establish protection against whoever can replace the browser code. Drafts follow the [private working-state rules](security.md#drafts-are-private-working-state); they must not leak into ordinary server drafts merely because sending has not started.
+
+## Start a conversation
+
+### No usable recipient evidence yet
+
+The person writes normally. Before releasing content, the client constructs a recipient-specific send plan. Without compatible evidence, it cannot promise an encrypted first message.
+
+If ordinary delivery is permitted, the composer identifies that outcome before send. The human-authored mail may include the sender's signed passive advertisement. A later human reply may carry the recipient's advertisement. Neither advertisement retroactively protects the earlier messages. The client does not send secret content in a probe or assume that an older client will discard protocol mail. An ordinary human introduction is one compatibility option, not a requirement for the provider-assisted path.
+
+If encryption is required, the draft waits with a compact **Waiting for encryption** state. The client may use evidence already retained or an explicitly configured, authorized discovery service. Otherwise the person can arrange an ordinary introduction separately, verify through an independent channel, or change the applicable delivery permission. A waiting encrypted send must not automatically become that ordinary introduction.
+
+The [automated first-contact flow](first-contact-setup.md) keeps the human message local while a content-free provider request obtains signed device evidence, automatically from an enabled client or from valid recipient-published material. The client establishes protected delivery and then sends the human message. The [bootstrap wire contract](bootstrap.md) defines the separate account/device-authorized exchange; its complete joined implementation remains required. The configured known-pair exchange does not implement it.
+
+Receipt of a passive advertisement does not trigger an automatic email response. Passive carriage uses human mail; the selected provider-assisted journey instead requires a separate control queue and explicit setup policy. It does not depend on legacy clients hiding handshake emails or a person replying to activate encryption. [Temporary setup secrets](setup-secret-retirement.md) retire after use, cancellation or fixed expiry; readable correspondence uses separate historical protection.
+
+### A candidate identity is available
+
+The client validates the advertisement, exact mailbox spelling, device binding, current authority, freshness and applicable revocations. It retains the source evidence. Under the configured allow-unverified policy, a sole eligible candidate can be selected through the association transaction. Multiple eligible principals remain ambiguous; the client cannot choose the newest or first arrival.
+
+Once selected, that identity becomes the continuity anchor for the address. Routine valid successors retain their assurance level; encryption does not silently turn an unverified association into a verified one. A compact protection indicator can expose the fuller explanation on inspection. It must distinguish encryption to the selected identity from independent verification of the correspondent.
+
+Independent human comparison is optional under the permissive policy and necessary when the chosen policy requires evidence it can supply. The comparison must use the full selected value and an independently trusted channel. A code copied from the same suspect email is not independent evidence. Successful comparison records its exact scope; it does not enroll devices or grant mailbox delivery authority.
+
+### Establish protected delivery
+
+The client checks the exact mutually supported application tuple, current authorized target devices, acceptable mailbox associations, admission packages and selected ordering mechanism. It constructs the MLS conversation and its authenticated invitation under the owning profile. Two-person conversations use the same device-aware managed model as larger groups.
+
+Validated discovery is an input, not completed encryption. A signature on an advertisement, a successful control-service response and SMTP acceptance do not replace MLS admission, authentication and application acceptance. The sender may report a protected copy submitted under the selected rules; it cannot claim every device decrypted or read it.
+
+A missing or already consumed admission package, unsupported tuple, stale identity state or unresolved ordering leaves the affected delivery held. Re-evaluate before release. Do not choose an older or different tuple merely because it happens to parse.
+
+## Continue without repeated decisions
+
+The person replies, selects a predefined answer or reacts. The client retains the exact target, checks current sending authority, and applies the remembered policy. It does not ask for keys or a password on every contribution. New content and deliberately included quotations stay inside the protection envelope; a readable plaintext alternative beside ciphertext would disclose the same content.
+
+An offline recipient does not need to be present if valid published admission material or an established usable conversation is available. Without it, the affected send waits. Simultaneous online presence can accelerate an authorized exchange but is not a requirement for ordinary asynchronous delivery.
+
+On restart, the client resumes retained immutable sends and pending transitions. A retry uses the original contribution identity and authenticated bytes. Duplicate receipt does not duplicate an answer, reaction or external effect. Delivery uncertainty remains visible rather than being resolved by generating another contribution or weakening protection.
+
+Opening a message, reconstructing a thread or refreshing capabilities does not send a receipt, submit an answer or disclose history. Reading and transport handoff are distinct states.
+
+## Include someone who cannot decrypt
+
+The client calculates the result for every intended recipient. Ready protected copies may proceed while others remain held, when the selected policy permits partial delivery. The sent view distinguishes that partial result from delivery to everyone.
+
+Ordinary delivery exposes the reviewed content to that delivery path. Hosted access identifies its service and access model. A bearer link gives access to whoever possesses it and does not prove the named person is reading. Hosted notifications contain minimal invitation text, not the protected body or quoted history in previews. Automatic scanners and page opening do not submit an answer.
+
+A contribution with an authorized ordinary or hosted disclosure is not summarized as confidential to encrypted endpoints alone. The contribution-wide exposure indication and the local delivery results remain distinct. Changing the fallback for an already submitted copy is an additional disclosure, not recall.
+
+Every reply gets its own policy and audience check. The original sender's permission does not authorize fallback on the replying person's behalf. Forwarding or quoting an earlier protected passage requires authorization for the actual new audience. A new participant does not receive old history simply by joining.
+
+## Add a second device
+
+The person connects the mailbox on the new device and approves enrollment from an existing device with enrollment authority. The selected pairing experiment uses reciprocal scans of full commitments, with full-value independent comparison as an accessible alternative. The client shows the account and requested permissions before approval; routine users need not inspect cryptographic keys.
+
+The new device generates its own secrets. Exact offer/request commitments, possession proof, the current predecessor and signed enrollment determine what was approved. A changed predecessor requires a fresh approval. A lost response retrieves the original durable result; it does not enroll twice.
+
+The [send-ready pairing contract](identity-lifecycle.md#finish-pairing-with-usable-encrypted-sending) requires the client to continue from QR enrollment through account connection, authenticated contact/security-configuration transfer and automatic encryption preparation. An unchanged contact does not need routine human re-verification on the new device. The interface distinguishes approval committed, enrollment received, account ready and per-contact protected-send readiness. New capability evidence and authorized admission to existing groups remain required and are scheduled automatically. Mailbox login or appearing in a provider's device list does not supply them. Message-history synchronization is separate and is not a prerequisite for future encrypted sending.
+
+Camera scanning, production relay setup and protected history transfer are not demonstrated by the local pairing experiment. The separate [history-transfer contract](history-transfer.md) now defines recipient-specific encrypted history and its source approval; its local experiment does not make it part of pairing automatically. A client must not hide those limitations behind a successful enrollment badge.
+
+## Remove or lose a device
+
+From an authorized surviving device, the person removes the lost device. The client commits the signed revocation, distributes it through the configured authorized paths, stops local release to the revoked target, and performs the required group membership transitions. It preserves affected sends while membership ordering is unresolved. Pending valid membership proposals do not permit continuing to send under the old audience.
+
+The result is future exclusion under the accepted state, not remote erasure. The lost device may retain delivered plaintext, old archive data or already obtained secrets. Offline senders may not yet know the revocation. The client reports the scope of completion rather than claiming instant global removal.
+
+If an administrator, ordering participant or necessary peer is unavailable, use only the selected profile's defined recovery path. A timeout is not permission to invent a new quorum, skip an authorization or switch ordering protocols. The reader keeps accessible history while affected live sends remain held.
+
+## Recover after every authorized device is lost
+
+The first question is whether an existing, previously authorized recovery construction can preserve continuity. The current identity configuration names a recover role but does not define the emergency recovery operation, protected state transfer and conflict resolution needed to use it. That route is therefore unavailable in this baseline; a client must not present it as an implemented password-reset recovery feature.
+
+The defined available route is an explicitly new identity. Explain **This restores your ability to start new protected conversations; it does not recover your previous encryption identity.** The person confirms the continuity break. Established correspondents retain their earlier association and must accept the change through their replacement procedure before using the new principal. Ordinary mailbox access alone cannot enter old groups or recover their history.
+
+If another authorized device survives, this is enrollment, not all-device-loss recovery. If an independently supported recovery extension is later added, its exact authority and history access must be disclosed before enabling it, not invented after loss.
+
+### Reading an archive is a separate operation
+
+The managed restore path imports selected history into an inert historical store and reconnects through fresh authorized enrollment or an explicit new identity. Import does not install old pins, private keys, live MLS checkpoints, queued sends, votes or actions. Opening imported messages cannot replay conversation effects.
+
+The current import experiment is not an encrypted backup format or a protected device-to-device history transfer. It does not recover attachment resources or rich HTML presentation. The separate [archive contract](encrypted-archives.md) and [collection catalog](archive-sets.md) define encryption, independent unlock material, complete/omitted resource coverage, multi-file acceptance, versioning and tamper/rollback handling. Integrating that contract with the full client remains required; transport forward secrecy does not protect plaintext archives.
+
+## Handle changed identity, address or account
+
+An authorized successor follows the selected transition proof and preserves prior attribution. An unrelated new identity claiming a familiar address does not replace or suspend the established association. An actual authorized identity fork holds affected operations and preserves both branches. The client distinguishes these cases rather than showing a generic key-change warning for every unsolicited attachment.
+
+If the person deliberately accepts a new principal, record a continuity break, invalidate queued association decisions and perform fresh admission. Do not relabel old messages as authored by the replacement. A reassigned email address does not entitle its new owner to old history.
+
+Changing the sending account rechecks the local identity, membership, routes and effective policy while retaining the draft. Aliases do not create enrollment authority. A provider password reset changes account access; it does not establish endpoint-key continuity.
+
+## Interruptions and concise explanations
+
+Protection status is a set of facts, not a single lock bit. Retain separately: content encryption, author authentication, address-binding assurance, contribution-wide exposure, delivery outcome and current ability to send. A held future send does not remove the protection of a previously accepted message; an encrypted copy does not hide another copy's exposure.
+
+| Situation | Example concise state | Next available action |
+| --- | --- | --- |
+| No usable recipient material | Waiting for encryption | Keep draft; obtain a supported introduction or choose an already permitted alternative |
+| Verification required by policy | Verify this contact | Use the independent verification path; keep protected send held |
+| First-use identity accepted without independent verification | Encrypted, with identity details available | Continue under configured policy; verify independently if desired |
+| Valid device change awaiting group admission | Finishing device setup | Resume retained enrollment/admission; do not resend approval blindly |
+| Conflicting authorized identity state | Identity change needs attention | Inspect preserved evidence; use an expressly defined resolution |
+| Some recipients pending | Sent to some recipients | Inspect per-recipient status; retry only pending authorized copies |
+| Hosted bearer copy | Link access | Inspect who may access it and which service processes the content |
+| Ordinary copy | Ordinary email | Inspect exposure; no implied endpoint confidentiality |
+| All-device loss | Start a new encryption identity | Explain continuity break and unavailable historical recovery before proceeding |
+| Archive imported | Imported history | Read inert history; separately establish current sending authority |
+
+These phrases illustrate the required distinctions, not mandatory English strings. Use compact controls with accessible names and details, preserving the [client behavior contract](client-behavior.md). Routine successful transitions do not need repeated confirmation dialogs. Decisions that grant new enrollment, replacement identity, history disclosure or weaker delivery authority must be backed by the corresponding explicit authorization; receipt of a message cannot grant them.
+
+## Mechanism coverage and release gates
+
+“Defined” means the owning chapter specifies a contract. “Local evidence” means selected experiments exist, not deployed interoperability or whole-journey assurance. The gates below must be met before claiming the corresponding journey works end to end.
+
+| Journey step | Precise mechanism owner | Current coverage and release gate |
+| --- | --- | --- |
+| First-device creation | [Identity genesis](identity-state.md#genesis-and-first-contact), [device credentials](security-profile.md) | Defined experimental records; production account onboarding, endpoint secret storage and runtime trust need joined evaluation |
+| Remember policy and prepare copies | [Send plan](delivery-policy.md#remembered-policy-and-the-send-plan) | Defined; integrate the actual composer, account settings and atomic release checks |
+| Discover through human email | [Passive carrier and assertions](passive-discovery.md), [mailbox selection](mailbox-association.md) | Local signed/onboarding evidence; real-client carriage, supported mailbox limits and first-contact substitution remain material boundaries |
+| Refresh while both endpoints are available | [Configured provider exchange](provider-control.md), [negotiation lifecycle](provider-negotiation.md) | Local configured HTTPS-to-MLS path; domain discovery/native registration now specified separately; public queue-grant issuance, automatic unknown-peer bootstrap and deployed integration remain unfinished |
+| Independently verify a correspondent | [Full-value human comparison](mailbox-association.md#optional-human-comparison) | Local strict-delivery integration; real independent-channel usability and accessibility need evaluation |
+| Send the first protected contribution | [MLS profile](security-profile.md), [invitations](mls-invitations.md), [release](transport.md) | Local joined admission and delivery; independent clients and account integrations still needed; valid discovery alone is insufficient |
+| Continue offline and after restart | [Group state and delayed mail](group-conversations.md), [transport](transport.md) | Local durable receive, retry and bounded catch-up; deployed synchronization and distributed liveness unproven |
+| Add a device | [Pairing](identity-lifecycle.md#pairing-another-device), [own-device synchronization](identity-lifecycle.md#finding-and-synchronizing-your-own-devices) | Local independent stores and signed enrollment; camera and production setup remain unverified; [history transfer](history-transfer.md) has a separate signed-control/import contract needing full integration |
+| Remove a device | [Revocation](identity-lifecycle.md#removal-and-revocation), [membership ordering](group-conversations.md#membership-ordering-over-mail) | Local removal/catch-up evidence; independent stale-state and unavailable-orderer behavior must be exercised |
+| Send to mixed recipients | [Per-recipient and exposure rules](delivery-policy.md), [private copies](private-copies.md) | Selected local joined paths; complete mixed-account release and accurate recipient-visible exposure need whole-client tests |
+| Offer hosted access | [Bearer protocol](hosted-access.md) | Local joined retrieval/reply; public management authorization, deployment and browser-code trust remain unfinished; other hosted models lack bindings |
+| Recover all-device loss | [Recovery boundary](identity-state.md#freshness-and-recovery-boundary), [new-identity restore](identity-lifecycle.md#import-history-then-reconnect) | New identity, inert import and the [signed encrypted archive container](encrypted-archives.md) have local evidence; full rich restore and managed storage need integration; emergency continuity recovery is outside the selected initial suite |
+| Resolve a competing identity or reassigned address | [Association transitions](mailbox-association.md#state-and-transition-behavior), [identity changes](identity-lifecycle.md#key-transitions) | Defined ordinary transitions and deliberate continuity break; automatic fork repair and universal ownership verification are not supplied |
+| Protect rich/indexed replies | [Rich carrier](rich-messages.md), [reply-content integration](reply-content.md#integration-and-acceptance) | Existing rich path has local evidence; new indexed reply operation has an [exact suite binding](suite-profile.md) and needs its implementation and joined acceptance |
+
+## Acceptance journeys and failure cases
+
+Each case needs two independently running endpoint stores, retained originals and before/after snapshots of identity, policy, conversation state, queued sends and effects. Independent interoperability additionally requires independently developed implementations. Tests must check visible meaning and actual protected bytes; a badge or successful HTTP response alone is insufficient.
+
+| Case | Exercise | Required outcome |
+| --- | --- | --- |
+| EJ-01 | Connect a mailbox with no prior endpoint identity | Explicit first-device setup; durable local authority; account login is not reported as correspondent verification |
+| EJ-02 | Compose for an unknown recipient under enforced encryption | Draft held; no secret content, plaintext probe or automatic fallback emitted |
+| EJ-03 | Exchange human emails under permitted ordinary delivery | At most the selected passive advertisement accompanies each send; no automatic reply loop; earlier messages remain ordinary |
+| EJ-04 | Present one eligible unverified identity under each first-contact policy | Record an unverified selection only when policy allows; strict policy holds; no verified-person claim |
+| EJ-05 | Present two eligible initial principals in either arrival order | Same ambiguous result; no automatic winner and no premature admission |
+| EJ-06 | Forward a signed advertisement, alter a carrier, expire it or use an unsupported mailbox spelling | Retain appropriate evidence; do not infer ownership or install a usable candidate from invalid input |
+| EJ-07 | Complete independent comparison, then replay it for a different principal or purpose | Original scope only; no association replacement, enrollment or history grant from replay |
+| EJ-08 | Establish MLS with valid evidence, then try an unsupported tuple or consumed package | Valid path delivers exact protected content; invalid paths hold without profile guessing |
+| EJ-09 | Keep recipient offline, delay mail and restart both endpoints | Valid asynchronous path resumes; pending material stays pending; no presence or read claim |
+| EJ-10 | Lose submission response and repeat receive | Immutable retry; one accepted contribution and effect; unresolved delivery remains honest |
+| EJ-11 | Expire evidence, revoke authority or change association after preparation | Use-time release stops or replans before affected submission; remembered encryption policy survives |
+| EJ-12 | Finish configured provider challenge, timeout it, then offer an unconfigured service URL | Only authorized configured exchange runs; no SMTP probe, redirect of credentials or automatic public-service trust |
+| EJ-13 | Pair a new device, swap either commitment and lose the approval response | Exact independently approved binding only; mismatch rejected; committed retry returns same result |
+| EJ-14 | Log into the mailbox from a new device without enrollment | Mailbox readable as allowed; protected identity, existing groups and old keys not silently inherited |
+| EJ-15 | Enroll a valid device without history-transfer authorization | Future readiness follows admission; old history and private keys are not automatically copied |
+| EJ-16 | Revoke a device, keep one sender stale and interrupt membership ordering | Current local release stops; stale-state limits disclosed; pending transition does not send to the old audience |
+| EJ-17 | Lose every device with only mailbox-password recovery available | Explicit new-identity route; no continuity or recovered-history claim; correspondents retain prior pins |
+| EJ-18 | Import old history containing queued actions, revoked state and rich resources | Inert history only; no live rollback or action replay; unsupported archive coverage identified |
+| EJ-19 | Send to compatible, ordinary and held recipients, including a private recipient | Authorized copies only; accurate contribution exposure and partial outcome; no private-recipient leakage or duplicate successful copies |
+| EJ-20 | Open, preview, forward and revoke a hosted bearer link | Opening performs no submission; bearer transfer risk is visible; revocation stops future retrieval without promising recall |
+| EJ-21 | Add a participant and quote old content in a new audience | Admission and disclosure evaluated separately; no automatic history transfer |
+| EJ-22 | Inject an unrelated identity claim, an authorized fork and an actual address reassignment | Three distinct outcomes; no attacker-triggered replacement, arrival-order fork resolution or historical reattribution |
+| EJ-23 | Change sending account and protection permission with an unsent reply | Preserve writing and exact target; reevaluate authority and disclosure; no session or policy borrowed from the previous account |
+| EJ-24 | Run a browser or hosted deployment with operator-accessible keys or replaceable code | Claims match actual endpoint/runtime trust; local encryption is not automatically described as provider-blind |
+| EJ-25 | Restore an older application snapshot after revocation | Do not claim rollback resistance from ordinary transaction tests; unproven whole-machine rollback protection remains a release limitation |
+| EJ-26 | Read malformed protected content or lose an embedded resource | Keep safe diagnostic access and original; no active effects, unprotected fetch or silent security downgrade |
+| EJ-27 | Send an indexed reply under an older immutable application tuple | Unsupported operation held; no widening of that tuple; valid new binding must be tested separately |
+| EJ-28 | Turn off the network during routine reply, pairing, revocation and hosted submission | Preserve draft or exact pending transaction; show the operation-specific outcome; reconnect never repeats a completed effect or grants weaker authority |
+
+## What must be settled before the baseline is frozen
+
+The [required conversation suite](suite-profile.md) defines the exact joined profile, including indexed replies. Its implementation and acceptance run through real accounts remain required. Public provider onboarding is a separate deployment path, not a prerequisite for the human-email introduction path. The suite must not claim universal encrypted first contact while relying on that introduction.
+
+Recovery needs an explicit product boundary. A baseline can honestly provide surviving-device enrollment and a new-identity route after total loss. The [archive profile](encrypted-archives.md) defines historical recovery and still needs full client integration. The initial suite deliberately offers no emergency identity override; any future continuity-preserving recovery protocol needs separate definition and evaluation. The absence of those features must be explained during setup, before someone relies on recoverability.
+
+Finally, test whether ordinary people can complete first contact, interpret an unverified encrypted identity, add a device and understand total loss without learning key terminology. Protocol fixtures establish mechanisms; usability studies, native accessibility checks, independent security review and real-provider trials establish whether the joined experience is usable and dependable.

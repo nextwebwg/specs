@@ -20,7 +20,7 @@ python hkdf_vectors.py --source /path/to/pinned/rfc5869.txt
 
 The optional source check requires SHA-256 `7a40eb3835b35fc947eb12a2ed614db079d43b26e50dbc537c31fba16397089c`, extracts the numeric inputs and expected outputs again, checks stated octet lengths and compares every fixture value. Without `--source`, the harness uses the retained fixture and reports that the source was not rechecked. It does not fetch remote content during a test.
 
-`hkdf-rfc5869-vectors.json` preserves explicit empty salt as an empty hex string and omitted salt as JSON null. The library receives `b''` and `None` respectively; the HMAC extraction check applies the RFC's HashLen-zero default for omitted salt. SHA-1 cases are included to reproduce the complete published vector set, not to select SHA-1 for Email Next.
+`hkdf-rfc5869-vectors.json` preserves explicit empty salt as an empty hex string and omitted salt as JSON null. The library receives `b''` and `None` respectively; the HMAC extraction check applies the RFC's HashLen-zero default for omitted salt. SHA-1 cases are included to reproduce the complete published vector set, not to select SHA-1 for Email/2.
 
 Four focused tests pass, including incorrect expected-output and substituted-source rejection. Separate SHA-256 boundary checks accept output lengths 0, 1, 8,159 and 8,160 and reject 8,161 for both HKDF and HKDFExpand. The 8,160-byte bound applies to one SHA-256 Expand call; it is not an email or application-event size limit. Boundary checks do not independently establish the expected bytes at the maximum length.
 

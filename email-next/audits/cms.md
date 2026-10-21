@@ -5,7 +5,7 @@ sectionNav: true
 
 # CMS content protection audit
 
-CMS defines the protected containers used by S/MIME. Correct parsing is only the first step: receivers must verify the exact protected bytes, certificate authority and application meaning separately. The Email Next MLS experiment is not a CMS or S/MIME implementation.
+CMS defines the protected containers used by S/MIME. Correct parsing is only the first step: receivers must verify the exact protected bytes, certificate authority and application meaning separately. The Email/2 MLS experiment is not a CMS or S/MIME implementation.
 
 RFC8933 updates the signature rules to require the same digest algorithm for content and signed attributes, and recommends protecting algorithm identifiers. RFC9629 adds optional KEM recipient information; it does not make every CMS implementation quantum-safe or change the selected MLS suite.
 
@@ -123,9 +123,9 @@ Complete base texts, numbered sections, modules where present, references and en
 | 6.2 — CMS-KEMRecipientInfo-2023 ASN.1 Module | Both complete ASN.1 modules and imports reviewed; compilation and algorithm instantiation not tested. |
 | 7 — Security Considerations | Reusable-key IND-CCA security, fresh per-recipient encapsulation, shared-secret discard, comparable algorithm strength and absent origin authentication reviewed. |
 | 8 — IANA Considerations | Three OID assignments recorded from source; current complete registry audit is not claimed. |
-| 9 — References | All references and end matter read; optional KEM algorithms and module dependencies are not automatically selected for Email Next. |
-| 9.1 — Normative References | All references and end matter read; optional KEM algorithms and module dependencies are not automatically selected for Email Next. |
-| 9.2 — Informative References | All references and end matter read; optional KEM algorithms and module dependencies are not automatically selected for Email Next. |
+| 9 — References | All references and end matter read; optional KEM algorithms and module dependencies are not automatically selected for Email/2. |
+| 9.1 — Normative References | All references and end matter read; optional KEM algorithms and module dependencies are not automatically selected for Email/2. |
+| 9.2 — Informative References | All references and end matter read; optional KEM algorithms and module dependencies are not automatically selected for Email/2. |
 
 :::
 

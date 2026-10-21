@@ -23,7 +23,7 @@ sectionNav: true
 
 ## Proposed rendering contract
 
-Email Next-generated readable alternatives use explicitly declared UTF-8. This is a generation restriction, not a redefinition of the text/plain default or every text subtype. Legacy decoding remains subtype-specific.
+Email/2-generated readable alternatives use explicitly declared UTF-8. This is a generation restriction, not a redefinition of the text/plain default or every text subtype. Legacy decoding remains subtype-specific.
 
 For new-profile interactive processing, contradictory charset declarations or invalid UTF-8 disable activation. A recovered legacy view remains available and labeled as such. Recovery must not supply canonical bytes for a signature or an authenticated event. The final HTML profile still needs an exact parser and charset-precedence reference; this audit alone does not select one.
 

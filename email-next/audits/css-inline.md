@@ -29,7 +29,7 @@ Line height contributes to line-box sizing; it is not a clipping boundary. Inlin
 
 The permitted vertical-align values retain their CSS meaning. For inline content, baseline follows the parent’s dominant baseline; middle uses the x-middle baseline in ordinary horizontal text. It does not mean “center this content in its container.” Top and bottom align the aligned subtree to the corresponding line-box edge.
 
-The property is not inherited. A parent’s alignment does not become the child’s specified alignment, although the parent’s position still affects its contents. The draft’s additional longhands and values are not admitted by the Email Next allowlist.
+The property is not inherited. A parent’s alignment does not become the child’s specified alignment, although the parent’s position still affects its contents. The draft’s additional longhands and values are not admitted by the Email/2 allowlist.
 
 Table-cell alignment is a separate layout case. The reviewed source maps top, middle and bottom to table-cell content alignment when align-content is normal; it does not justify using the inline x-middle calculation for table cells. The subsequent [table/box audit](css-table-box.md) covers CSS2.1 §17.5.3 baseline and row sizing; browser-dependent portions of that model remain as documented there. The source also retains open issues around vertical writing and the allocation of line-relative values to longhands; no resolution is inferred here.
 

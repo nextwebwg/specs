@@ -40,7 +40,7 @@ Future release lets a submission server hold an accepted message. It specifies n
 
 Section 6 prints X.7.16 and X.7.17 as future-release quota codes. The current registry assigns X.7.16 to a message-size/priority condition and X.7.17 to mailbox ownership change. It contains no matching future-release quota entry. Preserve this discrepancy as unresolved; do not generate conflicting code meanings or invent a replacement registration. Generic applicable storage diagnostics require the status-code baseline review.
 
-## Email Next consequence
+## Email/2 consequence
 
 Distinguish a locally scheduled draft from a message already accepted by an MSA for future release. The former can re-evaluate audience, key and policy evidence before submission. The latter has already crossed the submission boundary; this extension cannot recall it or replace its ciphertext when new key information arrives.
 

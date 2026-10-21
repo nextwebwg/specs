@@ -24,7 +24,7 @@ sectionNav: true
 
 | Front/end matter | Status, abstract, copyright, author contact and acknowledgement reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Maintain independent transport-security and message-security records. A protected SMTP connection cannot establish that the recipient decrypted a message or that its claimed author signed it. Transport policy may require TLS even when message content is already encrypted, because routing and submission metadata remain relevant.
 

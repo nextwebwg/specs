@@ -31,7 +31,7 @@ A property loader must preserve the versioned data's meaning, including omitted 
 - `DerivedJoiningType.txt` supplies definitive joining values. Omitted entries in `ArabicShaping.txt` cannot all be treated as nonjoining.
 - Bidirectional-class defaults vary by range. A single default for every omitted code point is insufficient.
 
-Property aliases identify properties and values; their matching conventions do not authorize loose matching of Email Next identifiers. [UAX44 revision36,§2.1,§4.2 and§5.8](https://www.unicode.org/reports/tr44/tr44-36.html)
+Property aliases identify properties and values; their matching conventions do not authorize loose matching of Email/2 identifiers. [UAX44 revision36,§2.1,§4.2 and§5.8](https://www.unicode.org/reports/tr44/tr44-36.html)
 
 ## Direction and joining are validation inputs
 

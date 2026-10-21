@@ -79,13 +79,13 @@ sectionNav: true
 
 Section5.4 states a 1036-character command minimum while describing a 530-character extension to a 512-character baseline. The stated addition is 1042. This audit does not silently replace the published requirement or assert that all parameter-length conventions are resolved. The exact command-size profile needs reconciliation with current SMTP extension registries and boundary vectors.
 
-Section5.2.2 ties a relayed success notification to RCPT success, before the final DATA outcome is known. The Email Next interface must not report completed relay from recipient acceptance alone. A server implementation needs a documented reconciliation of that wording with SMTP transaction completion, rather than a test that assumes the example defines every failure path.
+Section5.2.2 ties a relayed success notification to RCPT success, before the final DATA outcome is known. The Email/2 interface must not report completed relay from recipient acceptance alone. A server implementation needs a documented reconciliation of that wording with SMTP transaction completion, rather than a test that assumes the example defines every failure path.
 
 The section10.5 transcript changes a FAILURE request to SUCCESS without explaining the exception, while section10.9 later sends a failure report. Rejected erratum4218 does not resolve this scenario into a trustworthy fixture. The transcript also mixes hostnames. Section10.7 omits the Remote-MTA field required by section6.3(h); section10.9 supplies an untyped Reporting-MTA. Abbreviated returned-message parts are illustrative. Preserve these as source findings rather than copying them into passing examples.
 
-The diagnostic grammar uses `3*DIGIT`, which permits more than three digits. Email Next must not treat arbitrary diagnostic text matching that loose grammar as a valid SMTP response or authorization. Exact diagnostic parsing still requires a receiving profile. The action/status relationship is resolved by RFC3464 section2.3.3: a temporary error can accompany a terminal failed action after the MTA abandons retries. This part of the example is valid.
+The diagnostic grammar uses `3*DIGIT`, which permits more than three digits. Email/2 must not treat arbitrary diagnostic text matching that loose grammar as a valid SMTP response or authorization. Exact diagnostic parsing still requires a receiving profile. The action/status relationship is resolved by RFC3464 section2.3.3: a temporary error can accompany a terminal failed action after the MTA abandons retries. This part of the example is valid.
 
-## Consequences for Email Next
+## Consequences for Email/2
 
 The [transport contract](../transport.md) distinguishes delivery from retrieval, relay from final delivery, and envelope correlation from identity proof. It now also preserves list/alias reporting boundaries and keeps private forwarding addresses out of shared conversation state. The existing DSN extension supplies useful correlation, not invisible control delivery, recipient presence, key possession or authorization to downgrade encryption.
 

@@ -9,7 +9,7 @@ RFC9325 shows why a TLS1.2 minimum alone does not establish a secure HTTPS servi
 
 ## Service consequences
 
-Use authenticated HTTPS without cleartext fallback. Verify the intended action-service hostname and full certificate chain; SNI or a valid certificate for another endpoint is insufficient. Support ALPN/SNI and enforce protocol/name boundaries across the service fleet. Reusing HTTP requires the selected HTTP protocol's ALPN behavior, not a new Email Next ALPN identifier. A proxy or alternate backend must not weaken the service's security.
+Use authenticated HTTPS without cleartext fallback. Verify the intended action-service hostname and full certificate chain; SNI or a valid certificate for another endpoint is insufficient. Support ALPN/SNI and enforce protocol/name boundaries across the service fleet. Reusing HTTP requires the selected HTTP protocol's ALPN behavior, not a new Email/2 ALPN identifier. A proxy or alternate backend must not weaken the service's security.
 
 TLS1.2 compatibility requires additional controls: renegotiation_info and extended_master_secret support, safe cipher/key selection, no TLS record compression, secure AESGCM nonces and session-ticket lifecycle. The source recommends ECDHE_RSA/ECDHE_ECDSA with AES128/256GCM and forward secrecy; its older allowances must be reconciled with RFC10015. TLS1.3 removes renegotiation and record compression, but resumption, certificate validation, key usage and early-data replay remain relevant. Certificate compression is a different mechanism and is not prohibited merely because record compression is unsafe.
 

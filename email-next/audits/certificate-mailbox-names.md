@@ -5,7 +5,7 @@ sectionNav: true
 
 # Internationalized mailbox names in certificates audit
 
-RFC 9598 defines the current `SmtpUTF8Mailbox` certificate name form. It matters to certificate email identities and their constraints; it does not replace the DNS-ID used to authenticate an Email Next HTTPS endpoint or establish an Email Next device identity.
+RFC 9598 defines the current `SmtpUTF8Mailbox` certificate name form. It matters to certificate email identities and their constraints; it does not replace the DNS-ID used to authenticate an Email/2 HTTPS endpoint or establish an Email/2 device identity.
 
 **Review:** Complete 590-line, 12-page document read, including the name-form table, constraint diagram, normative ASN.1 module and full DER example; 17 dispositions. Current metadata identifies a May 2024 Proposed Standard replacing RFC 8398 and updating RFC 5280, with no later update or replacement. The official live errata search reports none.
 
@@ -15,7 +15,7 @@ An ASCII-only local part uses `rfc822Name`, even when its domain is internationa
 
 Valid `SmtpUTF8Mailbox` values compare octet for octet. When comparing with an address from another source, parse the mailbox, convert domain U-labels to A-labels and lowercase domain labels. Validate the UTF-8 local part, but do not case-fold or normalize it. No characters are wildcards in this comparison. Valid `rfc822Name` and `SmtpUTF8Mailbox` values cannot match each other because their local-part character requirements differ. See §§3–5.
 
-These certificate matching rules do not silently redefine every Email Next identifier, account normalization rule or displayed address. A certificate-email authentication feature would need an explicit binding and acceptance contract before adopting them.
+These certificate matching rules do not silently redefine every Email/2 identifier, account normalization rule or displayed address. A certificate-email authentication feature would need an explicit binding and acceptance contract before adopting them.
 
 ## Constraints still matter to HTTPS certificates
 

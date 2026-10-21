@@ -13,7 +13,7 @@ The complete base text of [RFC6785](https://www.rfc-editor.org/rfc/rfc6785.html)
 | 1.1 | Overview | Requires metadata, environment and flag support; server processing can benefit intermittently connected clients. |
 | 1.2 | Differences between IMAP Events and Mail Delivery | APPEND may lack any delivery envelope or original sender context; bulk user actions can trigger many independent script runs. |
 | 1.3 | Conventions Used in This Document | Requirement-keyword conventions reviewed. |
-| 2 | The "IMAP Events in Sieve" Extension | Defines IMAP-event execution, not authenticated Email Next events. |
+| 2 | The "IMAP Events in Sieve" Extension | Defines IMAP-event execution, not authenticated Email/2 events. |
 | 2.1 | The "imapsieve" Capability Strings | One IMAPSIEVE ManageSieve endpoint is advertised; scripts require imapsieve and directly used environment support explicitly. |
 | 2.2 | Existing IMAP Functions Affected by IMAP Events in Sieve | Each affected message triggers separately; execution may be parallel, so no global serial order is supplied. |
 | 2.2.1 | The IMAP APPEND Command | APPEND triggers configured scripts; MULTIAPPEND invokes once per created message. |
@@ -61,6 +61,6 @@ The complete base text of [RFC6785](https://www.rfc-editor.org/rfc/rfc6785.html)
 
 ## Application boundary
 
-IMAP events are storage events, not new authenticated contributions. Copying an old message or changing a flag must not repeat an Email Next operation. Script-driven redirects can export plaintext drafts, and discard may leave a stored message visible until expunge. Neither action provides an invisible negotiation channel.
+IMAP events are storage events, not new authenticated contributions. Copying an old message or changing a flag must not repeat an Email/2 operation. Script-driven redirects can export plaintext drafts, and discard may leave a stored message visible until expunge. Neither action provides an invisible negotiation channel.
 
 Per-message script execution may be concurrent. A provider integration still needs authenticated event deduplication and atomic effects independently of Sieve invocation. Mailbox metadata may intentionally disable a server-level script; the presence of an IMAPSIEVE capability alone does not prove that a particular message was processed.

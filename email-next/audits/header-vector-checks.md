@@ -63,7 +63,7 @@ All eight complex payloads contain one decoded PNG attachment, and those PNG byt
 
 ## Worked composition examples: limits and discrepancies
 
-Appendix D.2.2 explicitly states that editing the suggested reply subject defeats the exact-value ReferenceHCP mapping and can expose the original subject. Email Next deliberately strengthens that behavior: confidentiality provenance survives partial editing and is cleared only by the explicit disclosure decision in the delivery policy. This is a proposal choice, not a claim that RFC9788's algorithm already provides that protection.
+Appendix D.2.2 explicitly states that editing the suggested reply subject defeats the exact-value ReferenceHCP mapping and can expose the original subject. Email/2 deliberately strengthens that behavior: confidentiality provenance survives partial editing and is cleared only by the explicit disclosure decision in the delivery policy. This is a proposal choice, not a claim that RFC9788's algorithm already provides that protection.
 
 Appendix D.2.2.1 also shows a legacy display element in a reply using `hcp_no_confidentiality`. Section 5.2.1 step 2 constructs its legacy-display list using only the local HCP before computing the response HCP in step 5. A literal implementation would therefore leave that list empty in this example. The worked payload and the algorithm differ. An implementation should calculate the final exposure decisions before deriving the decorative header list, while preserving the rule that decorations are inside encryption. This reconciliation needs an explicit test and must not be presented as an approved RFC erratum.
 

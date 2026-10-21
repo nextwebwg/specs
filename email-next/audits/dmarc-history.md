@@ -5,7 +5,7 @@ sectionNav: true
 
 # Historical DMARC audit
 
-[RFC7489](https://www.rfc-editor.org/rfc/rfc7489.html) explains the original DMARC deployment model and older reports that clients may encounter. It is obsolete: current policy, aggregate reporting and failure reporting belong to [RFC9989](dmarc.md), [RFC9990](dmarc-aggregate.md) and [RFC9991](dmarc-failure.md). Reading historical behavior does not adopt it as the Email Next baseline.
+[RFC7489](https://www.rfc-editor.org/rfc/rfc7489.html) explains the original DMARC deployment model and older reports that clients may encounter. It is obsolete: current policy, aggregate reporting and failure reporting belong to [RFC9989](dmarc.md), [RFC9990](dmarc-aggregate.md) and [RFC9991](dmarc-failure.md). Reading historical behavior does not adopt it as the Email/2 baseline.
 
 The complete 73-page base text, examples, XML schema, references and end matter have been read. All twenty RFC7489 entries in the captured errata corpus were reviewed, including proposed replacements and verifier notes. These statuses describe that corpus; current live errata reconciliation and dependency closure remain open. The [official status page](https://www.rfc-editor.org/info/rfc7489/) identifies the three successors and earlier updates RFC8553 and RFC8616.
 
@@ -14,7 +14,7 @@ The complete 73-page base text, examples, XML schema, references and end matter 
 | Area | Historical behavior | Current integration boundary |
 | --- | --- | --- |
 | Domain discovery | Public suffix list and author/organizational-domain lookup | Use RFC9989's bounded DNS tree walk for the current profile. Historical results retain their discovery provenance. |
-| Gradual rollout | pct sampling and weaker treatment for sampled-out messages | Do not revive pct as an Email Next adoption control; use the current DMARC testing semantics and separately defined client/provider rollout. |
+| Gradual rollout | pct sampling and weaker treatment for sampled-out messages | Do not revive pct as an Email/2 adoption control; use the current DMARC testing semantics and separately defined client/provider rollout. |
 | Report delivery | URI size suffix, requested reporting interval and transport-error reports | Follow current reporting documents; old record syntax is not a fresh reporting mandate. |
 | Aggregate format | Original namespace, field multiplicities and schema | Use the selected report version's schema and semantic checks; a historical XML document is not a current-format report. |
 | Identity-Alignment | Section 7.3.1 lists mechanisms that produced aligned identities; none means none did | RFC9991 describes failed mechanisms instead. Preserve source-profile information; do not silently reinterpret old reports with the opposite meaning. Unidentified provenance remains ambiguous. |
@@ -53,7 +53,7 @@ These differences matter to report importers and migration tests. They do not al
 | 6.6.1 | Author extraction | A-label conversion and all exceptional From cases reviewed; multi-domain handling is not guessed from the first address. |
 | 6.6.2 | Handling | Authentication, alignment and disposition are separate; temporary errors cannot be labeled permanent failure. |
 | 6.6.3 | Discovery | Original two-location lookup, filtering and invalid-policy fallback read; do not reuse as current tree walk. |
-| 6.6.4 | Sampling | Historical pct affects enforcement, not report population. No new Email Next sampling quota is derived. |
+| 6.6.4 | Sampling | Historical pct affects enforcement, not report population. No new Email/2 sampling quota is derived. |
 | 6.6.5 | Stored results | Operational feedback records are not conversation events. |
 | 6.7 | Enforcement | Receiver can accept failures or reject passes. Local policy must not masquerade as cryptographic verification. |
 | 7 | Feedback | Feedback supports safer deployment, not delivery receipts or capability exchange. |
@@ -65,13 +65,13 @@ These differences matter to report importers and migration tests. They do not al
 | 7.2.2 | Error reports | All six fields reviewed; diagnostic URIs are data, not executable commands or endpoint enrollment. |
 | 7.3 | Failure reports | Can disclose full content and amplify traffic; consolidation and privacy policy remain necessary. |
 | 7.3.1 | ARF update | Historical Identity-Alignment semantics differ from RFC9991; preserve report-profile context. |
-| 8 | Minimum implementation | Daily/mailto/size provisions describe this historical profile, not generic Email Next implementation thresholds. |
+| 8 | Minimum implementation | Daily/mailto/size provisions describe this historical profile, not generic Email/2 implementation thresholds. |
 | 9 | Privacy | Reports can reveal more than the original delivery's intended exposure. |
 | 9.1 | Data exposure | Full messages, destinations and hidden forwarding relationships may leak. |
 | 9.2 | Recipients | Third-party analysis and traffic correlation require independent consideration. |
 | 10 | Other topics | Deployment rationale read without adopting old algorithms as current requirements. |
 | 10.1 | SPF | Broad authorizations and early SPF rejection can undermine intended DMARC behavior. |
-| 10.2 | DNS caching | TTL trades freshness against query load; no universal Email Next TTL follows. |
+| 10.2 | DNS caching | TTL trades freshness against query load; no universal Email/2 TTL follows. |
 | 10.3 | Rejection | SMTP success does not establish inbox delivery; synchronous rejection, discard and backscatter have different consequences. |
 | 10.4 | Alignment risk | Delegated subdomains can pass relaxed alignment for organizational-domain mail; not proof of a person's intent. |
 | 10.5 | Interoperability | Forwarders and lists may break alignment while still performing legitimate operations. |
@@ -93,7 +93,7 @@ These differences matter to report importers and migration tests. They do not al
 | 13.2 | Informative references | Historical deployment rationale and replaced documents are not automatic current requirements. |
 | Appendix A | Design choices | Full rejected-alternative discussion read as historical rationale. |
 | A.1 | S/MIME | Domain accountability differs from user-to-user protection; historical adoption claims are not current market evidence. |
-| A.2 | Method exclusion | No per-method exclusion control was selected; a missing record is not an Email Next capability signal. |
+| A.2 | Method exclusion | No per-method exclusion control was selected; a missing record is not an Email/2 capability signal. |
 | A.3 | Sender | Sender/From have different roles; do not substitute one to obtain a convenient policy result. |
 | A.4 | Existence | Absence of MX/A/AAAA alone was rejected as a domain-existence test. |
 | A.5 | ADSP | Subdomains, rollout and alignment motivated DMARC; not endorsement of obsolete ADSP deployment. |

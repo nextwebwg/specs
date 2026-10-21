@@ -24,17 +24,19 @@ An unverified association and its authorized identity successors remain unverifi
 
 ## Address and observation inputs
 
-The association key is the [discovery profile's exact supported mailbox spelling](passive-discovery.md#signed-assertion-schema): lowercase ASCII DNS domain, unchanged ASCII dot-string local-part, with its existing DNS/path limits and validated A-label requirement. No display name, comments, quoted local-part, address literal, trailing dot or internationalized local-part enters this initial key space. Unsupported spellings remain usable for ordinary mail but cannot enter this automated association path.
+For the current agreement, the association key uses the [canonical mailbox-address contract](mailbox-addresses.md): exact preserved local Unicode/case with minimal SMTP quoting and a validated lowercase A-label domain. Header syntax is parsed separately. Equivalent quoted forms enter the same key; visually similar, normalization-different or case-different local parts do not. Earlier ordinary-mail experiments retain their ASCII-only parser and do not implement the full current address/association path.
 
-A trusted mailbox parser, not a received string comparison alone, supplies the outer From result. Exactly one mailbox must be present. Normalize only its domain to the selected lowercase form and compare the whole result to the signed assertion mailbox. Preserve original header bytes and the parser/profile version as evidence. Reply-To, Sender, Return-Path, a forwarded From, SMTP forwarding information, plus-tag equivalence and local-part case folding cannot substitute for this check.
+For an ordinary-mail observation, a trusted mailbox parser, not a received string comparison alone, supplies the outer From result. Exactly one mailbox must be present. Construct the parsed mailbox under the canonical address rules, including equivalent SMTP quoting and domain conversion, then compare it to the already canonical signed assertion mailbox. Never normalize the local Unicode sequence or case. Preserve original header bytes and the parser/profile version as evidence. Reply-To, Sender, Return-Path, a forwarded From, SMTP forwarding information, plus-tag equivalence and local-part case folding cannot substitute for this check.
 
-An observation is eligible for first-contact selection only after:
+An ordinary-mail observation is eligible for first-contact selection only after:
 
 1. Carrier and strict assertion parsing succeed under the passive-discovery profile.
 2. The assertion's fixed-purpose signature verifies using the named binding key.
 3. The locally accepted identity resolves to the assertion principal; the device has current `receive` authority and its state/binding match the asserted references.
 4. The complete current time interval lies inside assertion and binding validity, with the selected freshness policy satisfied.
 5. The parsed sole outer From matches the claimed mailbox as specified above.
+
+A `provider-bootstrap` observation instead follows the [automatic setup contract](bootstrap.md): validate the selected target-domain delegation, exact admitted request and source authority, original authorized response/publication, requested mailbox correspondence and complete assertion8 evidence. Apply steps2–4 above with that exact assertion and its current identity authority. There is no ordinary-mail carrier or outer From to match. Retain the original descriptors, exchange/source/result bytes, assertion and trusted transport observations as a distinct provenance type; never manufacture header-parser evidence. This path uses the same ambiguity, policy, continuity and atomic selection/release rules and does not imply independent mailbox verification. The existing ordinary-mail reference store does not yet implement this separate observation type.
 
 An admission package is not required to record an association. Validating or consuming one is a later dependency of an invitation, not evidence of mailbox ownership. Invalid signatures and malformed carriers do not become association candidates. Missing identity dependencies, unsupported IDNA validation or uncertain time remain pending diagnostics, without automatic network activity.
 

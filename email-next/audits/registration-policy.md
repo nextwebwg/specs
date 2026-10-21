@@ -5,7 +5,7 @@ sectionNav: true
 
 # Registration policy
 
-Email Next's draft names and local experiments do not allocate public identifiers. [RFC8126](https://www.rfc-editor.org/rfc/rfc8126.html) explains common registration policies and how to request IANA actions. Each registry's own definition determines which policy, template, review and change-control rules apply.
+Email/2's draft names and local experiments do not allocate public identifiers. [RFC8126](https://www.rfc-editor.org/rfc/rfc8126.html) explains common registration policies and how to request IANA actions. Each registry's own definition determines which policy, template, review and change-control rules apply.
 
 ## What the draft needs
 
@@ -13,7 +13,7 @@ Email Next's draft names and local experiments do not allocate public identifier
 | --- | --- |
 | Event media type | The [candidate registration](../media-type-registration.md) follows the media-type registry's vendor-tree rules. Its proposed contact and change controller are not appointments or submission authority. |
 | Passive-discovery media type | The name remains unregistered; its separate registration template and experimental agreement remain required. An event-type proposal does not register another type. |
-| MLS application-context extension | The experiment uses `0xff00` from the private-use range identified by RFC9420. Participants must prevent collisions within their deployment; it is not a globally unique Email Next assignment. |
+| MLS application-context extension | The experiment uses `0xff00` from the private-use range identified by RFC9420. Participants must prevent collisions within their deployment; it is not a globally unique Email/2 assignment. |
 | Future DNS discovery | The exact binding and globally scoped underscored label remain unspecified. RFC8552's registry rules apply once that binding is chosen. |
 | Future mail headers or transport extensions | Identify the exact registry and applicable policy before requesting an allocation. A name in this draft is not a reservation. |
 

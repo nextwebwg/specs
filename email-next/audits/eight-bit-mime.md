@@ -25,7 +25,7 @@ sectionNav: true
 
 Erratum5646 incorrectly proposes reversing the meaning of the dot-stuffing explanation. It was rejected: stuffing protects content lines that would otherwise look like the DATA terminator. Implementations must not apply the proposed correction.
 
-## Email Next consequence
+## Email/2 consequence
 
 8BITMIME is a connection capability. It does not promise downstream support, SMTPUTF8 headers, binary transport, rich interaction or encrypted endpoints. A sender can choose 7-bit-safe MIME before protection to avoid later re-encoding. A relay must not rewrite a signed object and preserve its former integrity claim.
 

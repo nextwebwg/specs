@@ -63,7 +63,7 @@ The complete captured [RFC8617](https://www.rfc-editor.org/rfc/rfc8617.html) tex
 | 9.3 | Message Content Suspicion | Valid chains do not exempt content from safety checks. |
 | 9.4 | Message Sealer Suspicion | Authenticated sealer identity does not establish trustworthiness. |
 | 9.5 | Replay Attacks | Intact chains can replay; deduplication and freshness remain independent. |
-| 10 | IANA Considerations | Existing ARC registrations allocate no Email Next extensions. |
+| 10 | IANA Considerations | Existing ARC registrations allocate no Email/2 extensions. |
 | 10.1 | Update to Email Authentication Result Names Registry | Arc none/pass/fail result registration reviewed. |
 | 10.2 | Update to Email Authentication Methods Registry | Remote-ip and oldest-pass property registrations reviewed. |
 | 10.3 | New Header Fields in Permanent Message Header Field Registry | Permanent-registry entries remain experimental in status. |

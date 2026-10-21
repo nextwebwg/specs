@@ -11,7 +11,7 @@ The complete base text, examples, grammar, references, appendices and end matter
 
 The [IMAP4rev1 compatibility audit](imap-rev1.md) covers RFC3501 separately, including its different base commands, mailbox encoding and errata. Rev2 review is not evidence that a rev1 adapter implements those rules.
 
-## What Email Next can reuse
+## What Email/2 can reuse
 
 A client can retrieve message headers and selected MIME parts, then build a conversation from messages already available in the account. It should use non-marking retrieval (`BODY.PEEK`) for background processing and verify the protected representation before accepting structured events. Server-parsed headers, search results and mailbox flags are useful indexes, not authenticated facts.
 
@@ -50,7 +50,7 @@ Grouped rows apply the stated disposition to each named section and its indicate
 | 5.1.2, 5.1.2.1, 5.1.2.2 | Namespaces | Prefixes and accessibility depend on the server and authenticated account; access is not conversation membership. |
 | 5.2 | Updates | Remember message and flag changes; EXISTS cannot reduce the message count. |
 | 5.3 | Unsolicited responses | Respect flow and expunge restrictions rather than assuming responses belong to the last command. |
-| 5.4 | Autologout | The protocol's idle timing is not a presence signal or an Email Next policy default. |
+| 5.4 | Autologout | The protocol's idle timing is not a presence signal or an Email/2 policy default. |
 | 5.5 | Pipelining | Sequence-number changes and saved-search dependencies constrain safe concurrency. |
 | 6 | Commands | BAD and NO have different semantics; failed SELECT/EXAMINE can still change selection state. |
 | 6.1, 6.1.1 | Universal commands and capabilities | Advertising a feature is not enabling it. A dual rev1/rev2 server initially retains rev1 behavior. |
@@ -127,7 +127,7 @@ Grouped rows apply the stated disposition to each named section and its indicate
 | 11.5 | Other users | Do not enumerate users without granted listing access. |
 | 11.6 | MD5 | Exposing Content-MD5 does not make it a secure authentication mechanism. |
 | 11.7 | Authentication | Avoid credential enumeration, plaintext exposure and unbounded guessing; password policy remains an account service responsibility. |
-| 12 | Registrations | Existing IMAP TCP services and reserved UDP ports are not new Email Next transports. |
+| 12 | Registrations | Existing IMAP TCP services and reserved UDP ports are not new Email/2 transports. |
 | 12.1 | Capabilities registry | Follow the actual registration procedure, rather than copying fictitious X-prefixed examples. |
 | 12.2 | SASL service | Reuse the registered imap service in its defined role. |
 | 12.3 | LIST registries | Selection, return and extended-data registrations retain RFC5258 procedures. |
@@ -141,7 +141,7 @@ Grouped rows apply the stated disposition to each named section and its indicate
 | Appendix D | Large sizes | Clients must handle 63-bit sizes; old clients may see hidden or replaced oversized messages. Do not claim complete history from such a view. |
 | Appendix E | Change list | Informative summary contains terminology and spelling issues; normative sections and grammar govern. |
 | Appendix F | Optional improvements | QRESYNC/CONDSTORE reduce synchronization cost; OBJECTID preserves caches across moves and renames. Neither is required by the base. |
-| Front matter, acknowledgements, index, addresses | End matter | Read for scope and navigation; no additional Email Next behavior. |
+| Front matter, acknowledgements, index, addresses | End matter | Read for scope and navigation; no additional Email/2 behavior. |
 
 ## Errata and source issues
 

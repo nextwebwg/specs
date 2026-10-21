@@ -60,7 +60,7 @@ The complete [RFC9990](https://www.rfc-editor.org/rfc/rfc9990.html), all fourtee
 | 8.2 | False Information | Reports can contain forged claims and distort policy/architecture decisions. |
 | 8.3 | Disclosure of Filtering Information | Filtering-placement extensions discouraged because they reveal receiver behavior. |
 | 9 | Operational Considerations | All operational guidance read. |
-| 9.1 | Report Generation | Terse useful diagnostics; no specified numeric limits adopted as Email Next defaults. |
+| 9.1 | Report Generation | Terse useful diagnostics; no specified numeric limits adopted as Email/2 defaults. |
 | 9.2 | Report Evaluation | Malformed reports may be sidelined; aggregation requires trustworthy interpretation. |
 | 9.3 | Report Storage | Storage/retention left to receiver; no automatic conversation-history authority. |
 | 10 | References | All references reviewed. |
@@ -82,7 +82,7 @@ Section 3.1.4 requires identical Report-ID and filename unique-id when both are 
 
 The SPF schema includes a policy result absent from the referenced RFC8601 SPF result vocabulary. Extension wildcards use lax processing without directly enforcing the prose namespace restrictions. These are recorded source inconsistencies or schema gaps, not silently repaired standard requirements. Section 4 describes URI authority extraction even though ordinary mailto URIs need scheme-specific mailbox-domain handling; a generic URL hostname accessor is insufficient.
 
-## Consequences for Email Next
+## Consequences for Email/2
 
 The [discovery contract](../capability-discovery.md) keeps external-report acceptance separate from key-discovery delegation. The [security contract](../security.md) requires semantic checks, bounded processing and no network fetch based solely on an extension namespace. Report metadata remains potentially sensitive: Section 7.2's broad assurances must be read alongside traffic-analysis and PSD leakage risks in Sections 7.1/7.3 and small-organization risks in RFC9989 Section 10.1.
 

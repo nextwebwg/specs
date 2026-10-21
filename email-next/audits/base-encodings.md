@@ -7,7 +7,7 @@ sectionNav: true
 
 [RFC4648](https://www.rfc-editor.org/rfc/rfc4648.html) supplies the byte encodings used inside discovery and identity records. It does not replace MIME transfer encoding.
 
-## Application to Email Next
+## Application to Email/2
 
 Discovery payloads use padded base64 without whitespace. Reject alternate alphabets, misplaced padding and nonzero unused bits. MIME folding is removed by the outer transfer decoder; it is not permitted inside these JSON strings. These are the profile's existing strict decoding choices.
 

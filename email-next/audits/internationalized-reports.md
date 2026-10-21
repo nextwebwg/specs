@@ -41,9 +41,9 @@ Report containers permit combinations of legacy and global media types. The glob
 
 ## Unresolved source discrepancies
 
-Section 3 says HEXPOINT has two to six digits, but its final ABNF alternative uses `4*HEXDIG` after `10`, permitting more than four trailing digits. The alternatives described as encoding all ASCII controls also omit some such values. These are observations from the text, not accepted errata. Email Next must not manufacture valid Unicode scalars or mailbox identities from malformed escapes. Exact parser treatment requires a bounded Unicode/grammar reconciliation and test vectors.
+Section 3 says HEXPOINT has two to six digits, but its final ABNF alternative uses `4*HEXDIG` after `10`, permitting more than four trailing digits. The alternatives described as encoding all ASCII controls also omit some such values. These are observations from the text, not accepted errata. Email/2 must not manufacture valid Unicode scalars or mailbox identities from malformed escapes. Exact parser treatment requires a bounded Unicode/grammar reconciliation and test vectors.
 
-Sections 4.1 and 6.2 explicitly permit UTF-8 Diagnostic-Code text, but section 4.1's production uses `*text-fixed`, which admits only ASCII. The difference is recorded rather than silently described as resolved. A proposed Email Next receiving profile should preserve UTF-8 diagnostics as inert text; a strict interoperable generation/validation rule remains to be specified.
+Sections 4.1 and 6.2 explicitly permit UTF-8 Diagnostic-Code text, but section 4.1's production uses `*text-fixed`, which admits only ASCII. The difference is recorded rather than silently described as resolved. A proposed Email/2 receiving profile should preserve UTF-8 diagnostics as inert text; a strict interoperable generation/validation rule remains to be specified.
 
 Section 5 updates historical RFC3798 Failure, Error and Warning fields. The current RFC8098 review removes historical failure/warning machinery; this audit does not revive those fields as required current output. Current global-MDN grammar needs an explicit combined profile.
 

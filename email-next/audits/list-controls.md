@@ -44,7 +44,7 @@ Email already has declarative commands that clients can render as buttons. The f
 
 | References/end matter | Historical message format, URL, role-address and mailto references, editor details and copyright reviewed. Dependency successors require their own audits. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Use these fields for list-specific controls, separate from authenticated conversation membership or form events. Never infer encryption authority from List-Owner or list membership from List-Subscribe. No command fires on preview, rendering, focus or link scanning. Offer the user a reviewable destination, account and action before sending a mail command.
 

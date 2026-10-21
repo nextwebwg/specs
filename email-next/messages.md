@@ -17,7 +17,7 @@ A question can offer predefined answers as buttons. Pressing a button sends an a
 This chapter defines that distinction, the readable email fallback, and the handling of attachments. The detailed schemas and inherited MIME rules are available alongside the behavior they support.
 
 > [!note] Draft contract
-> These are proposed requirements for Email Next. The experimental encoding defines text messages, first-version button questions and answers, plain-message edits, and independent attachments. General-purpose forms remain deferred. Selected protected profiles have joined message, edit, button, reaction and rich-resource experiments; these do not establish deployed or independent-client interoperability. The [event media type](media-type-registration.md) is a candidate, not a registered type.
+> These are proposed requirements for Email/2. The experimental encoding defines text messages, first-version button questions and answers, plain-message edits, and independent attachments. General-purpose forms remain deferred. Selected protected profiles have joined message, edit, button, reaction and rich-resource experiments; these do not establish deployed or independent-client interoperability. The [event media type](media-type-registration.md) is a candidate, not a registered type.
 
 ## Contributions and replies
 
@@ -34,6 +34,8 @@ A **contribution** is one authored message or interaction. Its encoded record is
 | Required capabilities | What a client must understand before applying that interaction |
 
 A `From` header alone does not authenticate the author. Timestamps alone do not establish reply order. Repeated text alone does not identify a duplicate: two intentionally sent messages saying “Thanks” remain two contributions.
+
+The [reply-content contract](reply-content.md) separately defines authored chunks, quoted context, a structured chunk index and matching HTML Microdata. Ordinary `message` and `rich-message` schemas below remain unchanged; they do not acquire that new operation by implication.
 
 The [identifier contract](event-identifiers.md) defines exact references. The [encoding contract](event-encoding.md) defines the envelope and its UTF-8 JSON representation. The following operation schema adds ordinary text replies to that envelope.
 
@@ -257,7 +259,7 @@ MIME `multipart/alternative` can carry equivalent representations of a contribut
 This selects the arrangement for the simplest profile; it does not register a media type. Related resources and independent attachments follow the composition rules below; protected envelopes still require their security-profile composition rules. They must not be added as arbitrary sibling alternatives, because an attachment is not another representation of the contribution.
 
 ::: {.details summary="Inherited: alternative representations — RFC 2046 §5.1.4"}
-The source defines ordered alternatives for the same information, with the preferred representation last. Email Next proposes new structured semantics without changing that ordering rule. Selection must still leave a supported readable alternative available. The resource composition below nests an HTML compound object as one alternative. Independent attachment references use the experimental binding below; embedded rich-body references use the separately negotiated [rich-message contract](rich-messages.md).
+The source defines ordered alternatives for the same information, with the preferred representation last. Email/2 proposes new structured semantics without changing that ordering rule. Selection must still leave a supported readable alternative available. The resource composition below nests an HTML compound object as one alternative. Independent attachment references use the experimental binding below; embedded rich-body references use the separately negotiated [rich-message contract](rich-messages.md).
 
 The source also distinguishes the identifiers of an alternative container and its representations. Those identities must be considered in the event mapping. See the [MIME audit findings](baseline.md).
 :::
@@ -432,7 +434,7 @@ A receiver MAY retain unlisted parts for ordinary raw-message inspection under t
 
 ### Provider blob retrieval
 
-A JMAP blob ID or lookup result MUST NOT substitute for an authenticated Email Next resource reference. Preserve the provider/account context, enforce access permissions and validate the final resource under the selected content-binding profile. A server-supplied digest alone does not establish authorship.
+A JMAP blob ID or lookup result MUST NOT substitute for an authenticated Email/2 resource reference. Preserve the provider/account context, enforce access permissions and validate the final resource under the selected content-binding profile. A server-supplied digest alone does not establish authorship.
 
 For Blob/get, the size field describes the whole blob while returned data and digests describe the selected range. A truncated or partial response MUST NOT satisfy a full-resource integrity check. Reassembly must preserve exact byte offsets and complete coverage before full-resource validation. Invalid UTF-8 in binary content MUST NOT be repaired into substitute authenticated bytes. No renderer may activate an unvalidated partial resource. See the [JMAP blob audit](audits/jmap-blobs.md).
 
@@ -506,7 +508,7 @@ Existing mail remains readable even when it cannot become a structured interacti
 
 ### MIME decoding boundary
 
-An Email Next generator uses `MIME-Version: 1.0`. The rich-content profile carries its own version. Changing the MIME version is not a way to advertise a new interaction or encryption protocol.
+An Email/2 generator uses `MIME-Version: 1.0`. The rich-content profile carries its own version. Changing the MIME version is not a way to advertise a new interaction or encryption protocol.
 
 A receiver processes each selected MIME entity through these distinct stages:
 
@@ -570,7 +572,7 @@ When identifying a main body within multipart/related, a receiver MUST follow th
 
 This receiver behavior deliberately differs from [RFC9787 Section 7.1](https://www.rfc-editor.org/rfc/rfc9787.html#section-7.1), which traverses the first child of a multipart other than multipart/alternative. The reason is interoperability with existing multipart/related messages: a valid explicit root can occur later in the child list. Ignoring it can select a resource instead of the intended body. The tradeoff is an additional root-resolution step, with ambiguous or invalid selections reported rather than guessed.
 
-Newly composed Email Next messages place the related root first and include an explicit `start`, so this arrangement also satisfies the simplified first-child traversal described in RFC9787 Section 7.1 and RFC9788 Section 5.2.4. Any reordering during new composition occurs before signing or encryption. Receivers MUST NOT reorder preserved signed input to make it fit that generation profile.
+Newly composed Email/2 messages place the related root first and include an explicit `start`, so this arrangement also satisfies the simplified first-child traversal described in RFC9787 Section 7.1 and RFC9788 Section 5.2.4. Any reordering during new composition occurs before signing or encryption. Receivers MUST NOT reorder preserved signed input to make it fit that generation profile.
 
 For receiving and replying to legacy mail, eligible main-body traversal follows the selected related root while preserving attachment and cryptographic boundaries. Header-protection decoration handling must never modify an independent attachment or treat a resource as user-authored body content. This is an explicit reconciliation of the related-root standard with the later simplified guidance, not a claim that the guidance already describes every valid MIME layout.
 

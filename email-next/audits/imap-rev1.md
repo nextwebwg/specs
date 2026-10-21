@@ -5,7 +5,7 @@ sectionNav: true
 
 # IMAP4rev1 compatibility audit
 
-An Email Next client can read an existing IMAP4rev1 mailbox without changing the messages stored there. It retrieves the original message, verifies any protected contribution and builds the conversation locally. The server's folders, flags and search results help find messages; they do not authenticate the conversation.
+An Email/2 client can read an existing IMAP4rev1 mailbox without changing the messages stored there. It retrieves the original message, verifies any protected contribution and builds the conversation locally. The server's folders, flags and search results help find messages; they do not authenticate the conversation.
 
 [RFC3501](https://www.rfc-editor.org/rfc/rfc3501.html) defines this older access protocol. Its replacement, IMAP4rev2, has a [separate audit](imap-access.md). Reviewing rev2 does not establish rev1 compatibility: commands, string encodings and synchronization behavior differ.
 
@@ -16,7 +16,7 @@ The complete RFC3501 base text, its grammar, all appendices and seven listed err
 
 ## What the adapter must preserve
 
-The [mailbox integration contract](../mailbox-integration.md#imap-access) owns Email Next's adapter requirements. RFC3501 adds several compatibility details that matter when implementing them.
+The [mailbox integration contract](../mailbox-integration.md#imap-access) owns Email/2's adapter requirements. RFC3501 adds several compatibility details that matter when implementing them.
 
 A stable mailbox reference combines the server and account, mailbox name, UIDVALIDITY and UID. Neither a sequence number nor a UID alone is durable. UIDNEXT is a prediction, not a reserved message identifier. `Recent` is especially unsuitable as a synchronization cursor: simultaneous connections need not see it on the same messages. Missing compatibility metadata prevents relying on the associated cache; it does not authorize inventing a UIDVALIDITY.
 
@@ -28,7 +28,7 @@ Mailbox deletion is separate from conversation withdrawal. `CLOSE` can remove al
 
 ## Keep protocol versions explicit
 
-Base rev1 supports polling with NOOP. `IDLE`, `UNSELECT`, `MOVE` and `BINARY` are separate extensions, not commands implied by an `IMAP4rev1` capability. Authenticate the connection, refresh capabilities at the required security boundaries, and use an extension only under its own negotiated contract. Neither an access capability nor an IDLE notification proves that the other person supports Email Next or is online.
+Base rev1 supports polling with NOOP. `IDLE`, `UNSELECT`, `MOVE` and `BINARY` are separate extensions, not commands implied by an `IMAP4rev1` capability. Authenticate the connection, refresh capabilities at the required security boundaries, and use an extension only under its own negotiated contract. Neither an access capability nor an IDLE notification proves that the other person supports Email/2 or is online.
 
 Rev1's mailbox internationalization convention uses modified UTF-7. Its base grammar does not accept arbitrary UTF-8 headers or binary NUL-containing literals. Do not send rev2 strings, non-synchronizing literals, SASL initial responses or saved-search syntax just because another supported protocol uses them. Internationalized message access needs its applicable UTF-8 extension and a complete-message retrieval policy; a legacy downgraded view cannot establish verification of the unavailable original.
 
@@ -38,7 +38,7 @@ The historical TLS 1.0, RC4 and older certificate-matching instructions in RFC35
 
 Grouped rows give a disposition for every named section, including its examples and unnumbered lists. The grammar is reviewed alongside the command and response text, rather than treating examples as complete fixtures.
 
-| Sections | What carries into Email Next |
+| Sections | What carries into Email/2 |
 | --- | --- |
 | Front matter, abstract, contents | Access and synchronization only; sending belongs to the transport contract. Historical publication status is not a deployment claim. |
 | 1, 1.1–1.3 | Read prose, responses and grammar together. Connection and selected-mailbox session differ. Older fetch aliases and older protocol compatibility are explicit boundaries. |
@@ -56,7 +56,7 @@ Grouped rows give a disposition for every named section, including its examples 
 | 5.1.1, 5.1.2 | Use the returned hierarchy delimiter and respect namespace conventions. A namespace is not conversation membership. |
 | 5.1.3 | Keep modified UTF-7 shifts, alphabet and encoded-case rules exact, with erratum 261. Do not apply mailbox decoding to signed message bytes. |
 | 5.2, 5.3 | Record size changes and unsolicited state. EXISTS cannot shrink a mailbox; base rev1 prohibits unsolicited EXPUNGE when no command is in progress. |
-| 5.4 | The corrected minimum idle timeout concerns authenticated sessions. It is not peer presence or an Email Next keepalive default. |
+| 5.4 | The corrected minimum idle timeout concerns authenticated sessions. It is not peer presence or an Email/2 keepalive default. |
 | 5.5 | Do not pipeline operations whose results depend on one another. UID operations permit expunge; a UID SEARCH can still contain sequence-number criteria. Apply erratum 261. |
 | 6, 6.1, 6.1.1 | Command state, BAD/NO and capability-use rules govern the exchange. Advertisement does not enable incompatible behavior. |
 | 6.1.2, 6.1.3 | NOOP checks mailbox changes; LOGOUT has an ordered completion. Neither confirms a human action. |
@@ -92,7 +92,7 @@ Grouped rows give a disposition for every named section, including its examples 
 | 9, complete grammar and comments | Reconcile spaces, case, list nesting, literal lengths, numeric bounds, section syntax and correction 261. Do not extend fixed ENVELOPE shape from held erratum 6637. |
 | 10 | Lineage does not imply support for obsolete commands or current suitability of old security dependencies. |
 | 11, 11.1, 11.2 | Apply current transport/certificate policy instead of obsolete TLS algorithms. Protect credentials, limit guessing and avoid user-enumerating errors. End-to-end encryption remains a separate layer. |
-| 12 | Existing IMAP capability and SASL service registrations are not new Email Next assignments; erratum 261 adds the service-name registration clarification. |
+| 12 | Existing IMAP capability and SASL service registrations are not new Email/2 assignments; erratum 261 adds the service-name registration clarification. |
 | Appendix A, A.1 | References identify dependency work; their presence is not a full review of their bodies. Correct the body-language reference under erratum 261. Historical compatibility references do not expand the optional adapter. |
 | Appendix B, changes 1–114 | Cross-check change notes against normative text and grammar. Later removal of NEWNAME supersedes its earlier addition; do not implement an obsolete intermediary change. Erratum261 adds change 115 for Content-Location. |
 | Appendix C | The keyword index is navigation, not a separate command definition. Resolve each entry through the corresponding command, response and grammar rules. |
@@ -144,4 +144,4 @@ Other optional features mentioned by the adapter are defined separately: [IDLE](
 
 An implemented adapter needs transcripts against actual rev1 servers, separate from rev2 negotiation tests. Cover empty and concurrent mailboxes, missing compatibility metadata, changed UIDVALIDITY, reversed UID ranges, literal rejection/continuation, expunge during UID operations, modified UTF-7, search false positives, partial retrieval, APPEND representation changes and uncertain outcomes after disconnect. Preserve controls as inactive until all required protected bytes are available and verified.
 
-An extension claim additionally needs its complete source/update/errata review and applicable acceptance cases. No ordinary IMAP command requires legacy clients to hide an Email Next negotiation message. Cross-provider operation and independent implementations remain external evidence to obtain through the [adoption plan](../adoption.md).
+An extension claim additionally needs its complete source/update/errata review and applicable acceptance cases. No ordinary IMAP command requires legacy clients to hide an Email/2 negotiation message. Cross-provider operation and independent implementations remain external evidence to obtain through the [adoption plan](../adoption.md).

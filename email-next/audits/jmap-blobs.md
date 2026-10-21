@@ -13,7 +13,7 @@ The complete base text of [RFC9404](https://www.rfc-editor.org/rfc/rfc9404.html)
 | 2 | Conventions Used in This Document | Core JMAP types and requirement conventions reviewed. |
 | 3 | Addition to the Capabilities Object | Blob capability has session and per-account placement. |
 | 3.1 | urn:ietf:params:jmap:blob | Creation-size/source-count limits and supported types/digests are account capabilities; at least64 sources supported. Null size limit does not guarantee resource availability or remove client bounds. |
-| 3.1.1 | Capability Example | Capability example reviewed; server digest preference is not Email Next cryptographic algorithm policy. |
+| 3.1.1 | Capability Example | Capability example reviewed; server digest preference is not Email/2 cryptographic algorithm policy. |
 | 4 | Blob Methods | Blob/copy remains core; blobs are arbitrary octet sequences. |
 | 4.1 | Blob/upload | Upload concatenates ordered sources; invalid ranges/data fail the creation without guessing. Created IDs support later methods; expiry semantics remain core JMAP. Media type is a hint. |
 | 4.1.1 | Blob/upload Simple Example | Wrapped base64 is a publication convenience, not wire whitespace permission. |
@@ -30,7 +30,7 @@ The complete base text of [RFC9404](https://www.rfc-editor.org/rfc/rfc9404.html)
 | 6.3 | Creation of "JMAP Data Types" Registry | Creates specification-required data-type registry with blob/state-change flags; initial table is not a live registry snapshot. |
 | 7 | References | Complete reference lists, acknowledgments and author end matter reviewed. |
 | 7.1 | Normative References | Core JMAP, base64, digest and requirement references remain separately scoped; digest-registry successor applicability requires review. |
-| 7.2 | Informative References | IMAP literal, registration, JMAP Mail and MDN references do not define Email Next resource manifests. |
+| 7.2 | Informative References | IMAP literal, registration, JMAP Mail and MDN references do not define Email/2 resource manifests. |
 
 ## Source inconsistencies
 
@@ -38,7 +38,7 @@ The upload type description includes application/octet-string, while examples us
 
 ## Example calculation
 
-The literal45-octet sentence in Section4.2.1 reproduces its full SHA1 value. Its9-octet range at offset4 reproduces both published SHA1 and SHA256 values. These calculations validate those example bytes only; they do not recommend SHA1 for Email Next authentication or verify the other examples as complete executable API exchanges.
+The literal45-octet sentence in Section4.2.1 reproduces its full SHA1 value. Its9-octet range at offset4 reproduces both published SHA1 and SHA256 values. These calculations validate those example bytes only; they do not recommend SHA1 for Email/2 authentication or verify the other examples as complete executable API exchanges.
 
 ## Resource binding
 

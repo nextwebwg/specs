@@ -5,7 +5,7 @@ sectionNav: true
 
 # OpenPGP format audit
 
-[OpenPGP](https://www.rfc-editor.org/rfc/rfc9580.html) supplies encrypted message packets, signatures, certificates and authenticated capability preferences. It leaves mailbox ownership, contact discovery, account recovery and conversation membership to the application. Email Next can reuse the cryptographic formats without asking users to manage packet formats or infer trust from a key ID.
+[OpenPGP](https://www.rfc-editor.org/rfc/rfc9580.html) supplies encrypted message packets, signatures, certificates and authenticated capability preferences. It leaves mailbox ownership, contact discovery, account recovery and conversation membership to the application. Email/2 can reuse the cryptographic formats without asking users to manage packet formats or infer trust from a key ID.
 
 The complete RFC9580 text has been read, including all tables, algorithms, examples, references and appendices. All nine records in the captured RFC Editor errata corpus were also read. This is a source review, not a cryptographic implementation or interoperability test. Captured official metadata lists no updating or obsoleting RFC; the live information page confirms Proposed Standard status and the replacement of RFC4880, RFC5581 and RFC6637. The live all-status listing on 20 October 2026 matches all nine captured records in ID, status, original/corrected text and notes; current metadata matches the recorded relationships. Referenced cryptographic dependencies require their own review.
 
@@ -27,7 +27,7 @@ This review therefore treats reuse as a research option, not the proposed defaul
 
 ## Section review
 
-A row naming a range or “all subparts” applies its disposition to every section in that range, including nested subsections. The source algorithms and wire tables remain authoritative; this table records their effect on Email Next rather than reproducing a cryptographic specification.
+A row naming a range or “all subparts” applies its disposition to every section in that range, including nested subsections. The source algorithms and wire tables remain authoritative; this table records their effect on Email/2 rather than reproducing a cryptographic specification.
 
 | Section | Topic | Disposition |
 | --- | --- | --- |
@@ -43,7 +43,7 @@ A row naming a range or “all subparts” applies its disposition to every sect
 | 4, 4.1 | Packet boundaries | Inner lengths cannot escape their enclosing packet. Do not recover malformed data by scanning arbitrary bytes for a convenient packet. |
 | 4.2–4.2.3, all subparts | Packet headers and lengths | Implement definite, partial and historical forms with their generation restrictions. Partial lengths are limited to the specified packet types. |
 | 4.3 | Criticality | Unknown critical packet types invalidate the sequence; unknown noncritical types are ignored. This differs from an invalid individual signature. |
-| 5 | Packet registry | Packet identifiers and their criticality are protocol facts, not freely reusable Email Next extension points. |
+| 5 | Packet registry | Packet identifiers and their criticality are protocol facts, not freely reusable Email/2 extension points. |
 | 5.1–5.1.2 | Recipient envelopes | Couple PKESK versions to the encrypted data version. Key version and envelope version are different fields. |
 | 5.1.3–5.1.4 | RSA and Elgamal envelopes | Follow wrapping rules and later algorithm restrictions; legacy parsing is not permission to generate new Elgamal ciphertext. |
 | 5.1.5–5.1.7 | ECDH and native X25519/X448 | These use distinct encodings and derivation rules. Preserve recipient binding and the version-dependent algorithm octet corrected by erratum 8847. |
@@ -113,7 +113,7 @@ A row naming a range or “all subparts” applies its disposition to every sect
 | 13.12–13.13 | Forwarding and subpacket authority | Use intended-recipient context against transplantation; unhashed annotations cannot supply authenticated capabilities. |
 | 13.14 | Malicious compression | Bound resource consumption and nesting; prevent crash reports from leaking decrypted content. |
 | 14–14.1 | Implementation and fingerprint migration | Preserve full version 6 identifiers. Do not silently truncate them into old 20-byte fields; MIME armor requirements remain a separate profile obligation. |
-| 15–15.6.3.3, all subparts | Registries | Follow each registry's allocation policy and coordinated version changes. This review allocates no Email Next identifier. |
+| 15–15.6.3.3, all subparts | Registries | Follow each registry's allocation policy and coordinated version changes. This review allocates no Email/2 identifier. |
 | 16–16.2 | References | Treat cited standards as dependencies, not as reviewed merely because their reference entries were read. |
 | Appendix A–A.12.3, all subparts | Test vectors | All key, signature, S2K, wrapping and EAX/OCB/GCM vectors and intermediate values were read. They remain unexecuted acceptance-test inputs; public sample secrets are not credentials. |
 | Appendix B, B.1 | Migration and terms | The summary does not weaken generation prohibitions in the main text. Migration changes fingerprints, capabilities and identity handling. |
@@ -141,4 +141,4 @@ Several additional wording or annotation issues need confirmation before impleme
 
 A library-backed implementation needs known-answer tests for the selected algorithms and packet versions, malformed-length and critical-packet tests, certificate/revocation tests, and decryption-failure tests that check both data release and observable error behavior. Run the published vectors rather than treating their presence as validation.
 
-Email Next also needs tests above the cryptographic layer: conflicting capability claims, recipient changes, copied signed content, unsigned metadata, missing or failed signatures, truncated encrypted events and cross-device history reconstruction. Those tests must verify the [delivery policy](../delivery-policy) and [security model](../security), not merely that a cryptographic operation returned success.
+Email/2 also needs tests above the cryptographic layer: conflicting capability claims, recipient changes, copied signed content, unsigned metadata, missing or failed signatures, truncated encrypted events and cross-device history reconstruction. Those tests must verify the [delivery policy](../delivery-policy) and [security model](../security), not merely that a cryptographic operation returned success.

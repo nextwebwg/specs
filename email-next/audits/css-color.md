@@ -5,7 +5,7 @@ sectionNav: true
 
 # Message colors and user palettes
 
-Email Next permits opaque three- or six-digit hexadecimal sender colors, plus transparent backgrounds. The client owns system colors and accessibility overrides. Accepting a color does not establish readable contrast.
+Email/2 permits opaque three- or six-digit hexadecimal sender colors, plus transparent backgrounds. The client owns system colors and accessibility overrides. Accepting a color does not establish readable contrast.
 
 ## Selected color meanings
 

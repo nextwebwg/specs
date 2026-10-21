@@ -64,3 +64,8 @@ The joined vote path persists exact candidate bodies in the durable signing data
 Legacy local staged rows without validated observation provenance fail closed. A raw retained exchange cannot reconstruct whether an older peer vote followed complete MLS inspection. Upgrades cannot silently treat that missing provenance as an empty proposal list; the experiment does not provide automatic migration of those older separately stored voting states. Affected deployments require fresh authorized admission.
 
 [`test_quorum_signed_exchange.py`](evidence/test_quorum_signed_exchange.py) exercises signed discovery through actual initial admission, durable exchange1 SMTP delivery, carrier2 installation, and established7 admission followed by protected application traffic. It checks wrong-purpose signatures, expiry, missing/reordered witness evidence, old-version rejection and immutable delivery holds after support renewal. The version0 test also carries a quorum view change over mail and accepts a delayed lower-view decision for the same candidate. These are local experiments, not independent implementation or public deployment results.
+
+
+## Combined suite binding
+
+The separately versioned [required conversation suite](suite-profile.md) defines its new assertion, context, invitation, ordering-wrapper and payload selections. It does not change any older version defined here. Its design is specified separately from implementation and acceptance evidence.

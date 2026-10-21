@@ -5,7 +5,7 @@ sectionNav: true
 
 # JMAP Mail audit
 
-The complete captured [RFC8621](https://www.rfc-editor.org/rfc/rfc8621.html) text has been reviewed, including examples, registrations, references and end matter. Its mailbox model supports conversation retrieval, but provider threads, parsed fields and submission status do not replace authenticated Email Next events.
+The complete captured [RFC8621](https://www.rfc-editor.org/rfc/rfc8621.html) text has been reviewed, including examples, registrations, references and end matter. Its mailbox model supports conversation retrieval, but provider threads, parsed fields and submission status do not replace authenticated Email/2 events.
 
 ## Section dispositions
 
@@ -84,7 +84,7 @@ The complete captured [RFC8621](https://www.rfc-editor.org/rfc/rfc8621.html) tex
 | 9.4 | Email Submission | Proxy authentication and filtering do not provide endpoint authorship. |
 | 9.5 | Partial Account Access | Inaccessible records appear absent; duplicate errors may disclose hidden existence. |
 | 9.6 | Permission to Send from an Address | From and MAIL FROM permissions differ; redirect exception is not identity delegation. |
-| 10 | IANA Considerations | Registration entries do not establish Email Next adoption. |
+| 10 | IANA Considerations | Registration entries do not establish Email/2 adoption. |
 | 10.1 | JMAP Capability Registration for "mail" | Mail capability registration does not include submission authority. |
 | 10.2 | JMAP Capability Registration for "submission" | Submission capability registration remains separately scoped. |
 | 10.3 | JMAP Capability Registration for "vacationresponse" | Vacation capability registration describes automatic-response settings. |

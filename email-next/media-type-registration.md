@@ -7,7 +7,7 @@ sectionNav: true
 
 # Event media-type registration proposal
 
-The proposed event media type is `application/vnd.threadlabs.email-next-event+json`. It identifies one Email Next contribution object under the [event encoding](event-encoding.md) and operation schemas. It does not identify identity bundles, MLS packets, group controls or arbitrary JSON. Those representations require their own bindings.
+The proposed event media type is `application/vnd.threadlabs.email-next-event+json`. It identifies one Email/2 contribution object under the [event encoding](event-encoding.md) and operation schemas. It does not identify identity bundles, MLS packets, group controls or arbitrary JSON. Those representations require their own bindings.
 
 > [!warn] Unregistered candidate
 > This is a local registration proposal, not an assigned name or a filed request. The IANA media-type list had no matching entry when checked on 19 October 2026; absence is not a reservation. Experimental use requires explicit agreement on this draft. Contact and change-controller nominations and a stable published specification are required before submission. Public interoperability is not claimed.
@@ -20,7 +20,7 @@ No required or optional media parameters are defined. In particular, neither cha
 
 This type defines no fragment identifier syntax or semantics beyond any applicable generic +json rules. JSON Pointer is not implicitly selected. A URI fragment cannot authorize a form answer, select an audience or substitute for an exact authenticated event reference.
 
-A generic JSON processor may inspect the representation. Only an Email Next processor satisfying schema, protection-context, identity, membership, reference and replay checks may apply structured effects. The type name is untrusted input and cannot establish any of those checks.
+A generic JSON processor may inspect the representation. Only an Email/2 processor satisfying schema, protection-context, identity, membership, reference and replay checks may apply structured effects. The type name is untrusted input and cannot establish any of those checks.
 
 ## Registration template
 
@@ -33,8 +33,8 @@ A generic JSON processor may inspect the representation. Only an Email Next proc
 | Encoding considerations | Binary; one UTF-8 JSON object. No BOM. MIME transfer encoding is supplied by the email binding. |
 | Security considerations | See the analysis below and the draft's security, identity and interaction requirements. The representation supplies no confidentiality or sender authentication by itself. |
 | Interoperability considerations | A restricted JSON profile with explicit versioning; generic JSON validity is insufficient. Unsupported versions, parameters and operations remain inactive. Exact authenticated bytes must survive transfer decoding. |
-| Published specification | This Email Next editor's draft, especially event encoding, identifiers, messages and the selected operation schemas. Deferred general forms are outside the first-version scope. A stable public revision URL must replace this local reference before submission. |
-| Applications that use this media type | Experimental Email Next clients and conformance tools; this description is not an exhaustive application list or evidence of deployed support. |
+| Published specification | This Email/2 editor's draft, especially event encoding, identifiers, messages and the selected operation schemas. Deferred general forms are outside the first-version scope. A stable public revision URL must replace this local reference before submission. |
+| Applications that use this media type | Experimental Email/2 clients and conformance tools; this description is not an exhaustive application list or evidence of deployed support. |
 | Fragment identifier considerations | No additional fragment semantics; applicable generic +json rules take precedence. |
 | Deprecated alias names | N/A |
 | Magic numbers | N/A; JSON object syntax is not a unique magic number. |
@@ -43,7 +43,7 @@ A generic JSON processor may inspect the representation. Only an Email Next proc
 | Person and email address for further information | Unassigned; a responsible contact must be nominated before submission. |
 | Intended usage | LIMITED USE during the experimental profile. |
 | Restrictions on usage | Agreed experiments implementing this draft; not a general JSON, identity-record or MLS-packet carrier. |
-| Author | Email Next draft editors; the submission must identify the responsible authors. |
+| Author | Email/2 draft editors; the submission must identify the responsible authors. |
 | Change controller | Proposed: the Threadlabs Studio project maintainer responsible for the vendor-tree registration. No appointment or registration authority is claimed by this draft. |
 | Provisional registration | N/A; the RFC6838 provisional mechanism is for standards-tree registrations. |
 
@@ -59,7 +59,7 @@ Parsers must enforce the event byte/depth limits, reject duplicate members befor
 
 This event representation defines no compression. Attachments and encrypted containers have separate bounds and security requirements. If another layer compresses content, it must enforce its own expansion limits before the event limits are evaluated. URLs, filenames, labels and resource references remain untrusted and cannot drive automatic navigation or filesystem writes.
 
-Legacy mail clients may display an attachment or select a readable alternative. The registration cannot guarantee either behavior, conceal a control message, or advertise that all recipients support Email Next. The generated attachment-message MIME experiment uses this candidate under an explicit local profile. Fourteen tests include rejection of generic JSON, unrelated suffix types and parameters, plus acceptance of case-insensitive type spelling. The separate MLS transport still uses an opaque attachment fixture. These tests do not establish legacy-client or independent implementation interoperability.
+Legacy mail clients may display an attachment or select a readable alternative. The registration cannot guarantee either behavior, conceal a control message, or advertise that all recipients support Email/2. The generated attachment-message MIME experiment uses this candidate under an explicit local profile. Fourteen tests include rejection of generic JSON, unrelated suffix types and parameters, plus acceptance of case-insensitive type spelling. The separate MLS transport still uses an opaque attachment fixture. These tests do not establish legacy-client or independent implementation interoperability.
 
 ## Basis and outstanding submission work
 

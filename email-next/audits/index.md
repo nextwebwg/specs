@@ -5,7 +5,7 @@ sectionNav: true
 
 # Audit review index
 
-This index links recorded base-document reviews. It does not certify dependency closure, deployed interoperability or the complete Email Next design. The source inventory currently contains 160 RFCs; 160 have a recorded complete base-text review. Other documents may have individual reviewed points without a full audit.
+This index links recorded base-document reviews. It does not certify dependency closure, deployed interoperability or the complete Email/2 design. The source inventory currently contains 160 RFCs; 160 have a recorded complete base-text review. Other documents may have individual reviewed points without a full audit.
 
 | RFC | Recorded review |
 | --- | --- |
@@ -254,3 +254,5 @@ The [OAuth framework audit](oauth-framework.md) provides complete RFC6749 sectio
 ## Image interpretation
 
 The [image-format audit](image-formats.md) records selected PNG, JPEG, Exif and ICC requirements, their compression dependencies and correction dispositions. It defines orientation, high-depth and color behavior separately from the decoder experiment. These scoped reviews do not increase the full-RFC base-review count.
+
+The [Apple email relay comparison](relay-aliasing.md) covers selected public product documentation: aliases, forwarding, sender authentication and service-specific controls. It is not a full RFC review and does not change the source-inventory count.

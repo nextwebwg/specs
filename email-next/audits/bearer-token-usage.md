@@ -5,7 +5,7 @@ sectionNav: true
 
 # Bearer token usage audit
 
-RFC6750 supplies the existing Authorization header and challenge/error contract for the proposed HTTPS button service. It does not define Email Next principal association, grant acquisition, idempotency or portable signed service receipts. Full OAuth conformance is not established by using its header.
+RFC6750 supplies the existing Authorization header and challenge/error contract for the proposed HTTPS button service. It does not define Email/2 principal association, grant acquisition, idempotency or portable signed service receipts. Full OAuth conformance is not established by using its header.
 
 ## Service-answer consequences
 
@@ -15,7 +15,7 @@ Missing or unusable credentials require a Bearer WWW-Authenticate challenge. Dis
 
 The resource server must restrict audience, scope and lifetime using authenticated token content or authoritative opaque-token state; RFC6750 does not require JWT or define an introspection protocol. Client certificate/server identity verification and confidentiality extend to backend hops after TLS termination. An expiry claim supplied by the attacker or response arrival time cannot extend access. Access-token lifetime is separate from the action retry deadline and deduplication retention. Bearer theft allows use without the original client's device key; no device-authentication assurance should be inferred.
 
-The base source's one-hour-or-less lifetime is a SHOULD recommendation, especially for browser-like exposure, not a universal one-hour MUST. Its discussion of TLS1.0 deployment is historical: metadata lists RFC8996 and RFC9700 updates that must be reviewed before adopting a current TLS/OAuth profile. The Email Next choices of no cookies, no redirects and no query/body token transport are explicit narrower application rules. The source's token-response example belongs to OAuth issuance and cannot be parsed as the draft's number-free answer JSON.
+The base source's one-hour-or-less lifetime is a SHOULD recommendation, especially for browser-like exposure, not a universal one-hour MUST. Its discussion of TLS1.0 deployment is historical: metadata lists RFC8996 and RFC9700 updates that must be reviewed before adopting a current TLS/OAuth profile. The Email/2 choices of no cookies, no redirects and no query/body token transport are explicit narrower application rules. The source's token-response example belongs to OAuth issuance and cannot be parsed as the draft's number-free answer JSON.
 
 ## Evidence
 
@@ -31,16 +31,16 @@ Full eighteen-page base text, all grammar/examples, flow figure, references and 
 | 2 | Never transmit a token by multiple methods in one request. |
 | 2.1 | Authorization Bearer scheme with one or more SP and b64token grammar; server must support header method. Token spelling is opaque, not a mandate to base64-decode. |
 | 2.2 | Form-body method requires single-part ASCII form encoding and appropriate method; GET prohibited. Not selected for JSON answer POST. |
-| 2.3 | Query token method and examples reviewed; discouraged due disclosure. Email Next excludes it and applies stricter no-store responses. |
+| 2.3 | Query token method and examples reviewed; discouraged due disclosure. Email/2 excludes it and applies stricter no-store responses. |
 | 3 | Missing/inadequate credentials require WWW-Authenticate; Bearer challenge with auth parameters. Single occurrences, character sets and realm/scope/error roles reviewed; scope/error text not user-facing instructions. |
 | 3.1 | invalid_request normally400, invalid_token401, insufficient_scope403; absent credentials normally omit error detail. Retry after renewal does not authorize new action identity. |
-| 4 | Complete issuance example read; numeric expires_in belongs to OAuth issuance schema, not the restricted Email Next JSON schema. |
+| 4 | Complete issuance example read; numeric expires_in belongs to OAuth issuance schema, not the restricted Email/2 JSON schema. |
 | 5 | Security scope and reliance on OAuth security guidance reviewed. |
 | 5.1 | Manufacture/modification, disclosure, redirect and replay threats reviewed. Token audience confusion is distinct from HTTP redirect following. |
 | 5.2 | Integrity or unguessable opaque references, audience/scope, protected token transport including TLS termination backends, certificate validation, bounded lifetime reviewed. Token encoding/introspection mechanics unspecified. |
 | 5.3 | Safeguarding, server identity/TLS, cookie exposure/CSRF, short lifetimes, scope/audience and URL leakage recommendations reviewed. |
 | 6 | All registry material read. |
-| 6.1 | Existing access token type registration, no new Email Next registration supplied. |
+| 6.1 | Existing access token type registration, no new Email/2 registration supplied. |
 | 6.1.1 | Bearer registration fields read; IETF change control preserved. |
 | 6.2 | Error registry introduction reviewed. |
 | 6.2.1 | invalid_request resource access error registration reviewed. |

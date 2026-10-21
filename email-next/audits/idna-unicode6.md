@@ -9,7 +9,7 @@ sectionNav: true
 
 The two Kannada signs U+0CF1 and U+0CF2 changed from symbols to letters and therefore from DISALLOWED to PVALID. New Tai Lue Tham digit one, U+19DA, changed from a decimal digit to another numeric category and therefore from PVALID to DISALLOWED. The underlying IDNA calculation was unchanged.
 
-This decision applies to those changes. It does not authorize every future property change, select Unicode6 for Email Next, or allow a validator to mix data versions. Later review follows [RFC8753](idna-unicode-review.md).
+This decision applies to those changes. It does not authorize every future property change, select Unicode6 for Email/2, or allow a validator to mix data versions. Later review follows [RFC8753](idna-unicode-review.md).
 
 ## Evidence
 

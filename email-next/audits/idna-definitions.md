@@ -5,7 +5,7 @@ sectionNav: true
 
 # IDNA domain-label definitions
 
-[RFC5890](https://www.rfc-editor.org/rfc/rfc5890.html) distinguishes a valid A-label from an ASCII string that merely starts with `xn--`. Email Next's discovery and service-origin profiles require validated labels; the current experiments' refusal of A-label hosts remains an implementation limitation.
+[RFC5890](https://www.rfc-editor.org/rfc/rfc5890.html) distinguishes a valid A-label from an ASCII string that merely starts with `xn--`. Email/2's discovery and service-origin profiles require validated labels; the current experiments' refusal of A-label hosts remains an implementation limitation.
 
 ## What validation means
 
@@ -13,7 +13,7 @@ An A-label is a complete ASCII label that decodes to a valid Unicode U-label and
 
 The encoded label must satisfy the 63-octet DNS limit, including the four-octet prefix. U-label storage must allow expansion rather than assuming the ASCII byte length. Other reserved LDH labels with hyphens in positions three and four are not ordinary NR-LDH labels for IDNA-aware processing. Underscore service labels belong to a different naming convention.
 
-Compare A-labels with ASCII case-insensitive comparison; compare validated U-labels exactly. Generation uses lowercase A-labels, consistent with Email Next's narrower canonical domain spelling. Neither comparison nor successful DNS resolution proves ownership. Visual resemblance remains a display-security problem.
+Compare A-labels with ASCII case-insensitive comparison; compare validated U-labels exactly. Generation uses lowercase A-labels, consistent with Email/2's narrower canonical domain spelling. Neither comparison nor successful DNS resolution proves ownership. Visual resemblance remains a display-security problem.
 
 IDNA applies to domain-name slots. It does not normalize email local parts, arbitrary message text, identity proofs or authenticated event bytes. NFC validation of a decoded domain label is not permission to normalize the enclosing record.
 

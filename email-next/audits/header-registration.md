@@ -9,7 +9,7 @@ sectionNav: true
 
 ## Finding
 
-Registration identifies a field's name, protocol, status and defining document. It does not authenticate a received value, prescribe a universal parser, or confer endorsement on a provisional proposal. Email Next must define its fields precisely and distinguish proposed registrations from completed ones.
+Registration identifies a field's name, protocol, status and defining document. It does not authenticate a received value, prescribe a universal parser, or confer endorsement on a provisional proposal. Email/2 must define its fields precisely and distinguish proposed registrations from completed ones.
 
 | Section | Disposition |
 | --- | --- |
@@ -37,7 +37,7 @@ Registration identifies a field's name, protocol, status and defining document. 
 | 7 | Acknowledgements reviewed. |
 | 8 | References reviewed, closure not claimed. |
 | 8.1 | Standards-process and IANA-policy successors need review;5322 message-format baseline reviewed separately,5322bis revision newly identified. |
-| 8.2 | Broad cross-protocol field examples are informative sources, not automatic Email Next dependencies or current behavior claims. |
+| 8.2 | Broad cross-protocol field examples are informative sources, not automatic Email/2 dependencies or current behavior claims. |
 | 9 | Author details reviewed. |
 | 10 | Copyright, IPR and funding notices reviewed. |
 
@@ -49,7 +49,7 @@ The [IANA registry](https://www.iana.org/assignments/message-headers) lists Expe
 
 The linked [rfc5322bis-12 revision](https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12/) is presented by Datatracker as an Internet-Draft with conditional replacement/update language. Datatracker API state checked on 19 October 2026 places both rfc5322bis-12 and rfc5321bis-44 in the RFC Editor queue, with RFC Editor state Blocked and IANA action state RFC-Ed-Ack. No numbered RFC was supplied by those document records. This explains why registry actions can appear before final publication; it does not establish a new published baseline. Full revision audits remain required. An IANA reference label is not, by itself, evidence of a numbered RFC publication. This dependency is additional to the RFC inventory's metadata successor checks.
 
-## Email Next consequence
+## Email/2 consequence
 
 The [baseline](../baseline.md) requires protocol scope, syntax, cardinality, duplicate handling, authority, forwarding behavior, exposure and protection coverage for each new field. Keep mail, MIME and HTTP definitions distinct. Publish a stable specification and prepare accurate templates before requesting registration; this audit submits nothing externally.
 

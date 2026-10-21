@@ -22,7 +22,7 @@ sectionNav: true
 | 8 | Author information reviewed. |
 | 9 | Copyright and acknowledgement reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 A command batch does not create an atomic all-recipient send. Maintain a command queue and correlate each complete reply by position, retaining every recipient's result. A multiline response belongs to one command; several250 replies do not form one response.
 

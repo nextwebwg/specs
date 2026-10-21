@@ -53,4 +53,4 @@ Acceptance cases: reversed section order, an unstarred literal percent escape, a
 
 ## Historical source closure
 
-The superseded [RFC2184 review](mime-parameter-history.md) records its three verified errata and remaining transcription inconsistencies. RFC2184's erroneous one-based continuation example and omitted encoded-word encoding field are not alternate Email Next wire formats. Current generation and validation follow RFC2231; any legacy display recovery must preserve ambiguity rather than authorize an operation from guessed metadata.
+The superseded [RFC2184 review](mime-parameter-history.md) records its three verified errata and remaining transcription inconsistencies. RFC2184's erroneous one-based continuation example and omitted encoded-word encoding field are not alternate Email/2 wire formats. Current generation and validation follow RFC2231; any legacy display recovery must preserve ambiguity rather than authorize an operation from guessed metadata.

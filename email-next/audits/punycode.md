@@ -9,15 +9,15 @@ sectionNav: true
 
 ## What the encoding preserves
 
-Punycode copies basic ASCII characters in their original order and represents other code points with an adaptive sequence of integer differences. Its parameters are fixed; generic Bootstring alternatives are not additional Email Next encodings. Input consists of code points, not UTF-16 code units.
+Punycode copies basic ASCII characters in their original order and represents other code points with an adaptive sequence of integer differences. Its parameters are fixed; generic Bootstring alternatives are not additional Email/2 encodings. Input consists of code points, not UTF-16 code units.
 
-A decoder recognizes uppercase and lowercase forms of encoded digits. Literal ASCII case is copied; optional mixed-case annotations are separate from the decoded code points. Those annotations are not used by IDNA. Email Next's canonical lowercase A-label spelling remains a higher-layer requirement, not evidence that all the RFC's mixed-case examples are erroneous.
+A decoder recognizes uppercase and lowercase forms of encoded digits. Literal ASCII case is copied; optional mixed-case annotations are separate from the decoded code points. Those annotations are not used by IDNA. Email/2's canonical lowercase A-label spelling remains a higher-layer requirement, not evidence that all the RFC's mixed-case examples are erroneous.
 
 ## Fail safely
 
 The decoding procedure rejects invalid digits, premature end of input and arithmetic overflow. Output allocation and Unicode scalar checks remain necessary. The source discusses delayed overflow detection by re-encoding within the older IDNA ToUnicode pipeline; that is not permission to expose unchecked intermediate output or use unsafe arithmetic. Complete A-label validation retains its own round-trip and validity checks.
 
-The original references to Nameprep describe IDNA2003. RFC5891 updates the surrounding protocol; this review does not restore Nameprep, add UTS46 mapping or normalize authenticated bytes. The sample wrapper's buffer sizes are examples, not Email Next limits.
+The original references to Nameprep describe IDNA2003. RFC5891 updates the surrounding protocol; this review does not restore Nameprep, add UTS46 mapping or normalize authenticated bytes. The sample wrapper's buffer sizes are examples, not Email/2 limits.
 
 ## Evidence and errata
 

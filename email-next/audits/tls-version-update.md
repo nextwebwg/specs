@@ -20,11 +20,11 @@ The email submission/access update raises the older TLS 1.1 baseline to TLS 1.2.
 | 5 | Security rationale depends on8996 deprecation; complete TLS algorithm/profile review remains open. |
 | 6 | Reference classification reviewed; dependency review remains separate. |
 | 6.1 | 8314,8996,TLS1.2,TLS1.3 and requirement-keyword dependencies identified. A version number alone does not specify cipher policy or certificate validation. |
-| 6.2 | TLS1.1 is a historical informative reference, not a selected Email Next protocol. |
+| 6.2 | TLS1.1 is a historical informative reference, not a selected Email/2 protocol. |
 
 | Front and end matter | Abstract, standards status, copyright, acknowledgements and author addresses reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Do not import TLS 1.1 defaults from the unamended RFC 8314. The submission/access profile must apply the version update together with current certificate and algorithm guidance. A protocol-version check alone is insufficient: an invalid certificate or an unmet account policy still prevents a confidential-connection indication.
 

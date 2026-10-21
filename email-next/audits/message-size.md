@@ -26,7 +26,7 @@ sectionNav: true
 | 11 | Historical SMTP/message/MIME references map to reviewed modern base documents; DNS and complete dependency closure remain open. |
 | 12 | Author contact information reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 A rich contribution's size is its final transmitted MIME representation, including encoding and protection overhead. Splitting deliveries by recipient may produce different sizes. A size rejection does not authorize removing encryption, dropping content, moving attachments to a host or changing the audience.
 

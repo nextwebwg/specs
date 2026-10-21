@@ -29,7 +29,7 @@ The complete 1795-line captured text of [RFC6838](https://www.rfc-editor.org/rfc
 | 4.2.5 | Application Media Types | Application is suitable for machine-processed interactions; the scheduling example is relevant prior art, not an automatic-action permission. |
 | 4.2.6 | Multipart and Message Media Types | Composite types retain RFC2046 rules as amended by RFC6532; new labels do not bypass MIME transfer restrictions. |
 | 4.2.7 | Additional Top-Level Types | Read with the separately audited RFC9694 update; no new top-level type is proposed. |
-| 4.2.8 | Structured Syntax Name Suffixes | Suffix must match actual syntax and its registered rules; +json grants generic syntax handling, not Email Next semantics. |
+| 4.2.8 | Structured Syntax Name Suffixes | Suffix must match actual syntax and its registered rules; +json grants generic syntax handling, not Email/2 semantics. |
 | 4.2.9 | Deprecated Aliases | Preferred name and deprecated aliases require explicit handling; aliases do not create additional formats. |
 | 4.3 | Parameter Requirements | Parameter syntax, values and meaning must be defined; duplicates are errors, order irrelevant, and parameters are not an unrestricted feature-negotiation channel. |
 | 4.4 | Canonicalization and Format Requirements | Canonical format and public specification requirements reviewed; this does not instruct receivers to reserialize signed payload bytes. |
@@ -61,7 +61,7 @@ The complete 1795-line captured text of [RFC6838](https://www.rfc-editor.org/rfc
 | Appendix A | Grandfathered Media Types | Grandfathering needs the stated review and approvals; not a shortcut for choosing a new unregistered name. |
 | Appendix B | Changes since RFC 4288 | All listed changes from RFC4288 reviewed, including suffixes, provisional registration, aliases and naming grammar. |
 
-## Consequences for Email Next
+## Consequences for Email/2
 
 Use the application category for machine-processed events. A vendor-tree registration can support a noncommercial implementation project without claiming recognized standards-body status. A future standards-tree registration requires its applicable eligibility and review process. Neither NextWebWG's name nor a published proposal establishes IESG recognition. No registration request, provisional assignment or approval has been obtained by this work.
 

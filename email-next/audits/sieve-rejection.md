@@ -27,11 +27,11 @@ The complete base text of [RFC5429](https://www.rfc-editor.org/rfc/rfc5429.html)
 | 5.2 | "ereject" Extension Registration | Ereject registration favors early protocol rejection and may replace non-ASCII reasons. |
 | 6 | References | Complete references reviewed. |
 | 6.1 | Normative References | DSN, LMTP, enhanced replies, MDN, multipart reports, Sieve, SMTP, UTF-8 and vacation dependencies remain separately scoped. |
-| 6.2 | Informative References | Historical Sieve, responder guidance, spam tests and drafts do not establish current Email Next encryption fallback policy. |
+| 6.2 | Informative References | Historical Sieve, responder guidance, spam tests and drafts do not establish current Email/2 encryption fallback policy. |
 | Appendix A | Acknowledgements | Acknowledgments reviewed. |
 | Appendix B | Contributors | Contributors and author end matter reviewed; no additional wire requirements. |
 
-## Email Next consequences
+## Email/2 consequences
 
 Failure is recipient-specific. A successful SMTP transaction with mixed downstream acceptance cannot be projected as universal delivery, while one rejection cannot mark all recipients failed. A4xx deferral retains retry semantics; it does not establish that encryption is unsupported.
 

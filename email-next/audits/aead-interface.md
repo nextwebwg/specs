@@ -7,7 +7,7 @@ sectionNav: true
 
 [RFC5116](https://www.rfc-editor.org/rfc/rfc5116.html) defines the AEAD interface used by the [selected HPKE and MLS suite](../security-profile.md). Associated data is authenticated but remains readable. Successful decryption establishes integrity under a key; it does not establish mailbox ownership, access authorization or replay protection.
 
-## Consequences for Email Next
+## Consequences for Email/2
 
 An authenticated decrypt operation returns plaintext or failure. Invalid lengths and authentication failures must not expose partially decrypted data. Structured associated data and plaintext must have an unambiguous interpretation that does not depend on unauthenticated parsing information. The enclosing MLS and application encodings remain authoritative.
 

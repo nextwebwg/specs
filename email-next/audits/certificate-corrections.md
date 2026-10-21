@@ -5,7 +5,7 @@ sectionNav: true
 
 # Certificate-profile corrections audit
 
-RFC 6818 updates RFC 5280's trust-anchor explanation, certificate-policy notice encoding, internationalized domain-component conversion and security considerations. These corrections do not establish a new Email Next certificate issuance program.
+RFC 6818 updates RFC 5280's trust-anchor explanation, certificate-policy notice encoding, internationalized domain-component conversion and security considerations. These corrections do not establish a new Email/2 certificate issuance program.
 
 **Review:** Complete 451-line, eight-page base text read, including every original/replacement paragraph, references and end matter; 15 explicit dispositions recorded. Current metadata identifies a January 2013 Proposed Standard updating RFC 5280, with no later update or replacement listed for RFC 6818 itself. The live official errata search reports no matching records.
 
@@ -15,7 +15,7 @@ RFC 6818 updates RFC 5280's trust-anchor explanation, certificate-policy notice 
 
 **Do not turn a self-signed leaf into an automatic exception.** Section 2 states that self-issued/self-signed certificates issued by non-CAs, and how relying parties authenticate with them, are outside RFC 5280's scope. They are not thereby forbidden in every possible application, but their presence is not a standards-defined substitute for the selected HTTPS trust path.
 
-**Do not use key identifiers as security proofs.** Section 6 explains that the security properties of one-way hashes are not required when generating authority/subject key identifiers. Those identifiers aid selection; they do not replace chain signature validation or establish trusted identity. This clarification does not relax certificate-signature algorithms or Email Next's cryptographic hashes. The same section explains that CA/RA workstation compromise can enable unauthorized issuance even without extracting the CA private key. Comparing issuer names and serial numbers alone cannot defend against that attack.
+**Do not use key identifiers as security proofs.** Section 6 explains that the security properties of one-way hashes are not required when generating authority/subject key identifiers. Those identifiers aid selection; they do not replace chain signature validation or establish trusted identity. This clarification does not relax certificate-signature algorithms or Email/2's cryptographic hashes. The same section explains that CA/RA workstation compromise can enable unauthorized issuance even without extracting the CA private key. Comparing issuer names and serial numbers alone cannot defend against that attack.
 
 **Apply current text to policy notices.** Section 3 changes `explicitText` issuance guidance: UTF8String is preferred; VisibleString and BMPString are acceptable but less preferred; IA5String is prohibited. NFC guidance applies to UTF8String and BMPString. This corrects the base text's opposite treatment of those alternatives. Preserve RFC 5280's distinction between issuance-profile rules and client path-validation rejection rules.
 

@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import subprocess
 import unittest
+from unittest.mock import patch
 from passive_discovery_package import validate_package
 
 class PackageAdapterTests(unittest.TestCase):
@@ -22,6 +23,20 @@ class PackageAdapterTests(unittest.TestCase):
         return validate_package(self.package if data is None else data,**args)
     def test_actual_package_end_to_end(self):
         self.assertEqual(self.call(),{'status':'package-valid'})
+    def test_configured_policy_reaches_actual_mls_validator_without_extending_expiry(self):
+        fixture=subprocess.run([str(self.validator.with_name('discovery-package-fixture')),'1209600'],capture_output=True,check=True)
+        key,now=fixture.stderr.decode().splitlines()
+        args=dict(accepted_signing_key=bytes.fromhex(key),earliest=now,latest=now)
+        with patch.dict(os.environ,{'EMAIL_NEXT_MAX_KEY_PACKAGE_LIFETIME_SECONDS':'604800'}):
+            self.assertEqual(self.call(fixture.stdout,**args)['reason'],'lifetime-policy')
+            self.assertEqual(self.call(fixture.stdout,maximum_lifetime='1209600',**args),{'status':'package-valid'})
+        with patch.dict(os.environ,{'EMAIL_NEXT_MAX_KEY_PACKAGE_LIFETIME_SECONDS':'1209600'}):
+            self.assertEqual(self.call(fixture.stdout,**args),{'status':'package-valid'})
+            expired=dict(args,earliest=str(int(now)+1209600),latest=str(int(now)+1209600))
+            self.assertEqual(self.call(fixture.stdout,**expired)['reason'],'lifetime-interval')
+        for maximum_lifetime in ['0','-1','01',str(2**64),1209600]:
+            with self.assertRaises(ValueError):self.call(maximum_lifetime=maximum_lifetime)
+
     def test_tamper_trailing_wrong_identity_key_and_time(self):
         for data in [self.package+b'\0',self.package[:-1]+bytes([self.package[-1]^1]),b'not MLS']:
             self.assertEqual(self.call(data)['status'],'rejected')

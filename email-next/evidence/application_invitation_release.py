@@ -64,7 +64,7 @@ class ApplicationInvitationRelease:
         version='2' if designated or 'payload' in application else '1';mode='designated-member-v0' if designated else 'fixed-roster-v0'
         encoded=profile(application)
         if any(op not in ({'answer','message','question','reaction','reaction-withdraw'}|({'attachment-message'} if application.get('payload')=='mime-contribution-v0' else set())) for op in application['operations']):raise ValueError('Unadvertised operation')
-        if not uint64(not_before)<=uint64(time['earliest'])<=uint64(time['latest'])<=uint64(not_after) or uint64(not_after)-uint64(not_before)>604800:raise ValueError('Invitation interval')
+        if not uint64(not_before)<=uint64(time['earliest'])<=uint64(time['latest'])<=uint64(not_after):raise ValueError('Invitation interval')
         request=canonical(dict(device=device['identity'],key=device['key'],selected=[dict(c,wrapper=c['wrapper'].hex()) for c in selected],application=application,conversation=conversation,notBefore=not_before,notAfter=not_after,**({'invitationVersion':'2'} if version=='2' else {})))
         self.db.execute('BEGIN IMMEDIATE')
         try:

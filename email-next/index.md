@@ -9,24 +9,67 @@ sectionNav: true
 
 # Email/2
 
-A protocol suite for interoperable email conversations.
+Email that feels like a conversation, across the addresses and providers people already use.
 
-> [!ex] The same conversation in different clients
-> Alice asks **Which day works?**, with **Tuesday** and **Thursday** as choices. Bob selects Thursday in his upgraded client. Carol sees an ordinary email listing the choices and replies, “Thursday works for me.”
->
-> Alice sees Bob's answer beside the question. Her client can suggest that Carol's reply belongs there too, while keeping Carol's words and making the interpretation visible. Nobody needs a new address. Carol can participate without installing anything.
-
-Email/2 starts with existing email delivery. Upgraded clients add explicit relationships and richer controls; upgraded providers can add discovery and protocol-message handling. A useful conversation view does not have to wait for everyone to upgrade.
-
-- [Explore the protocol suite](baseline.md#protocol-suite)
-- [Read the message model](messages.md)
+- [How the conversation works](#how-the-conversation-works)
+- [Follow the encryption journey](encryption-journey.md)
 
 ## Status of this document {.sotd}
 
-**Independent discussion draft.** The requirements describe proposed behavior, with exact experimental profiles in their owning chapters. A future standards venue has not been selected. Local reference implementations and tests support selected profiles; they do not establish adoption, independent interoperability or production security assurance.
+**Independent discussion draft.** Parts of the design have local implementations and tests; the complete system is not yet implemented or independently evaluated. A future standards venue has not been selected. The name is a proposed platform name, not an official version number assigned to Internet email.
 
+The main reading path explains the experience. The architecture chapters define the exact requirements an implementer must follow. Expandable sections contain wire formats, algorithms and compatibility details; those requirements still apply when their disclosure is closed.
 
-## Explore the suite
+## How the conversation works
+
+You write to a person, reply to a particular message, or answer a question with a button. Your app keeps the conversation in order and handles encryption when the people involved support it. You do not have to learn how encryption keys work.
+
+Email/2 is a proposed shared set of rules for making that work between different apps. It combines existing email delivery and established security protocols with new rules for conversations and rich messages. It is not a new email service you must join.
+
+> [!ex] Which day works?
+> Alice sends a question with **Tuesday** and **Thursday** buttons. Bob chooses Thursday. Alice sees his answer beside the question.
+>
+> Carol uses an older email app. She sees a readable question and replies, “Thursday works for me.” Her words remain intact; Alice's app can suggest the connection without pretending Carol pressed a button.
+
+## Replies have a place
+
+Every new reply identifies the message it answers. The app builds the conversation from the messages in your mailbox, instead of making you read another copy of the entire history beneath each reply.
+
+When you reply to something earlier, that connection stays visible. When you forward one message, you do not automatically send along the whole conversation. Older email can still appear in the same reading view; cleanup remains reversible when the app has to infer what was quoted.
+
+[Read about messages and replies](messages.md), or [how existing email is displayed](rendering.md).
+
+## Rich messages have shared rules
+
+Email/2 apps share a defined set of HTML and CSS features, so a message has a predictable presentation. Questions, answer buttons, images and attachments have defined meanings too. A button can answer within the conversation or, when explicitly configured, submit an answer to a connected service. Simply opening an email never presses it.
+
+Older apps receive a readable version when that delivery is permitted. Supporting an older app does not let an Email/2 app skip the shared rendering rules.
+
+## Encryption happens before the writing leaves
+
+For an encrypted send, your app first finds the recipient's authorized devices and obtains the public setup information it needs. Upgraded providers can exchange that information separately, without sending your writing or filling the inbox with handshake emails. Then your app encrypts the message and sends it through email infrastructure.
+
+If setup cannot finish, your writing waits. You can decide whether a recipient may instead receive ordinary email, a hosted link, or must use a compatible app. Those choices have different privacy consequences; the app must not quietly make the choice for you.
+
+Encryption protects message contents. Additional address-protection features can hide personal addresses from some systems carrying the mail. Neither feature makes all delivery metadata disappear or proves a new contact is who they claim to be.
+
+[Follow the encryption journey](encryption-journey.md), including the everyday experience, adding a device and recovery.
+
+## Add a device without starting over
+
+Scan a pairing code and approve the new device on one you already trust. The app brings across the security setup for your contacts and prepares the new device to send encrypted mail using its own keys. You should not have to re-verify every unchanged contact.
+
+Copying saved messages is separate from this setup. A new device can be ready for future encrypted email without possessing old messages or the keys used to carry them. Lost-device recovery also distinguishes recovering readable correspondence from authorizing a replacement device.
+
+## Adoption can happen gradually
+
+One app can make old email easier to read. Compatible apps can add structured replies and rich interactions. Encryption and provider-assisted setup add further capabilities. Personal-address protection can improve as providers adopt the necessary relay rules.
+
+These are independent capabilities within one specification, not a promise that every app displaying “Email/2” implements every feature. An indicator must describe the protection actually used for a message.
+
+[Read the client and provider adoption paths](adoption.md).
+
+::: {.details summary="Architecture: protocols, modules and exact behavior"}
 
 - [Modules and automatic protection upgrades](modules.md) defines independent client/provider capabilities, short terms and icon meanings within one specification.
 - [Protected conversation agreement](suite-profile.md) fixes the protected core and shared optional interaction modules; [design resolutions](design-resolution.md) tracks the remaining questions and evidence.
@@ -42,67 +85,9 @@ Email/2 starts with existing email delivery. Upgraded clients add explicit relat
 - [Private addressing](private-routing.md) separates personal addresses inside encryption from authorized provider relay addresses used for delivery; [route authorization](relay-routes.md) binds account permissions, peer approval and delivery proofs.
 - [Encrypting the first message](first-contact-setup.md) keeps the writing private while automatic provider-assisted setup runs, then releases the first encrypted human message; the [automatic exchange](bootstrap.md) defines who may ask, how providers verify authority and what setup may be returned. Complete joined implementation remains required.
 
-## What changes
+The [baseline](baseline.md#protocol-suite) names the incorporated standards and the new bindings between them. The [design inventory](design-resolution.md) records unresolved internal work. The [coverage table](interoperability.md#contract-coverage-and-remaining-decisions) separates specified behavior from demonstrated implementation.
 
-Email/2 bundles selected standards and protocols into a common conversation platform: explicit reply relationships, identifiable authored and quoted content, predictable rich rendering, interactions and negotiated protection. It builds on existing email infrastructure so clients and providers can adopt it in stages.
-
-Email already reaches people across providers. Its presentation often makes readers work through copies of earlier messages to find what changed. HTML support varies, an answer rarely identifies its question, and encryption often asks users to manage keys themselves.
-
-This proposal adds contracts for those missing relationships and behaviors:
-
-::: targets
-Conversations
-: Each contribution identifies what it replies to. Repeated quotations can collapse without losing the original message.
-
-Interactions
-: Questions and predefined answer buttons have explicit meanings. Readable text and HTML carry the same meaning for older clients.
-
-Presentation
-: A required, finite HTML/CSS profile is the shared presentation format for Email/2 clients. Plain-text alternatives serve existing email clients; they are not a substitute for Email/2 rendering support.
-
-Protection
-: Clients establish encryption automatically. The sender chooses whether incompatible recipients receive ordinary email, hosted access, or wait for a compatible endpoint.
 :::
-
-HTML/CSS presentation support is mandatory for Email/2 clients. Optional interaction modules, encryption and provider services are negotiated for their respective roles under the [module framework](modules.md). An account can have several devices and clients with different capabilities; one compatible client does not upgrade every client on that account.
-
-| Capability | What has to upgrade? |
-| --- | --- |
-| Reconstruct an old conversation | One reading client |
-| Send a predefined answer with one button press | Participating upgraded clients; others retain readable fallback |
-| Participate as an Email/2 reading client | Required HTML/CSS renderer; plain-text-only rendering does not qualify |
-| Deliver encrypted content automatically | Compatible endpoints with sufficient identity and key material |
-| Discover capabilities before an earlier exchange | An agreed discovery service |
-| Route negotiation outside the ordinary inbox | Provider support |
-
-The [adoption plan](adoption.md) separates client and server implementation paths and describes the acceptance tools needed to make both practical.
-
-## Encryption without routine key management
-
-[Encrypted archives](encrypted-archives.md) preserve correspondence independently of live identity and storage subscriptions. Their [protection selection](audits/archive-protection.md) distinguishes the inherited file encryption from the new signed history container.
-
-The [encryption journey](encryption-journey.md) defines setup, first contact, everyday sending, device changes and total-loss recovery, with mechanism coverage and failure cases.
-
-Automatic key exchange over existing email is the initial direction. Routine conversation should not need separately shared passwords, manual key management or repeated encryption toggles. Provider upgrades can improve discovery and support stronger checks without requiring a new address or abandoning email transport.
-
-When a recipient cannot decrypt, the sender's policy decides the outcome. Ordinary email and hosted access are explicit permitted tradeoffs, not equivalent forms of end-to-end encryption. The client can remember a policy, but must show the resulting exposure. An enforced-encryption policy cannot silently weaken after a discovery or delivery failure.
-
-The [delivery chapter](delivery-policy.md) defines these choices, including mixed recipients and partial delivery. The [security chapters](security.md) define the checks needed before a client can claim protected delivery.
-
-## How this specification uses existing email
-
-Email/2 defines a protocol suite: a selected bundle of standards and protocols, their required versions and constraints, and the bindings that make them operate together. Its conformance contract must identify a required baseline and separately negotiated extensions. It supplies new contracts where the incorporated standards leave gaps. MIME already carries alternate representations, and reply headers already connect messages. The platform contract distinguishes three kinds of requirements:
-
-- **Inherited standards:** existing rules that remain authoritative in their source specifications.
-- **Profile requirements:** selected capabilities, versions and constraints that implementations must support together for a particular negotiated profile.
-- **New extensions:** conversation semantics, content boundaries and other behavior that the inherited standards do not supply.
-
-The name identifies this proposed platform, not an official overall version number for Internet email. Support is established by the exact negotiated profiles, not by a claim to support “Email/2” alone.
-
-The main chapters explain behavior with examples. Expandable sections contain parsing rules, exact schemas and inherited compatibility details. Those details still apply; the disclosures let a reader follow the model before implementing every boundary.
-
-> [!note] Audit and implementation status
-> The [audit inventory](audit-inventory.md) distinguishes reviewed source text from dependency and implementation coverage. The [contract coverage table](interoperability.md#contract-coverage-and-remaining-decisions) identifies remaining internal work, while [external decisions](interoperability.md#external-standardization-and-adoption-decisions) cover venue, registrations and independent evaluation. No affiliation with or adoption by W3C, WHATWG or IETF is implied.
 
 ::: {.details summary="Implement the experimental protocol"}
 

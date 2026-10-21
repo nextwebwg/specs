@@ -52,6 +52,7 @@ Every rendered slot is delimited by processing instructions:
 <?start slot="row" scoped=""?>…<?end?>               <!-- slot rendering a consumer's <template slot> -->
 <?start slot="row" fallback="" scoped=""?>…<?end?>   <!-- slot with props showing its fallback -->
 <?marker slot="title"?>                              <!-- slot rendered empty, no fallback -->
+<?start slot="cell" of="1" scoped=""?>…<?end?>       <!-- a child's slot, placed by this component (proposed) -->
 ```
 
 - Attributes use the platform's pseudo-attribute syntax: quoted `name="value"` pairs. A bare attribute is a parse error that leaves the instruction with no attributes at all, so the default slot is written `slot=""`.[^2][^3]
@@ -83,7 +84,7 @@ The marks stay where the outlet rendered, because processing instructions, and t
 
 ## Content no slot renders yet
 
-A slot under a false `$if`, content for an `$each` row that does not exist yet, or a slot whose name is computed from state: the instance holds that content, and a later change can render it.
+A slot under a false `$if`, content for an `$each` row that does not exist yet, or a slot in a `$match` branch that is not selected: the instance holds that content, and a later change can render it.
 
 ```html
 <!-- definition -->
@@ -141,6 +142,18 @@ A component whose markup root is another component's invocation lowers to that c
 </ul>
 ```
 
+## A child's slot, placed by its parent {#borrowed-slot-ranges}
+
+A [`<slot of>`](/declarative-components/components#slot-of) outlet renders a child's slot inside its parent's markup: a data table places each column's `cell` slot in every row. This section is part of that proposal.
+
+```html
+<td><?start slot="cell" of="1" scoped=""?>$49.00<?end?></td>
+```
+
+- `of` marks the range as a child's slot. Its value is the index, from 0, of the child's entry in the parent's `as` list at serialization. `slot` names the child's slot, and `fallback` and `scoped` mean what they mean on any range.
+- The child's content for that slot is held in the child's own carrier, inside the child's root, as for any content its own outlets do not render.
+- When the parent collects its own slot ranges, it skips ranges with `of` and their contents. Walking its template, each `<slot of>` outlet adopts the next such range and attaches it to the child at that index, whose carrier supplies the content.
+
 ## Conditional content in a slot
 
 A consumer may write slot content under `$if` or `$each`. A slot whose only such content renders nothing shows its fallback, and switches to the content when it appears (see [Named & fallback](/declarative-components/components#named-fallback)). The instance still holds the region, so a later change can render into it. The rendered form keeps the region's marks in the slot's range, after its fallback nodes:
@@ -163,7 +176,7 @@ A consumer may write slot content under `$if` or `$each`. A slot whose only such
 ## How hydration rebuilds the instance
 
 1. Recover explicit props from the server-rendered instance's hydration data. The proposal has not fixed a wire format for that data; visible `data-<name>` attributes are not required.
-2. Collect the root's own slot ranges in document order: its subtree, minus its own ranges' contents (consumer content), minus nested components' own regions, plus the contents of nested components' ranges (what this component projected into them).
+2. Collect the root's own slot ranges in document order: its subtree, minus its own ranges' contents (consumer content), minus ranges with `of` and their contents ([a child's slot](#borrowed-slot-ranges)), minus nested components' own regions, plus the contents of nested components' ranges (what this component projected into them).
 3. The projected nodes are the contents of every range without `fallback` or `scoped`, each assigned that range's slot, then the marks of any consumer region that follow the fallback nodes in a `fallback` range (see [Conditional content in a slot](#conditional-content-in-a-slot)), assigned that range's slot, followed by the nodes of the carrier that names this component, which keep their own `slot` attribute. A consumer's [`<template slot>`](/declarative-components/components#content-that-renders-on-demand) is always in its receiving component's carrier: the live DOM holds what it renders, never the template. The carrier is removed.
 4. Walk the template against the existing DOM. Each rendered slot, whether its outlet is a `<slot>` or a `<template $slot>`, adopts the next range whole: its marks, and either the projected nodes, the fallback nodes and any empty consumer regions after them, or the nodes its `<template slot>` rendered, adopted in place so their bindings attach. A forwarding outlet inside carried content adopts its marks and places its component's projected nodes between them.
 5. A nested component's server-rendered root is adopted, not re-rendered. The outer template's nodes inside it are matched against that component's slot ranges and its carrier, where lowering placed them, and the nested root hydrates as its own instance.
@@ -172,7 +185,7 @@ A root that a framework rendered is owned by that framework, which hydrates from
 
 ## Open questions
 
-- **Context through a server-rendered portal.** A deterministic record must connect each relocated reader to its logical component owner. DOM ancestry and `data-component` tag lineage cannot identify the providing instance when several instances share a tag.
+- **Context through a server-rendered portal.** A deterministic record must connect each relocated reader to its logical component owner. DOM ancestry and `data-component` tag lineage cannot identify the providing instance when several instances share a tag. The proposed [`of` index](#borrowed-slot-ranges) on a child's slot range is the same kind of record, for content a parent places from a child; one record format could serve both.
 - **Explicit prop recovery.** The rendered form needs the values and explicitness of props supplied to the invocation, including structured values. The hydration data format and how it is associated with the root remain open; ordinary visible attributes cannot be assumed to carry it.
 - **Structural anchors.** `$if`, `$each`, and `$match` regions should use the same range grammar.
 - **Consumer attributes.** Merge rules for `class` and `style` between template and consumer are unspecified, so their origin cannot be recovered.

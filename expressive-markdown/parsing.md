@@ -17,8 +17,8 @@ HTML conversion recommendations are informative.
 ## Parsing order
 
 1. Normalize CRLF/CR to LF; retained positions refer to original input.
-2. Recognize optional opening frontmatter, then CommonMark blocks, containers, leaf directives, tables and line blocks in their enclosing block context.
-3. Parse inline content after block boundaries.
+2. Recognize optional opening frontmatter, then CommonMark blocks, containers, leaf directives, footnote definitions, tables and line blocks in their enclosing block context.
+3. Parse inline content and titles after block boundaries, once every footnote label is known.
 
 Code spans, fenced/indented code and HTML blocks retain their lexical boundaries;
 their contents do not open directives or line blocks. GFM tables take precedence
@@ -610,6 +610,89 @@ header/body grouping, spans, alignment and supported presentation attributes.
 Keep header cells semantic when transposed into a column. Do not infer complex
 accessible header associations solely from visual position.
 
+## Footnotes
+
+```md
+Text with a note[^note].
+
+[^note]: The note's first paragraph.
+
+    A continuation paragraph.
+```
+
+A label uses the bare-handle token from [mentions](#mentions): a Unicode
+letter, number or `_`, then Unicode letters, combining marks, numbers, `_` and
+`-`. Labels match exactly, including case.
+
+**Definitions.** A line starting `[^label]:`, after zero–three spaces of
+block-relative indentation, opens a `footnoteDefinition`. Its content starts
+after the colon and optional spaces or tabs, and continues on lines indented at
+least four columns past the marker's block indentation. Read that content as
+blocks, as a list item's content is read: paragraph continuation lines may be
+lazy, and a blank line followed by a less indented nonblank line ends the
+definition. A definition may interrupt a paragraph. It is recognized in every
+block context: the document, containers, quotes, list items, cell bodies and
+other definitions. `[^text]:` whose text is not a label follows CommonMark,
+which reads a valid line as a link reference definition.
+
+**References.** `[^label]` is a `footnoteReference` when the document defines
+that label anywhere, before or after the reference, including in titles.
+Collect definition labels during the block pass, before inline content and
+titles are parsed. Otherwise the characters remain text. A reference takes
+precedence over link syntax opening at the same bracket. Code, HTML and link
+destinations retain their lexical rules.
+
+**Placement.** Each definition stays in its enclosing block array at its source
+position. Parsers and writers do not move, merge or remove definitions,
+including unused and duplicate ones. A tool that adds a footnote appends its
+definition to the document body; editing a note changes only that node.
+
+**Notes and numbering.** A label's note is its first definition in document
+order. Number notes as follows:
+
+1. Walk the document in [traversal order](#generic-traversal), skipping
+   footnote definitions. Each label with a note receives the next number at its
+   first reference.
+2. Then walk each numbered note's body, in number order. A label first
+   referenced there receives the next number and joins the walk.
+
+| Input | Result |
+| --- | --- |
+| Reference without a definition | Text. Recommend an `undefined-footnote` warning. |
+| Definition never referenced | Kept; renders nothing. Recommend an `unused-footnote` warning. |
+| Later definition of a defined label | Kept; renders nothing. Recommend a `duplicate-footnote` warning. |
+
+**Writing.** Write a reference as `[^label]` and a definition where it sits in
+the tree: `[^label]:`, a space, then the first block. Indent every later
+nonblank line four spaces; blank lines stay empty. An empty body writes
+`[^label]:` alone. Protect literal `[^label]` text when the document defines
+that label, and a literal `[^text]:` at the start of a line. A supplied
+reference without a definition writes the reference form, reads back as text,
+and recommends a diagnostic. Footnote nodes have no attribute attachment;
+report an ID or attributes on one as unsupported conversion.
+
+**Recommended HTML.** Each referenced note renders once, in a list at the end
+of the document; definitions render nothing in place:
+
+```html
+<p>Text with a note<sup><a href="#fn:note" id="fnref:note" data-footnote-ref>1</a></sup>.</p>
+<section data-footnotes aria-label="Footnotes"><ol>
+  <li id="fn:note"><p>The note's first paragraph.</p><p>A continuation paragraph. <a href="#fnref:note" data-footnote-backref aria-label="Back to reference 1">↩</a></p></li>
+</ol></section>
+```
+
+- A reference is `<sup><a>` holding its note's number. The first reference to
+  a note has `id="fnref:label"`; the second `fnref:label:2`, and so on.
+- The note is `<li id="fn:label">` in number order. Its back-links follow its
+  last paragraph's content, each after a space: `↩` for the first reference,
+  then `↩<sup>2</sup>` and onward, labelled `Back to reference N` and
+  `Back to reference N-2`. A note whose last block is not a paragraph gets a
+  new paragraph holding its back-links.
+- The colon keeps these IDs apart from [generated anchors](#recommended-output-anchors),
+  which contain letters, numbers, marks and hyphens.
+- `aria-label="Footnotes"` names the notes region without imposing a heading rank.
+- An unresolved supplied reference renders as its literal text.
+
 ## Code presentation
 
 Code attributes share the ordinary string/flag grammar and camelCase key mapping. `title` maps once to `code.title`; other attributes remain in `attributes`.
@@ -673,6 +756,8 @@ without writing them back as authored document IDs.
 | Opening `---` without a close | Ordinary Markdown. |
 | Delimited but invalid/unsupported frontmatter | Entire block as `literal`; no guessed metadata. |
 | Invalid merged table | Whole table as block `literal`. |
+| Footnote reference without a definition | Text. Recommend a warning. |
+| Unused or repeated footnote definition | Kept in place; renders nothing. Recommend a warning. |
 
 Recovery nodes keep original source in `value` and a `display` context. Recommend escaped inline text or block text with visible source-line breaks. Recovery is not an executable-content mechanism.
 
@@ -697,6 +782,7 @@ references and delimiters.
 | Leading-pipe lines and bare empty pipes | Represented line divisions. |
 | Regenerated table markers; escaped literal markers | Numeric spans and originating cell IDs. |
 | YAML strings for title/ID; string lists for tags | Custom metadata, quoting strings YAML would otherwise type differently. |
+| `[^label]` and `[^label]:` with four-space continuation | Each footnote definition at its place in the tree. |
 
 ### Text and formatting boundaries
 
@@ -894,9 +980,10 @@ The point format follows [unist positions](https://github.com/syntax-tree/unist#
 shared fields above. Each feature disclosure defines its required content and additional fields.
 
 Block content admits paragraph, heading, quote, list, code, line block, table,
-container, leaf, horizontal rule and block-display group/HTML/literal.
-Inline content admits text, inline formatting, inline code, link, image,
-break/soft break, inline directive and inline-display group/HTML/literal.
+container, leaf, horizontal rule, footnote definition and block-display
+group/HTML/literal. Inline content admits text, inline formatting, inline code,
+link, image, footnote reference, break/soft break, inline directive and
+inline-display group/HTML/literal.
 `title` is a designated title-field node, not an ordinary paragraph body child.
 Lists contain list items; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
 

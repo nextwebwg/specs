@@ -409,7 +409,7 @@ Some head entries affect the whole page: its identity for search engines and sha
 
 Every other definition is an **imported component**. That includes any definition reached through a bare specifier, such as an installed package subpath or a mapped live import, any definition from an unlisted cross-origin source, and every definition reached from an imported one. A resource reached both ways is an imported component.
 
-The source list uses the grammar of a CSP source list: space-separated source expressions such as `'self'`, origins, and URL path prefixes. A URL matches it by the CSP rules for matching a URL to a source list, with the application document's origin as `'self'`.[^10] The application declares the list in its own authored head:
+The source list uses the grammar of a CSP source list: space-separated source expressions such as `'self'`, origins, and URL path prefixes. A URL matches it by the CSP rules for matching a URL to a source list, with the application document's origin as `'self'`.[^9] The application declares the list in its own authored head:
 
 ```html
 <meta name="component-src" content="'self' https://cdn.acme.example/ui/">
@@ -423,7 +423,7 @@ The source list uses the grammar of a CSP source list: space-separated source ex
 The runtime ignores an imported component's page-wide head entries and reports a diagnostic. Its other head declarations apply as usual.
 
 > [!note] The name and grammar of `component-src`
-> The name follows CSP Level 3, whose fetch directives name a resource type plus `-src`: `script-src`, `img-src`, `style-src`, `frame-src`, `connect-src`, `font-src`, and `manifest-src`.[^10] `component-src` names where an application's own components come from. Its value reuses CSP's source-list syntax and source-expression matching exactly, `'self'`, origins, and path prefixes included, the same origin-list idea as a Permissions Policy allowlist.[^11] One difference is deliberate: a CSP `*-src` directive only permits loading, while `component-src` also marks matched components as the application's own, so they may set page-wide head entries. A browser could adopt the same name as a real CSP directive, delivered in the `Content-Security-Policy` header, such as `component-src 'self' https://cdn.acme.example/ui/`, with no change in meaning; the meta is then its in-document form.
+> The name follows CSP Level 3, whose fetch directives name a resource type plus `-src`: `script-src`, `img-src`, `style-src`, `frame-src`, `connect-src`, `font-src`, and `manifest-src`.[^9] `component-src` names where an application's own components come from. Its value reuses CSP's source-list syntax and source-expression matching exactly, `'self'`, origins, and path prefixes included, the same origin-list idea as a Permissions Policy allowlist.[^10] One difference is deliberate: a CSP `*-src` directive only permits loading, while `component-src` also marks matched components as the application's own, so they may set page-wide head entries. A browser could adopt the same name as a real CSP directive, delivered in the `Content-Security-Policy` header, such as `component-src 'self' https://cdn.acme.example/ui/`, with no change in meaning; the meta is then its in-document form.
 
 In an application framework with file-based pages, pages and layouts live in the application's source, so they are application components. A component installed from a package is an imported component, even when an application page renders it.
 
@@ -593,7 +593,7 @@ Fixed names keep a component's slots part of its public interface: tools list th
 </x-card>
 ```
 
-A slot shows its fallback while nothing is assigned to it, as a native `<slot>` shows its own children while it has no assigned nodes.[^12] Content the consumer writes under `$if` or `$each` is assigned while it renders. A slot whose only content is a false `$if`, or an `$each` with no rows, shows its fallback. When that content appears, the slot switches to it, and back to the fallback when it goes:
+A slot shows its fallback while nothing is assigned to it, as a native `<slot>` shows its own children while it has no assigned nodes.[^11] Content the consumer writes under `$if` or `$each` is assigned while it renders. A slot whose only content is a false `$if`, or an `$each` with no rows, shows its fallback. When that content appears, the slot switches to it, and back to the fallback when it goes:
 
 ```html
 <!-- use: the header reads "Untitled" until $heading has a value -->
@@ -707,7 +707,7 @@ A slot that owns iteration gives each row's props the same way:
 </x-list>
 ```
 
-Vue gives a scoped slot's props the same two ways, a plain attribute on its `<slot>` and a bound `:prop`, with only `name` reserved, and types them with `defineSlots`.[^13]
+Vue gives a scoped slot's props the same two ways, a plain attribute on its `<slot>` and a bound `:prop`, with only `name` reserved, and types them with `defineSlots`.[^12]
 
 ### Component ancestry for shared state {#component-ancestry-for-shared-state}
 
@@ -726,17 +726,23 @@ Native `<template>` has no `src`, so HTML Next defines it: `<template src="…">
 <template src="./chart.html" defer></template>  <!-- lazy: load on first use -->
 ```
 
-### <component is>: dynamic component
+### Choosing a component at runtime
 
-When the component to render is decided at runtime, `<component is="expr">` resolves the tag from an expression, the name and syntax taken verbatim from Vue `<component :is>` (Svelte `<svelte:component>` and Angular `NgComponentOutlet` are the same idea).[^8] Props and children pass through as with a literal invocation.
+When data decides which component renders, list each candidate as an arm of a [`$match`](/declarative-components/templating). The first arm whose `$when` is truthy renders, and when the data changes, the newly chosen arm replaces it. Every component the markup can render is named in the source, so its definition resolves the same way as any other invocation.
 
 ```html
-<component is="$block.type" from:data="$block"></component>
+<template $match>
+  <x-callout $when="$block.type = 'callout'" from:data="$block"></x-callout>
+  <x-figure $when="$block.type = 'figure'" from:data="$block"></x-figure>
+  <p $else>{$block.text}</p>
+</template>
 ```
+
+A component that chooses its own native root uses the same pattern at its root; see [Native lowering and explicit root branches](#native-lowering-and-explicit-root-branches).
 
 ### <portal to>: render elsewhere {#portal}
 
-Overlays (dialogs, tooltips, toasts) render outside their DOM position while staying logically owned by the component. `<portal to="selector">` moves its children to the target (a CSS selector or an element id) while preserving reactive bindings and event wiring. The term is React `createPortal`; Vue `Teleport` was originally named `<portal>`, and Angular CDK ships a `Portal` too.[^9]
+Overlays (dialogs, tooltips, toasts) render outside their DOM position while staying logically owned by the component. `<portal to="selector">` moves its children to the target (a CSS selector or an element id) while preserving reactive bindings and event wiring. The term is React `createPortal`; Vue `Teleport` was originally named `<portal>`, and Angular CDK ships a `Portal` too.[^8]
 
 ```html
 <portal to="body">
@@ -1011,9 +1017,9 @@ Level
 : [L1]{.pill .l1}
 :::
 
-::: {.entry name="<template src> · <component is> · <portal to>" role="composition"}
+::: {.entry name="<template src> · <portal to>" role="composition"}
 Semantics
-: import/lazy-load a definition · render a runtime-chosen component · relocate children while preserving bindings
+: import/lazy-load a definition · relocate children while preserving bindings
 
 Level
 : [L2]{.pill .soon}
@@ -1028,9 +1034,8 @@ Level
 [^5]: SVG 2, [the `<defs>` element](https://www.w3.org/TR/SVG2/struct.html#DefsElement).
 [^6]: WHATWG HTML, [import maps](https://html.spec.whatwg.org/multipage/webappapis.html#import-maps) (unrecognized top-level keys are ignored).
 [^7]: W3C (retired), [HTML Imports](https://www.w3.org/TR/html-imports/) (`<link rel="import">`).
-[^8]: Dynamic component, borrowed directly: Vue [`<component :is>`](https://vuejs.org/api/built-in-special-elements.html#component) (name and syntax verbatim), Svelte [`<svelte:component>`](https://svelte.dev/docs/svelte/svelte-component), and Angular [NgComponentOutlet](https://angular.dev/api/common/NgComponentOutlet).
-[^9]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
-[^10]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [fetch directives](https://www.w3.org/TR/CSP3/#directives-fetch), the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
-[^11]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.
-[^12]: WHATWG DOM, [assigning slottables](https://dom.spec.whatwg.org/#assign-slotables) and [`assignedNodes()`](https://dom.spec.whatwg.org/#dom-htmlslotelement-assignednodes); CSS Scoping, [slots and fallback content in the flat tree](https://drafts.csswg.org/css-scoping/#slots-in-shadow-tree): a slot with no assigned nodes renders its own children, and switches as nodes are assigned or removed.
-[^13]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved; [`defineSlots()`](https://vuejs.org/api/sfc-script-setup.html#defineslots) types each slot's props.
+[^8]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
+[^9]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [fetch directives](https://www.w3.org/TR/CSP3/#directives-fetch), the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
+[^10]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.
+[^11]: WHATWG DOM, [assigning slottables](https://dom.spec.whatwg.org/#assign-slotables) and [`assignedNodes()`](https://dom.spec.whatwg.org/#dom-htmlslotelement-assignednodes); CSS Scoping, [slots and fallback content in the flat tree](https://drafts.csswg.org/css-scoping/#slots-in-shadow-tree): a slot with no assigned nodes renders its own children, and switches as nodes are assigned or removed.
+[^12]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved; [`defineSlots()`](https://vuejs.org/api/sfc-script-setup.html#defineslots) types each slot's props.

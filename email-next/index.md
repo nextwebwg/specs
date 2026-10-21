@@ -26,10 +26,7 @@ You write to a person, reply to a particular message, or answer a question with 
 
 Email/2 is a proposed shared set of rules for making that work between different apps. It combines existing email delivery and established security protocols with new rules for conversations and rich messages. It is not a new email service you must join.
 
-> [!ex] Which day works?
-> Alice sends a question with **Tuesday** and **Thursday** buttons. Bob chooses Thursday. Alice sees his answer beside the question.
->
-> Carol uses an older email app. She sees a readable question and replies, “Thursday works for me.” Her words remain intact; Alice's app can suggest the connection without pretending Carol pressed a button.
+::email-conversation
 
 ## Replies have a place
 

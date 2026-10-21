@@ -376,6 +376,7 @@ class Compiler {
       case "container_div_open": return this.div(node);
       case "leaf_component":
         if (token.info === "chapter-index") return "<ChapterIndex />";
+        if (token.info === "email-conversation") return "<EmailConversationExample />";
         throw new Error(`Unknown component ::${token.info}`);
       case "dl_open":
         return `<dl>${node.children.map((c) => `<${c.token.tag}>${c.token.tag === "dt" ? this.inline(c.children[0]?.token, "template") : this.children(c.children)}</${c.token.tag}>`).join("")}</dl>`;

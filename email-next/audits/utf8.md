@@ -5,7 +5,7 @@ sectionNav: true
 
 # UTF-8 and exact text bytes
 
-Email Next's event and identity records use strict UTF-8. [RFC3629](https://www.rfc-editor.org/rfc/rfc3629.html) restricts encoding to one through four octets and excludes surrogate code points. Invalid encoding is a failed record, not text to repair before authentication.
+Email/2's event and identity records use strict UTF-8. [RFC3629](https://www.rfc-editor.org/rfc/rfc3629.html) restricts encoding to one through four octets and excludes surrogate code points. Invalid encoding is a failed record, not text to repair before authentication.
 
 ## Applying the encoding rules
 

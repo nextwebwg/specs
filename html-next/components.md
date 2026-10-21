@@ -409,7 +409,7 @@ Some head entries affect the whole page: its identity for search engines and sha
 
 Every other definition is an **imported component**. That includes any definition reached through a bare specifier, such as an installed package subpath or a mapped live import, any definition from an unlisted cross-origin source, and every definition reached from an imported one. A resource reached both ways is an imported component.
 
-The source list uses the grammar of a CSP source list: space-separated source expressions such as `'self'`, origins, and URL path prefixes. A URL matches it by the CSP rules for matching a URL to a source list, with the application document's origin as `'self'`.[^10] The application declares the list in its own authored head:
+The source list uses the grammar of a CSP source list: space-separated source expressions such as `'self'`, origins, and URL path prefixes. A URL matches it by the CSP rules for matching a URL to a source list, with the application document's origin as `'self'`.[^9] The application declares the list in its own authored head:
 
 ```html
 <meta name="component-src" content="'self' https://cdn.acme.example/ui/">
@@ -423,7 +423,7 @@ The source list uses the grammar of a CSP source list: space-separated source ex
 The runtime ignores an imported component's page-wide head entries and reports a diagnostic. Its other head declarations apply as usual.
 
 > [!note] The name and grammar of `component-src`
-> The name follows CSP Level 3, whose fetch directives name a resource type plus `-src`: `script-src`, `img-src`, `style-src`, `frame-src`, `connect-src`, `font-src`, and `manifest-src`.[^10] `component-src` names where an application's own components come from. Its value reuses CSP's source-list syntax and source-expression matching exactly, `'self'`, origins, and path prefixes included, the same origin-list idea as a Permissions Policy allowlist.[^11] One difference is deliberate: a CSP `*-src` directive only permits loading, while `component-src` also marks matched components as the application's own, so they may set page-wide head entries. A browser could adopt the same name as a real CSP directive, delivered in the `Content-Security-Policy` header, such as `component-src 'self' https://cdn.acme.example/ui/`, with no change in meaning; the meta is then its in-document form.
+> The name follows CSP Level 3, whose fetch directives name a resource type plus `-src`: `script-src`, `img-src`, `style-src`, `frame-src`, `connect-src`, `font-src`, and `manifest-src`.[^9] `component-src` names where an application's own components come from. Its value reuses CSP's source-list syntax and source-expression matching exactly, `'self'`, origins, and path prefixes included, the same origin-list idea as a Permissions Policy allowlist.[^10] One difference is deliberate: a CSP `*-src` directive only permits loading, while `component-src` also marks matched components as the application's own, so they may set page-wide head entries. A browser could adopt the same name as a real CSP directive, delivered in the `Content-Security-Policy` header, such as `component-src 'self' https://cdn.acme.example/ui/`, with no change in meaning; the meta is then its in-document form.
 
 In an application framework with file-based pages, pages and layouts live in the application's source, so they are application components. A component installed from a package is an imported component, even when an application page renders it.
 
@@ -593,7 +593,7 @@ Fixed names keep a component's slots part of its public interface: tools list th
 </x-card>
 ```
 
-A slot shows its fallback while nothing is assigned to it, as a native `<slot>` shows its own children while it has no assigned nodes.[^12] Content the consumer writes under `$if` or `$each` is assigned while it renders. A slot whose only content is a false `$if`, or an `$each` with no rows, shows its fallback. When that content appears, the slot switches to it, and back to the fallback when it goes:
+A slot shows its fallback while nothing is assigned to it, as a native `<slot>` shows its own children while it has no assigned nodes.[^11] Content the consumer writes under `$if` or `$each` is assigned while it renders. A slot whose only content is a false `$if`, or an `$each` with no rows, shows its fallback. When that content appears, the slot switches to it, and back to the fallback when it goes:
 
 ```html
 <!-- use: the header reads "Untitled" until $heading has a value -->
@@ -707,7 +707,7 @@ A slot that owns iteration gives each row's props the same way:
 </x-list>
 ```
 
-Vue gives a scoped slot's props the same two ways, a plain attribute on its `<slot>` and a bound `:prop`, with only `name` reserved, and types them with `defineSlots`.[^13]
+Vue gives a scoped slot's props the same two ways, a plain attribute on its `<slot>` and a bound `:prop`, with only `name` reserved, and types them with `defineSlots`.[^12]
 
 ### Component ancestry for shared state {#component-ancestry-for-shared-state}
 
@@ -715,71 +715,18 @@ Each nested component has a logical parent: the component whose markup or slot o
 
 Moving a component's rendered nodes with `<portal>` keeps that logical ancestry. Moving the DOM nodes alone does not select a different state ancestor. The nearest ancestor with the requested state cell supplies it, whether or not its native root is a DOM ancestor.
 
-## Configuration children: a component renders what its children declare {#configuration-children}
+## Columns as markup: a child's slot, placed by its parent {#child-slots}
 
 > [!note] Proposed, for review
-> This section is a proposal and is not yet part of any Level. Its [open questions](#configuration-children-open-questions) are listed at the end.
+> This section is a proposal and is not yet part of any Level. Its [open questions](#child-slots-open-questions) are listed at the end.
 
-Some components are configured by the elements written inside them. A data table takes one column element per column. Each column names its header and gives a template for its cells, and the table renders every column's cell template once per row, inside its own `<tr>`. PrimeVue's DataTable and Column are the common example of this shape.[^14]
-
-HTML already works this way. A `<table>` reads its `<col>` children, a `<select>` its `<option>` children, and a `<video>` its `<source>` and `<track>` children; HTML says `<source>` and `<track>` represent nothing on their own, so only their parent gives them meaning. A customizable select's `<selectedcontent>` goes further and shows a copy of the selected option's content in another place.[^15]
-
-A **configuration component** is the declarative form of that pattern. Its definition has a `<defs>` region and no markup, so an invocation renders nothing where it is written. A parent says which configuration children it reads with `<children>`, and gets them as a list it can iterate. A `<slot of>` outlet renders one child's template.
-
-[Context](/declarative-components/reactivity) cannot do this. A column can read the table's rows through `<context>` and render its own cells, but then each column renders its cells together, and the DOM is column-major: a run of cells per column, not a `<tr>` per row. Screen readers announce a table by its rows, and row selection, hover, and keyboard navigation need a row element to target. The parent has to render each row, so the parent needs each column's template.
-
-### Example: a data table {#configuration-children-example}
-
-The column declares its props and slots, and has no markup:
-
-```html title="x-column.html"
-<template component="x-column" summary="One column of a data table.">
-  <defs>
-    <prop name="field" type="string">The row field a cell shows without a body template.</prop>
-    <prop name="header" type="string">The header text.</prop>
-    <slot name="header"></slot>
-    <slot name="body">
-      <prop name="row" type="object" required>The row this cell shows.</prop>
-    </slot>
-  </defs>
-</template>
-```
-
-The table reads its columns and renders a real row for each item:
-
-```html title="x-datatable.html"
-<link rel="component" href="./x-column.html">
-
-<template component="x-datatable">
-  <defs>
-    <prop name="rows" type="list(object)" required>The rows, one per table row.</prop>
-    <children name="columns" of="x-column"></children>
-  </defs>
-  <table>
-    <thead>
-      <tr>
-        <th scope="col" $each="column of $columns">
-          <slot of="$column" name="header">{$column.header}</slot>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr $each="row of $rows">
-        <td $each="column of $columns">
-          <slot of="$column" name="body" from:row="$row">{$row[$column.field]}</slot>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</template>
-```
-
-A page uses them like this:
+A data table is easiest to read when its columns are written as markup. Each column says what its header is and how its cells look, and the table renders one real row per item, with one cell per column:
 
 ```html title="products.html"
 <x-datatable from:rows="$products">
   <x-column field="name" header="Name"></x-column>
-  <x-column header="Price">
+  <x-column header="Price" class="numeric">
+    <abbr slot="header" title="Price in US dollars">Price</abbr>
     <template slot="body">{format($row.price, 'currency', { currency: 'USD' })}</template>
   </x-column>
 </x-datatable>
@@ -787,8 +734,12 @@ A page uses them like this:
 
 ```html title="Output (hydration marks omitted)"
 <table data-component="x-datatable">
+  <colgroup>
+    <col data-component="x-column">
+    <col class="numeric" data-component="x-column">
+  </colgroup>
   <thead>
-    <tr><th scope="col">Name</th><th scope="col">Price</th></tr>
+    <tr><th scope="col">Name</th><th scope="col"><abbr slot="header" title="Price in US dollars">Price</abbr></th></tr>
   </thead>
   <tbody>
     <tr><td>Desk lamp</td><td>$49.00</td></tr>
@@ -797,84 +748,178 @@ A page uses them like this:
 </table>
 ```
 
-- `$columns` is a list with one entry per `<x-column>` child, in order. `$column.header` reads that child's `header` prop.
-- `<slot of="$column" name="body">` renders that child's `<template slot="body">` and gives it `row`. The Name column has no body template, so its cells show the outlet's fallback, the row's `name` field.
-- The body template renders in the page's scope plus `row`, so it reads `$row.price` and anything else the page declares.
+PrimeVue's DataTable and Column popularized this shape.[^13] The table cannot get it from [context](/declarative-components/reactivity) alone. A column can read the table's rows through `<context>` and render its own cells, but then the cells come out column by column, not as a `<tr>` per row. Screen readers announce a table by its rows, and row selection, hover, and keyboard navigation need a row element to target. So the table renders every row itself, and needs to render each column's cell content inside it.
 
-### Configuration components {#configuration-components}
+Two small additions do that, and both reuse slots:
 
-- A definition whose only child is `<defs>` is a configuration component. It has no markup root, no `<style>`, and no `controller`. Its `<defs>` holds only `<prop>` and `<slot>` declarations; any other declaration is an error, reported with a diagnostic.
-- It declares every slot in `<defs>`, including a slot without props, because it has no outlets that would show them.
-- Its invocation renders nothing, has no root, and carries no `data-component` stamp.
-- Its invocation's content is `<template slot>` children only, with whitespace and comments. Plain elements and text are an error, because the parent may render a template any number of times and an element can be in only one place.
-- An invocation that no `<children>` declaration reads renders nothing, and the implementation [should]{.kw} warn once, naming its tag. A `<source>` outside a media element is ignored the same way.
+- A slot can **accept** one kind of component: `<slot accepts="x-column">`. The table reads the columns assigned to it as `$slots.default`, a list with one entry of props per column.
+- An outlet can render **a child's own slot**: `<slot of="$column" name="body">`. The table places that column's `body` slot in each row's cell.
 
-### Reading children: <children name of> {#children-declaration}
+**When you need `of`.** Only when a parent places a slot that belongs to a child component, typically once per item, as a table places each column's cell once per row. A component's own slots never need it: `<slot name="caption">` stays exactly as it is.
 
-- `<children>` is a declaration in `<defs>`. Its `name` is an identifier in the component's flat declaration namespace, and `$name` is a read-only list.
-- `of` is the literal tag of a configuration component, resolved like any invocation tag. A tag that names an ordinary component, or no definition, is an error. A component may read several tags with several `<children>` declarations, but not the same tag twice.
-- The list holds one **child entry** for each element child of the invocation with that tag, in tree order. Children the consumer writes under `$if` or `$each` count while they render. Only direct children of the invocation count.
-- Matched children are not projected content. They are assigned to no slot, and [`host.slots`](/declarative-components/javascript) does not list them. Every other child is projected as usual.
-- An entry exposes the child's props by name, with defaults applied and typed by the child's `<prop>` declarations. It exposes nothing else: its templates are reached only through an outlet.
+### Worked example {#child-slots-example}
 
-### Rendering a child's template: <slot of> {#slot-of}
+The column is an ordinary component. Its root is a native `<col>`, so CSS can style the whole column through it (`col.numeric`), and it carries the usual `data-component` stamp. It declares its slots in `<defs>`, because the table, not the column, places them:
 
-- `<slot of="$entry" name="body">` renders the `<template slot="body">` of the child that the entry stands for. `of` is an expression whose value is a child entry; it chooses which child, never which slot. `name` stays a literal identifier, checked against the child's declared slots, so tools still list every slot and type every outlet.
-- The outlet gives slot props as any outlet does, checked against the child's slot declaration by the [outlet rules](#slot-prop-outlets).
-- Each outlet renders the template afresh, as a consumer's [`<template slot>`](#content-that-renders-on-demand) renders, so one body template renders once per row.
-- With no template for that slot, or with `of` evaluating to `null`, the outlet shows its fallback.
-- An outlet without `of` keeps its meaning: it renders one of the component's own slots.
+```html title="x-column.html"
+<template component="x-column" summary="One column of a data table.">
+  <defs>
+    <prop name="field" type="string">The row field a cell shows without body content.</prop>
+    <prop name="header" type="string">The header text shown without header content.</prop>
+    <slot name="header"></slot>
+    <slot name="body">
+      <prop name="row" type="object" required>The row this cell shows.</prop>
+    </slot>
+  </defs>
+  <col>
+</template>
+```
 
-### Why this mechanism {#configuration-children-why}
+The table accepts columns in its default slot and places that slot in its `<colgroup>`. It then renders one header cell per column, and one row per item with one cell per column:
 
-| Candidate | Assessment |
+```html title="x-datatable.html"
+<link rel="component" href="./x-column.html">
+
+<template component="x-datatable">
+  <defs>
+    <prop name="rows" type="list(object)" required>The rows, one per table row.</prop>
+    <slot accepts="x-column"></slot>
+  </defs>
+  <table>
+    <colgroup><template><slot></slot></template></colgroup>
+    <thead>
+      <tr>
+        <th scope="col" $each="column of $slots.default">
+          <slot of="$column" name="header">{$column.header}</slot>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr $each="row of $rows">
+        <td $each="column of $slots.default">
+          <slot of="$column" name="body" from:row="$row">{$row[$column.field]}</slot>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</template>
+```
+
+- `<colgroup><template><slot></slot></template></colgroup>` places the columns. The `<template>` keeps the outlet inside the table: the HTML parser moves a bare `<slot>` out of a `<colgroup>`, but keeps a `<template>` there (see [Outlets in table contexts](#outlets-in-table-contexts)).
+- `$slots.default` lists the columns in order. `$column.header` and `$column.field` read one column's props.
+- `<slot of="$column" name="header">` is the column's own `header` slot, placed by the table. The Price column fills it with an `<abbr>`; the Name column fills nothing, so the outlet shows its fallback, the `header` prop.
+- `<slot of="$column" name="body" from:row="$row">` is the column's `body` slot, placed once per row. The table gives it the `row` prop. The Name column has no body content, so each of its cells shows the fallback, the row's `name` field.
+
+> [!note] An entry is the child's props only
+> `$column` holds the column's props, with defaults applied: `$column.field`, `$column.header`. It holds nothing else. The column's slot content is never a value; it renders only where an outlet with `of` places it.
+
+> [!note] `$row` is the body slot's prop
+> The column declares `row` on its `body` slot, the table gives it at the outlet with `from:row`, and the page's `<template slot="body">` reads it as `$row`, beside the page's own values such as `$products`. It is the same [scoped slot](#scoped-slots) rule as any other slot prop.
+
+> [!warn] Common mistakes
+> - **Writing `of` for the component's own slot.** `<slot of="$column" name="caption">` asks for a `caption` slot on the column. A table's own caption slot is `<slot name="caption">`, with no `of`.
+> - **Reading `$column.body` to get the template.** An entry has no slot members, so `$column.body` is an error. Render the slot with `<slot of="$column" name="body">`.
+
+### Accepting slots {#accepting-slots}
+
+- A `<slot>` declaration in `<defs>` may carry `accepts`, the literal tag of one component. The slot is then an **accepting slot**. A declaration with `accepts` may also declare props, like any slot declaration.
+- An element assigned to an accepting slot matches when it is an instance of that component: its root's `data-component` token list contains the tag, as the selector `[data-component~="x-column"]` would match. A preset whose root is an `<x-column>` invocation, such as an `x-price-column`, therefore matches, and its entry holds the `x-column` instance's props.
+- Matching uses the slot's flattened assigned list, as `assignedElements({ flatten: true })` does.[^15] Columns that a consumer writes under `$if` or `$each` count while they render, and columns that another component forwards into the slot through its own outlet count where the forwarding outlet places them.
+- `accepts` checks content; it does not route it. Content still reaches a slot through its `slot` attribute, or none for the default slot. Shadow DOM v1 dropped the v0 `<content select>` selector for that reason, and named slots replaced it.[^15]
+- Any other element or non-whitespace text assigned to an accepting slot is an error, reported with a diagnostic (below). The slot does not render it.
+
+**Entries.** `$slots.name` reads an accepting slot's **entries**: a read-only list with one entry for each matching instance the slot renders, in tree order of their roots. `$slots.default` reads the default slot's. An entry exposes the instance's props by name, with defaults applied and types from the component's `<prop>` declarations, and updates as they change. An entry keeps its identity while its instance exists, so `$each` over entries keys by entry and keeps each column's cells when columns are added, removed, or moved. While the slot does not render, the list is empty. `slots` is reserved in the declaration namespace, and `$slots` exists only for accepting slots. A controller reads the same entries as [`host.slots.name`](/declarative-components/javascript).
+
+**Order on the server.** A component [must]{.kw} place an accepting slot's outlet before every read of its entries, in tree order. A build reports a read that comes first as an error. Server rendering and framework targets render in tree order, so a read before the outlet would see no instances yet. A table meets this rule by HTML's own content model, which puts `<colgroup>` before `<thead>` and `<tbody>`.
+
+### A child's slot, placed by its parent: <slot of> {#slot-of}
+
+`<slot of="$column" name="body">` is **the child's own slot, placed by the parent**.
+
+```html
+<td $each="column of $slots.default">
+  <slot of="$column" name="body" from:row="$row">{$row[$column.field]}</slot>
+</td>
+```
+
+- `of` takes an expression, as `<computed>` defines `from` to take one. Its value is an entry of one of the component's accepting slots. It says whose slot the outlet is. `from:row` is unrelated: it gives a slot prop, as on any outlet.
+- `name` stays a literal identifier, and names a slot the accepted component declares. A component whose slot only a parent places has no outlet for it, so it declares that slot in `<defs>`, with or without props. Tools can list every slot and type every outlet, because the accepted tag is known from `accepts`.
+- The outlet gives slot props by the [outlet rules](#slot-prop-outlets), checked against the child's slot declaration.
+- Each outlet renders the child's content for that slot afresh, in the consumer's scope plus the slot props. One `body` content therefore renders once per row.
+- For a slot without props, the consumer may assign plain elements, such as `<abbr slot="header">`. A child whose slot is placed only through `of` never renders that content itself; each outlet renders a fresh copy of it. A slot with props still needs a `<template slot>`, because only a template can receive props.
+- With no content for that slot, or with `of` evaluating to `null`, the outlet shows its fallback.
+- On an outlet, `of` and `name` are reserved; neither is a slot prop. A slot [must not]{.kw} declare a prop named `of` or `accepts`.
+
+### Outlets in table contexts {#outlets-in-table-contexts}
+
+The HTML parser moves an element it does not allow in a table out of it, before the `<table>` ("foster parenting"). A `<slot>` written directly in a `<colgroup>`, `<tbody>`, or `<tr>` is moved that way. A `<template>` is allowed in each of them, and so is a `<slot>` inside a `<template>`. So an outlet in a table context rides a `<template>`, as [structural directives](/declarative-components/templating) do: a `<template>` in a definition's markup whose only child is a `<slot>` renders that outlet in its place, and does not appear in the output. An outlet in a `<td>` or `<th>` needs no template.
+
+### Diagnostics {#child-slots-diagnostics}
+
+Each of these names the component, the slot, and the source location:
+
+| Mistake | Diagnostic |
 | --- | --- |
-| The column renders its own cells, reading rows through `<context>` | Column-major DOM. Rows, row selection, and table navigation are lost. |
-| The column exposes its templates through its own slot outlets, which the table renders by reference | The column would need a root to hold outlets it never shows. The table would render slots that are not its own, reaching into another component's markup. |
-| The table declares the column's vocabulary inline, inside its own `<defs>` | One file instead of two, but a child element then means something different in each parent. HTML defines `<option>` once for `<select>` and `<datalist>`, and `<source>` once for `<video>`, `<audio>`, and `<picture>`. PrimeVue shares one Column between its DataTable and TreeTable.[^14] |
-| **Recommended:** a configuration component, read with `<children>` and rendered with `<slot of>` | The child keeps its own typed interface and can serve several parents. The parent renders only through slot outlets, so slot props, fallback, on-demand rendering, and fixed slot names work as they already do. |
+| `<x-colum>` in an `x-column` slot | Not an `x-column`; did you mean `x-column`? |
+| A `<p>`, another component, or text in an accepting slot | Not an `x-column`: this slot accepts only `x-column` instances. Give other content its own slot. |
+| `<abbr slot="heder">` in an `<x-column>` | `x-column` has no slot `heder`; did you mean `header`? |
+| `<slot of="$column" name="footer">` | `x-column` declares no slot `footer`; it declares `header` and `body`. |
+| `of` whose value is not an entry, such as `of="$row"` | `of` takes an entry of an accepting slot, such as one from `$slots.default`. |
+| `$column.body` | Entries hold props only; render the slot with `<slot of="$column" name="body">`. |
+| `$slots.caption` for a slot without `accepts` | `$slots` reads accepting slots only; declare `<slot name="caption" accepts="…">`. |
+| A read of `$slots.default` before its outlet | The entries are read before the slot renders; move the outlet first. |
+| Plain elements for the column's `body` slot | `body` has props, so its content must be a `<template slot="body">`. |
 
-### Edge cases {#configuration-children-edge-cases}
+Build tools report what they can see statically; the live runtime reports the rest once per authored location.
 
-**Children added or removed.** The list follows the invocation's children as the consumer renders them. When a consumer's `$if` or `$each` adds, removes, or moves an `<x-column>`, the list updates, and the table adds, removes, or moves that column's header and cells in every row through its ordinary `$each` updates. An entry keeps its identity while its child exists, so a prop change updates the entry in place and the cells stay. A `<select>`'s `options` collection follows its children in the same way. Lowering replaces the invocation, so children change only through the consumer's template or a framework's render; a script cannot append an `<x-column>` to an invocation that no longer exists.
+### Why this design {#child-slots-why}
 
-**Ordering.** Entries are in tree order of the children, with an `$each`'s children in its row order. Other content between them does not affect the order.
+Each part already exists in HTML, except one:
 
-**A child that is not an `<x-column>`.** It is ordinary projected content and goes to the slot its `slot` attribute names, as it would without `<children>`. A table that wants a caption declares a `caption` slot. A different configuration component that no `<children>` reads renders nothing, with the warning above.
+- **A parent reads children of one kind.** A `<select>`'s `options` is a live collection of its `<option>` elements, and it looks through `<optgroup>`, as an accepting slot looks through `$if`, `$each`, and forwarded slots.[^14]
+- **A column is a `<col>` in a `<colgroup>`.** The column stays in the DOM as a real element, as `<col>`, `<source>`, and `<track>` do. That gives it native column styling, its own events and controller root, and an order the parent can read.[^14]
+- **A copy of a child's content shown elsewhere.** A customizable select's `<selectedcontent>` shows a copy of the selected option's content.[^14]
+- **No native precedent** instantiates a child's content once per row. That part is new, and it is the reason for `of`. It is kept to one attribute on the existing outlet, so slot props, fallback, and on-demand rendering work as they already do.
 
-**Scoped props.** A template's scope is the consumer's scope plus the slot props the outlet gives. It does not see the parent's declarations, such as `$rows` or `$columns`, or the child's props; a parent that wants a template to see them passes them as slot props.
+### Edge cases {#child-slots-edge-cases}
 
-**Server output and hydration.** Each cell holds the nodes its template or fallback rendered, inside the usual [slot range](/declarative-components/rendered-form#slot-ranges). The configuration children render nothing, but they are part of the instance, so serialization keeps them, as the consumer wrote them, in the parent's [carrier](/declarative-components/rendered-form#content-no-slot-renders-yet), in tree order. A `<template>` is valid inside a `<table>`, so the carrier survives parsing there.
+**Columns added, removed, or moved.** When a consumer's `$if` or `$each` adds, removes, or moves an `<x-column>`, its `<col>` enters, leaves, or moves in the `<colgroup>`, the entries follow, and the table's `$each` adds, removes, or moves that column's header cell and its cell in every row. A prop change updates the entry in place, and the cells stay.
+
+**Ordering.** Entries are in tree order of the instances' roots, so the header and cells always follow the `<col>` order.
+
+**A child that is not an `x-column`.** It is an error in the accepting slot, and is not rendered. Content for another purpose goes to a slot of its own, such as a `caption` slot that the table places in `<caption>`.
+
+**Scoped props.** Content for a column's slot renders in the consumer's scope plus the slot props its outlet gives. It does not see the table's declarations or the column's props; a table that wants it to see them passes them as slot props.
+
+**Server output and hydration.** A cell that a column's slot fills is marked with a distinct range, `<?start slot="body" of="" scoped=""?>`, so hydration never mistakes it for one of the table's own slots. The column renders none of its slots itself, so its content is held in its [carrier](/declarative-components/rendered-form#content-no-slot-renders-yet). `<col>` is a void element, so that carrier is the root's next sibling, `<template carrier="x-column">`, which a `<colgroup>` allows. [Rendered form](/declarative-components/rendered-form#borrowed-slot-ranges) defines both.
 
 ```html title="Rendered form, first row"
 <table data-component="x-datatable">
+  <colgroup><?start slot=""?><col data-component="x-column"><col class="numeric" data-component="x-column"><template carrier="x-column"><abbr slot="header" title="Price in US dollars">Price</abbr><template slot="body">…</template></template><?end?></colgroup>
   <thead><tr>
-    <th scope="col"><?start slot="header" fallback=""?>Name<?end?></th>
-    <th scope="col"><?start slot="header" fallback=""?>Price<?end?></th>
+    <th scope="col"><?start slot="header" of="" fallback=""?>Name<?end?></th>
+    <th scope="col"><?start slot="header" of=""?><abbr slot="header" title="Price in US dollars">Price</abbr><?end?></th>
   </tr></thead>
   <tbody><tr>
-    <td><?start slot="body" fallback="" scoped=""?>Desk lamp<?end?></td>
-    <td><?start slot="body" scoped=""?>$49.00<?end?></td>
+    <td><?start slot="body" of="" fallback="" scoped=""?>Desk lamp<?end?></td>
+    <td><?start slot="body" of="" scoped=""?>$49.00<?end?></td>
   </tr></tbody>
-  <template carrier="x-datatable"><x-column field="name" header="Name"></x-column><x-column header="Price"><template slot="body">…</template></x-column></template>
 </table>
 ```
 
-Hydration rebuilds the list from the carrier, then walks the template against the DOM. The walk knows which entry each `<slot of>` outlet renders, so each outlet adopts the next range and the range needs no attribute naming its column. A child's explicit props are recovered as for any instance, which is [still open](/declarative-components/rendered-form#open-questions). Before a client-only page lowers, an unknown `<x-column>` shows its children inline, and they are inert templates, so it shows nothing.
+**Framework targets.** A generated component reads the same entries in the same order and renders the same DOM, under [target equivalence](/declarative-components/targets). Its entry order is the document order of the instances' `<col>` roots, which every target can read because each column is a real element. Server output follows the [order rule](#accepting-slots) above.
 
-**Framework targets.** A configuration component generates its own framework component, which renders nothing. The generated parent reads instances of it among its children, in order, including those the framework's own conditionals and lists render, and renders their templates at its `<slot of>` outlets. Each `<template slot>` is that child's scoped slot in the target's form. The output DOM meets [target equivalence](/declarative-components/targets) like any other.
+**Accessibility.** The table is a real `<table>` with `<tr>`, `<th scope="col">`, and `<td>` elements, so row and column navigation and header association come from HTML. A column's content fills one cell from inside the table's `<th>` or `<td>`, so it cannot break the table's structure. `<col>` adds nothing to the accessibility tree. The `<x-datatable>` invocation is not inside a `<table>`, so the parser keeps its `<x-column>` children in place.
 
-**Accessibility.** The parent renders real `<table>`, `<tr>`, `<th>`, and `<td>` elements, so row and column navigation, header association, and row targets come from HTML. A template fills one cell from inside the parent's `<th>` or `<td>`, so it cannot break the table's structure. Configuration children render nothing and add nothing to the accessibility tree. Because the `<x-datatable>` invocation is not itself inside a `<table>`, the HTML parser does not move its children out, the problem described under [Roots](#roots-native-or-delegated).
+### Open questions {#child-slots-open-questions}
 
-### Open questions {#configuration-children-open-questions}
+- **Table-context outlets.** Is a `<template>` around the `<slot>` the right form, or should HTML's parser allow `<slot>` in table contexts, as it allows `<template>`? The [row example](#slot-prop-outlets) under scoped slots has the same parsing problem.
+- **More than one tag.** Should `accepts` take several tags, for example columns and column groups for multi-row headers? Their entries would then have different props.
+- **Entries in a controller.** Should a controller's entry also expose the instance's root element, the `<col>`?
+- **Development marker.** A development build may name the column in its range, `of="x-column 2"`. Is the tag and position the right name?
+- **Level.** Level&nbsp;1 or Level&nbsp;2.
 
-- **Names.** `<children name of>` and `<slot of>`, or alternatives such as `select` or `tag` for the attribute, or a separate rendering element instead of `<slot of>`.
-- **Marking.** Is a configuration component inferred from a definition with only `<defs>`, or marked explicitly on the `<template component>`? A mark gives clearer diagnostics; inference adds no attribute.
-- **Presets and groups.** Should a component whose root is an `<x-column>` invocation, such as an `x-price-column` preset, match `of="x-column"`? Should `<children>` look through a grouping child, as an `<option>` inside an `<optgroup>` counts for its `<select>`, for column groups and multi-row headers?
-- **Plain content.** Should a configuration component accept plain elements for a slot without props, such as a header, if its parent renders that slot at most once?
-- **Events.** Should a configuration component declare events, such as a column's sort, or does the parent own every event?
-- **Types.** The body slot's `row` is typed `object`. Should a child's slot prop types follow the parent's types, so that `$row.price` is checked against the item type of `rows`?
-- **JavaScript and Level.** Should a controller read entries, for example through `host.children.columns`? Does the feature belong in Level&nbsp;1 or Level&nbsp;2?
+Follow-ups, not part of this proposal: typing a column's `row` from the table's `rows` type, so `$row.price` is checked; and a `let:`-style rename of a slot prop for the consumer.
 
 ## Composition
 
@@ -887,17 +932,23 @@ Native `<template>` has no `src`, so HTML Next defines it: `<template src="…">
 <template src="./chart.html" defer></template>  <!-- lazy: load on first use -->
 ```
 
-### <component is>: dynamic component
+### Choosing a component at runtime
 
-When the component to render is decided at runtime, `<component is="expr">` resolves the tag from an expression, the name and syntax taken verbatim from Vue `<component :is>` (Svelte `<svelte:component>` and Angular `NgComponentOutlet` are the same idea).[^8] Props and children pass through as with a literal invocation.
+When data decides which component renders, list each candidate as an arm of a [`$match`](/declarative-components/templating). The first arm whose `$when` is truthy renders, and when the data changes, the newly chosen arm replaces it. Every component the markup can render is named in the source, so its definition resolves the same way as any other invocation.
 
 ```html
-<component is="$block.type" from:data="$block"></component>
+<template $match>
+  <x-callout $when="$block.type = 'callout'" from:data="$block"></x-callout>
+  <x-figure $when="$block.type = 'figure'" from:data="$block"></x-figure>
+  <p $else>{$block.text}</p>
+</template>
 ```
+
+A component that chooses its own native root uses the same pattern at its root; see [Native lowering and explicit root branches](#native-lowering-and-explicit-root-branches).
 
 ### <portal to>: render elsewhere {#portal}
 
-Overlays (dialogs, tooltips, toasts) render outside their DOM position while staying logically owned by the component. `<portal to="selector">` moves its children to the target (a CSS selector or an element id) while preserving reactive bindings and event wiring. The term is React `createPortal`; Vue `Teleport` was originally named `<portal>`, and Angular CDK ships a `Portal` too.[^9]
+Overlays (dialogs, tooltips, toasts) render outside their DOM position while staying logically owned by the component. `<portal to="selector">` moves its children to the target (a CSS selector or an element id) while preserving reactive bindings and event wiring. The term is React `createPortal`; Vue `Teleport` was originally named `<portal>`, and Angular CDK ships a `Portal` too.[^8]
 
 ```html
 <portal to="body">
@@ -1011,7 +1062,7 @@ A component definition **contains no executable code: code is referenced, never 
 
 ## Roots: native or delegated
 
-A component has **exactly one significant root**, except a [configuration component](#configuration-components), which has none and renders nothing. That single root is what gives it one native element and one place for its provenance stamp, so the rule earns its keep. The root may take either shape, and neither introduces a wrapper:
+A component has **exactly one significant root**. That single root is what gives it one native element and one place for its provenance stamp, so the rule earns its keep. The root may take either shape, and neither introduces a wrapper:
 
 1. a **native element**, the common case: the component lowers straight to it, and `nativeElement` is that tag; a polymorphic definition uses explicit conditional branches whose selected arm provides the native root;
 2. another **component invocation** (*delegation*): the component has no native element of its own and lowers to whatever the delegated component lowers to, so a preset such as `x-primary` is built as an `x-button` with a fixed variant.
@@ -1056,7 +1107,7 @@ Level
 
 ::: {.entry name="<defs>" role="non-rendered declarations"}
 Contains
-: `<prop>`, `<event>`, `<request>`, `<slot>` declarations, `<children>` (proposed), `<state>`, `<computed>`, `<data>`, `<handler>`, and `<context>`, and the head declarations `<title>`, `<meta>`, `<link>`, and `<script>`, as flat siblings — everything that renders nothing in place.
+: `<prop>`, `<event>`, `<request>`, `<slot>` declarations, `<state>`, `<computed>`, `<data>`, `<handler>`, and `<context>`, and the head declarations `<title>`, `<meta>`, `<link>`, and `<script>`, as flat siblings — everything that renders nothing in place.
 
 Semantics
 : Separates behavior/data/interface from visible markup; borrowed from SVG `<defs>`. Survives the template fragment parser where `<head>`/`<body>` do not.
@@ -1149,30 +1200,19 @@ Level
 
 ::: {.entry name="<slot>" role="content projection"}
 Attributes
-: `name?` (named slot) · `of?` (proposed: a [child entry](#slot-of) whose template it renders) · any other plain attribute (a static slot prop, converted by its declared type) · `from:prop` bindings (bound slot props)
+: `name?` (named slot) · any other plain attribute (a static slot prop, converted by its declared type) · `from:prop` bindings (bound slot props) · proposed: `of` on an outlet, `accepts` on a declaration
+
+Outlets
+: <code>&lt;slot name="caption"&gt;</code> places this component's own `caption` slot · <code>&lt;slot of="$column" name="body"&gt;</code> places the `body` slot of the child that the entry `$column` stands for: [the child's own slot, placed by the parent](#slot-of)
 
 Placement
-: in the markup, an outlet; inside `<defs>`, a [declaration](#slot-props) of the slot's props, whose children are `<prop>` elements
+: in the markup, an outlet; inside `<defs>`, a [declaration](#slot-props) of the slot's props, whose children are `<prop>` elements, and which may [accept](#accepting-slots) one component with `accepts="tag"`
 
 Children
 : fallback content used when nothing is projected
 
 Level
 : [L1]{.pill .l1} · default, named, fallback, and scoped slots
-:::
-
-::: {.entry name="<children name of>" role="configuration children a component reads"}
-Attributes
-: `name`: the list's name in expressions · `of`: the literal tag of a configuration component
-
-Placement
-: a flat child of `<defs>`
-
-Exposes
-: `$name`, a read-only list of child entries in tree order, each exposing the child's props; its templates render through [`<slot of>`](#slot-of)
-
-Level
-: proposed, [not yet placed](#configuration-children-open-questions)
 :::
 
 ::: {.entry name='<link rel="component">' role="component entry import"}
@@ -1186,9 +1226,9 @@ Level
 : [L1]{.pill .l1}
 :::
 
-::: {.entry name="<template src> · <component is> · <portal to>" role="composition"}
+::: {.entry name="<template src> · <portal to>" role="composition"}
 Semantics
-: import/lazy-load a definition · render a runtime-chosen component · relocate children while preserving bindings
+: import/lazy-load a definition · relocate children while preserving bindings
 
 Level
 : [L2]{.pill .soon}
@@ -1203,11 +1243,11 @@ Level
 [^5]: SVG 2, [the `<defs>` element](https://www.w3.org/TR/SVG2/struct.html#DefsElement).
 [^6]: WHATWG HTML, [import maps](https://html.spec.whatwg.org/multipage/webappapis.html#import-maps) (unrecognized top-level keys are ignored).
 [^7]: W3C (retired), [HTML Imports](https://www.w3.org/TR/html-imports/) (`<link rel="import">`).
-[^8]: Dynamic component, borrowed directly: Vue [`<component :is>`](https://vuejs.org/api/built-in-special-elements.html#component) (name and syntax verbatim), Svelte [`<svelte:component>`](https://svelte.dev/docs/svelte/svelte-component), and Angular [NgComponentOutlet](https://angular.dev/api/common/NgComponentOutlet).
-[^9]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
-[^10]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [fetch directives](https://www.w3.org/TR/CSP3/#directives-fetch), the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
-[^11]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.
-[^12]: WHATWG DOM, [assigning slottables](https://dom.spec.whatwg.org/#assign-slotables) and [`assignedNodes()`](https://dom.spec.whatwg.org/#dom-htmlslotelement-assignednodes); CSS Scoping, [slots and fallback content in the flat tree](https://drafts.csswg.org/css-scoping/#slots-in-shadow-tree): a slot with no assigned nodes renders its own children, and switches as nodes are assigned or removed.
-[^13]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved; [`defineSlots()`](https://vuejs.org/api/sfc-script-setup.html#defineslots) types each slot's props.
-[^14]: PrimeVue, [DataTable](https://primevue.org/datatable/): each `Column` child supplies a header and a `body` template that the table renders once per row; the same `Column` also configures [TreeTable](https://primevue.org/treetable/).
-[^15]: WHATWG HTML, [the `col` element](https://html.spec.whatwg.org/multipage/tables.html#the-col-element), [the `option` element](https://html.spec.whatwg.org/multipage/form-elements.html#the-option-element), [the `source` element](https://html.spec.whatwg.org/multipage/embedded-content.html#the-source-element) and [the `track` element](https://html.spec.whatwg.org/multipage/media.html#the-track-element) (neither represents anything on its own), and [the `selectedcontent` element](https://html.spec.whatwg.org/multipage/form-elements.html#the-selectedcontent-element), which shows a copy of the selected option's content.
+[^8]: Render-elsewhere, borrowed directly: React [createPortal](https://react.dev/reference/react-dom/createPortal) (the term) and Vue [Teleport](https://vuejs.org/guide/built-ins/teleport.html) (originally named `<portal>`), plus Angular CDK [Portal](https://material.angular.io/cdk/portal/overview).
+[^9]: W3C, [Content Security Policy Level 3](https://www.w3.org/TR/CSP3/): the [fetch directives](https://www.w3.org/TR/CSP3/#directives-fetch), the [source list grammar](https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list) and [matching a URL to a source list](https://www.w3.org/TR/CSP3/#match-url-to-source-list).
+[^10]: W3C, [Permissions Policy](https://www.w3.org/TR/permissions-policy/): the [allowlist](https://www.w3.org/TR/permissions-policy/#allowlists) of origins a feature is enabled for.
+[^11]: WHATWG DOM, [assigning slottables](https://dom.spec.whatwg.org/#assign-slotables) and [`assignedNodes()`](https://dom.spec.whatwg.org/#dom-htmlslotelement-assignednodes); CSS Scoping, [slots and fallback content in the flat tree](https://drafts.csswg.org/css-scoping/#slots-in-shadow-tree): a slot with no assigned nodes renders its own children, and switches as nodes are assigned or removed.
+[^12]: Vue, [scoped slots](https://vuejs.org/guide/components/slots.html#scoped-slots): attributes on `<slot>` are passed to the slot, with `name` reserved; [`defineSlots()`](https://vuejs.org/api/sfc-script-setup.html#defineslots) types each slot's props.
+[^13]: PrimeVue, [DataTable](https://primevue.org/datatable/): each `Column` child supplies a header and a `body` template that the table renders once per row.
+[^14]: WHATWG HTML: [`select.options`](https://html.spec.whatwg.org/multipage/form-elements.html#dom-select-options), the list of options, which includes `<option>` children of `<optgroup>`; [the `col` element](https://html.spec.whatwg.org/multipage/tables.html#the-col-element) and [the `colgroup` element](https://html.spec.whatwg.org/multipage/tables.html#the-colgroup-element), whose content is `<col>` and `<template>` elements; [the `source` element](https://html.spec.whatwg.org/multipage/embedded-content.html#the-source-element); [the `track` element](https://html.spec.whatwg.org/multipage/media.html#the-track-element); and [the `selectedcontent` element](https://html.spec.whatwg.org/multipage/form-elements.html#the-selectedcontent-element), which shows a copy of the selected option's content.
+[^15]: WHATWG HTML, [`assignedElements({ flatten: true })`](https://html.spec.whatwg.org/multipage/scripting.html#dom-slot-assignedelements), which follows slots forwarded through other slots; W3C Web Components, [the Slots proposal](https://github.com/w3c/webcomponents/blob/gh-pages/proposals/Slots-Proposal.md), which replaced Shadow DOM v0's `<content select>` with named slots in v1.

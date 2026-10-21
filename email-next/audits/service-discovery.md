@@ -30,10 +30,10 @@ Email already has a standard path from an address to submission and mailbox-acce
 
 | Front and end matter | Abstract, standards status, copyright and author address reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Preserve the configured access protocol when refreshing discovery. An automatic switch from IMAP to POP3 changes mailbox behavior and is not an ordinary endpoint retry. Keep required transport protection in force across endpoint changes, and authenticate the newly selected service before releasing credentials.
 
-A dot target is an explicit absence of the queried service. Missing records, temporary lookup failure, and an explicit unavailable service are different results. None establishes that an account lacks Email Next capability; capability discovery needs its own scoped record and failure semantics.
+A dot target is an explicit absence of the queried service. Missing records, temporary lookup failure, and an explicit unavailable service are different results. None establishes that an account lacks Email/2 capability; capability discovery needs its own scoped record and failure semantics.
 
 Required cases include equal-priority records across protocols, weighting only within the selected protocol, changed priorities after successful setup, dot targets, temporary lookup failure, and a replacement endpoint that cannot satisfy the existing TLS policy. No resolver or authentication implementation has been tested by this audit.

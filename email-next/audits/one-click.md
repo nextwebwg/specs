@@ -21,7 +21,7 @@ A mail client can offer a deliberate action without making ordinary link retriev
 | 4 | At least one valid DKIM signature covers both list headers in h=. Without it receivers SHOULD NOT offer one-click. Domain authentication does not prove a human submitted a form. |
 | 5 | Fixed header ABNF imports5322 productions; no arbitrary POST arguments or general action grammar. |
 | 6 | Message access transfers unsubscribe capability; opaque URI is not identity binding. Fixed payload constrains arbitrary-form attacks; no ambient web context. Requests can disclose address activity. |
-| 7 | Registers List-Unsubscribe-Post; no Email Next generic action registration. |
+| 7 | Registers List-Unsubscribe-Post; no Email/2 generic action registration. |
 | 8 | Examples reviewed as fragments, not complete authenticated messages. |
 | 8.1 | Simple URL-encoded POST uses26-byte fixed payload; complete DKIM evidence omitted from snippet. |
 | 8.2 | Mailto alternative and HTTPS query example preserve selected HTTPS target and fixed body. |
@@ -30,7 +30,7 @@ A mail client can offer a deliberate action without making ordinary link retriev
 
 | Front and end matter | Abstract, standards status, copyright and author addresses reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Preserve one-click unsubscribe as its own existing operation. Do not reinterpret List-Unsubscribe-Post as permission to submit arbitrary fields, follow redirects or reuse browser cookies. A valid DKIM signature authenticates the relevant domain-signed headers; it does not turn the holder of a forwarded unsubscribe link into a verified human author.
 

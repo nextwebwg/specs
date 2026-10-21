@@ -48,10 +48,10 @@ Source: [RFC6530](https://www.rfc-editor.org/rfc/rfc6530.html).
 | 15.2 | Historical draft successors require mapping. |
 | Front matter and authors | Status, copyright, abstract and contacts reviewed. |
 
-## Proposed application to Email Next
+## Proposed application to Email/2
 
 The sender's fallback policy remains a first-class choice. Ordinary mail, hosted access and enforced endpoint encryption are distinct delivery modes with separate protection claims. The transport must not switch among them merely because an intermediate server cannot process a feature.
 
 Any alternate-address binding used for automatic delivery must have evidence appropriate to the selected security mode. A resemblance between addresses, a display name or an unverified claim in a message is insufficient to transfer a pinned key or authorize disclosure. A user can explicitly select a different destination, but the application must treat that as a destination change until its binding is established.
 
-Separate account routing, device support and display capability. A provider accepting a message does not prove every device can interpret it. Retain original source for verification while producing derived legacy views. These are proposed design choices; this source does not specify the Email Next security protocol.
+Separate account routing, device support and display capability. A provider accepting a message does not prove every device can interpret it. Retain original source for verification while producing derived legacy views. These are proposed design choices; this source does not specify the Email/2 security protocol.

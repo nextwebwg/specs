@@ -5,7 +5,7 @@ sectionNav: true
 
 # Local implementation experiments
 
-These components exercise selected Email Next contracts. Start with the [offline acceptance report](#offline-acceptance-report) for runnable button fixtures, the [adoption chapter](../adoption.md) for client and server integration paths, and the [validation record](../validation.md) for coverage. No complete client or provider adapter is included.
+These components exercise selected Email/2 contracts. Start with the [offline acceptance report](#offline-acceptance-report) for runnable button fixtures, the [adoption chapter](../adoption.md) for client and server integration paths, and the [validation record](../validation.md) for coverage. No complete client or provider adapter is included.
 
 ## Run the integrated checks
 
@@ -229,7 +229,7 @@ The subprocess bridge is a local test harness accepting trusted test data; it is
 
 Run `python3 -m unittest discover -s email-next/evidence -p test_mime_package.py`. Fourteen tests compose the strict event encoder, JavaScript schema/readable projection, Python MIME generation and parsing, and the selected resource-scope decoder. The generated layout is multipart/mixed containing a multipart/alternative contribution followed by independent attachments. Alternatives are text/plain, text/html and the candidate application/vnd.threadlabs.email-next-event+json carrier. Tests verify exact structured-event octets, binary resource octets, Unicode filename recovery, alternative ordering, readable Unicode text and refusal of missing, extra or modified input resources.
 
-The candidate event carrier is only a local experiment; it does not register an Email Next media type or advertise protocol support. The generator assumes operation validation and projection have already succeeded, as exercised by the harness. Its API is not an untrusted-input boundary. Readable text serialization may add normal MIME line endings; authenticated structured-event bytes are separately retained exactly. The incoming fixture inspector requires the exact mixed/alternative layout, one Content-Type per part and exactly three ordered alternatives. It rejects generic JSON and unrelated suffix types, all event media parameters, duplicate alternatives and nested resource substitutions. Type-name case differences preserve the same selection. It retains original structured bytes and budgets aggregate decoded content. It then repackages the selected resource scope for the resource-only decoder. This is a strict generated-profile selector, not a general-purpose legacy message selector.
+The candidate event carrier is only a local experiment; it does not register an Email/2 media type or advertise protocol support. The generator assumes operation validation and projection have already succeeded, as exercised by the harness. Its API is not an untrusted-input boundary. Readable text serialization may add normal MIME line endings; authenticated structured-event bytes are separately retained exactly. The incoming fixture inspector requires the exact mixed/alternative layout, one Content-Type per part and exactly three ordered alternatives. It rejects generic JSON and unrelated suffix types, all event media parameters, duplicate alternatives and nested resource substitutions. Type-name case differences preserve the same selection. It retains original structured bytes and budgets aggregate decoded content. It then repackages the selected resource scope for the resource-only decoder. This is a strict generated-profile selector, not a general-purpose legacy message selector.
 
 No mail is sent. No encryption wrapper, signature, recipient policy, real-client rendering, independent MIME implementation or transport gateway is exercised. Final media registration, protected-container integration and arbitrary legacy-layout selection remain required work.
 
@@ -400,7 +400,7 @@ The experiment connects the sender’s generated MLS key to a signed genesis cla
 
 `mls_mime.py` packages opaque bytes as a base64 application/octet-stream attachment beside a readable fixture notice, then parses the generated message back into exact bytes. The Rust MLS exchange applies this round trip to KeyPackage, Welcome, public tree, application ciphertext and reply before their respective cryptographic processing. The expanded Rust test passes. Three separate Python tests cover all256 octet values, CRLF preservation, corrupted transfer data, duplicate encoding headers and input bounds.
 
-This fixture uses an explicit expected layout and does not discover protocol roles from arbitrary attachments. It is not the selected final Email Next MIME binding and does not claim that legacy clients hide the attachment. The [registered message/mls type](https://www.iana.org/assignments/media-types/message/mls) is binary; the application profile must reconcile its email carriage with RFC2045/2046 and RFC6532's allowance for newly defined message types to permit transfer encoding. The fixture deliberately makes no claim that this registration already authorizes a particular email encoding.
+This fixture uses an explicit expected layout and does not discover protocol roles from arbitrary attachments. It is not the selected final Email/2 MIME binding and does not claim that legacy clients hide the attachment. The [registered message/mls type](https://www.iana.org/assignments/media-types/message/mls) is binary; the application profile must reconcile its email carriage with RFC2045/2046 and RFC6532's allowance for newly defined message types to permit transfer encoding. The fixture deliberately makes no claim that this registration already authorizes a particular email encoding.
 
 The Python3 helper uses only its standard library; the Rust test invokes it through EMAIL_NEXT_PYTHON when set, otherwise python3. The loopback SMTP extension below exercises a local transaction. Mailbox delivery, provider transformation, multipart selection beyond this exact fixture, identity-store admission and an independent MLS implementation remain untested.
 
@@ -1280,7 +1280,7 @@ Chromium153.0.8010.12 and html5lib1.1 agree on all eleven filtered trees. Three 
 
 `html_tree.project_tree()` checks the input byte limit before sending ordinary HTML to a disposable Python worker. The worker uses the same html5lib parser, scripting mode and projection rules; tree/depth limits still apply to its result. Parsing no longer allocates an attacker-controlled tree in the calling process. A trusted explicit parser adapter owns its own parsing boundary: the supplied parse5 adapter executes Node in the worker process, with no nested parser child, then passes its bounded result through the same projection checks.
 
-`ParserLimits` exposes adjustable implementation defaults: five seconds wall time, three seconds CPU, 4 MiB output and a 256 MiB resident-memory termination threshold sampled every 20 ms. These are experiment choices, not Email Next wire limits or user requirements. Worker CPU and output-file limits apply before parser import; wall timeout terminates the process group, including descendants. The parse5 adapter separately defaults to a 128 MiB V8 old-space cap. That cap does not bound every Node allocation.
+`ParserLimits` exposes adjustable implementation defaults: five seconds wall time, three seconds CPU, 4 MiB output and a 256 MiB resident-memory termination threshold sampled every 20 ms. These are experiment choices, not Email/2 wire limits or user requirements. Worker CPU and output-file limits apply before parser import; wall timeout terminates the process group, including descendants. The parse5 adapter separately defaults to a 128 MiB V8 old-space cap. That cap does not bound every Node allocation.
 
 On the tested macOS host, attempts to set address-space and data-segment limits were rejected. Memory enforcement there is therefore a watchdog: it observes resident memory and terminates the process, with possible sampling and termination overshoot. It is **not a hard preallocation ceiling**. Requiring hard memory enforcement rejects that unsupported Python path; the Node adapter also rejects that stricter requirement rather than describing its heap cap as total memory enforcement. A Linux address-space-limit path exists but has not been validated by this macOS run. Failure to obtain the resident-memory observation also rejects processing.
 
@@ -1557,3 +1557,133 @@ python run_acceptance.py --manifest acceptance-quorum-signed.json
 ```
 
 The manifest records the exact source inventory and links each scenario to its governing requirement. Independent peer interoperability, deployed provider carriage and independent security review remain explicitly untested. A successful local run cannot establish any of those results. Use `--require-complete` when a gate must reject every remaining untested case.
+
+
+## Encrypted correspondence archive
+
+The candidate [archive contract](../encrypted-archives.md) has a standalone container experiment in `correspondence_archive.py`. Run `python3 -m unittest discover -s email-next/evidence -p test_correspondence_archive.py -v` from the specification repository with the Python `cryptography` dependency installed. The actual file-encryption test additionally requires installed `age` and `age-keygen` commands; its explicit skip is not a pass when they are absent.
+
+Sixteen tests passed locally using age v1.3.2. They retain exact contribution/resource and original-mail bytes; reject altered or absent objects, forged archive signatures, wrong archive/key, malformed/duplicate metadata, unsafe lengths, invalid scope and false complete coverage; exercise private staging cleanup; and leave a separate live-state sentinel unchanged. Actual age encryption/decryption, wrong-key failure, truncated/altered ciphertext and a replacement encrypted by an attacker using only the public recipient were exercised. The pinned independent writer verifier rejects that replacement. No billing or network service participates in restore.
+
+The module stages a historical directory; it does not query a real mailbox, select a consistent application snapshot, publish durable cloud heads, implement the recovery-kit UI, reconstruct the entire rich client, or restore an identity. Its resource checks cover operations carrying an explicit manifest; other attachment inventory adapters still need integration. Adjustable local byte/inventory limits are not user storage quotas. The age adapter also has a finite header and identity-input boundary; it does not implement plugins or passphrase recipients. Full cryptographic-source testkits, production secure storage, crash-safe history installation, managed transport, credential rotation and independent interoperability remain separate evidence.
+
+
+## Complete archive collection
+
+The [archive-set contract](../archive-sets.md) defines a distinct encrypted signed catalog for complete multi-file acceptance. `archive_set.py` verifies its independent writer signature, exact encrypted-member descriptors, contiguous member identities, account scopes, frozen length-prefixed record index commitments and complete/omission state. Every part remains an independently validated archive-v0 file. A shared bounded `decrypted_age` adapter first retains exact bytes and checks expected descriptors before invoking age, avoiding source-path substitution between hashing and decryption.
+
+Run `python3 -m unittest discover -s email-next/evidence -p test_archive_set.py -v` with Python cryptography and installed age/age-keygen. Fourteen tests passed locally with no skips. Actual age-encrypted catalog and two encrypted parts restore together into one historical namespace. Cases reject unavailable/substituted parts, omission of a descriptor without changing the frozen index, duplicate entries across individually valid parts, wrong index, uint64 overflow, foreign catalog signer, conflicting re-encryption and known-head rollback. Exact accepted retry returns its retained receipt; a declared incomplete source remains labeled incomplete. An actual child process exits before the atomic namespace publication, leaving no completed destination or live-state change. A later explicit retry fully validates and completes. This demonstrates a process-exit boundary, not power-loss durability or filesystem erasure.
+
+The experiment does not select mail from a real account, publish cloud parts/catalogs, advance a production writer journal, reconstruct the full rich application view or handle every storage failure. Those integrations must enforce the contract and their own limits. Tests for missing installed tools are explicit skips, not conformance passes. The original sixteen container tests also remain required after shared-decryption changes.
+
+
+## Authorized history transfer
+
+The [history-transfer contract](../history-transfer.md) has a control/acceptance experiment in `history_transfer.py` and twenty-two tests in `test_history_transfer.py`. Run `python3 -m unittest discover -s email-next/evidence -p test_history_transfer.py -v` with Python cryptography, Node, age and age-keygen available. Twenty-two tests passed locally without skips. The fixtures generate real genesis, binding and successor proofs; the existing identity-store verifier accepts them before any transfer operation.
+
+The tests exercise exact original-byte request/grant signatures, independent source approval, current send/receive roles, binding intervals, accepted ancestry, unverified versus strict policy, requested account bounds, prepared-permission withdrawal, device revocation after preparation, source cancellation after target revocation and unrelated cancellation rejection. A signed source grant binds actual recipient-encrypted collection import, including a deliberate cross-principal disclosure. Wrong transfer identity, scope and catalog cannot publish history. A typed local completed-import result, not a message-supplied dictionary, supplies the terminal result receipt. Live identity heads remain unchanged. Additional cases separate requester ID namespaces and permit a current target's terminal result after source revocation while still rejecting all new source release.
+
+The module checks accepted public identity state and can join a caller-owned transaction. Its standalone release function is an authorization snapshot, not an integrated final network handoff. It does not implement the required persistent transfer/collision/outbox journals, complete MIME control adapter, storage-service grants, independently verified correspondent policy, UI approvals or full endpoint synchronization. Strict verification policy is held rather than weakened. The archive-set import gains an explicit expected catalog/scope binding before publication. Thirty archive/container regression tests remain required after that integration. Process-exit/power-loss behavior of the complete transfer journal is not demonstrated by these tests.
+
+
+## Provider discovery and public client registration
+
+`provider_discovery.py` is a bounded validator and durable local delegation store for [provider discovery](../provider-discovery.md). Sixteen focused cases check exact domain/origin/endpoint binding, trusted transport facts, full validity intervals, public native registration and scopes, no cross-purpose sign-in, immutable generation conflicts, rollback, service-change confirmation, explicit publication reset, restart and stale decisions from two database connections.
+
+```sh
+python3 -m unittest discover -s . -p test_provider_discovery.py -v
+```
+
+Transport facts and local setup permission are trusted adapter inputs, never parsed server claims. The experiment supplies no DNS/PKIX/network-boundary adapter, HTTP registration, system-browser login, token issuance, account-device linking, pair-grant lifecycle or automatic unknown-peer handshake. Existing configured-provider admission evidence does not demonstrate the new first-contact flow.
+
+
+## Public provider pair approval
+
+`provider_grants.py` validates the [public grant profile](../provider-grants.md)'s exact target approval and two signed role-credential proof stages. Fifteen tests use actual Ed25519 signatures and accepted identity genesis/successor/revocation evidence. They exercise role separation, forwarded invitations, changed linked account/family/delegation, mismatched challenge/role/key, frozen head changes, validity, strict-policy hold and malformed input.
+
+```sh
+python3 -m unittest discover -s . -p test_provider_grants.py -v
+```
+
+ActiveLink, original preparations/challenges and the active-grant flag are trusted service-journal inputs. No incoming record creates them. The experiment supplies no OAuth/account-link endpoint, grant activation journal, token minting, HTTP carriage, queue authorization/revocation transaction or unknown-peer bootstrap. It does not test secret erasure. The separate [retirement contract](../setup-secret-retirement.md) distinguishes the existing logical-retention evidence from platform/physical erasure assurance.
+
+
+## Encrypted personal-address presentation
+
+`private_address_presentation.py` is a bounded supplemental metadata validator for the [required encrypted personal-address contract](../private-address-presentation.md). It preserves original bytes and checks personal mailbox spelling, full address/role/audience consistency and configured authenticated-context selection. Its assurance projection uses explicit trusted local fixture associations, not proofs supplied by the message. It cannot borrow a familiar contact name from a claimed address.
+
+Fifteen tests cover multiple aliases for one principal, self-addressed mail, private-audience exclusions, duplicate/conflicting bindings, role order, missing/null/unknown fields, old versions, unsupported mailbox spellings, strict JSON and size bounds, changed authenticated context and local association conflicts. The crypto case creates actual MLS endpoint states, carries a MIME event over loopback SMTP, decrypts at the other endpoint, checks the original event and group-extension context bytes, and rejects modified ciphertext from the pre-receive checkpoint.
+
+```sh
+EMAIL_NEXT_MLS_BIN_DIR=/absolute/path/to/mls-target/debug python3 -m unittest test_private_address_presentation -v
+```
+
+The crypto endpoints/context and local associations are configured inputs. This is not required assertion8 discovery, initial8/roster5 or established8 admission, exchange2/carrier3 control, complete context-schema/operation/disclosure acceptance, a renderer or a route-management implementation. The SMTP carrier fixture uses configured personal SMTP envelope addresses; it proves encrypted payload carriage, not transport-address privacy. The experiment has no authority to label a full application contribution accepted. A production caller must complete all owning validators and identity/application gates before display or effects.
+
+
+## Protected module selection
+
+`suite_modules.py` implements the [protected operation agreement](../suite-profile.md#module-agreement-and-common-operation-selection): the mandatory four-operation core, complete Answers/Reactions/Corrections blocks, exact sorted subset-closure offers and all-device intersection. Eleven tests exercise all eight module combinations, every pair of maximal support sets, group intersection, core-only participants, malformed or partial blocks, unclosed/duplicate/unsorted offers and immutable previously selected results.
+
+```sh
+python3 -m unittest test_suite_modules -v
+```
+
+This component accepts already decoded application offers. It does not verify assertion signatures, identity state, freshness, package admission or final release. Its result cannot establish those authorities. The separate private-address metadata component checks a selected valid application and rejects operations absent from it; its real MLS/MIME probe remains configured carriage, not signed module negotiation. Provider masking/control/verification capabilities are independent and are not implied by operation support.
+
+
+## Relay route authorization
+
+`relay_routes.py` exercises the [relay-route contract](../relay-routes.md)'s recipient approval, live source-account observation and route-key delivery proof. It verifies actual Ed25519 device/route signatures against accepted identity state and keeps route activation, account-scoped blocks, accepted delivery identities and idempotent inbox intents in the same SQLite store.
+
+Twenty-seven tests cover original route/proof reuse after unrelated signed source and recipient state advances, plus forwarded aliases without keys; wrong recipient/source signatures; two valid signatures with mismatched peer scope; expected origin/descriptor/relay role; account/link/family/incarnation changes; unsupported aliases; actual sender/recipient device revocation; proof/envelope/carrier binding; expiry and lifetime bounds; invalid-proof collision poisoning; exact retry versus authenticated conflict; recipient revocation; alias non-reassignment; account-level blocking across a new source incarnation/alias and known-peer blocking across a new relay service; strict-policy hold; restart and rollback. An actual child process exits before the SQL acceptance commit; reopening observes no partial inbox intent and a valid retry succeeds. This is process-exit/SQLite evidence, not power-loss or production storage assurance.
+
+```sh
+python3 -m unittest test_relay_routes -v
+```
+
+AccountLink and SourceObservation are trusted configured service/journal inputs. The callback is invoked for every new admission, but this experiment supplies no public DNS/PKIX/HTTP source fetch or OAuth account authentication. Its origin parser supports a deliberately narrower fixture subset than the complete service URL grammar. It does not issue source permissions, persist management preparations, parse the SMTP proof header/MIME or actual envelope, originate outgoing mail, deliver to a production mailbox or implement account-disconnect hooks. Carrier bytes are configured opaque fixtures, not proof of encryption. The separate personal-address test supplies configured actual MLS/MIME carriage; neither establishes full relay or independent interoperability.
+
+
+## Automatic first-contact authorization
+
+`bootstrap_exchange.py` exercises the [automatic first-contact contract](../bootstrap.md) with separate configured source and recipient identity stores. Forty-three tests use actual Ed25519 device, source-permission, assertion, response and publication signatures. They cover authoritative source-account/mailbox checks; uniform public admission without recipient lookup; exact scope and initiating-key possession; current source/recipient revocation and opt-out; nonce/mailbox/service/relay correlation; invalid-proof collision poisoning; retry/conflict; cancellation; request lifetime and uncertain clock; one-exchange package allocation; rollback/restart; and own-account blocking across new requests. Offline cases cover private pool publication, original-byte allocation, exact retries after restart, two independent database connections, simultaneous independent-process allocation, fresh/publication package collisions, expiry, withdrawal, cancellation, changed policy/identity/relay and a child process exiting before allocation commit.
+
+```sh
+python3 -m unittest test_bootstrap_exchange -v
+```
+
+SourceAccount, SourceObservation and RecipientSlot are trusted service/account-journal facts, not received authority flags. The experiment validates signed assertion structure and operation offers but does not validate a full new-peer identity chain or MLS package: its package bytes are deliberately invalid MLS data. It neither pins a new peer nor releases human content. The result is a candidate for further validation, not admission.
+
+Offline storage/allocation is a local service-journal component, not a public provider deployment. No real DNS/PKIX/HTTP discovery, OAuth account login, production source issuance, relay follow-up, provider-bootstrap association adapter or complete assertion8/MLS/MIME/mailbox journey is implemented. Routes remain empty in this component. Its origin parser uses the narrower relay fixture grammar. Configured callbacks are local observations inside the test transaction; production network work needs the contract's bounded-fetch and local recheck boundary. Rollback, restart and precommit child-process exit tests do not prove power-loss durability or physical secret erasure.
+
+
+## Mailbox address spelling
+
+`email2_mailbox.py` implements the [current bare-mailbox contract](../mailbox-addresses.md), distinct trusted input construction and strict signed-wire validation. Thirteen tests cover Unicode/case preservation, composed versus decomposed local parts, equivalent and necessary quoting, quoted `@` domain extraction, exact UTF-8 octet/path limits, unsupported header/URI/address-literal syntax, Unicode formatting characters, SMTPUTF8 classification, missing IDNA configuration, and actual pinned Unicode17 U/A-label and whole-domain bidi validation.
+
+```sh
+EMAIL_NEXT_IDNA17_CONFIG=/absolute/path/to/local-pins.json python3 -m unittest test_email2_mailbox -v
+```
+
+The configured Unicode provider is the existing hash-pinned ICU78.3/Unicode17 and private IDNA implementation. Without it the three configured-IDNA tests explicitly skip; they ran without skips in this recorded check. No system IDNA2003 or compatibility mapping is substituted. Missing provider configuration holds A-label/U-label use.
+
+Private-address metadata, relay and bootstrap components now use this parser. A signed bootstrap case exercises an ASCII quoted-`@` source and internationalized quoted-`@` target without confusing their domains; metadata checks preserve Unicode and necessary quoting. Earlier assertion/association components still implement older experimental versions. These checks do not implement a complete RFC5322 header parser, accessible address renderer, internationalized OAuth account linkage, whole-suite admission or actual SMTPUTF8 delivery. The existing metadata crypto case remains configured MLS/MIME/SMTP carriage; it does not prove an EAI transport path.
+
+
+## Freshness policy gate
+
+`freshness_gate.py` checks the [freshness contract](../freshness.md) against accepted local identity state and actual signed assertion8/bootstrap evidence. Sixteen tests cover cached validity, declared current-state age, known signed removals, original outstanding challenge, actual response signatures and exact target/request/nonce binding, publication/status exclusion, another operation/account/policy, original age after retry/reopen, uncertain/backward/unknown clock, response/source expiry, terminal cancellation, changed own authority and immutable preparation conflicts.
+
+```sh
+python3 -m unittest test_freshness_gate -v
+```
+
+The SQLite journal stores the original signed public attempt and creation interval before use; it contains no human content or private key. Account selection, current policy and credible clock are trusted local inputs, not incoming flags. The component resolves accepted head bytes and current receive authority but does not supply independent verification, account-provider permission, mailbox association or trusted time. Recent issuedAt is an authorized claim, not independently established signing time.
+
+Bootstrap advertisement fixtures carry deliberately invalid MLS package bytes. The component does not validate packages, pin new peers, implement HTTP/OAuth, wrap the current-suite known-pair exchange, reconcile whole-machine rollback or join a complete send-release transaction. Its return value explicitly says `freshness-satisfied-only`: it is a snapshot, not reusable permission to send. A production coordinator must run these checks within its own authority/release boundary. Existing older provider-control signature tests remain separate evidence, not current assertion8 integration.
+
+
+### Retained endpoint authority
+
+The shared history-transfer `authorize` helper now checks the same binding in every locally accepted state back to the signed anchor. Provider grants and relay permissions use that check without rewriting original signed references. Eighteen provider-grant cases include actual signed unrelated state advancement, a valid competing successor causing conflict, known device removal, an anchor predating the target binding, unavailable ancestry and original grant expiry. Twenty-seven route cases include independent source/recipient advances, exact retry without a second inbox intent and continued expiry/revocation enforcement. These are local SQLite/signature components, not a complete bootstrap/freshness/current-suite or network-provider implementation. The strict relay `current` helper remains unchanged for callers requiring an exact head.

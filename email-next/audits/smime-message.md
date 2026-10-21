@@ -35,12 +35,12 @@ The complete RFC8551 base text, examples, tables, ASN.1 module, references and e
 | 2.5.1 | Signing time | Time is a signer assertion, not an independent timestamp or global event order. UTCTime and GeneralizedTime have defined boundaries. |
 | 2.5.2 | Capabilities | Signed, single-valued attribute supplies a partial preference list. Absence from the list is not proof of non-support. Exact OID parameter encoding matters. |
 | 2.5.3 | Encryption preference | Signed certificate preference can differ from the signing certificate. Valid signature, freshness and certificate validity remain necessary. |
-| 2.5.3.1 | Recipient certificate selection | Preference, subject matching and other discovery paths do not replace certificate validation or Email Next identity continuity. |
+| 2.5.3.1 | Recipient certificate selection | Preference, subject matching and other discovery paths do not replace certificate validation or Email/2 identity continuity. |
 | 2.6 | Signer identifier | Both identifier forms are supported. A subjectKeyIdentifier can match multiple certificates; it is not a globally unique principal. |
 | 2.7 | Content encryption | AES-GCM and AES-CBC requirements differ; the optional ChaCha20-Poly1305 path needs a CMS-specific algorithm dependency check. |
 | 2.7.1 | Selection and caching | Authenticate capability updates and check signer time; future-skew and failed signatures cannot update the cache. Refusing weak encryption overrides preference selection. |
 | 2.7.1.1 | Known capabilities | Choose a supported recipient preference within the sender's acceptable algorithm policy. |
-| 2.7.1.2 | Unknown capabilities | The base fallback selection does not prove the recipient supports S/MIME or authorize Email Next downgrade. |
+| 2.7.1.2 | Unknown capabilities | The base fallback selection does not prove the recipient supports S/MIME or authorize Email/2 downgrade. |
 | 2.7.2 | Weak encryption | A compatibility choice must not misrepresent protection strength. New-message policy remains distinct from historical decryption. |
 | 2.7.3 | Multiple recipients | Separate copies can be required for incompatible algorithms; the weakest exposed copy limits content confidentiality. |
 | 3 | Message creation | Canonical MIME content is secured before the outer MIME wrapper is added. |
@@ -90,7 +90,7 @@ The complete RFC8551 base text, examples, tables, ASN.1 module, references and e
 | B.4 | Historical key encryption | Historical key sizes may permit recovery of old content without weakening future delivery. |
 | Appendix C | Version 2 status | Historical-status action does not remove the need to handle existing archives carefully. |
 
-## Consequences for Email Next
+## Consequences for Email/2
 
 Use signed capability and preferred-certificate exchange as prior art, with explicit boundaries for the [discovery](../capability-discovery.md) and [identity lifecycle](../identity-lifecycle.md) designs. A partial algorithm advertisement is not a full client-feature announcement. A later signing timestamp must not silently enroll a new device or replace an established identity.
 

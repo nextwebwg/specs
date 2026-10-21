@@ -28,7 +28,7 @@ Authentication rejection is not evidence that a recipient address is invalid. Di
 
 | Front matter | Abstract, status and copyright reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Keep the SMTP outcome, enhanced diagnostic and application security state separate. Explain an authentication-policy rejection as a reported delivery condition. Do not label the recipient nonexistent, delete a group member, revoke a correspondent key, or resend plaintext because of that condition.
 

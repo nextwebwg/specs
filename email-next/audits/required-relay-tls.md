@@ -34,19 +34,19 @@ Sender-selected relay protection already has an SMTP extension. It requires part
 | 8.4 | Optional override can ignore advertised DANE/MTA-STS policy, but server enforcement remains decisive. Rejected8593 does not restrict mechanism to misconfiguration reports only. |
 | 9 | References reviewed; general TLS/DNSSEC/DANE/MTA-STS/DSN dependencies remain open. |
 | 9.1 | Previously reviewed SMTP,STARTTLS,message format and8314 are not dependency closure. Historical6125/7525 require successor reconciliation. |
-| 9.2 | Mediator,access,submission and content-encryption references do not specify complete Email Next behavior. |
+| 9.2 | Mediator,access,submission and content-encryption references do not specify complete Email/2 behavior. |
 | Appendix A | Informative examples reviewed; not copied as executable SMTP fixtures. |
 | A.1 | Example lacks numeric220 before TLS and shows an extra posthandshake greeting; use3207 state rules rather than copying this dialogue. |
 | A.2 | Demonstrates No override; not the default absence of a transport requirement. |
 
 | Front/end matter | Abstract, status, copyright, acknowledgements and author address reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Treat transport policy as independent from content-encryption fallback. Permission for an ordinary readable copy does not authorize inserting TLS-Required: No. Requiring end-to-end encryption does not by itself prove that relay metadata is protected. Record both policies in the send plan.
 
 A provider offering REQUIRETLS must preserve the message's envelope requirement through its queues and alias expansion. User-side reorigination may not have that evidence; do not invent it from a message's appearance. Explicitly track newly originated replies and forwards under their own policies.
 
-Account for failure-report exposure. The standard suppresses returned bodies for REQUIRETLS bounces, but headers and diagnostics can still be sensitive. Its empty-return-path exception and potentially lost bounces prevent an unconditional claim that every associated report followed the same protected path. A stricter Email Next metadata profile needs an explicit redaction/failure contract.
+Account for failure-report exposure. The standard suppresses returned bodies for REQUIRETLS bounces, but headers and diagnostics can still be sensitive. Its empty-return-path exception and potentially lost bounces prevent an unconditional claim that every associated report followed the same protected path. A stricter Email/2 metadata profile needs an explicit redaction/failure contract.
 
 Required cases: stripped capability, invalid routing evidence, failed certificate validation, alternative MX success, conflicting No header and MAIL parameter, alias expansion, header-only bounce, unavailable protected return path, and a malicious relay. No live REQUIRETLS deployment test is claimed.

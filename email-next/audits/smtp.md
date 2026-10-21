@@ -5,7 +5,7 @@ sectionNav: true
 
 # SMTP audit
 
-SMTP can carry the initial Email Next profile without requiring provider upgrades. Its extension mechanism can support later server features, but next-hop negotiation cannot establish the capabilities of a recipient's devices.
+SMTP can carry the initial Email/2 profile without requiring provider upgrades. Its extension mechanism can support later server features, but next-hop negotiation cannot establish the capabilities of a recipient's devices.
 
 **Coverage:** complete RFC 5321 text, appendices and references, plus all 15 retrieved errata records, read and assessed on 19 October 2026. Base-document review is complete; dependent standards, current registries and update integration remain open. IPv6 literal syntax requires explicit reconciliation with its dependencies. This is not an interoperability certification.
 

@@ -141,3 +141,11 @@ Keep **HTML** parsing and [the proposal](/self-closing-html/).
   assert.match(sfc, /<NuxtLink to="\/self-closing-html\/">the proposal<\/NuxtLink>/);
   assert.match(sfc, /<Callout kind="note" tag="Context">/);
 });
+
+
+test("conversation illustrations import a fixed site component without executable Markdown", () => {
+  const {sfc} = compileChapter(source + "\n::email-conversation\n");
+  assert.match(sfc, /import \{[^}]*EmailConversationExample[^}]*\} from "#components"/);
+  assert.match(sfc, /<EmailConversationExample \/>/);
+  assert.throws(() => compileChapter(source + "\n::arbitrary-component\n"), /Unknown component/);
+});

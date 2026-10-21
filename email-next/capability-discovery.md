@@ -7,7 +7,7 @@ sectionNav: true
 
 # Capability discovery and exchange decisions
 
-Before using a rich interaction or encryption, a client needs to know what the recipient can receive. **Discovery** supplies that information. It begins with ordinary email; provider upgrades and live exchanges can add stronger ways to obtain it.
+Before using a rich interaction or encryption, a client needs to know what the recipient can receive. **Discovery** supplies that information. It can begin with ordinary email or an authorized automatic setup exchange; provider upgrades can obtain setup before the first human message.
 
 > [!ex] Learn through a normal conversation
 > Alice emails Bob. Her upgraded client includes information about its supported features. Bob's next human-written reply can include his client's information. Once their clients have sufficient valid identity and key evidence, they can establish encryption automatically under their first-contact policies.
@@ -23,7 +23,7 @@ Before using a rich interaction or encryption, a client needs to know what the r
 Support is checked feature by feature and for the actual destination. A client may support answer buttons while lacking current encryption material. A provider may offer a control service while a legacy client still reads the same mailbox.
 
 > [!note] Proposed decision contract
-> This chapter defines how discovery evidence affects sending. The [experimental passive binding](passive-discovery.md) selects ordinary-email carriage, signed records and expiry rules for implementation work. Its media type is unregistered. The [optional provider extension](provider-negotiation.md) selects a separate control queue and device-challenge lifecycle. Its [configured wire profile](provider-control.md) defines the exchange; public authorization, discovery and DNS bindings remain unfinished. These requirements alone do not establish interoperable discovery.
+> This chapter defines how discovery evidence affects sending. The [experimental passive binding](passive-discovery.md) selects ordinary-email carriage, signed records and expiry rules for implementation work. Its media type is unregistered. The [optional provider extension](provider-negotiation.md) selects a separate control queue and device-challenge lifecycle. Its [configured wire profile](provider-control.md) defines the exchange; [domain discovery](provider-discovery.md), [public account/grant authority](provider-grants.md) and [unknown-peer bootstrap](bootstrap.md) are defined separately; their complete joined implementations remain unfinished. These requirements alone do not establish interoperable discovery.
 
 ## Bootstrap through ordinary email
 
@@ -126,34 +126,12 @@ Record arrival time separately from asserted validity and authenticated sequence
 
 ## Identity freshness modes
 
-The initial ordinary-email profile uses **cached continuity** for routine asynchronous delivery. This is an editorial baseline choice: it avoids making every message depend on a live recipient or provider. It permits use of locally accepted identity state only while all required device bindings, capabilities and admission material remain valid and no locally known revocation or authorized branch conflict prevents the operation. It does not establish that the client has learned every remote change.
+[Freshness, clocks and revocation knowledge](freshness.md) defines the current agreement's complete policy selection and age checks. Cached continuity is the default for asynchronous delivery. Recent checkpoint additionally bounds the accepted account state's declared issuance time; live confirmation requires the exact device response to a locally outstanding challenge. The modes do not independently verify mailbox ownership or prove absence of unseen revocations.
 
-A sender may require stronger freshness through its delivery policy. Record the chosen mode alongside the encryption and fallback choices; do not encode it as a single trusted flag.
+The [known-pair device exchange](provider-control.md) and fresh [bootstrap response](bootstrap.md) provide defined live-evidence formats when their complete current-suite adapters are implemented. Offline publications, provider HTTP success, message arrival and relay inspection do not substitute for a device response. The [freshness gate](evidence/README.md#freshness-policy-gate) has local current-identity/assertion8/bootstrap evidence; complete public-service and send-release integration remain required.
 
-| Mode | Required evidence | Claim the interface may make |
-| --- | --- | --- |
-| Cached continuity | Accepted local identity chain, valid operation-specific bindings and capabilities, no applicable known revocation or authorized conflict | Encryption uses the established identity information available locally |
-| Recent checkpoint | Cached-continuity checks plus an authenticated, state-bound checkpoint within the selected checkpoint profile's validity interval | A named authority recently asserted that state, under the checkpoint profile's trust assumptions |
-| Live confirmation | Cached-continuity checks plus a successful purpose-bound exchange tied to a fresh locally outstanding challenge | The authenticated endpoint or delegated service responded to this exchange |
+Use the whole credible clock interval, retain the original local attempt/age anchor, apply policy independently to each intended device, and recheck current heads and known removals inside the release boundary. Replay, cache retrieval and restart never extend evidence. Stronger policy holds if its evidence is unavailable; a failure cannot lower it or authorize plaintext. Ordinary historical reading does not initiate a live check. MLS package lifetime/single-use, audience, verification and history rights remain separate gates.
 
-> [!ex] Old mail is not a fresh check
-> Bob's key information arrives again in a delayed message. Its arrival does not extend its validity. Alice's client must still honor a later revocation it already knows, and cannot describe the delayed message as a live confirmation.
-
-Only cached continuity is selected for the initial passive-email path. A recent checkpoint or live confirmation remains unavailable until its complete wire profile is implemented. Cached continuity can miss remote changes that have not reached the sender; it cannot promise immediate global revocation.
-
-:::: {.details summary="Freshness requirements, queued sends and admission lifetimes"}
-
-Only cached continuity is selected for the initial passive-email path. The other modes are policy requirements that remain unavailable until their complete checkpoint or live-exchange wire profile is implemented. A client MUST NOT label a recent message arrival, an HTTPS success, a directory cache timestamp or an SMTP receipt as satisfying either stronger mode. If the selected mode is unavailable, hold the operation or use an independently permitted delivery path whose stated assurance satisfies the policy; do not silently reduce the freshness requirement.
-
-In cached-continuity mode, delayed knowledge of remote removal is an explicit limit. A device removed elsewhere may remain an encryption target until the sender learns the authorized transition or its binding ceases to be usable. A malicious distributor may withhold that transition. The client MUST NOT promise immediate global revocation. An attacker controlling a previously authorized signing key may also produce competing history; a fresh signature alone does not solve that equivocation problem. Stronger witness or checkpoint designs must state which independent authorities and consistency assumptions they add.
-
-Arrival time never extends an assertion's signed validity. Replaying old mail, re-fetching the same directory object, reopening a local database or restoring a backup cannot refresh it. Local discovery caches retain their evidence scope, and known later state or revocation always takes precedence over an earlier valid assertion. A timeout does not revoke an identity and does not authorize plaintext.
-
-The client re-evaluates a queued send against the latest locally accepted head and selected mode before committing its protected delivery plan. If that head changes before the plan is committed, recompute the authorized device set and protection prerequisites. After transport handoff, a later revocation cannot recall disclosed content; retain the evidence that justified that delivery. Ordinary reading of retained historical content does not require an online freshness exchange.
-
-Account-state freshness and MLS admission-package lifetime are separate checks. Existing conversation delivery does not reuse a KeyPackage merely to refresh identity information. New admissions must satisfy the [selected package lifetime and single-use rules](security-profile.md#experimental-admission-lifetime), regardless of the identity freshness mode. None of these modes grants a new device historical keys.
-
-::::
 ## Discovery services and privacy
 
 A discovery method needs a common publication and retrieval baseline so two conforming clients can find each other's information. Optional upgrades can extend that baseline. They cannot leave conforming clients with no method in common.
@@ -164,9 +142,9 @@ A lookup can reveal who is communicating and when. Its authority, privacy and ca
 
 ### A common discovery baseline
 
-Each interoperable Email Next discovery profile must define at least one publication and retrieval method that every conforming implementation of that profile supports. Optional provider and live-exchange methods may add capabilities, but must not leave two conforming implementations with no discovery method in common. Migration between discovery methods must specify overlapping support and the conditions for retiring the earlier method.
+Each interoperable Email/2 discovery profile must define at least one publication and retrieval method that every conforming implementation of that profile supports. Optional provider and live-exchange methods may add capabilities, but must not leave two conforming implementations with no discovery method in common. Migration between discovery methods must specify overlapping support and the conditions for retiring the earlier method.
 
-This is a proposed Email Next requirement informed by SPF's deployment history: RFC7208 section3.1 records the failure of a transition with no common record type that implementations were required both to publish and to check. It does not imply that Email Next should reuse SPF records or select TXT records by default. The [passive discovery binding](passive-discovery.md) is the candidate common method for ordinary-mail experiments. Its acceptance tests and provider or live-exchange extensions remain unfinished.
+This is a proposed Email/2 requirement informed by SPF's deployment history: RFC7208 section3.1 records the failure of a transition with no common record type that implementations were required both to publish and to check. It does not imply that Email/2 should reuse SPF records or select TXT records by default. The [passive discovery binding](passive-discovery.md) is the candidate common method for ordinary-mail experiments. Its acceptance tests and provider or live-exchange extensions remain unfinished.
 
 An SPF result can describe a host's authorization to use an SMTP identity. It must not authorize a mailbox's encryption-key advertisement or be applied to the visible From address as though those identities were interchangeable. A synthetic `postmaster` identity used when evaluating a null reverse-path is not a discovered correspondent, a key owner or a destination for automatic negotiation.
 
@@ -176,9 +154,9 @@ An SPF result can describe a host's authorization to use an SMTP identity. It mu
 
 ### DNS namespace boundaries
 
-A DNS discovery profile must specify its resource-record type, globally scoped underscored label, subordinate naming rules and registration requirements. Underscored labels are coordinated namespaces, not automatically private extension space. Registration does not authenticate a mailbox, device or advertised capability. Existing DKIM key records retain their DKIM meaning and must not be reinterpreted as Email Next endpoint-key advertisements. See the [registry audit](audits/underscored-registry.md) and [companion amendments](audits/underscored-dns.md). The registry audit checks the relevant current entries. The exact discovery binding remains unselected, so no new name-availability or registration claim follows.
+A DNS discovery profile must specify its resource-record type, globally scoped underscored label, subordinate naming rules and registration requirements. Underscored labels are coordinated namespaces, not automatically private extension space. Registration does not authenticate a mailbox, device or advertised capability. Existing DKIM key records retain their DKIM meaning and must not be reinterpreted as Email/2 endpoint-key advertisements. See the [registry audit](audits/underscored-registry.md) and [companion amendments](audits/underscored-dns.md). The registry audit checks the relevant current entries. The exact discovery binding remains unselected, so no new name-availability or registration claim follows.
 
-A wildcard DNS answer can synthesize a record at an underscored name without the intended service meaning. Record presence alone MUST NOT establish Email Next support or authorize key use. The discovery binding must validate its record syntax, intended scope and authentication. Registry expert review establishes entry clarity and uniqueness; it does not approve the protocol’s security or establish recipient identity.
+A wildcard DNS answer can synthesize a record at an underscored name without the intended service meaning. Record presence alone MUST NOT establish Email/2 support or authorize key use. The discovery binding must validate its record syntax, intended scope and authentication. Registry expert review establishes entry clarity and uniqueness; it does not approve the protocol’s security or establish recipient identity.
 
 ### Diagnostics do not discover trusted services
 
@@ -196,16 +174,16 @@ Every discovery binding must state which identifiers leave the client or provide
 
 Cache entries must retain the inputs, authority and validity conditions on which the result depends. A result for one mailbox, device or feature must not become a domain-wide capability by dropping a distinguishing input from the cache key. When evidence depends on multiple records, the effective validity must not exceed the earliest relevant expiration. Expiration triggers re-evaluation or an unknown/stale state; it does not authorize a security downgrade.
 
-A discovery profile must also bound recursive delegation and network work across the whole resolution attempt. Resetting those bounds at each delegation defeats them. Exact profile limits and failure behavior remain to be specified and tested; SPF's own numeric limits are not automatically Email Next limits.
+A discovery profile must also bound recursive delegation and network work across the whole resolution attempt. Resetting those bounds at each delegation defeats them. Exact profile limits and failure behavior remain to be specified and tested; SPF's own numeric limits are not automatically Email/2 limits.
 
 
 ### Purpose-bound delegation
 
 A third party's willingness to receive one protocol's traffic does not authorize it to act for a correspondent in another protocol. In particular, DMARC external-report authorization and wildcard report acceptance MUST NOT be treated as permission to publish encryption keys, approve devices, receive private conversation state or negotiate capabilities.
 
-For any Email Next delegated discovery service, the authenticated delegation must identify its purpose, subject and destination. An override or redirect must remain within that authority; a changed destination requires its own authorization. Cached authorization remains subject to its validity period, and a failed refresh must not expand its scope. The exact discovery binding and redirect rules remain to be finalized with the wire profile.
+For any Email/2 delegated discovery service, the authenticated delegation must identify its purpose, subject and destination. An override or redirect must remain within that authority; a changed destination requires its own authorization. Cached authorization remains subject to its validity period, and a failed refresh must not expand its scope. The exact discovery binding and redirect rules remain to be finalized with the wire profile.
 
-RFC9990 Section 4 provides relevant prior art for scoped external-destination authorization and loop prevention. Its reporting-specific DNS records and organizational-domain tests are not adopted as Email Next identity rules.
+RFC9990 Section 4 provides relevant prior art for scoped external-destination authorization and loop prevention. Its reporting-specific DNS records and organizational-domain tests are not adopted as Email/2 identity rules.
 
 ::::
 ## Discovery when joining a group
@@ -234,7 +212,7 @@ A resynchronization operation that replaces a device must satisfy the identity-l
 ::::
 ## Existing encrypted-email mechanisms
 
-S/MIME and Autocrypt both offer prior art for learning capabilities or keys through ordinary mail. An implementation can support those paths while keeping each protocol's evidence within its own scope. A compatibility advertisement cannot silently replace an established Email Next identity or override required encryption.
+S/MIME and Autocrypt both offer prior art for learning capabilities or keys through ordinary mail. An implementation can support those paths while keeping each protocol's evidence within its own scope. A compatibility advertisement cannot silently replace an established Email/2 identity or override required encryption.
 
 :::: {.details summary="S/MIME capability and certificate preferences"}
 
@@ -242,9 +220,9 @@ S/MIME and Autocrypt both offer prior art for learning capabilities or keys thro
 
 S/MIME already supports passive capability exchange in ordinary signed mail. [RFC8551 Section 2.5.2](https://www.rfc-editor.org/rfc/rfc8551.html#section-2.5.2) defines a signed, partial list of supported algorithms and optional features. Section 2.5.3 separately identifies a preferred encryption certificate, which can differ from the signing certificate. These provide prior art for automatic exchange without a separate negotiation email.
 
-An S/MIME adapter MUST validate the signature, attribute multiplicity, certificate suitability and applicable identity binding before using those assertions. Keep the resulting S/MIME preferences scoped to that protocol and correspondent. An algorithm capability does not announce Email Next answer buttons, a rendering profile, MLS admission or support by every device accessing the mailbox. Omission from the partial list is not proof of non-support.
+An S/MIME adapter MUST validate the signature, attribute multiplicity, certificate suitability and applicable identity binding before using those assertions. Keep the resulting S/MIME preferences scoped to that protocol and correspondent. An algorithm capability does not announce Email/2 answer buttons, a rendering profile, MLS admission or support by every device accessing the mailbox. Omission from the partial list is not proof of non-support.
 
-A later signed preference may update the S/MIME compatibility cache under its own rules; it MUST NOT by itself replace an established Email Next principal or enroll a device. The reason is the different authority being exercised: choosing a certificate for an S/MIME reply does not establish an account's device roster or authorize access to conversation history. A signing time is asserted by the signer, not a live-response proof. It cannot satisfy the stronger freshness modes defined above.
+A later signed preference may update the S/MIME compatibility cache under its own rules; it MUST NOT by itself replace an established Email/2 principal or enroll a device. The reason is the different authority being exercised: choosing a certificate for an S/MIME reply does not establish an account's device roster or authorize access to conversation history. A signing time is asserted by the signer, not a live-response proof. It cannot satisfy the stronger freshness modes defined above.
 
 The [S/MIME audit](audits/smime-message.md) records the source requirements and remaining certificate/algorithm dependencies. No interoperable S/MIME-to-Email-Next discovery adapter is established by this mapping.
 
@@ -256,7 +234,7 @@ The [S/MIME audit](audits/smime-message.md) records the source requirements and 
 
 [Autocrypt Level 1](https://autocrypt.org/level1.html) provides prior art for distributing keys in ordinary outgoing mail without a discovery server. Its threat model addresses passive collection; its peer-state update algorithm can replace a remembered key using a newer message.
 
-An Email Next implementation that also implements Autocrypt MUST keep that compatibility state separate from established Email Next identity authority. An Autocrypt advertisement MAY supply candidate first-contact material under the selected first-contact policy. It MUST NOT, by itself, authorize replacement of an established principal, enrollment of a device, or release of conversation history. Autocrypt recommendation changes MUST NOT override a required-protection policy.
+An Email/2 implementation that also implements Autocrypt MUST keep that compatibility state separate from established Email/2 identity authority. An Autocrypt advertisement MAY supply candidate first-contact material under the selected first-contact policy. It MUST NOT, by itself, authorize replacement of an established principal, enrollment of a device, or release of conversation history. Autocrypt recommendation changes MUST NOT override a required-protection policy.
 
 This separation permits a legacy interoperability path without presenting two different trust models as equivalent. The [complete source audit](audits/autocrypt.md) records the remaining OpenPGP compatibility and implementation checks; this section does not claim an interoperable adapter.
 

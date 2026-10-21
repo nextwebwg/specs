@@ -5,7 +5,7 @@ sectionNav: true
 
 # HMAC legacy-hash update
 
-[RFC6151](https://www.rfc-editor.org/rfc/rfc6151.html) updates RFC2104's historical HMAC-MD5 security discussion. New protocol designs should not include HMAC-MD5. Email Next's selected MLS suite uses HMAC-SHA256 and does not enable MD5 by referencing the generic HMAC construction.
+[RFC6151](https://www.rfc-editor.org/rfc/rfc6151.html) updates RFC2104's historical HMAC-MD5 security discussion. New protocol designs should not include HMAC-MD5. Email/2's selected MLS suite uses HMAC-SHA256 and does not enable MD5 by referencing the generic HMAC construction.
 
 The update distinguishes collision resistance, preimage resistance and keyed authentication. Its analysis of MD5, NMAC related-key attacks and HMAC-MD5 does not establish a corresponding weakness in the selected SHA256 construction. Conversely, its historical statement that removing HMAC-MD5 from existing protocols was not urgent is not permission to introduce it here. A shared-key MAC remains distinct from a public-key signature and from encryption.
 

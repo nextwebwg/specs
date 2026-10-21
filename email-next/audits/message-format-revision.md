@@ -91,11 +91,11 @@ Appendix B records 26 changes from RFC 5322, including corrected obsolete whites
 
 Two held errata are explicitly left unimplemented: 2950's resent repetition change and 3135's prohibition on an empty quoted string. The appendix says a repetition change would not guarantee an unambiguous parse, and defers the empty-string discussion to applicability guidance. Treat those as unresolved dependencies, not silently adopted corrections.
 
-The appendix describes field names as unable to exceed 77 characters, while the body connects 77 to the recommended 78-character line length and retains `1*ftext`. Email Next does not promote that recommendation to a universal rejection limit based on the appendix alone. Its own new fields can use short names without rejecting longer legacy names on this rationale.
+The appendix describes field names as unable to exceed 77 characters, while the body connects 77 to the recommended 78-character line length and retains `1*ftext`. Email/2 does not promote that recommendation to a universal rejection limit based on the appendix alone. Its own new fields can use short names without rejecting longer legacy names on this rationale.
 
 The revision's From and Sender grammar remains mailbox-based. The separately reviewed RFC 6854 extension must still be considered; this revision does not justify dropping applicable extension behavior merely because it does not repeat it.
 
-## Email Next consequences
+## Email/2 consequences
 
 The [rendering contract](../rendering.md) preserves raw source, duplicate ambiguity, resent history and multiple reply parents. The [delivery policy](../delivery-policy.md) uses the clarified Bcc representations for generated copies and prevents leaks through structured metadata. The [baseline](../baseline.md) distinguishes current registry actions from final RFC publication.
 

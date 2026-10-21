@@ -33,7 +33,7 @@ All eighteen pages of base text, complete update lists, quotations, references a
 | 8 | Reduced protocol/fallback surface; no new endpoint identity or OAuth proof mechanism. |
 | 9 | No IANA actions. |
 | 10 | Complete references read. |
-| 10.1 | All normative references read; large update catalog does not require importing every protocol into Email Next. |
+| 10.1 | All normative references read; large update catalog does not require importing every protocol into Email/2. |
 | 10.2 | All informative references read, including modern TLS references and attack sources; their full contents not reviewed here. |
 | Acknowledgements | All acknowledgements read. |
 | Authors | Both author/contact sections and end matter read. |
@@ -44,6 +44,6 @@ All eighteen pages of base text, complete update lists, quotations, references a
 
 ## Remaining dependencies
 
-The [RFC7525 metadata](https://www.rfc-editor.org/rfc/rfc7525.json) identifies RFC9325 as its successor. Review that current configuration guidance, the selected TLS implementation's behavior, certificate validation and the independent RFC9700 OAuth update before claiming a complete service security profile. Reading the extensive8996 references and update catalog does not audit every referenced protocol or require unrelated SIP, RADIUS, LDAP or DTLS functions in Email Next.
+The [RFC7525 metadata](https://www.rfc-editor.org/rfc/rfc7525.json) identifies RFC9325 as its successor. Review that current configuration guidance, the selected TLS implementation's behavior, certificate validation and the independent RFC9700 OAuth update before claiming a complete service security profile. Reading the extensive8996 references and update catalog does not audit every referenced protocol or require unrelated SIP, RADIUS, LDAP or DTLS functions in Email/2.
 
 Suggested acceptance evidence: TLS1.0-only and1.1-only endpoints fail without bearer disclosure or application fallback; allowed TLS negotiation still accepts proper legacy record framing; certificate or service-name failure does not send credentials; connection failures preserve the existing submission identity and uncertainty. These are proposed cases, not results from this audit.

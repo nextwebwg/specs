@@ -5,7 +5,7 @@ sectionNav: true
 
 # IDNA Unicode 12 review
 
-[RFC9233](https://www.rfc-editor.org/rfc/rfc9233.html) reviews changes from Unicode6 through Unicode12 and adds no compatibility exceptions to IDNA2008. It does not establish the behavior of later Unicode versions or choose a data version for Email Next.
+[RFC9233](https://www.rfc-editor.org/rfc/rfc9233.html) reviews changes from Unicode6 through Unicode12 and adds no compatibility exceptions to IDNA2008. It does not establish the behavior of later Unicode versions or choose a data version for Email/2.
 
 ## Preserve the distinction between validity and appearance
 
@@ -13,7 +13,7 @@ U+111C9 Sharada sandhi mark became PVALID after its category changed to a nonspa
 
 The review also accepts U+08A1 without an exception while acknowledging unresolved issues around visually similar combining sequences. Visual resemblance does not establish canonical equivalence. A client must not invent a mapping between such sequences.
 
-The deployment discussion describes several incompatible approaches. It does not select IDNA2003, Nameprep or UTS46 for Email Next. RFC5895 remains optional mapping advice. Later Unicode changes follow the [separate review procedure](idna-unicode-review.md); data consistency and whole-label validation remain required.
+The deployment discussion describes several incompatible approaches. It does not select IDNA2003, Nameprep or UTS46 for Email/2. RFC5895 remains optional mapping advice. Later Unicode changes follow the [separate review procedure](idna-unicode-review.md); data consistency and whole-label validation remain required.
 
 ## Evidence and remaining scope
 

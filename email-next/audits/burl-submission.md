@@ -17,7 +17,7 @@ Complete fourteen-page [RFC 4468](https://www.rfc-editor.org/rfc/rfc4468.html), 
 | 3.3 | URLAUTH and trusted-host forms differ; submit+ identity matching and credential scope reviewed. |
 | 3.4 | All success/failure examples read, including restricted AUTH pipelining. |
 | 3.5 | Complete command and capability ABNF reviewed. |
-| 4 | Conversion permissions reviewed; protected-byte preservation is an additional Email Next requirement. |
+| 4 | Conversion permissions reviewed; protected-byte preservation is an additional Email/2 requirement. |
 | 5 | Both status additions reviewed; verified895 changes trust code toX.7.14. |
 | 6 | Every response example reviewed; intermediate success not durable acceptance; verified896 corrects example to5545.7.14. |
 | 7 | BURL registration and enhanced status codes reconciled below; registry column inconsistency preserved. |

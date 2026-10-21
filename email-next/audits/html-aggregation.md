@@ -5,7 +5,7 @@ sectionNav: true
 
 # HTML aggregation audit
 
-MHTML already supports complete HTML documents bundled with their resources. Its origin and cache warnings remain directly relevant to Email Next. The new rendering profile must state its restrictions separately from inherited compatibility behavior.
+MHTML already supports complete HTML documents bundled with their resources. Its origin and cache warnings remain directly relevant to Email/2. The new rendering profile must state its restrictions separately from inherited compatibility behavior.
 
 **Coverage:** all 28 pages of RFC2557, including all examples and closing material, and all 11 retrieved errata read and individually assessed on 19 October 2026. Dependencies and later HTML/URL rules remain separate audit work.
 

@@ -20,12 +20,12 @@ List-Id is a stable organizational hint with case-insensitive equality. Its desc
 | 5 | Managed identifiers must be globally unique; unmanaged localhost identifiers cannot guarantee uniqueness. Historical random/date construction is naming guidance, not authentication. |
 | 6 | Only defined operation is case-insensitive equality of bracketed identifier, excluding descriptive phrase. Do not infer DNS endpoints or credentials from it. |
 | 7 | Aware nested lists preserve parent List-Id; unexpected or user-originated fields should not pass through. Therefore a field alone cannot enumerate distribution paths or recipients. |
-| 8 | Forged fields can mislead processing; List-Id should not establish message authenticity. Email Next additionally prohibits using it as cryptographic membership authority. |
+| 8 | Forged fields can mislead processing; List-Id should not establish message authenticity. Email/2 additionally prohibits using it as cryptographic membership authority. |
 | 9 | Acknowledgements reviewed. |
 | References | Historical2822/ABNF/randomness dependencies and2369 reviewed as references, not full dependent audits; DRUMS reference correction recorded. |
 | End matter | Author addresses, copyright, warranty and funding acknowledgement reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Use list identity to organize legacy list mail without collapsing every list message into one conversation. Preserve message-level reply references and original source. Display-name changes must not create a new list solely because the optional phrase changed.
 

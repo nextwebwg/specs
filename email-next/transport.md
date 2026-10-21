@@ -7,10 +7,10 @@ sectionNav: true
 
 # Transport and delivery
 
-Email Next initially travels as ordinary MIME mail through existing submission, relay and delivery services. An upgraded client does not require a new SMTP command to send a structured contribution. Provider upgrades can add discovery, control-message routing and faster delivery through separately negotiated contracts.
+Email/2 initially travels as ordinary MIME mail through existing submission, relay and delivery services. An upgraded client does not require a new SMTP command to send a structured contribution. Provider upgrades can add discovery, control-message routing and faster delivery through separately negotiated contracts.
 
 > [!note] Proposed application contract
-> The requirements below define how an Email Next client interprets transport outcomes. They do not replace SMTP. MIME packaging, submission integration and security-profile selection remain dependent work. The [SMTP audit](audits/smtp.md) records source coverage and unresolved dependencies.
+> The requirements below define how an Email/2 client interprets transport outcomes. They do not replace SMTP. MIME packaging, submission integration and security-profile selection remain dependent work. The [SMTP audit](audits/smtp.md) records source coverage and unresolved dependencies.
 
 ## Contribution, delivery and attempt
 
@@ -107,7 +107,7 @@ The [no-mail-service audit](audits/no-mail-service.md) records the SMTP update a
 
 In ordinary SMTP, the final DATA reply applies to the transaction's accepted recipient set. It does not encode a separate success or failure for each recipient. The sender MUST NOT invent per-recipient outcomes from the wording of that reply. Preserve earlier RCPT results separately, and apply later delivery reports only to the recipients and submission they reliably identify.
 
-A receiving server that has delivered to some accepted recipients but cannot deliver to others returns successful transaction acceptance and reports the later failures through the applicable notification mechanism. Conversely, after returning a final negative DATA reply, it must not subsequently deliver that transaction. An Email Next delivery record must distinguish this explicit rejection from loss of the final reply, where acceptance remains uncertain.
+A receiving server that has delivered to some accepted recipients but cannot deliver to others returns successful transaction acceptance and reports the later failures through the applicable notification mechanism. Conversely, after returning a final negative DATA reply, it must not subsequently deliver that transaction. An Email/2 delivery record must distinguish this explicit rejection from loss of the final reply, where acceptance remains uncertain.
 
 RSET, QUIT and connection closure do not recall an already accepted message. A retry of an uncertain submission retains the same contribution identity and immutable semantics so the receiver can suppress repeated interaction effects. A user editing or replacing the contribution creates the corresponding new contribution rather than disguising the edit as a transport retry.
 
@@ -150,7 +150,7 @@ Original messages retained for local reconstruction must not be rewritten to rem
 
 Do not apply delivery-failure routing rules to every notification. An MDN uses the original message's Disposition-Notification-To destination in both its header and envelope, with a null envelope sender. Return-Path is used for the automatic-send privacy comparison; it is not a replacement destination for the requested receipt.
 
-An MDN request can be ignored. If its destination differs from Return-Path, Return-Path is absent, or multiple distinct destinations are requested, the client must obtain the confirmation required by RFC 8098 or send no MDN. A general Email Next capability or encryption preference does not itself authorize that privacy-sensitive disclosure. Never generate an MDN in response to another MDN.
+An MDN request can be ignored. If its destination differs from Return-Path, Return-Path is absent, or multiple distinct destinations are requested, the client must obtain the confirmation required by RFC 8098 or send no MDN. A general Email/2 capability or encryption preference does not itself authorize that privacy-sensitive disclosure. Never generate an MDN in response to another MDN.
 
 [RFC 8098 §§2.1 and 3](https://www.rfc-editor.org/rfc/rfc8098.html) define these specific destination and consent rules. The SMTP revision's broad description of notifications going to the previous reverse-path must not erase them. Full MDN profile review remains part of the standards audit.
 
@@ -160,7 +160,7 @@ An MDN's `displayed` disposition reports display to someone accessing the mailbo
 
 Preserve the reported action mode separately from the receipt's sending mode. A manually initiated action and an automatically sent receipt are compatible facts. Neither mode proves the identity of the person operating the mailbox. RFC 8098 also permits a manual/manual mode report to protect configuration privacy, so these fields are reported labels rather than forensic evidence of an actual click. Correlate the message and recipient and assess authentication before using a report; unknown correlation remains unresolved rather than being assigned to a likely conversation participant.
 
-MDNs are not a stream of changing presence or interaction state. RFC 8098 limits issuance per recipient and message, with specific forwarding and multiple-client considerations. Email Next MUST NOT map `processed` to successful form submission or treat an MDN as an authenticated key-negotiation acknowledgment.
+MDNs are not a stream of changing presence or interaction state. RFC 8098 limits issuance per recipient and message, with specific forwarding and multiple-client considerations. Email/2 MUST NOT map `processed` to successful form submission or treat an MDN as an authenticated key-negotiation acknowledgment.
 
 ### Shared-mailbox receipt suppression
 
@@ -168,7 +168,7 @@ For an IMAP mailbox supporting permanent `$MDNSent`, follow RFC 3503's suppressi
 
 The marker can record a decision not to send. It MUST NOT be presented as evidence that a receipt was transmitted or received. Neither `\Recent` nor `\Answered` substitutes for it; `\Seen` is not proof of receipt delivery or human understanding.
 
-RFC 3503 does not define an atomic claim-and-send operation across IMAP and SMTP. Two clients can observe the marker absent before either updates it, and a crash can separate a mailbox update from submission. An Email Next implementation claiming stronger cross-device suppression must specify its coordinating authority, durable operation identity, concurrency handling and crash recovery. The keyword alone is insufficient evidence of exactly-once behavior.
+RFC 3503 does not define an atomic claim-and-send operation across IMAP and SMTP. Two clients can observe the marker absent before either updates it, and a crash can separate a mailbox update from submission. An Email/2 implementation claiming stronger cross-device suppression must specify its coordinating authority, durable operation identity, concurrency handling and crash recovery. The keyword alone is insufficient evidence of exactly-once behavior.
 
 These requirements use [RFC 3503](https://www.rfc-editor.org/rfc/rfc3503.html) for shared suppression while retaining the current RFC 8098 disposition vocabulary; historical `denied` and `failed` values in RFC 3503's timeline must not be revived as current MDN types.
 
@@ -267,7 +267,7 @@ Returned original content is diagnostic material. Do not execute embedded intera
 
 Keep transport tracking identifiers and secrets separate from application event identity and public conversation metadata. Tracking authority does not establish a recipient's encryption key, group membership, presence or reading. Missing or expired tracking records mean that tracking knowledge is unavailable; they do not prove delivery failure.
 
-Do not propagate tracking authority automatically across mailing lists or multi-recipient expansion. The [message tracking audit](audits/message-tracking.md) records the existing limits and unresolved source inconsistencies. Email Next does not adopt its historical hash construction as a new security profile.
+Do not propagate tracking authority automatically across mailing lists or multi-recipient expansion. The [message tracking audit](audits/message-tracking.md) records the existing limits and unresolved source inconsistencies. Email/2 does not adopt its historical hash construction as a new security profile.
 
 ## Chunking and binary upgrades
 
@@ -301,7 +301,7 @@ The [enhanced-status registry audit](audits/status-registry.md) records registra
 
 ## Submission completion and protected content
 
-Submission servers can complete or modify a message under RFC 6409; relays do not inherit that general permission. Email Next senders MUST finish the protected contribution before applying its signature or encryption. Required address expansion, encoding selection and other changes to protected fields must occur before protection, or produce a newly authorized contribution. A provider signature added afterward does not repair an invalid endpoint signature or confer the endpoint's authority.
+Submission servers can complete or modify a message under RFC 6409; relays do not inherit that general permission. Email/2 senders MUST finish the protected contribution before applying its signature or encryption. Required address expansion, encoding selection and other changes to protected fields must occur before protection, or produce a newly authorized contribution. A provider signature added afterward does not repair an invalid endpoint signature or confer the endpoint's authority.
 
 A submission server that cannot accept the protected contribution under its policy must return a failure rather than silently altering the protected content or removing its protection. Outer routing and trace fields remain subject to their transport contracts; they are not automatically authenticated author data. Submission acceptance and subsequent delivery remain separate states, including when a later failure report follows acceptance.
 
@@ -313,7 +313,7 @@ The [message submission audit](audits/submission.md) records inherited MSA behav
 
 ## Submission authentication and claimed origin
 
-SMTP AUTH authenticates a session to a server. Its optional MAIL FROM `AUTH` parameter carries a claimed original submitter within a trusted relay relationship; it is not an endpoint signature over message content. A successful login, an AUTH parameter or an ESMTPA/ESMTPSA trace label MUST NOT by itself validate an Email Next author, key transition or capability advertisement.
+SMTP AUTH authenticates a session to a server. Its optional MAIL FROM `AUTH` parameter carries a claimed original submitter within a trusted relay relationship; it is not an endpoint signature over message content. A successful login, an AUTH parameter or an ESMTPA/ESMTPSA trace label MUST NOT by itself validate an Email/2 author, key transition or capability advertisement.
 
 Preserve `AUTH=<>` as an unknown or insufficiently authenticated origin. In particular, do not substitute the relay's authenticated identity for that origin. Forwarding through a logged-in relay must not turn an unverified message into a verified contribution. A list expansion treated as a new SMTP submission likewise does not inherit the original endpoint's signing authority.
 
@@ -325,11 +325,11 @@ The [SMTP authentication audit](audits/smtp-authentication.md) records session s
 
 ## Recipient privacy in trace information
 
-A receiving system's trace information can expose envelope recipients even when Bcc is absent from visible address fields. An Email Next provider MUST NOT place another recipient's address in a shared copy's Received FOR clause. If it generates that clause for a particular copy, it must identify the RCPT address responsible for delivery of that copy. Provider trace policy must also consider whether selectively omitting the clause reveals the existence of other recipients.
+A receiving system's trace information can expose envelope recipients even when Bcc is absent from visible address fields. An Email/2 provider MUST NOT place another recipient's address in a shared copy's Received FOR clause. If it generates that clause for a particular copy, it must identify the RCPT address responsible for delivery of that copy. Provider trace policy must also consider whether selectively omitting the clause reveals the existence of other recipients.
 
 Clients must preserve trace information for diagnostics without treating it as authenticated endpoint evidence. Sharing diagnostic extracts can disclose addresses and routing details; the client should show the extract being shared and omit unrelated sensitive data where possible, retaining the original privately.
 
-These are proposed privacy requirements informed by the current [emailcore applicability draft](https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-as-30/). That draft remains under IESG evaluation and does not replace the published protocol baseline. Its recommendation against a FOR clause on a multiple-recipient copy is distinct from the stricter Email Next requirement against disclosing another recipient.
+These are proposed privacy requirements informed by the current [emailcore applicability draft](https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-as-30/). That draft remains under IESG evaluation and does not replace the published protocol baseline. Its recommendation against a FOR clause on a multiple-recipient copy is distinct from the stricter Email/2 requirement against disclosing another recipient.
 
 ## Scope of server capability advertisements
 
@@ -337,9 +337,9 @@ An SMTP extension advertisement applies to the current connection with the adver
 
 Clients MUST ignore an unknown, well-formed extension advertisement. If a malformed response prevents reliable interpretation of EHLO, terminate the session rather than guessing which capabilities were offered. A retry may select another permitted route; it must preserve the sender's protection policy. A protocol fallback to HELO is not authorization to remove a required extension or disclose protected content.
 
-This draft does not allocate an Email Next EHLO keyword. Any future SMTP extension needs its own defined semantics and registration, including whether its guarantee is local or depends on subsequent hops. An experimental implementation must not advertise a placeholder as a registered interoperable extension.
+This draft does not allocate an Email/2 EHLO keyword. Any future SMTP extension needs its own defined semantics and registration, including whether its guarantee is local or depends on subsequent hops. An experimental implementation must not advertise a placeholder as a registered interoperable extension.
 
-The ongoing [SMTP revision](https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5321bis-44/) describes extension discovery, registration and handling of unsupported downstream features in sections 2.2 and 3.2. Its general discussion of falling back to an unextended representation does not override Email Next's explicit disclosure policy.
+The ongoing [SMTP revision](https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5321bis-44/) describes extension discovery, registration and handling of unsupported downstream features in sections 2.2 and 3.2. Its general discussion of falling back to an unextended representation does not override Email/2's explicit disclosure policy.
 
 
 ## Internationalized reports
@@ -370,7 +370,7 @@ The [complete RFC3461 base-document audit](audits/dsn-extension.md) records the 
 
 An alias and a mailing list do not have identical reporting semantics. List redistribution starts a new envelope/reporting context; it must not derive ENVID, NOTIFY, RET or ORCPT from the original delivery's parameters. Delivery to the list processor is not evidence of delivery to every subscriber. Alias expansion can produce relay or expansion reports, or propagate requests to a selected target. A client must not infer the actual recipient set or confirmed group membership from any of these outcomes.
 
-Private forwarding can use a separate return path and reporting context to keep downstream failures from exposing the private address to the original sender. An Email Next client must not promote addresses discovered in diagnostics into shared participant lists, key-discovery targets or automatic reply destinations. Sharing a diagnostic with a conversation requires the same recipient-disclosure controls as sharing other message content.
+Private forwarding can use a separate return path and reporting context to keep downstream failures from exposing the private address to the original sender. An Email/2 client must not promote addresses discovered in diagnostics into shared participant lists, key-discovery targets or automatic reply destinations. Sharing a diagnostic with a conversation requires the same recipient-disclosure controls as sharing other message content.
 
 A combined report does not justify showing unrelated recipient results. The client associates each reported outcome only with its corresponding submitted delivery and recipient observation. Storage in a dead-letter or postmaster mailbox remains a delivery failure for the intended recipient; it is not a successful alternate recipient delivery.
 
@@ -441,19 +441,19 @@ These composition choices follow [RFC9788 Sections 3 and 11.4](https://www.rfc-e
 
 Recipient-authorized filtering MAY use Sieve variables for sorting. A capture from a message header MUST NOT be treated as authenticated capability or identity evidence merely because a filter matched it. Implementations MUST NOT use potentially truncated Sieve variable values as substitutes for original security-bearing octets. Authenticate the original material through the security profile before assigning trusted control semantics.
 
-RFC5229 variable assignment does not cancel implicit keep, and its default script-local state is not durable replay protection. Advertising the Sieve variables extension MUST NOT be interpreted as support for invisible control delivery or Email Next endpoint capabilities. See the [Sieve variables audit](audits/sieve-variables.md).
+RFC5229 variable assignment does not cancel implicit keep, and its default script-local state is not durable replay protection. Advertising the Sieve variables extension MUST NOT be interpreted as support for invisible control delivery or Email/2 endpoint capabilities. See the [Sieve variables audit](audits/sieve-variables.md).
 
 
 ## Stable mailbox routing and fallback
 
-An implementation MAY use RFC9042 mailbox IDs for recipient-authorized storage routing. It MUST NOT treat a mailbox ID as an Email Next endpoint identity or proof that legacy clients cannot display the stored message. A missing ID can trigger positional-name fallback under RFC9042; a preceding mailboxidexists test is not a reservation or delivery guarantee.
+An implementation MAY use RFC9042 mailbox IDs for recipient-authorized storage routing. It MUST NOT treat a mailbox ID as an Email/2 endpoint identity or proof that legacy clients cannot display the stored message. A missing ID can trigger positional-name fallback under RFC9042; a preceding mailboxidexists test is not a reservation or delivery guarantee.
 
 A negotiated control service that promises separate handling MUST define and enforce its storage-failure behavior independently of Sieve's normal fallback. It MUST NOT report successful hidden handling merely because delivery to a different ordinary mailbox succeeded. Permission changes, missing mailboxes and quota failures must reach the service's failure path. Creating a replacement mailbox MUST retain server-assigned ID semantics; the client cannot demand reuse of a lost ID. See the [mailbox identity audit](audits/sieve-mailboxid.md).
 
 
 ## IMAP-triggered filtering
 
-An IMAP APPEND, COPY or flag change MUST NOT by itself authorize a new Email Next contribution, key change, read receipt or repeated external effect. Provider integrations MUST preserve event deduplication across copies and repeated script invocations, including concurrent execution. The IMAP user performing a storage action is not necessarily the author of the stored message.
+An IMAP APPEND, COPY or flag change MUST NOT by itself authorize a new Email/2 contribution, key change, read receipt or repeated external effect. Provider integrations MUST preserve event deduplication across copies and repeated script invocations, including concurrent execution. The IMAP user performing a storage action is not necessarily the author of the stored message.
 
 An implementation MUST NOT claim invisible control delivery on the basis of IMAP-event discard: RFC6785 first stores appended or copied messages and then marks them deleted; expunge is optional. Advertising IMAPSIEVE does not establish that a particular mailbox has an active script.
 
@@ -482,7 +482,7 @@ The [POP framing experiment](evidence/README.md#pop-retrieval-framing) removes m
 
 ## TLS reporting boundary
 
-SMTP TLS reports are operational diagnostics. Their TLS-failure delivery exceptions MUST NOT be applied to Email Next conversation content, device credentials, identity-state changes, recovery secrets or hosted-access credentials. A reporting destination is not a capability-discovery service or an endpoint-authority source.
+SMTP TLS reports are operational diagnostics. Their TLS-failure delivery exceptions MUST NOT be applied to Email/2 conversation content, device credentials, identity-state changes, recovery secrets or hosted-access credentials. A reporting destination is not a capability-discovery service or an endpoint-authority source.
 
 Report success MUST NOT establish recipient decryption, endpoint encryption, message display or interaction consent. Missing reports MUST NOT authorize an encryption downgrade. Treat report text, links, filenames and compressed objects as untrusted diagnostic input; report ingestion must not execute content, automatically navigate supplied links or write sender-selected paths. See the [TLS reporting audit](audits/tls-reporting.md) for inherited requirements and unresolved source discrepancies.
 
@@ -519,13 +519,13 @@ An enforcing sender must not deliver to a candidate that fails validation. It pr
 
 An attacker can suppress initial policy discovery, or prevent refresh until a cached policy expires. Proactive refresh and operational alerts reduce this exposure; they do not make MTA-STS a first-contact endpoint-authentication mechanism. A valid fraudulent certificate can also defeat its authentication assumptions.
 
-Providers must consider which hosts a wildcard authorizes. A policy permitting `*.example.com` can accept a tenant-controlled host with a valid certificate for its name. Policy hosting and DNS signaling also need protection from untrusted tenant registration. Neither shared domain ownership nor a valid relay certificate establishes an Email Next account identity.
+Providers must consider which hosts a wildcard authorizes. A policy permitting `*.example.com` can accept a tenant-controlled host with a valid certificate for its name. Policy hosting and DNS signaling also need protection from untrusted tenant registration. Neither shared domain ownership nor a valid relay certificate establishes an Email/2 account identity.
 
 ### Changing or removing a policy
 
 Providers publish the new HTTPS body before changing the DNS update token and keep old policies usable while DNS updates propagate. Removing the DNS record is not immediate opt-out: providers first publish an authenticated `none` policy and wait for all previously served policies to expire before removing discovery and policy endpoints. An older policy can outlive the immediately preceding one if it had a longer lifetime.
 
-These requirements come from [RFC8461 §§3.3–8.4](https://www.rfc-editor.org/rfc/rfc8461.html#section-3.3). Its suggested timeout, size, retry and refresh intervals are source recommendations, not newly fixed Email Next defaults. See the [MTA-STS audit](audits/mta-sts.md) for source interpretation and dependency status.
+These requirements come from [RFC8461 §§3.3–8.4](https://www.rfc-editor.org/rfc/rfc8461.html#section-3.3). Its suggested timeout, size, retry and refresh intervals are source recommendations, not newly fixed Email/2 defaults. See the [MTA-STS audit](audits/mta-sts.md) for source interpretation and dependency status.
 
 :::
 
@@ -562,7 +562,7 @@ The discovery algorithm and its ordering are defined in [RFC7672 §2](https://ww
 
 DANE-EE authenticates the server's leaf certificate or public key through the secure TLSA association. Under RFC7672, certificate-name checks are prohibited for that usage and certificate expiry is ignored; the DNSSEC association supplies the binding and its validity. DANE-TA instead validates through the associated trust anchor and requires the applicable server-name checks. A provider adapter MUST preserve this distinction rather than apply a generic Web PKI validation result to every TLSA usage.
 
-The sender MUST NOT deliver through a relay when a usable secure TLSA association fails to authenticate it. Neither a matching relay key nor a successfully validated trust anchor is an Email Next account credential.
+The sender MUST NOT deliver through a relay when a usable secure TLSA association fails to authenticate it. Neither a matching relay key nor a successfully validated trust anchor is an Email/2 account credential.
 
 Before a planned relay-key change, publish associations for both the old and new keys and allow the previous DNS records and signatures to expire from caches before activating the new key. Removing an association is not immediate revocation at every sender. Relay-key rotation MUST NOT be interpreted as a change to a correspondent's endpoint identity.
 

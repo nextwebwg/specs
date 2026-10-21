@@ -18,8 +18,8 @@ sectionNav: true
 | 7 | Author information reviewed. |
 | 8 | Copyright terms reviewed. |
 
-## Email Next decision
+## Email/2 decision
 
-Preserving signed content and converting it are distinct modes. Email Next's protected route requires unchanged carriage. A conversion route must report lost protection and satisfy the sender's fallback policy; gateway compliance alone does not establish end-to-end confidentiality.
+Preserving signed content and converting it are distinct modes. Email/2's protected route requires unchanged carriage. A conversion route must report lost protection and satisfy the sender's fallback policy; gateway compliance alone does not establish end-to-end confidentiality.
 
 Test unchanged tunneling, intentional conversion, invalid-signature presentation and disabled-by-default gateway cryptography. No gateway implementation has been tested.

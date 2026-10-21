@@ -34,7 +34,7 @@ Captured HTML SHA-256: `d5cf76e519684b89423770e4fde983d1e8e11f60ddcdbec55c35d76f
 | Deciding to Encrypt by Default | Encrypted replies or mutual preferences can enable encryption by default. |
 | Recommendations for messages to multiple addresses | Aggregate recommendation uses all recipients; recipient edits must not silently remove chosen encryption. |
 | Message Encryption | PGP/MIME signs and encrypts to recipients and sender. |
-| Cleartext replies to encrypted messages | Quote omission is only optional here; Email Next requires explicit authorization for disclosure. |
+| Cleartext replies to encrypted messages | Quote omission is only optional here; Email/2 requires explicit authorization for disclosure. |
 | Key Gossip | Gossip distributes visible-recipient keys inside encryption and excludes Bcc disclosure. |
 | Key Gossip Injection in Outbound Messages | Placement, recipient matching and key selection reviewed; preference is not gossip authority. |
 | Updating Autocrypt Peer State from Key Gossip | Gossip updates its own timestamp/key state rather than direct-key state. |
@@ -58,7 +58,7 @@ Captured HTML SHA-256: `d5cf76e519684b89423770e4fde983d1e8e11f60ddcdbec55c35d76f
 | Disabling Autocrypt | Disabling preserves keys and old-message access by default. |
 | Destroying Secret Key Material | Destruction is separately consequential and must explain loss of readable history. |
 | Appendix | All appendix prose and examples reviewed. |
-| E-mail Address Canonicalization | Local-part lowercasing is not adopted for Email Next endpoint identity; distinct exact addresses remain distinct. |
+| E-mail Address Canonicalization | Local-part lowercasing is not adopted for Email/2 endpoint identity; distinct exact addresses remain distinct. |
 | Example Autocrypt headers | Header structure reviewed; embedded key validity not cryptographically tested. |
 | Example Autocrypt Gossip headers | Encrypted gossip and displayed plaintext reviewed; ciphertext not decrypted in this audit. |
 | Example Copy when a Reply can’t be Encrypted | Example explains missing encryption; not a guarantee all future messages can encrypt. |
@@ -68,10 +68,10 @@ Captured HTML SHA-256: `d5cf76e519684b89423770e4fde983d1e8e11f60ddcdbec55c35d76f
 | Example Stored Draft | Draft example reviewed; prose says Draft-Header but actual field and normative section say Draft-State. |
 | Document History | Version history reviewed; changes do not establish current deployed interoperability. |
 
-## Decisions for Email Next
+## Decisions for Email/2
 
 Retain passive advertisement as prior art for ordinary-mail bootstrap. Keep its candidate keys and compatibility recommendations separate from established endpoint authority. Do not import its local-part lowercasing into identity continuity. Enforce the sender's disclosure policy when quoting protected material, including when a legacy recommendation would permit cleartext. These are deliberate differences, not claims of Autocrypt conformance.
 
-The [identity lifecycle](../identity-lifecycle.md) separates disabling new encrypted delivery from destroying historical access. Recovery must also preserve current revocation and device-authorization checks. Its setup-message flow demonstrates portable key recovery, but does not define the complete Email Next device enrollment protocol.
+The [identity lifecycle](../identity-lifecycle.md) separates disabling new encrypted delivery from destroying historical access. Recovery must also preserve current revocation and device-authorization checks. Its setup-message flow demonstrates portable key recovery, but does not define the complete Email/2 device enrollment protocol.
 
 Remaining integration work includes OpenPGP packet/version reconciliation, cryptographic example checks, and an adapter tested with independent implementations. This audit does not claim those tasks are complete.

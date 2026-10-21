@@ -10,7 +10,7 @@ sectionNav: true
 | Section | Disposition |
 | --- | --- |
 | 1 | Loop, amplification and unwanted-response problem applies directly to automatic discovery. |
-| 1.1 | Distinguish service, personal and group responders. Email Next negotiation requires a precisely defined service exchange, not vacation-responder heuristics. |
+| 1.1 | Distinguish service, personal and group responders. Email/2 negotiation requires a precisely defined service exchange, not vacation-responder heuristics. |
 | 1.2 | Requirement terms and subject-message/response/recipient definitions retained. |
 | 2 | Never answer every message. Suppress automatic traffic, null destinations and malformed requests; bound responses and avoid unauthenticated side effects. Seven-day advice concerns absence notices, not a universal protocol timer. Recipient-header heuristic is not reliable evidence of Bcc membership. |
 | 3 | Header, body and envelope requirements apply independently. |
@@ -40,7 +40,7 @@ sectionNav: true
 
 | Front and end matter | Status, abstract, copyright, intellectual-property notice and author information reviewed; no additional message behavior. |
 
-## Consequence for Email Next
+## Consequence for Email/2
 
 Ordinary messages can advertise capabilities without triggering a reply. A standalone automatic negotiation response requires a service protocol with a validated destination and bounded state transition. Return-Path and correspondent identity can differ; neither should silently substitute for the other in key binding.
 

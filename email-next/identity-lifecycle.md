@@ -9,6 +9,8 @@ sectionNav: true
 
 Automatic encryption must work without requiring people to administer keys for every conversation. It must also distinguish a newly observed key from an established correspondent. This chapter defines proposed authorization behavior. The [security profile](security-profile.md) supplies device-binding records and proof constructions; [identity-state records](identity-state.md) define the roster and ordinary transitions. Integrated validation, freshness and recovery remain unfinished.
 
+The [encryption journey](encryption-journey.md) specifies the person-facing flow for these transitions, including the unavailable emergency-recovery and encrypted-backup paths.
+
 ## Keep evidence separate from policy
 
 A correspondent record identifies the exact mailbox being contacted and a history of identity evidence. It does not normalize local parts using provider guesses. A cryptographic principal is a profile-defined identity, not simply the mailbox string or the newest key attached to it.
@@ -105,6 +107,31 @@ The new device creates its own private keys. The exchange carries only public ac
 
 After approval, the interface distinguishes enrollment accepted on the existing device, enrollment received on the new device, and readiness for protected mail. Publication remains a separate local setting. New capability evidence and normal invitation checks are still required before protected delivery.
 
+### Finish pairing with usable encrypted sending
+
+QR pairing is the normal add-device path. The existing authorized device approves the new device, which creates and keeps its own private keys. The client MUST continue automatically from enrollment through account connection, trusted-contact setup and encryption preparation. Enrollment alone MUST NOT be presented as completed setup.
+
+The approval distinguishes permission to send and receive from permission to administer other devices. An account may have multiple administrator devices; no primary administrator is required. A device granted ordinary participation does not thereby gain enrollment or revocation authority.
+
+Before reporting the new device ready, the client MUST:
+
+1. Accept the exact signed enrollment on both devices, retaining the mutually confirmed pairing commitments and current account identity. The new device must possess its own enrolled key.
+2. Connect the approved mailbox and sending service under a separately valid account authorization. Reuse an existing authorized account connection flow where possible. A QR enrollment signature is not a provider access token, and a provider password is not enrollment authority.
+3. Transfer the approving device's selected contact associations, accepted peer identity anchors, current public evidence, scoped verification decisions and disclosure/freshness preferences through a confidential, authenticated own-device setup transfer bound to this pairing and its exact new device. This is security configuration, not correspondence history. The new device MUST NOT require routine re-verification of unchanged contacts merely because it is new.
+4. Validate the transferred evidence, preserve its original trust scope and dates, and recheck current authority and known revocations. A previously unverified contact remains unverified. A preexisting conflicting pin or newer revocation on the new device holds that contact; the transfer cannot overwrite it. The transfer cannot reset a pending challenge, revive an expired package or copy a one-use private package key.
+5. Publish the new device's own support and admission material where enabled, and automatically prepare protected delivery to existing contacts using current valid public material or the content-free setup exchange. Each message still passes its normal audience, agreement, package and release checks. No additional human contact-by-contact approval is required unless an actual conflict, changed trust or the selected policy calls for it.
+
+> [!ex] A new laptop
+> You scan its pairing code using your already authorized phone and approve the account and permissions. Setup brings across your trusted contacts and prepares encryption using the laptop's new keys. You can write an encrypted email to a known contact without asking that person to verify you again. Their compatible client validates your account's signed device addition when it accepts the new setup.
+
+Newly established protected conversations do not require possession of old message keys. Existing cryptographic groups still require authenticated device admission; the client MUST schedule that work automatically and preserve the draft while it finishes. A new cryptographic context cannot be presented as authenticated continuation of an old group without that group's continuation authorization. Do not create a visible duplicate conversation merely to hide an unfinished admission.
+
+Readiness is scoped: account sending ready, contact setup pending, or contact ready for protected sending. A contact that is temporarily unreachable or lacks usable published setup material can remain pending without preventing sends to other ready contacts. The interface must identify the remaining wait without asking the person to manage keys. It MUST NOT show a general ready state while all protected sends are still held.
+
+Correspondence history transfer and synchronization are separate capabilities. Pairing does not require copying saved messages, a message archive, an old MLS checkpoint, consumed secrets, queued sends or an administrator's private key. A supported history service may run separately under its own authorization; its absence cannot disable future encrypted sending after setup.
+
+The current pairing experiment supplies signed enrollment and a later configured protected SMTP path. The confidential security-configuration transfer, provider connection handoff, automatic existing-group admission and joined send-ready gate above require complete wire and acceptance integration; the experiment does not yet establish them.
+
 ::: {.details summary="Experimental pairing binding and durable result"}
 
 ### Independent confirmation
@@ -143,7 +170,7 @@ Historical signatures retain their original verification evidence, but may need 
 
 Recovery has two distinct outcomes: continuity-preserving recovery through a previously authorized mechanism, or creation of a new identity after continuity is lost. The client MUST state which occurred. Provider password reset is not automatically continuity-preserving recovery for endpoint keys.
 
-Before enabling recoverable history, the user is told who or what can recover it and whether that authority can decrypt past messages. Recoverable archives and retained keys change the protection offered by key deletion. Recovery credentials must not be silently included in ordinary email notifications.
+The [encrypted archive profile](encrypted-archives.md) specifies recoverable history separately from live identity. The initial suite selects surviving-device enrollment or an explicit new identity after total device loss; it does not enable an emergency recovery override merely because a binding contains the recover role. Before enabling recoverable history, the user is told who or what can recover it and whether that authority can decrypt past messages. Recoverable archives and retained keys change the protection offered by key deletion. Recovery credentials must not be silently included in ordinary email notifications.
 
 An email address can be reassigned. Control of the same address at a later date does not entitle its new owner to old conversation history. A new identity at that address follows the continuity-break procedure, and historical content is not automatically quoted, re-encrypted or reissued to it.
 
@@ -153,7 +180,7 @@ A provider's mailbox ownership check is delivery evidence, not proof of endpoint
 
 [RFC 7293](https://www.rfc-editor.org/rfc/rfc7293.html) supplies an optional RRVS delivery check. Its SMTP form and header tunnel have different failure and privacy properties; the header can expose recipient addresses and relationship timestamps. Neither form establishes possession of the correspondent's encryption key. Role addresses, mailing lists and forwarding also have special handling, so acceptance cannot establish the identity of every eventual reader.
 
-Email Next implementations MUST NOT automatically retry a failed required ownership check with that check removed. Any permitted change follows the sender's delivery policy, while continuity and history-access requirements continue to apply. The [recipient ownership audit](audits/recipient-ownership.md) records forwarding exceptions, header privacy constraints and required integration tests.
+Email/2 implementations MUST NOT automatically retry a failed required ownership check with that check removed. Any permitted change follows the sender's delivery policy, while continuity and history-access requirements continue to apply. The [recipient ownership audit](audits/recipient-ownership.md) records forwarding exceptions, header privacy constraints and required integration tests.
 
 ## Distributed discovery and witnesses
 
@@ -181,7 +208,7 @@ SMTP forwarding information, including 251 and 551 replies, is a routing observa
 
 An existing authorized alias may continue to route opaque ciphertext without revealing its expansion to the sender. That routing does not establish that every eventual destination can decrypt it. A compatibility failure does not authorize decrypting and forwarding plaintext to the suggested address.
 
-VRFY and EXPN results are diagnostic information. A successful result is not a proof of endpoint key possession; an EXPN list is not an authenticated group roster. Clients MUST NOT use these commands as a substitute for capability discovery, identity continuity or group admission. A refusal or 252 result must not be interpreted as absence of an account or absence of Email Next support.
+VRFY and EXPN results are diagnostic information. A successful result is not a proof of endpoint key possession; an EXPN list is not an authenticated group roster. Clients MUST NOT use these commands as a substitute for capability discovery, identity continuity or group admission. A refusal or 252 result must not be interpreted as absence of an account or absence of Email/2 support.
 
 These distinctions follow the separation between routing and endpoint authority. The [SMTP revision](https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5321bis-44/) sections 3.4–3.5 describe forwarding privacy, alias/list behavior and the limits of diagnostic expansion; the [revision audit](audits/smtp-revision.md) records its full-text review and unresolved dependencies.
 
@@ -194,12 +221,12 @@ Several devices may legitimately present the same account identifier. The device
 
 A new credential must be checked both against the intended correspondent identifier and, when replacing a credential, against the authorized succession rules. Possession of a new key or a syntactically valid basic credential does not establish continuity. Expiry, revocation and historical-message verification remain distinct decisions; accepting an expired credential for an authorized renewal or a historical signature must not restore its authority for unrelated new operations.
 
-These requirements carry RFC9420 Section 5.3's application responsibilities into Email Next. Credential encoding, authentication-service binding and historical validation policy remain decisions for the complete cryptographic profile.
+These requirements carry RFC9420 Section 5.3's application responsibilities into Email/2. Credential encoding, authentication-service binding and historical validation policy remain decisions for the complete cryptographic profile.
 
 
 ## Distributed authentication roles
 
-The authentication service is a role, not a requirement for a central identity provider. RFC9750 allows its functions to be distributed among clients, credential issuers and user verification procedures. Email Next must specify how a device establishes and checks the binding between the intended account identifier and its signing keys, regardless of which component supplies the evidence.
+The authentication service is a role, not a requirement for a central identity provider. RFC9750 allows its functions to be distributed among clients, credential issuers and user verification procedures. Email/2 must specify how a device establishes and checks the binding between the intended account identifier and its signing keys, regardless of which component supplies the evidence.
 
 A provider-assisted path and a client-managed path must expose their different trust assumptions. Neither may silently treat delivery of a credential as verification of its account binding. Federation requires compatible identity and payload rules in addition to a common cryptographic protocol. A peer-to-peer delivery path still needs the ordering and recovery guarantees required by the chosen group profile.
 
@@ -210,7 +237,7 @@ Disabling automatic protected sending MUST NOT itself erase the user's local ide
 
 Restoring a backup MUST NOT roll back accepted revocations, restore a removed device to an authorized roster, or override a newer established identity merely because the backup decrypts successfully. Restored state is historical input. Before new delivery, the client must reconcile it with authenticated current state under the profile's recovery rules. If reconciliation is unavailable, it may permit local historical reading but MUST hold operations requiring unresolved current authority.
 
-A restore interface must identify the account and device being restored and whether the operation recovers historical access, enrolls a device, or establishes a new identity. A message's apparent sender and a successful mailbox login cannot substitute for recovery authorization. These are Email Next lifecycle requirements informed by the [Autocrypt audit](audits/autocrypt.md), not claims that Autocrypt defines this recovery protocol.
+A restore interface must identify the account and device being restored and whether the operation recovers historical access, enrolls a device, or establishes a new identity. A message's apparent sender and a successful mailbox login cannot substitute for recovery authorization. These are Email/2 lifecycle requirements informed by the [Autocrypt audit](audits/autocrypt.md), not claims that Autocrypt defines this recovery protocol.
 
 
 ### Import history, then reconnect
@@ -233,7 +260,7 @@ Fresh activation must check the actual enrollment receipt, exact new credential 
 
 The [restore experiment](evidence/README.md#managed-archive-import-and-fresh-reconnection) imports contribution records from an explicitly selected local database into a separate history database. It preserves exact event bytes and displays inert text; it does not import attachment resources or render imported rich HTML. It reads only the expected ordinary table under read-only, query-only restrictions, rejects views and virtual tables, and applies adjustable local row, byte and time budgets.
 
-This is a managed import path, not detection of arbitrary rollback of the entire application or machine. It does not select an encrypted backup format, recover private keys, or transfer protected history between devices. Those require separate confidentiality and disclosure contracts. Existing transport forward-secrecy claims do not protect an accessible plaintext archive.
+This is a managed import path, not detection of arbitrary rollback of the entire application or machine. The [archive contract](encrypted-archives.md) now selects an encrypted portable format and a standalone container experiment; it does not add those features to this older database-import path. Neither path recovers live private keys. The separate [history-transfer contract](history-transfer.md) now binds a recipient-specific fresh archive to exact participant authority and deliberate disclosure. Its local control/import experiment is not integrated into this older restore demo. Existing transport forward-secrecy claims do not protect an accessible plaintext archive.
 
 :::
 

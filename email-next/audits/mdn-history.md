@@ -47,7 +47,7 @@ The complete base text of [RFC3798](https://www.rfc-editor.org/rfc/rfc3798.html)
 | 8.2 | Gatewaying from MDNs to other mail systems | Foreign conversion and tunneling do not strengthen report meaning or authentication. |
 | 8.3 | Gatewaying of MDN-requests to other mail systems | Drop requests where a gateway cannot preserve a distinct notification destination; do not redirect silently. |
 | 9 | Example | Full example reviewed as explicitly nonnormative; readable and machine parts describe display, not comprehension. |
-| 10 | IANA Considerations | Historical registration procedures reviewed; no Email Next registrations result from this audit. |
+| 10 | IANA Considerations | Historical registration procedures reviewed; no Email/2 registrations result from this audit. |
 | 10.1 | Disposition-Notification-Options header parameter names | Option registration requires syntax, encoding and semantics; no implicit new option chosen. |
 | 10.2 | Disposition modifier names | Modifier registration requirements reviewed separately from live registry state. |
 | 10.3 | MDN extension field names | Extension registration requirements reviewed; reference to encoding in an options header appears copied from the parameter template and is not a new wire rule. |
@@ -63,7 +63,7 @@ Verified erratum692 removes references to the warning modifier. Rejected erratum
 
 The gateway discussion recommends smtp as an MTA-name type despite the earlier dns example. The extension registration template also refers to encoding extension-field values in an options header. These are recorded source discrepancies, not newly approved errata.
 
-## Email Next boundary
+## Email/2 boundary
 
 A request for a receipt is not permission to negotiate keys, establish online presence or execute a structured response. A displayed report proves neither comprehension nor consent; a deleted report proves neither non-reading nor cryptographic erasure. A missing report is not evidence of incompatibility or loss of encryption support.
 

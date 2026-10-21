@@ -5,11 +5,11 @@ sectionNav: true
 
 # HKDF key derivation
 
-[RFC5869](https://www.rfc-editor.org/rfc/rfc5869.html) defines the extract-and-expand key derivation used by the [selected HPKE and MLS suite](../security-profile.md). Email Next preserves those protocols' key schedules, labels and context inputs. The general HKDF interface does not authorize changing a salt, skipping a stage or substituting a different hash in an existing protocol.
+[RFC5869](https://www.rfc-editor.org/rfc/rfc5869.html) defines the extract-and-expand key derivation used by the [selected HPKE and MLS suite](../security-profile.md). Email/2 preserves those protocols' key schedules, labels and context inputs. The general HKDF interface does not authorize changing a salt, skipping a stage or substituting a different hash in an existing protocol.
 
 ## Consequences for implementations
 
-Extract computes HMAC with the salt as its key and the input keying material as its message. If the salt is omitted, the definition substitutes HashLen zero octets. Expand takes a pseudorandom key of at least HashLen octets, binds the `info` input and produces at most 255 × HashLen output octets. For SHA-256 this is 8,160 octets per Expand call; it is an algorithm limit, not an Email Next message-size limit.
+Extract computes HMAC with the salt as its key and the input keying material as its message. If the salt is omitted, the definition substitutes HashLen zero octets. Expand takes a pseudorandom key of at least HashLen octets, binds the `info` input and produces at most 255 × HashLen output octets. For SHA-256 this is 8,160 octets per Expand call; it is an algorithm limit, not an Email/2 message-size limit.
 
 Preserve the exact labels and encoded context selected by MLS and HPKE. The generic interface permits empty `info`, but removing context from a protocol that defines it would change that protocol's key derivation. The source advises against skipping extraction for a Diffie–Hellman value and against using the extraction result directly as output when that would omit expansion's context binding.
 
@@ -27,4 +27,4 @@ The [live errata listing](https://errata.rfc-editor.org/search/?rfc_number=5869)
 
 The captured metadata identifies Informational status, publication in May 2010, and no listed updates or successors. The 787-line text SHA-256 is `7a40eb3835b35fc947eb12a2ed614db079d43b26e50dbc537c31fba16397089c`. Snapshot lengths and metadata digest are retained in the [source inventory](source-inventory.json).
 
-HMAC and the selected secure hash remain primitive dependencies; the source's FIPS180-3 reference requires current-source reconciliation. Informative examples of IKE, PANA and password-based derivation do not make those protocols part of Email Next. This review does not certify library correctness, side-channel behavior, entropy sources, independent interoperability or complete cryptographic dependency coverage.
+HMAC and the selected secure hash remain primitive dependencies; the source's FIPS180-3 reference requires current-source reconciliation. Informative examples of IKE, PANA and password-based derivation do not make those protocols part of Email/2. This review does not certify library correctness, side-channel behavior, entropy sources, independent interoperability or complete cryptographic dependency coverage.

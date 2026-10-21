@@ -15,13 +15,13 @@ A provider can help two clients exchange fresh key information without sending e
 > Bob's ordinary email client receives no probe or automatic reply. If Bob's upgraded client is unavailable, Alice's existing delivery policy determines whether to wait or use a permitted alternative.
 
 > [!note] Proposed provider extension
-> This chapter selects the roles and exchange lifecycle for a configured experiment. The [configured wire profile](provider-control.md) defines HTTP routes, signed records and retries. Configured HTTPS exchange and subsequent MLS admission have [local acceptance evidence](evidence/README.md#configured-provider-and-admission-report). Public service discovery and credential issuance remain unspecified for interoperable deployment. No provider capability identifier is ready for interoperable advertisement. The [ordinary-email discovery profile](passive-discovery.md) remains available independently.
+> This chapter selects the roles and exchange lifecycle for a configured experiment. The [configured wire profile](provider-control.md) defines HTTP routes, signed records and retries. Configured HTTPS exchange and subsequent MLS admission have [local acceptance evidence](evidence/README.md#configured-provider-and-admission-report). The [public discovery profile](provider-discovery.md) selects domain delegation and native client registration. The [public grant profile](provider-grants.md) defines account/device linking and queue-credential issuance; joined deployment evidence remains absent. No provider capability identifier is ready for interoperable advertisement. The [ordinary-email discovery profile](passive-discovery.md) remains available independently.
 
 ## What the provider supplies
 
 The service holds a small, authenticated queue separate from mailbox storage. A request identifies one initiating device and one target device. The target retrieves the request and writes one response into the same exchange. The initiator retrieves that response. There are no callback URLs, automatically generated emails or public online lists.
 
-A successful exchange supplies **fresh evidence from one device**. It does not prove that every device on the account supports Email Next, that all account revocations are known, or that an encrypted conversation is ready. Encryption readiness remains a result of the [security profile](security-profile.md).
+A successful exchange supplies **fresh evidence from one device**. It does not prove that every device on the account supports Email/2, that all account revocations are known, or that an encrypted conversation is ready. Encryption readiness remains a result of the [security profile](security-profile.md).
 
 ## Authorize the service and the devices separately
 
@@ -29,12 +29,14 @@ Before contacting a service, the client needs an authenticated account configura
 
 Access also requires a service grant naming the account, initiating device, target device, permitted operations and expiry. Each participant authenticates with its own credential restricted to its role. Permission to place a challenge does not include permission to answer it. Mailbox passwords and credentials issued for another service are not accepted as substitutes.
 
-The service account and Email Next identity are different authorities. An administrator can grant access to the queue; that action cannot enroll a device, replace a correspondent's established identity or authorize reading their encrypted history. Each client independently checks the accepted identity state and mailbox association before using the exchanged evidence.
+The service account and Email/2 identity are different authorities. An administrator can grant access to the queue; that action cannot enroll a device, replace a correspondent's established identity or authorize reading their encrypted history. Each client independently checks the accepted identity state and mailbox association before using the exchanged evidence.
 
 > [!ex] Different providers
-> Alice can contact Bob's service using a grant issued for that service. The response remains there for Alice to retrieve. Neither provider forwards Alice's credential to another provider. Making these grants convenient to acquire is part of the unfinished public authorization binding.
+> Alice can contact Bob's service using a grant issued for that service. The response remains there for Alice to retrieve. Neither provider forwards Alice's credential to another provider. The domain discovery and native registration steps are [selected separately](provider-discovery.md); the [grant profile](provider-grants.md) defines account linking and pair-grant acquisition separately from the configured adapter.
 
-Reassigning or reprovisioning the service account must invalidate its previous grants. It must not silently repin an established Email Next identity to the new mailbox owner.
+Reassigning or reprovisioning the service account must invalidate its previous grants. It must not silently repin an established Email/2 identity to the new mailbox owner.
+
+The [first-contact flow](first-contact-setup.md) additionally permits a content-free automated setup before the first human message. It requires a new public bootstrap binding; an unknown peer cannot enter this configured pair-grant queue without authorization. Recipient opt-in and a device policy can authorize automatic setup responses without a human email reply.
 
 ## One challenge, one response
 
@@ -62,7 +64,7 @@ Clients treat a timeout as an incomplete exchange. They preserve the sender's de
 
 ## From evidence to encryption
 
-For a new conversation, a validated response can provide the target's MLS KeyPackage. The client still follows the security profile's invitation, membership and confirmation rules. This control exchange does not reserve a package or bypass its single-use checks. An existing session does not consume a new package merely to demonstrate device freshness.
+For a new conversation, a validated response can provide the target's MLS KeyPackage. The client still follows the security profile's invitation, membership and confirmation rules. This control exchange does not reserve a package or bypass its single-use checks. An existing session does not consume a new package merely to demonstrate device freshness. The [freshness contract](freshness.md) defines exact per-device evidence, explicit age policy, credible clocks and release-time checks; live response never means complete knowledge of unseen remote changes.
 
 The first provider experiment keeps invitations and encrypted contributions on the existing mail delivery path. The optional queue accelerates discovery while preserving that transport. Carrying invitations or application messages through the queue would require a separately specified payload and authorization contract.
 

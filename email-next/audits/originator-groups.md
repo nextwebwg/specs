@@ -5,7 +5,7 @@ sectionNav: true
 
 # Originator groups audit
 
-A syntactically valid `From` field does not necessarily identify a mailbox. RFC 6854 permits groups, including empty groups, in originator fields for limited use. Email Next must receive these messages without treating a group label as a key-discovery address.
+A syntactically valid `From` field does not necessarily identify a mailbox. RFC 6854 permits groups, including empty groups, in originator fields for limited use. Email/2 must receive these messages without treating a group label as a key-discovery address.
 
 **Coverage:** complete text, references and metadata reviewed on 19 October 2026. The retrieved errata dataset contains no RFC 6854 records. Metadata labels this document Proposed Standard and lists no subsequent updates or replacements. This is a document review, not a current-client compatibility test.
 
@@ -22,13 +22,13 @@ Sources: [RFC 6854](https://www.rfc-editor.org/rfc/rfc6854.html), [RFC Editor me
 | 2 | Inherited precise amendment: replace RFC 5322 §3.6.2; replace only the specified resent productions in §3.6.6. Other resent semantics remain. |
 | 2.1 | Inherited From address-list and Sender single-address syntax. Count mailboxes inside groups when deciding whether Sender is required. A Sender group cannot contain more than one mailbox. Preserve separate author, transmitter and reply-destination semantics. |
 | 2.2 | Inherited updated Resent-From and Resent-Sender grammar; no replacement of remaining resend behavior. |
-| 3 | Inherited limited-use applicability and recommendation against outgoing originator groups in user agents. Do not make groups the normal Email Next author encoding. |
+| 3 | Inherited limited-use applicability and recommendation against outgoing originator groups in user agents. Do not make groups the normal Email/2 author encoding. |
 | 4 | Informative empty and nonempty group examples reviewed; group labels do not prove authorship or replyability. |
 | 5 | Inherited security considerations: empty originators affect domain-based validation and deliverability; group syntax can expose parsing bugs. Authentication failure handling is separate from syntax acceptance. |
-| 6 | Inherited references for existing registered fields; no new Email Next field registration implied. |
+| 6 | Inherited references for existing registered fields; no new Email/2 field registration implied. |
 | 7 | References reviewed; dependency treatment below. |
 | 7.1 | RFC 5322 base review complete. RFCs 2026, 2119 and 5234 supply limited-use meaning, requirements and grammar notation; applicable portions still require review. |
-| 7.2 | RFC 822 is historical context, not a replacement grammar. RFC 5617 is cited as a historical authentication example, not selected as Email Next's authentication protocol. RFC 6530 enters the internationalization audit. |
+| 7.2 | RFC 822 is historical context, not a replacement grammar. RFC 5617 is cited as a historical authentication example, not selected as Email/2's authentication protocol. RFC 6530 enters the internationalization audit. |
 
 ## Proposed processing consequences
 

@@ -37,7 +37,7 @@ The complete base text of [RFC5147](https://www.rfc-editor.org/rfc/rfc5147.html)
 | 7 | Security Considerations | Showing only a fragment can omit material context or support spoofing; preserve visible boundaries and full source access. |
 | 8 | References | Complete reference lists reviewed. |
 | 8.1 | Normative References | URI, IRI, charset, Unicode and ABNF dependencies are separate from this base review. |
-| 8.2 | Informative References | Historical media registration and linking references do not specify Email Next event targets. |
+| 8.2 | Informative References | Historical media registration and linking references do not specify Email/2 event targets. |
 | Appendix A | Acknowledgements | Acknowledgements and remaining end matter read; no additional protocol requirements. |
 
 ## Unresolved source discrepancy

@@ -5,7 +5,7 @@ sectionNav: true
 
 # MIME conformance audit
 
-MIME conformance includes safe handling of unsupported content; it does not require every viewer to understand every format. Email Next adds a defined rich-content profile while retaining the MIME baseline.
+MIME conformance includes safe handling of unsupported content; it does not require every viewer to understand every format. Email/2 adds a defined rich-content profile while retaining the MIME baseline.
 
 **Coverage:** complete RFC 2049, all appendices and both retrieved errata reviewed on 19 October 2026. Dependencies, later updates and implementation testing remain open.
 

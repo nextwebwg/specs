@@ -24,7 +24,7 @@ sectionNav: true
 
 ## Protected composition
 
-If an Email Next security profile selects these containers, the protected object must include the complete contribution: readable alternatives, structured representation and all resources or attachments whose protection is claimed. An independent outer attachment remains outside that claim. A signed HTML root does not authenticate a resource merely because it references it.
+If an Email/2 security profile selects these containers, the protected object must include the complete contribution: readable alternatives, structured representation and all resources or attachments whose protection is claimed. An independent outer attachment remains outside that claim. A signed HTML root does not authenticate a resource merely because it references it.
 
 The receiver reports which entity was protected. Successful verification of one nested body part must not decorate the enclosing message's unauthenticated author, audience or attachments with the same badge. Protected header semantics require a separate binding profile.
 

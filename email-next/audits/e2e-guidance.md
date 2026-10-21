@@ -80,7 +80,7 @@ The complete text of [RFC9787](https://www.rfc-editor.org/rfc/rfc9787.html), inc
 | 9.2 | Reading Encrypted Messages after Certificate Expiration | Certificate expiry does not prevent decryption of old messages. |
 | 9.3 | Unprotected Message Header Fields | Header protection requires RFC9788 rather than body-only assurances. |
 | 9.4 | Composing an Encrypted Message with Bcc | Bcc requires both envelope and payload privacy analysis. |
-| 9.4.1 | Simple Encryption with Bcc | Describes distinct hidden-recipient deliveries; not automatically adopted as the complete Email Next profile. |
+| 9.4.1 | Simple Encryption with Bcc | Describes distinct hidden-recipient deliveries; not automatically adopted as the complete Email/2 profile. |
 | 9.4.1.1 | Rationale | Recipient-key identifiers and gossip can expose Bcc membership. |
 | 9.5 | Draft Messages | Drafts are author-only working state; do not apply replayable outbound signatures before Send. |
 | 9.6 | Composing a Message to Heterogeneous Recipients | Uniform fallback recommendation differs from explicitly authorized mixed delivery; disclosure must remain accurate. |
@@ -122,11 +122,11 @@ The complete text of [RFC9787](https://www.rfc-editor.org/rfc/rfc9787.html), inc
 
 The [security contract](../security.md) specifies isolated decryption, private draft state, archive/retry separation and authenticated delegated results. The [message contract](../messages.md) reconciles related-root selection with RFC2387. The [delivery policy](../delivery-policy.md) deliberately permits sender-selected mixed-recipient fallback, with an accurate disclosure boundary; this departs from Sections 3.2 and 9.6 rather than claiming their endorsement.
 
-Appendix A identifies open questions that Email Next must answer itself: discovery, device enrollment, trust continuity, protection expectations, conversation status, search, proxy integration and mailing-list behavior. Reading this guidance does not resolve those designs or certify an implementation. CMS, OpenPGP, S/MIME, PKI, internationalized certificate names and cited discovery mechanisms remain separate dependency work.
+Appendix A identifies open questions that Email/2 must answer itself: discovery, device enrollment, trust continuity, protection expectations, conversation status, search, proxy integration and mailing-list behavior. Reading this guidance does not resolve those designs or certify an implementation. CMS, OpenPGP, S/MIME, PKI, internationalized certificate names and cited discovery mechanisms remain separate dependency work.
 
 ## Departure rationale locations
 
-| RFC9787 guidance | Email Next behavior and rationale |
+| RFC9787 guidance | Email/2 behavior and rationale |
 | --- | --- |
 | Sections 3.2 and 9.6: uniform cryptographic protection | [Mixed delivery](../delivery-policy.md) permits explicit per-recipient fallback to support incremental adoption. Its rationale covers broader disclosure, legacy presentation limits and a fresh protection decision for each reply. |
 | Sections 5.2–5.3: signature inside encryption; no encryption-only composition | [Managed-profile framing](../security-profile.md#relationship-to-encrypted-email-guidance) uses MLS PrivateMessage, whose encrypted content includes the signature authentication data. This is a different wire protocol that preserves those goals, not an exemption from authenticating the author. |

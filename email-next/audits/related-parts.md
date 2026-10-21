@@ -5,7 +5,7 @@ sectionNav: true
 
 # Related MIME parts audit
 
-Multipart/related supplies an existing container for a root document and its resources. Email Next can use it without inventing a resource bundle, but must define safe behavior where the source leaves processing undefined.
+Multipart/related supplies an existing container for a root document and its resources. Email/2 can use it without inventing a resource bundle, but must define safe behavior where the source leaves processing undefined.
 
 **Coverage:** complete RFC2387 and six retrieved errata read and assessed on 19 October 2026. CID addressing, HTML message aggregation, disposition parameters and current registrations remain separate dependencies.
 

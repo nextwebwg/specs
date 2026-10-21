@@ -3,6 +3,7 @@ title: Rendering and existing email
 order: 13
 blurb: HTML · CSS · conversation reconstruction
 sectionNav: true
+navGroup: guide
 ---
 
 # Rendering and existing email
@@ -33,7 +34,7 @@ User accessibility preferences override author presentation where necessary. Res
 > [!norm] Content cannot impersonate the client
 > Proposed rendering rules isolate message styles from application controls. Sender content cannot restyle the sender identity, security indicator, audience, or submission confirmation. CSS resource-loading features must follow the same resource policy as HTML.
 
-Clients must parse and sanitize under the same declared profile. Unknown features cannot activate broader browser behavior. A safe readable fallback remains available when a required profile is unsupported. Receiving HTML is not permission to execute arbitrary web content.
+Clients must parse and sanitize under the same declared profile. Unknown features cannot activate broader browser behavior. An Email/2 client must implement the [required baseline presentation](presentation-profile.md#required-presentation). Unsupported optional extensions and malformed input retain their defined safe recovery paths. A diagnostic text view can preserve access to content, but does not establish support for a missing required renderer. Receiving HTML is not permission to execute arbitrary web content.
 
 AMP for Email provides relevant prior art for explicit HTML/CSS restrictions and interactive components.[^1] Its feature set and external-service assumptions are not automatically adopted here.
 
@@ -53,6 +54,10 @@ The proposed client contract is:
 Subject equality alone is insufficient to merge conversations. Forwarded text does not make its quoted author a participant. A signature-like passage might contain substantive content and must remain recoverable.
 
 If an implementation uses remote processing to interpret messages, that changes who receives their contents. It cannot claim endpoint-only confidentiality while sending decrypted messages to another service without an explicit disclosure policy. AI processing is not required by this proposal.
+
+## Explicit boundaries in new replies
+
+The [reply-content contract](reply-content.md) defines indexed chunks and matching HTML Microdata for new messages. Its receiver procedure resolves source passages and keeps authored text separate from quoted context. Classes, indentation and copied-looking words do not establish those relationships. Legacy reconstruction below applies when that explicit contract is unavailable.
 
 ## Reconstruction procedure
 
@@ -153,7 +158,7 @@ A plain-text fragment may locate a passage for reading. It MUST NOT, by itself, 
 
 A client offering RFC5147 display navigation must retain the referenced MIME entity and its decoding context. Character positions are not byte or UTF-16 code-unit offsets. Reflowing, quote removal, Unicode normalization and charset recovery are presentation transformations; offsets into those views MUST NOT silently replace offsets into the referenced entity. If mapping is uncertain, display the whole relevant contribution and mark the passage reference unresolved.
 
-For Email Next structured operations, out-of-range or mismatched targets MUST fail resolution rather than clamp to the nearest available field or passage. RFC5147's optional length/MD5 checks MUST NOT substitute for the security profile's authenticated content binding. A selected passage must retain attribution and access to surrounding context so a partial quotation cannot impersonate the whole source. See the [text-fragment audit](audits/text-fragments.md).
+For Email/2 structured operations, out-of-range or mismatched targets MUST fail resolution rather than clamp to the nearest available field or passage. RFC5147's optional length/MD5 checks MUST NOT substitute for the security profile's authenticated content binding. A selected passage must retain attribution and access to surrounding context so a partial quotation cannot impersonate the whole source. See the [text-fragment audit](audits/text-fragments.md).
 
 ::::
 

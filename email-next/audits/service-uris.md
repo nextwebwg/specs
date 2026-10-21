@@ -17,23 +17,23 @@ URI equivalence and permission are separate. The comparison techniques in [RFC 3
 
 ## Message links have a different contract
 
-RFC 3986 §§3.4–5.4 separates path, query and fragment data and defines how relative references use a base URI. Email Next’s presentation profile instead requires absolute HTTP(S) links and supplies no base URL. The client must not accidentally resolve a rejected relative link against its own webmail or preview address. This does not claim that relative links are invalid in legacy HTML generally.
+RFC 3986 §§3.4–5.4 separates path, query and fragment data and defines how relative references use a base URI. Email/2’s presentation profile instead requires absolute HTTP(S) links and supplies no base URL. The client must not accidentally resolve a rejected relative link against its own webmail or preview address. This does not claim that relative links are invalid in legacy HTML generally.
 
 ## Let providers choose their paths
 
-[RFC 8820](https://www.rfc-editor.org/rfc/rfc8820.html) updates RFC 3986 and replaces RFC 7320. Its path rules allow application resources beneath a deployment-controlled prefix, rather than a mandatory global path. Email Next's provider chooses `submit` and `statusPrefix`; example path names carry no discovery meaning.
+[RFC 8820](https://www.rfc-editor.org/rfc/rfc8820.html) updates RFC 3986 and replaces RFC 7320. Its path rules allow application resources beneath a deployment-controlled prefix, rather than a mandatory global path. Email/2's provider chooses `submit` and `statusPrefix`; example path names carry no discovery meaning.
 
 The experimental DNS-only authority spelling remains a compatibility limitation requiring standards review under RFC 8820 §2.2. It must not become a claim that other valid HTTPS authorities are malformed. Broadening support requires corresponding identity, routing and parser tests.
 
 ## Browser-parser review
 
-The [URL Standard](https://url.spec.whatwg.org/) distinguishes a validation error from a parsing failure. Its web-compatible host processing differs from strict IDNA2008; a successfully parsed navigation destination is not proof of mailbox-domain validity. Email Next applies its control-character, credential and backslash restrictions before parsing.
+The [URL Standard](https://url.spec.whatwg.org/) distinguishes a validation error from a parsing failure. Its web-compatible host processing differs from strict IDNA2008; a successfully parsed navigation destination is not proof of mailbox-domain validity. Email/2 applies its control-character, credential and backslash restrictions before parsing.
 
 The [presentation profile](../presentation-profile.md#processing-order) uses [commit 845bafc](https://url.spec.whatwg.org/commit-snapshots/845bafca22fb0c5a42c4bf384a9bdea525a2f10d/) as its reproducible draft baseline for selected navigation behavior. This is a versioned draft reference, not a claim that a runtime implements the entire snapshot or that the living standard stops evolving. Reviewed portions cover HTTP(S) parser states, domain/host processing, IPv4/IPv6 parsing, serializers, the URL constructor/getters and the HTTP(S) origin branch. The selected supporting definitions are reviewed below. Ten focused Node24.20.0 navigation tests pass. A separate 31-case comparison now agrees between Node24.20.0 and Chromium153.0.8010.12 after the narrow compatibility guard described below; neither result certifies the entire URL implementation.
 
 ## Conversions used by navigation
 
-The URL constructor accepts a Web IDL scalar-value string. Its conversion replaces unpaired surrogates with U+FFFD while preserving valid surrogate pairs. Email Next rejects unpaired surrogates before that conversion and accepts only primitive strings, so parsing cannot silently repair them or invoke an object's string conversion. This rule concerns navigation input, not message-text normalization. [Web IDL USVString](https://webidl.spec.whatwg.org/#js-USVString), [Infra strings](https://infra.spec.whatwg.org/#strings)
+The URL constructor accepts a Web IDL scalar-value string. Its conversion replaces unpaired surrogates with U+FFFD while preserving valid surrogate pairs. Email/2 rejects unpaired surrogates before that conversion and accepts only primitive strings, so parsing cannot silently repair them or invoke an object's string conversion. This rule concerns navigation input, not message-text normalization. [Web IDL USVString](https://webidl.spec.whatwg.org/#js-USVString), [Infra strings](https://infra.spec.whatwg.org/#strings)
 
 The selected constructor uses UTF-8 for non-ASCII path, query and fragment data. Host processing percent-decodes bytes and uses the specified UTF-8 decoding operation before domain validation. Replacement decoding and fatal decoding are different algorithms; “without BOM” does not mean stripping a BOM from this embedded input. A URL decoder must not substitute the strict message-envelope decoder or a legacy character encoding. [Encoding UTF-8 algorithms](https://encoding.spec.whatwg.org/#utf-8-decode-without-bom)
 

@@ -18,7 +18,7 @@ The complete base text of [RFC2184](https://www.rfc-editor.org/rfc/rfc2184.html)
 | 5 | Language specification in Encoded Words | Language follows charset with an asterisk in encoded words; display labels do not change mailbox identity. |
 | 6 | IMAP4 Handling of Parameter Values | Historical IMAP BODY/BODYSTRUCTURE continuation decoding advice is not a substitute for authenticating original MIME headers. |
 | 7 | Modifications to MIME ABNF | Verified errata484 and841 restore the encoding component and zero-based continuation grammar. Current parsing uses RFC2231 rather than known-defective historical grammar. |
-| 8 | Character sets which allow specification of language | Discussion anticipates inline language labels; it does not select a new Email Next charset or identity normalization scheme. |
+| 8 | Character sets which allow specification of language | Discussion anticipates inline language labels; it does not select a new Email/2 charset or identity normalization scheme. |
 | 9 | Security Considerations | Historical lack of new security considerations does not justify using filenames as paths or treating decoded metadata as authenticated identity. |
 | 10 | References | All references reviewed; old IMAP, language-tag, registration and message-format citations are not current profile selections. |
 | 11 | Authors' Addresses | Author end matter reviewed; no additional protocol requirements. |

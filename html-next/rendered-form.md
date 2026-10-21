@@ -52,6 +52,7 @@ Every rendered slot is delimited by processing instructions:
 <?start slot="row" scoped=""?>…<?end?>               <!-- slot rendering a consumer's <template slot> -->
 <?start slot="row" fallback="" scoped=""?>…<?end?>   <!-- slot with props showing its fallback -->
 <?marker slot="title"?>                              <!-- slot rendered empty, no fallback -->
+<?start slot="body" of="" scoped=""?>…<?end?>        <!-- a child's slot, placed by this component (proposed) -->
 ```
 
 - Attributes use the platform's pseudo-attribute syntax: quoted `name="value"` pairs. A bare attribute is a parse error that leaves the instruction with no attributes at all, so the default slot is written `slot=""`.[^2][^3]
@@ -119,6 +120,30 @@ A component whose markup root is another component's invocation lowers to that c
 </ul>
 ```
 
+### Components with a void root {#void-root-carriers}
+
+A void element, such as `<col>`, cannot have children, so a component whose root is one cannot hold its carrier. Its carrier is the root's next sibling instead: a `<template carrier>` immediately after the root, naming the component. A `<colgroup>` allows `<template>` children beside its `<col>` elements, so a [column](/declarative-components/components#child-slots) keeps its content there:
+
+```html
+<colgroup><col class="numeric" data-component="x-column"><template carrier="x-column"><abbr slot="header">Price</abbr><template slot="body">…</template></template></colgroup>
+```
+
+Hydration takes the template that immediately follows a void root, when it names that root's component, as that component's carrier. This subsection is part of the [proposal for columns as markup](/declarative-components/components#child-slots).
+
+## A child's slot, placed by its parent {#borrowed-slot-ranges}
+
+A [`<slot of>`](/declarative-components/components#slot-of) outlet renders a child instance's slot inside its parent's markup: a data table places each column's `body` slot in every row. Its range carries `of`, so it cannot be confused with one of the parent's own slots:
+
+```html
+<td><?start slot="body" of="" scoped=""?>$49.00<?end?></td>
+```
+
+- `of` marks the range as the child's slot. `slot` names the child's slot, and `fallback` and `scoped` mean what they mean on any range.
+- In production output, `of` is empty. A development build [may]{.kw} name the child in it, as its tag and its 1-based position among the entries: `of="x-column 2"`. Readers ignore the value, and target equivalence excludes it like any development-only attribute.
+- When the parent collects its own slot ranges, it skips ranges with `of` and their contents. Walking its template, each `<slot of>` outlet adopts the next such range and attaches it to the child its entry names, whose content comes from that child's carrier.
+
+This section is part of the [proposal for columns as markup](/declarative-components/components#child-slots).
+
 ## Conditional content in a slot
 
 A consumer may write slot content under `$if` or `$each`. A slot whose only such content renders nothing shows its fallback, and switches to the content when it appears (see [Named & fallback](/declarative-components/components#named-fallback)). The instance still holds the region, so a later change can render into it. The rendered form keeps the region's marks in the slot's range, after its fallback nodes:
@@ -141,8 +166,8 @@ A consumer may write slot content under `$if` or `$each`. A slot whose only such
 ## How hydration rebuilds the instance
 
 1. Recover explicit props from the server-rendered instance's hydration data. The proposal has not fixed a wire format for that data; visible `data-<name>` attributes are not required.
-2. Collect the root's own slot ranges in document order: its subtree, minus its own ranges' contents (consumer content), minus nested components' own regions, plus the contents of nested components' ranges (what this component projected into them).
-3. The projected nodes are the contents of every range without `fallback` or `scoped`, each assigned that range's slot, then the marks of any consumer region that follow the fallback nodes in a `fallback` range (see [Conditional content in a slot](#conditional-content-in-a-slot)), assigned that range's slot, followed by the nodes of the carrier that names this component, which keep their own `slot` attribute. A consumer's [`<template slot>`](/declarative-components/components#content-that-renders-on-demand) is always in its receiving component's carrier: the live DOM holds what it renders, never the template. The carrier is removed.
+2. Collect the root's own slot ranges in document order: its subtree, minus its own ranges' contents (consumer content), minus ranges with `of` and their contents ([a child's slot](#borrowed-slot-ranges)), minus nested components' own regions, plus the contents of nested components' ranges (what this component projected into them).
+3. The projected nodes are the contents of every range without `fallback` or `scoped`, each assigned that range's slot, then the marks of any consumer region that follow the fallback nodes in a `fallback` range (see [Conditional content in a slot](#conditional-content-in-a-slot)), assigned that range's slot, followed by the nodes of the carrier that names this component, a child of its root or, for a [void root](#void-root-carriers), the root's next sibling, which keep their own `slot` attribute. A consumer's [`<template slot>`](/declarative-components/components#content-that-renders-on-demand) is always in its receiving component's carrier: the live DOM holds what it renders, never the template. The carrier is removed.
 4. Walk the template against the existing DOM. Each rendered slot adopts the next range whole: its marks, and either the projected nodes, the fallback nodes and any empty consumer regions after them, or the nodes its `<template slot>` rendered, adopted in place so their bindings attach. A forwarding outlet inside carried content adopts its marks and places its component's projected nodes between them.
 5. A nested component's server-rendered root is adopted, not re-rendered. The outer template's nodes inside it are matched against that component's slot ranges and its carrier, where lowering placed them, and the nested root hydrates as its own instance.
 

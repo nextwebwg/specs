@@ -67,7 +67,7 @@ Complete 54-page [RFC8601](https://www.rfc-editor.org/rfc/rfc8601.html), grammar
 | 8 | References | All references read. |
 | 8.1 | Normative References | Normative dependency closure remains open. |
 | 8.2 | Informative References | All informative references read; reported6790 flags normative use of DKIM grammar. |
-| Appendix A | Legacy MUAs | Legacy Priority suggestion is not a trustworthy authentication signal for Email Next. |
+| Appendix A | Legacy MUAs | Legacy Priority suggestion is not a trustworthy authentication signal for Email/2. |
 | Appendix B | Authentication-Results Examples | All seven complete examples and explanatory text read; abbreviated signatures are not cryptographic vectors. |
 | Appendix C | Operational Considerations about Message Authentication | All six operational considerations read; evaluation time and historical key/reputation state matter. |
 | Appendix D | Changes since RFC 7601 | Complete change list, earlier errata references, acknowledgments and end matter read. |
@@ -89,7 +89,7 @@ Complete 54-page [RFC8601](https://www.rfc-editor.org/rfc/rfc8601.html), grammar
 
 The [security contract](../security.md) requires configured producer trust, boundary processing, method-specific interpretation and evidence scoped to its actual message and delivery context. Provider results can improve the experience without making users handle raw headers. They cannot replace endpoint cryptographic verification or silently authorize key changes.
 
-The source's suggested metadata and protocol extensions are prior-art directions, not established interfaces. Email Next must define and test any selected provider integration. No complete Authentication-Results parser, trusted-provider deployment or user-interface study is claimed by this audit.
+The source's suggested metadata and protocol extensions are prior-art directions, not established interfaces. Email/2 must define and test any selected provider integration. No complete Authentication-Results parser, trusted-provider deployment or user-interface study is claimed by this audit.
 
 
 ## Subsequent registry procedure change

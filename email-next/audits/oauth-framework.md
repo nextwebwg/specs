@@ -5,7 +5,7 @@ sectionNav: true
 
 # OAuth framework audit
 
-OAuth supplies a way for a mail client to obtain limited service access without collecting the account password. It does **not** establish that the account belongs to an Email Next principal. The [native authorization profile](../service-authorization.md) therefore separates code redemption from an explicit device-signed account link.
+OAuth supplies a way for a mail client to obtain limited service access without collecting the account password. It does **not** establish that the account belongs to an Email/2 principal. The [native authorization profile](../service-authorization.md) therefore separates code redemption from an explicit device-signed account link.
 
 This audit maps the complete RFC6749 framework to that selected profile. Authorization code, S256 PKCE, a native loopback callback, issuer binding and rotating refresh tokens form the selected path. Implicit, password, client-credentials and extension grants are not fallback sign-in methods. The [RFC9700 security audit](oauth-security.md) remains authoritative for the current security update; historical permissions in the base framework do not override it.
 
@@ -23,7 +23,7 @@ Each row states how the selected profile uses, restricts or excludes the source 
 
 | Source section | Selected-profile disposition |
 | --- | --- |
-| [1 — Introduction](https://www.rfc-editor.org/rfc/rfc6749.html#section-1) | Delegated service access replaces sharing the account password with the mail client; it does not itself identify an Email Next principal. |
+| [1 — Introduction](https://www.rfc-editor.org/rfc/rfc6749.html#section-1) | Delegated service access replaces sharing the account password with the mail client; it does not itself identify an Email/2 principal. |
 | [1.1 — Roles](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.1) | Keep resource owner, client, authorization server and resource server roles distinct. The selected issuer/resource store has one operator. |
 | [1.2 — Protocol Flow](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.2) | Apply the authorization→grant→token→resource sequence; explicit device linking is an additional independently checked step. |
 | [1.3 — Authorization Grant](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.3) | Select authorization code only; the other grant families are not automatic compatibility fallbacks. |
@@ -64,7 +64,7 @@ Each row states how the selected profile uses, restricts or excludes the source 
 | [3.2.1 — Client Authentication](https://www.rfc-editor.org/rfc/rfc6749.html#section-3.2.1) | Public clients provide client_id; code/client/redirect/PKCE binding supplies the selected redemption checks, not a static secret. |
 | [3.3 — Access Token Scope](https://www.rfc-editor.org/rfc/rfc6749.html#section-3.3) | Evaluate actual granted scope as case-sensitive space-delimited tokens with order-independent set equality. Duplicate rejection is a selected restriction. |
 | [4 — Obtaining Authorization](https://www.rfc-editor.org/rfc/rfc6749.html#section-4) | Only the code path below is a selected means of obtaining user authorization. |
-| [4.1 — Authorization Code Grant](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1) | Use code plus S256, issuer and transaction binding; code possession alone does not authorize an Email Next principal. |
+| [4.1 — Authorization Code Grant](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1) | Use code plus S256, issuer and transaction binding; code possession alone does not authorize an Email/2 principal. |
 | [4.1.1 — Authorization Request](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.1) | Bind client_id, exact chosen redirect, scope, state and PKCE challenge to one pending attempt before opening consent. |
 | [4.1.2 — Authorization Response](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2) | Validate state, required issuer response and original callback URI before redeeming a short-lived one-use code. |
 | [4.1.2.1 — Error Response](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2.1) | Validate issuer/state on errors too; invalid redirects must not receive error redirects. |

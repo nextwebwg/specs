@@ -5,11 +5,11 @@ sectionNav: true
 
 # HTTP semantics audit
 
-[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html) provides the HTTP foundation for answer endpoints, hosted access and service discovery. It supplies useful mechanisms for safe retrieval, conditional writes and status reporting. It does not supply Email Next principal binding, a durable submission identifier, or a receipt proving which answer a service accepted.
+[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html) provides the HTTP foundation for answer endpoints, hosted access and service discovery. It supplies useful mechanisms for safe retrieval, conditional writes and status reporting. It does not supply Email/2 principal binding, a durable submission identifier, or a receipt proving which answer a service accepted.
 
 The complete captured base text has been reviewed, including examples, registration tables, references, collected grammar, change appendices, index and front/end matter. Base-text review is complete; dependency closure and interoperable implementation are not.
 
-## Consequences for Email Next
+## Consequences for Email/2
 
 [Endpoint answers](../messages.md) need an explicit application contract above HTTP: the authorized target, authenticated participant, exact question and option, stable retry identity, and a result bound to that submission. A generic success class is insufficient: 202 is pending, whereas 200 and 201 have method-specific meanings. Transport failure and gateway failure can leave the result unknown. Conversely, individual status codes carry stronger information: 401 says this request was not applied; 408 describes an incomplete request; 421 permits retry over another connection. These statements concern the corresponding request, not every earlier attempt using the same submission identity.
 
@@ -23,13 +23,13 @@ A submission profile must also specify caching, redirects, request authenticatio
 | --- | --- | --- |
 | 1 | Introduction | HTTP semantics support service interaction; they do not define email conversation identity. |
 | 1.1 | Purpose | Service internals and effects beyond one response remain outside the uniform interface. |
-| 1.2 | History and Evolution | HTTP/1.1, HTTP/2 and HTTP/3 share semantics; transport upgrades do not prove Email Next capability. |
+| 1.2 | History and Evolution | HTTP/1.1, HTTP/2 and HTTP/3 share semantics; transport upgrades do not prove Email/2 capability. |
 | 1.3 | Core Semantics | Interpret method, status, fields and content together. |
 | 1.4 | Specifications Obsoleted by This Document | Use consolidated semantics rather than importing obsolete predecessor wording unchecked. |
 | 2 | Conformance | Conformance depends on the HTTP roles implemented. |
 | 2.1 | Syntax Notation | ABNF and case-sensitive notation apply; expanded list grammar has distinct sender/recipient rules. |
 | 2.2 | Requirements Notation | An endpoint profile cannot redefine existing method semantics or advertise unsupported versions. |
-| 2.3 | Length Requirements | Apply defensible implementation limits; no arbitrary universal Email Next size follows from HTTP. |
+| 2.3 | Length Requirements | Apply defensible implementation limits; no arbitrary universal Email/2 size follows from HTTP. |
 | 2.4 | Error Handling | Permitted recovery is not a requirement to repair security-sensitive endpoint data. |
 | 2.5 | Protocol Version | HTTP version negotiation and application capability negotiation remain separate. |
 | 3 | Terminology and Core Concepts | Resource, message and intermediary terminology is adopted only for HTTP operations. |
@@ -109,7 +109,7 @@ A submission profile must also specify caching, redirects, request authenticatio
 | 8.3.3 | Multipart Types | Multipart boundary syntax does not delimit the enclosing HTTP message. |
 | 8.4 | Content-Encoding | Content codings are representation properties; decoded bytes differ from coded transfer content. |
 | 8.4.1 | Content Codings | Supported content codings require explicit decoding and resource limits. |
-| 8.4.1.1 | Compress Coding | Legacy compress aliases do not imply required adoption by Email Next. |
+| 8.4.1.1 | Compress Coding | Legacy compress aliases do not imply required adoption by Email/2. |
 | 8.4.1.2 | Deflate Coding | Deflate includes a zlib wrapper; raw-deflate compatibility must not be assumed. |
 | 8.4.1.3 | Gzip Coding | Gzip CRC is not sender authentication or cryptographic integrity. |
 | 8.5 | Content-Language | Content-Language describes intended linguistic audience, not authorized recipients. |
@@ -138,7 +138,7 @@ A submission profile must also specify caching, redirects, request authenticatio
 | 9.3.4 | PUT | PUT creates/replaces known resource state; transformations constrain returned validators. |
 | 9.3.5 | DELETE | DELETE removes URI association, not guaranteed physical erasure or recalled recipient copies. |
 | 9.3.6 | CONNECT | CONNECT tunnels are not answer endpoints; arbitrary ports can expose SMTP and internal services. |
-| 9.3.7 | OPTIONS | OPTIONS can describe resource capabilities but supplies no standard Email Next capability schema. |
+| 9.3.7 | OPTIONS | OPTIONS can describe resource capabilities but supplies no standard Email/2 capability schema. |
 | 9.3.8 | TRACE | TRACE must not carry secrets and is not an adoption or security probe requirement. |
 | 10 | Message Context | Context fields do not establish application-level author identity. |
 | 10.1 | Request Context Fields | Minimize request context disclosed by message-triggered service access. |
@@ -153,7 +153,7 @@ A submission profile must also specify caching, redirects, request authenticatio
 | 10.2.3 | Retry-After | Retry-After controls timing, not whether repeating the operation is safe. |
 | 10.2.4 | Server | Server strings describe software and can leak detail; do not use them as trust proof. |
 | 11 | HTTP Authentication | An endpoint profile must select an authentication mechanism; this framework alone selects none. |
-| 11.1 | Authentication Scheme | Authentication scheme registration does not establish Email Next principal binding. |
+| 11.1 | Authentication Scheme | Authentication scheme registration does not establish Email/2 principal binding. |
 | 11.2 | Authentication Parameters | Parse unique authentication parameters and token68 according to their grammar. |
 | 11.3 | Challenge and Response | 401 and 407 challenge different actors; never answer arbitrary challenges with mailbox credentials. |
 | 11.4 | Credentials | Valid credentials with insufficient access differ from missing/invalid credentials. |
@@ -244,7 +244,7 @@ A submission profile must also specify caching, redirects, request authenticatio
 | 15.5.16 | 415 Unsupported Media Type | 415 distinguishes unsupported media type/content coding; do not blindly change signed bytes. |
 | 15.5.17 | 416 Range Not Satisfiable | 416 can report unsatisfiable or excessive ranges; full response remains possible when Range is ignored. |
 | 15.5.18 | 417 Expectation Failed | 417 concerns expectations and is distinct from answer rejection. |
-| 15.5.19 | 418 (Unused) | 418 is reserved; no Email Next use is proposed. |
+| 15.5.19 | 418 (Unused) | 418 is reserved; no Email/2 use is proposed. |
 | 15.5.20 | 421 Misdirected Request | 421 permits retry over another connection even for non-idempotent methods; preserve target authorization. |
 | 15.5.21 | 422 Unprocessable Content | 422 distinguishes valid syntax from unusable instructions. |
 | 15.5.22 | 426 Upgrade Required | 426 requires Upgrade; the illustrative HTTP/3.0 token is not a deployment recipe for transport migration. |
@@ -254,7 +254,7 @@ A submission profile must also specify caching, redirects, request authenticatio
 | 15.6.3 | 502 Bad Gateway | 502 reports an invalid upstream response, not necessarily nonexecution upstream. |
 | 15.6.4 | 503 Service Unavailable | 503 may provide retry timing; an unavailable server need not return it. |
 | 15.6.5 | 504 Gateway Timeout | 504 reports missing timely upstream response; preserve unknown outcome until reconciled. |
-| 15.6.6 | 505 HTTP Version Not Supported | 505 concerns HTTP major version, not Email Next feature enrollment. |
+| 15.6.6 | 505 HTTP Version Not Supported | 505 concerns HTTP major version, not Email/2 feature enrollment. |
 | 16 | Extending HTTP | Prefer existing version-independent extension points; application features do not need a new HTTP version. |
 | 16.1 | Method Extensibility | New methods require generic semantics rather than application-specific verbs. |
 | 16.1.1 | Method Registry | Method registration requires IETF Review; no new method is allocated here. |

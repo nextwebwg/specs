@@ -11,11 +11,11 @@ The certificate-binding attributes in ESS are a live S/MIME compatibility depend
 
 ## What applies
 
-A certificate hash binds the signature to the intended certificate; it does not make the certificate issuer trustworthy or replace path, revocation, identity or application-authorization checks. RFC5035 supplies algorithm agility, including SHA-256 as the version-two default. The old SHA-1 structure is historical compatibility behavior, not a new Email Next signing choice.
+A certificate hash binds the signature to the intended certificate; it does not make the certificate issuer trustworthy or replace path, revocation, identity or application-authorization checks. RFC5035 supplies algorithm agility, including SHA-256 as the version-two default. The old SHA-1 structure is historical compatibility behavior, not a new Email/2 signing choice.
 
 For legacy S/MIME handling, keep the inner author's signature distinct from an outer gateway or mailing-list signature. Outer attributes can have different signers and purposes. ESS does not turn a gateway signature into the original author's authority, or a signed receipt into evidence that a person understood a message.
 
-ESS security labels, translated labels, secure list expansion and signed receipts require their own application policy. Reviewing them does not select them as Email Next managed-group behavior. A privacy mark is not access control, a label cannot enforce confidentiality in arbitrary recipient software, and an unsolicited receipt request does not authorize an Email Next conversation effect.
+ESS security labels, translated labels, secure list expansion and signed receipts require their own application policy. Reviewing them does not select them as Email/2 managed-group behavior. A privacy mark is not access control, a label cannot enforce confidentiality in arbitrary recipient software, and an unsolicited receipt request does not authorize an Email/2 conversation effect.
 
 ::: {.details summary="RFC2634 section dispositions"}
 

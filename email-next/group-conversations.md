@@ -15,7 +15,7 @@ A client may retain unconsumed MLS message secrets to receive delayed or reorder
 
 The client’s retention policy must specify an elapsed-time limit, a storage/count limit and the maximum permitted forward jump in a sender’s message generation. An epoch-count limit alone does not bound elapsed exposure in a quiet conversation. These are explicit implementation settings, not values chosen by a received message. The client must enforce them before allowing an input to cause unbounded key derivation or retention.
 
-When required secrets have expired or been deleted, retain the original ciphertext and report that the delayed contribution cannot be decrypted under the available state. Do not recreate an old sending checkpoint, request history automatically or downgrade the contribution to plaintext. A separately authorized history transfer follows its own disclosure rules.
+When required secrets have expired or been deleted, retain the original ciphertext and report that the delayed contribution cannot be decrypted under the available state. Do not recreate an old sending checkpoint, request history automatically or downgrade the contribution to plaintext. The separate [history-transfer contract](history-transfer.md) specifies the exact disclosure and recipient-bound import rules.
 
 Successful delayed decryption still requires the original epoch’s authenticated context and the current rules for accepting new effects. A removed member’s pending contribution does not become actionable because its target arrives later. Previously accepted history remains distinct from a newly arriving action.
 
@@ -103,7 +103,7 @@ Retain the validated observation durably before making the candidate or a corres
 
 Apply the hold both when preparing content and at dispatch, including the final check before SMTP DATA. Bound ordinary copies and hosted disclosures of the same protected contribution follow it as well; they are not an automatic escape route. Separately authorized ordinary conversations remain separate. Control evidence and Commit delivery can continue through their existing authorization checks so that the group can finish the transition.
 
-Publishing material that technically enables an external join does not authorize arbitrary participants to join an Email Next conversation. Existing administrator and invitation rules still apply. Likewise, an MLS branch or reinitialization must retain the application-level distinction between a separate conversation, a parameter change and an authorized history disclosure. A new member's ability to decrypt future traffic does not grant access to past messages.
+Publishing material that technically enables an external join does not authorize arbitrary participants to join an Email/2 conversation. Existing administrator and invitation rules still apply. Likewise, an MLS branch or reinitialization must retain the application-level distinction between a separate conversation, a parameter change and an authorized history disclosure. A new member's ability to decrypt future traffic does not grant access to past messages.
 
 These requirements are informed by RFC9420 Sections 3.1–3.4. The MLS base audit and versioned application experiments supply separate source and implementation evidence; neither makes ordinary SMTP an MLS sequencing service.
 
@@ -290,3 +290,8 @@ Older experimental receivers persisted a rejected Commit's consumed message key.
 This remains a configured-writer experiment. It does not provide designated-writer succession or recovery after losing the final authorized administrator. Physical secret erasure and independent interoperability remain separate assurance work; endpoint-quorum ordering has its own selected contract above.
 
 :::
+
+
+## Combined suite binding
+
+The separately versioned [required conversation suite](suite-profile.md) defines its new assertion, context, invitation, ordering-wrapper and payload selections. It does not change any older version defined here. Its design is specified separately from implementation and acceptance evidence.

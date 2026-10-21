@@ -7,7 +7,7 @@ sectionNav: true
 
 # Event identifiers and exact references
 
-This chapter selects identifier and reference rules for the experimental Email Next event format. These are proposed protocol choices, not registered URI schemes or approved standards. They replace the previously open identifier grammar; the [encoding contract](event-encoding.md) selects exact-byte serialization identity, while the complete event schema and cryptographic binding remain separate work.
+This chapter selects identifier and reference rules for the experimental Email/2 event format. These are proposed protocol choices, not registered URI schemes or approved standards. They replace the previously open identifier grammar; the [encoding contract](event-encoding.md) selects exact-byte serialization identity, while the complete event schema and cryptographic binding remain separate work.
 
 ## Identifier grammar
 
@@ -54,7 +54,7 @@ An unauthenticated message cannot reserve an authenticated principal's identifie
 > [!ex] The same Message-ID on two different messages
 > Alice's original email and a modified copy might arrive with the same outer Message-ID. A client may use that value to suggest a thread, but it must not use it to decide that the modified copy is Alice's authenticated original.
 
-Email Next uses ordinary Message-ID, In-Reply-To and References fields for legacy navigation. They MUST NOT substitute for an authenticated event reference, reserve a principal's event namespace or authorize an edit. ENVID tracks a transport submission; it is not a contribution identifier. [RFC5598 §3](https://www.rfc-editor.org/rfc/rfc5598.html#section-3) provides the architectural distinction; the applicable message-format and delivery-status specifications remain authoritative for wire syntax.
+Email/2 uses ordinary Message-ID, In-Reply-To and References fields for legacy navigation. They MUST NOT substitute for an authenticated event reference, reserve a principal's event namespace or authorize an edit. ENVID tracks a transport submission; it is not a contribution identifier. [RFC5598 §3](https://www.rfc-editor.org/rfc/rfc5598.html#section-3) provides the architectural distinction; the applicable message-format and delivery-status specifications remain authoritative for wire syntax.
 
 For a newly authored correction, generate a new outer Message-ID as well as a new event identifier. Where a known original mail copy is referenced, its Message-ID may appear in ordinary reply headers. Preserve the structured reference independently. An absent or ambiguous outer identifier does not justify guessing that reference, and a valid structured reference does not make an unverified outer address authoritative.
 

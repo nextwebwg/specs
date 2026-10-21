@@ -25,12 +25,12 @@ Authenticated mail-service discovery can remove manual server configuration, but
 | 8 | Trusted reference names are essential. Manually configured names, explicit confirmation and authenticated discovery are different provenance paths. DANE integration is outside this RFC. |
 | 9 | References and their normative/informative classification reviewed. Base review does not close their dependencies. |
 | 9.1 | Certificate path validation, identifier matching, service discovery, SNI and submission dependencies require their own review. RFC6125 has successor RFC9525; do not adopt historical CN fallback without reconciliation. |
-| 9.2 | DNSSEC, URI syntax, DANE and POSH references identify relevant discovery mechanisms; citation alone does not select any for Email Next. |
+| 9.2 | DNSSEC, URI syntax, DANE and POSH references identify relevant discovery mechanisms; citation alone does not select any for Email/2. |
 | Appendix A | Replaces identity-check passages in2595,3501,3207 and5804. The3207 replacement is explicitly for Submission. ManageSieve retains its IP-address comparison reference; no general email-account identity proof is created. |
 
 | Front and end matter | Abstract, standards status, copyright, acknowledgements and author address reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 Discovery records need to preserve the original expected service identity, the discovered endpoint, and the evidence authorizing any delegation. An unauthenticated DNS answer cannot replace the expected identity with an attacker-selected hostname merely because that hostname has a valid certificate. Select the SNI name according to the applicable service profile, then validate the returned certificate against authorized reference identifiers.
 

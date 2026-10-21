@@ -23,7 +23,7 @@ All 1082 lines and 21 source pages read, including all tables/examples, referenc
 | 2 | 1.2 static FFDH MUST NOT; static ECDH SHOULD NOT; fixed DH certificate types SHOULD NOT. No inference banning RSA signatures. |
 | 3 | 1.2 FFDHE MUST NOT; 1.3 FFDHE MAY be offered because relevant configuration weaknesses differ. Service does not thereby select an FFDHE group. |
 | 4 | 1.2 RSA key exchange MUST NOT. Does not prohibit RSA signing certificates or ECDHE_RSA authentication. |
-| 5 | Registry D category references9847; no new Email Next registration. |
+| 5 | Registry D category references9847; no new Email/2 registration. |
 | 5.1 | Entire Table1 static DH suite list read; D registry changes reflect 1.2 prohibition. |
 | 5.2 | Entire Table2 static ECDH list read; D registry marker does not strengthen SHOULD NOT into MUST NOT. |
 | 5.3 | Entire Table3 DHE suite list, including PSK_DHE names, read; 1.2 prohibition. |

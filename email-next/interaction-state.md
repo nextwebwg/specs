@@ -194,8 +194,13 @@ These cases specify expected outcomes. The [answer-state experiment](evidence/RE
 
 Rendering, scanning, prefetching or focusing an interaction control MUST NOT create a submission. The user deliberately submits the exact form revision, values and audience; current authorization is checked before transmission. A readable legacy representation must not rely on an automatic network fetch to perform its action.
 
-Existing one-click unsubscribe remains a separate, narrowly defined operation. Its signed headers and fixed POST value do not authorize arbitrary form fields or establish the identity of a person holding the message. Do not reuse that operation to send an Email Next answer. The [one-click audit](audits/one-click.md) records consent, credential-isolation and redirect rules that inform a future external-action profile.
+Existing one-click unsubscribe remains a separate, narrowly defined operation. Its signed headers and fixed POST value do not authorize arbitrary form fields or establish the identity of a person holding the message. Do not reuse that operation to send an Email/2 answer. The [one-click audit](audits/one-click.md) records consent, credential-isolation and redirect rules that inform a future external-action profile.
 
 ## Reaction state
 
 The [reaction contract](reactions.md#current-reaction-view) owns additive reaction and explicit withdrawal semantics. Reactions keep their exact version targets when messages are edited. A withdrawal suppresses only fully resolved reactions belonging to its author; it does not erase records, remove later equal reactions or withdraw another operation kind. These operations do not reuse the deferred general-form withdrawal schema.
+
+
+## Combined suite binding
+
+The separately versioned [required conversation suite](suite-profile.md) defines its new assertion, context, invitation, ordering-wrapper and payload selections. It does not change any older version defined here. Its design is specified separately from implementation and acceptance evidence.

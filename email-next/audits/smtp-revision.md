@@ -62,7 +62,7 @@ sectionNav: true
 | 7.2–7.3 | Do not infer header audiences from envelope recipients. Disabled VRFY/EXPN returns uncertainty, not fabricated verification. |
 | 7.4–7.7 | Authenticate routing suggestions, assess greeting/version and trace disclosure; sensitive forwarding targets need protection. |
 | 7.8–7.9 | Operational abuse defenses and refusal policy can depart normal behavior; they do not establish application outcomes or permission to downgrade. |
-| 8–8.1.1.1 | IETF and FCFS registration models differ in review and change control; neither allocates Email Next identifiers automatically. |
+| 8–8.1.1.1 | IETF and FCFS registration models differ in review and change control; neither allocates Email/2 identifiers automatically. |
 | 8.1.1.2 | All twelve template fields reviewed. None differs from Not supplied; command-length increments and submission applicability are explicit. Legacy updates prohibited; FCFS transition follows specified process. |
 | 8.1.2–8.1.4 | Literal tags require Standards Action; via/with RFC Required; additional Received clauses IETF Review. Registry categories must not be conflated. |
 | 8.2–8.3.2 | Registry regrouping, stable old URLs and parameter-registry closure reviewed. Unchanged registries remain unchanged. |
@@ -89,8 +89,8 @@ The [live SMTP registry](https://www.iana.org/assignments/smtp), inspected on 19
 
 The revision retains a legacy 554 reference in its Postmaster exception despite its newer 521 discussion. Its final change-log date also differs from the preceding version’s heading. These observations are recorded without inventing a new protocol rule or publication date.
 
-## Consequences for Email Next
+## Consequences for Email/2
 
-The transport and identity chapters now distinguish server capability from endpoint support, routing correction from identity succession, transaction acceptance from recipient outcomes, and retry from a new contribution. Required protection survives alternate routes and compatibility failures. No Email Next SMTP keyword has been registered.
+The transport and identity chapters now distinguish server capability from endpoint support, routing correction from identity succession, transaction acceptance from recipient outcomes, and retry from a new contribution. Required protection survives alternate routes and compatibility failures. No Email/2 SMTP keyword has been registered.
 
 Remaining work includes verification of proposed registry corrections, applicable dependency audits and implementation-level interoperability validation. This textual review is not a security certification.

@@ -14,9 +14,9 @@ A rich message carries a readable text version, an HTML presentation and an expl
 
 This chapter defines the existing experimental `rich-message` operation and `mime-rich-v0` carriage. Authentication, recipient authority and exact-byte event identity still come from the enclosing [security profile](security-profile.md), not from HTML, MIME filenames or resource hashes.
 
-## Two presentations of one contribution
+## HTML presentation and compatibility text
 
-The author supplies both `text` and `html`. The HTML uses the defined [HTML/CSS presentation profile](presentation-profile.md); it is not permission to embed an unrestricted web page. The client can show the text version by preference or when safe rich presentation is unavailable.
+The author supplies both `text` and `html`. The HTML uses the defined [HTML/CSS presentation profile](presentation-profile.md); it is not permission to embed an unrestricted web page. Email/2 clients are required to support that profile. The text version supports existing clients, quotation matching, indexing and explicit simpler reading views. It may also be exposed with a diagnostic when rich presentation fails; it is not a negotiated substitute for implementing the required renderer. See [required presentation](presentation-profile.md#required-presentation).
 
 Authoring must account for the readable content of the HTML, including meaningful image descriptions, in the text version. The experiment checks whether projected text fragments and nonempty alternative text occur in whitespace-normalized plain text. This detects some omissions; it does not prove equivalent meaning, order, emphasis or accessibility. A composer should support reviewing both presentations without imposing a new confirmation dialog on every send.
 
@@ -137,3 +137,8 @@ The [private-copy profile](private-copies.md) independently versions its envelop
 ## Evidence and remaining limits
 
 The [joined rich experiment](evidence/README.md#protected-rich-body-and-scoped-images) combines signed discovery and admission, SMTP, durable protected receive, isolated HTML presentation, exact embedded pixels and deliberate attachment retrieval. Source/schema checks and local browser examples do not establish semantic equivalence of the two presentations, complete decoder fidelity, every browser or native accessibility conformance, or independent-provider interoperability.
+
+
+## Combined suite binding
+
+The separately versioned [required conversation suite](suite-profile.md) defines its new assertion, context, invitation, ordering-wrapper and payload selections. It does not change any older version defined here. Its design is specified separately from implementation and acceptance evidence.

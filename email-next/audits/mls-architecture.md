@@ -73,7 +73,7 @@ The complete [RFC9750](https://www.rfc-editor.org/rfc/rfc9750.html), including a
 | 8.5 | Considerations for Attacks Outside of the Threat Model | Physical attack scope and correct-implementation assumptions read; hardware is defense in depth. |
 | 8.6 | No Protection Against Replay by Insiders | Insiders can re-encrypt signed content with fresh generations; authenticated application event IDs must prevent repeated effects. |
 | 8.7 | Cryptographic Analysis of the MLS Protocol | All cited analysis versions/scopes read as references, not proofs of this application or implementation. |
-| 9 | IANA Considerations | No IANA actions; this architecture does not register an Email Next profile. |
+| 9 | IANA Considerations | No IANA actions; this architecture does not register an Email/2 profile. |
 | 10 | References | Complete reference list reviewed. |
 | 10.1 | Normative References | RFC5116 normative dependency remains open; RFC9420 base review complete. |
 | 10.2 | Informative References | Extension, federation, transparency and proxy draft revisions need current-status resolution; referenced research not independently audited. |
@@ -82,7 +82,7 @@ The complete [RFC9750](https://www.rfc-editor.org/rfc/rfc9750.html), including a
 
 Existing mail infrastructure can carry messages and published key material, but ordinary SMTP delivery does not provide a shared order for competing group transitions. The architecture explicitly assigns this problem to delivery services and clients. Its eventually consistent alternatives are design sketches: a local wait does not establish that every client has seen the same competing commits, and rollback retains secrets and can strand application messages or welcomes on a discarded branch.
 
-An Email Next profile must choose a coordination mechanism and state its partition behavior. Provider upgrades may supply an ordering service without becoming trusted to read content. Clients must still validate the ordered candidates: a provider cannot declare an invalid encrypted commit valid. Automatically rejoining on an invalid commit would allow an attacker to trigger recovery against stale state.
+An Email/2 profile must choose a coordination mechanism and state its partition behavior. Provider upgrades may supply an ordering service without becoming trusted to read content. Clients must still validate the ordered candidates: a provider cannot declare an invalid encrypted commit valid. Automatically rejoining on an invalid commit would allow an attacker to trigger recovery against stale state.
 
 ## Authenticated replay versus delivery duplication
 
@@ -92,7 +92,7 @@ Section 8.6 distinguishes an insider's replay from an exact duplicate ciphertext
 
 Captured erratum [8665](https://www.rfc-editor.org/errata/eid8665) is Reported, technical, against Section 8.3.3. Its original and proposed correction are identical and its note only alleges a logical contradiction. It supplies no usable replacement wording. The draft retains the requirement to replace compromised signing credentials and invalidate old authority; it does not treat the report as an approved correction.
 
-Section 8.4.3.1 calls authentication_secret a per-client secret generated for each user. RFC9420 instead defines it in the group epoch key schedule and exposes it as the epoch authenticator. Email Next follows the protocol definition: comparison establishes agreement on an epoch under a separately authenticated comparison procedure, not a permanent per-person identity credential.
+Section 8.4.3.1 calls authentication_secret a per-client secret generated for each user. RFC9420 instead defines it in the group epoch key schedule and exposes it as the epoch authenticator. Email/2 follows the protocol definition: comparison establishes agreement on an epoch under a separately authenticated comparison procedure, not a permanent per-person identity credential.
 
 Section 8.3.1.3 introduces a compromise without signature-key access, then describes an active attacker performing updates on the victim's behalf. That latter capability is not established by the stated premise alone. Recovery claims must identify the attacker's signing capability rather than importing the paragraph as an unconditional result. Likewise, broad replay/detection language in Section 8.4.2 is constrained by the explicit limitations in Sections 5.2 and 8.6.
 
@@ -100,4 +100,4 @@ Section 8.1.4's suggestion that multiple commits need not be delivered must be r
 
 ## Remaining dependency work
 
-The document references specific work-in-progress revisions of MLS extensions, federation, key transparency and MASQUE proxy documents. These references are not adopted as current or finalized by this audit. RFC5116, referenced transport/PKI specifications and the research papers require their own scoped review where used. A cited cryptographic analysis of an earlier MLS draft does not validate Email Next's application binding.
+The document references specific work-in-progress revisions of MLS extensions, federation, key transparency and MASQUE proxy documents. These references are not adopted as current or finalized by this audit. RFC5116, referenced transport/PKI specifications and the research papers require their own scoped review where used. A cited cryptographic analysis of an earlier MLS draft does not validate Email/2's application binding.

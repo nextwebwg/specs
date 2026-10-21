@@ -24,7 +24,7 @@ Sources: [RFC2392](https://www.rfc-editor.org/rfc/rfc2392.html), [errata](https:
 
 ## Addressing decisions
 
-The source requires support for long-form mid references from implementations claiming RFC2392 conformance. It also permits, but does not require, looking up cid references throughout a message store. Email Next proposes a narrower automatic resource-loading policy: only the selected related object supplies rendered resources. This restriction does not redefine either URL scheme. A mid link can be offered as deliberate navigation subject to local access controls; it must not silently embed another message or disclose whether an inaccessible message exists.
+The source requires support for long-form mid references from implementations claiming RFC2392 conformance. It also permits, but does not require, looking up cid references throughout a message store. Email/2 proposes a narrower automatic resource-loading policy: only the selected related object supplies rendered resources. This restriction does not redefine either URL scheme. A mid link can be offered as deliberate navigation subject to local access controls; it must not silently embed another message or disclose whether an inaccessible message exists.
 
 Percent escapes are decoded once into identifier characters. The verified example correction maps `cid:foo4%25foo1@bar.net` to `<foo4%foo1@bar.net>`. Decoding again would change identifier identity. A slash inside an identifier is encoded; the unescaped slash in long-form mid separates message and content identifiers. Generated examples must preserve this distinction.
 

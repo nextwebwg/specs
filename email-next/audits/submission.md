@@ -9,7 +9,7 @@ sectionNav: true
 
 ## Finding
 
-An MSA can complete or modify submitted mail. That permission does not guarantee preservation of endpoint signatures, and it does not give ordinary relays the same authority. Email Next must finish protected contributions before applying protection and distinguish provider-added security from endpoint security.
+An MSA can complete or modify submitted mail. That permission does not guarantee preservation of endpoint signatures, and it does not give ordinary relays the same authority. Email/2 must finish protected contributions before applying protection and distinguish provider-added security from endpoint security.
 
 | Section | Disposition |
 | --- | --- |
@@ -46,7 +46,7 @@ An MSA can complete or modify submitted mail. That permission does not guarantee
 | 8.7 | Alias rewriting optional. Verified3995 corrects false SMTP alias prohibition; verifier cautions replacement wording needs further care. Follow5321 rules, not blanket DNS canonicalization. |
 | 8.8 | Only specific configured address mappings; no data-independent truncation. Destination local-part constraints remain; sufficiently informed substitutions under6.5 allowed. |
 | 9 | Authorization prevents resource/name abuse; separate services enable policy distinctions. Logging and authentication weaknesses remain relevant. |
-| 10 | Submission applicability registry and587 reference updates; no new Email Next registration made. |
+| 10 | Submission applicability registry and587 reference updates; no new Email/2 registration made. |
 | 11 | Acknowledgements reviewed. |
 | 12 | References reviewed, dependency closure remains open. |
 | 12.1 | 4954 still needs full audit;5321 already reviewed; requirement vocabulary inherited. |
@@ -57,7 +57,7 @@ An MSA can complete or modify submitted mail. That permission does not guarantee
 
 ## Protection boundary
 
-The [transport contract](../transport.md) requires an Email Next submission integration to preserve protected contributions or fail visibly. This is the proposed profile's stricter rule, not a claim that RFC 6409 prohibits all modifications. Trace and routing metadata have their own rules. A provider can add its own signature without acquiring authority to recreate an endpoint signature.
+The [transport contract](../transport.md) requires an Email/2 submission integration to preserve protected contributions or fail visibly. This is the proposed profile's stricter rule, not a claim that RFC 6409 prohibits all modifications. Trace and routing metadata have their own rules. A provider can add its own signature without acquiring authority to recreate an endpoint signature.
 
 Submission acceptance can precede a later failure. Preserve the contribution and transport-attempt identities needed to correlate those results without treating every retry as a new user action. Outer Message-ID completion does not establish endpoint event identity.
 

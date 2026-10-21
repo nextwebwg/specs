@@ -19,7 +19,7 @@ Some characters are permitted only in specific surroundings. For example, a midd
 
 Join controls have their own rules: ZWJ requires a preceding virama; ZWNJ permits that context or the specified joining-type context. Each occurrence must pass independently. An undefined boundary lookup does not establish validity. The correction in [RFC8753 §6](https://www.rfc-editor.org/rfc/rfc8753.html#section-6) prevents a valid occurrence elsewhere in the label from excusing an invalid one.
 
-Registration and lookup have different contextual requirements, as described in the protocol audit. Email Next's full validated-label contract must not be weakened to whichever inputs a resolver happens to accept.
+Registration and lookup have different contextual requirements, as described in the protocol audit. Email/2's full validated-label contract must not be weakened to whichever inputs a resolver happens to accept.
 
 ## Data that still needs a pinned validation profile
 

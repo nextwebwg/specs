@@ -11,7 +11,7 @@ The complete base text of [RFC9670](https://www.rfc-editor.org/rfc/rfc9670.html)
 | --- | --- | --- |
 | 1 | Introduction | Defines a reusable sharing model, not the specific data or permission granularity and not an encryption protocol. |
 | 1.1 | Notational Conventions | Core JMAP types and abbreviated example conventions apply; examples are not standalone requests. |
-| 1.2 | Terminology | Capitalized Principal and ShareNotification are JMAP data types, not Email Next cryptographic identities. |
+| 1.2 | Terminology | Capitalized Principal and ShareNotification are JMAP data types, not Email/2 cryptographic identities. |
 | 1.3 | Data Model Overview | Principals represent people, groups or resources and may own zero or more accounts; directory management is out of scope. |
 | 1.4 | Subscribing to Shared Data | Permission differs from subscription; Session omits unsubscribed non-owned accounts and their state-change events. Absence is not revocation evidence. |
 | 1.5 | Addition to the Capabilities Object | Two capability URIs have distinct session/account placement. |
@@ -33,8 +33,8 @@ The complete base text of [RFC9670](https://www.rfc-editor.org/rfc/rfc9670.html)
 | 3.4.2 | Sorting | Created must be sortable, but creation time is not cryptographic group epoch ordering. |
 | 3.5 | ShareNotification/queryChanges | Standard queryChanges semantics inherited. |
 | 4 | Framework for Shared Data | Shareable types define subscription, current rights and sharing map; owner's rights are implicit and owner must not appear in shareWith. |
-| 4.1 | Example | Full to-do example reviewed; illustrative rights are not Email Next rights. Example mayAdmin wording about myRights differs from its shareWith mutation description; do not copy it as an authorization schema. |
-| 5 | Internationalization Considerations | Servers may transform permitted directory strings with returned changes or reject them; this does not permit rewriting authenticated Email Next event bytes. |
+| 4.1 | Example | Full to-do example reviewed; illustrative rights are not Email/2 rights. Example mayAdmin wording about myRights differs from its shareWith mutation description; do not copy it as an authorization schema. |
+| 5 | Internationalization Considerations | Servers may transform permitted directory strings with returned changes or reject them; this does not permit rewriting authenticated Email/2 event bytes. |
 | 6 | Security Considerations | Core JMAP security considerations apply; endpoint cryptographic trust remains separately required. |
 | 6.1 | Spoofing | Editable names and Unicode lookalikes can trick users into sharing; display equality is not identity equality. |
 | 6.2 | Unnoticed Sharing | A brief account compromise can create persistent sharing; membership authorization must not be inferred from existing mailbox access. |
@@ -47,15 +47,15 @@ The complete base text of [RFC9670](https://www.rfc-editor.org/rfc/rfc9670.html)
 | 7.4 | JMAP Data Type Registration for "ShareNotification" | ShareNotification type permits state-change use and no blob references. |
 | 8 | References | Complete references and author end matter reviewed. |
 | 8.1 | Normative References | JMAP core, message syntax and requirement-language dependencies remain separately scoped. |
-| 8.2 | Informative References | JMAP registry, timezone database and PRECIS references do not define Email Next identity comparison. |
+| 8.2 | Informative References | JMAP registry, timezone database and PRECIS references do not define Email/2 identity comparison. |
 
 ## Provider integration boundary
 
-JMAP sharing can support account discovery, recipient selection and a user-visible sharing interface. Preserve the server/account/Principal identity context and independently establish the Email Next identity binding. Substring email searches and editable names cannot establish that binding.
+JMAP sharing can support account discovery, recipient selection and a user-visible sharing interface. Preserve the server/account/Principal identity context and independently establish the Email/2 identity binding. Substring email searches and editable names cannot establish that binding.
 
-Subscription is a preference, not authorization. Notification history is intentionally incomplete: coalescing, eviction, expiration and group-notification suppression are permitted. An Email Next provider adapter must fetch authoritative current permissions when needed and validate cryptographic membership independently. A notification cannot add a device to an encrypted audience, and dismissing it cannot remove one.
+Subscription is a preference, not authorization. Notification history is intentionally incomplete: coalescing, eviction, expiration and group-notification suppression are permitted. An Email/2 provider adapter must fetch authoritative current permissions when needed and validate cryptographic membership independently. A notification cannot add a device to an encrypted audience, and dismissing it cannot remove one.
 
-JMAP's implicit account-owner rights also differ from Email Next's explicit author-inclusive audience set. An adapter must translate through a specified mapping rather than treating shareWith keys as the complete encryption audience. The illustrative to-do model is not an Email Next access-control schema.
+JMAP's implicit account-owner rights also differ from Email/2's explicit author-inclusive audience set. An adapter must translate through a specified mapping rather than treating shareWith keys as the complete encryption audience. The illustrative to-do model is not an Email/2 access-control schema.
 
 
 The [transport adapter contract](../mailbox-integration.md#optional-blob-and-sharing-capabilities) incorporates these extension boundaries alongside the core protocol. This documents the mapping; it does not establish a tested provider implementation.

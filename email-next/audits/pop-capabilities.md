@@ -11,7 +11,7 @@ The complete base text of [RFC2449](https://www.rfc-editor.org/rfc/rfc2449.html)
 | --- | --- | --- |
 | 1 | Introduction | CAPA advertises optional server behavior; it does not discover recipient encryption or rendering support. |
 | 2 | Conventions Used in this Document | Requirement keywords and example directions reviewed. |
-| 3 | General Command and Response Grammar | Command/response grammar reviewed; printed ASCII ranges include DEL despite printable comments, and greeting grammar omits conventional spaces. These discrepancies are not adopted as new Email Next syntax. |
+| 3 | General Command and Response Grammar | Command/response grammar reviewed; printed ASCII ranges include DEL despite printable comments, and greeting grammar omits conventional spaces. These discrepancies are not adopted as new Email/2 syntax. |
 | 4 | Parameter and Response Lengths | CAPA-supporting servers accept commands up to 255 octets including CRLF, or larger supported-extension limits; first response line remains 512 octets. |
 | 5 | The CAPA Command | CAPA works before and after authentication; tags are case-insensitive, values can change by state, and integrity-protected authentication calls for rechecking capabilities against active downgrades. |
 | 6 | Initial Set of Capabilities | Initial capabilities reviewed; APOP uses the greeting challenge rather than a duplicate CAPA tag. |
@@ -29,7 +29,7 @@ The complete base text of [RFC2449](https://www.rfc-editor.org/rfc/rfc2449.html)
 | 8.1 | Initial POP3 response codes | Initial failure classifications reviewed separately from cryptographic policy. |
 | 8.1.1 | The LOGIN-DELAY response code | LOGIN-DELAY on USER can disclose account existence and should be avoided under the described conditions. |
 | 8.1.2 | The IN-USE response code | IN-USE means authentication succeeded but the maildrop is busy; it is not evidence of lost encryption support. |
-| 9 | IANA Considerations | Capability and response-code registration requirements reviewed; no Email Next POP capability is registered by this draft. |
+| 9 | IANA Considerations | Capability and response-code registration requirements reviewed; no Email/2 POP capability is registered by this draft. |
 | 10 | Security Considerations | Capability disclosure can aid attack selection; stronger-mechanism discovery can improve security, but does not authenticate peer devices. |
 | 11 | Acknowledgments | Acknowledgments reviewed; no protocol requirements. |
 | 12 | References | Complete reference list reviewed; historical authentication, ABNF, SMTP, IMAP and registration dependencies need independent applicability review. |

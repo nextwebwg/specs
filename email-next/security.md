@@ -7,12 +7,14 @@ sectionNav: true
 
 # Security and discovery
 
-Email Next should establish encryption as part of an ordinary conversation. People keep their email addresses. Their clients find compatible devices, remember the keys they have already used, and show when a delivery would expose the conversation more widely.
+Email/2 should establish encryption as part of an ordinary conversation. People keep their email addresses. Their clients find compatible devices, remember the keys they have already used, and show when a delivery would expose the conversation more widely.
 
 > [!ex] A conversation becomes encrypted
 > Alice sends Bob an ordinary email. Her client includes a small advertisement of the features and public key material it supports. Bob's compatible client learns from that message and supplies its own material in a reply. Once their clients have enough authenticated information, later messages can use protected delivery. Bob does not have to be online whenever Alice writes.
 >
 > The first exchange does not retroactively encrypt earlier mail. Carol's older client continues to receive readable email under the sender's chosen policy.
+
+The [encryption journey](encryption-journey.md) joins these security rules into the complete client flow and identifies which steps have mechanisms, local evidence or missing integration.
 
 ## What “encrypted” means
 
@@ -172,7 +174,7 @@ An established protection expectation applies equally to both cases. If local po
 
 ::: {.details summary="How this follows RFC 9787 signature-failure guidance"}
 
-[RFC 9787 §6.4](https://www.rfc-editor.org/rfc/rfc9787.html#section-6.4) requires comparable unsigned and failed-signature messages to receive equivalent treatment. Email Next follows that rule. Its expectation warning depends on prior trusted state, not on the presence of a broken signature; this extends the expectation model discussed in [Appendix A.9](https://www.rfc-editor.org/rfc/rfc9787.html#appendix-A.9), rather than making failed signatures a separate danger category.
+[RFC 9787 §6.4](https://www.rfc-editor.org/rfc/rfc9787.html#section-6.4) requires comparable unsigned and failed-signature messages to receive equivalent treatment. Email/2 follows that rule. Its expectation warning depends on prior trusted state, not on the presence of a broken signature; this extends the expectation model discussed in [Appendix A.9](https://www.rfc-editor.org/rfc/rfc9787.html#appendix-A.9), rather than making failed signatures a separate danger category.
 
 Verification details MAY distinguish a missing signature, unavailable certificate, identity-binding failure, unacceptable algorithm and cryptographic mismatch. These diagnostics MUST NOT become a more alarming ordinary message status solely because a signature exists. Independent evidence of a different threat can still warrant its own indication.
 
@@ -194,7 +196,7 @@ An `application/pgp-keys` part supplies key material. Its presence MUST NOT repl
 
 An implementation selecting OpenPGP MIME must use its specified canonical MIME representation, including signed content headers and transfer-encoded data. It must distinguish the content's final CRLF from the CRLF that introduces the next multipart boundary. The [OpenPGP MIME audit](audits/openpgp-mime.md) records these rules and the unresolved current-algorithm dependency. This draft does not adopt the historical example hashes as acceptable generation algorithms.
 
-The [gateway audit](audits/security-gateways.md) distinguishes protected carriage from intentional conversion. Email Next does not treat conversion as equivalent protected delivery.
+The [gateway audit](audits/security-gateways.md) distinguishes protected carriage from intentional conversion. Email/2 does not treat conversion as equivalent protected delivery.
 
 :::
 
@@ -214,7 +216,7 @@ Domain signatures and provider authentication results help explain how mail was 
 
 Reports and notifications are separate disclosures. They must not leak decrypted messages, form answers, private recipient lists or access secrets. Notification delivery also must not be treated as proof that a person is online or has read a message.
 
-The disclosures below define the inherited checks and their limits. They remain separate from the endpoint checks that authorize Email Next contributions.
+The disclosures below define the inherited checks and their limits. They remain separate from the endpoint checks that authorize Email/2 contributions.
 
 ::: {.details summary="DKIM: algorithms, parsing and exact signature coverage"}
 
@@ -224,13 +226,13 @@ DKIM evidence records the signing domain, verified coverage and algorithm-policy
 
 Apply the [algorithm requirements update](audits/dkim-algorithms.md) and [Ed25519 update](audits/dkim-ed25519.md) when evaluating DKIM. RSA-SHA1 and undersized RSA signatures cannot count as valid under the updated rules. A valid signature must still cover the fields required by the operation relying on it. Ed25519-SHA256 uses Ed25519 over the DKIM SHA-256 digest; a different prehash variant or direct signature of canonicalized headers is not interchangeable.
 
-These domain-signature algorithms do not select the Email Next end-to-end encryption suite.
+These domain-signature algorithms do not select the Email/2 end-to-end encryption suite.
 
 ### Domain-signature history and parsing
 
 Keep domain-signature verification evidence separate from endpoint identity history. A DKIM selector identifies a signing-domain key lookup, not a user device. Changing or removing that lookup does not authorize a correspondent key transition. A later inability to verify an archived message must not silently erase an earlier recorded verification result or be presented as proof that the original message was forged.
 
-When interpreting a DKIM tag list, preserve its specified case and whitespace semantics. Duplicate tag names invalidate the entire list; do not choose the first or last value. An empty value differs from an omitted tag and its default. Ignore an unknown tag under DKIM's extension rules, but do not treat it as a recognized Email Next capability or authorization. This is not a substitute for completing the signature's required-field, algorithm, coverage and cryptographic checks.
+When interpreting a DKIM tag list, preserve its specified case and whitespace semantics. Duplicate tag names invalidate the entire list; do not choose the first or last value. An empty value differs from an omitted tag and its default. Ignore an unknown tag under DKIM's extension rules, but do not treat it as a recognized Email/2 capability or authorization. This is not a substitute for completing the signature's required-field, algorithm, coverage and cryptographic checks.
 
 Apply RFC6376 together with its algorithm updates; its historical SHA-1 requirements do not override those updates.
 
@@ -296,15 +298,15 @@ ARC carries signed assertions about authentication checks made by mail handlers.
 
 For example, a mailing list can report that Alice's incoming message passed its domain-authentication checks before the list changed the subject. That report does not authorize the list to change Alice's protected contribution, enroll a device for her or add recipients to her encrypted conversation.
 
-An Email Next client MUST keep ARC chain validation, trust in the reporting handler, interpretation of its authentication results and endpoint-event authentication as separate decisions. ARC validity MUST NOT repair a failed endpoint signature or supply missing authority for a key transition, audience change or interaction. An absent or invalid chain likewise does not establish that a correspondent lacks Email Next support.
+An Email/2 client MUST keep ARC chain validation, trust in the reporting handler, interpretation of its authentication results and endpoint-event authentication as separate decisions. ARC validity MUST NOT repair a failed endpoint signature or supply missing authority for a key transition, audience change or interaction. An absent or invalid chain likewise does not establish that a correspondent lacks Email/2 support.
 
 A passing ARC result does not mean every earlier message signature validates against the current message. ARC requires validation of the latest message signature and every seal; checking earlier message signatures is optional and can identify where content changed. The interface MUST NOT present chain validity as proof that the message remained unchanged from its original author.
 
-An ARC failure removes the chain's authentication benefit. It MUST NOT, by itself, invalidate an independently authenticated Email Next event or authorize an encryption downgrade. Keep ARC's failure classification separate from transport retry decisions and endpoint verification results.
+An ARC failure removes the chain's authentication benefit. It MUST NOT, by itself, invalidate an independently authenticated Email/2 event or authorize an encryption downgrade. Keep ARC's failure classification separate from transport retry decisions and endpoint verification results.
 
 A valid ARC chain is not evidence of freshness or unique delivery. The same intact chain can accompany a replayed message. Event deduplication, replay checks and interaction authorization MUST therefore operate independently of ARC results; another delivery of the same chain cannot make an action eligible to run again.
 
-ARC history can expose relay domains and network addresses. Email Next providers MUST NOT add decrypted content, private audience membership, device credentials or access secrets to ARC assessment fields or diagnostic reports. The ability to carry an authenticated assertion does not authorize disclosing its contents to later handlers. HTML sanitization and resource-loading restrictions apply equally to messages with passing ARC results.
+ARC history can expose relay domains and network addresses. Email/2 providers MUST NOT add decrypted content, private audience membership, device credentials or access secrets to ARC assessment fields or diagnostic reports. The ability to carry an authenticated assertion does not authorize disclosing its contents to later handlers. HTML sanitization and resource-loading restrictions apply equally to messages with passing ARC results.
 
 These boundaries follow ARC's distinction between verifiable testimony and independently reproducible authentication evidence in [RFC8617 §§2–3](https://www.rfc-editor.org/rfc/rfc8617.html#section-2).
 
@@ -376,7 +378,7 @@ Aggregate data can reveal communication patterns even when it contains no messag
 
 Report ingestion must treat reported identities and outcomes as assertions from the report producer. Malformed reports, fabricated results and excessive traffic must not mutate correspondent identity, replace keys or trigger repeated conversation actions. A reporting service is not a capability-discovery service.
 
-These are proposed Email Next confidentiality requirements informed by RFC9989 Sections 10 and 11. They do not claim that DMARC itself prohibits every such disclosure. The [aggregate-report audit](audits/dmarc-aggregate.md) and [failure-report audit](audits/dmarc-failure.md) record their complete base-text reviews. ARF dependencies, redaction behavior and implementation verification remain open.
+These are proposed Email/2 confidentiality requirements informed by RFC9989 Sections 10 and 11. They do not claim that DMARC itself prohibits every such disclosure. The [aggregate-report audit](audits/dmarc-aggregate.md) and [failure-report audit](audits/dmarc-failure.md) record their complete base-text reviews. ARF dependencies, redaction behavior and implementation verification remain open.
 
 ### Historical report interpretation
 
@@ -410,7 +412,7 @@ A saved draft remains private to the author's authorized devices until sending, 
 
 ### Authenticated metadata and durable send state
 
-Authenticated metadata is not necessarily confidential. An MLS PrivateMessage exposes its group identifier, epoch, content type and authenticated_data field outside its encrypted content. An Email Next binding MUST NOT place private recipient lists, form answers, access tokens or sensitive subject text in that field. Routing metadata and protocol identifiers must have an explicit disclosure model even when their integrity is protected.
+Authenticated metadata is not necessarily confidential. An MLS PrivateMessage exposes its group identifier, epoch, content type and authenticated_data field outside its encrypted content. An Email/2 binding MUST NOT place private recipient lists, form answers, access tokens or sensitive subject text in that field. Routing metadata and protocol identifiers must have an explicit disclosure model even when their integrity is protected.
 
 Successful decryption alone must not authorize an interaction. Required sender signatures, group-context checks, membership checks and commit confirmation must succeed before the corresponding content changes application state. The applicable wire format and sender role determine those checks; a public handshake is not an encrypted application message.
 
@@ -440,15 +442,27 @@ A recoverable sent archive and a retry queue have different purposes. A sender-o
 
 These boundaries incorporate [RFC9787 Sections 9.1 and 9.5](https://www.rfc-editor.org/rfc/rfc9787.html#section-9.5). They specify required behavior; a multi-device draft synchronization implementation is not yet validated.
 
+### Protecting secrets on a device
+
+Clients MUST use an operating-system credential store, or an equivalently protected platform facility, for persistent private credentials and the keys that protect local secret state. Ordinary application preferences, browser local storage, logs and support exports MUST NOT contain usable private credentials. Large encrypted stores may hold conversation state; protecting their keys does not replace integrity checks, durable protocol transactions or rollback detection.
+
+Device-binding private keys MUST remain specific to their enrolled device. Password-manager synchronization, operating-system migration and restoration of application files MUST NOT activate a second device under the same binding. A replacement device creates its own keys and completes authorized enrollment. Archive recovery material is a separate, deliberately portable capability under the [archive contract](encrypted-archives.md); possessing it does not authorize enrollment or administration.
+
+A client MUST distinguish a temporarily locked or unavailable credential store from a missing, invalid or revoked credential. While required secrets are unavailable, it holds the affected operation and preserves its original protocol deadlines. It MUST NOT generate a replacement identity, downgrade delivery, refresh an expired handshake or discard readable history to bypass that condition. Unlocking resumes validation against current authority before any effect.
+
+Automatic background setup is subject to the platform's key-access policy. A client may use a platform-supported background-access class for the narrowly scoped secrets needed by an already authorized automatic operation. It MUST NOT weaken protection of unrelated administrative or recovery credentials to make that operation run. Hardware-backed key operations SHOULD be used where available and compatible with the selected algorithm; hardware availability MUST NOT silently change the interoperable cryptographic suite.
+
+Credential-store protection does not remove the [secret-retirement requirements](setup-secret-retirement.md). Consumed transport secrets must cease to be usable even if the enclosing store remains available. Logical deletion is not a promise to physically erase flash storage or remote snapshots. A client MUST NOT describe protected storage as preventing a compromised, authorized process from reading every secret it can legitimately unlock.
+
 ### Delayed delivery and retained history
 
-Retaining a readable conversation archive is a separate storage decision from retaining transport decryption secrets. An MLS client must delete consumed secrets as required by the protocol, including ancestor secrets from which consumed message keys can be recovered. It may retain permitted unconsumed keys for delayed messages only under the profile's explicit retention policy. Keeping an epoch's root secret indefinitely to make mailbox replay convenient defeats that deletion requirement.
+Retaining a readable conversation archive is a separate storage decision from retaining transport decryption secrets. An MLS client must delete consumed secrets as required by the protocol, including ancestor secrets from which consumed message keys can be recovered. It may retain permitted unconsumed keys for delayed messages only under the profile's explicit retention policy. Keeping an epoch's root secret indefinitely to make mailbox replay convenient defeats that deletion requirement. The [setup-secret retirement contract](setup-secret-retirement.md) distinguishes consumed-key erasure from unused-key timers and requires cleanup/restart handling without deleting readable history.
 
 If the product retains decrypted history, it must protect that archive separately and describe its exposure honestly. Forward secrecy of transport keys does not protect plaintext history on a compromised device or in an accessible backup. A history transfer to a new device or participant is a new authorized disclosure, not restoration of a deleted MLS key by implication.
 
-The profile must distinguish a message that cannot be decrypted because its permitted retention window ended from a message that failed authentication. Neither condition authorizes plaintext retransmission. Recovery and resend flows must preserve the sender's selected delivery policy and the current authorized audience. The [bounded-retention experiment](evidence/README.md#bounded-secret-retention-and-delayed-application-delivery) implements an explicit local policy for permitted delayed processing and secret retirement. The [managed restore path](identity-lifecycle.md#import-history-then-reconnect) imports history without activating old keys, then requires fresh enrollment or an explicit new identity. Protected archive transfer and encrypted backup recovery remain separate contracts. These requirements are informed by RFC9420 Section 9.
+The profile must distinguish a message that cannot be decrypted because its permitted retention window ended from a message that failed authentication. Neither condition authorizes plaintext retransmission. Recovery and resend flows must preserve the sender's selected delivery policy and the current authorized audience. The [bounded-retention experiment](evidence/README.md#bounded-secret-retention-and-delayed-application-delivery) implements an explicit local policy for permitted delayed processing and secret retirement. The [managed restore path](identity-lifecycle.md#import-history-then-reconnect) imports history without activating old keys, then requires fresh enrollment or an explicit new identity. The [encrypted archive profile](encrypted-archives.md) now defines portable historical recovery independently of this transport-retention path. The [history-transfer contract](history-transfer.md) now specifies recipient-specific history disclosure separately from both archive recovery and live MLS state. These requirements are informed by RFC9420 Section 9.
 
-This is a transport-secret lifecycle choice, not a rule that credential expiry makes readable history disappear. [RFC9787 §9.2](https://www.rfc-editor.org/rfc/rfc9787.html#section-9.2) distinguishes expiry for new encryption from access to existing messages. Email Next preserves that distinction: a readable retained archive remains history, while new conversation effects require current authority. MLS's deletion rules can make previously unprocessed ciphertext unreadable after its retention window; a separate protected archive is how a client preserves already received history without indefinitely retaining those transport secrets.
+This is a transport-secret lifecycle choice, not a rule that credential expiry makes readable history disappear. [RFC9787 §9.2](https://www.rfc-editor.org/rfc/rfc9787.html#section-9.2) distinguishes expiry for new encryption from access to existing messages. Email/2 preserves that distinction: a readable retained archive remains history, while new conversation effects require current authority. MLS's deletion rules can make previously unprocessed ciphertext unreadable after its retention window; a separate protected archive is how a client preserves already received history without indefinitely retaining those transport secrets.
 
 :::
 
@@ -458,7 +472,7 @@ This is a transport-secret lifecycle choice, not a rule that credential expiry m
 
 A comparison of MLS epoch authenticators verifies agreement for that group epoch through the comparison procedure used. It MUST NOT create a permanent verified-person badge or imply that later membership changes have been independently verified. The interface must distinguish verified account-key continuity from a checked snapshot of group state. The profile must specify what happens to that indication when the epoch changes.
 
-Any exported secret used for attachments or another Email Next function must have a distinct purpose label and context, with its source group and epoch recorded. It must not be reused as an unrelated authentication token or treated as valid for a changed audience merely because the conversation identifier is unchanged. Retention of resumption secrets and refresh of exported values require explicit limits and transition rules in the security profile.
+Any exported secret used for attachments or another Email/2 function must have a distinct purpose label and context, with its source group and epoch recorded. It must not be reused as an unrelated authentication token or treated as valid for a changed audience merely because the conversation identifier is unchanged. Retention of resumption secrets and refresh of exported values require explicit limits and transition rules in the security profile.
 
 Adding an external pre-shared key does not, by itself, establish stronger forward secrecy or post-compromise security. Its generation, distribution, storage and lifetime are part of the security claim. These boundaries follow RFC9420 Sections 8.4–8.7. Exported-secret applications, external pre-shared keys and human epoch-authenticator comparisons need separately selected bindings before interoperable support can be claimed.
 

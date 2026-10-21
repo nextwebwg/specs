@@ -20,7 +20,7 @@ Authenticated decryption first rejects unsupported lengths, including an incorre
 | Requirement | Consequence for the selected profile |
 | --- | --- |
 | Plaintext at most 2³⁹−256 bits per invocation | Equivalent to 2³⁶−32 octets. Smaller protocol and library limits still apply. |
-| AAD at most 2⁶⁴−1 bits, with byte-aligned input | Equivalent to at most 2⁶¹−1 whole octets; this is not an Email Next message-size allowance. |
+| AAD at most 2⁶⁴−1 bits, with byte-aligned input | Equivalent to at most 2⁶¹−1 whole octets; this is not an Email/2 message-size allowance. |
 | One fixed supported tag length per key | The selected 128-bit tag is not negotiable down to a short tag by an individual message. |
 | Nonce uniqueness across all instances using a key | Device copies, concurrent writers, restore and rollback must not repeat encryption inputs under a previously used nonce and key. |
 | Construction-dependent invocation limits | Section 8.3's global 2³² encryption-invocation cap applies unless the implementation exclusively uses the specified deterministic 96-bit IV construction. That exception does not remove the deterministic fields' lifetime limits or other protocol security bounds. |

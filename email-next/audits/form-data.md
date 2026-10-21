@@ -5,7 +5,7 @@ sectionNav: true
 
 # Multipart form data audit
 
-RFC8058's recommended one-click unsubscribe encoding depends on [RFC7578](https://www.rfc-editor.org/rfc/rfc7578.html). Encoding does not authorize submission or identify the person submitting it. Email Next's structured conversation replies and service-answer JSON do not become arbitrary HTML forms.
+RFC8058's recommended one-click unsubscribe encoding depends on [RFC7578](https://www.rfc-editor.org/rfc/rfc7578.html). Encoding does not authorize submission or identify the person submitting it. Email/2's structured conversation replies and service-answer JSON do not become arbitrary HTML forms.
 
 **Coverage:** complete fifteen-page base text, including examples, references and appendices. Current official metadata lists no updates or successor. All four current errata were read and reconciled with the captured records. No encoder, parser or deployed endpoint was tested.
 

@@ -6,7 +6,7 @@ sectionNav: true
 
 # Validation evidence and remaining coverage
 
-Email Next has executable local evidence for selected message, identity, transport and rendering behavior. It does not yet have two independently implemented clients exchanging the complete protocol through deployed email providers. Passing component tests does not establish security assurance or complete conformance.
+Email/2 has executable local evidence for selected message, identity, transport and rendering behavior. It does not yet have two independently implemented clients exchanging the complete protocol through deployed email providers. Passing component tests does not establish security assurance or complete conformance.
 
 ## Recorded checks
 
@@ -16,7 +16,7 @@ These results describe local feature branches, not a published release. The [exp
 | --- | --- | --- |
 | Specification compilation | 254 chapters compile | Markdown compiles through the shared compiler; this is not a semantic audit |
 | Local vault writer accounting | Seven focused tests pass; six native authorization client tests pass | Includes real process death after a committed reservation, shared process budget, rollback/restart, explicit legacy migration and rejection outside an application transaction; restored-owner continuity remains an operational assumption |
-| Repository Node gate | 370 tests pass: 34 compiler, 36 existing feature-profile, 300 Email Next | Covered compiler and experimental models pass; Python, Rust and browser checks run separately |
+| Repository Node gate | 370 tests pass: 34 compiler, 36 existing feature-profile, 300 Email/2 | Covered compiler and experimental models pass; Python, Rust and browser checks run separately |
 | Python integration | 1,038-case run: 1,034 passed, four retry-test stub failures; all 37 sender/association tests pass after correcting that stub | Resource warnings are errors. The four failures were repeated uses of one test that blocked the new read-only state inspection; it now permits inspection while rejecting a second encryption or transport. Implementation inputs are unchanged after the complete run; the complete command was not rerun after this test-only correction. |
 | Conversation interface | Raw and signed-rich browser flows pass; four focused message-reaction/compatibility checks pass | Right-edge selectors use exact per-message targets, protected answers/attachments retain authenticated reactions, ordinary reactions use RFC9078 MIME, unsupported protected rich targets remain unavailable; real local protected answers, reactions, ordinary replies retained in arrival order, contact/group names, Contacts/Other separation, recent-activity ordering, separate drafts, conservative quoted-history collapse, exact originals, rich rendering and narrow-screen layout; session-only timeline, not a persistent mailbox client |
 | Validated proposal observations | 34 integrated checks pass | Covers configured and signed-discovery holds, actual staged proposal lists, restart, certified carrier advancement, sender continuity, bound copies and pre-DATA interruption; raw wrapper receipt alone has no hold effect |
@@ -37,7 +37,7 @@ These results describe local feature branches, not a published release. The [exp
 | Optional human verification | 68 focused tests and the trusted confirmation-screen browser checks pass | Exact comparison evidence, strict roster delivery, protected reply and expiry/withdrawal checks; not provider-certified mailbox ownership |
 | Browser isolation | 21 Chromium check groups plus 3 nonce tests pass | Message-channel bootstrap, isolated rendering and lifecycle checks; not a security sandbox certification |
 | Inline and bidirectional geometry | 4 Chromium cases pass at two widths and both parent directions | Fragment edges, isolation, opposite-direction spans and combining-pair line placement; not painted-glyph or full Unicode conformance |
-| Static site generation | 227 Email Next chapters and 1,210 section links checked | Generated routes, local links and source downloads, including eight acceptance manifests and their reports; draft excluded from homepage proposal navigation |
+| Static site generation | 227 Email/2 chapters and 1,210 section links checked | Generated routes, local links and source downloads, including eight acceptance manifests and their reports; draft excluded from homepage proposal navigation |
 
 The complete integration run executed 1,038 tests in 1,395.448 seconds using configured parse5 and shared Rust workers, with resource warnings treated as errors. Four repeated retry cases failed because their test stub prohibited every crypto-worker call, including the newly required read-only current-state inspection. The corrected test permits only inspection and still verifies exact ciphertext, unchanged checkpoint and no transport. All 37 sender/association tests then passed in 10.230 seconds. Only that test file changed after the full run; no implementation input changed. These are separate recorded results, not a clean full-command rerun.
 

@@ -34,4 +34,4 @@ Both captured entries are verified. [Erratum1509](https://www.rfc-editor.org/err
 
 ## Fallback and identity
 
-An ASCII alternate address is not proof of identity continuity. The historical specification explicitly allows the alternate to reach another mailbox or person. Email Next must not copy capability history, verified key bindings or protected content to that address solely because an old header paired them. Current RFC6531/RFC6532 syntax and recipient policy control new delivery. A display-only historical parser may expose the original address pair as unverified source material without making it a reply or encryption target.
+An ASCII alternate address is not proof of identity continuity. The historical specification explicitly allows the alternate to reach another mailbox or person. Email/2 must not copy capability history, verified key bindings or protected content to that address solely because an old header paired them. Current RFC6531/RFC6532 syntax and recipient policy control new delivery. A display-only historical parser may expose the original address pair as unverified source material without making it a reply or encryption target.

@@ -6,10 +6,10 @@ sectionNav: true
 
 # Connecting a service account
 
-A service button needs two permissions: permission to act as an Email Next principal, and permission to act on the service account. Signing in supplies the second. A fresh device proof links the two without treating an email address or OAuth subject as an Email Next identity.
+A service button needs two permissions: permission to act as an Email/2 principal, and permission to act on the service account. Signing in supplies the second. A fresh device proof links the two without treating an email address or OAuth subject as an Email/2 identity.
 
 > [!ex] Connect once, answer later
-> Bob connects his booking account through his email client's trusted service setup. He signs in through the system browser and approves linking his selected Email Next principal. Later, an accepted “Reserve a seat?” question can use that grant when Bob presses its button. Receiving or opening the question does not start sign-in, link an account or submit an answer.
+> Bob connects his booking account through his email client's trusted service setup. He signs in through the system browser and approves linking his selected Email/2 principal. Later, an accepted “Reserve a seat?” question can use that grant when Bob presses its button. Receiving or opening the question does not start sign-in, link an account or submit an answer.
 
 This is an experimental native-client authorization profile for a service whose authorization server and resource server share an authoritative grant store. It selects authorization code with S256 PKCE and opaque bearer tokens. The [service-answer contract](service-answers.md) still defines actions, exact submissions and receipts. The profile does not supply a general identity provider, infer mailbox ownership or claim complete OAuth-server conformance.
 

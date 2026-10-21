@@ -3,16 +3,17 @@ title: Client and server adoption
 order: 16
 blurb: implementation stages · acceptance tools · interoperability
 sectionNav: true
+navGroup: guide
 ---
 
 # Client and server adoption
 
-Email Next should become useful before every provider upgrades. A client can improve conversation reading on its own. Two compatible clients can exchange richer contributions over ordinary email. Server support then makes discovery, delivery and synchronization more reliable.
+Email/2 should become useful before every provider upgrades. A client can improve conversation reading on its own. Two compatible clients can exchange richer contributions over ordinary email. Server support then makes discovery, delivery and synchronization more reliable.
 
 > [!ex] Start with the account people already use
 > A client first makes an existing inbox easier to read. Later, two upgraded clients exchange a question and a button answer while a third person continues replying through ordinary email. Their provider can then add supported discovery and control routing without taking possession of their decryption keys.
 
-This chapter describes proposed implementation paths and the evidence needed to advance along them. Implementations advertise specific supported profiles, not a single “Email Next compatible” flag. This chapter announces no vendor commitments or available certification.
+This chapter describes proposed implementation paths and the evidence needed to advance along them. Implementations advertise specific supported profiles, not a single “Email/2 compatible” flag. This chapter announces no vendor commitments or available certification.
 
 | Implementer | Practical starting point | What is available now |
 | --- | --- | --- |
@@ -24,9 +25,19 @@ The [available starting material](#available-starting-material) distinguishes th
 
 The [joined conversation demonstration](evidence/README.md#joined-question-and-ordinary-reply) supplies a concrete local integration target: a protected question, a browser answer button, actual encrypted reply delivery, and an ordinary email reply in one readable conversation. Its contact-name conversation list separates known contacts from other participants, orders threads by recent activity and keeps rich messages in an open layout. Ordinary replies retain their original email and collapse only uniquely matched fixed-line quotations. Its accounts and application agreement are explicitly configured; it is a development fixture, not a complete client acceptance harness.
 
+## No-cost participation
+
+Two-way encryption depends on the recipient having a usable compatible client. The adoption target is a maintained client available at no cost for ordinary protected conversation, so receiving an invitation does not introduce a purchase decision. A paid-only client cannot assume correspondents will buy software merely to reply privately.
+
+This is a proposed ecosystem adoption strategy, not a wire-protocol condition or a claim that a free implementation is already available. It does not require every implementation or service to use the same business model or software license. Other compatible clients must be able to participate through the same published protocol and acceptance cases.
+
+Price is only one barrier. Installation, mailbox connection, first contact, adding a device and recovery must also be understandable. The [encryption journey](encryption-journey.md) provides the scenarios to test. An ordinary or hosted alternative remains a disclosed compatibility choice, not a substitute for making protected participation accessible.
+
 ## Email client adoption
 
-A client can deliver the first benefit alone: make existing mail easier to follow. It can then add predictable rich presentation, protected exchanges and structured answers over the same email account. None of these steps requires a provider control service. Each advertised capability still needs its complete profile and dependencies.
+The [client behavior contract](client-behavior.md) defines the target of these implementation stages, including people and thread lists, explicit composition targets, reactions, restart behavior and protection outcomes.
+
+A client can deliver the first benefit alone: make existing mail easier to follow. It can then add predictable rich presentation, protected exchanges and structured answers over the same email account. None of these steps requires a provider control service. Each advertised capability still needs its complete profile and dependencies. These are development stages, not separate conformance levels: an Email/2 reading client must implement the [required HTML/CSS presentation](presentation-profile.md#required-presentation). A useful legacy-mail reader or text-only prototype does not yet meet that requirement.
 
 | Release step | What the user gets | Starting point and acceptance check |
 | --- | --- | --- |
@@ -88,7 +99,7 @@ This stage gives a provider a concrete contribution to interoperability without 
 
 ### Add account services independently
 
-The [provider negotiation proposal](provider-negotiation.md) defines service roles; its [configured wire profile](provider-control.md) defines the experimental exchange. Start with the [configured HTTPS adapter](evidence/README.md#configured-provider-https-adapter), then reproduce [discovery through encrypted mail](evidence/README.md#provider-discovery-to-encrypted-mail). These join local service authorization, device evidence, admission and message exchange. They do not provide public credential issuance, prove mailbox ownership or demonstrate a deployed provider integration.
+The [provider negotiation proposal](provider-negotiation.md) defines service roles; its [configured wire profile](provider-control.md) defines the experimental exchange. Start with the [configured HTTPS adapter](evidence/README.md#configured-provider-https-adapter), then reproduce [discovery through encrypted mail](evidence/README.md#provider-discovery-to-encrypted-mail). These join local service authorization, device evidence, admission and message exchange. The separate [discovery contract](provider-discovery.md) adds domain delegation and native public-client registration. These experiments do not provide public queue-credential issuance, prove mailbox ownership or demonstrate a deployed provider integration. [Automatic first-contact setup](first-contact-setup.md) requires an additional public bootstrap binding before a provider can offer encrypted first messages to previously unknown peers.
 
 The [provider/admission report](evidence/README.md#configured-provider-and-admission-report) is an available, bounded acceptance entry point. It records local checks and explicitly untested deployment scenarios. Extend it with the staging adapter and actual observations; do not turn a local pass into a deployment claim.
 
@@ -107,7 +118,7 @@ The intended gains are fewer damaged protected deliveries, less negotiation clut
 Start with one implemented profile and reproduce its report before writing an adapter for your client or server. The [implementation-claim rules](conformance.md) define what the result supports. Passing local checks establishes only the cases named by that manifest; it does not certify a client, establish mailbox ownership or demonstrate independent interoperability.
 
 1. Choose a manifest below and follow its linked setup instructions. Preserve the selected profile and manifest revision rather than silently replacing an older wire version with a newer one.
-2. Run the [offline acceptance runner](evidence/README.md#offline-acceptance-report) with `--manifest` and retain its JSON report, source hashes and scenario results. The default manifest is the button example. For example, from the Email Next directory after configuring the documented test dependencies:
+2. Run the [offline acceptance runner](evidence/README.md#offline-acceptance-report) with `--manifest` and retain its JSON report, source hashes and scenario results. The default manifest is the button example. For example, from the Email/2 directory after configuring the documented test dependencies:
 
    ```sh
    python3 evidence/run_acceptance.py --manifest acceptance-onboarding.json

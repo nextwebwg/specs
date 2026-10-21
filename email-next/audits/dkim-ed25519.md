@@ -30,7 +30,7 @@ sectionNav: true
 
 | Front/end matter | Abstract, status, copyright, acknowledgements where present, and author address reviewed. |
 
-## Email Next consequence
+## Email/2 consequence
 
 DKIM evidence must retain the signing domain, validated signature coverage and applicable algorithm policy. Do not convert a domain signature into proof that a person owns a particular encryption key. One-click actions still require the relevant headers to be covered by a valid acceptable signature.
 

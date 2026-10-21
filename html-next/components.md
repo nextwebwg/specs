@@ -749,8 +749,8 @@ Moving a component's rendered nodes with `<portal>` keeps that logical ancestry.
 
 ## Columns as markup {#columns-as-markup}
 
-> [!note] Proposed, for review
-> This section is a proposal for a later Level. Its [open questions](#columns-open-questions) are listed at the end.
+> [!note] Level 1, proposed for review
+> Columns as markup is part of the Level&nbsp;1 component language, beside [scoped slots](#scoped-slots). Its [follow-ups](#columns-follow-ups) are listed at the end.
 
 A data table is easiest to read and change when its columns are written as markup: each column says what its header is and how its cells look, and the table renders a real row per item with one cell per column. PrimeVue's DataTable and Column popularized this shape.[^14] The table renders every row itself, because screen readers announce a table by its rows, and row selection, hover, and keyboard navigation target a row element.
 
@@ -872,10 +872,10 @@ A page writes the columns as the table's children:
 - A slot declaration has either `accepts` or `<prop>` children: with `accepts`, its content is component instances, and with props, it is templates.
 - A declaration that omits `accepts` takes any content, as an ordinary slot does.
 
-**`as` names the list.** `as="columns"` names a read-only list with one entry per child element, in order. An entry is a stable read-only object for that instance's lifetime, holding its resolved props reactively. So `$key="$column"` keys by identity, and a keyed reorder moves the entries and the cells rendered for them.
+**`as` names the list.** `as="columns"` names a read-only list with one entry per child element, in order. An `as` list holds the slot's children wherever it is read: implementations collect the slot's children before rendering the template, so `$columns` is complete in every expression that reads it, in every target. An entry is a stable read-only object for that instance's lifetime, holding its resolved props reactively. So `$key="$column"` keys by identity, and a keyed reorder moves the entries and the cells rendered for them.
 
 - `as` works on the default slot and on named slots: `<slot name="actions" as="actions">`.
-- When `accepts` is omitted, a component instance's entry holds its props, and a native element's entry is empty.
+- An entry holds the props its child declares. A native element declares none, so its entry is empty; this matters when `accepts` is omitted.
 - An `as` name joins the component's [flat declaration namespace](/declarative-components/expressions#the-component-layer-is-flat-and-collisions-are-errors), so `as="rows"` beside `<prop name="rows">` is an error.
 
 ### Columns render where they are written {#columns-render}
@@ -938,18 +938,17 @@ The `of` index connects placed content to the instance that owns it, a link DOM 
 
 ### Framework targets {#columns-frameworks}
 
-Columns are real component instances with real roots, so a generated column mounts like any component and registers with its table through the target's context. The generated table orders its entries by the document position of the columns' `<th>` roots, and renders the same DOM, under [target equivalence](/declarative-components/targets). Server rendering and framework targets complete the list when the default outlet renders. A table's header row comes before its body, so every read of `$columns` there sees every column.
+Columns are real component instances with real roots, so a generated column mounts like any component and registers with its table through the target's context. The generated table orders its entries by the document position of the columns' `<th>` roots, and renders the same DOM, under [target equivalence](/declarative-components/targets). Converters and server renderers collect the columns from the invocation's content before rendering, so `$columns` is complete wherever the table reads it.
 
 ### Accessibility {#columns-accessibility}
 
 The output is a real `<table>` with `<th scope="col">` header cells and a `<tr>` per row, so row and column navigation and header association come from HTML. A column's cell content fills one `<td>` that the table owns, so the table's structure stays the table's.
 
-### Open questions {#columns-open-questions}
+### Follow-ups {#columns-follow-ups}
 
-- **Reads before the outlet.** In server rendering and framework targets, the list fills as the default outlet renders, so a read of `$columns` earlier in tree order sees it empty. Should a build report that read as an error, or should implementations collect the children first?
-- **Level.** Level&nbsp;1 or Level&nbsp;2.
-
-Follow-ups: typing a column's `row` from the table's `rows` type, so `$row.price` is checked; a `let:`-style rename of a slot prop for the consumer; and passing entries to other components.
+- Typing a column's `row` from the table's `rows` type, so `$row.price` is checked.
+- A `let:`-style rename of a slot prop for the consumer.
+- Passing entries to other components, and using `of` there.
 
 ## Composition
 

@@ -146,9 +146,8 @@ interface ComponentHost<
 
   /** Elements a consumer projected, by slot name, in order. Empty while the slot
    *  shows its fallback. A <template slot> contributes the elements it renders,
-   *  only while its slot renders. The only way to enumerate projected content.
-   *  Proposed: an accepting slot lists its entries, one record of props per instance. */
-  readonly slots: Readonly<Record<string, readonly Element[] | readonly Readonly<Record<string, unknown>>[]>>;
+   *  only while its slot renders. The only way to enumerate projected content. */
+  readonly slots: Readonly<Record<string, readonly Element[]>>;
 
   /** Run callback on a lifecycle or component event. Returns an unsubscribe. */
   on(type: string, callback: EventListener): () => void;
@@ -170,13 +169,13 @@ interface ComponentHost<
 | On `host` | Does | Native anchor |
 | --- | --- | --- |
 | `host.root` | The component's root element, whose connection owns this controller's lifetime. | `:host` / the custom-element instance |
-| `host.state` | Read local mutable state, read-only computed state, and inherited `<context>` values. Only declared `<state>` entries are writable. Props and data resources are absent. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
+| `host.state` | Read local mutable state, read-only computed state, inherited `<context>` values, and, proposed, each slot's read-only [`as` list](/declarative-components/components#slot-accepts-as). Only declared `<state>` entries are writable. Props and data resources are absent. | `ElementInternals` state[^2] (generalized from boolean `:state()` flags to values) |
 | <code>host.reset(<var>name</var>)</code> | Return a state to its declared `value`, or every state when no name is given. See [Resetting state](#resetting-state). | A form's `reset()`, which returns each control to its default |
 | <code>host.data.<var>name</var></code> | Read a declared `<data>` resource, including its `.pending`, `.value`, `.error`, and `.ok` fields. The resource is read-only. | The declared resource and its native fetch lifetime |
 | <code>host.scripts.<var>name</var></code> | Read a [declared script](/declarative-components/components#declared-scripts)'s status, wait for it with `ready`, or insert it now with `load()`. | The inserted `<script>` element's `load` and `error` events |
 | <code>host.props.<var>name</var></code> | Inspect a caller-supplied prop's accepted value, latest direct input, and validity. This is the controller's only path to a declared prop. | An HTML control separates its input and validity from the value its consumers read[^10] |
 | <code>host.refs.<var>name</var></code> | The element declared with <code>$ref="<var>name</var>"</code>, or the list of them when that name sits inside an iteration. | captured at lowering (see below) |
-| <code>host.slots.<var>name</var></code> | The elements a consumer projected into that slot, in order; empty while the slot shows its fallback. For a consumer's `<template slot>`, the elements the template renders while the slot renders, and none while it does not ([content that renders on demand](/declarative-components/components#content-that-renders-on-demand)). Proposed: for an [accepting slot](/declarative-components/components#accepting-slots), its entries, the same list as `$slots.name`. | `assignedElements()`[^9] |
+| <code>host.slots.<var>name</var></code> | The elements a consumer projected into that slot, in order; empty while the slot shows its fallback. For a consumer's `<template slot>`, the elements the template renders while the slot renders, and none while it does not ([content that renders on demand](/declarative-components/components#content-that-renders-on-demand)). Proposed ([columns as markup](/declarative-components/components#slot-of)): for a slot declared with `as`, its children's roots in list order; for a slot a parent places with `<slot of>`, every rendered instance of its content, in document order. | `assignedElements()`[^9] |
 | <code>host.on(<var>event</var>, fn)</code> | Run `fn` on a lifecycle or component event; `connect`, `disconnect`, and [`responder`](#late-responders) included. | `connectedCallback`/`disconnectedCallback`[^1] |
 | `host.effect(fn)` | Run `fn` while connected and re-run it whenever a state path it read changes. Returns an early-stop function; connection also owns cleanup. | TC39 Signals `Watcher`[^4] plus DOM connection |
 | <code>host.dispatch(<var>event</var>, detail)</code> | Raise a component event a parent can catch with `on:event`. | `CustomEvent` / `dispatchEvent`[^8] |

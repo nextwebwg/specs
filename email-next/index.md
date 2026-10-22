@@ -14,8 +14,8 @@ Email that feels like a conversation, across the addresses and providers people 
 - [Why another encrypted-email standard?](#why-another-encrypted-email-standard)
 - [How the conversation works](#how-the-conversation-works)
 - [Follow the encryption journey](encryption-journey.md)
-- [For email client developers](adoption.md#email-client-adoption)
-- [For email server and service developers](adoption.md#email-server-adoption)
+- [For email client developers](adoption.md#email-client-adoption) — use existing mailboxes and discover protection before sending.
+- [For email server and service developers](adoption.md#email-server-adoption) — start with a small discovery service alongside the existing mail server.
 
 For implementation, start with the [current protected client baseline](suite-profile.md#current-client-baseline): one asynchronous agreement with explicit reply destinations, required rich rendering, a common readable vocabulary and independently implemented interactions. Older numbered encodings retain their exact compatibility scope; no complete implementation or standards adoption is claimed.
 

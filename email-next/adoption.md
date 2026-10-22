@@ -79,9 +79,19 @@ These sources are implemented local fixtures and reference components, not a fin
 
 ## For email server and service developers {#email-server-adoption}
 
+### Start with discovery alone
+
 The smallest active upgrade is [Setup discovery](encryption-discovery.md): put a small HTTPS sidecar beside the existing mail service, backed by operator/account opt-in records. It answers whether support is advertised for the selected recipient. Existing SMTP, IMAP and message storage can remain in place. The service holds no decryption keys and needs no provider-control OAuth flow or setup queue. A positive answer is intentionally discoverable; a negative answer combines unsupported, nonexistent and unadvertised accounts.
 
+| What the service answers | What the client does |
+| --- | --- |
+| Setup is advertised | Tries an enabled setup path and validates the actual keys and authority before sending encrypted content |
+| Setup is not advertised | Makes no assumption about whether the mailbox exists; uses independently available setup or shows protection as unestablished |
+| No usable response | Treats discovery as unavailable; preserves existing usable setup and the sender's protection choices |
+
 Clients still complete actual setup and validate keys. Later, a provider can independently add setup distribution, authorized control exchanges or private routing under those complete contracts. A possible direct-provider delivery upgrade remains separate design work; this discovery role does not define or imply that transport.
+
+### Choose the next capability independently
 
 Providers can add support in stages while keeping existing addresses, SMTP delivery and IMAP or JMAP access. The first useful upgrade is dependable carriage: compatible clients can already exchange protected contributions through ordinary email. A provider does not need to hold decryption keys, render message HTML or run a key directory to preserve those packages.
 

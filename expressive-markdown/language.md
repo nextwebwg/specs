@@ -547,7 +547,9 @@ supported safe HTML or report the unsupported conversion.
 
 HTML uses a maintained sanitizer allowlist for elements, attributes and URLs.
 `script` elements **and their contents** are discarded during parsing and never
-serialized again. Supported safe HTML can become structured nodes, including
+serialized again. A host that publishes only its own authors' content may
+choose the [trusted host profile](/expressive-markdown/parsing#trusted-host-profile)
+instead, which keeps raw HTML verbatim and renders it through the host's allowlist. Supported safe HTML can become structured nodes, including
 `underline`/`highlight` for `<u>`/`<mark>`. Other safe markup can remain an `html`
 node. Report filtering losses; unsafe discarded content is outside preservation.
 The exact sanitizer preset remains to be selected.

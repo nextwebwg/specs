@@ -799,27 +799,45 @@ Recommended HTML escapes literal code. Per-line decoration must preserve the cod
 
 ## Raw HTML
 
-Raw HTML follows [CommonMark's HTML blocks](https://spec.commonmark.org/0.31.2/#html-blocks)
-and [inline HTML](https://spec.commonmark.org/0.31.2/#raw-html).
+Raw HTML follows CommonMark: [HTML blocks](https://spec.commonmark.org/0.31.2/#html-blocks)
+(§4.6) and [raw HTML](https://spec.commonmark.org/0.31.2/#raw-html) inline
+(§6.6), in their 0.31.2 form.
 
-A line that starts with a block-level tag, such as `<div>`, `<details>`, `<table>`
-or `<section>`, starts an HTML block:
+An HTML block starts at a line that meets one of seven start conditions, after
+zero–three spaces of indentation, and runs through the line that meets the
+matching end condition:
+
+| Kind | Start condition | End condition | Interrupts a paragraph |
+| --- | --- | --- | --- |
+| 1 | `<script`, `<pre`, `<style` or `<textarea`, then a space, a tab, `>` or the line end | A line holding `</script>`, `</pre>`, `</style>` or `</textarea>` | Yes |
+| 2 | `<!--` | A line holding `-->` | Yes |
+| 3 | `<?` | A line holding `?>` | Yes |
+| 4 | `<!` and an ASCII letter | A line holding `>` | Yes |
+| 5 | `<![CDATA[` | A line holding `]]>` | Yes |
+| 6 | `<` or `</` and one of CommonMark's block tag names, such as `div`, `details`, `section` or `table`, then a space, a tab, the line end, `>` or `/>` | A blank line | Yes |
+| 7 | A complete opening or closing tag of any other name, alone on its line apart from whitespace | A blank line | No |
+
+The lines of the block are raw HTML. After the blank line that ends kinds 6
+and 7, the text is Markdown again, so Markdown and its containers can sit
+between an element's opening and closing tags:
 
 ```md
-<div class="note">
-This line is raw HTML too.
+<div class="entry">
+
+::: tip Heads up
+Some **bold** text.
+:::
+
 </div>
 ```
 
-A line that holds a complete tag alone, such as a custom element, also starts
-one:
-
-```md
-<demo-counter></demo-counter>
+```html
+<div class="entry"><section data-type="tip"><header>Heads up</header><p>Some <strong>bold</strong> text.</p></section></div>
 ```
 
-The block is raw HTML up to the next blank line. After a blank line, the text
-is Markdown again. That is GitHub's `<details>` pattern:
+`<div class="entry">` and `</div>` are two HTML blocks, each kept as written,
+and the tip container between them is Markdown. GitHub READMEs use the same
+pattern for disclosures:
 
 ```md
 <details>
@@ -830,10 +848,8 @@ This paragraph is **Markdown**.
 </details>
 ```
 
-A `<script>`, `<pre>`, `<style>` or `<textarea>` block runs to its closing tag,
-blank lines included, and a comment runs to `-->`.
-
-A tag inside a sentence is inline HTML, and the text around it is Markdown:
+Inline, a tag inside a paragraph is raw HTML by CommonMark's inline rules, and
+the text around it is Markdown:
 
 ```md
 Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy the **selected** text.

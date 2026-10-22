@@ -592,7 +592,7 @@ Back up the database first.
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `container` | String `subType`; blocks. | Optional structured `title`. All colon containers share this family, including nested/custom types. |
+| `container` | String `subType`; blocks. | Optional structured `title`. All colon containers share this family, including nested/custom types. Optional `spelling`: `"alert"` for a callout written as an [alert](#alert-spelling); absent or `"container"` means the colon form. |
 | `leaf` | String `subType`; no main content field. | Optional structured `title` for a directive label; “leaf” denotes bodyless authoring scope, not an assertion about title descendants. |
 
 | Type | Required fields/content | Additional fields and constraints |
@@ -689,6 +689,25 @@ ordinary blocks, lists, quotes and code.
 > [!note] Source spacing is for readability
 > Blank lines just inside the fences do not add visible empty lines. Use a
 > [line block](#leading-pipe-line-blocks) when the extra line is intentional.
+
+### Alert spelling
+
+Callouts also accept the alert spelling used by GitHub and Obsidian. It is
+supported for compatibility; the colon container above is the preferred form:
+
+```md
+> [!warning] Before deploying
+> Back up the database first.
+```
+
+This is the same warning callout as `::: warning [Before deploying]`, with
+the same HTML. Its AST is the same `container` node plus
+`"spelling": "alert"`, so writers write it back as an alert. The type matches
+case-insensitively and keeps its own name: GitHub's `note`, `tip` and
+`warning` are core callouts, and `important`, `caution` or any other
+identifier is a custom type. The title is optional. Structural types such as
+`details`, `tabs` and `table` use the colon form. See the
+[alert rules](/expressive-markdown/parsing#alerts).
 
 ## Attributes and identity
 
@@ -3188,6 +3207,7 @@ CSS display. JavaScript execution, MDX/JSX and framework APIs are outside the co
 | [Docusaurus](https://docusaurus.io/docs/markdown-features/admonitions) | Callouts and nested colon fences. | Independent of MDX, components and themes. |
 | [remark directives](https://github.com/remarkjs/remark-directive) | Inline, leaf and container forms. | Shared meanings, fields and string/flag rules. |
 | [Pandoc](https://pandoc.org/MANUAL.html#pandocs-markdown) | IDs and leading-pipe lines. | Defined line boundaries without visual source indentation. |
+| [GitHub alerts](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts) / [Obsidian callouts](https://help.obsidian.md/callouts) | `> [!type]` quotations, with titles and custom types in Obsidian. | A second spelling of the callout container, written back as authored. |
 | [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#footnotes) | Footnote references and indented definitions, also in [GFM](https://github.blog/changelog/2021-09-30-footnotes-now-supported-in-markdown-fields/) and [Pandoc](https://pandoc.org/MANUAL.html#footnotes). | Definitions stay in place; labels are identifiers matched exactly. |
 | [UMD](https://docs.rs/crate/umd/0.2.0/source/README.md) | Cell merge markers. | Rectangular grid, numeric spans and loss-preserving recovery. |
 | [MyST](https://mystmd.org/guide/figures) / [Quarto](https://quarto.org/docs/authoring/figures-and-layout.html#figure-divs) | Structured figures and captions. | Shared container family with explicit subtype meanings. |

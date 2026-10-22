@@ -555,6 +555,29 @@ node. Report filtering losses; unsafe discarded content is outside preservation.
 The exact sanitizer preset remains to be selected.
 
 
+### Raw HTML elements
+
+An HTML element whose start tag begins a block runs to its matching closing
+tag, across blank lines, and keeps its content as raw HTML. Inside it, a `:::`
+fence encloses fenced content, which is parsed as Expressive Markdown:
+
+```md
+<spec-entry>
+  ::: {.cells}
+  Contains **entries**.
+  :::
+</spec-entry>
+```
+
+```html
+<spec-entry>
+<div class="cells"><p>Contains <strong>entries</strong>.</p></div>
+</spec-entry>
+```
+
+See the [raw HTML rules](/expressive-markdown/parsing#raw-html) and
+[fenced content](/expressive-markdown/parsing#fenced-content).
+
 ## Named constructs
 
 Put `::: warning` before an important note and close it with `:::` on its own

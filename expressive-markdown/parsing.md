@@ -861,6 +861,105 @@ Code attributes share the ordinary string/flag grammar and camelCase key mapping
 
 Recommended HTML escapes literal code. Per-line decoration must preserve the code's text and line divisions; copied code excludes generated line-number labels. A profile that cannot display a setting preserves it and reports the unsupported presentation.
 
+## Raw HTML
+
+```md
+<template component="demo-card">
+  <p>One</p>
+
+  <p>Two</p>
+</template>
+```
+
+An HTML element whose start tag begins a block runs to its **matching closing
+tag**, and its content is raw HTML, kept verbatim. The same rule applies to
+every element name.
+
+| Rule | Reading |
+| --- | --- |
+| Start | A start tag after zero–three spaces of block-relative indentation, at the start of a block. An element starts no block in the middle of a paragraph. |
+| End | The matching closing tag. Nested elements of the same name are counted. Blank lines, indentation and one-line forms make no difference. |
+| Block or inline | The element is a raw HTML block when its closing tag ends its line. When text follows the closing tag, the line is a paragraph and the tags are inline HTML, so a sentence may begin with a tag. |
+| Void and self-closing elements | `area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `source`, `track`, `wbr` and any `<name/>` end at their start tag. |
+| Content | Read as HTML reads it: quoted attribute values, comments and declarations hold no tags, and `script`, `style`, `textarea`, `title` and `xmp` contents end only at their own closing tag. |
+| No matching closing tag | The element's content runs to the end of its enclosing block and is kept whole. Recommend an `unclosed-html-element` warning. |
+| Comments, processing instructions, declarations, CDATA and lone end tags | CommonMark's [HTML blocks](https://spec.commonmark.org/0.31.2/#html-blocks), types 2–5 and 7. |
+
+Inline tags inside a paragraph are [inline HTML](https://spec.commonmark.org/0.31.2/#raw-html),
+as in CommonMark. Code spans and code blocks keep HTML literal.
+
+### Fenced content
+
+```md
+<spec-entry name="&lt;defs&gt;">
+  <header>raw</header>
+  :::
+  Contains `<prop>` entries.
+  :::
+</spec-entry>
+```
+
+Inside an HTML element's raw content, a `:::` fence encloses **fenced
+content**, which is parsed as Expressive Markdown.
+
+- The opening line holds a colon run of three or more, optionally followed by
+  attribute lists in the [attribute grammar](#attributes-and-identity), with
+  `.class`, `#id` and `key=value`. The closing line holds the same colon run
+  alone. A word after the colons, as in `::: tip`, leaves the line raw HTML:
+  fenced content takes only attributes.
+- Fences may be indented. The opening fence's indentation leaves each enclosed
+  line, as in Markdown containers; raw HTML has no indented code, so any
+  indentation is allowed.
+- Fenced content may hold containers, which use shorter fences, as a container
+  holds its children. Lines inside code or inside a nested element's own
+  fenced content do not close it.
+- The element's first and last lines hold its tags, so they open no fence. A
+  fence with no closing line stays raw HTML; recommend an
+  `unclosed-fenced-content` warning.
+- The rule is the same in every element, including `template`.
+
+In Markdown, outside raw HTML, `:::` keeps its meaning as a
+[container](#named-constructs).
+
+**AST.** An element without fenced content is an `html` block holding its
+source as `value`. An element with fenced content is an `html` block whose
+`body` alternates raw segments, `html` blocks holding the lines between fences
+verbatim, and `fencedContent` nodes. A `fencedContent` node holds blocks and
+optional attributes and ID. `source.open` keeps an opening line that differs
+from a bare `:::`, `source.close` a closing line that differs from the opening
+fence's indentation and colons, and the attribute spelling follows the
+[authored forms](#authored-forms).
+
+```json
+{
+  "type": "html", "display": "block",
+  "body": [
+    { "type": "html", "display": "block", "value": "<spec-entry name=\"&lt;defs&gt;\">\n  <header>raw</header>" },
+    { "type": "fencedContent", "source": { "open": "  :::" },
+      "body": [{ "type": "paragraph", "children": [
+        { "type": "text", "value": "Contains " }, { "type": "inlineCode", "value": "<prop>" }, { "type": "text", "value": " entries." }
+      ] }] },
+    { "type": "html", "display": "block", "value": "</spec-entry>" }
+  ]
+}
+```
+
+**Writing.** Writers join the body's items with line breaks: raw segments
+verbatim, and each fenced content as its opening line, its Markdown indented as
+the opening fence was, and its closing line. The fence outlasts the container
+fences inside it.
+
+**Profiles.** Both profiles read elements and fenced content this way. The safe
+profile filters each element's raw HTML as one document, so its tags stay
+balanced around fenced content, and maps an element without fenced content to
+structured nodes where it can. When filtering removes the element itself, its
+fenced content becomes ordinary blocks in place, attributed fenced content a
+generic container with the same attributes.
+
+**Editors.** An editor such as LoomaEditor shows the element as an HTML block
+whose fenced content it edits as rich text, each fenced content as a nested
+document in its place, and keeps the raw segments as written.
+
 ## Safe HTML
 
 HTML import and output use a maintained sanitizer allowlist for elements,
@@ -888,7 +987,8 @@ explicitly, so components and page styles written in Markdown reach its output.
 
 - Parsing keeps each raw HTML block and each inline HTML tag as an opaque
   `html` node with its source verbatim: no filtering, no mapping to structured
-  nodes. Markdown between inline tags stays Markdown.
+  nodes. Markdown between inline tags, and [fenced content](#fenced-content),
+  stays Markdown.
 - Writers write those nodes back verbatim.
 - Rendering still applies the safe profile, extended by the host's allowlist of
   elements, attributes, style properties and URL schemes, to all output: raw
@@ -905,7 +1005,9 @@ This algorithm recommends output IDs; it grants no implicit identity in source
 or AST data. An implementation can support navigation using another documented
 algorithm without changing language conformance.
 
-1. Reserve every authored ID in the output document first.
+1. Reserve every authored ID in the output document first. The document's own
+   `id` is its identity; it reserves an anchor only when a renderer writes it
+   on an element, such as a rendered title carrying that ID.
 2. Derive readable text from a title/heading and normalize that derived text to
    Unicode NFC, then lowercase it.
 3. Retain Unicode letters, numbers and combining marks. Replace every other run

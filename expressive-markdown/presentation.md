@@ -392,6 +392,26 @@ Run [`--force`]{class="flag"} once.
 
 Render it as a `<span>` with its attributes and no `data-type`.
 
+## Fenced content
+
+Fenced content renders in place within its element's raw HTML. Its fence lines
+produce nothing:
+
+| Fence | Output |
+| --- | --- |
+| Bare `:::` | The fenced content's own HTML, with no wrapper. |
+| `:::` with attribute lists | The fenced content's HTML inside a `<div>` carrying those attributes. |
+
+```html
+<spec-entry>
+<p>Plain fenced content</p>
+
+<div class="cells" id="intro"><p>Wrapped fenced content</p></div>
+</spec-entry>
+```
+
+The safe profile filters the element's raw HTML around it.
+
 ## Layout
 
 Align a group's child blocks and their text together. Use logical directions so

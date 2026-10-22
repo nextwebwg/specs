@@ -87,13 +87,23 @@ paragraph.
 | A header that cannot be fully parsed, such as `::: note [unclosed` or `::: [Title] more` | A generic container with no title or attributes. `source.header` keeps the raw header, so writers write it back as authored. Recommend an `invalid-container-header` warning. |
 
 A generic container groups blocks without a semantic type; its
-[recommended HTML](/expressive-markdown/presentation#generic-containers) is a
-`<div>` carrying its attributes. Closing and nesting work as for every
+[recommended HTML](/expressive-markdown/presentation#generic-containers-and-spans)
+is a `<div>` carrying its attributes. Closing and nesting work as for every
 container: the closing line holds only the opening's colon run, and a direct
 child uses fewer colons than its parent. Inside a container, a bare colon line
 of the parent's length closes it; a shorter one opens or closes a nested
-container. A fence left without its closing line is an unclosed container under
-the [recovery rules](#recovery-and-diagnostics).
+container.
+
+| Fence situation | Reading |
+| --- | --- |
+| Bare `:::` whose closing line follows before any other opening fence of its length or longer | A generic container. |
+| Bare `:::` with no such closing line | A **stray fence**: a `strayFence` node whose `value` is the fence line's colon run. It renders nothing, writes back as authored and recommends a `stray-fence` warning. The lines after it read as they would without it. |
+| Typed, titled or attributed opener with no closing line | A container running to the end of its enclosing block, or to the line before a longer closing fence, which it leaves to its parent. Recommend an `unclosed-container` warning. Writers add the closing line. |
+
+**Indentation.** A fence's own indentation, zero to three spaces in Markdown,
+leaves each line it encloses, up to that many leading spaces per line, as a code
+fence's does. A line indented four columns beyond the fence is indented code
+within the container.
 
 | Rule | Accepted form |
 | --- | --- |
@@ -918,7 +928,8 @@ without writing them back as authored document IDs.
 | Duplicate attributes | Valid; final occurrence wins. Recommend a warning. |
 | Invalid inline or leaf directive opener, or attachment | Local literal text; do not consume unrelated following content. |
 | Container header that cannot be fully parsed | Generic container keeping the raw header in `source.header`. Recommend a warning. |
-| Unclosed container or mismatched nesting | `literal` node preserving the region through its enclosing block context; code retains lexical precedence when locating boundaries. |
+| Unclosed container | Container running to the end of its enclosing block, or to a longer closing fence; code retains lexical precedence when locating boundaries. Recommend a warning. |
+| Bare fence without a closing line | `strayFence` node. Recommend a warning. |
 | Opening `---` without a close | Ordinary Markdown. |
 | Delimited but invalid/unsupported frontmatter | Entire block as `literal`; no guessed metadata. |
 | Invalid merged table | Whole table as block `literal`. |
@@ -1227,7 +1238,7 @@ shared fields above. Each feature disclosure defines its required content and ad
 
 Block content admits paragraph, heading, quote, list, code, line block, table,
 container, leaf, horizontal rule, footnote definition, link reference
-definition and block-display group/HTML/literal. Inline content admits text,
+definition, stray fence and block-display group/HTML/literal. Inline content admits text,
 inline formatting, inline code, link, image, link and image reference, footnote
 reference, break/soft break, inline directive and
 inline-display group/HTML/literal.

@@ -594,6 +594,7 @@ Back up the database first.
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
+| `strayFence` | String `value`, a colon run of three or more. | A bare fence with no closing line; renders nothing. |
 | `container` | Blocks. | Optional string `subType`; absent for a [generic container](/expressive-markdown/parsing#named-constructs). Optional structured `title`. All colon containers share this family, including nested/custom types. Optional `spelling`: `"alert"` for a callout written as an [alert](#alert-spelling); absent or `"container"` means the colon form. Optional `titleSpelling`: `"unbracketed"` for a title written without brackets; absent or `"bracketed"` means `[Title]`. |
 | `leaf` | String `subType`; no main content field. | Optional structured `title` for a directive label; “leaf” denotes bodyless authoring scope, not an assertion about title descendants. |
 

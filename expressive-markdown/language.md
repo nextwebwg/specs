@@ -594,7 +594,7 @@ Back up the database first.
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `strayFence` | String `value`, a colon run of three or more. | A bare fence with no closing line; renders nothing. |
+| `strayFence` | String `value`, a colon run of three or more. | A bare fence with no closing line; its rendering is empty. |
 | `container` | Blocks. | Optional string `subType`; absent for a [generic container](/expressive-markdown/parsing#named-constructs). Optional structured `title`. All colon containers share this family, including nested/custom types. Optional `spelling`: `"alert"` for a callout written as an [alert](#alert-spelling); absent or `"container"` means the colon form. Optional `titleSpelling`: `"unbracketed"` for a title written without brackets; absent or `"bracketed"` means `[Title]`. |
 | `leaf` | String `subType`; no main content field. | Optional structured `title` for a directive label; “leaf” denotes bodyless authoring scope, not an assertion about title descendants. |
 
@@ -739,7 +739,7 @@ The general attribute notation is:
 
 Examples use `#id` for IDs and `class="…"` for classes. The `.class` shorthand
 is also supported: `{.render .wide #intro}` gives the ID `intro` and the class
-`"render wide"`. A class never becomes a container type.
+`"render wide"`. A class stays a class: `::: {.render}` is a generic container.
 
 Whitespace and an optional `&` separate entries. These are equivalent:
 
@@ -883,6 +883,7 @@ When the bracket is also a link, such as `[word](url)` or a reference that
 resolves, it stays a link and the list attaches to the link. See the
 [span rules](/expressive-markdown/parsing#bracketed-spans).
 
+## YAML frontmatter
 
 Keep document identity and publishing metadata separate from the body:
 

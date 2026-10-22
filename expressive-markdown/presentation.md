@@ -377,8 +377,8 @@ The release ships on Friday.
 
 Render it as a plain `<div>` with its attributes, following the
 [attribute mapping](/expressive-markdown/parsing#attributes-and-identity). A
-title renders as the div's first child, a `<header>`. The div adds no
-`data-type`: the container has no semantic type to identify.
+title renders as the div's first child, a `<header>`. The div omits
+`data-type`, since the container names no semantic type.
 
 A bracketed span is the inline counterpart:
 
@@ -390,7 +390,7 @@ Run [`--force`]{class="flag"} once.
 <p>Run <span class="flag"><code>--force</code></span> once.</p>
 ```
 
-Render it as a `<span>` with its attributes and no `data-type`.
+Render it as a `<span>` carrying only its attributes.
 
 ## Layout
 

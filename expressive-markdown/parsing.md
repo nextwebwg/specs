@@ -797,6 +797,48 @@ Code attributes share the ordinary string/flag grammar and camelCase key mapping
 
 Recommended HTML escapes literal code. Per-line decoration must preserve the code's text and line divisions; copied code excludes generated line-number labels. A profile that cannot display a setting preserves it and reports the unsupported presentation.
 
+## Raw HTML
+
+Raw HTML follows [CommonMark's HTML blocks](https://spec.commonmark.org/0.31.2/#html-blocks)
+and [inline HTML](https://spec.commonmark.org/0.31.2/#raw-html).
+
+A line that starts with a block-level tag, such as `<div>`, `<details>`, `<table>`
+or `<section>`, starts an HTML block:
+
+```md
+<div class="note">
+This line is raw HTML too.
+</div>
+```
+
+A line that holds a complete tag alone, such as a custom element, also starts
+one:
+
+```md
+<demo-counter></demo-counter>
+```
+
+The block is raw HTML up to the next blank line. After a blank line, the text
+is Markdown again. That is GitHub's `<details>` pattern:
+
+```md
+<details>
+<summary>Release notes</summary>
+
+This paragraph is **Markdown**.
+
+</details>
+```
+
+A `<script>`, `<pre>`, `<style>` or `<textarea>` block runs to its closing tag,
+blank lines included, and a comment runs to `-->`.
+
+A tag inside a sentence is inline HTML, and the text around it is Markdown:
+
+```md
+Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy the **selected** text.
+```
+
 ## Safe HTML
 
 HTML import and output use a maintained sanitizer allowlist for elements,

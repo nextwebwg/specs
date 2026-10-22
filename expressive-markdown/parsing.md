@@ -95,6 +95,36 @@ Writers use `3 + maximum descendant container depth` colons, recalculating withi
 > [!note] Readable spacing adds no blank line
 > Blank source lines immediately inside container fences are ordinary spacing. They do not request visible empty lines; use a [line block](/expressive-markdown/language#leading-pipe-line-blocks) for those.
 
+### Alerts
+
+```md
+> [!note] Optional title
+> Body.
+```
+
+A block quote is an alert when its first line starts with `[!type]` followed
+by a space, a tab or the line end. `type` is an identifier, matched
+case-insensitively and stored lowercase as `subType`. The rest of that line,
+trimmed, is the inline-Markdown title; when it is empty the alert has no title.
+The quote's remaining content is the body, read as ordinary blocks. The result
+is a `container` with `spelling: "alert"`.
+
+- The marker is recognized only at the start of a quote's first line. There it
+  takes precedence over a link reference definition with the same label, so
+  `[!note]: url` defines a link and `[!note]` elsewhere keeps its ordinary
+  meaning.
+- `[!note]x` and `[!note]-` are not markers; the quote stays a `blockquote`.
+- A marker naming `details`, `figure`, `layout`, `tabs`, `tab`, `toc` or
+  `table` leaves an ordinary `blockquote`. Those types use the colon form.
+
+**Writing.** Write a container with `spelling: "alert"` as an alert:
+`> [!type]`, then ` Title` when present, then the body on following `> `
+lines. Start the body after a `>` line when its first block is not a
+paragraph or begins with a setext underline. An alert has no attribute syntax:
+write an alert with an ID, attributes or a structural type in the colon form
+and recommend a diagnostic. Without a recorded spelling, write the colon form.
+In an ordinary block quote, protect literal text that would open an alert.
+
 ## Attributes and identity
 
 ```md
@@ -829,6 +859,7 @@ including footnote and link reference definitions, at its place in the tree.
 | --- | --- |
 | Lowercase directive names and dash-separated attribute names from camelCase AST keys; optional ` & ` separators | Values and metadata key casing. |
 | `::: type [Title] {attributes}`; no wrapper padding; one blank line around body | Content, with nested fence lengths calculated from depth. Escape punctuation where it would acquire structural meaning. |
+| `> [!type] Title` for a callout with `spelling: "alert"` | The authored spelling of each callout. |
 | Double quotes when strings need quoting; `{name}` / `{!name}` flags | Explicit false versus omission/default. |
 | Leading-pipe lines and bare empty pipes | Represented line divisions. |
 | Regenerated table markers; escaped literal markers | Numeric spans and originating cell IDs. |

@@ -70,10 +70,30 @@ Both open the same container. The type comes first; optional title and attribute
 | Trailing attributes | Whitespace-separated attribute lists that end the line attach to the container, as on a heading: `::: details Show the output {open}`. A final `{…}` that is not a valid attribute list is title text. |
 | `[`, `]`, `{`, `}` in the text | Literal title text. A title that starts with `[` uses the bracket form, so `\[` or `\{` starts an unbracketed title with a literal bracket or brace. |
 | Whitespace | Trimmed from both ends; inner spacing is kept. |
-| With a bracket form | One title per header. `[Title]` followed by more words leaves the line as ordinary text. |
+| With a bracket form | One title per header. `[Title]` followed by more words is a header that cannot be fully parsed; see below. |
 | `::: tabs Install` | The group's title, by the same rule as every type. A group's shared selection name is `{group=name}`; converters that know a tool's own `tabs name` convention map it once. |
 
 The AST records `titleSpelling: "unbracketed"`; absent or `"bracketed"` means the bracket form. Writers write the recorded spelling, and the bracket form for new titles. An unbracketed writer protects an opening bracket or brace, and a final list that would read as attributes. Leaf directives keep bracketed labels.
+
+**Every colon fence opens a container.** A line of three or more colons, at
+zero–three spaces of block-relative indentation, opens a container whatever its
+header holds. It never reads as paragraph text, and it may interrupt a
+paragraph.
+
+| Header | Container |
+| --- | --- |
+| `::: note [Title] {attributes}` | `subType: "note"`, with its title and attributes. |
+| `::: {.render title="x"}`, `::: [Title]`, bare `:::` | A **generic container**: no `subType`, with any title and attributes. |
+| A header that cannot be fully parsed, such as `::: note [unclosed` or `::: [Title] more` | A generic container with no title or attributes. `source.header` keeps the raw header, so writers write it back as authored. Recommend an `invalid-container-header` warning. |
+
+A generic container groups blocks without a semantic type; its
+[recommended HTML](/expressive-markdown/presentation#generic-containers) is a
+`<div>` carrying its attributes. Closing and nesting work as for every
+container: the closing line holds only the opening's colon run, and a direct
+child uses fewer colons than its parent. Inside a container, a bare colon line
+of the parent's length closes it; a shorter one opens or closes a nested
+container. A fence left without its closing line is an unclosed container under
+the [recovery rules](#recovery-and-diagnostics).
 
 | Rule | Accepted form |
 | --- | --- |
@@ -150,7 +170,15 @@ In an ordinary block quote, protect literal text that would open an alert.
 | `open=foo` | String `"foo"`. |
 | `open=false` / `open="false"` | String `"false"`, never boolean. |
 | `#check` / `id=check` | Node `id: "check"`. |
+| `.render` | Adds `render` to string `attributes.class`. |
 
+- `#id` and `id=…` set the ID; `.name` adds a class. Class shorthands
+  accumulate in source order, space-separated, so `{.render .wide}` gives
+  `class: "render wide"`. An assigned `class=…` replaces the value gathered so
+  far, by last occurrence wins, and later shorthands add to it. A class
+  shorthand is an ASCII letter, `_` or `-`, then letters, digits, `_` or `-`.
+  A class is never a container type: `::: {.render}` is a generic container
+  with `class: "render"`.
 - Separate entries with spaces/tabs, `&`, or both. Tight `{a=1&b=2}` is valid.
 - Outside quotes, `&` is a separator. Unquoted values are nonempty and end at
   whitespace, `&` or `}`.
@@ -173,7 +201,7 @@ Source names are case-insensitive; AST attribute keys use camelCase. Lowercase t
 [Release notes](release.md){class="release-link"}
 ```
 
-A heading's final whitespace-separated list attaches to the heading. An immediately adjacent list attaches to a completed image/link. Attachments stay on the target's source line; code-span whitespace is not attachment syntax. Multiple lists resolve in source order; malformed lists stay literal. Escape `{` to prevent attachment. Code-fence attributes are described in the [language guide](/expressive-markdown/language#code-blocks-and-presentation-metadata); other block styling uses supported safe HTML.
+A heading's final whitespace-separated list attaches to the heading. An immediately adjacent list attaches to a completed image/link, and to a bracket that forms no link as a [bracketed span](#bracketed-spans). Attachments stay on the target's source line; code-span whitespace is not attachment syntax. Multiple lists resolve in source order; malformed lists stay literal. Escape `{` to prevent attachment. Code-fence attributes are described in the [language guide](/expressive-markdown/language#code-blocks-and-presentation-metadata); other block styling uses supported safe HTML.
 
 | Recommended HTML mapping | Behavior |
 | --- | --- |
@@ -184,6 +212,32 @@ A heading's final whitespace-separated list attaches to the heading. An immediat
 | Conversion-owned `data-type` (AST `dataType`) | Identifies the construct. Preserve a colliding authored value in the AST and diagnose instead of replacing output identity. |
 
 Unknown attributes remain data. An arbitrary flag does not acquire native HTML behavior.
+
+## Bracketed spans
+
+```md
+[word]{class="kw"}
+[word]{.kw #w key="v"}
+```
+
+A bracket followed immediately by one or more attribute lists is a bracketed
+span: an `inline` node without a `subType`, holding the bracket's inline
+Markdown and the lists' ID and attributes. An empty list `{}` also forms a span.
+
+| Source | Reading |
+| --- | --- |
+| `[w](url){…}`, `[w][ref]{…}`, or `[w]{…}` when `w` resolves | The link or reference; the list attaches to it. |
+| `[w]{…}` with no matching definition | A span. |
+| `![a]{…}` | Image syntax: the image when it forms, otherwise text. Never a span. |
+| `@[a]{…}` | Mention syntax: the mention when it forms, otherwise text. Never a span. |
+| `:name[a]{…}` | Inline-type syntax: the typed inline when it forms, otherwise text. Never a span. |
+| `[^n]{…}` | Footnote syntax: the reference and literal `{…}` when `n` is defined, otherwise text. Never a span. |
+| `` `[a]{…}` ``, `\[a]{…}` | Code and escaped text. |
+| `[a] {…}` | Text: the list must follow the bracket immediately. |
+
+Classes never become types. Writers write a typeless `inline` as
+`[content]{attributes}`, writing `{}` when it has no attributes, and protect
+literal text that would read as a span.
 
 ## Automatic tab grouping
 
@@ -862,7 +916,8 @@ without writing them back as authored document IDs.
 | --- | --- |
 | Unknown type/key | Valid; preserve it. |
 | Duplicate attributes | Valid; final occurrence wins. Recommend a warning. |
-| Invalid directive opener/attachment | Local literal text; do not consume unrelated following content. |
+| Invalid inline or leaf directive opener, or attachment | Local literal text; do not consume unrelated following content. |
+| Container header that cannot be fully parsed | Generic container keeping the raw header in `source.header`. Recommend a warning. |
 | Unclosed container or mismatched nesting | `literal` node preserving the region through its enclosing block context; code retains lexical precedence when locating boundaries. |
 | Opening `---` without a close | Ordinary Markdown. |
 | Delimited but invalid/unsupported frontmatter | Entire block as `literal`; no guessed metadata. |
@@ -950,7 +1005,7 @@ the preferred form, so a document written in preferred forms carries none.
 | Tab group | Adjacent tabs; explicit `tabs` container | Adjacent tabs | `form: "explicit"` |
 | Table | Named list fields; positional list rows; GFM pipes | Named fields | `form: "positional"`; `form: "pipe"` with `markdown` |
 | Mention | `@[label]`; bare `@handle` | `@[label]` | `form: "bare"` |
-| Attribute list | `#id` / `id=…`, quoting, `&` separators, order | `id="…"`, double quotes, spaces | `attributes` |
+| Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `#id`, `class="…"`, double quotes, spaces | `attributes` |
 | Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
 | Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |
 | Frontmatter | YAML as authored | Generated YAML | `frontmatter` on the document |

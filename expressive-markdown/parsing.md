@@ -103,11 +103,6 @@ container.
 or quote, its last line comes before the first nonblank line indented less than
 that block, and a typed opener without a closing line runs to that point.
 
-**Indentation.** Indentation inside a container counts from the fence's edge,
-as it does inside a code fence. Each enclosed line loses up to as many leading
-spaces as the fence has, zero to three in Markdown, and a line indented four
-columns beyond the fence is indented code within the container.
-
 | Rule | Accepted form |
 | --- | --- |
 | Identifier | ASCII letter, then ASCII letters, digits, `_` or `-`. Types become lowercase; attribute names use the mapping below. Text, values and IDs retain Unicode. |

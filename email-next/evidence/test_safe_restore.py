@@ -71,6 +71,27 @@ class SafeRestore(unittest.TestCase):
         with self.assertRaises(ValueError):self.workspace.activate_pairing(new,session,time=time)
         new.accept(session,result,time=time);self.workspace.activate_pairing(new,session,time=time)
         return fresh,json.loads(base64.b64decode(json.loads(result)['bundle'])),json.loads(result)['head']
+    def test_participating_restore_device_cannot_enroll_or_reactivate_history(self):
+        # Actual enrolled send/receive credentials are not administrator credentials.
+        fresh,bundle,head=self.paired()
+        owner=OwnDevices(self.workspace.identity,account='local-account',
+                         principal=fresh['principal'],local_device=fresh['device'],
+                         mailboxes=[self.f.mailbox])
+        pairing=Pairing(self.workspace.identity,account='local-account')
+        before=self.workspace.identity.db.execute('SELECT count(*) FROM pairing_sessions').fetchone()[0]
+        history=self.workspace.view()
+        self.assertTrue(history)
+        self.assertTrue(all(not row['actions'] for row in history))
+        now=int(self.time['latest'])
+        for roles in (['receive','send'],['enroll','receive','revoke','send']):
+            with self.subTest(roles=roles), self.assertRaisesRegex(ValueError,'Current enrollment authority'):
+                pairing.offer(owner,encode_event(bundle),roles=roles,
+                              session_before=str(now),session_after=str(now+30),
+                              grant_before=str(now),grant_after=str(now+120),time=self.time)
+        self.assertEqual(self.workspace.identity.db.execute('SELECT count(*) FROM pairing_sessions').fetchone()[0],before)
+        self.assertEqual(self.workspace.identity.current_state(fresh['principal'])['head'],head)
+        self.assertEqual(self.workspace.view(),history)
+
     def deliver(self,devices,identities,bundle,head):
         from sender_release import SenderRelease
         from initial_roster_lifecycle import InitialRosterRelease,InitialRosterAdmission

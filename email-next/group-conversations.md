@@ -15,6 +15,8 @@ A client may retain unconsumed MLS message secrets to receive delayed or reorder
 
 The client’s retention policy must specify an elapsed-time limit, a storage/count limit and the maximum permitted forward jump in a sender’s message generation. An epoch-count limit alone does not bound elapsed exposure in a quiet conversation. These are explicit implementation settings, not values chosen by a received message. The client must enforce them before allowing an input to cause unbounded key derivation or retention.
 
+The [unread/offline contract](suite-profile.md#unread-mail-and-long-offline-periods) requires eligible background processing without a human reading deadline and defines the separate historical-copy recovery outcome. Retained ciphertext alone is not an archive of readable content.
+
 When required secrets have expired or been deleted, retain the original ciphertext and report that the delayed contribution cannot be decrypted under the available state. Do not recreate an old sending checkpoint, request history automatically or downgrade the contribution to plaintext. The separate [history-transfer contract](history-transfer.md) specifies the exact disclosure and recipient-bound import rules.
 
 Successful delayed decryption still requires the original epoch’s authenticated context and the current rules for accepting new effects. A removed member’s pending contribution does not become actionable because its target arrives later. Previously accepted history remains distinct from a newly arriving action.
@@ -29,6 +31,8 @@ The [bounded-retention experiment](evidence/README.md#bounded-secret-retention-a
 
 
 ## Ordinary audience versus managed group
+
+The [current protected agreement](suite-profile.md#ordinary-protected-conversations) selects independently owned sending streams for ordinary protected email; managed quorum ordering remains an explicitly selected mode. The stream owner administers only its own cryptographic stream, never the whole ordinary conversation.
 
 Ordinary email contributions have explicit per-message audiences. Their participants may reply to subsets, add recipients or forward content under their own disclosure policy. The conversation identifier groups contributions but grants no membership authority.
 
@@ -46,7 +50,55 @@ A receiver validates the transition against the referenced prior state's adminis
 
 Concurrent transitions from one prior state are conflicting branches until the selected protocol resolves them. The application MUST NOT invent a last-arrival-wins rule. Clients may continue reading known history while holding sends that cannot identify an agreed valid group state. Protocol-specific resolution must preserve the proposed authority checks and expose membership consequences before a conflicting operation is retried.
 
-A profile supporting final-administrator departure must require an authorized successor or authenticated group closure. The selected profiles hold that departure rather than inventing either operation. Local closure stops this client from sending; it does not publish an authenticated group-wide transition. Reopening or moving to a separately admitted conversation requires explicit authorization; matching subjects or member lists do not merge group identities. See [unsupported and terminal outcomes](ordering-exchange.md#explicit-unsupported-and-terminal-outcomes).
+A profile supporting final-administrator departure must require an authorized successor or authenticated group closure. The selected profiles hold removal of the last device of any listed administrator unless an authorized same-principal device replacement preserves the unchanged administrator set. They do not invent succession or group-wide closure. Local closure stops this client from sending; it does not publish an authenticated group-wide transition. Reopening or moving to a separately admitted conversation requires explicit authorization; matching subjects or member lists do not merge group identities. See [unsupported and terminal outcomes](ordering-exchange.md#explicit-unsupported-and-terminal-outcomes).
+
+## When a group cannot change
+
+Ordinary protected email has no shared administrator: each device manages its own encrypted sending. A managed group explicitly chooses administrators and a shared participant list. The devices that confirm a group change cannot give themselves administrator powers, even when one takes over coordinating the others.
+
+The initial suite keeps a managed group's administrator list and supported message features fixed. Administrators can change participants and the devices that confirm changes. Transferring administrator powers, changing message features or closing the group for everyone is outside this initial version. If no authorized administrator can make a needed change, it waits. People can explicitly start a separate conversation and invite participants again; joining it grants no access to the old correspondence.
+
+:::: {.details summary="Selected lifecycle transitions, administrative loss and local retirement"}
+
+### Authority and scope
+
+Apply the exact selected context, not the capabilities of MLS in isolation. Current context10 managed mode retains the administrator/application/delivery restrictions and certified-policy transition rules explicitly inherited through context9, context8 and context7. Its actual current application, admission and control versions come from the [selected agreement](suite-profile.md#asynchronous-protected-agreement). Ordinary mode instead fixes the exact source device/key and principal audience. Earlier versions retain their own stricter contracts. Account identity administrators, conversation administrators, stream owners and ordering witnesses are separate roles; none can substitute for another.
+
+For a managed transition, authorize its administrator proof from the authenticated predecessor roster/policy and check current identity/key/send authority. The complete resulting roster must retain at least one currently receive-authorized device for **every** listed administrator principal, not only the final administrator. Removing an administrator's last device while retaining that principal in the immutable administrator list is invalid. Removing the principal from that list would be an unsupported administrator change. Expired or revoked membership cannot be counted as an available administrator merely because its credential remains in the tree.
+
+A combined authorized Add/Remove may replace an administrator principal's device while retaining that same principal, provided a currently eligible predecessor administrator authorizes the actual transition, the new device has its independently accepted account authorization and exact application support, and the existing invitation/ordering/current-roster requirements all pass. Account enrollment alone does not perform that replacement. Losing all qualifying predecessor administrators prevents this operation even if the same account has enrolled a new device elsewhere.
+
+| Requested change | Selected outcome |
+| --- | --- |
+| Add/remove ordinary-stream devices belonging to its fixed principal audience | Exact owner transition and existing admission/current-authority rules; retain the immutable source device and each required principal |
+| Change an ordinary contribution's principal audience or delivery role | Fresh independently authorized ordinary stream; no inherited history entitlement |
+| Replace an ordinary stream's owner, including by another device of the same principal | Unsupported in that stream; a currently authorized device can establish its own fresh stream |
+| Add/remove managed members without changing administrators or application/delivery agreement | Existing predecessor-authorized, completely validated and certified membership transition |
+| Replace managed witnesses, coordinator policy or fault bound | Existing certified policy change authorized under the predecessor witness policy and administrator rules; it grants no administrator transfer |
+| Remove the last device of any listed managed administrator without a valid same-principal replacement | Hold; do not install a roster that omits a required administrator |
+| Add/remove administrator principals, change the application/delivery agreement, perform MLS ReInit, external join, PSK transition or subgroup admission | Unsupported by this initial suite; retain authenticated input without a partial install, vote, Welcome or newly enabled application effect |
+| Reach a quorum but lack current administrator authority, or retain a prepared candidate whose authority was revoked | Hold; quorum, timeout, certificate age and coordinator change cannot override the authority failure |
+| Start a separately admitted managed conversation | Explicit independent conversation identity, current agreement and new admissions; no claim of authenticated continuation or old-history access |
+
+An incoming malformed or unauthorized object has no authority to freeze a group merely by naming a change. The durable proposal-observation hold applies only after its own complete validation. Unsupported input remains separate from an accepted valid proposal observation. Diagnostic outcomes such as `unsupported-operation` are local results, not a new automatic email response. Do not send an error to an untrusted return address.
+
+### Local retirement is not group closure
+
+A client may deliberately retire its own cryptographic membership instance. This is distinct from hiding, archiving or muting a conversation in a user interface; those interface operations do not imply a protocol transition. Retirement is not a new signed group message, a successful Remove, an authenticated group-wide closure or proof that every other member stopped sending.
+
+Before disabling live state, durably record the exact local principal/device, full group and genesis/stream identity, membership-instance identifier, final accepted public checkpoint/decision commitment and terminal local status. Keep the tombstone and required vote/nonce/operation safety history even if secret material is later retired. The record's storage layout is local; it is not a peer-supplied authority record. Do not erase uncertainty about previously submitted mail or reopen operation identities.
+
+Serialize retirement with preparation, installation and the final release gate. If retirement commits first, no new application send, vote, membership control or Welcome is released from that retired instance, including already queued work. A submission already past the irreversible transport boundary may still arrive; report its retained outcome rather than claiming recall. Retirement does not cancel or revoke an independently created hosted grant, relay permission or account device. Their owning contracts still apply.
+
+Retain readable accepted history and provenance under the user's storage policy. Newly arriving bytes may be retained inertly for diagnostics/reconciliation but cannot reactivate live keys, generate acknowledgments or application effects, install a checkpoint into the retired instance, or initiate new resource disclosure. A fresh explicitly authorized admission can create a separate membership instance under its real invitation rules; it cannot clear the old tombstone or replay an old accepted invitation as a new membership. An ordinary source owner uses a new stream identity rather than restoring its retired source. Reading a historical archive never reopens either instance.
+
+### Acceptance requirements
+
+Exercise a native Commit that removes an administrator's last device, including a group with another administrator still present; valid device replacement without principal transfer; unauthorized administrator/application/delivery changes; witness succession without administrator promotion; lost/expired administrator authority; and a revoked prepared candidate. Rejected staging must preserve the live checkpoint, nonce/sender continuity, proposal-observation obligations and vote/outbox history. Full current-suite tests must inspect actual native proposals and authenticated GroupContexts, not just a proposed roster in JSON.
+
+For local retirement, race it against queued preparation, a vote, installation and the final transport gate; crash before/after its commit; restart with queued bytes; retry a previously uncertain submission; receive a late control; and explicitly rejoin as a new membership instance. No old-instance release or application effect may resume. Existing configured quorum/native experiments cover selected rejection and membership mechanics; they do not implement this complete retirement journey or establish current-suite conformance, physical erasure or independent interoperability.
+
+::::
 
 ## Joining and history
 
@@ -54,11 +106,53 @@ An invitation is a request to join, not proof that the recipient has joined or c
 
 New members receive future content according to the state in which they join. They do not automatically receive earlier plaintext, historical keys, transcripts or attachments. A history share is a separately authorized disclosure identifying the included content and new recipients. The sharer cannot claim that re-encryption preserves the earlier audience restriction.
 
+### Membership evidence is also a disclosure
+
+Joining an established conversation can reveal who belonged to it earlier, even when no earlier messages are shared. The invitation's required roster, identity proofs and membership-transition path are protocol metadata. Encrypting their delivery protects them in transit; it does not conceal them from the joining person.
+
+Before preparing an admission, evaluate the actual required proof bundle against the independently authorized disclosure policy for that target. This includes principal/device relationships, mailbox claims and historical membership or witness information present in the selected proofs. Make that scope inspectable in the add-person flow. Remembered policy may authorize routine additions; this requirement does not mandate a confirmation dialog for every invitation. Adding another device of an existing principal still requires its own device/admission authority and does not automatically authorize disclosure to a different principal.
+
+If the required evidence cannot be disclosed, hold the admission or deliberately establish a new conversation with a fresh genesis and its own authorized audience. Do not redact required proofs, manufacture continuity or silently substitute a new conversation. A new conversation carries neither earlier membership continuity nor old message access. Its initial roster and proofs still require their own disclosure authorization. A private-copy pair cannot be widened into a group by retaining its old identity.
+
+::: {.details summary="Proof scope and release checks"}
+
+The [current suite](suite-profile.md#ordinary-protected-conversations) requires an independently selected original roster anchor and a contiguous owner-signed source path for ordinary established admission. Its fixed principal audience cannot gain another principal through that path: a changed principal set uses a fresh admitted stream. Retaining an ordinary visible conversation identifier is a separate grouping/disclosure decision, not permission to copy old membership records or content.
+
+Managed established admission retains its original genesis and contiguous certified path, including the complete historical supplemental assertions required by the selected agreement. Those objects can identify former members or witnesses and their signed mailbox/device claims. Do not promise that removed participants are hidden from a later joiner. Do not treat all local history as required proof: inspect the exact selected carrier and its dependencies, without adding application bodies, old secrets or unrelated records.
+
+Freeze the target, exact original proof bytes and disclosure-policy dependencies with the admission preparation. A changed target or proof bundle requires a new disclosure evaluation and the invitation rules' corresponding immutable identity. Recheck current authority and applicable disclosure dependencies at final release; a previously prepared invitation cannot bypass a later local policy restriction. An uncertain earlier submission remains possibly disclosed even when subsequent release is held. These checks supplement, rather than replace, native membership, proof validation and transport checks.
+
+:::
+
 A forwarded invitation must not enroll its holder as the originally addressed principal. Acceptance binds the actual joining identity, group, invitation and allowed role. A bearer link alone cannot establish the original invitee's identity.
 
 ## Removal and delayed mail
 
-A removal prevents future encryption to the removed principal after senders validate and apply the transition. It cannot erase received content or instantly update offline senders. The group security profile must specify how stale epochs and queued contributions are handled.
+Removing a device and changing who receives a message are different actions. Once this client learns a valid device revocation, it stops new release through affected encryption states until their current authority and membership requirements are satisfied. Other senders may still be offline and unaware of the change. Revocation cannot erase content the device already received or guarantee an immediate cutoff everywhere.
+
+Ordinary email keeps per-message audiences. Leaving someone out of your next message does not remove them from another person's sending stream or from old history. Managed groups instead use their explicitly selected shared membership rules.
+
+> [!ex] Bob loses a phone
+> Alice learns that Bob revoked the phone. Her app holds affected outgoing work, even if a membership change has not finished. Bob's still-authorized laptop can remain a recipient once the required membership change is accepted; a newly added device still needs admission. Carol, who is offline and has not learned the revocation, may still prepare a message for the old phone. Alice's app must not claim Carol has already updated.
+
+:::: {.details summary="Device revocation, audience changes and interrupted membership"}
+
+| Change | Required scope and outcome |
+| --- | --- |
+| Revoke one account device | Apply the accepted identity change across this client's affected preparations, controls and sending streams. Preserve accepted history and earlier submitted/uncertain outcomes; revocation is not erasure or recall. |
+| Remove a receiving device from an ordinary stream | The exact owner alone authorizes its stream's transition. Retain its fixed principal audience and at least one eligible device for each required principal. Known revoked receiving authority already holds new content; it does not wait for a removal vote to become known locally. |
+| Replace the last eligible device of a required ordinary-stream principal | Hold that stream until suitable current device evidence, agreement and owner-authorized admission are available. Do not silently omit the person or reuse revoked setup material. Ready independent streams can proceed under their own plans. |
+| Revoke an ordinary stream's immutable source device | No other device takes over its source keys or checkpoints. A surviving authorized device may establish its own fresh sending stream under normal compose/disclosure and admission rules. It inherits no old secrets or automatic history. |
+| Change the people receiving a new ordinary contribution | Use a freshly admitted stream for the explicitly selected audience. The conversation grouping identifier may remain only under the owning compose/disclosure context; it is not membership or history permission. This does not alter another owner's streams or their authorized audiences. |
+| Remove a managed member | Use its exact predecessor-authorized and certified transition. Current identity revocation and validated proposal holds remain effective while ordering waits. Unsupported administrator changes or removal of a listed administrator's last eligible device stay held under the existing managed rules. |
+
+The [ordinary-stream contract](suite-profile.md#ordinary-protected-conversations) owns source/device/audience invariants; [managed lifecycle](#when-a-group-cannot-change) owns its separate authority and unsupported outcomes. Neither an email's To line nor a change in a local contact list installs a cryptographic membership transition. A freshly admitted changed audience receives only deliberately authorized content and references, not an automatically copied transcript. Private-copy and private-return roles retain their stricter exact-pair/context rules.
+
+A client distinguishes local identity revocation accepted, affected content held, membership transition pending, transition installed locally, and remote delivery outcomes. Do not collapse these into “removed everywhere.” Network reachability, receipt of a provider notice, SMTP acceptance or absence of a response cannot establish that every peer applied the change. The selected freshness policy describes the evidence actually available; it supplies no global revocation clock. A stale sender may expose newly composed content to an old device until it obtains the change. Display that limit where relevant without turning ordinary asynchronous email into an unselected online-only service.
+
+After an interrupted transition, retain its exact original candidate/proposal observations, votes, approval and transport outcomes. An unresolved managed order cannot resume application release under the old audience. Ordinary owner transitions retain their own accepted predecessor checks. Restart, retry, quorum timeout, an empty queue or fresh advertisement cannot clear a validated proposal hold or restore known revoked authority. Existing control and Commit delivery can continue only through their applicable authorization exceptions so the change can finish; those exceptions never authorize human content. After accepted advancement, old prepared bytes fail the current epoch/audience checks. A new preparation requires current authorization and the original contribution/copy/retry rules, not an automatic new event or another disclosure channel.
+
+::::
 
 Before submitting a queued contribution, a client rechecks membership and the sender's authorization under its current accepted group state. If the queue was created under an older state, the client must not simply send stale ciphertext as though it targeted the new state. It either follows a protocol-defined safe resubmission procedure or holds the contribution for resolution. Stable application event identity prevents a resend from becoming a second answer.
 
@@ -82,7 +176,7 @@ Changing a list's membership outside the group protocol does not automatically c
 
 ## Required evidence
 
-Conformance cases include unauthorized self-promotion, invitation forwarding, held unsupported administrator changes and final-administrator departure, explicit local closure, join without history, explicit history sharing, removed participants with delayed mail, queued sends across a transition, device enrollment and removal, hidden alias expansion and plaintext moderation. A future profile offering administrator transfer or authenticated group-wide closure must test those operations separately.
+Conformance cases include unauthorized self-promotion, invitation forwarding, held unsupported administrator changes and last-device departure of each listed administrator, terminal local membership retirement, join without history, explicit history sharing, removed participants with delayed mail, queued sends across a transition, device enrollment and removal, hidden alias expansion and plaintext moderation. A future profile offering administrator transfer or authenticated group-wide closure must test those operations separately.
 
 These rules select an administrator-based application model. The [experimental security profile](security-profile.md) selects MLS. The versioned application contexts and admission contracts bind these rules to MLS. The endpoint-quorum experiment below adds certified branch selection and recovery; the configured-writer profiles retain their narrower ordering model. Neither supplies a general late-message authorization proof.
 
@@ -101,12 +195,36 @@ For the selected endpoint-quorum profiles, standalone MLS Proposal messages are 
 
 Retain the validated observation durably before making the candidate or a corresponding vote available for publication. Bind it to the group and predecessor epoch. Restart, candidate abandonment, a coordinator timeout or failure to reach quorum MUST NOT clear the hold while that epoch remains active. Accepted certified epoch advancement ends the hold for the old epoch; terminal local retirement disables sending altogether. A previously prepared old-epoch message still fails the current epoch and audience checks after advancement.
 
-Apply the hold both when preparing content and at dispatch, including the final check before SMTP DATA. Bound ordinary copies and hosted disclosures of the same protected contribution follow it as well; they are not an automatic escape route. Separately authorized ordinary conversations remain separate. Control evidence and Commit delivery can continue through their existing authorization checks so that the group can finish the transition.
+Apply the hold both when preparing content and at dispatch, including the [final body-release check](transport.md#the-final-body-release-decision) after SMTP accepts DATA and before body bytes leave. Bound ordinary copies and hosted disclosures of the same protected contribution follow it as well; they are not an automatic escape route. Separately authorized ordinary conversations remain separate. Control evidence and Commit delivery can continue through their existing authorization checks so that the group can finish the transition.
 
 Publishing material that technically enables an external join does not authorize arbitrary participants to join an Email/2 conversation. Existing administrator and invitation rules still apply. Likewise, an MLS branch or reinitialization must retain the application-level distinction between a separate conversation, a parameter change and an authorized history disclosure. A new member's ability to decrypt future traffic does not grant access to past messages.
 
 These requirements are informed by RFC9420 Sections 3.1–3.4. The MLS base audit and versioned application experiments supply separate source and implementation evidence; neither makes ordinary SMTP an MLS sequencing service.
 
+
+### Waiting for a membership change
+
+Adding a device does not always require the other person to be online. For ordinary conversations, an authorized new device can prepare its own encrypted sending path when usable recipient setup is available. This does not give it access to old messages or automatically add it to existing protected groups.
+
+Managed groups may need approvals from other devices. Pairing can finish while those approvals are pending, and separately ready protected conversations can proceed. A timeout is not permission to bypass the group’s agreed approvals.
+
+:::: {.details summary="Pending setup, ordering waits and MLS continuation"}
+
+**Ordinary and managed membership authority**
+
+The selected ordering determines which membership change can proceed. [Ordinary owner streams](suite-profile.md#ordinary-protected-conversations) use their source owner’s authorization, not a peer quorum. After authorized enrollment, a new device can establish its own ordinary sending stream when the intended recipients’ usable setup is available; this does not admit it to older streams or transfer their history.
+
+An explicitly selected managed endpoint-quorum group requires enough current witnesses for its certified membership change. With two principals and one required witness each, both witnesses must participate. Managed admission holds until its required approvals are available. Pairing/enrollment can finish while that admission waits, and independently ready ordinary conversations may proceed under the [paired-device readiness contract](paired-configuration.md).
+
+A client MUST distinguish retained enrollment intent and public admission material from an actual validated MLS proposal. Receiving a device advertisement, approving QR pairing or retaining an intention to add a device does not, by itself, create an MLS proposal-observation hold. Other authority and audience checks remain applicable. Before a valid addition candidate is staged or inspected, ordinary traffic to the unchanged authorized audience can continue. Once the candidate contains validated proposals, the [durable hold above](#pause-content-while-a-membership-plan-is-pending) applies, including to additions. An implementation must not eagerly turn every received setup record into a membership candidate and then describe the resulting wait as unavoidable setup processing.
+
+A readiness check or successful earlier exchange cannot guarantee that a witness will still participate when a candidate needs votes. It MUST NOT substitute for the actual certificate, erase a prepared lock or clear a proposal observation after a timeout. New-device enrollment is not complete protected-conversation admission; its readiness result must retain that distinction. Known revocation or an otherwise unauthorized existing audience can independently hold sending even before a removal candidate is built.
+
+MLS supplies two related mechanisms, neither of which overrides this application's ordering rules. [Reinitialization](https://www.rfc-editor.org/rfc/rfc9420.html#section-11.2) requires a Commit in the old group before creating its replacement. [Subgroup branching](https://www.rfc-editor.org/rfc/rfc9420.html#section-11.3) creates a distinct group, with fresh admission material, a resumption PSK and application-defined member equivalence. Branching does not certify a successor of the old group or make a newly authorized account device an already admitted MLS member. A client MUST NOT relabel either mechanism as transparent continuation without an additional specified authorization and concurrency contract. The current suite supplies no such escape from a stalled ordering decision.
+
+The [two-principal experiment](evidence/README.md#two-principal-availability-boundary) exercises delayed ordinary delivery, incomplete voting, restart, eventual certified removal and the addition-observation boundary. It establishes these local boundaries, not distributed liveness or complete send-ready pairing.
+
+::::
 
 ### Endpoint quorum comparison
 
@@ -178,7 +296,7 @@ After accepting an identity successor, the client compares every affected curren
 | New device enrolled | Keep it outside existing groups until group admission succeeds; enrollment grants no history transfer |
 | Accepted account history becomes conflicted | Hold operations that depend on the disputed account authority; do not select a branch by arrival order |
 
-A hold preserves reading of already authorized history. It does not silently remove the affected person from the intended audience or permit ordinary-email fallback. A client may construct an authorized removal transition while application sending is held, provided the committing device itself retains the required authority. Losing the final authorized group administrator requires the separately defined recovery or closure procedure; revocation cannot justify using the revoked key to appoint its replacement.
+A hold preserves reading of already authorized history. It does not silently remove the affected person from the intended audience or permit ordinary-email fallback. A client may construct an authorized removal transition while application sending is held, provided the committing device itself retains the required authority. Losing all qualifying predecessor group administrators holds privileged transitions under the selected lifecycle boundary above. Local retirement or explicit fresh-conversation admission does not authenticate a successor or close the old group for others; revocation cannot justify using the revoked key to appoint its replacement.
 
 Before merging a candidate commit, the application validates the complete resulting roster, context and proposals against the exact predecessor. In particular, a commit cannot combine a legitimate removal with an unauthorized addition, key substitution or administrator change. Account revocation evidence does not grant an arbitrary member permission to commit changes. The selected ordering mechanism must also accept the transition before the new epoch is used or a Welcome is released.
 
@@ -295,3 +413,8 @@ This remains a configured-writer experiment. It does not provide designated-writ
 ## Combined suite binding
 
 The separately versioned [required conversation suite](suite-profile.md) defines its new assertion, context, invitation, ordering-wrapper and payload selections. It does not change any older version defined here. Its design is specified separately from implementation and acceptance evidence.
+
+
+## Identity repair is not MLS repair
+
+A [state1 administrative repair](identity-state.md#concurrent-administration-and-retirement) changes the accepted identity roster, not an MLS GroupContext, source owner or ordered membership record. Retain installed cryptographic state and historical receipts, then recheck current device key/roles, applicable signed support and actual membership before new effects. Same-key retained membership may remain usable where its owning contract permits it; key changes, role loss, binding-scoped grants and pending admissions require their real transitions or fresh authorization. Never merge MLS checkpoints or add historical access merely because account history was reconciled. A retired identity cannot originate new operational traffic; already retained correspondence remains historical.

@@ -1,5 +1,7 @@
 import base64
 import json
+import os
+from unittest.mock import patch
 import unittest
 from event_encoding import encode_event, EventLimitExceeded, MAX_EVENT_OCTETS
 from passive_discovery import decode_assertion, decode_passive_discovery, assertion_time_status, mailbox_syntax, canonical_base64, DOMAIN
@@ -83,9 +85,11 @@ class PassiveDiscoveryTests(unittest.TestCase):
             with self.subTest(address=address):
                 with self.assertRaises(ValueError):mailbox_syntax(address)
         self.assertEqual(mailbox_syntax('Alice+tag@example.com'),'syntax-valid')
-        self.assertEqual(mailbox_syntax('a@xn--bcher-kva.example'),'a-label-validation-required')
-        # Even an LDH-shaped but invalid A-label cannot acquire validated status.
-        self.assertEqual(mailbox_syntax('a@xn--a.example'),'a-label-validation-required')
+        # This case selects an absent dependency, independent of the runner's
+        # configured IDNA provider. Configured acceptance is tested separately.
+        with patch.dict(os.environ, {'EMAIL_NEXT_IDNA17_CONFIG': ''}):
+            self.assertEqual(mailbox_syntax('a@xn--bcher-kva.example'),'a-label-validation-required')
+            self.assertEqual(mailbox_syntax('a@xn--a.example'),'a-label-validation-required')
         maximal='a'*64+'@'+'b'*63+'.'+'c'*63+'.'+'d'*61
         self.assertEqual(len(maximal),254)
         self.assertEqual(mailbox_syntax(maximal),'syntax-valid')

@@ -25,7 +25,7 @@ A successful exchange supplies **fresh evidence from one device**. It does not p
 
 ## Authorize the service and the devices separately
 
-Before contacting a service, the client needs an authenticated account configuration binding the exact HTTPS service location to the intended service account. An email address, MX record, message link or provider brand is insufficient. For the first experiment, an operator installs this binding through the trusted configuration used to provision the test accounts.
+Before contacting a service, the client needs an authenticated account configuration binding the exact HTTPS service location to the intended service account. An email address, MX record, message link or provider brand is insufficient. The retained configured experiment installs this binding through trusted test-account configuration. The current public path uses the independently validated [descriptor2](provider-discovery.md#discover-the-asynchronous-agreement), account/device link and [grant2](provider-grants.md#authorize-asynchronous-pair-exchanges); a discovered location alone is not an account configuration or grant.
 
 Access also requires a service grant naming the account, initiating device, target device, permitted operations and expiry. Each participant authenticates with its own credential restricted to its role. Permission to place a challenge does not include permission to answer it. Mailbox passwords and credentials issued for another service are not accepted as substitutes.
 
@@ -36,7 +36,7 @@ The service account and Email/2 identity are different authorities. An administr
 
 Reassigning or reprovisioning the service account must invalidate its previous grants. It must not silently repin an established Email/2 identity to the new mailbox owner.
 
-The [first-contact flow](first-contact-setup.md) additionally permits a content-free automated setup before the first human message. It requires a new public bootstrap binding; an unknown peer cannot enter this configured pair-grant queue without authorization. Recipient opt-in and a device policy can authorize automatic setup responses without a human email reply.
+The [first-contact flow](first-contact-setup.md) additionally permits a content-free automated setup before the first human message. The [public bootstrap binding](bootstrap.md) supplies its separate authority; an unknown peer cannot enter this configured pair-grant queue without authorization. Recipient opt-in and a device policy can authorize automatic setup responses without a human email reply.
 
 ## One challenge, one response
 

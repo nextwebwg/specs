@@ -7,7 +7,7 @@ sectionNav: true
 
 # Event identifiers and exact references
 
-This chapter selects identifier and reference rules for the experimental Email/2 event format. These are proposed protocol choices, not registered URI schemes or approved standards. They replace the previously open identifier grammar; the [encoding contract](event-encoding.md) selects exact-byte serialization identity, while the complete event schema and cryptographic binding remain separate work.
+This chapter selects identifier and reference rules for the experimental Email/2 event format. These are proposed protocol choices, not registered URI schemes or approved standards. The [encoding contract](event-encoding.md) selects exact-byte serialization identity, while the [protected agreement](suite-profile.md) owns the current operation, payload and cryptographic bindings. Outer mail identifiers provide navigation and transport correlation, never that authority.
 
 ## Identifier grammar
 
@@ -21,9 +21,67 @@ This grammar is an experimental design choice. It uses 128 random bits for distr
 
 An event's deduplication key is the pair of its authenticated principal identifier and event identifier. The principal identifier is supplied by the selected security profile and is not inferred from the event's claimed mailbox. Reusing an event identifier under the same principal for different content, conversations or operations is a conflict, not a new namespace.
 
-A conversation identifier groups contributions but grants no access. Equal identifiers do not prove that two recipients possess the same history. The initial form event establishes the form identifier under that event's authenticated author. Field identifiers are scoped to that form; choice identifiers are scoped to their field. Revisions preserve identifiers only where the interaction contract permits meaning to remain continuous.
+A conversation identifier groups contributions but grants no access. Equal identifiers do not prove that two recipients possess the same history. In the current button-only profile, an option is scoped to its exact authenticated question event; an answer names that question’s complete EventReference and its selected option ID. A repeated label or option ID in a different question cannot retarget the answer. No form or field object is required.
+
+The following form/field revision rules apply only to the deferred general-form experiment, not to current question buttons. The initial form event establishes the form identifier under that event’s authenticated author. Field identifiers are scoped to that form; its choice identifiers are scoped to their field. Revisions preserve identifiers only where the interaction contract permits meaning to remain continuous.
 
 Each form revision has its own event identifier. The revision's identity is the complete event reference below; a revision counter or date is not a substitute. A submission names the form authority, form identifier and exact revision event. A field or choice identifier alone cannot identify a question outside that context.
+
+## Detect reuse across conversations
+
+An author cannot make a reused event ID valid by placing it in another conversation. The receiver checks that author's event namespace before deriving conversation views. A full reference still includes the conversation, so a reply cannot resolve to a different conversation's copy.
+
+:::: {.details summary="Namespace acceptance, conflicts and derived-view invalidation"}
+
+The namespace key is `(authenticated principal,event)` within the receiver's local security profile. The three-member EventReference additionally asserts the expected conversation. Stream, MLS GroupId/epoch, delivery, mailbox account location and outer Message-ID do not create another event namespace. Separate security profiles retain their own authority/storage boundaries; this is not an instruction to search another user's accounts or a global server directory.
+
+1. Complete the owning carrier, native/authenticated-author, operation, audience and content/resource checks before adding namespace evidence. An unauthenticated claim, failed validation, ordinary header or untrusted archive cannot reserve an authenticated author's ID. Keep inert historical import distinct from live acceptance; only its owning authorized revalidation can supply live namespace evidence.
+2. In the same serialized durable acceptance boundary as its owning effects/checkpoint, look up every already accepted variant under the principal/event pair, including other conversations in this profile. Retain each exact event representation, asserted conversation and its original accepted provenance. Do not use a unique database constraint that discards conflicting evidence before it can affect the existing view.
+3. Equal authenticated event bytes and complete resource commitments under the same asserted conversation can reuse the accepted event result, while retaining distinct carrier provenance. A repeated principal/event with different authenticated bytes, conversation or committed meaning is a retained conflict. Its claimed new conversation is not a namespace escape. A different principal using the same random event ID remains a different namespace.
+4. Mark that event identity conflicted in every affected local conversation and prevent new dependent effects/target resolution from choosing any variant. Preserve previously recorded historical acceptance and actual external outcomes; discovering conflict does not unsend mail, reverse an executed service action or delete old evidence. Current derived answer/edit/reaction views must reflect the conflict instead of silently keeping the first result.
+5. Invalidate or recompute every affected derived view and queued dependency under the same serialized knowledge change. A source token must bind all known variants relevant to its local principal/event keys, not only the rows physically stored under that conversation. Recheck the token and owning current authority before installing a view or releasing a dependent operation. An in-flight old projection cannot overwrite newly learned conflict.
+6. Keep foreign-conversation evidence private. A conversation's projection receives its own authorized bytes and the necessary conflict state, not another conversation's body, participants, identifier list or number of copies. Namespace checking does not authorize a history transfer, network lookup or diagnostic disclosure. Internal tokens/indices are local security data, not peer receipts.
+7. Failed persistence commits none of the proposed namespace/effect change; restart and exact replay retain the committed outcome. Reopening an older cache requires recomputing tokens against the current namespace semantics, not accepting a previously conversation-only token as proof. A new independently scoped store may know less evidence; neither store can claim universal conflict/revocation knowledge.
+
+A fresh event can express a new message under the normal authority rules, but cannot clear a conflicted identity or retrospectively authenticate one variant. Deletion/purge retains the [required replay/conflict safety state](client-behavior.md#what-a-status-can-tell-you); unavailable original bytes do not make an old identifier unseen or prove a later variant equal. Actual privacy-scoped copies use the fresh identities required by their copy contract.
+
+Acceptance includes two validly attributed records reusing one principal/event across different conversations, both arrival orders, separate writers, a cached view computed before the second record, failed persistence, restart, old cache tokens, different principals reusing the random ID and unauthenticated attempted reservation. Observe no foreign body in either conversation projection, no first-arrival winner and no fabricated undo of an already completed external action. A trusted-input journal test supplies storage/conflict evidence, not independent cryptographic authorship or complete native/control integration.
+
+::::
+
+## Keep delivery identity separate from message identity
+
+The current agreement has two typed namespaces. A message's authored identity stays the same when another recipient becomes ready. Each new encrypted preparation has a separate delivery identity. The same random spelling can occur in both namespaces without making them the same object.
+
+| Namespace | Identity and equality |
+| --- | --- |
+| Authored message | Authenticated principal plus authored event ID. Compare the complete original authored0 bytes and their committed meaning under the existing namespace algorithm. |
+| Secured delivery | Publishing principal plus envelope6 delivery event ID. Compare the exact envelope, accepted complete native protected-message bytes and their sender/context/epoch binding. Outer mail trace fields and equivalent outer transfer encodings do not create a new protected preparation. |
+
+A delivery ID is never a reply, quotation, reaction or edit target. Different delivery IDs carrying the same accepted authored bytes add provenance to one logical message. Matching delivery IDs do not prove matching authored content, native preparation or recipient access.
+
+:::: {.details summary="Two-ledger acceptance and conflict handling"}
+
+These rules apply only after each candidate independently passes its owning native, current author, carrier, scope/map, operation and resource gates. Missing required validation remains pending; unauthenticated claims and inert historical imports do not enter either live namespace. Pending operation targets retain their owning dependency rules.
+
+1. In the serialized receiving transaction, index the complete accepted delivery variant under its typed delivery key. An identical protected preparation adds its actual carrier provenance. A different accepted variant under that key marks the delivery key conflicted and retains every variant; do not choose by arrival, timestamp or epoch number.
+2. Independently process each fully validated variant's original authored bytes under the authored namespace algorithm. A delivery-key collision cannot suppress evidence of authored equivocation. If those bytes conflict under one authored identity, retain that conflict even when all variants used the same delivery ID. If they name different authored identities, each undergoes its own acceptance; a delivery collision does not invent an authored conflict between them.
+3. A delivery conflict alone does not invalidate otherwise independently accepted authored content or repeat, replace or roll back its logical effects. Complete authored identity, scope, target and effect rules still decide those effects. Preserve each variant's actual native audience and provenance; no variant can borrow another's validation or exposure scope.
+4. Mark the delivery conflict wherever a local delivery record is shown or used. That key alone can no longer identify one frozen preparation, successful retry or recipient outcome. Reconciliation must use the retained exact preparation and independently correlated transport evidence. Keep previously established historical handoff and uncertainty facts; the conflict neither proves universal success nor resets a recipient to unsent.
+5. Commit both namespace decisions, per-variant provenance, derived invalidations and the effect or durable dependency together. An old in-flight projection cannot overwrite newly learned conflict. Failed persistence commits none of that proposed change. Restore and purge preserve both typed safety ledgers under their owning rules.
+
+| Independently validated input | Required result |
+| --- | --- |
+| New delivery ID, identical authored bytes | One message/effect, additional actual delivery provenance. |
+| Same delivery ID, different native preparation, identical authored bytes | Delivery conflict; one authored message/effect. No invented successful retry. |
+| Same delivery ID, unequal authored bytes under the same authored key | Both delivery and authored conflicts; apply the authored conflict's effect suspension and preserve historical external outcomes. |
+| Same delivery ID, two different authored keys | Delivery conflict; independently evaluate both logical messages. Neither can suppress the other by claiming that delivery ID first. |
+| Same random spelling used once as an authored ID and once as a delivery ID | Separate typed keys; spelling alone creates no collision. |
+| Forged or incomplete second variant | No accepted namespace reservation or conflict from that claim; retain its rejected/pending evidence separately. |
+
+These are deterministic receiving requirements, not transferable delivery receipts or proof that another recipient has the same evidence. A delivery collision also does not authorize retransmission or a fresh send; outgoing work retains its original intent, current checks and uncertainty boundary.
+
+::::
 
 ## Exact event reference
 
@@ -54,9 +112,70 @@ An unauthenticated message cannot reserve an authenticated principal's identifie
 > [!ex] The same Message-ID on two different messages
 > Alice's original email and a modified copy might arrive with the same outer Message-ID. A client may use that value to suggest a thread, but it must not use it to decide that the modified copy is Alice's authenticated original.
 
-Email/2 uses ordinary Message-ID, In-Reply-To and References fields for legacy navigation. They MUST NOT substitute for an authenticated event reference, reserve a principal's event namespace or authorize an edit. ENVID tracks a transport submission; it is not a contribution identifier. [RFC5598 §3](https://www.rfc-editor.org/rfc/rfc5598.html#section-3) provides the architectural distinction; the applicable message-format and delivery-status specifications remain authoritative for wire syntax.
+Email/2 can project ordinary Message-ID, In-Reply-To and References fields for legacy navigation under the disclosure rules below. Masked delivery omits public reply chains. They MUST NOT substitute for an authenticated event reference, reserve a principal's event namespace or authorize an edit. ENVID tracks a transport submission; it is not a contribution identifier. [RFC5598 §3](https://www.rfc-editor.org/rfc/rfc5598.html#section-3) provides the architectural distinction; the applicable message-format and delivery-status specifications remain authoritative for wire syntax.
 
 For a newly authored correction, generate a new outer Message-ID as well as a new event identifier. Where a known original mail copy is referenced, its Message-ID may appear in ordinary reply headers. Preserve the structured reference independently. An absent or ambiguous outer identifier does not justify guessing that reference, and a valid structured reference does not make an unverified outer address authoritative.
+
+## Map contributions to ordinary mail
+
+A reply can keep its place in an older inbox without copying the conversation underneath it. The client remembers which actual mail copy represents the reply's parent. That correspondence remains local evidence: the outer headers neither authenticate the parent nor replace the protected reply reference.
+
+:::: {.details summary="Message versions, recipient copies and MIME part identity"}
+
+| Object | Identity and lifetime |
+| --- | --- |
+| Authored contribution | Its authenticated principal/event identity and exact content remain unchanged only under the owning event rules. Reusing an event under another conversation, audience or meaning is a conflict. A correction is a new event. |
+| Prepared mail version | Allocate one globally unique Message-ID for this authored mail representation, freeze it with its exact prepared bytes and intended copy scope, and retain it across attempts. It is not a derivative encoding of the event/conversation, a database row ID or an attempt counter. |
+| Permitted grouped delivery | One unchanged prepared mail version can serve several envelope recipients only when the actual content, projection and confidentiality permit that grouping. Different recipient-specific representations or private copies get independently generated Message-IDs. |
+| Client attempt | Local bookkeeping and any separately authorized envelope/report correlation. Retry does not allocate a fresh Message-ID or re-encrypt immutable prepared bytes. |
+| MIME entity/resource | Content-ID and resource/chunk identifiers follow the selected payload's own exact scopes and authenticated commitments. A MIME part is not a new authored event merely because it has a Content-ID. Never substitute an outer Message-ID for an event or resource reference. |
+
+Generate new Message-IDs using opaque cryptographically random local parts with at least 128 random bits, an origination-authorized DNS domain and durable uniqueness/collision handling within that generator. Do not encode personal addresses, authenticated event/conversation/source IDs or timestamps into the random local part. Use the inherited RFC5322 msg-id syntax, not a new URI scheme. An address-masking origination uses its provider/relay-authorized domain and independent ID as required by [private routing](private-routing.md#release-with-minimal-outer-metadata); an arbitrary client cannot claim another operator's namespace.
+
+Atomically reserve the generated Message-ID with its prepared mail version before any release. Concurrent workers preparing the same immutable delivery return its retained ID/bytes. A collision with a locally allocated ID is retried with fresh randomness before commitment; a changed version cannot take an earlier reservation, including an abandoned one. Untrusted incoming mail cannot reserve this allocator’s namespace. Allocator/storage failure holds preparation rather than falling back to an address-derived or reused ID. This local reservation does not claim detection of every remote collision or whole-machine rollback resistance.
+
+A sender deliberately preparing a new encrypted carrier, different content/protection projection or new outer origination creates a new prepared mail version and Message-ID. These representations can expose different recipients, metadata or security dependencies even when the authored text is identical; the mail-version distinction does not create another authored event. The contribution can retain its identity only when its original authenticated meaning/bytes and the owning duplicate/copy/disclosure rules permit it. This is a newly authorized delivery, not a retry of the old one; retain previous success/uncertainty and apply the send-plan rules before releasing it. A route change cannot edit an already released attempt. Merely adding Received/Resent trace fields, relocating a mailbox record or performing a permitted equivalent transfer encoding does not by itself create a new authored mail version.
+
+Exact retry retains part IDs and complete payload bytes. A fresh private/disclosure copy has its own scoped resource identities where the copy contract requires them. Rewrapping cannot rewrite an authenticated Content-ID/index or treat a missing original as permission to regenerate equivalent-looking bytes. Provider-side outer origination must retain its final exact Message-ID/wire result for the original immutable request; repeating the request cannot produce another new message.
+
+::::
+
+:::: {.details summary="One-parent legacy projection and privacy checks"}
+
+These projection rules apply to Email/2-originated copies. Retain imported ordinary source fields as evidence. Separately selected legacy S/MIME/OpenPGP and protected-header paths keep their owning canonicalization, signature and inner/outer header rules; never strip or rewrite signed fields to imitate this projection.
+
+### Select an actual permitted parent copy
+
+For message/rich-message/attachment-message/reply-message, the singleton replyTo is the primary parent; an empty replyTo has none. An answer's question and a reaction's target are their primary parents. An edit retains the root’s existing structured reply relationship; its root/predecessors do not create a new reply edge. This generic projection does not select an automatic legacy parent for edits, reaction withdrawal or other operations unless an owning projection expressly defines one. Quotation sources, replacement sets, a shared subject or the most recently received message cannot create extra parents.
+
+For a current reply-aware contribution, first establish that its requested primary relationship is permitted under the source reply-intent and exact audience rules. A requested reference, familiar display label or failed/unsupported source contract cannot supply an outer parent merely because a Message-ID can be found. Private-root composition retains its separate-context rules; it cannot export a local group-to-private source connection through these headers.
+
+Resolve that primary reference through retained accepted event-to-mail provenance for this exact copy and recipient scope. A local ordinary reply can instead use its explicitly selected original mail parent without claiming structured authentication. Store the selected parent's original byte/location commitment, parsed identification fields, account/copy scope and provenance with the prepared delivery. Receiving a matching Message-ID alone cannot install that mapping or override accepted authorship. A digest without its original/provenance cannot prove the association.
+
+A grouped outgoing copy requires one unambiguous parent representation that is appropriate and permitted for every recipient of that copy. Where recipients have different parent copies, prepare separately permitted representations or omit the unavailable public hint; never select the first recipient's ID for everyone. Missing/ambiguous parent evidence leaves the structured parent unchanged and the public projection absent. It does not trigger a remote fetch, disclose another copy's history or hold an otherwise valid protected reply merely for lack of an optional outer hint.
+
+### Construct the headers
+
+First apply the selected outer privacy contract. Sender/recipient-masked private-addressing projections omit both In-Reply-To and References, even if a parent is known. Other copies may emit these navigation fields only when the retained disclosure plan permits their actual identifiers to everyone receiving that copy. A parent copy being readable locally does not authorize disclosing its ancestors. Check ancestry separately from the immediate parent; no new per-message approval dialog is required when existing scoped permission suffices.
+
+For one selected parent, parse the inherited identification fields with finite input/work limits. Keep field absence, invalid/ambiguous fields and valid values distinct. A valid Message-ID field has exactly one msg-id. Preserve each parsed msg-id value and order without replacing its spelling with an event ID, lowercasing it or inventing a missing value. Folding/CFWS presentation follows the inherited field grammar; this profile does not narrow acceptance of old valid msg-id syntax to its new random generation spelling.
+
+1. If that parent has one valid Message-ID and its disclosure is permitted, emit In-Reply-To containing exactly that ID. Otherwise omit In-Reply-To.
+2. If ancestry disclosure is permitted, construct References using RFC5322 §3.6.4: start with the parent's valid References sequence when present; otherwise, **only if References is absent**, use the parent's valid In-Reply-To when it contains exactly one ID. Otherwise start empty. Append the parent's valid Message-ID when present. The parent's Message-ID may be absent while its valid References or single In-Reply-To still supplies a References sequence.
+3. An invalid/ambiguous present References field makes the inherited chain unusable; do not fall through to an older In-Reply-To field as if References were absent. Missing/ambiguous Message-ID contributes no appended ID. Never concatenate chains from several parents or use quotation/replacement references to fill the gap.
+4. Emit a nonempty References only if every proposed ID is permitted for this outgoing copy and the complete field fits the declared header/count/processing limits. Otherwise omit that field, retain the reason locally and keep any independently permitted In-Reply-To. Do not truncate, reorder, deduplicate or normalize a chain into a purportedly complete ancestry. Required protection/disclosure policy still holds the delivery if omitting the hint cannot satisfy it.
+
+Run projection and permission checks before freezing the prepared mail version. A later policy/budget change cannot strip or regenerate headers inside an exact retry; hold or prepare a separately authorized replacement under the existing uncertainty/copy rules.
+
+Privacy or incomplete evidence can justify omitting the ordinary SHOULD-level navigation fields. This does not remove the required exact structured reply relationship. Imported ordinary mail retains all original parents, including multiple In-Reply-To values; display that uncertainty/relationship as ordinary source evidence rather than manufacturing an authenticated multi-parent construction. Forwarding is new composition/disclosure, not replay of the source's reply headers or a new parent inferred from its subject.
+
+### Example and acceptance
+
+Alice's ordinary root has Message-ID A. Bob's reply has a fresh Message-ID B, In-Reply-To A and References A. Alice's next reply has fresh C, In-Reply-To B and References A B, even though its body contains only her new writing. A retry of C retains C and its frozen body/headers. A separately scoped private copy has independent IDs and never includes A/B merely to correlate it with the public conversation. For a masked copy, C is independent and both public reply headers are absent; the exact reply remains inside encryption.
+
+Required cases include exact retry/new version, grouped versus recipient-specific parent mappings, missing/duplicate/malformed identifiers, valid ancestry without parent Message-ID, absent versus invalid References, multi-parent input, unauthorized ancestry, masked projection, long/over-budget chains, private-copy isolation and changed bytes under a shared outer ID. Observe both actual emitted mail and retained authenticated graph/effect state. A projection helper with trusted parsed inputs proves neither full RFC parsing, disclosure authorization, durable ID allocation nor complete client carriage.
+
+::::
 
 ## Display references are separate
 

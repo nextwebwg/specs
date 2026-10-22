@@ -9,9 +9,9 @@ from vault_fixture import NativeAuthorization
 class NativeClaims(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.path=Path(self.tmp.name)/'vault.sqlite';self.key=fresh_key(self.path)
-        origin='https://service.example';self.reg=encode_event(dict(version='0',purpose='service-authorization-registration',registration='1'*32,generation='1',issuer=origin,service=origin,clientId='native',authorization=origin+'/authorize',token=origin+'/token',linkChallenge=origin+'/link/challenge',linkComplete=origin+'/link/complete',redirectPath='/email-next/oauth/callback',scopes=SCOPES))
+        origin='https://service.example';self.reg=encode_event(dict(version='0',purpose='service-authorization-registration',registration='1'*32,generation='1',issuer=origin,service=origin,clientId='native',authorization=origin+'/authorize',token=origin+'/token',linkChallenge=origin+'/link/challenge',linkComplete=origin+'/link/complete',redirectPath='/mail/oauth/callback',scopes=SCOPES))
         self.client=NativeAuthorization(self.path,self.reg,key=self.key,clock=lambda:100);self.addCleanup(self.client.close)
-        self.redirect='http://127.0.0.1:12345/email-next/oauth/callback';_,self.attempt=self.client.start(self.redirect)
+        self.redirect='http://127.0.0.1:12345/mail/oauth/callback';_,self.attempt=self.client.start(self.redirect)
         self.response=dict(access_token='fixture-access',refresh_token='fixture-refresh',token_type='Bearer',expires_in=60,scope=' '.join(SCOPES))
     def test_scope_set_and_token_response_types(self):
         self.client.accept_tokens(dict(self.response,scope=' '.join(reversed(SCOPES)),token_type='bEaReR'),expected_attempt=self.attempt)

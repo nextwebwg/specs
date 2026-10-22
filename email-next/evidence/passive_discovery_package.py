@@ -12,8 +12,8 @@ from passive_discovery import hexadecimal, uint64
 from event_encoding import MAX_EVENT_OCTETS
 
 
-def validate_package(package_octets, *, principal, device, accepted_signing_key,
-                     earliest, latest, executable, maximum_lifetime=None):
+def _package_call(package_octets, *, principal, device, accepted_signing_key,
+                  earliest, latest, executable, maximum_lifetime=None, metadata=False):
     """executable is a trusted local build path, never supplied by received mail.
 
     Pass the parsed assertion's exact key_package_octets, identifiers and time
@@ -37,8 +37,20 @@ def validate_package(package_octets, *, principal, device, accepted_signing_key,
     if output.returncode not in (0,1):
         raise RuntimeError('Package validator failed')
     result=json.loads(output.stdout)
-    if result=={'status':'package-valid'} and output.returncode==0:
-        return result
+    if output.returncode==0:
+        if not metadata and result=={'status':'package-valid'}:return result
+        if metadata and isinstance(result,dict) and set(result)=={'status','reference','notBefore','notAfter'} and result['status']=='package-valid' and hexadecimal(result['reference'],64) and uint64(result['notBefore'])<=uint64(earliest)<=uint64(latest)<=uint64(result['notAfter']):return result
     if output.returncode==1 and set(result)=={'status','reason'} and result['status']=='rejected' and isinstance(result['reason'],str):
         return result
     raise RuntimeError('Unexpected package validator result')
+
+
+def validate_package(package_octets, *, principal, device, accepted_signing_key,
+                     earliest, latest, executable, maximum_lifetime=None):
+    return _package_call(package_octets,principal=principal,device=device,accepted_signing_key=accepted_signing_key,earliest=earliest,latest=latest,executable=executable,maximum_lifetime=maximum_lifetime)
+
+
+def inspect_package(package_octets, *, principal, device, accepted_signing_key,
+                    earliest, latest, executable, maximum_lifetime=None):
+    """Public metadata from the same complete validator; never secret ownership."""
+    return _package_call(package_octets,principal=principal,device=device,accepted_signing_key=accepted_signing_key,earliest=earliest,latest=latest,executable=executable,maximum_lifetime=maximum_lifetime,metadata=True)

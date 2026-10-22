@@ -72,11 +72,14 @@ def mailbox_syntax(value):
 
 
 def decode_assertion(octets):
-    value = decode_event(octets)['value']
-    application_version = value.get('version') in ('1','2','3','4','5','6','7')
+    value = decode_event(octets, nullable_members=('keyPackageReceiveUntil','controlKey'))['value']
+    if value.get('version') not in ('8','9'):decode_event(octets)
+    if not isinstance(value,dict):raise ValueError('Assertion object required')
+    application_version = value.get('version') in ('1','2','3','4','5','6','7','8','9')
     fields = FIELDS | {'applications'} if application_version else FIELDS
-    if value.get('version')=='7':fields=fields|{'orderingExchanges'}
-    if set(value) != fields or value['version'] not in ('0', '1', '2', '3', '4', '5', '6', '7') or value['purpose'] != 'passive-discovery':
+    if value.get('version') in ('7','8','9'):fields=fields|{'orderingExchanges'}
+    if value.get('version') in ('8','9'):fields=fields|{'keyPackageReceiveUntil','controlKey'}
+    if set(value) != fields or value['version'] not in ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9') or value['purpose'] != 'passive-discovery':
         raise ValueError('Invalid assertion schema/purpose')
     if value['version']=='7' and value['orderingExchanges']!=[{'format':'quorum-exchange-experiment','version':'1'}]:raise ValueError('Exact ordering exchange capability')
     if not hexadecimal(value['record'], 32) or value['record'] == '0'*32:
@@ -93,7 +96,16 @@ def decode_assertion(octets):
     features = value['features']
     if not isinstance(features, list) or features not in [[], ['mls-1-0001']]:
         raise ValueError('Unsupported, duplicate or unordered features')
-    if value['version'] in ('2','3','4','5','6','7'):
+    if value['version'] in ('8','9'):
+        if value['version']=='9':
+            from reply_suite import validate_all_offers, exchanges
+            validate_all_offers(value['applications'])
+        else:
+            from suite_modules import validate_offers, exchanges
+            validate_offers(value['applications'])
+        if value['orderingExchanges']!=exchanges(value['applications']):raise ValueError('Exact selected-suite control capabilities')
+        if features!=['mls-1-0001']:raise ValueError('Required selected-suite capability')
+    elif value['version'] in ('2','3','4','5','6','7'):
         from application_tuples import validate_tuples
         validate_tuples(value['applications'],version=value['version'])
         if value['applications'] and not features:raise ValueError('Application tuple capability')
@@ -112,9 +124,23 @@ def decode_assertion(octets):
     if not isinstance(packages, list) or len(packages) > 1 or (packages and not features):
         raise ValueError('Invalid package cardinality/capability')
     package = canonical_base64(packages[0]) if packages else None
-    mailbox = mailbox_syntax(value['mailbox'])
+    if value['version'] in ('8','9'):
+        control=value['controlKey']
+        if control is not None:
+            from sealed_control import key_descriptor
+            key_descriptor(control)
+            if not uint64(control['notBefore'])<=before<=after<=uint64(control['notAfter']):raise ValueError('Assertion exceeds control publication window')
+        elif package is not None:raise ValueError('Admission package requires sealed-control key')
+        if package is None:
+            if value['keyPackageReceiveUntil'] is not None:raise ValueError('No-package receiving deadline must be null')
+        elif uint64(value['keyPackageReceiveUntil']) < after:raise ValueError('Receiving deadline precedes publication interval')
+        from email2_mailbox import validate as validate_mailbox, IDNAUnavailable
+        try:
+            validate_mailbox(value['mailbox']);mailbox='syntax-valid'
+        except IDNAUnavailable:mailbox='a-label-validation-required'
+    else:mailbox = mailbox_syntax(value['mailbox'])
     return {'octets': octets, 'value': value, 'digest': hashlib.sha256(octets).hexdigest(),
-            'signature_input': (b'email-next/passive-discovery/v7\0' if value['version']=='7' else b'email-next/passive-discovery/v6\0' if value['version']=='6' else PRESENTATION_DOMAIN if value['version']=='5' else PRIVATE_COPY_DOMAIN if value['version']=='4' else RICH_DOMAIN if value['version']=='3' else TUPLE_DOMAIN if value['version']=='2' else APPLICATION_DOMAIN if application_version else DOMAIN)+len(octets).to_bytes(4, 'big')+octets,
+            'signature_input': (b'mail/passive-discovery/v9\0' if value['version']=='9' else b'email-next/passive-discovery/v8\0' if value['version']=='8' else b'email-next/passive-discovery/v7\0' if value['version']=='7' else b'email-next/passive-discovery/v6\0' if value['version']=='6' else PRESENTATION_DOMAIN if value['version']=='5' else PRIVATE_COPY_DOMAIN if value['version']=='4' else RICH_DOMAIN if value['version']=='3' else TUPLE_DOMAIN if value['version']=='2' else APPLICATION_DOMAIN if application_version else DOMAIN)+len(octets).to_bytes(4, 'big')+octets,
             'mailbox_syntax': mailbox, 'key_package_octets': package,
             'status': 'syntax-only-unverified'}
 

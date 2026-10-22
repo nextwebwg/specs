@@ -9,6 +9,7 @@ from hosted_reply_admission import retain_template,template_limit
 from hosted_reply_export import HostedReplyExporter
 from hosted_notification_release import HostedNotificationRelease
 from plaintext_release import PlaintextRelease
+from copy_plan_status import CopySnapshot, RecipientEvidence, summarize
 from sender_worker import SenderWorker
 from test_sender_release import LocalSMTP
 import test_hosted_observer
@@ -78,10 +79,20 @@ class DisclosureTests(unittest.TestCase):
         with patch.object(self.client,'_exchange',side_effect=lose):
             with self.assertRaises(ConnectionError):self.bound.create('a'*32,'manager',time=self.f.time)
         self.assertEqual(self.store.lookup('a'*32,'manager')[0],200)
+        local=self.f.identities[0].db.execute('SELECT state FROM hosted_creation_state WHERE operation=?',('a'*32,)).fetchone()[0]
+        self.assertEqual(local,'uncertain')
+        snapshot=CopySnapshot('hosted','held',(RecipientEvidence(self.route['recipientAddress']),),content_release_uncertain=local in ('released','uncertain'))
+        projected=summarize(('hosted',),[snapshot],progression='independent')
+        self.assertTrue(projected['content_may_be_exposed']);self.assertFalse(projected['content_exposure_observed'])
+        self.assertFalse(projected['all_handoffs_confirmed']);self.assertEqual(projected['candidate_units'],())
         with self.assertRaisesRegex(ValueError,'uncertain'):self.bound.create('a'*32,'manager',time=self.f.time)
         self.plans.withdraw(self.digest)
         result=self.bound.reconcile('a'*32,'manager');self.assertEqual(result['state'],'observed')
         self.assertEqual(self.f.identities[0].db.execute("SELECT state FROM hosted_creation_state WHERE operation=?",('a'*32,)).fetchone()[0],'confirmed')
+        known=CopySnapshot('hosted','held',snapshot.recipients,content_exposed=True)
+        observed=summarize(('hosted',),[known],progression='independent')
+        self.assertTrue(observed['content_exposure_observed']);self.assertTrue(observed['content_may_be_exposed'])
+        self.assertFalse(observed['all_handoffs_confirmed'])
         with self.assertRaises(ValueError):self.notify(result['evidence'])
     def test_notification_and_protected_original_recheck_plan_after_rcpt(self):
         self.plan();result=self.bound.create('a'*32,'manager',time=self.f.time);notification,now=self.notify(result['evidence']);smtp=LocalSMTP()

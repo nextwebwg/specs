@@ -1,0 +1,18 @@
+{
+  "version": "2",
+  "purpose": "bootstrap-service-discovery",
+  "domain": "recipient.example",
+  "publication": "8e0a6f2b194aaf67a6c7dcab290855c3",
+  "generation": "1",
+  "service": "https:\/\/mail-service.example",
+  "managementPrefix": "\/mail\/setup\/manage\/",
+  "sourcePrefix": "\/mail\/setup\/source\/",
+  "exchangePrefix": "\/mail\/setup\/exchange\/",
+  "roles": [
+    "request-source",
+    "respond-target"
+  ],
+  "notBefore": "1792537200",
+  "notAfter": "1795129200",
+  "agreement": "mail-conversation-v2"
+}

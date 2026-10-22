@@ -52,11 +52,37 @@ class MailboxAssociationTests(unittest.TestCase):
         self.identity.db.execute('INSERT INTO identity_heads VALUES(?,?,1)',(self.principal,head))
         self.assertEqual(self.decide(2)['status'],'pending')
     def test_competing_initial_claims_require_explicit_resolution(self):
-        second=self.seed(fixture(True));self.store.observe_validated_batch([self.item,second])
-        self.assertEqual(self.decide()['status'],'ambiguous')
-        self.assertEqual(self.decide(3,trust_policy='require-verification')['status'],'ambiguous')
-        result=self.decide(2,kind='resolve-first-contact',actor='local-user')
-        self.assertEqual(result['status'],'associated-unverified');self.assertEqual(len(result['reviewedCandidates']),2)
+        second_fixture=fixture(True)
+        second=self.seed(second_fixture)
+        for reverse in [False, True]:
+            for separate in [False, True]:
+                with self.subTest(reverse=reverse, separate=separate):
+                    # Each trial starts without an association. Both observations
+                    # are retained before selection; future unseen claims cannot
+                    # be included in this local snapshot.
+                    path=Path(self.temp.name)/f'claims-{reverse}-{separate}.sqlite'
+                    identity=IdentityStore(path)
+                    try:
+                        for f in [self.f, second_fixture]:
+                            identity.observe(f['genesis'],first_contact_policy='allow-unverified')
+                        store=MailboxAssociationStore(identity)
+                        items=[second,self.item] if reverse else [self.item,second]
+                        for batch in ([[item] for item in items] if separate else [items]):
+                            store.observe_validated_batch(batch)
+                        args=dict(mailbox='Alice@example.com',expected_generation=None,
+                                  kind='first-contact',principal=self.principal,actor='configured-policy',
+                                  policy_revision='local-0',time=TIME)
+                        for n,policy in [(1,'allow-unverified'),(2,'require-verification')]:
+                            result=store.decide(decision_id=f'{n:032x}',trust_policy=policy,**args)
+                            self.assertEqual(result['status'],'ambiguous')
+                            self.assertIsNone(store.snapshot('Alice@example.com')['association'])
+                        args.update(kind='resolve-first-contact',actor='local-user')
+                        result=store.decide(decision_id=f'{3:032x}',trust_policy='allow-unverified',**args)
+                        self.assertEqual(result['status'],'associated-unverified')
+                        self.assertFalse(result['sendAuthorized'])
+                        self.assertEqual(len(result['reviewedCandidates']),2)
+                    finally:
+                        identity.close()
     def test_unlinked_claim_replacement_and_disable(self):
         self.store.observe_validated_batch([self.item]);self.decide()
         f=fixture(True);second=self.seed(f);new=f['good']['identity']['principal']

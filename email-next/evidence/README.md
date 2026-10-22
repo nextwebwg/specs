@@ -7,6 +7,8 @@ sectionNav: true
 
 These components exercise selected Email/2 contracts. Start with the [offline acceptance report](#offline-acceptance-report) for runnable button fixtures, the [adoption chapter](../adoption.md) for client and server integration paths, and the [validation record](../validation.md) for coverage. No complete client or provider adapter is included.
 
+The [current Encryption baseline](../suite-profile.md#current-client-baseline) is mail-conversation-v1 (assertion9/context9/envelope5). Historical assertion8/context8/envelope4 helpers and native fixtures retain their recorded earlier scope; names such as current-suite in an old experiment heading are not current conformance claims. Existing assertion9, setup1 and configuration2 candidates remain components, not a complete state1/admission/carrier/client implementation. No old report has been repinned by this baseline selection.
+
 ## Run the integrated checks
 
 The repository's `pnpm verify:pr` gate compiles the specifications and runs JavaScript tests. Python, Rust and browser evidence require the additional commands below; a passing repository gate alone does not cover them. The [validation record](../validation.md) identifies the tool versions used for the recorded results.
@@ -817,7 +819,7 @@ The result is twelve passes and two **not tested** cases: deployed provider carr
 
 ## Durable sender release
 
-`sender_release.py` commits the exact encrypted message and advanced MLS checkpoint together in the identity store's transaction. Preparing the same delivery again returns the retained bytes. `sender_worker.py` rechecks current policy, identity dependencies and authenticated group metadata before recording release and opening its loopback SMTP connection.
+`sender_release.py` commits the exact encrypted message and advanced MLS checkpoint together in the identity store's transaction. Preparing the same delivery again returns the retained bytes. `sender_worker.py` rechecks current policy, identity dependencies and authenticated group metadata before claiming an attempt and opening its loopback SMTP connection. That preliminary claim is distinct from final body authorization: every configured carrier checks again after the SMTP 354 reply and before handing over the first body byte. The final check retains its authorization-time interval, policy revision and actual accepted recipient subset in the attempt journal.
 
 One cooperating POSIX worker holds a lock adjacent to the canonical database. Recovery treats a released attempt without a conclusive durable result as uncertain; a lease timeout cannot replace a live worker. Recipient eligibility is reconstructed from the complete attempt history: final accepted recipients are not resubmitted, permanent rejections stay held, temporary recipients may retry, and uncertain recipients need an explicit retry choice. Every retry rechecks authorization and sends the same retained message bytes to its eligible envelope subset.
 
@@ -828,7 +830,7 @@ EMAIL_NEXT_MLS_BIN_DIR=/absolute/path/to/shared-target/debug \
 python -m unittest discover -s email-next/evidence -p 'test_sender_release.py'
 ```
 
-The focused suite exercises real MLS preparation, a signed accepted identity successor blocking release, process-lock exclusion, process death after server acceptance, unchanged-byte retry, mixed recipient outcomes across attempts and an observed policy change aborting before DATA. These cases establish local ordering and recovery behavior, not recall of transmitted data or exactly-once delivery.
+The focused suite exercises real MLS preparation, a signed accepted identity successor blocking release, process-lock exclusion, process death after server acceptance, unchanged-byte retry, mixed recipient outcomes across attempts and an observed policy change aborting before DATA. These cases establish local ordering and recovery behavior, not recall of transmitted data or exactly-once delivery. Four additional selected-association cases cover another connection disabling the mailbox or changing policy during the DATA wait, assertion expiry during that wait, and successful exact-byte delivery with the advanced final authorization time retained. The older general adapters advance their initial credible-time interval using elapsed monotonic time and conservatively hold if that interval changes during their validation work; the stream adapter retains its own integrated live-clock checks through proof processing. These are configured local mechanisms, not complete current-suite or production scheduler/OS-suspension guarantees. The earlier timestamp-only general paths failed all three new negative cases before the correction.
 
 This experiment supports plain message contributions, one configured group and explicitly unverified configured identities/envelopes. Its optional selected-association mode checks retained mailbox evidence as described below. It does not prove ownership, submit invitations, use deployed SMTP/TLS, recover restored databases or establish global revocation timing. The lock requires cooperating processes and a stable local database/lock path; aliases, network filesystems and inherited transmitting workers are outside the model.
 
@@ -902,6 +904,8 @@ EMAIL_NEXT_PYTHON=/absolute/path/to/python node email-next/evidence/legacy-demo-
 
 Open the printed local URL. Six scenarios exercise fixed text, ambiguity, flowed text, DelSp, a missing parent that can be included locally, and narrow HTML with localized surrounding text and unsupported-source fallback. View switching preserves quote expansion and focus; no message is sent or rewritten. Fixture headers remain visibly unverified and quote relationships remain display inferences.
 
+The visible fixture IDs, “inferred source” labels, source ranges and MIME/presentation maps are developer diagnostics. They make the reconstruction algorithm inspectable; they are not required labels for an ordinary conversation interface. A simple quotation disclosure is a presentation choice, while access to retained source and an honest distinction between inference and authenticated references remain part of the owning rendering contract.
+
 The separate `legacy-demo-browser-test.mjs` runner uses the existing Playwright module and one Chromium worker. Eleven sequential check groups passed, covering helper-derived maps, expansion/source navigation, exact MIME downloads, original text, focus, recomputation, HTML source ranges, inert unsupported markup and local request confinement:
 
 ```sh
@@ -951,7 +955,7 @@ The configured model supports additions, self-updates and survivor catch-up acro
 
 `membership_episodes.py` records admission and removal boundaries with the accepted transition. Direct receive and pending-operation reevaluation check the current membership period as well as account authority. Membership-only removal therefore blocks new effects even when the account key remains valid. Already accepted contributions remain part of history. Configured stores missing these records require migration; the experiment does not infer old periods from today's roster.
 
-Nine tests in `test_group_removal.py` cover actual signed revocation, removal while application authority is held, exact targets, transaction rollback/retry, pending encrypted answers, accepted history, survivor catch-up through real loopback SMTP, inactive removed endpoints and missing membership records. The evicted endpoint's staged serialized GroupContext differs from the survivor's finalized context; group, epoch, application context and roster agree. The receiver retains terminal evidence without asserting the survivor's context commitment or inserting a reusable historical decision.
+Ten tests in `test_group_removal.py` cover actual signed revocation, removal while application authority is held, exact targets, transaction rollback/retry, pending encrypted answers, accepted history, survivor catch-up through real loopback SMTP, inactive removed endpoints and missing membership records. The evicted endpoint's staged serialized GroupContext differs from the survivor's finalized context; group, epoch, application context and roster agree. The receiver retains terminal evidence without asserting the survivor's context commitment or inserting a reusable historical decision. The additional stale-sender case installs removal only at Alice, then uses Bob's still-old native MLS checkpoint to encrypt content that Carol's still-old endpoint can decrypt. This deliberately demonstrates the exposure limit, not an authorized current release path. It supplies configured historical-MLS cryptographic evidence, not whole current-suite state1 propagation, global revocation timing or a read receipt. Companion ordinary-source, terminal-control and pending-reaction cases retain their own source/authority/transport and effect scopes.
 
 ```sh
 EMAIL_NEXT_MLS_BIN_DIR=/absolute/path/to/shared-target/debug \
@@ -1438,6 +1442,64 @@ The retained quorum record belongs to the admitted group instance. A fixed quoru
 
 The proof-aware established joiner below extends this path. Removed-device terminal delivery, historical control release and restore/remediation still require quorum integration. The fixed durable adapter below replaces fixture-only submission for the selected current-tip flow. The signed vote-store crash tests remain separate from this shared-checkpoint test. None of these results establishes deployed capability acquisition or consensus liveness.
 
+### Two-principal availability boundary
+
+`test_small_group_availability.py` uses actual signed initial admission of two principals, two ordering witnesses and a third non-witness device, the real MLS workers, durable witness storage and loopback SMTP. With no peer processing during submission, two ordinary encrypted contributions are accepted by SMTP and can later be decrypted by the recipient. A removal candidate cannot obtain a two-witness certificate from a duplicated single-witness vote; adapter restart preserves its proposal-observation hold. When both witnesses participate, the certified removal installs and protected application traffic resumes.
+
+A separate addition case checks that validated public admission material alone does not block the existing conversation. Staging the valid Add then holds the source, even though the other witness has not processed the candidate. It does not exercise pairing a new device of an existing principal or admit that added endpoint. These cases intentionally expose the current design's limitation; a passing test is not a liveness fix. Fixtures use context7/envelope3 and configured identity/mailbox acquisition, not complete context8-suite acceptance.
+
+Run with the built real workers:
+
+```sh
+EMAIL_NEXT_MLS_BIN_DIR=/absolute/path/to/mls-target/debug \
+  PYTHONPATH=evidence python -m unittest test_small_group_availability test_proposal_observation
+```
+
+### Sender-owned stream feasibility
+
+`test_sender_streams_feasibility.py` investigates distinct owner-created MLS groups within a logical conversation. It is not the selected conversation agreement. Seven cases use real OpenMLS0.9.1, accepted local device enrollment and configured context1: first encrypted loopback-SMTP submission before recipient joining; independent concurrent streams and exact reply references; rejection of an application authored by a decrypting non-owner member; an owner-only update that does not heal copied recipient state; fresh recipient admission; recipient-originated Update repair; and known owner revocation blocking future send/new receive effects.
+
+The separate `sender-streams-probe` binary supplies recipient Update operations. Its trusted `cache-public` operation gives a synthetic passive attacker the exact authenticated public proposal dependency before testing a subsequent Commit. This prevents missing dependency data from masquerading as recovery. It is never an incoming-mail acceptance or secret-state import interface. Fresh admission and Update results do not establish protection against an active attacker retaining valid signing authority, recovery in other groups, or production memory/storage erasure.
+
+The probe does not verify public initial invitations or implement durable stream ownership/outboxes, automatic package publication, current-suite context8, cross-stream event-journal installation, mailbox integration or a selected carrier. Source and recipient state are synthetic fixtures; no live account is read or copied. Passing these cases supports further architecture work, not advertisement or resolution of the managed-group availability gap.
+
+```sh
+CARGO_TARGET_DIR=/absolute/path/to/mls-target \
+  cargo build --locked --manifest-path evidence/mls-smoke/Cargo.toml --bin sender-streams-probe
+EMAIL_NEXT_MLS_BIN_DIR=/absolute/path/to/mls-target/debug \
+  PYTHONPATH=evidence python -m unittest test_sender_streams_feasibility
+```
+
+### Bounded delayed admission
+
+`admission_windows.py` supplies timing-only decisions for the selected separate creation and receiving windows. It checks canonical uint64 values, exact local package reference, original publication/receiving bounds, complete credible-time intervals, zero-delay policy and overflow. Six cases reject peer deadline extension and keep receiving eligibility separate from permission to create new deliveries. It has no identity/admission authority and does not implement a persistent key-custody journal.
+
+`delayed-welcome-probe` constructs and fully validates a synthetic two-member package, Welcome and encrypted application before the package's short fixture expiry. The test waits for actual expiry without changing the clock. Ordinary MLS receiving then rejects the expired leaf. The bounded receiving path validates the exact locally owned package/reference and independently selected signer/group/context, joins through OpenMLS's receiving-only lifetime exception, decrypts the original application and consumes the initialization package. A missing key, substituted reference or expired receive window rejects; the normal outgoing validator still rejects the expired package.
+
+This native comparison covers an originally validated owned package and no other untrusted joining devices. It is not the complete assertion8/invitation8 validator, current identity/mailbox/freshness authorization, a custody journal, source ordering or physical erasure. In particular, the normal package validator still couples signature validation with system-clock expiry. A production adapter must preserve every cryptographic check when separating receiving-time lifetime policy; an unchecked package conversion or blanket validation bypass is not supplied here. Historical invitation decoders retain their existing behavior.
+
+```sh
+CARGO_TARGET_DIR=/absolute/path/to/mls-target \
+  cargo build --locked --manifest-path evidence/mls-smoke/Cargo.toml --bin delayed-welcome-probe
+EMAIL_NEXT_MLS_BIN_DIR=/absolute/path/to/mls-target/debug \
+  PYTHONPATH=evidence python -m unittest test_admission_windows test_delayed_welcome_probe
+```
+
+### Owner-bound signed admission
+
+`sender_stream_admission.py` joins an explicitly configured owner role to the existing signed initial-roster admission, actual MLS Welcome processing, mailbox/device selection and application receive journal. The owner is independently selected, then matched to the signed sole creator, designated endpoint, signing key, original device binding and actual GroupInfo signer. The stream identifier is the signed creation identifier. Audience, application, delivery role, group, common-roster anchor and context digest derive from the original signed common roster; no additional signature format is introduced.
+
+The caller owns one transaction containing package consumption, MLS checkpoint, original admission receipt, retained owner binding and an instance marker. Failure to retain the binding rolls back admission. A missing binding under that marker holds receiving instead of enabling every group member to author contributions. Both initial receive and later promotion enforce the actual owner credential/key and original context. Two differing common-roster bindings signed by the retained owner key are durable conflict evidence. The candidate is refused without consuming a package; new effects remain held even after replay of the original receipt, while already accepted history remains recorded. Unsigned tampering cannot create this hold, and an already admitted ordinary member conversation cannot be relabeled owner-bound. Accepted historical provenance is not current send authority.
+
+`test_sender_stream_admission` includes an actually enrolled sibling device as the authenticated creator, independent-owner/name rejection before package consumption, exact replay, binding-insert failure, simulated failure, real process death before/after commit, missing-binding hold and restoration, and an actual member-authenticated non-owner contribution. The latter cannot enter the journal or promote after receiver reconstruction; a subsequent legitimate owner contribution still succeeds.
+
+This is an opt-in configured experiment over unchanged historical context3/initial3 encodings and a raw application tuple. Incoming mail cannot enable it. It does not implement context8 negotiation, a public sender-stream mode, source-side durable stream ordering, multi-stream storage, cross-stream graph installation, delayed initial admission after expiry or a complete send-ready pairing flow. No existing managed conversation is converted.
+
+```sh
+EMAIL_NEXT_MLS_BIN_DIR=/absolute/path/to/mls-target/debug \
+  PYTHONPATH=evidence python -m unittest test_sender_stream_admission
+```
+
 ### Proof-aware quorum joining
 
 Established invitation6 adds a signed `genesis` anchor and contiguous `orderingPath` to the established invitation. `quorum_join.py` accepts the anchor only through explicit independent selection of the original signed roster3, creator, context and member keys. Importing that evidence does not consume an original recipient's package, join the conversation, or make manual anchor setup transparent discovery.
@@ -1477,6 +1539,12 @@ The [terminal context contract](../group-conversations.md#terminal-notification-
 `test_delivery_remediation.py` exercises context5 private copies and context6 protected presentation through the existing historical sender, actual local SMTP, mailbox spool and automatic atomic recovery. Each test uses a real signed device revocation, a currently signed final-member assertion and an already decrypted pending answer from the revoked device. Insufficient or expired signed support holds recovery; a simulated final-support installation failure rolls back checkpoint and recovery receipts. Retrying preserves exact selected inputs. The pending answer remains held without re-decryption while previously accepted history and original event bytes remain available.
 
 The recovery structure checks the exact delivery object and private principal pair on both sides of every step, with an unchanged application context. Role or presentation changes are rejected. This is exact context5/6 support under the existing designated-writer and explicit secret-retirement policy; it does not imply quorum/context7 recovery or support for arbitrary future versions.
+
+## Current pairing successor binding
+
+The [current pairing contract](../identity-lifecycle.md#current-pairing-and-multiple-administrators) keeps the original pairing record/commitment formats and selects bundle1/state1 enrollment. `pairing_successor.py` checks the exact canonical single-device update and its actual state1 Ed25519 signature against trusted accepted-parent, approved-binding and authorizer-key inputs. Eight tests in `test_pairing_successor.py` exercise either administrator, distinct proof-valid siblings without winner selection, signed extra changes, changed approved roles, wrong signature domain/key, original session times, unsupported state0/noncanonical children and forbidden repair approvals.
+
+This is a **pairing-successor-candidate-only** result. It does not validate a complete parent history or bundle1, source role/delegation/current time, independently confirmed QR approval, durable installation/conflict repair, provider account access, configuration installation or readiness. Siblings being individually proof-valid is not permission to choose one, and no live state is installed. The older remote-pairing fixtures below retain their state0 scope; rendezvous parser and repair candidate cases have their own distinct boundaries. Reproduce the focused components with `python -m unittest test_pairing_successor test_remote_pairing test_pairing_rendezvous test_identity_repair_candidate` using their documented runtime/native dependencies.
 
 ## Remote own-device pairing experiment
 
@@ -1562,13 +1630,20 @@ python run_acceptance.py --manifest acceptance-quorum-signed.json
 The manifest records the exact source inventory and links each scenario to its governing requirement. Independent peer interoperability, deployed provider carriage and independent security review remain explicitly untested. A successful local run cannot establish any of those results. Use `--require-complete` when a gate must reject every remaining untested case.
 
 
+## Reply-aware mailbox association boundary
+
+Two additional cases in `test_mail_setup1.py` connect actual assertion9 signature/native-package validation to the existing local association store using explicitly trusted synthetic sole-From parser input. Strict policy remains verification-required; permissive first contact stays unverified and grants no send permission. Actual separately signed assertion8/assertion9 payloads reusing one principal/device/record share the collision index: both observations become unavailable while the selected association, its generation and accepted identity remain intact. This does not demonstrate real mail/provider observation, mailbox ownership, state1 repair, publication custody, automatic reassignment, final release or client rendering. Earlier format-specific ingestion boundaries remain unchanged.
+
 ## Encrypted correspondence archive
 
 The candidate [archive contract](../encrypted-archives.md) has a standalone container experiment in `correspondence_archive.py`. Run `python3 -m unittest discover -s email-next/evidence -p test_correspondence_archive.py -v` from the specification repository with the Python `cryptography` dependency installed. The actual file-encryption test additionally requires installed `age` and `age-keygen` commands; its explicit skip is not a pass when they are absent.
 
-Sixteen tests passed locally using age v1.3.2. They retain exact contribution/resource and original-mail bytes; reject altered or absent objects, forged archive signatures, wrong archive/key, malformed/duplicate metadata, unsafe lengths, invalid scope and false complete coverage; exercise private staging cleanup; and leave a separate live-state sentinel unchanged. Actual age encryption/decryption, wrong-key failure, truncated/altered ciphertext and a replacement encrypted by an attacker using only the public recipient were exercised. The pinned independent writer verifier rejects that replacement. No billing or network service participates in restore.
+Nineteen container tests, including the previously recorded age v1.3.2 cases, pass locally. They retain exact contribution/resource and original-mail bytes; reject altered or absent objects, forged archive signatures, wrong archive/key, malformed/duplicate metadata, unsafe lengths, invalid scope and false complete coverage; exercise private staging cleanup; and leave a separate live-state sentinel unchanged. Actual age encryption/decryption, wrong-key failure, truncated/altered ciphertext and a replacement encrypted by an attacker using only the public recipient were exercised. The pinned independent writer verifier rejects that replacement. No billing or network service participates in restore.
 
-The module stages a historical directory; it does not query a real mailbox, select a consistent application snapshot, publish durable cloud heads, implement the recovery-kit UI, reconstruct the entire rich client, or restore an identity. Its resource checks cover operations carrying an explicit manifest; other attachment inventory adapters still need integration. Adjustable local byte/inventory limits are not user storage quotas. The age adapter also has a finite header and identity-input boundary; it does not implement plugins or passphrase recipients. Full cryptographic-source testkits, production secure storage, crash-safe history installation, managed transport, credential rotation and independent interoperability remain separate evidence.
+The module stages a historical directory; it does not query a real mailbox, select a consistent application snapshot, publish durable cloud heads, implement the recovery-kit UI, reconstruct the entire rich client, or restore an identity. Its resource checks dispatch on supported envelope/operation versions and the manifest-bearing attachment-message, rich-message and reply-message bindings. Three additional signed-container cases preserve unknown operation kinds, unknown envelopes and unknown reply versions even when their field named manifest uses incompatible semantics. Unsupported record mappings remain inert archive-writer associations; they are not verified original-author declarations. All signature/object/reference checks remain in force. Unknown data cannot activate a current parser by field-name resemblance; new inventory/projection adapters need their own explicit support. Adjustable local byte/inventory limits are not user storage quotas. The age adapter also has a finite header and identity-input boundary; it does not implement plugins or passphrase recipients. Full cryptographic-source testkits, production secure storage, crash-safe history installation, managed transport, credential rotation and independent interoperability remain separate evidence.
+
+
+The source container writer additionally freezes the serialized manifest and immutable selected object bytes, checks all object integrity and supported historical contribution/resource bindings before its first output write, then writes only that frozen inventory. Two added tests cover three invalid-source cases leaving zero output and mutation of caller dictionaries during the first output callback. Receiver-side reference/resource rejection still uses independently constructed signed invalid archives. This is source-container preflight, not authorization of an actual mailbox selection, cross-principal disclosure or final network release. Unsupported records retain their opaque historical semantics.
 
 
 ## Complete archive collection
@@ -1582,9 +1657,11 @@ The experiment does not select mail from a real account, publish cloud parts/cat
 
 ## Authorized history transfer
 
-The [history-transfer contract](../history-transfer.md) has a control/acceptance experiment in `history_transfer.py` and twenty-two tests in `test_history_transfer.py`. Run `python3 -m unittest discover -s email-next/evidence -p test_history_transfer.py -v` with Python cryptography, Node, age and age-keygen available. Twenty-two tests passed locally without skips. The fixtures generate real genesis, binding and successor proofs; the existing identity-store verifier accepts them before any transfer operation.
+The [history-transfer contract](../history-transfer.md) has a control/acceptance experiment in `history_transfer.py` and thirty tests in `test_history_transfer.py`. Run `python3 -m unittest discover -s email-next/evidence -p test_history_transfer.py -v` with Python cryptography, Node, age and age-keygen available. Thirty tests passed locally without skips. The fixtures generate real genesis, binding and successor proofs; the existing identity-store verifier accepts them before any transfer operation.
 
 The tests exercise exact original-byte request/grant signatures, independent source approval, current send/receive roles, binding intervals, accepted ancestry, unverified versus strict policy, requested account bounds, prepared-permission withdrawal, device revocation after preparation, source cancellation after target revocation and unrelated cancellation rejection. A signed source grant binds actual recipient-encrypted collection import, including a deliberate cross-principal disclosure. Wrong transfer identity, scope and catalog cannot publish history. A typed local completed-import result, not a message-supplied dictionary, supplies the terminal result receipt. Live identity heads remain unchanged. Additional cases separate requester ID namespaces and permit a current target's terminal result after source revocation while still rejecting all new source release.
+
+The current request schema also requires deliveries: an empty array retains ordinary account selection; nonempty exact sealed-binary descriptors select targeted recovery. Eight additional cases check signed descriptor integrity, copied-ciphertext/principal isolation, exact size, missing or partial mappings, account constraints, a stable content union and malformed/ambiguous selectors. The pure select_delivery_entries helper consumes a trusted source-owned normalized index; it does not establish that index's cryptographic provenance, retained plaintext or current disclosure authority. The existing grant/release/admission experiment explicitly holds nonempty deliveries requests because archive-export selection, approval and immutable mapping integration are not implemented here. Thus these cases do not establish end-to-end recovery from a retired original key. Existing sealed-control cases use the current required empty array and retain their actual HPKE/signature scope.
 
 The module checks accepted public identity state and can join a caller-owned transaction. Its standalone release function is an authorization snapshot, not an integrated final network handoff. It does not implement the required persistent transfer/collision/outbox journals, complete MIME control adapter, storage-service grants, independently verified correspondent policy, UI approvals or full endpoint synchronization. Strict verification policy is held rather than weakened. The archive-set import gains an explicit expected catalog/scope binding before publication. Thirty archive/container regression tests remain required after that integration. Process-exit/power-loss behavior of the complete transfer journal is not demonstrated by these tests.
 
@@ -1626,7 +1703,7 @@ The crypto endpoints/context and local associations are configured inputs. This 
 
 ## Protected module selection
 
-`suite_modules.py` implements the [protected operation agreement](../suite-profile.md#module-agreement-and-common-operation-selection): the mandatory four-operation core, complete Answers/Reactions/Corrections blocks, exact sorted subset-closure offers and all-device intersection. Eleven tests exercise all eight module combinations, every pair of maximal support sets, group intersection, core-only participants, malformed or partial blocks, unclosed/duplicate/unsorted offers and immutable previously selected results.
+`suite_modules.py` implements the [protected operation agreement](../suite-profile.md#module-agreement-and-common-operation-selection): the mandatory four-operation core, complete Answers/Reactions/Corrections/Service actions/Hosted replies blocks, exact sorted per-ordering subset-closure offers and all-device intersection. Ordinary sender-stream support is required; optional managed support has its own independent module closure and control entry. The focused module tests exercise all thirty-two module combinations, every pair of maximal support sets, group intersection, core-only participants, malformed or partial blocks, unclosed/duplicate/unsorted offers and immutable previously selected results.
 
 ```sh
 python3 -m unittest test_suite_modules -v
@@ -1710,3 +1787,449 @@ Run `EMAIL_NEXT_MLS_BIN_DIR=/absolute/Cargo/debug PYTHONPATH=email-next/evidence
 Source decision generations remain provenance; target associations receive their own local generation. Comparison origin identifiers cannot be reused for another mailbox or to renew dates. Withdrawal is terminal irrespective of accepted bookkeeping order, and original local evidence remains retained alongside imported update evidence. Unsigned64 revisions beyond SQLite’s signed integer range use exact decimal BLOB storage rather than floating point; terminal withdrawal remains possible at the uint64 maximum. Known authenticated setup conflicts hold derived associations and inherited verification without deleting the records.
 
 The installed receipt covers only the selected configuration and is committed with completion/defaults. It is separate from the original staged receipt and grants no transport access or send authority. The adapter uses the already disclosed setup processing limits and local reference schemas, not an arbitrary mail-client database importer. Legacy local comparison records lacking trustworthy origin provenance cannot be silently assigned a fictional original device. Native storage migration/custody, OS UI, portable authenticated carrier, deployed provider access, automatic current-setup acquisition, current-suite group admission and a complete send-ready client remain unimplemented. No history, keys or credentials are copied from the source account database.
+
+
+## Current-suite discovery and local issuance
+
+`suite_discovery8.py` verifies original assertion8 signature bytes against an already accepted, currently authorized device. It requires the exact current module vocabulary and ordering exchange, uses the canonical mailbox parser, and checks the advertised package through `inspect-discovery-package`. That native worker uses the full existing MLS package validator and returns its actual reference and signed lifetime; it introduces no receiving-time expiry bypass. The assertion interval must fit that lifetime, and `keyPackageReceiveUntil` must cover its expiry. Without a package, the required deadline is null and the result describes capabilities only. A successful check still does not establish mailbox ownership, freshness policy or membership.
+
+`LocalIssuance.stage` is a trusted local preparation API, not a wire operation or publisher. Under one identity-store transaction it verifies accepted authority, proves possession of the actual local signing key, and checks that the exact unused package exists in the device's private crypto checkpoint. It journals only public package/window/assertion data. Republishing an existing package retains its original receiving deadline even after a local policy change; extending the deadline requires fresh material. The clock check includes elapsed work before commit. A caller-owned terminal marker can prevent known consumed, withdrawn or retired material from being staged again despite a stale private checkpoint. Retirement before the receiving window is certainly over must be explicit withdrawal.
+
+Run these focused cases with Node on PATH and the built MLS workers:
+
+```sh
+PYTHONPATH=email-next/evidence python -m unittest test_suite_discovery8 test_event_encoding
+```
+
+Twelve discovery/staging cases use actual signed identities and MLS packages, including substituted packages, the wrong signature purpose, unknown identity, verification policy, Unicode/quoted mailbox syntax, unavailable A-label validation, no-package advertisements, missing private signing material, immutable receiving deadlines, transaction rollback, known consumption and elapsed/uncertain time. The shared encoding cases separately preserve default null rejection and restrict the explicit exception to named root fields. Historical passive-discovery tests remain separate regression evidence.
+
+This is not protected private-key storage, physical erasure, whole-machine rollback protection, automatic renewal/publication, network release or complete assertion8/invitation8 receiving integration. `terminal_locked` is a trusted post-validation seam: a caller must commit actual consumption/withdrawal and retirement intent with the marker; received mail cannot set it directly. The normal package validator still rejects expired packages. Delayed admission needs the separately defined receiving-only validator and current-authority/custody integration. No complete-suite capability claim follows from these component results.
+
+## Durable sender-stream source
+
+`sender_stream_source.py` supplies an exclusive local source journal around the owner-bound admission experiment. It transfers this database's already created, signed initial3/context3 checkpoint into stream ownership in one transaction. It accepts no checkpoint from received mail. Adoption requires an unused initial source; existing application, prepared control or receiving activity cannot be relabeled into this mode. The old sender slot is removed, so the old sender API cannot keep using a copied operational state. Public creation, membership and original signed roster evidence remain retained. Re-adopting the same original binding returns its historical identifier; it does not grant current send permission.
+
+Preparation commits the advanced private checkpoint, immutable operation request and exact public outbox bytes together before returning them. A root contribution additionally retains its exact event bytes; the same event identity cannot be rewritten or encrypted again under another delivery identifier. Owner self-updates are applied immediately as the sole source's selected successor. Separate callers serialize through the shared database transaction, so they cannot reserve two successors of one predecessor. Retries retrieve original bytes rather than create another Commit or consume another application generation. Current owner/recipient identity authority is checked again before commit, including elapsed processing time.
+
+The experimental control packet has exactly `version`, `purpose`, `stream`, `binding`, `group`, `predecessor`, `result` and `commit`. Version is `"0"`; purpose is `"configured-sender-stream-control-v0"`. `stream` names the signed initial creation, `binding` its owner-binding digest, `group` the exact hexadecimal MLS GroupId, `predecessor` and `result` the exact hexadecimal full GroupContext bytes, and `commit` the hexadecimal MLS PrivateMessage. It is strict event JSON under the existing byte/depth bounds. The packet is not independently signed: these routing and state claims become evidence only after validating the actual enclosed MLS Commit against the independently retained stream, checking its owner sender/key and comparing the complete before/result contexts. An outer hash, declared sender or matching epoch is insufficient. No received packet installs secret source state.
+
+The source holds unsupported stricter verification policies rather than replacing them with its explicit unverified fixture policy. It currently supports only empty owner self-updates and exact envelope1/raw-event root messages under the configured original agreement. It rejects replies, rich content, changed audiences and disclosures rather than pretending to implement their complete owning validators. This restriction bounds the experiment, not the intended Email/2 operation set. Recipient Update proposals, Add/Remove transitions, conflict-aware receiving, multi-stream creation/graph installation and current-suite negotiation remain integration work. Owner self-updates do not repair a compromised recipient leaf.
+
+Run `PYTHONPATH=email-next/evidence python -m unittest test_sender_stream_source` with Node and the built MLS workers. Cases exercise real signed source adoption, actual encrypted/decrypted roots, two consecutive native MLS self-updates, exact retries and event conflicts, two database connections, actual child-process exit before/after commit, reopen, revoked recipients and authority expiring during work. Crash testing proves the observed local SQLite recovery behavior; it does not prove power-loss durability, protected storage, whole-machine rollback resistance or physical erasure.
+
+Returned bytes mean **prepared only**. Final release must recheck authority, associations, freshness, delivery policy and required dependencies. The older invitation/application transport adapters do not automatically follow this transferred checkpoint; they hold when their old slot is absent. The [configured mail-release adapter](#sender-stream-mail-release) connects this source to the shared transport worker. It does not establish assertion8/context8 stream support. This historical configured adapter does not implement the subsequently selected ordinary-stream wire contract in suite-profile; it retains its recorded scope.
+
+
+## Sender-stream mail release
+
+`stream_mail_release.py` connects the configured source journal to `SenderWorker.submit_stream`. Preparation retains one immutable MIME message per source output. Its sender and recipient routes come from the original independently selected signed roster, including the sender's own address association. Shared mailbox routes may be combined only when their principal and generation agree. Original initial invitations retain their exact message bytes and validity interval. An invitation already attempted by another adapter cannot be silently wrapped into a fresh attempt namespace.
+
+Release uses the existing cooperating-process lock, durable attempt journal, per-recipient SMTP outcomes and explicit uncertain-retry rule. The stream's exclusive checkpoint is selected through a typed local adapter; older paths continue using their original checkpoint. Before connecting, before DATA and after the server’s 354 reply immediately before the first body byte, the worker checks current source/recipient authority, the frozen policy, exact source output, sender/recipient associations and immutable ownership. Elapsed processing/network time counts against validity. A known inactive source or unsupported verification policy holds. Original signed-identity and mailbox-observation dependencies are frozen; unrelated identity advances are not implicitly excused by this adapter.
+
+The source can advance through its own accepted empty updates while earlier public output remains queued. A release validates the retained original output and current fixed owner/context/membership rather than pretending that its ciphertext was encrypted in the newest epoch. A source change learned during a release attempt still aborts before DATA. This construction does not support membership changes, recipient Update repair or automatic historical redisclosure. A transport acceptance records handoff only; it does not establish recipient joining or effects.
+
+Ten configured mail-path cases cover actual SMTP invitation, signed owner-bound target admission, a root contribution, owner self-update and a subsequent accepted contribution. A separate enrolled-phone case submits encrypted mail before any recipient has joined, then delivers the invitation and decrypts the retained ciphertext. It uses valid previously selected public setup and accepted enrollment; it does not copy the old device's live group state or message history. Other cases check exact retry without another encryption, no automatic retransmission after handoff, immutable wrapping, partial-RCPT retry, lost DATA-response uncertainty, sender-address withdrawal and policy changes before DATA, a policy change while waiting for 354 with no released body bytes, and the original invitation deadline, including expiry during proof work before any socket opens.
+
+Run `PYTHONPATH=email-next/evidence python -m unittest test_stream_mail_release` with the configured Node/Python/MLS workers. Related sender, association, transition, initial-roster and source-journal regressions cover the shared worker paths. The control step in the mail-path test uses a controlled target transaction after native MLS validation and explicit owner/before/result checks; a durable general control receiver is still absent.
+
+Only the loopback SMTP fixture and the historical initial3/context3/envelope1 binding are exercised. Root/control payloads use the opaque attachment fixture, not the current MIME suite or a sender-controlled invisible-mail mechanism. Provider account login, automatic public discovery, negotiated ordinary-stream selection, complete multi-stream creation/receiving, remaining application operations, protected storage and the complete QR-to-send-ready result remain unimplemented. This evidence does not establish deployed service participation, standards adoption, independent interoperability or a security review.
+
+
+## Current ordinary-stream wire selection
+
+The [ordinary-stream contract](../suite-profile.md#ordinary-protected-conversations) defines context8's immutable owner/stream object, per-ordering signed capability closure, initial8/roster5 owner binding, source and recipient-update signatures/carriers, contiguous established8 paths, current authorization/custody and cross-stream graph rules. `suite_context.py` checks only the exact context8 schema; it grants no MLS or identity authority. `suite_modules.py` validates the required ordinary closure and optional independent managed closure without manufacturing cross-mode support. `passive_discovery.py` binds the exact corresponding control entries in assertion8. The bootstrap component now uses that same assertion decoder, including the required receiving-deadline member; it still does not validate a real MLS package or install peer trust.
+
+Run `PYTHONPATH=email-next/evidence python -m unittest test_suite_modules test_suite_context test_suite_discovery8 test_bootstrap_exchange test_freshness_gate` with the configured workers. Context checks cover exact owner/device/administrator grammar, private-copy originator, old-version rejection and unchanged managed witness constraints. Module checks cover every ordinary/managed maximal-module combination independently. Signed discovery, bootstrap and freshness tests exercise the new declaration grammar; they do not implement complete source-control, current-suite admission or multi-stream effects. The earlier configured source/admission/mail experiments retain their historical schemas and purposes and cannot advertise current stream conformance.
+
+Proofs containing personal mailbox claims must also pass the separate control-carrier privacy gate before a masking claim. No confidential source/admission proof carrier is supplied by these component changes. Independent review and implementations remain outstanding.
+
+
+## Sealed control container
+
+`sealed_control.py` and the fixed `sealed-control` Rust worker exercise [sealed-control-v0](../suite-profile.md#confidential-setup-and-control) through the already pinned OpenMLS cryptographic backend. The worker selects only RFC9180 Base X25519/HKDF-SHA256/AES-128-GCM, fresh encapsulation, the exact info/aad binding and binary magic/lengths. It exposes no algorithm or key-URL negotiation. Generated private test keys and local decrypt inputs stay on captured process streams; they are never mail, public staging records or test logs. No new cryptographic dependency is introduced.
+
+The Python component preserves original signed intent, identity and body bytes; checks the independently selected recipient before encryption; decrypts the complete authenticated frame; and verifies the actual Ed25519 intent against accepted current sender evidence before returning `sealed-control-candidate-only`. It does not run owning admission, activate a peer identity, render the body or grant an application effect. Kinds and owner/recipient/native checks remain mandatory in the owning dispatcher. Its accepted-sender adapter currently requires an exact accepted head/binding snapshot under explicit unverified fixture policy; it does not implement complete ancestry-renewal, human-verification, recipient-custody, freshness, route or final release integration.
+
+The assertion8 syntax and bootstrap adapters now include the required control-key descriptor. Strong setup verification checks the actual control public key through native HPKE and applies a separately configurable publication-lifetime policy. Local issuance staging proves possession with a fresh local probe and journals only the immutable public promise in the same transaction as the advertisement. Missing control private material, changed promises, reused public material under another ID and failed transactions cannot publish partial staging. This does not supply protected private storage, withdrawal/retirement or network publication.
+
+Run the focused checks after building `sealed-control` and `provider-mls`:
+
+```sh
+PYTHONPATH=email-next/evidence python -m unittest test_sealed_control test_suite_discovery8 test_bootstrap_exchange test_freshness_gate test_suite_modules test_suite_context test_event_encoding
+```
+
+Cases include an actual SMTP opaque-carrier round trip, wrong private key/recipient/kind, modified magic/key ID/encapsulation/length/ciphertext, truncation/trailing data, independently wrong recipient before encryption, valid HPKE with an invalid sender signature, unknown identity without installation, old creation versus bounded late receipt, expired current sender and immutable control publication/possession. Existing bootstrap/freshness fixtures deliberately contain synthetic admission bytes and public control descriptors; they do not prove usable MLS or private-key custody. The real sealed/suite cases generate actual independent native control keys.
+
+The experiment proves neither RFC9180 known-answer vector coverage nor independent interoperability, secure erasure, complete key inventory/replay transactions or all current-suite owning/relay integration. The older source-mail experiment still uses historical unsealed fixtures and cannot claim current sealed-control or routing privacy support. The new container's normative selection and those implementation limits must stay distinct.
+
+
+### Unread correspondence and offline expiry evidence
+
+The current [offline delivery contract](../suite-profile.md#unread-mail-and-long-offline-periods) separates background cryptographic processing, retained correspondence and human reading. An added `test_secret_retention` case receives actual MLS content into the durable journal without invoking a reader/receipt, advances and ages the real cryptographic state, then reconstructs the receiver. Previously retained exact content survives; a second original ciphertext never processed before secret pruning fails cryptographic acceptance and is retained as unavailable. It does not reset deadlines or restore an old checkpoint.
+
+This is configured historical-suite component evidence, not current-suite background scheduling, OS suspension behavior, version8 admission, end-to-end long-offline recovery or physical key erasure. The existing archive and history-transfer cases supply separately scoped historical-copy evidence; they do not create plaintext absent from every source. Reproduce with `python -m unittest test_secret_retention` using the native-binary and dependency setup above.
+
+
+### Purpose-specific continuity and freshness
+
+The current [state-anchor contract](../provider-grants.md#continuity-and-freshness-have-different-scopes) distinguishes preserved original evidence from a recomputed current authorization result. Assertion8 validation and local issuance can retain the original bytes across an accepted unchanged-binding successor; older assertion versions keep exact-head behavior. Bootstrap source authorization and offline publications use accepted unchanged ancestry, with current local slots resolved separately. Live target responses remain exact-head; neither a publication nor a retained old response becomes live through retrieval.
+
+Freshness tests advance actual signed identity state: cached support survives, recent-checkpoint age uses the new accepted head's original issuance time, a target-head advance holds the old live response, and source continuity does not reset the outstanding challenge. Missing accepted history cannot be supplied by an unaccepted attachment. Native-package discovery and issuance tests preserve the original signed wrapper/deadline and single local record across a signed checkpoint.
+
+`test_continuous_authority.py` additionally verifies the narrow delayed-control receiving exception using actual accepted binding renewal and native HPKE: the original sender signature and original control bytes remain valid through uninterrupted same-key/role renewal. The original creation interval is retained. A role gap, missing accepted parent or invalid future-start renewal does not restore authority. Provider/history authorization does not opt into this exception. This component's result remains a candidate, not complete owning protocol acceptance, private custody, final release or independent security review.
+
+
+### Multiple-administrator concurrency counterexamples
+
+`test_admin_concurrency.py` validates independently signed branches through the actual identity proof and persistent transition pipeline. Concurrent additions retain common administrator bindings; simultaneous own-binding renewals can leave no exact binding common to the branches even though both administrators retain the same keys and roles. Both arrival orders hold, rather than selecting one. Mutual revocations exclude both administrators when combined; automatically restoring either would discard a valid revocation. A valid higher-revision descendant does not resolve the old fork.
+
+These are regression/counterexample checks for [D12](../design-resolution.md), whose [selected state1 lifecycle](../identity-state.md#concurrent-administration-and-retirement) now defines repair; full v1 implementation remains absent. They do not implement distributed coordination, a multi-parent identity format, deterministic repair, account retirement or an emergency override. Reproduce with `python -m unittest test_admin_concurrency test_identity_store test_identity_bundle test_successor_pipeline` under the documented Node/Python setup. No real account keys or network service participate.
+
+
+### Deterministic administrator-repair candidate
+
+`identity_repair_candidate.py` and `test_identity_repair_candidate.py` exercise a bounded proposed repair construction on independently validated historical v0 fork snapshots. It derives the same exact candidate regardless of parent order, preserves cumulative revocations, intersects conflicting same-key permissions/validity, and requires every structurally shared surviving administrator's current authorization and actual signature. Newly derived bindings additionally require their exact authorization and device-possession proofs. Branch-only enrollments need explicit complete-roster approval from all repair authorizers with the relevant grant powers; the old branch alone cannot supply it.
+
+The payload is deterministic: parent digests, counters, identifier derivation, roster and original state-time bound are fixed. Its restricted ASCII/string/object/array serialization agrees with the relevant [RFC8785](https://www.rfc-editor.org/rfc/rfc8785.html) rules; the helper is explicitly not a general-purpose JCS implementation. An expired required authorizer is not silently removed to reduce the signature set. Actual signatures over altered or noncanonical bytes, a different frontier or another proof domain do not qualify. Mutual revocation has no surviving common authority and produces no candidate.
+
+Success is exactly `repair-candidate-only`. The component takes trusted already validated parent snapshots, not untrusted mail; it does not validate a complete branch DAG/frontier, install a repaired identity, clear `IdentityStore` conflicts, authorize sending or implement a complete v1 state/bundle lifecycle. The [selected state1 contract](../identity-state.md#concurrent-administration-and-retirement) now defines ordinary transitions, retirement, branch cleanup, proof circulation, transactional installation and downstream authorization. Their full joined implementation/acceptance remains absent; [D12](../design-resolution.md) distinguishes that evidence gap from the design selection. These component results are not a security review or interoperable account-recovery claim.
+
+Reproduce with `python -m unittest test_identity_repair_candidate test_admin_concurrency test_identity_store test_identity_bundle test_successor_pipeline` under the existing Node/Python setup. The tests use real synthetic Ed25519 signatures and individually validated branch fixtures; no account keys or external services participate.
+
+
+### State1 and administrative carrier syntax
+
+The [selected identity lifecycle](../identity-state.md#concurrent-administration-and-retirement) defines state1/bundle1, deterministic repair/share proofs, ordinary updates, restricted branch cleanup, retirement, complete known-frontier installation, late branches and the fresh-authorization boundary. `identity_admin_wire.py` exercises state1 shape and original canonical bytes plus outer bundle1/share1 framing, versions, scope, limits and incomplete proof representation. Its statuses are `state1-syntax-only`, `bundle1-carrier-only` and `repair-share1-carrier-only`; none is an identity authorization or installation.
+
+The carrier deliberately does not replace full enclosed legacy record-schema/proof validation. Its parent snapshots and synthetic signatures are not operational authority. Full parent DAG/frontier validation, current roles/policy, all repair proofs, approval, persistence, share circulation, protected carriage, retirement and dependent protocol integration remain required. The existing state0 store and sealed-control candidate codec do not implement the new identity-admin owning validator or accept state1 by renaming fields. Unknown versions/kinds stay held. Actual independent interoperability/security review and deployed erasure/custody remain unproven.
+
+Tests cover an actual deterministic repair candidate and synthetic signed parent records, canonical-byte and duplicate-name rejection, explicit retirement-only empty roster, kind/parent/counter mismatches, version-selected proof-wrapper shape, duplicates/foreign scope, partial possession without approval, proof ordering and predecode bounds. The separate cryptographic candidate cases remain the actual signature/renewal/revocation evidence. Reproduce with `python -m unittest test_identity_admin_wire test_identity_repair_candidate test_admin_concurrency` under the documented Node/Python setup.
+
+
+### Renewal publication and allocation-realm evidence
+
+The [renewal contract](../security-profile.md#publish-replacements-without-disturbing-in-flight-mail) defines durable local jobs, overlapping valid material, immutable receiving promises, uncertain publication retries, one independent allocation authority per native package reference, provider-versus-cached withdrawal and current administrative renewal. A terminal depleted allocation reply and an asynchronous bootstrap poll with no reservation are explicitly different; replenishment may satisfy the latter's first allocation but never replace an existing one.
+
+`LocalIssuance.bind_allocation_realm_locked` freezes one trusted account-adapter namespace for an already staged actual native package, under the caller's publication transaction. It rejects another realm for that reference, unknown/terminal material and missing transaction ownership. A rolled-back realm is not committed; a committed choice remains visible through a second connection. An actual freshly generated package with the same device signing key can stage its own immutable promise and use another realm. This does not move the original material. A separate actual signed same-key binding replacement makes the cached original assertion stale after the accepted identity change.
+
+The realm string is trusted local adapter metadata, not a peer field, account credential or independent proof that no public copy exists. The component does not validate a real provider/account connection, publish, store protected private keys, implement a whole renewal scheduler or supply rollback/erasure assurance. The actual issuance and bootstrap allocation tests remain component evidence; full current-suite generation/custody/network/admission remains unproven. The bootstrap regression begins with an empty pending inspection, publishes one record, then adds an earlier-sorting record and verifies the first allocation remains fixed.
+
+
+### Public hosted-management wire examples
+
+[Hosted bearer access](../hosted-access.md#connect-a-hosting-account) selects `hosted-management-v1`: distinct hosting scopes, native account acquisition, signed principal linking, stable account-incarnation owner handles, owner-bound create-v2, historical read/revoke and snapshot-based reply discovery. The existing configured `HostedStore`, HTTP transport and OAuth service-button experiments do not implement that public contract. Their tokens, purposes and scope strings are not interchangeable.
+
+`hosted_public_wire.py` checks create-v2 shape and expected owner/principal, collection-specific feed shape, reply service/grant correlation, continuation/completion sentinels and the existing JSON bounds. It returns **wire-only** and preserves original request bytes. `hosted-public-examples.json` contains a create request, two actual holder-request strings and matching SHA256 receipt digests across two reply pages. Synthetic credentials/identifiers are examples, not deployed authority.
+
+Run `python -m unittest test_hosted_public_wire`. These cases do not authenticate an account, signature, opaque cursor or live owner mapping, and cannot authorize storage, advance a real checkpoint or deliver an observation. Full public-profile native acquisition/link/current-state, isolation, transactional effects, pagination persistence and protected observer release remain unimplemented acceptance requirements.
+
+### Managed lifecycle rejection and authority adapters
+
+The [selected lifecycle matrix](../group-conversations.md#when-a-group-cannot-change) distinguishes fixed managed administrators from certified witness-policy succession, ordinary per-device sources, valid same-principal device replacement and terminal local retirement. It does not add administrator transfer, ReInit, subgroup admission or authenticated group-wide closure to the initial suite.
+
+`test_joined_ordering.py` creates an actual native group with two administrator principals and attempts to remove the last device of the second administrator while the creator remains. The configured application rejects the native result and preserves the complete local database. Separate actual native context-change attempts alter the administrator set, operations or delivery agreement; each is rejected without advancing the checkpoint, proposal observations, staging or outbox. These complement existing native membership, certified policy succession, current-authority failure and terminal member-removal tests. They are configured context7 component evidence; they do not implement current context8 admission or the complete local-retirement/crash/rejoin journey.
+
+Discovery verification accepts either a raw identity store or the explicitly selected locked/human-verification policy adapter. The raw store owns snapshot/ancestry access; the adapter still decides current role and independent-verification policy. Adapter calls require their caller's existing transaction and cannot commit it. Current-suite ancestry is checked only after that policy succeeds. `test_signed_application_admission.py` includes an actual signed assertion, missing adapter transaction, preserved outer rollback and required-but-missing independent verification. Account key continuity does not become human verification by unwrapping an adapter.
+
+### Service-account isolation and retained link authority
+
+The [native service lifecycle](../service-authorization.md#reconnect-without-changing-the-action) binds each service action/answering principal to one independently provisioned internal account incarnation. `AuthorizationStore.provision_action_account` is a trusted operator fixture seam, not HTTP, linking or submission authority. The linked resource adapter denies absent/cross-account authorization and cannot retarget an existing mapping. Configured legacy static-token execution remains its separate experiment.
+
+At use, the account-link component checks its original accepted state/binding through unchanged-binding ancestry as well as current send authority. A newer binding that still has send permission is insufficient. Actual signed-successor tests distinguish preserved unchanged bindings from changed bindings and revoked send permission. Account tests use actual loopback/TLS login and signed linking to the same principal in two different simulated accounts: the other account cannot query/repeat the first effect; a new family for the original account can retrieve the original result without another effect. Accepted request bytes and receipts remain unchanged.
+
+These are configured state0/component results. Account authentication is simulated; full state1 handling, the specified public DELETE disconnect route and resource-effect/withdrawal serialization across the experiment's separate databases are not implemented. The resource adapter's separate authorization connection does not supply an atomic revocation lease, so these tests cannot establish that race property or full service-profile conformance.
+
+### Current-suite private return streams
+
+[Private composition](../private-copies.md#private-replies-in-the-current-agreement) distinguishes the original private-copy role pair from the current ordinary stream owner and authenticated author. The original establishment is originator-owned; a recipient-owned return stream requires independently retained private-context selection and the same exact two-principal delivery object. Older creator/admission rules are unchanged, and current ordinary mode grants no managed administrator transfer.
+
+`suite_context.validate` permits either role principal as an ordinary source owner, retaining sole source-owner administration. `check_private_stream_role` checks trusted expected selection and original-versus-established scope, returning **private-role-selection-only**. A boolean or expected object is a caller's trusted test input, not received proof. `check_roster` validates exact context/audience consistency and returns **context-roster-only**; the shared private roster invariant now explicitly covers context8. These helpers do not validate original private-context provenance, native MLS, signatures, device roles, admission or installation.
+
+The cases keep Alice as originator while Dana owns a return stream, require the unchanged expected pair, reject original recipient-owned establishment, an inverted selected pair and a missing/third principal. Address tests keep Dana as actual author/encrypted From while Alice remains the role originator and reject an outside address. Historical private-copy plan/fanout/admission tests remain their configured version-specific evidence. Full Alice/Dana/Alice current-suite mail, multiple enrolled-device return admission, source provenance, complete forwarding and relay/notification metadata isolation remain acceptance requirements, not a claim supplied by the syntax helpers.
+
+### Rendering outcome and direction-boundary refusal
+
+The [presentation failure matrix](../presentation-profile.md#when-presentation-cannot-finish) distinguishes failed message/carrier authority, refused rich projection, individual image/link failure and valid accessibility choices. A readable recovery does not supply missing authentication, repair an ambiguous encoding or create an interactive target; an unrelated late image failure does not retract accepted history. Required user/client overrides retain precedence and content/control isolation.
+
+`html_tree.py` refuses the entire projection when an unlisted wrapper's valid explicit direction would otherwise be discarded, outside the already specified preserved document/form boundaries. Neither an early valid prefix nor copying direction to descendants counts as successful recovery. The isolated worker returns only a fixed `unpreserved-direction-boundary` failure category without source bytes or partial tree. The public projection API raises its typed parser failure; unrelated worker rejection remains bounded. Invalid direction values establish no boundary and use ordinary filtering.
+
+HTML-stage tests cover local and actual isolated-worker refusal after a valid prefix, RTL and auto, invalid direction filtering and retained form direction/tail. The explicit pinned parse5 adapter exercises the same refusal and valid-form behavior. Existing encoding, recovery, attribute and process tests retain their scope. These tests do not establish a complete renderer, native accessibility, cross-engine bidi geometry, hard memory containment or safe integration with every accepted operation.
+
+### Mailbox import scope and durable work
+
+The [mailbox import sequence](../mailbox-integration.md#from-mailbox-changes-to-accepted-conversations) separates account/cache namespace, original-byte/fetch-job retention, enumeration progress, cryptographic processing receipts and authenticated event assembly. Cursor advancement requires durable covered work. Missing provider data and cache rebuilds do not erase security/replay state; control recovery uses independently configured sources and must not leak decrypted search terms through provider queries.
+
+The configured `MailSpool` has a durable random source fingerprint. `RecoveryRetrieval` freezes it alongside that source's scan cursor, checks it before scan and again at commit, and refuses a replaced source under the same configured name. Missing legacy scope for a nonempty cursor/origin history is held; no automatic namespace guess or rewind is supported. Reopening the same spool preserves its identity and can continue the retained native recovery. A source lacking trusted binding metadata is unavailable, not a reason to adopt another source's position.
+
+Tests exercise replacing a spool, reopening it, missing legacy provenance and source replacement during scan, with complete database equality on rejection. Existing actual native chain/SMTP, duplicate/gap/fork, support/budget and before/after-commit process cases retain their recorded scope. Source fingerprints are trusted local adapter metadata, not account authentication or peer input. Raw spool fixture bytes are not a production encrypted mailbox store. The experiment does not implement remote IMAP/JMAP enumeration, provider login/incarnation validation, durable network fetch jobs, protected storage/custody or complete current-suite processing.
+
+### Delivery evidence and local-deletion boundary
+
+The [client outcome contract](../client-behavior.md#what-a-status-can-tell-you) separates transport responsibility, provider reports, local processing, service results and hosted-holder evidence. It defines no Email/2 read/presence operation, and receipt absence cannot authorize weaker delivery or a replacement action. Local/provider deletion, authenticated withdrawal/correction, cancellation, revocation and retirement remain separate operations.
+
+Content purge must preserve protected do-not-reapply/uncertainty and owning-protocol safety state while that authority remains live. A tombstone does not synthesize a signature, reconstruct deleted original bytes or make an identifier unseen. Lost comparison data keeps history unavailable/inert; dependent operations hold until their real evidence is available. Destroying safety state requires retiring affected live contexts. This is a selected contract and acceptance obligation, not an implemented purge API in `ContributionJournal`.
+
+Existing exact-byte journal tests exercise reopen/duplicate/conflict and process-crash atomicity. Configured service-execution tests retain terminal results and deduplication/replacement behavior. Native transport cases exercise server acceptance followed by process death, a lost final reply versus explicit temporary rejection, partial recipient scope and uncertainty surviving another recipient's success. They do not prove UI “read” semantics, cross-device purge, minimal tombstone storage, provider deletion/cancel behavior or physical erasure.
+
+### Registration-name coverage
+
+[Registration and extension inventory](../registration-inventory.md) distinguishes six selected candidate media types, three historical fixture types, three custom well-known suffixes, one proposed MLS GroupContext extension and application-local identifiers. It supplies draft templates and explicit unassigned/contact/publication prerequisites without filing requests or claiming IANA assignments. Historical clear-carrier types are not aliases for current sealed control.
+
+Run `python registration_coverage.py`. The guard compares literal vendor media types and `email2-*` well-known suffixes in the owning documents/implementation sources against inventory rows, excluding only the named negative example test. It catches a newly introduced undocumented literal or a row with no owning source. It does not detect dynamically constructed names, prove registration eligibility/availability, appoint controllers, validate every template field, allocate an MLS value or establish actual protocol conformance. Source/owner review and independent registry review remain distinct.
+
+### Portable pairing rendezvous binding
+
+[Pairing transport](../pairing-transport.md) specifies QR-bound HTTPS relay selection, separate owner/target slot tokens, immutable creation/record/receipt routes, lease/withdrawal, bounded polling and the public-pairing-metadata versus encrypted-configuration boundary. No new media type, header, global OAuth scope or well-known suffix is allocated. The service carries data and cannot approve enrollment, install trust or prove send readiness.
+
+`pairing_rendezvous.py` validates exact first/return QR schemas, bounded strict JSON, canonical same-origin routes, exact full commitments/token syntax and original-byte transport correlation. `check_return` returns **rendezvous-wire-only**; it does not scan a camera code, confirm an independent channel, validate the offer/request/anchor's owning proof, connect over HTTPS, authenticate a role or store a slot. Test credentials/digests are shape fixtures only.
+
+Existing remote-pairing, confidential age-setup and contact-installation tests retain their own actual signature/enrollment/encryption/contact scope. They do not implement the new public rendezvous routes, source metadata confidentiality, complete state1/private-conversation configuration transfer, remote mailbox login, usable fresh setup/admission scheduler or end-to-end QR-to-ready. Those remain distinct internal implementation and acceptance requirements.
+
+
+### Paired configuration version 1 assembly
+
+[Conversation setup on a paired device](../paired-configuration.md) defines a version-selected confidential multipart transfer, public advertisement and ordinary/private/managed conversation-selection records, reconciliation and automatic per-destination send preparation. Version 0 remains contacts/defaults only. The selected metadata grants neither historical decryption nor current group membership. Installed setup and local send eligibility are separate observations.
+
+`pairing_configuration_v1.py` checks the bounded exact manifest and chunk framing, complete reference/index/count/length commitments, reordered complete assembly, whole-byte digest and final strict UTF-8. Aggregate length is checked before allocating the joined result. Inputs are **already authenticated and decrypted tuples** from owning validators; synthetic references in its tests are shape fixtures. Its result is configuration-bytes-only. Run `python -m unittest test_pairing_configuration_v1`.
+
+These cases do not validate signatures, age encryption, full configuration/contact/context/genesis schemas, historical proof dependencies, current state1 authority, private staging transactions, live trust installation or the automatic admission scheduler. Existing v0 encrypted pairing experiments retain their own narrower scope. Complete current-suite QR-to-ready ordinary/private/managed sending without history transfer remains an implementation and acceptance obligation, not a claim supported by this assembler.
+
+
+### Legacy reply-header projection
+
+[Mail identity and one-parent projection](../event-identifiers.md#map-contributions-to-ordinary-mail) defines contribution/mail-version/resource/attempt separation, opaque per-copy Message-IDs, exact retries, scoped parent provenance and inherited reply-chain construction. Private routing omits public reply chains. Missing/invalid/ambiguous or unauthorized data cannot supply authenticated targets.
+
+`legacy_threading.py` consumes trusted parsed field states and disclosure flags and returns **legacy-thread-hints-only**. It preserves absent versus invalid References, accepts valid ancestors without a parent Message-ID, uses only a singleton fallback In-Reply-To, preserves ID/order/duplicates, omits over-budget complete chains and suppresses masked output. Its reused fixture msg-id checker supports a narrow ASCII subset only; it is not a complete RFC5322 parser or production acceptance policy.
+
+Run `python -m unittest test_legacy_threading`. These tests do not establish actual event-to-mail association, per-recipient disclosure authority, full legacy parsing/header serialization, durable unique allocation, provider origination or current-suite mail carriage. Existing sender exact-byte restart/retry and readable-copy target-mapping tests retain their separately configured scope; outer navigation never installs graph/effect authority.
+
+
+### Event namespace across conversations
+
+[Cross-conversation event reuse](../event-identifiers.md#detect-reuse-across-conversations) keys the accepted namespace by authenticated principal/event within the local security profile. Full references still require the exact conversation. Different conversations/streams/outer mail IDs cannot turn a collision into another namespace. Current views/dependent work become stale or conflicted; prior transport/service outcomes are not automatically undone.
+
+`ContributionJournal` retains all variants, indexes principal/event across conversations and includes every relevant variant in its local v1 snapshot-token commitment. It returns only the requested conversation’s original bytes and conflict state, never a foreign conversation’s body. Older v0 cache tokens become stale. Separate-connection tests cover late conflict, simultaneous SQLite writers, both arrival orders, rejected stale installation, reopen/duplicate conflict, other-principal independence and failed-write non-poisoning. A derived button-view case removes the active answer head after cross-conversation question-ID reuse without returning the foreign body. Authentication, original resource/protection evidence, whole-client queue invalidation and actual effect authorization remain the caller’s owning obligations. This is not an archive reader, purge API or cross-account/global conflict oracle.
+
+
+### Projection discrepancy and application acceptance
+
+The [ordered acceptance boundaries](../rich-messages.md#accept-the-event-check-its-presentation-separately) distinguish malformed required carrier/encoding and operation/index binding from a valid carrier’s content-only compatibility discrepancy. Accepted event fields/maps remain authoritative; missing/invalid external source claims retain their labels and later rendering failure does not manufacture or reverse an effect. Historical envelope sections do not enable current agreement support.
+
+Two actual native MLS cases in `test_joined_rich.py` alter the readable HTML leaf before encryption. Well-decoded decoy HTML produces a per-carrier mismatch, retains one accepted exact event after replay and renders only the authenticated HTML/scoped image. Invalid UTF-8 in that leaf consumes native receive state safely but reserves no application event; a fresh native message carrying the original valid payload succeeds without raw fallback. These are older configured `mime-rich-v0`/context4 evidence, not envelope4/context8/mime-suite-v0 or indexed-reply acceptance.
+
+Complete current-suite carrier/operation/index/source-map/renderer integration remains unimplemented. A trusted parsed/index component or mismatch label cannot replace its required positive, malformed, pending, replay and use-time authority cases.
+
+
+### Current Service actions agreement
+
+The [current protected service binding](../service-answers.md#current-protected-service-agreement) adds independent service-question support to the exact signed module closure. Four optional blocks yield 16 sets per ordering and 32 maximum ordinary/managed tuples. Existing contexts retain exact operation sets; no service login, old dispatcher or conversation Answers support widens them. All current addresses/control/identity and independently authorized endpoint/account/action rules remain required.
+
+Current `suite_modules` tests exercise all 16 subsets and 256 pairwise intersections per ordering, independent ordinary/managed support and service-only selection versus ordinary Answers. Actual assertion8 signature/package tests validate service support, reject a well-shaped unsigned capability substitution with invalid assertion proof and accept a complete 32-tuple signed offer. Inputs remain component/configured identity evidence; no signed offer or tuple result proves a full client can receive/execute the operation.
+
+The earlier native service authorization/execution tests retain their original application/envelope versions and credential/backend assumptions. Complete current envelope4 service operation/MIME admission, protected source/role/relay integration and actual endpoint execution remain unimplemented and required before advertising Service actions. Do not repin those historical reports as current passes. Scope limitations of the old ASCII service-URI checker also remain explicit; it is not a full current IDNA implementation.
+
+## Current hosted observation agreement
+
+The [Hosted replies binding](../hosted-access.md#protected-observations-of-hosted-replies) adds hosted-holder-observation to the current optional signed operation grammar. Five independent blocks produce32subsets per ordering and64maximum ordinary/managed tuples. The module helper checks all32subsets and1024pair intersections for each ordering; signed assertion8 tests include the full64tuple closure. This validates negotiation and actual signature/package components, not the current observation operation or public hosting account/feed implementation.
+
+The configured hosted observer and question tests retain envelope1/native historical agreement and separately exercise authenticated export binding, immutable observer-event preparation, current authority in their historical release path, question attribution and crash/retry behavior. They do not implement envelope4, public create-v2/feed ownership, current private-address roles or the complete current import-to-release integration. Those integrations and cross-device coordination remain required before advertising Hosted replies.
+
+## Sealed historical-transfer control binding
+
+Current history control uses the [five-kind binding](../history-transfer.md#carriage-and-file-retrieval) inside sealed-control-v0. The component validates original history wrappers/signatures, exact source/target/cancellation direction, actor and intended peer, intervals and original/outer signing-key agreement before encryption. Candidate opening still requires the original history state machine; it cannot approve a grant or publish history. Native test signing adds only the four existing history signature domains, retaining its explicit allowlist. The new tests use actual HPKE and device signatures for all five kinds, including intentionally unresolved parent references to demonstrate the candidate-only boundary.
+
+The independent older history tests retain their actual identity-store/approval/archive-import scope. Neither test set proves current state1, production final transport release, exact new file MIME adapter, owner/account/relay privacy or atomic cross-component journal integration. The old clear JSON mail layout is not current confidential-transfer support. Archive encryption and local restore evidence retain their own separate meaning.
+
+## Paired configuration installation order
+
+The [current setup procedure](../identity-lifecycle.md#accept-reconcile-and-report-readiness) and [configuration1 staging contract](../paired-configuration.md#transfer-setup-without-transferring-correspondence) require complete authenticated staging and the immutable staged receipt to commit before live trust installation. Per-record activation and a final installed receipt are later transitions, still subject to current authority, cancellation and the original deadline. A staged result neither installs trust nor proves send readiness.
+
+The contact-store regression attempts activation/finish before staging, interrupts the actual private staging transaction before commit, checks absent peer pins/association, then retries, retires the transfer key and completes verified contact installation without another comparison. This is actual older v0/identity-store/age integration, not current state1 or full configuration1. The older stage helper authenticates/decrypts and checks its configuration shape; complete peer-proof pre-staging, multipart conversation/genesis validation and the automatic current readiness scheduler remain unimplemented current requirements. Separate QR and trusted-input chunk tests cover wire commitments and byte assembly only.
+
+## Bootstrap signed-proof replay boundary
+
+The [bootstrap request contract](../bootstrap.md#signed-request-replay-and-disclosure-bounds) distinguishes an original source permission from an inspect/cancel proof signed for its own exact purpose. TLS protects those requests in transit; possession of a complete valid signed proof permits bounded replay of that exact request. The baseline adds no TLS-exporter binding or unreplayable live possession test. Current source/account/device/policy checks, the original source/proof intervals and allocation identities still apply. A new inspection cannot turn a publication into recipient liveness. Signed authorization objects stay in protected attempt custody under [retirement](../setup-secret-retirement.md#delete-the-temporary-secret-retain-the-right-state); being publicly verifiable does not make them safe public logs.
+
+The configured bootstrap regression copies a complete valid inspect proof, observes pending-to-published progression, replays it and uses a new nonce while checking only one durable allocation/package reservation. The same proof is refused across its deadline or inactive source account. Actual Ed25519/history-store component checks are exercised; fake package bytes, configured provider/TLS/account facts, fixed fixture nonces and local journals do not establish complete assertion8/MLS admission, public HTTP anti-replay handling, production nonce generation/custody, independent security or first human-message delivery.
+
+
+## Primary-reply topology
+
+`primary-reply-graph.mjs` derives primary-reply edges from a complete normalized projection of already accepted, authorized and deduplicated conversation records. The caller supplies current global principal/event conflict results. No body, private foreign-conversation evidence, network lookup or wire acceptance is involved.
+
+Nine Node tests cover all four primary message kinds including attachments; missing and later parents; every arrival ordering of a three-node cycle with a noncyclic incoming reply and independent root; self/cross-conversation references; source/target namespace conflict flags; supported question/service/hosted targets versus reaction targets; identical event identifiers under different authors; a 12,000-node iterative chain; and malformed/duplicate normalized input or a nonboolean conflict result. The chain length is a test fixture, not a protocol quota.
+
+These cases exercise local topology and retained input identity only. Complete current event/MLS validation, index/HTML acceptance, access authorization, resource budgets, serialized source-token installation, mailbox integration and user-interface behavior remain outside this component. A fresh source or conflict observation requires recomputation under the owning [assembly contract](../reply-content.md#assemble-the-conversation-from-contributions); the component cannot certify a live snapshot by itself.
+
+
+## Shared native module registration
+
+`provider_discovery.py` retains the provider discovery/store behavior and adds explicit module-selected metadata and native registration validation. Provider control requires its two scopes; relay and bootstrap require an explicit nonempty requested subset of their own three scopes. The shared loopback callback spelling is unchanged. No dynamic registration-update, refresh widening or cross-module credential authority is added.
+
+Four additional cases check every nonempty relay/bootstrap subset and every response scope permutation, rejection of missing/foreign/duplicate/default scope selections, extra/omitted/duplicate/malformed registration-response scopes, required metadata scopes/issuer, and recipient-only discovery remaining unable to acquire management authorization. All fetch provenance is configured trusted input. These tests do not provide real DNS/TLS, a module-aware persistent OAuth attempt/grant store, system-browser callbacks, token issuance, sender-constrained tokens, or joined provider/relay/bootstrap operations. The [native reuse contract](../provider-discovery.md#reuse-sign-in-mechanics-without-sharing-permissions) remains the owning requirement for those integrations.
+
+
+## Shared account-link proof
+
+`account_link_proof.py` validates the existing shared account-link schema and actual Ed25519 signature over original retained challenge bytes. It checks configured module/token scope, descriptor purpose/digest/service/current interval, account/family, exact endpoint/current receive authority, and mailbox-domain delegation for provider/setup. A relay contact mailbox does not acquire its foreign domain's delegation.
+
+Nine cases cover all three modules with a receive-only device; cross-module scopes/token context; a different descriptor at the same origin; relay contact versus provider/setup mailbox-domain requirements; wrong signing key/domain; reserialization versus exact retained bytes; inactive/changed account/family/time; actual accepted device revocation; and malformed schemas/encoding without live identity changes. The identity store is the configured state0 experiment. OAuth account authentication, complete domain/transport validation, account-contact membership, first-contact trust installation, atomic challenge consumption/link activation, cross-module reset storage and full current state1 integration remain outside this component.
+
+Three additional inspection-record cases validate current-account records, all three reset outcomes, exact route-selected schemas, duplicate/unknown fields, principal/ID grammar and original preparation matching. This is parsing evidence only. No HTTP reset service, owner-generation isolation, atomic completion journal, retention race, OAuth reconnect or client uncertainty reconciliation is implemented by the decoder. Those behaviors remain acceptance obligations of the account-reset contract.
+
+## First-message setup records over ordinary mail
+
+`mail_setup.py` checks the exact [mailbox-setup-v0](../mailbox-setup.md) request/response records, actual Ed25519 signatures over original bytes, current assertion8 signatures/identity authority, native MLS response packages, initiating control-key deadlines and original request correlation. `sealed_control.py` recognizes the response kind under receive authority and returns candidate bytes only.
+
+The focused cases cover a valid request/response without identity or mailbox-verification promotion; wrong signature domains and changed original bytes; nonce/address/request/digest substitution; expiration and attempted timer extension; assertion/actor/schema/duplicate-field errors; and actual HPKE sealing to the initiating device with a response unable to parse as a request. Identities, device custody and time are configured test inputs.
+
+These components supply no MIME or DKIM verifier, trusted envelope provenance, spam/disclosure policy, atomic per-device response reservation or package allocation, transport retry journal, mailbox-association provenance, state1 integration, invitation/admission or first-human-message release. They do not establish an operating automatic mailbox handshake or its aggregate anti-abuse behavior. The owning carrier’s complete positive/negative/restart acceptance cases remain required.
+
+## Setup-to-outbox journal boundary
+
+The [common handoff](../first-contact-setup.md#finish-setup-for-one-intended-send) separates acquisition, ordinary receiving evidence, local intent revisions, accepted crypto preparation, retirement and transport. `mail_setup.creator_receiving_candidate` checks a separately signed current ordinary creator assertion against the original mailbox request. An actual-signature test accepts a distinct own control key and rejects the attempt key, another device and reuse of the key under another ID. It does not prove key custody, application intersection or roster installation.
+
+`setup_handoff.py` is a local SQLite journal experiment, not a wire format or production outbox. Ten tests use real child-process exit before/after stage and activation commits, reopen durable state, run concurrent completion through separate connections, and check edited/cancelled revisions, changed dependency generations and immutable content/checkpoint/contribution/delivery/retirement observations. A staged checkpoint and its exact prepared bytes survive together; outbox eligibility stays held until recorded retirement completion and current selection. A late response cannot reactivate an older revision. A separate scoped unit cannot activate or cancel its peer. The component models one copy per local unit key; parent copy planning, correlation privacy and collectively atomic multi-copy activation are not implemented.
+
+The checkpoint/ciphertext are opaque test inputs, the generation is configured local dependency evidence, and the retirement receipt is a trusted adapter observation. They do not demonstrate real MLS state installation or package/ratchet consumption, actual secret erasure, full identity/policy/clock/route evaluation, a cross-store transaction protocol, transport exclusivity, SMTP cancellation or complete first-message sending. `inspect_eligible` is local inspection only; it is not authorization to release bytes. Production integration retains all owning barriers.
+
+## Copy progression and outcome projection
+
+`copy_plan_status.py` derives a local summary from a complete frozen copy inventory and trusted normalized recipient observations. Twelve cases cover independent versus collective initial activation, an already committed collective barrier with a later hold, partial transport versus held setup, accepted plus uncertain evidence, later failure retaining handoff, missing planned state, hosted exposure despite failed notification, all snapshot permutations and malformed/duplicate/empty inputs. It never removes recipients, changes event bytes, selects fallback or creates a transport attempt. Candidate units are inspection results only.
+
+The accompanying configured regressions retain exact private-copy authorization and hosted/plaintext-plan gates, lost creation results, actual local notification/protected submission checks and process-exit uncertainty. Their older experimental profiles are not current-suite implementation evidence. The original combined run covered19 cases. The added uncertain-upload cases make21 with the same scoped regressions; the run log records the current result.
+
+Readiness, envelope/recipient scope, policy/cohort commitment, content exposure and reconciled observations are trusted caller inputs. `failed` denotes a relevant correlated delivery failure, not every historical rejected attempt. An observation of no known exposure does not prove that no disclosure occurred. Separate trusted content-release uncertainty preserves possible host exposure without a receipt; a confirmed notification cannot clear it. The configured lost-creation-response regression also derives this flag from the actual durable uncertain state after a real local TLS upload, observes the host’s stored grant independently, and checks reconciliation to known storage while notification remains held. Known storage can replace upload uncertainty while exposure remains. Missing collective activation with possible content release stays unreconciled. These fields are local observations, not wire authority or a full durable release-marker implementation. The component performs no cryptographic audience/disclosure validation, real provider lookup, persistent source-snapshot fencing, cross-store activation, effect execution or SMTP/host reconciliation. Full current integration and the [owning per-copy contract](../delivery-policy.md#a-waiting-delivery-is-different-from-missing-setup) remain separately required.
+
+
+## Reply-intent record and destination selection
+
+`reply_intent.py` and `test_reply_intent.py` exercise the [exact proposed record and destination procedure](../reply-intent.md), using trusted source-author/audience and actor inputs. Ten cases cover discussion participants versus copied readers, disabled private replies, no-replies/private mode, actual-author private continuation, all target/non-target operation kinds, changed/foreign actors, exact fields/version/types/duplicate decoded names, participant order/scope, original bytes and self-contact. The self case returns a one-principal destination only; it does not enable the distinct-principal private-copy profile.
+
+Run `python3 -m unittest test_reply_intent.py -v` from this evidence directory. These are component cases, not authenticated source acceptance or a sender. No envelope5 full validator, successor negotiation, MLS/context/carrier acceptance, durable draft/release, graph installation, private delivery, UI or independent interoperability is established. `inspect_record` preserves original bytes and returns only `candidate-reply-intent`; caller-supplied identity values are not message evidence. The ten-case result must not be promoted to a whole reply-contract claim.
+
+
+## Reply-aware application selection
+
+`reply_suite.py` reuses the existing operation-block and subset-closure grammar for the exact envelope5/mime-suite-v1 tuple. Six cases exercise all32optional combinations, all1024pairwise intersections, independent ordinary/managed closures and control requirements, old/mixed-version rejection in both directions, incomplete/oversized closures, all-device selection and preservation of caller input. Run `python3 -m unittest test_reply_suite.py test_reply_intent.py test_suite_modules.py -v`. The old selector is unchanged.
+
+The component's internal old-shaped objects are grammar inputs only; original assertion bytes/signatures are neither rewritten nor authenticated. A successful result cannot grant identity, package, context, invitation, carrier, graph, draft or release authority. No complete assertion9, native successor admission/control, automatic provider/bootstrap/mailbox setup or UI/delivery implementation is claimed. The inherited old module tests remain evidence for that operation grammar only.
+
+
+## Reply-aware setup over ordinary email
+
+`mail_setup1.py` selects exact setup1 records with required agreement mail-conversation-v1. The shared decoder dispatches assertion9 to its own domain/tuple/control grammar. `suite_discovery9.py` uses real Ed25519 original-payload checks, an accepted configured identity snapshot and the existing native MLS package validator. Old setup0/assertion8 public entry points keep their exact versions; no parser retry or signature rewriting supplies9. The native test signer adds only the three exact new discovery/setup domains; it does not authorize operations or implement the successor encrypted frame.
+
+Run `python3 -m unittest test_mail_setup1.py test_mail_setup.py test_suite_discovery8.py -v` with the native MLS binaries and existing IDNA configuration. Nine new cases cover real setup/assertion9 signatures and native package validation, old/new version separation, signature-purpose/original-byte tampering, exact agreement/attempt correlation, original deadlines, advertisement commitments, request/response package roles, strict verification/unknown identities and unchanged identity state. Earlier setup0/issuance8 cases remain regressions at their recorded versions.
+
+The fixtures install identity0 genesis and use public-key material produced by the native engine; they do not prove full state1 lifecycle. Candidate results do not prove mailbox ownership, independent human verification, actual MIME/DKIM/envelope checks, disclosure policy, local publication/key custody, a durable attempt/response journal, sealed-control-v1 encryption, successor invitation/context/MLS admission, crash-safe handoff/outbox, actual SMTP or public-provider acquisition. Readiness and release remain separate owning gates.
+
+
+## Reply-aware bootstrap proof candidates
+
+`bootstrap1_wire.py` checks exact bootstrap1 proof/descriptor shapes, original Ed25519 record and assertion9 signatures, explicit agreement, expected caller-selected actor, original target-descriptor digest and source/response issuer/handle/nonce/deadline correlation. `test_bootstrap1_wire.py` covers all seven signed kinds, domain/version separation, altered original bytes, changed descriptor, mismatched attempt/actor/agreement and credible-time limits. Run it with `test_bootstrap_exchange.py` for the unchanged version0 component regressions.
+
+The new cases use real signatures and self-consistent identity0 bundles, but actor trust is a caller input. MLS packages and route invitations are deliberately inert markers; every result explicitly retains package_validated:false. No account/descriptor-fetch trust, accepted identity/state1, native package/route validation, OAuth/HTTP, source inspection, durable allocation/block/replay/revocation state or actual successor admission/handoff is established. The descriptor candidate does not persist a publication high-water mark. There is no queue1/grant1 implementation here. Publishing these proposed bindings and candidate cases cannot establish public-provider support.
+
+
+## Hosted management read authorization boundary
+
+The configured `HostedStore.lookup` and `management_reply` now recheck their own management credential after obtaining the database transaction, before reading protected receipts. Three cases in `test_hosted_access.py` cover two reads across expiry, owner/scope changes at database entry, and actual competing SQLite write-lock waits through expiry. Before the fix, the first two cases exposed receipts in all six tested boundary changes. Old receipt identity and owner history after bearer revocation remain unchanged. Run the hosted-access, export and observer cases for their respective configured boundaries.
+
+This is a synthetic single-owner service. Its management grants are in-memory fixture facts; the transaction does not supply a production account/token/link/revocation store or cross-process grant mutation guarantee. Public hosted-management-v1 requires the owning shared authority/serialization contract. The actual SQLite lock case demonstrates waiting/expiry for this component, not public OAuth or remote recall.
+
+The configured browser entry page currently retains holder request bytes only in page memory. It does not implement the [durable holder queue](../hosted-access.md#a-pending-hosted-reply-survives-a-restart), protected local persistence or resume after reload without retaining a bearer. Existing browser tests must not be counted as durable offline holder-client support. Those client/store/invitation/status boundaries remain unimplemented evidence obligations; the backend transaction fix cannot prove them.
+
+
+## Reply-aware own-device configuration candidates
+
+`pairing_configuration_v2.py` selects exact version2 manifest/chunk assembly and inspects an ordinary selection's explicit agreement, original context digest/bytes, context8/9 grammar, actual paired-principal audience and private-role pair. Shared byte/context grammar is explicitly version-dispatched; old public entry points remain1/8-only. No authenticated record is relabeled or reserialized to change its agreement.
+
+Run `python3 -m unittest test_pairing_configuration_v2.py test_pairing_configuration_v1.py test_suite_context.py -v`. Ten new cases exercise both agreement rows, context/application mismatch, byte commitments, private role/audience changes, unknown/missing/private-state fields, chunk version/magic separation, reordered complete parts, UTF-8 scalar split across chunks, missing/duplicate/changed parts and whole digest/local bounds. Older manifest/context cases remain regressions at their original versions.
+
+Inputs are trusted decrypted part tuples or raw ordinary metadata, not accepted current source evidence. Results are configuration-bytes-only or ordinary-selection-syntax-only. This does not validate a complete configuration2, advertisements or managed genesis/proof chain; verify version2 pairing/part signatures or age; reconcile current state1/admin/cancellation; implement atomic durable staging/receipts, transfer-secret retirement, actual group admission, mailbox account access or QR-to-send readiness. Source/target budget values are local implementation settings, not claimed user quotas or backup entitlements.
+
+## Whole-store rollback counterexample
+
+`test_identity_store.py` adds a limitation case using actual signed state0 genesis, enrollment and removal records. It snapshots the complete SQLite authority store before removal, accepts the removal in the current store and observes `unauthorized/revoked`, then opens an isolated restoration of the earlier store. The restored store reports the old device as `authorized-unverified` because it has no surviving evidence of the removal. Supplying the separately retained authentic removal returns that isolated store to rejection; it is not proof that every later state has been disclosed. The current original store stays at its removed head throughout.
+
+This deliberately passing counterexample establishes that the reference authority store lacks whole-store rollback detection. It does not demonstrate signing after restore, a full machine rollback, a hardware monotonic anchor, current state1 recovery or a safe production live-restore path. Existing replay/transaction tests retain their different scopes. The managed history importer must keep operational keys/state inert and use fresh independently authorized enrollment.
+
+## Rich image failure scope and aggregate work
+
+The `rich_presentation.py` projection adapter now keeps other rich content when a single image has a remote/data source, foreign event scope or undeclared role. It retains the image's alternative text and diagnostic, strips its candidate from the returned tree and never calls the resource resolver for that rejected source. Authoring remains strict; other incomplete projection failures retain the adapter's explicit plain-only path.
+
+Five added `test_rich_presentation.py` cases cover rejected image scope without resolver access, an eligible missing image with other rich content, a count limit before any resolution, and an actual 3×2 PNG decoded within a six-pixel shared budget with a later placement left as alternative text, and a navigation-binding timeout returning inert text without a partial rich tree. The adapter's positive local `max_images` and `max_total_pixels` options default to its existing reported configuration values; these are not protocol-wide quotas. The aggregate remaining allowance reaches the isolated decoder before work. These component checks do not authenticate input events, establish current-suite carrier/index admission, prove a complete browser display, provide a hard host-memory sandbox or cover every codec/filter failure.
+
+The historical `test_signed_rich.py` roster-to-rich SMTP fixture fixes its declared elapsed-time input for its two submissions and checks their returned acceptance explicitly. The historical `test_joined_rich.py` crypto/carrier/resource cases also fix that clock; they do not test real elapsed-time freshness. Its legacy control validator deliberately holds when the checked interval changes during proof validation; this fixture is cryptography/carriage evidence, not elapsed-time or current-suite release evidence. Separate sender-clock and association tests retain their real/fake elapsed-boundary checks. Production release gates are unchanged.
+
+## Indexed reply agreement boundaries
+
+`test_application_tuples.py` includes a six-version historical grammar case: valid versions2–7 retain their original payload/envelope/ordering meanings and reject addition of `reply-message`. The original input descriptors remain unchanged. Current `test_suite_modules.py` and `test_reply_suite.py` separately check the required indexed core and exact envelope4/mime-suite-v0 versus envelope5/mime-suite-v1 selection. These are tuple/selection components; they do not validate a complete indexed event, HTML/source map, current identity lifecycle, native admission or complete protected carrier. Recognizing a reply annotation cannot advertise those missing pieces.
+
+## Offline operation ownership
+
+The client and identity-lifecycle chapters distinguish saved replies, original pairing/configuration work, local outgoing holds and committed revocation, service submissions and bearer-page resume. Existing tests exercise their separate configured journals, deadlines, exact retries and authority checks. They are not a single current-client offline acceptance run. The explicit device-specific local removal-intent/release-hold integration is specified but is not implemented by merely advancing a generic sender-policy generation or passing a group-removal test. The current hosted page likewise does not implement its specified durable restart queue. Report those gaps directly rather than inferring them from adjacent component results.
+
+
+## First-device creation and first-contact snapshots
+
+The first-device lifecycle procedure specifies staged key custody, serialized own-account installation, restart/cancellation and explicit continuity breaks. There is no joined reference implementation of that current state1 creation/keystore workflow. Identity-store tests exercise their declared older identity records and database behavior; accepting a peer genesis is not evidence that local private-key provisioning is crash safe.
+
+The mailbox-association tests exercise exact retained observations, policy, ambiguity, generation checks and retries with actual older-format signed fixtures and trusted parser/proof inputs. The two-candidate case covers both arrival orders, together and in separate batches before selection. The later-unlinked-claim case separately retains an already selected unverified association. Neither proves independent mailbox ownership, provider-bootstrap provenance, current assertion9 acquisition or a complete first-contact user interface.
+
+
+## Discovery observation and comparison replay
+
+Carrier, passive-signature, onboarding and human-comparison tests have separate scopes. Carrier extraction checks placement and original decoded bytes without authenticating identity. Older signed-fixture onboarding adds local policy/association decisions. Human comparison uses a trusted local independent-channel command; negative comparison-field/session tests reject reuse without partial installation. Replaying a completed comparison decision returns historical output; withdrawal still holds current strict target selection.
+
+The current contract permits assertion8/9 cached discovery through a complete unchanged-binding ancestry path. Earlier discovery/onboarding fixtures instead exercise their exact-head encodings. The human-comparison component traverses state0 ordinary successors only; the newly explicit state1 update/prune verification-continuity contract is not implemented by that component. None of these results proves current provider/bootstrap provenance, full assertion9 admission, provider ownership or independently deployed interoperability.
+
+
+## Reply-policy input to primary topology
+
+The primary-reply graph component accepts an optional trusted edge-permission callback. Its inputs are copies of exact source/target references; the caller owns accepted events, reply-intent validation, actual audience, current authority and the serialized source snapshot. Allowed/pending/conflict/invalid results are applied before cycle detection. Tests cover a forbidden edge breaking a would-be cycle, unresolved/conflicted permission and malformed callback results. Omitting the callback retains the older topology-only component; it is not current reply-policy enforcement. No wire data, sender-supplied permission flag or graph result establishes authentication or sending authority.
+
+
+## Mailbox live-response candidate
+
+The mailbox-setup1 live-candidate helper verifies the actual setup1/assertion9 signatures and native package through the existing verifier, exact trusted source/target principals/devices, current target head and the supplied original creation interval/maximum age. It returns a candidate snapshot, not current send authority. Its tests use configured identity0 fixtures and actual signatures/packages. Durable outstanding-attempt provenance, account/policy revisions, cancellation, direct mailbox/DKIM evidence, sealed1 custody/receipt, current state1 and final release remain caller/integration obligations; this helper does not implement them or establish a complete live mailbox flow.
+
+
+## Account-link/reset version and module scope
+
+The shared account-link proof component exercises the retained grant0 signature and descriptor0 fixtures under explicit configured module/account/family facts. Current queue descriptor1/grant1 and bootstrap descriptor1 with the retained grant0 subset are separately defined protocol selections; those current combinations are not implemented by this older component. Queue-grant and native service tests cover their stated configured/older authority and token/link cases. They do not prove a public account-reset confirmation UI, stable owner-generation outcome storage, current grant1 service or atomic production cross-module revocation.
+
+Historical managed-presentation and service-account integration fixtures use their declared fixed credible interval together with a fixed elapsed clock to isolate wire, identity and account semantics. They do not establish elapsed-time handling. The separate sender-association advancing-clock case explicitly advances its modeled monotonic clock and checks the actual retained final content-release authorization time. Production transport timing gates are unchanged.
+
+
+## Bootstrap-to-relay operation handoff
+
+The bootstrap contract specifies a durable parent/child mapping for source-permission preparation, recipient route preparation/approval and the returned route response. That client orchestration is not implemented by the configured relay or bootstrap components. Relay tests exercise actual signatures, source-observation adapter facts, SQLite acceptance/replay/block/inbox intent, while bootstrap tests exercise their stated account/source/publication/response and signature boundaries. Neither proves crash-safe alias creation across the remote relay API and current bootstrap1 client journal. The required interruption/replacement cases are listed separately in conformance.
+
+
+## Import equality and current address scope
+
+Address spelling tests cover exact canonical construction, Unicode/local-part distinctions, configured IDNA and octet limits; they do not supply current assertion9/roster6/envelope5 mailbox acquisition. Legacy-threading tests consume already parsed trusted parent fields and disclosure inputs, not full headers, durable Message-ID allocation or mail acceptance. Recovery-spool tests cover their configured source/cursor/native-control scope.
+
+The mailbox import contract additionally requires comparing an alreadyExists candidate to the independently retained intended contribution and exact profile/copy commitments. No reference IMAP/JMAP import adapter implements that full expected-content comparison, provider repair handling or storage/submission reconciliation. Adjacent parser, topology and spool results must not be reported as its acceptance evidence.
+
+
+## Confidential administrative recipient selection
+
+The state1 contract defines a narrow identity-admin control-key selection during an independently pinned conflict. Every known frontier path must preserve the recipient device/key/receive authority, with original key deadlines/custody and separate transport authority; same-key renewal is not a general assertion-validity exception. This complete state1 recipient selector and its confidential proof-circulation integration are not implemented by the wire, first-repair candidate or sealed-control components. Their existing tests do not establish the new branch-selection behavior or a complete automatic repair workflow.
+
+
+## Frozen terminal retirement notices
+
+The [terminal-notice contract](../identity-state.md#deliver-a-retirement-proof-without-reopening-the-account) defines retirement/outbox commit, exact ciphertext retry and narrow predecessor-bound proof reception without operational sender authority. Its complete durable journal, final release and state1 receipt integration are unimplemented. Existing admin syntax and HPKE tests establish only their listed framing/cryptographic scopes; they do not prove terminal-only actor selection, transaction ordering, retired-route handling or absence of transient operational authority.
+
+
+## Unsupported configuration versus a held contact
+
+The selected [staging and reconciliation contract](../paired-configuration.md#when-only-one-contact-needs-attention) rejects unsupported transfer metadata before any complete staging receipt or installed prefix. In the version0 `test_pairing_setup` negative fixture, a real authorized source signs and age-encrypts two contacts: a supported first record and a second with an unknown verification mechanism. The publisher schema check is deliberately bypassed only to construct that hostile authenticated fixture; the real target parser rejects it and retains no staged plaintext or receipt. Existing contact-store cases separately exercise reconciliation after complete staging. These are version0 local cases, not proof of the complete configuration2 multipart/state1/admission workflow.
+
+
+## History grants across identity changes
+
+The [history authority phases](../history-transfer.md#identity-changes-do-not-renew-a-history-grant) require exact unchanged-binding continuity for new disclosure and distinguish retained artifact processing and terminal reporting. The real signed state0 same-key renewal regression in `test_history_transfer` accepts a valid new target binding but rejects release under the original grant. Existing ancestry and peer-revocation terminal cases cover their narrower paths. None implements state1 repair traversal, a new post-repair transfer, the durable complete journal or actual public storage/control release.

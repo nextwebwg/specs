@@ -205,48 +205,59 @@ class InitialRosterAdmission(Admission):
         self.verification=verification_mechanism=='human-comparison-v0'
         self.associations=MailboxAssociationStore(identity);initialize(self.db)
     def accept_message(self,octets,*,target,mailbox,allow_creator,intended_principals,intended_devices,expected_context,selections,time,trust_policy,crash=None):
-        MlsReceive._policy(time,trust_policy);p=parse(octets);v=p['value'];roster=p['roster'];outer=p['outer']
-        if expected_context!=p['context_raw'] or allow_creator!=v['creator']['principal']:raise ValueError('Independent context/creator selection')
-        expected(intended_principals,intended_devices,roster['members'])
-        if any(v['target'][k]!=target[k] for k in ('principal','device')) or mailbox!=v['target']['mailbox']:raise ValueError('Local target mismatch')
+        if self.db.in_transaction:raise ValueError('Initial admission requires transaction ownership')
         self.db.execute('BEGIN IMMEDIATE')
         try:
-            old=self.db.execute('SELECT payload,signature,result FROM initial_roster_received WHERE creator=? AND id=?',(allow_creator,v['invitation'])).fetchone()
-            if old:
-                if old[:2]!=(p['raw'],outer['signature']):raise ValueError('Target invitation collision')
-                self.db.execute('COMMIT');return json.loads(old[2])
-            if not uint64(v['notBefore'])<=uint64(time['earliest'])<=uint64(time['latest'])<=uint64(v['notAfter']):raise ValueError('Invitation validity')
-            interval=dict(earliest=v['notBefore'],latest=v['notAfter']);decoded=p['proofs']
-            for d,w in zip(decoded,outer['applicationAssertions']):d['wrapper']=w
-            rows=check_proofs(self.identity,self.binary,decoded,p['context'],credential(v['creator']),interval,trust_policy,verification=self.verification)
-            reference=base64.b64decode(v['target']['keyPackageRef']).hex()
-            local=self.db.execute('SELECT device,invitation FROM provider_mls_admission WHERE reference=?',(reference,)).fetchone()
-            if not local or local[1] is not None:raise ValueError('Package unavailable or consumed')
-            device=json.loads(local[0])
-            if device['identity']!=target['identity'] or device['key']!=target['key']:raise ValueError('Local package identity/key')
-            for member,proof in zip(roster['members'],decoded):
-                if member['kind']=='joiner':
-                    actual=call(self.binary,op='package-reference',checkpoint=device['checkpoint'],key=device['key'],package=proof['assertion']['key_package_octets'].hex())['reference']
-                    if actual!=base64.b64decode(member['keyPackageRef']).hex():raise ValueError('Exact member package reference')
-            joined=call(self.binary,op='join-initial-roster',checkpoint=device['checkpoint'],key=device['key'],identity=device['identity'],reference=reference,references=p['references'],welcome=p['welcome'].hex())
-            creator=next(r for r in rows if r['identity']==credential(v['creator']))
-            if joined['signerIdentity']!=creator['identity'] or joined['signerKey']!=creator['key'] or joined['group']!=p['group'].hex() or joined['epoch']!='1' or bytes.fromhex(joined['context'])!=p['context_raw'] or sha(bytes.fromhex(joined['groupContext']))!=roster['resultGroupContextDigest'] or sorted((m['identity'],m['key']) for m in joined['members'])!=sorted((r['identity'],r['key']) for r in rows):raise ValueError('Actual Welcome roster/context binding')
-            if not isinstance(selections,list) or len(selections)!=len(rows):raise ValueError('Local selection coverage')
-            routes=[]
-            for r in rows:
-                matches=[s for s in selections if isinstance(s,dict) and set(s)=={'principal','device','mailbox','generation'} and (s['principal'],s['device'])==(r['principal'],r['device'])]
-                if len(matches)!=1:raise ValueError('Local device selection')
-                s=matches[0];routes.append(dict(mailbox=s['mailbox'],generation=s['generation'],principal=r['principal'],observation=r['decoded']['assertion']['digest']))
-            route_evidence=check_locked(self.associations,routes,dict(members=joined['members']),interval,trust_policy,verification=self.verification)
-            install(self.db,joined,p['anchor'],roster,outer['applicationAssertions'],role='recipient')
-            result=dict(status='admitted-unverified',group=joined['group'],instance=p['anchor'],invitation=v['invitation'],mailbox_verified=False)
-            if trust_policy=='require-verification' and self.verification:result.update(status='admitted-human-verified',verification=[r['verification'] for r in route_evidence],verificationScope='human-confirmed-correspondent')
-            public={k:value for k,value in joined.items() if k!='checkpoint'};public['privateState']='retired'
-            self.db.execute('UPDATE provider_mls_admission SET invitation=?,joined=? WHERE reference=?',(canonical(dict(payload=outer['payload'],signature=outer['signature'])),canonical(public),reference))
-            self.db.execute('INSERT INTO initial_rosters VALUES(?,?,?,?,?,?,?,?)',(v['creation'],octets,p['roster_raw'],outer['roster']['signature'],p['anchor'],p['context_raw'],'recipient',canonical(result)))
-            self.db.execute('INSERT INTO initial_roster_received VALUES(?,?,?,?,?,?)',(allow_creator,v['invitation'],p['raw'],outer['signature'],v['creation'],canonical(result)))
-            if crash:crash('before-commit')
+            result=self._accept_message_locked(octets,target=target,mailbox=mailbox,allow_creator=allow_creator,intended_principals=intended_principals,intended_devices=intended_devices,expected_context=expected_context,selections=selections,time=time,trust_policy=trust_policy,crash=crash)
             self.db.execute('COMMIT');return result
         except BaseException:
             if self.db.in_transaction:self.db.execute('ROLLBACK')
             raise
+    def _accept_message_locked(self,octets,*,target,mailbox,allow_creator,intended_principals,intended_devices,expected_context,selections,time,trust_policy,crash=None):
+        """Retain admission under the caller's larger atomic installation.
+
+        This seam verifies the original signed octets itself. It accepts neither
+        caller-asserted parsed proof objects nor peer-supplied secret checkpoints.
+        The caller owns commit/rollback and must not publish the result early.
+        """
+        if not self.db.in_transaction:raise ValueError('Initial admission transaction required')
+        MlsReceive._policy(time,trust_policy);p=parse(octets);v=p['value'];roster=p['roster'];outer=p['outer']
+        if expected_context!=p['context_raw'] or allow_creator!=v['creator']['principal']:raise ValueError('Independent context/creator selection')
+        expected(intended_principals,intended_devices,roster['members'])
+        if any(v['target'][k]!=target[k] for k in ('principal','device')) or mailbox!=v['target']['mailbox']:raise ValueError('Local target mismatch')
+        old=self.db.execute('SELECT payload,signature,result FROM initial_roster_received WHERE creator=? AND id=?',(allow_creator,v['invitation'])).fetchone()
+        if old:
+            if old[:2]!=(p['raw'],outer['signature']):raise ValueError('Target invitation collision')
+            return json.loads(old[2])
+        if not uint64(v['notBefore'])<=uint64(time['earliest'])<=uint64(time['latest'])<=uint64(v['notAfter']):raise ValueError('Invitation validity')
+        interval=dict(earliest=v['notBefore'],latest=v['notAfter']);decoded=p['proofs']
+        for d,w in zip(decoded,outer['applicationAssertions']):d['wrapper']=w
+        rows=check_proofs(self.identity,self.binary,decoded,p['context'],credential(v['creator']),interval,trust_policy,verification=self.verification)
+        reference=base64.b64decode(v['target']['keyPackageRef']).hex()
+        local=self.db.execute('SELECT device,invitation FROM provider_mls_admission WHERE reference=?',(reference,)).fetchone()
+        if not local or local[1] is not None:raise ValueError('Package unavailable or consumed')
+        device=json.loads(local[0])
+        if device['identity']!=target['identity'] or device['key']!=target['key']:raise ValueError('Local package identity/key')
+        for member,proof in zip(roster['members'],decoded):
+            if member['kind']=='joiner':
+                actual=call(self.binary,op='package-reference',checkpoint=device['checkpoint'],key=device['key'],package=proof['assertion']['key_package_octets'].hex())['reference']
+                if actual!=base64.b64decode(member['keyPackageRef']).hex():raise ValueError('Exact member package reference')
+        joined=call(self.binary,op='join-initial-roster',checkpoint=device['checkpoint'],key=device['key'],identity=device['identity'],reference=reference,references=p['references'],welcome=p['welcome'].hex())
+        creator=next(r for r in rows if r['identity']==credential(v['creator']))
+        if joined['signerIdentity']!=creator['identity'] or joined['signerKey']!=creator['key'] or joined['group']!=p['group'].hex() or joined['epoch']!='1' or bytes.fromhex(joined['context'])!=p['context_raw'] or sha(bytes.fromhex(joined['groupContext']))!=roster['resultGroupContextDigest'] or sorted((m['identity'],m['key']) for m in joined['members'])!=sorted((r['identity'],r['key']) for r in rows):raise ValueError('Actual Welcome roster/context binding')
+        if not isinstance(selections,list) or len(selections)!=len(rows):raise ValueError('Local selection coverage')
+        routes=[]
+        for r in rows:
+            matches=[s for s in selections if isinstance(s,dict) and set(s)=={'principal','device','mailbox','generation'} and (s['principal'],s['device'])==(r['principal'],r['device'])]
+            if len(matches)!=1:raise ValueError('Local device selection')
+            s=matches[0];routes.append(dict(mailbox=s['mailbox'],generation=s['generation'],principal=r['principal'],observation=r['decoded']['assertion']['digest']))
+        route_evidence=check_locked(self.associations,routes,dict(members=joined['members']),interval,trust_policy,verification=self.verification)
+        install(self.db,joined,p['anchor'],roster,outer['applicationAssertions'],role='recipient')
+        result=dict(status='admitted-unverified',group=joined['group'],instance=p['anchor'],invitation=v['invitation'],mailbox_verified=False)
+        if trust_policy=='require-verification' and self.verification:result.update(status='admitted-human-verified',verification=[r['verification'] for r in route_evidence],verificationScope='human-confirmed-correspondent')
+        public={k:value for k,value in joined.items() if k!='checkpoint'};public['privateState']='retired'
+        self.db.execute('UPDATE provider_mls_admission SET invitation=?,joined=? WHERE reference=?',(canonical(dict(payload=outer['payload'],signature=outer['signature'])),canonical(public),reference))
+        self.db.execute('INSERT INTO initial_rosters VALUES(?,?,?,?,?,?,?,?)',(v['creation'],octets,p['roster_raw'],outer['roster']['signature'],p['anchor'],p['context_raw'],'recipient',canonical(result)))
+        self.db.execute('INSERT INTO initial_roster_received VALUES(?,?,?,?,?,?)',(allow_creator,v['invitation'],p['raw'],outer['signature'],v['creation'],canonical(result)))
+        if crash:crash('before-commit')
+        return result

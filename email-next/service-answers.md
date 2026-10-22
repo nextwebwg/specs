@@ -17,7 +17,58 @@ A question can offer buttons that send an answer to a named HTTPS service. The c
 > [!warn] Experimental configured-deployment profile
 > Version 0 specifies a candidate wire contract for an explicitly configured experiment. It is not a complete cross-provider authorization standard, and the local parser experiment does not implement service authorization or execution. The service-question operation below defines descriptor carriage. The separate configured execution experiment covers authenticated local requests, effects and receipts. The joined signed-mail experiment now connects an accepted question to a deliberate service action and matching HTTPS receipt. The separate [service-account authorization profile](service-authorization.md) defines native sign-in and a device-signed principal link; deployed account integration and independent interoperability remain unproven. Supporting ordinary conversation buttons does not imply support for this service capability.
 
+## Current protected service agreement
+
+Service actions is an optional receiving capability in the current protected agreement. A service button keeps the message's encrypted author, recipients and question intact, while its deliberate submission follows the service's separately authorized HTTPS contract. The result is a service outcome, not an email answer or evidence that other participants read it.
+
+:::: {.details summary="Signed selection, carriage, authority and compatibility"}
+
+### Exact application selection
+
+Current assertion10/context10 permits `service-question` in its fixed readable vocabulary. The device's `service-actions` interaction name means it implements this chapter's complete authorization, submission, retry and result contract. Each actual delivery requires the current [complete protected agreement](suite-profile.md#asynchronous-protected-agreement), not every recipient's ability to press service buttons. A simpler reader shows the wording, choices and actual service origin without contacting that service or pretending an action succeeded.
+
+Service actions remains independent of Answers, Reactions, Corrections and Hosted replies. Implementing the interaction does not make every service trusted or connected; device advertisements carry no access token or endpoint approval. The client making a deliberate submission uses its own eligible account and target evidence, not permission supplied by another device's capability list.
+
+Earlier assertion9/context9/envelope5/mime-suite-v1 and assertion8/context8/envelope4/mime-suite-v0 agreements retain their exact optional-block selection. In those older agreements every selected device must support the complete service-question block before it can be sent under that application. Their intersection algorithm cannot reduce the current fixed vocabulary, nor can current readable support silently widen an old context.
+
+### Direct contribution carriage and display
+
+Use the existing exact four-member service-question operation and version0 action descriptor below, inside current authored0, with separately authenticated envelope6 and mime-suite-v2. Earlier carriers retain their own exact envelope/MIME binding. Validate every descriptor URI, interval and self-reference against the enclosing exact principal/conversation/event. Service-question is resource-free: its direct plain/HTML alternatives contain wording, every choice in authored order, canonical service origin and the stated ordinary-reply/no-automatic-submission explanation. HTML is a fresh permitted UTF8 document with escaped inert author strings. No resources, live sender controls, web answer-page URL, credentials or copied history are introduced.
+
+Apply the [ordered acceptance gates](rich-messages.md#accept-the-event-check-its-presentation-separately). A valid contribution can be retained before service configuration/account access is available; its button stays unavailable/pending under the service's actual reason. Carrier/event acceptance is not action authorization. Receiving, decrypting, indexing, rendering, opening or forwarding performs no service discovery, credential acquisition, account linking, submission or status request by itself. Only permitted local setup or deliberate action authorizes the corresponding service operation. An already authorized immutable submission may resume its specified retry/status job without another click; merely reopening or replaying the question creates no such job.
+
+A service-question in an older agreement lacking that operation is inactive. Current simpler readers retain the safe known projection without offering an unimplemented interaction. A legacy client's readable invitation means an independently authorized ordinary copy, or safe diagnostic reading of an unsupported representation; it does not retroactively enable an encrypted operation. Ordinary fallback retains its actual exposure policy and cannot place a plaintext sibling beside a protected contribution.
+
+### Roles, execution and results
+
+The encrypted personal-address record remains mandatory and binds the question author, To/Cc and exact protected audience. Provider relay permissions, source owner and private-copy roles do not become service credentials. The current actor uses its own current principal/device, selected service registration, native account link and independently authorized action/account incarnation. A successful link cannot create an action, add choices or add an answering principal. A question's signature and apparent service origin do not supply those permissions.
+
+The [native authorization profile](service-authorization.md) and this chapter's exact submit/status/result, replacement/withdrawal and retry rules remain the selected endpoint binding. Their v0 bearer baseline provides scoped HTTPS access, not holder-of-key or server-blind service execution. Keep its explicit token-theft/runtime and production-assessment limits; this module does not silently add DPoP, mutual TLS or a new cryptographic claim. No bearer, mailbox/provider grant or route credential is copied through a question, configuration transfer or archive.
+
+Immediately before a deliberate action, and again before content-bearing HTTP handoff after intervening connection or authorization waits, require current accepted question/action evidence, applicable source/actor authority, actual service/account/action permissions, original interval, exact selected option and immutable submission identity/bytes. Reconnect, a new device or changed account follows the existing incarnation/link rules; it cannot allocate a replacement to hide uncertain execution. A timer, new advertisement, tuple negotiation or question rewrapping cannot extend retryUntil. Status checks and terminal receipts preserve their exact original account/action scope. A receipt remains separate from a participant-authored contribution; sharing it needs its own authorized composition.
+
+Source disclosure of the question/descriptor is distinct from later sending a choice to that service. The trusted control identifies the real service origin and declared choice before deliberate activation. Existing scoped remembered permission can streamline routine use; this selects no new universal confirmation dialog. Exact answer-submission bodies contain only the defined identifiers/choice/replacement data, never the mail body, subject, personal addresses, quoted history or other participants' grants.
+
+### Replies, sources and independent copies
+
+A normal message or indexed reply can name an independently accepted service-question as its exact primary parent, without confirming a service effect. A quotation selector `body` may select only that accepted service-question's original text, not option labels, endpoints or the descriptor. Exact source/policy/index matching still applies. Existing reaction targets already include service-question. Editing service questions remains unsupported; changed wording, option mapping or descriptor creates a new event and separately valid action binding. A conversation answer operation still targets an ordinary question; do not turn a service result into that answer.
+
+These target/source permissions require actual accepted target evidence from its own agreement and authorized scope. The current fixed readable application includes service-question in every admitted stream; offering service interactions still requires that device’s complete declared capability and authorization. Retained agreements whose operation sets were selected as blocks keep that exact selection: another stream’s capability does not add a missing operation there. An unknown or unavailable target stays unresolved, not guessed from subject or a readable alternative.
+
+A service action is allocated by its service for an exact question/choice/principal policy. Its publisher obtains that allocation through an independently authorized service application interface; this protocol does not invent or guess a generic action-create endpoint. If that interface or its required authority is unavailable, the client cannot manufacture an active service question. It can hold or deliberately compose non-action content under the proper policy.
+
+A private copy or a new copy with changed intended disclosure requires fresh conversation/event identities under its owning copy contract. The copy process must not rewrite serviceAction.question locally while retaining an old remote action as if it authorized that new question. It needs a genuinely independent service-authorized allocation with a fresh action ObjectId for the new reference and actual answering principals, preserving the old action and its submissions, or must hold active-button composition. An explicitly authored readable explanation may instead use a new non-action message and authorized context. Do not leak another copy's question reference, action family, recipient count or active target to explain the relationship. An actual delivery to a newly ready cohort under the same authored0 intended scope is different: it retains the original logical question/action reference and identical authored bytes, with a fresh envelope6 delivery identity and independently eligible native admission. It does not allocate another service action or reset submission identity, replacement state or uncertainty. Retained agreements keep their own unchanged-event/actual-audience rules. No re-encryption grants additional action permission or history access.
+
+A newly paired device obtains its own service connection/link under current authority. It does not copy grant families, pending submissions or old message keys. Existing question/status work still needs its actual retained authorized evidence; absent history is not replaced by a guessed question or a paid-storage prerequisite for future service participation.
+
+### Required evidence
+
+Exercise all thirty-two per-device interaction subsets and both supported ordering scopes without reducing the fixed readable vocabulary. Include an empty interactions list, a service-capable sender with a simpler reader, signed service-support substitution/omission and attempts to activate a button without the local `service-actions` implementation. Retain subset-intersection tests only for earlier agreements. Exercise exact current contribution and descriptor binding, accepted question with unconnected/denied service, unavailable action allocation, ordinary reply/quotation/reaction, forbidden edit, changed audience/private copy, wrong actor/account, renewal/revocation/repair, original expiry, scanner opening, uncertain effect/status and restart. Inspect protected and exposed control/relay bytes and the exact HTTPS body. Old configured service execution proves its recorded endpoint mechanism, not this whole current-suite path. The complete current carrier/operation/native/role/account integration remains required before claiming Service actions support.
+
+::::
+
 ## Before a button can submit
+
 
 A service-question contribution contains the action descriptor that binds its exact question to a service origin, submission URI, status URI prefix and validity interval. Authentication covers the descriptor together with the question text and choices. Ordinary conversation questions keep their existing schema and behavior.
 
@@ -27,7 +78,7 @@ If configuration or authorization is unavailable, the service action waits. Ordi
 
 ## The service question
 
-A service question offers the same predefined choices as a conversation question, but sends the selected answer to the named service. An ordinary email reply can still contact the author; it does not confirm a service action. A client without service support shows the readable invitation and leaves the service control unavailable.
+A service question offers the same predefined choices as a conversation question, but sends the selected answer to the named service. A written reply can contact the author only when the declared reply intent permits it; it does not confirm a service action. A client without service support shows the readable invitation and leaves the service control unavailable.
 
 ::: {.details summary="Service-question operation and authenticated self-reference"}
 
@@ -83,7 +134,7 @@ Both URIs must have exactly the service origin, no userinfo, query or fragment, 
 
 **Provider-controlled paths.** The provider chooses `submit` and `statusPrefix`; `/submit` and `/status/` in examples reserve no paths. A client uses the supplied, authorized values and never guesses endpoints from a hostname or path name. Appending a submission identifier is allowed only beneath the provider-selected `statusPrefix`. This follows [RFC 8820 §2.3](https://www.rfc-editor.org/rfc/rfc8820.html#section-2.3): an application can define resources beneath a deployment-controlled prefix.
 
-The action author can propose where the answer should go, but cannot grant authority at that service. The service independently holds an action record mapping `action` to the exact question, allowed option identifiers, authorized answering principals, lifetime and replacement policy. A request cannot create that record. The client displays the bound service origin before the user presses a button. No user-facing display name substitutes for that origin.
+The action author can propose where the answer should go, but cannot grant authority at that service. The service independently holds an action record mapping `action` to the exact question, allowed option identifiers, authorized answering principals, lifetime and replacement policy. A request cannot create that record. Under native account linking, its answering-principal authorization also binds the exact internal service-account incarnation under the [account-isolation contract](service-authorization.md#reconnect-without-changing-the-action); signing into another account cannot retarget the action or inspect its receipts. The client displays the bound service origin before the user presses a button. No user-facing display name substitutes for that origin.
 
 An existing trusted configuration must bind the client to this service and credential audience. Received metadata cannot establish a new credential issuer, token endpoint, OAuth client registration or mailbox-principal mapping. If that configuration or credential is unavailable, hold the service action and offer ordinary contact or separately chosen website navigation; do not probe arbitrary token URLs from mail.
 
@@ -178,6 +229,14 @@ Bind any retained validation decision to the exact service identity, certificate
 A resumed handshake does not supply new certificate-status evidence merely because the handshake succeeded. The client must recover and reevaluate the original authenticated path and status context, obtain new evidence if required, or perform a full handshake. For required-staple certificates this profile disables session resumption and requires a full handshake with a valid staple. An already established connection may be pooled only within its retained validated expiry; pooling does not extend that expiry. Tickets and cached decisions stay within the same service and isolation context. Policy changes, missing state or unsupported backend evidence cause a hold/full handshake, never assumed continuity.
 
 
+
+## Button feedback and offline use
+
+A service button behaves like a sending control: pressing it visibly selects the choice and queues that one answer, including while offline. Keep a compact pending indicator on the selected choice, then update it when the service acknowledges or applies the answer. Do not leave the button looking untouched while a submission is waiting.
+
+Use the shared [interaction queue and status contract](client-behavior.md#a-pressed-button-keeps-its-sending-status). Persist the original authorized submission before claiming it is queued. Reconnect or restart resumes that submission under its original permissions and deadline, not a new button press. An acknowledged pending receipt can show sent-to-service while the application result remains pending; confirmed means applied. A connection failure with no decisive receipt remains uncertain, not definitely unsent. A rejected result remains visible and cannot be made to look successful by a later network retry.
+
+Queued work cannot wait beyond its execution authority and then submit as though no time passed. If retryUntil expires, stop POST execution and preserve any unresolved earlier outcome; authorized status checks can still recover retained evidence. Changing an answer or canceling local work follows the replacement and cancellation rules, not an optimistic undo of an unknown service effect.
 
 ## Submit one answer
 

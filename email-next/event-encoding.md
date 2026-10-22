@@ -9,6 +9,14 @@ sectionNav: true
 
 The experimental event representation uses a restricted JSON object encoded as UTF-8. This chapter selects parsing and byte-identity rules; it includes the initial contribution envelope but does not register a media type or complete all contribution kinds. A conforming wire implementation still needs the selected security profile and MIME binding.
 
+## Start with the current agreement
+
+Current Encryption clients implement [authored0, envelope6, context10 and mime-suite-v2](suite-profile.md#current-client-baseline). The complete original authored record identifies one message; separately secured envelopes identify its actual deliveries. [Slot reply-intent1 and protected per-message addresses](#asynchronous-authored-records-and-deliveries) retain the full intended recipients while independently ready deliveries progress.
+
+All current protected readers implement the fixed twelve-kind readable vocabulary, required rich/indexed rendering, scope processing and written-reply rules. Answer buttons, reactions, corrections, service actions and hosted-reply interactions require their separately declared complete local capabilities. They do not reduce the readable application to a common optional subset. General form/submit/withdraw operations remain deferred.
+
+The version0/version1 contribution sections below and retained envelope4/5 agreements are exact compatibility encodings. Their fields, signatures and evidence cannot be mixed into the current grammar. Common strict parsing and byte-identity rules apply where the selected owner incorporates them; wrapper6 has its own larger bound, and a signed record's explicit null exception never widens authored events.
+
 ## Decoding and parsing
 
 After MIME transfer decoding and any required decryption, the event octets MUST decode as valid UTF-8 without replacement characters introduced by recovery. A leading UTF-8 byte order mark is invalid. The result MUST contain exactly one JSON object, with only JSON whitespace before or after it. Comments, trailing commas and additional values are invalid.
@@ -19,7 +27,7 @@ All strings, including member names, MUST consist of Unicode scalar values. Prop
 
 A literal U+FFFD, a noncharacter or an unassigned scalar is not malformed UTF-8. A receiver must not substitute a character-assignment lookup for strict byte decoding. Internal U+FEFF remains content; the prohibition above concerns a leading byte order mark. The [UTF-8 and Unicode source review](audits/utf8.md) explains these boundaries without changing the separately selected emoji or display-property data.
 
-The baseline event encoding admits objects, arrays, strings and booleans. JSON numbers and null are not admitted. Version identifiers are strings; identifiers use the identifier grammar. This avoids implicit rounding and ambiguous null-versus-absent field values in the initial text/choice form model. A future numeric response capability needs an explicit representation and comparison rule; a receiver MUST NOT guess one.
+The baseline event encoding admits objects, arrays, strings and booleans. JSON numbers and null are not admitted in contribution events. A different signed record may admit null only where its owning schema explicitly defines it: [assertion8](suite-profile.md#creating-a-delivery-and-receiving-it-later) and retained [assertion9](reply-intent.md#reply-aware-protected-agreement) each require `keyPackageReceiveUntil: null` when no package is supplied, and permits root `controlKey: null` only when no usable control key is published and no MLS package is supplied. Current [assertion10](suite-profile.md#asynchronous-protected-agreement) inherits precisely these two root-member exceptions. These exceptions apply only to those exact root members and version; it does not make null valid in other fields, nested values or older advertisements. Version identifiers are strings; identifiers use the identifier grammar. This avoids implicit rounding and ambiguous null-versus-absent field values in the initial text/choice form model. A future numeric response capability needs an explicit representation and comparison rule; a receiver MUST NOT guess one.
 
 These restrictions intentionally narrow the grammar described in [RFC8259](https://www.rfc-editor.org/rfc/rfc8259.html). Sections 4, 6 and 8 explain the duplicate-name, numeric-precision and Unicode interoperability issues relevant here. The [base-document and errata audit](audits/json-encoding.md) is complete; transitive dependencies remain separately scoped work.
 
@@ -33,7 +41,7 @@ The security profile MUST bind these bytes together with their protocol purpose,
 
 ## Unknown fields and unsupported versions
 
-Each operation schema enumerates its permitted members. An unknown member outside an explicitly defined extension container invalidates structured processing of that event. Misspelled fields MUST NOT be silently ignored. Unknown versions likewise leave the rich representation inactive while preserving a readable alternative with its actual protection status.
+Each operation schema enumerates its permitted members. An unknown member outside an explicitly defined extension container invalidates structured processing of that event. Misspelled fields MUST NOT be silently ignored. Unknown versions likewise leave structured operation processing inactive while preserving a readable alternative with its actual protection status.
 
 An extension container, when defined, must distinguish required semantics from optional annotations. An unknown required extension prevents structured effects. Optional data cannot change the baseline event's target, audience, authorization or meaning. This chapter does not invent an extension namespace ahead of that schema.
 
@@ -43,7 +51,7 @@ Parsing failure preserves the received source and diagnostics. It MUST NOT yield
 
 ## Evidence
 
-The Python encoding experiment rejects duplicate decoded names, malformed UTF-8, lone surrogates, numbers, null and non-object roots. It preserves the exact input bytes separately from parsed values. Boundary cases also reject overlong forms, encoded surrogates, out-of-range scalars, truncation, stray continuation bytes and CESU-8 while accepting authored U+FFFD, noncharacters and unassigned scalars. The decoder checks event byte size and container depth before JSON tree construction. It is not a production streaming MIME/cryptographic pipeline and does not perform complete operation-schema validation. It does not authenticate input or implement the final cryptographic context binding.
+The Python encoding experiment rejects duplicate decoded names, malformed UTF-8, lone surrogates, numbers, null and non-object roots by default. Its explicit root-member exception lets the assertion8 and separately selected assertion9 parsers admit their schema-defined null without changing older callers. It preserves the exact input bytes separately from parsed values. Boundary cases also reject overlong forms, encoded surrogates, out-of-range scalars, truncation, stray continuation bytes and CESU-8 while accepting authored U+FFFD, noncharacters and unassigned scalars. The decoder checks event byte size and container depth before JSON tree construction. It is not a production streaming MIME/cryptographic pipeline and does not perform complete operation-schema validation. It does not authenticate input or implement the final cryptographic context binding.
 
 
 ## Solidus compatibility decision
@@ -121,7 +129,7 @@ The [service-question operation](service-answers.md#service-question-schema) use
 
 ## Reaction operation binding
 
-The [reaction contract](reactions.md) owns the candidate `reaction` and `reaction-withdraw` operation schemas. They use this same seven-member envelope, strict encoding, exact-byte identity and authenticated context. The operation dispatcher recognizes their exact shapes; target resolution and withdrawal authority remain separate required checks before effects. MIME reaction markers cannot substitute for these checks.
+The [reaction contract](reactions.md) owns the candidate `reaction` and `reaction-withdraw` operation schemas. The retained version0 dispatch uses the seven-member contribution envelope, strict encoding, exact-byte identity and authenticated context. Current dispatch uses the authored0 logical targets and envelope6 delivery binding defined below; the reaction operation’s exact own fields remain unchanged. The operation dispatcher recognizes their exact shapes; target resolution and withdrawal authority remain separate required checks before effects. MIME reaction markers cannot substitute for these checks.
 
 ## Declaring readable copies outside encryption
 
@@ -147,10 +155,129 @@ The configured experimental version `1` envelope adds one required member to the
 
 Descriptors contain no recipient identifiers, recipient counts, copy counts, grant identifiers or access tokens. A named service can still support inferences about a recipient; omission of identity and count is not a promise of perfect Bcc privacy.
 
-An empty array declares that the author plans no external disclosure for this contribution. It cannot prove that someone will never forward or copy the content. A descriptor describes intended exposure, not successful delivery or independently verified provider behavior. Release of an external copy requires a matching durable delivery plan; schema acceptance alone never authorizes that release.
+An empty array declares that the author plans no external disclosure for this contribution. It cannot prove that someone will never forward or copy the content. A descriptor describes intended exposure, not successful delivery or independently verified provider behavior. It is the plan for the original authenticated bytes, not a live global disclosure ledger. The [frozen-disclosure rules](delivery-policy.md#freeze-disclosure-before-releasing-content) govern later fallback or sharing changes; they cannot rewrite an existing event’s array. Release of an external copy requires a matching durable delivery plan; schema acceptance alone never authorizes that release.
 
 ### Application agreement
 
 Version `1` requires the [version `2` authenticated application context](security-profile.md#configured-application-agreement). A version `0` or version `1` conversation context does not enable it. Operation shape support does not imply agreement to receive that operation.
+
+:::
+
+
+## Asynchronous authored records and deliveries
+
+One person’s writing can travel through several separately encrypted deliveries. Keep the writing as one immutable record. Put the actual recipients and delivery identity around it, so a later copy for a newly ready recipient does not become a second message or change what the author originally said.
+
+The components below select exact records for the [asynchronous-group design](delivery-policy.md#one-message-several-deliveries). The [selected asynchronous agreement](suite-profile.md#asynchronous-protected-agreement) defines context10/assertion10, native admission, readable capability selection and mime-suite-v2. The [automatic acquisition binding](first-contact-setup.md#acquisition-for-independently-ready-deliveries) is selected. The [ongoing own-device setup binding](paired-configuration.md#keep-setup-current-between-your-own-devices) is selected. The [pending-delivery lifecycle](delivery-policy.md#complete-a-pending-delivery) is selected. This is the current draft baseline; complete implementation and independent acceptance remain separate outcomes. These records cannot be inserted into retained envelope5, selected by MIME sniffing, or advertised as supported merely because a parser recognizes them.
+
+### Follow one exchange
+
+The [synthetic exchange catalog](examples/async-exchange.json) lists the original records and their separate delivery envelopes. It is a fixture index, not a wire message. The samples contain no signatures, native admission or transport evidence and must not be submitted to an earlier envelope5 context.
+
+| Authored contribution | Intended visible discussion |
+| --- | --- |
+| [Alice: “Which day works?”](examples/async-root-authored.json) | Alice, Bob and Carol; Carol’s principal is initially unresolved. |
+| [Bob: “Thursday works for me.”](examples/async-reply-authored.json) | The same discussion; the parent names Alice’s logical question, rather than Bob’s particular received delivery. |
+| [Alice: “Great — Thursday it is.”](examples/async-followup-authored.json) | The same discussion; the parent names Bob’s logical reply. |
+
+Bob can first receive [Alice’s ready delivery](examples/async-root-first-delivery.json). Alice later [resolves Carol’s slot for Bob](examples/async-resolution-authored.json) through a separately authenticated control; that control is not a fourth visible conversation message. Bob still applies his own current recipient and disclosure checks.
+
+Carol’s [Bob reply delivery](examples/async-reply-late-delivery.json) can arrive before [Alice’s original delivery](examples/async-root-late-delivery.json). The missing scope/root relationship stays pending. Once the original independently validates, both copies resolve through the same logical identifiers. Alice’s [follow-up delivery](examples/async-followup-late-delivery.json) then completes the three-message exchange in Carol’s available history. Neither the catalog’s order nor its labels supply authentication or prove an implemented pending queue.
+
+::: {.details summary="Immutable authored-record version0"}
+
+The authored record is a strict UTF-8 JSON object with exactly the ten members below. Its complete original bytes, not a reserialized object, identify its authenticated content across deliveries. Common scalar, duplicate-name, unknown-member, number/null and depth rules apply. Its decoded size is at most 1,048,576 octets; embedded HTML and scope definitions share that allowance.
+
+| Member | Requirement |
+| --- | --- |
+| `version` | String `"0"`. |
+| `purpose` | String `"authored-contribution"`. |
+| `event` | Nonzero Event ObjectId for the logical authored contribution. |
+| `conversation` | Nonzero Conversation ObjectId. |
+| `principal` | Authenticated author principal under the selected identity profile. |
+| `scope` | Exactly one of the scope selections below. |
+| `operation` | One complete explicitly selected operation, with the logical-reference rules below. |
+| `disclosures` | The existing exact planned-exposure descriptors, order and confidentiality meaning. They commit the author’s planned additional exposure; another delivery cannot edit them. |
+| `presentation` | Exactly the seven members below. |
+| `replyIntent` | The exact slot-based version1 record below. |
+
+A creating scope selection has exactly `kind`, `root` and `definition`. `kind` is `"create"`; `root` equals this authored record’s full logical reference; `definition` is the complete [intended-recipients0 definition](delivery-policy.md#an-invitation-is-not-yet-an-encryption-identity) with that same root. The actual publishing author must be the definition’s creator. A scope cannot be created by an answer, reaction, withdrawal, edit, indexed reply or recipient-resolution control. A message, attachment-message or rich-message creates it only with empty replyTo. Question, service-question and independently authorized hosted-holder-observation may create a scope under their own operation rules; a holder observation does not authenticate its holder.
+
+An existing scope selection has exactly `kind` and `root`. `kind` is `"existing"`; `root` selects an independently accepted scope definition in the same conversation, from its creator’s accepted root or the [configuration3 own-device setup ledger](paired-configuration.md#transfer-asynchronous-scope-metadata). The metadata path does not supply that root’s human message or reserve its authored identity. It cannot equal this record’s own reference or name a reference-only scope alias. A missing accepted scope definition keeps the scope dependency pending. When an eligible own-device setup observation supplies that definition, absence of the original human root alone does not block a fresh message. A reply, quotation, answer or other source-dependent operation still needs its own independently accepted target/content and remains pending if that evidence is missing. A rejected/conflicted definition cannot be replaced by a sender-supplied roster or subject match.
+
+The presentation members are:
+
+| Member | Requirement |
+| --- | --- |
+| `subject` | The existing protected subject scalar/control-character rules. |
+| `authoredAt` | The existing empty-or-canonical-uint64-seconds string; it supplies no trusted creation time or ordering. |
+| `authorSlot` | One slot in the selected scope, independently bound to this authored principal. |
+| `from` | One canonical personal mailbox, with the author’s independently eligible source-account association. It is not a relay route. |
+| `to` | Ordered array of distinct slot IDs in the selected scope. |
+| `cc` | Ordered array of distinct slot IDs in the selected scope, disjoint from to. |
+| `addresses` | Slot-sorted array of exact slot/mailbox objects, covering each to/cc slot once, with no other entries. |
+
+The intended slots for this contribution are exactly authorSlot plus the union of to and cc. An author may deliberately address their own slot in one role, as with self-addressed mail. Other slots in the scope are not recipients of this contribution. Preserve the selected roles and address spellings; do not make a principal-level To/Cc union that loses which selected mailbox was copied. Independently selected aliases of one principal can remain distinct addressed slots while native membership still deduplicates that principal. The retained envelope4/5 principal-role arrays are not an additional field set in this record.
+
+Each address entry has exactly `slot` and `mailbox`. Slot is one of the role-selected IDs; mailbox is the author’s canonical personal destination for this contribution. Exact duplicate recipient mailboxes across to/cc are invalid. This array does not change the scope’s frozen principal expectations or resolve an unknown slot. A different address for a bound slot must independently associate with that same principal under current policy before release. Until creator-authorized resolution is available, a merely chosen alternate mailbox supplies no principal and no release eligibility.
+
+The scope’s mailbox is its original invitation claim, not a permanent routing address for every future message. This per-message addresses array preserves the actual authored To/Cc choices while the stable slots preserve who is intended. A new message can address the same verified principal through another eligible personal alias without inventing a participant or changing the scope’s resolution authority. A late copy of an already frozen message retains its original chosen mailbox; a different personal-address choice requires new authorized composition, not an edited retry. Opaque route substitution remains under its separate privacy contract.
+
+The [alias-choice example](examples/async-alias-reply-authored.json) retains Bob’s slot and logical reply relationship while selecting bob@work.example for this new message. Its [delivery envelope](examples/async-alias-reply-delivery.json) preserves those exact authored bytes. This unsigned example supplies no current mailbox-association proof and cannot itself authorize release to that alias.
+
+The scope’s mailbox claims remain immutable. From can name another independently eligible personal sending mailbox of the same author, but it cannot change the author slot’s principal or borrow another account’s source association. Rendering, quoting or reopening the record does not resolve a new route.
+
+Slot reply intent has the same four kinds and applicability as the [reply-intent contract](reply-intent.md#exact-reply-intent-record), with version exactly `"1"`. For discussion, the exact members are version, kind, participants and privateReplies. Participants are distinct ASCII-sorted slot IDs, include authorSlot and are a subset of this record’s intended slots; privateReplies is a JSON boolean. Private, none and not-applicable each contain only version and kind. Recipient-resolution admits only not-applicable. A slot record is not principal-based reply-intent0, and no parser may reinterpret one version as the other.
+
+For a discussion continuation, require the same exact scope root as the accepted source and an intended-slot set equal to that source’s declared discussion slots. The current author must be independently bound to an included author slot. This comparison is over the complete intended set, not whichever recipients have already obtained decryption setup. Missing setup for another slot does not prevent an otherwise eligible ready delivery. A private response creates its separate independently scoped root; it does not retain a transmitted group parent.
+
+:::
+
+::: {.details summary="Actual secured-delivery envelope6"}
+
+Envelope6 is a distinct strict JSON object with exactly eight required members. It has no operation, presentation or replyIntent member at its outer level. Its decoded size is at most 8,388,608 octets and its maximum container depth is32. The larger wrapper allowance accommodates the authored record’s base64 expansion and explicit recipient mapping; it does not enlarge the authored-record or resource allowances. These are draft engineering bounds, not user-prescribed quotas or a guarantee against temporary resource exhaustion. Older envelope parsers keep their original limits and schemas.
+
+| Member | Requirement |
+| --- | --- |
+| `version` | String `"6"`. |
+| `purpose` | String `"contribution-delivery"`. |
+| `event` | Fresh nonzero ObjectId for this secured delivery; an exact prepared retry retains it. This is not the authored event ID. |
+| `conversation` | Exactly the authored record’s conversation and the accepted native context’s conversation. |
+| `principal` | Exactly the authored record’s principal and the independently authenticated native publishing principal. |
+| `audience` | Nonempty, distinct, ASCII-sorted array of principal strings, including the author; its set equals the actual authenticated native principal audience. |
+| `slots` | Nonempty array of exact slot/principal mappings, uniquely sorted by slot ID in ascending ASCII order. |
+| `authored` | Canonical padded base64 of the complete original authored-record UTF-8 octets, with no whitespace or alternative alphabet. |
+
+Every slot mapping has exactly `slot` and `principal`, both strings under their owning grammars. The selected authorSlot must be present and map to this publishing principal. Every listed slot must be an intended slot of this authored contribution; no merely historical scope slot, private recipient or outside participant is admitted. The deduplicated set of mapping principals must equal audience exactly. Several selected slots may map to one principal. Actual devices, credentials and recipient setup still come from independently accepted native admission, not this array.
+
+A slot mapping must match its accepted expected principal or creator resolution, with current identity, address-association, protection and disclosure checks. An accepted root delivery from the scope creator can supply the explicit first resolution of its own previously unresolved slots through this mapping, under the [creator-resolution transaction](delivery-policy.md#an-invitation-is-not-yet-an-encryption-identity). Another author’s delivery cannot. Unlisted intended slots are outside this actual delivery; their absence is neither deletion from the discussion nor proof of their readiness or global outcome.
+
+Enforce the encoded authored length bound before base64 allocation, then its decoded one-mebibyte bound and full strict parsing. Require canonical encoding, exact original bytes and complete schema; do not repair malformed UTF-8, duplicate fields or a truncated record. A wrapper cannot split one authored record across events, include another root object, or obtain effects from a successfully decoded prefix.
+
+The native sender authenticates the complete wrapper and complete carrier-bound original authored bytes. Compare actual epoch credentials, accepted device-to-principal authority, full native context and exact audience under the completed successor binding. A valid Bob sender cannot publish Alice’s authored record. A current Alice device can prepare another delivery of identical retained Alice content through its own independently eligible admission and pending-send authority; it does not inherit another device’s stream or outbox.
+
+The delivery namespace is separately typed as publishing principal plus delivery event; the authored namespace is principal plus authored event. A delivery ID cannot be used as an operation target or logical parent. Changing the actual audience, slot map, native preparation, resources/carrier preparation or publishing device requires a fresh delivery identity and independent release decision while retaining eligible identical authored bytes. Retrying a frozen preparation retains its original delivery ID, bytes, dependencies and uncertainty. It does not repeat already successful recipient work.
+
+Retain delivery identity with the original accepted native sender/context and protected preparation provenance. Different valid delivery bindings under one delivery identity are a delivery conflict, not permission to choose a later preparation. Independently authenticated unequal authored bytes under one authored identity are an authored-message conflict. Equal authored content received through another valid delivery remains one message; delivery conflict alone cannot rewrite it or manufacture undo of a historical external effect. The [two-ledger receiving algorithm](event-identifiers.md#keep-delivery-identity-separate-from-message-identity) defines equality, independent authored conflict processing and the limits of delivery/outcome correlation; no delivery-key collision hides an otherwise validated authored variant.
+
+:::
+
+::: {.details summary="Operation references, resources and acceptance order"}
+
+Inside the authored record, each operation uses its existing exact field inventory. Every enclosing-event self-reference and every source, question, answer replacement, reaction/withdrawal target, edit root/predecessor and hosted-observation target that formerly used EventReference instead uses the exact logical reference to an authored record. The names remain principal, conversation and event; they never name envelope6’s delivery event. Choice, resource and chunk identifiers remain local to their owning authored operation. Deferred general-form operations are not enabled.
+
+The recipient-resolution operation is the exact additional control body defined by the scope chapter. It belongs to the same scope it names, authenticates as its creator and has not-applicable reply intent. Its required operation selection and inert carrier projection are defined by the [asynchronous agreement](suite-profile.md#asynchronous-protected-agreement).
+
+Apply the owning operation’s same-author, same-conversation, target-kind, replacement, source-policy and deliberate-action checks to independently accepted logical records. Discussion equality uses complete intended slots as above. Actual release still requires a native audience exactly accounted for by the selected delivery map. For source-derived content within one scope, an automatic audience-subset check compares the explicitly selected intended slot sets; actual release still requires each delivered slot’s accepted creator binding and current eligibility. Across different scopes, require independently accepted principal bindings for every slot needed by that comparison and the owning explicit disclosure permission. Unknown bindings leave that cross-scope comparison unavailable; matching mailbox text or an arbitrary discovered principal cannot satisfy it. This does not authorize forwarding the complete original or activating its controls in a new scope. No current per-copy operation graph may be reused by substituting the delivery event as a logical reference.
+
+A question’s and service descriptor’s self-reference names the logical question. Every delivery therefore refers to the same question, not one question per ready cohort. Service submission identifiers, credentials, replacement/status rules and uncertainty remain separate. Replaying the question through a new delivery cannot authorize a new HTTP submission. A hosted observation remains authored by its actual observer and attributed to a grant holder under its owning contract.
+
+Resource commitments and roles are in the original authored operation. Their identity is the authored record’s complete logical reference plus manifest-local resource ID. The [mime-suite-v2 binding](suite-profile.md#asynchronous-protected-agreement) resolves that exact logical resource scope in the same selected compound object; an outer Message-ID or delivery event cannot rename it. Transfer encoding or fresh encryption may differ across a newly authorized preparation, but complete decoded resource bytes must retain the original length/digest. Missing/bad resources retain their owning unavailable-resource outcomes; a matching digest never grants access to another message’s file.
+
+First validate the authenticated native/carrier candidate and strict wrapper, then the complete original authored record, scope/creator bindings, actual map and operation. Missing evidence needed to establish a valid scope or actual map remains a durable acceptance dependency; retain source bytes and independently established native authorship without reserving an accepted logical namespace. An otherwise accepted complete contribution whose primary parent, quotation source or interaction target has not arrived instead retains its logical identity under the owning operation’s pending-relationship/effect rules. Missing target evidence cannot invent an edge, verified source claim or active control; an incomplete required HTML/index map is still held under its own acceptance contract. Once its required scope/map acceptance succeeds, atomically commit authored namespace/provenance, per-delivery evidence and the effect or pending target dependency under the [assembly algorithm](delivery-policy.md#one-message-several-deliveries).
+
+For a private-copy context, validate every scope-definition slot before encryption: expected contains exactly one principal from the retained originator/recipient pair, the creator belongs to that pair, and all bindings/resolutions/current personal-address associations remain within it. An unknown or third-person scope slot cannot hide in a private delivery merely because it is absent from the actual map. Outside-pair resolution is invalid, not private membership expansion. Receiver validation repeats this isolation; it cannot undo a source’s earlier disclosure.
+
+Private/Bcc copies have their own authored root, scope, logical IDs and resources where required. Do not reuse the visible authored record merely to gain common-message deduplication. A separately authorized ordinary/hosted projection preserves its actual exposure status; neither a logical identifier nor later encryption undoes that disclosure.
 
 :::

@@ -68,7 +68,7 @@ def child_hold(path,binary,ready,finish):
 
 
 class LocalSMTP:
-    def __init__(self,final=b'250 accepted\r\n',drop=False,rcpt=None):
+    def __init__(self,final=b'250 accepted\r\n',drop=False,rcpt=None,before_data=None,allow_empty_abort=False):
         import socket,threading
         self.listener=socket.socket();self.listener.bind(('127.0.0.1',0));self.listener.listen(1);self.listener.settimeout(10)
         self.port=self.listener.getsockname()[1];self.wire=None;self.error=None;self.connected=False
@@ -89,11 +89,14 @@ class LocalSMTP:
                             elif cmd.startswith(b'RCPT'):
                                 reply(rcpt[index] if rcpt else b'250 recipient\r\n');index+=1
                             elif cmd==b'DATA\r\n':
+                                if before_data:before_data()
                                 reply(b'354 data\r\n');parts=[]
                                 while True:
                                     line=stream.readline(10000)
                                     if line==b'.\r\n':break
-                                    if not line:raise ValueError('Incomplete DATA')
+                                    if not line:
+                                        if allow_empty_abort and not parts:return
+                                        raise ValueError('Incomplete DATA')
                                     parts.append(line[1:] if line.startswith(b'..') else line)
                                 self.wire=b''.join(parts)
                                 if not drop:reply(final)

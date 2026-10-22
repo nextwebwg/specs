@@ -1,0 +1,78 @@
+{
+  "create": {
+    "version": "2",
+    "purpose": "hosted-grant-create",
+    "operation": "66666666666666666666666666666666",
+    "grant": "77777777777777777777777777777777",
+    "credential": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
+    "contribution": {
+      "principal": "enp0:1111111111111111111111111111111111111111111111111111111111111111",
+      "conversation": "22222222222222222222222222222222",
+      "event": "33333333333333333333333333333333"
+    },
+    "content": {
+      "kind": "text",
+      "text": "Can we meet on Friday?"
+    },
+    "recipient": "44444444444444444444444444444444",
+    "replyDestination": "55555555555555555555555555555555",
+    "expiry": {
+      "kind": "at",
+      "epoch": "1800000000"
+    },
+    "replyTextLimit": "4096",
+    "ownerBinding": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "link": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "generation": "1"
+  },
+  "replyPages": [
+    {
+      "version": "1",
+      "purpose": "hosted-reply-events",
+      "service": "https://host.example",
+      "ownerBinding": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "grant": "77777777777777777777777777777777",
+      "items": [
+        {
+          "version": "0",
+          "purpose": "hosted-holder-result",
+          "service": "https://host.example",
+          "grant": "77777777777777777777777777777777",
+          "operation": "88888888888888888888888888888888",
+          "requestDigest": "b044de16e4ed649091a0d7c15fc6847bc877f4a96e99d15c05e9b9ea31d42873",
+          "outcome": "confirmed",
+          "reason": "stored",
+          "attribution": "grant-holder"
+        }
+      ],
+      "next": "opaque-page-2",
+      "checkpoint": ""
+    },
+    {
+      "version": "1",
+      "purpose": "hosted-reply-events",
+      "service": "https://host.example",
+      "ownerBinding": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "grant": "77777777777777777777777777777777",
+      "items": [
+        {
+          "version": "0",
+          "purpose": "hosted-holder-result",
+          "service": "https://host.example",
+          "grant": "77777777777777777777777777777777",
+          "operation": "99999999999999999999999999999999",
+          "requestDigest": "74fcf7130b3847ca11b5f186c35a5b66a0d3c17c2f860e41da053eead1212dff",
+          "outcome": "confirmed",
+          "reason": "stored",
+          "attribution": "grant-holder"
+        }
+      ],
+      "next": "",
+      "checkpoint": "opaque-complete-2"
+    }
+  ],
+  "holderRequests": [
+    "{\"version\":\"0\",\"purpose\":\"hosted-holder-reply\",\"operation\":\"88888888888888888888888888888888\",\"text\":\"Friday works for me.\"}",
+    "{\"version\":\"0\",\"purpose\":\"hosted-holder-reply\",\"operation\":\"99999999999999999999999999999999\",\"text\":\"Could we make it 3 pm?\"}"
+  ]
+}

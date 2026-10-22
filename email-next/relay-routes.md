@@ -1,191 +1,247 @@
 ---
-title: Issuing and using private delivery routes
+title: Issuing and renewing private delivery routes
 order: 6.2
-blurb: accountable services · peer-scoped aliases · delivery proofs · revocation
+blurb: trusted inbox provider · temporary addresses · offline issuance · accountable delivery
 sectionNav: true
 ---
 
-# Issuing and using private delivery routes
+# Issuing and renewing private delivery routes
 
-A private delivery address is a permissioned route to an account, not an anonymous forwarding address. The recipient approves which peer can use it. The sending side proves an accountable service account and possession of a key reserved for this route. The recipient service checks those permissions before accepting a new delivery.
+The recipient’s Email/2 inbox provider assigns temporary delivery addresses as part of operating that inbox. A device does not approve individual addresses. The provider issues and renews routes under the account’s routing policy, including while the recipient’s devices are offline. Clients continue to compose and display permanent personal addresses; temporary aliases are internal transport information.
 
-> [!ex] Forwarding an alias does not forward permission
-> Bob's service creates a route for Alice in their selected conversation. Alice signs each delivery with the route key that Bob approved. If someone copies the alias from a source email, that person still cannot produce an authorized new delivery. Bob can disable the route or block Alice's source account without deleting correspondence already received.
+> [!ex] The address you use stays the same
+> Alice writes to Bob’s personal address. Bob has connected his inbox provider as his receiving service. Once Alice obtains his usable encryption setup, her transport adapter obtains a temporary route from that provider. Bob need not bring a device online to approve the alias. The providers carry encrypted packages, and both clients display the authenticated personal addresses after acceptance. When that route expires, the next new delivery obtains another route automatically.
 
-This chapter defines the provider wire and lifecycle rules used by the independent [Sender masking and Recipient masking modules](modules.md). The [swap sequence](private-routing.md#when-the-addresses-change) owns client-visible behavior; the [inner address record](private-address-presentation.md) owns personal From/To/Cc inside encryption. This is part of the same Email/2 specification, not another edition or encryption tier.
+The service controls delivery, not endpoint encryption identity. It can observe routing metadata, refuse service or misroute ciphertext; it cannot thereby decrypt the package, enroll a device, replace a correspondent’s pin, sign a conversation contribution or disclose history. Those guarantees depend on the complete [Encryption agreement](suite-profile.md), not a route signature.
 
-> [!note] Contract and component evidence
-> The scoped grant and delivery-proof contract below is proposed. The [local route experiment](evidence/README.md#relay-route-authorization) checks actual device/key signatures and a durable admission/replay boundary using configured account and source-service facts. It does not implement public discovery, browser account linking, provider HTTP issuance, SMTP proof-header carriage or a production mailbox. These are acceptance obligations, not deployed capabilities.
+This chapter owns the current relay descriptor1 and provider-issued route1 contract. Source permissions and delivery proofs retain the explicitly selected version0 shapes below. Internal format numbers identify exact records within the same Email/2 specification. The [retained route experiment](relay-routes-compatibility.md) requires recipient-device alias approvals and is not selected by the current procedure.
 
-## The three permissions
+> [!note] Defined behavior; joined implementation remains required
+> Existing [route component evidence](evidence/README.md#relay-route-authorization) covers the retained device-approved experiment with configured service facts. It does not implement this provider-issued route contract, public account connection, HTTP issuance, SMTP proof extraction or a production mailbox. The acceptance obligations below are required work, not recorded passes.
 
-**An account link** connects an authenticated service account to an authorized Email/2 device. It never supplies mailbox ownership verification, group membership or decryption authority.
+## Connect the inbox, not each temporary address
 
-**A source permission** is a live record at that account's selected service. It authorizes one current sending device and fresh route public key for one recipient principal and conversation. It also supplies a stable, opaque abuse handle for that service account at the destination service. The service knows the account; an observer of the outer email does not receive that mapping.
+The normal receiving service is the recipient’s inbox provider, selected through that account’s domain. An independent receiving relay is a deliberate alternative account selection. It stores the encrypted mailbox and provides authenticated retrieval itself; it does not forward to a personal SMTP recipient. A selected independent relay cannot claim delegation from an unrelated personal mailbox domain.
 
-**A recipient route** binds the source permission to an opaque alias and the recipient account. The recipient device approves its exact scope; the destination service activates it only under the recipient's account authority. It is not sufficient for either a device or a provider to nominate an arbitrary third-party address alone.
+Normal account connection establishes a finite **receiving-service authorization**. Its original signature binds the selected provider’s service identity to the recipient’s already authorized Email/2 principal. This service association is created during connection under the account’s routing policy; it is not a separate alias-approval dialog. The authorization names no alias, peer or conversation. Contact/admission policy and block lists stay private at the provider and are not copied into a public authorization.
 
-No route credential grants application authorship. A stolen route private key can cause bounded unwanted ciphertext deliveries until withdrawal, but cannot create a valid contribution from a different MLS author. The client must still complete cryptographic and application acceptance before display or effects.
+The client and provider retain the account link, OAuth family, account incarnation, exact authorization and accepted identity dependencies. Account login alone cannot replace a linked principal. A routing connection grants no application-message sending, device enrollment, decryption or history authority. Different modules retain their separate [account-link and reset boundaries](provider-grants.md#shared-account-links-separate-module-authority).
 
-## Set up and authorize
+The sending side still proves a legitimate service account and possession of a fresh route key. That proof limits who can use a route; it does not ask Bob’s device to approve the address. Forwarding an alias without the authorized key cannot authorize another sender.
 
-The sending client creates a new Ed25519 route key independently of its identity signing key. Keep its private part in protected local state. Do not publish the identity/device key in an outer email to prove route use. Different unrelated recipient/conversation scopes use different route keys and aliases.
+## Discover the selected service
 
-The sender's account service authenticates the account, checks its linked device's current `send` and `receive` authority, then prepares the source permission. The device approves the exact record before activation. Its service may also offer sender masking. An independent service offering account accountability alone can supply source permission while the client continues using an ordinary authenticated SMTP account; that does not claim the ordinary provider upgraded.
+Fetch `https://<selected account domain>/.well-known/mail-relay`. Apply the [provider discovery](provider-discovery.md) transport, selected-domain authentication, publication/generation high-water, network-address validation, finite processing and purpose separation: credential-free HTTPS, TLS1.3, no redirects, no compressed bodies and no ambient cookies or client certificate. Do not infer the service from MX, a received URL or an alias. A separately selected relay uses its own account domain.
 
-The recipient client checks the source permission, selects its known peer/conversation and requests route preparation through its own account service. The service verifies the source's live record directly and creates an alias in a domain it controls. The recipient approves the exact result. Remembered contact/setup policy may authorize these routine approvals without another prompt; incoming mail or a provider boolean cannot create that policy.
+Descriptor1 has these exact required fields:
 
-The sender receives the recipient-approved route through the authorized setup/control exchange or an already protected conversation. Before using it, the sender validates the expected recipient identity, current authority, original source permission, exact scope and issuer. It then uses its route private key to inspect the active route directly at that issuer. A signature is not proof that the server activated the route.
+| Field | Required value or meaning |
+| --- | --- |
+| `version`, `purpose` | Strings `"1"`, `"relay-service-discovery"` |
+| `domain`, `service` | Selected canonical domain and canonical HTTPS service origin |
+| `publication`, `generation` | Original publication identifier and generation under provider-discovery rules |
+| `managementPrefix`, `permissionPrefix` | Distinct nonoverlapping same-origin canonical path prefixes, ending in `/` |
+| `roles` | Nonempty ASCII-sorted distinct array from `accountability`, `recipient-mask`, `sender-mask` |
+| `serviceSigningKey` | Stable service-authority Ed25519 public key, 64 lowercase hex |
+| `routeSigningKey` | Currently advertised Ed25519 route-issuance public key, 64 lowercase hex |
+| `routeCertificate` | Original signed certificate wrapper defined below |
+| `notBefore`, `notAfter` | Original descriptor validity, canonical uint64 epoch-second strings |
 
-The alias and route-use proof replace only transport routing. Personal addresses remain in the composer and protected application. A permission for one conversation cannot be reused as an account-wide receiving address, and a new device needs its own permission/key. Delivery to the account is not enrollment of any device.
+Sender-mask requires accountability; recipient masking is independent. Advertise only implemented roles. Every descriptor1 carries the certificate; its domain, issuer and keys match this descriptor exactly. A descriptor is not an account login or a device capability assertion. Reject unsupported versions before parsing their selected operations; no failed validation tries descriptor0.
 
-## Discover a relay service
+Own-account connection reuses issuer-bound native registration, authorization-code/S256 PKCE, exact shared callback forms, refresh/revocation and public-client rules from [native provider connection](provider-discovery.md#reuse-sign-in-mechanics-without-sharing-permissions). Select only needed scopes from `mail.relay.link`, `mail.relay.manage`, `mail.relay.submit`; metadata must advertise them. No sender logs into the recipient’s account. Queue/setup credentials do not cross into relay authority.
 
-For a provider-operated service, fetch `https://<selected account domain>/.well-known/mail-relay`. For an independent relay, use the domain of the service account deliberately selected by the person. Do not discover an independent relay from a received URL or infer it from MX. Its ability to attest its own service account does not prove ownership of an unrelated personal mailbox.
+Relay account links deliberately retain the [exact shared version0 subset](provider-grants.md#shared-account-links-separate-module-authority), including its original literal proof domains and safe-integer timestamps. Its descriptor digest binds the actual selected descriptor1. A protocol version does not reset accounts, families, revocation, source blocks, replay records or budgets.
 
-Apply the [provider discovery transport and durable publication rules](provider-discovery.md): credential-free HTTPS, authenticated selected domain, no redirects, no compressed bodies, bounded processing, canonical validated domains/origins and explicit local setup purpose. Use a separate retained purpose/namespace for relay setup. The record has exactly:
+## Obtain a route while the recipient is offline
 
-```
-{version,purpose,domain,publication,generation,service,managementPrefix,
- permissionPrefix,roles,notBefore,notAfter}
-```
+1. **Validate encryption setup.** Independently accept the intended recipient’s identity, selected mailbox association and usable device setup. A [bootstrap2 response or publication](bootstrap.md#automatic-setup-for-independently-ready-recipients) can supply its original `relayDomain`. That domain selects an already configured service; it is not an arbitrary callback or OAuth issuer.
+2. **Authorize the sending source.** Obtain a source permission for this exact recipient principal, conversation, destination service and fresh route key through the sending account’s own service. Retain the private key locally. A provider never receives that key.
+3. **Ask the receiving service.** Send the exact signed route request to the accepted service. It validates live source authority and its own current receiving-service authorization, private account policy and blocks. It allocates the alias without contacting a recipient device.
+4. **Inspect the result.** Prove route-key possession to retrieve the original route invitation. Validate its provider signature/certificate, original service authorization, current identity, exact scope and bounds. Then inspect the route’s live activation before release. A signed record alone is not current activation.
+5. **Prepare and release.** Encrypt using the independently accepted endpoint setup. Freeze the exact route, envelope, carrier and proof with this delivery. Apply the [address-swap sequence](private-routing.md#when-the-addresses-change) and serialized release checks.
 
-`version` is `"0"`; `purpose` is `"relay-service-discovery"`. Other fields retain the provider-discovery grammars; the two same-origin path prefixes are distinct and nonoverlapping. `roles` is a nonempty ASCII-sorted distinct array from `accountability`, `recipient-mask`, `sender-mask`. Recipient masking is independent of sender masking. Source-permission issuance requires accountability; sender-mask therefore requires accountability as a declared dependency. Accountability-only and recipient-mask-only services are permitted. An unimplemented role must not be advertised. A changed descriptor cannot move credentials or revive old permissions.
+Published setup is not a fresh device response. Offline route issuance does not improve its freshness, independently verify a person or produce missing admission material. Required masking remains pending if routing cannot complete; a failure grants no plaintext or public-address fallback permission.
 
-Use the same native registration, authorization-code/S256 PKCE, issuer-bound browser response, refresh/revocation and public-client rules as provider discovery, with the scopes `mail.relay.link`, `mail.relay.manage` and `mail.relay.submit` in place of queue scopes. Apply the [shared native connection binding](provider-discovery.md#reuse-sign-in-mechanics-without-sharing-permissions), including its exact shared callback forms, module-separated registration/attempt state and exact requested scope set. Request only scopes needed for selected roles. Metadata must advertise those requested scopes; relay-only implementations need not offer a queue. Registration or metadata does not prove an app brand. The well-known name and fields are experimental and remain in the [registration inventory](registration-inventory.md); no registry assignment is claimed.
+## Temporary routes, stable conversations
 
-Account linking uses the [account-link challenge/proof construction](provider-grants.md#account-linking), under this management prefix and relay-link scope. Its delegation digest names this exact relay descriptor. Keep links, preparations and OAuth families in the relay namespace; a queue link/token is not relay authority. Exact account-incarnation, same-family, device possession, reset, consent and current-state checks apply. Link/reset/disconnect routes have the same suffixes and behavior, but the selected relay scope and namespace. A source permission additionally requires `send`, which linking alone never grants. The [shared-link subset](provider-grants.md#shared-account-links-separate-module-authority) fixes the inherited wire purposes/signature framing, private account-contact meaning and module-local reset boundaries; no queue routes or foreign-domain mailbox authority are inherited.
+A route has an explicit finite lifetime. It may be coordinated with setup or encryption renewal, but is not automatically tied to a TLS certificate, one MLS epoch or a fixed rotation frequency. Its original interval must fit every source, service, account, certificate and policy limit. Reissuing the same record cannot extend it.
 
-::: {.details summary="Exact records, signatures and HTTP behavior"}
+Routine renewal obtains a fresh source permission/key and a newly issued route while the receiving-service authorization and private account policy remain eligible. It requires no recipient-device alias approval. Old and new routes may overlap within their original limits. Aliases are never reassigned, including after account deletion. Blocks and budgets survive new aliases, source account incarnations, protocol versions and known peer service changes.
 
-### Exact records, signatures and HTTP behavior
+The application keeps a protected logical destination binding to the intended person, selected account/service and conversation. The transport adapter resolves current route evidence for a new delivery. No new permanent public forwarding address or global correlation handle is introduced. The composer, contacts and normal conversation history MUST NOT substitute the temporary alias for the personal address or ask the person to manage routine alias expiry. Failed renewal is a pending or failed delivery, not an expired contact or a changed encryption identity.
 
-### Common wire rules
+A generic SMTP adapter necessarily knows its exact RCPT TO and proof internally. Provider-originated submission may keep this machinery outside the application UI. A protocol in which even the submitting adapter never learns the physical alias is not selected here: the existing delivery proof binds that exact alias with a client-only key. A provider cannot silently rewrite that proof, obtain the key or claim an undefined logical-to-physical projection authorization.
 
-Management requests authenticate the person's own account using issuer/audience/client/family/incarnation/scope checks. Peer requests never receive that token. TLS1.3, no 0-RTT/redirects/ambient cookies, no-store responses and bounded backoff apply. OAuth access is not a cryptographic identity proof.
+Historical reading needs no live route. A reply resolves current routes from accepted conversation identities and personal associations. An exact queued or uncertain retry retains its old alias, proof, ciphertext and delivery identity. Expiry holds that attempt; renewal cannot retarget already released bytes or erase uncertainty. A separately authorized replacement follows the owning contribution/delivery conflict rules.
 
-The relay-specific records below use strict UTF-8 JSON under [event encoding](event-encoding.md): preserve exact bytes, no duplicate decoded names, numbers, null, unknown fields or trailing values. Times, byte limits and generations are canonical unsigned-64 decimal strings. ObjectIds are nonzero32 lowercase hexadecimal; digests, permission/route/source IDs and keys are64 lowercase hexadecimal. Principals and endpoint references use existing `enp0` and `{principal,device,state,binding,key}` encodings. Domain/mailbox spelling follows the selected initial address contract. A credible time interval must fit every applicable interval. The inherited [account-link/reset subset](provider-grants.md#shared-account-links-separate-module-authority) instead retains its own exact schema and safe JSON integer timestamps. This exception does not relax relay source, route, inspection or delivery schemas, and parsing failure cannot switch schemas.
+## Exact authority records and provider-key rotation
 
-A signed wrapper is exactly `{payload,signature}` with canonical padded base64 original payload and128 lowercase hexadecimal Ed25519 signature. The signature input is ASCII `email2/relay/<kind>/v0`, NUL, u32 big-endian payload byte length, then original payload. The kinds are `source-permission`, `route-approval`, `inspect`, and `delivery`. A signature under another kind is invalid. Endpoints retain original bytes; they never verify a reserialization.
+::: {.details summary="Exact authority records and provider-key rotation"}
 
-Management bodies are at most4194304 octets, individual signed payloads at most262144 and depth32, with each identity bundle's tighter bounds also applying. Inspection and delivery proofs are at most8192 decoded payload octets and depth16. Descriptor bounds remain those of provider discovery. Services enforce finite work, active-record, rate, byte and lifetime budgets before mutation; negotiated limits are service policy, not user quotas. Exhaustion cannot evict live replay protection or expand authority.
+### Common wire and signature rules
 
-POST/PUT bodies use application/json. DELETE has no body. Error bodies are exactly `{error}` with the existing provider error/status vocabulary. Management authorization failures use401/403 as appropriate. Unavailable public permissions, invalid possession proofs, expired/revoked/unknown routes use indistinguishable404; transient dependency failures use503, exhaustion429 with positive Retry-After. Errors do not echo identities, aliases, tokens or submitted records. GET never mutates authority. No request field supplies a callback to contact.
+Relay-specific records use strict UTF-8 JSON under [event encoding](event-encoding.md). Preserve original bytes; reject duplicate decoded names, numbers, null, unknown fields, trailing values and noncanonical encodings. Times, sizes and durations are canonical uint64 decimal strings. ObjectIds are nonzero32 lowercase hex; keys/digests/route/issuance/source IDs are64 lowercase hex. Endpoint references retain `{principal,device,state,binding,key}` and principal identifiers retain nonzero `enp0` encoding. Mailboxes follow the [canonical address contract](mailbox-addresses.md). Duration/interval arithmetic must not wrap.
 
-### Source permission
+A signed wrapper has exactly `payload` and `signature`: canonical padded-base64 original payload bytes and128 lowercase-hex Ed25519 signature. New signature input is the exact ASCII domain below, NUL, U32 big-endian original payload length and original bytes. Never verify a reserialization or try another signature kind after failure.
 
-`POST /permissions/preparations` requires an active relay account link and manage scope. Body is exactly `{version,purpose,request,link,sender,recipient,conversation,routeKey,targetService,senderMode,outerFrom,notBefore,notAfter,maxCarrierBytes}`. Version is `"0"`, purpose `relay-source-request`, sender is the linked endpoint, recipient a principal, conversation an ObjectId, routeKey a fresh Ed25519 public key. Service checks current exact linked state/binding and `send`/`receive`, local account/family authority and intervals before preparing.
+| Record | Domain |
+| --- | --- |
+| Provider route-key certificate | `mail/relay/route-certificate/v1` |
+| Receiving-service authorization | `mail/relay/receiving-service/v1` |
+| Sending-device route request | `mail/relay/route-request/v1` |
+| Route-key issuance inspection | `mail/relay/route-request-inspect/v1` |
+| Provider-issued route | `mail/relay/route-issuance/v1` |
 
-SenderMode is `shared-relay` or `personal-source`. Shared-relay requires advertised sender-mask support; outerFrom is the service's authorized common relay mailbox at the descriptor domain. Personal-source uses the normally authorized SMTP account's personal From; the accountability service does not claim to verify ownership of an unrelated mailbox. Its intended From is still bound to the device approval and delivery proof. The client independently checks its actual SMTP source authority.
+Management/request/result bodies are at most4194304 octets, each signed payload at most262144 with depth32. Inspection and delivery payloads retain the tighter8192-octet/depth16 bounds. Apply identity/certificate-specific bounds too. Services enforce finite work, active-record, rate, byte, lifetime, certificate-chain and retained replay budgets before mutation. Limits are adjustable deployment policy, not user quotas; exhaustion cannot evict live replay protection or expand authority.
 
-TargetService is the exact selected destination relay origin. Empty is allowed only for sender-masking delivery to an ordinary destination without a recipient route. Such a permission cannot activate recipient masking. For a nonempty destination, `source` is an opaque random service-account abuse handle scoped to that destination service. It remains stable across relinking, key/identity reset and new aliases for the same continuing service account. `incarnation` is a separate opaque source-account incarnation scoped to the destination; reset rotates it and invalidates permissions but must not reset the abuse handle. Empty-destination permissions use their own scoped source/incarnation values and remain accountable to the originating service.
+HTTP uses application/json, TLS1.3, no 0-RTT, redirects, ambient cookies or response caching. Management requires the exact issuer/audience/client/account/family/incarnation/scope. Errors use exactly `{error}` with the provider error vocabulary; generic401/403 for management authorization,404 for unavailable proof-bound resources,503 for transient dependencies and429 with positive Retry-After for exhausted finite budgets. Do not echo submitted identities, aliases, credentials or detailed block state. No field supplies a callback URL. Discovery, source retrieval and peer operations obey the selected network boundary, including all DNS answers and the connected address.
 
-The prepared payload has exactly:
+### Provider route-key certificate
 
-```
-{version,purpose,preparation,request,nonce,permission,domain,issuer,delegation,
- source,incarnation,sender,recipient,conversation,routeKey,targetService,
- senderMode,outerFrom,notBefore,notAfter,maxCarrierBytes}
-```
+The certificate payload has exactly:
 
-Version is `"0"`, purpose `relay-source-permission`; domain is the selected relay descriptor domain; issuer is this service origin; delegation is descriptor SHA256; preparation/request ObjectIds; nonce64hex. Remaining request values are unchanged. Permission/source/incarnation are service-generated opaque IDs. Its interval and maxCarrierBytes are the explicit offered limits, within device/link/family authority and service policy. A client must approve the offered limits, not assume its requested limits were accepted.
+| Field | Required value or meaning |
+| --- | --- |
+| `version`, `purpose` | `"1"`, `"relay-route-certificate"` |
+| `certificate` | Fresh nonzero ObjectId |
+| `domain`, `issuer` | Selected service domain and exact HTTPS origin |
+| `serviceSigningKey`, `routeSigningKey` | Stable service-authority key and certified issuance key |
+| `notBefore`, `notAfter` | Original finite certificate interval |
 
-`PUT /permissions/preparations/{preparation}` body `{proof}` signs those exact retained bytes with the sender device binding key. Under one transaction, recheck account/family/link, exact preparation, current state/binding/roles and validity, then activate the permission. Same authorized bytes retry returns the recorded result; different content under an authenticated request namespace conflicts. Result is exactly `{proof,identity}`: original sender proof and complete sender identity bundle. The provider's live HTTPS response supplies service-account activation evidence; the device signature alone does not.
+The stable service key signs the certificate; the certified route key signs issued routes. Neither is an endpoint decryption key. No account, contact list or recipient appears in a certificate. Certificate validity is independent of the HTTPS certificate’s expiry. Descriptor refresh may advertise another certificate under the same stable service key without changing the recipient’s existing service authorization. Preserve original records and their absolute intervals.
 
-`GET <permissionPrefix><permission>` is credential-free and returns that result only while the permission/account/link/family remains active and exact device authority/interval still applies. There is no public listing or mailbox lookup. The random ID is routing evidence, not a bearer authority. Do not put its URL/ID in the outer message. A recipient service discovers the approved sourceDomain and requires its descriptor service and digest to match the permission's domain/issuer/delegation before fetching the expected source prefix. It fetches only that selected service/prefix, under the discovery network boundary; never follow an arbitrary supplied URL. Validate the returned original payload hash, signature and current source identity independently. Unavailable state holds new use. This read does not disclose the personal account address.
+A newer descriptor generation must still authorize the same domain/origin, stable service key and recipient-mask role. A client may retain an older certificate/route while those conditions hold, the certificate remains within its original interval and the live service confirms it is not withdrawn. A new descriptor generation does not automatically revoke every older certificate. Withdrawal and new route admission/release serialize at the provider. A compromised/withdrawn route key blocks new use of all its certificates; an accepted exact duplicate can still return its historical outcome without new delivery.
 
-### Recipient route
+Changing the stable service key or service origin requires a fresh service association during normal account reconnection. There is no unsigned key rollover or automatic credential migration. The service may rotate its certified route keys automatically; this does not grant a new account incarnation or extend existing route validity. TLS validation, provider service-key validation and endpoint identity validation remain separate checks.
 
-`POST /routes/preparations` requires the recipient's active link and manage scope. Body is exactly `{version,purpose,request,link,recipient,sender,conversation,sourceDomain,sourceService,sourcePermission,sourceDigest,notBefore,notAfter,maxCarrierBytes}`. Purpose is `relay-route-request`; recipient is the linked endpoint, sender the intended peer endpoint. Both current receive authority and sender send authority must be available; the source permission's exact sender, recipient principal, targetService and conversation must match. Stage previously unknown peer evidence until valid recipient approval under explicit first-contact policy; no request alone installs a trust anchor.
+### Establish receiving-service authority
 
-The service directly fetches and validates the live source permission, including the account-scoped abuse handle, and checks block policy. It allocates route64hex and alias `r-<random nonzero ObjectId>@<descriptor domain>`:128 independent random bits, no personal-address encoding. An alias is never reassigned to a different account or route, including after account deletion. Its private mapping is to this account incarnation and link; that mapping is not returned to the sender.
+`POST /receiving-service/preparations` under managementPrefix requires the recipient’s active own-account relay link and manage scope. Its body is exactly `{version,purpose,request,link,notBefore,notAfter,maxRouteSeconds,maxCarrierBytes}`, version `"1"`, purpose `relay-receiving-service-request`. The service derives the actual account, selected recipient endpoint and incarnation from that authenticated link. Request fields cannot select another account or principal.
 
-The prepared payload is exactly:
+The returned prepared authorization payload has exactly:
 
-```
-{version,purpose,preparation,request,nonce,issuer,delegation,route,alias,
- recipient,sender,conversation,sourceDomain,sourceService,sourcePermission,sourceDigest,
- routeKey,notBefore,notAfter,maxCarrierBytes}
-```
+| Field | Required value or meaning |
+| --- | --- |
+| `version`, `purpose` | `"1"`, `"relay-receiving-service"` |
+| `authorization`, `preparation`, `request`, `nonce` | Fresh authorization/preparation ObjectIds, original request ObjectId and fresh64hex challenge |
+| `domain`, `issuer`, `delegation` | Selected service domain/origin and SHA256 of original descriptor1 bytes |
+| `recipient` | Exact linked endpoint authorizing the service association |
+| `incarnation` | Opaque64hex receiving-account incarnation commitment, not a private account identifier |
+| `serviceSigningKey` | Selected stable service-authority public key |
+| `notBefore`, `notAfter` | Original finite interval within link/family/device/service authority |
+| `maxRouteSeconds`, `maxCarrierBytes` | Positive finite offered limits, bounded by account/service policy |
 
-Purpose is `relay-route-approval`. Issuer/delegation refer to the recipient relay. Endpoint/scope/routeKey fields must match the source request and live source permission. The offered interval lies within both bindings, source permission, recipient link/family and service policy; byte limit is the explicit minimum offered by those authorities. The service retains account/family/link/incarnation and the original source record as private preparation dependencies.
+This record contains no alias, route, peer or conversation. The client checks the selected service/account and actual offered limits during normal account connection, then signs the exact bytes with its linked receive-authorized device. No individual route approval follows. `PUT /receiving-service/preparations/{preparation}` has exactly `{proof}`. Recheck current authority, original preparation, account/family/link/incarnation and service selection under the activation transaction. Return201, or200 for an identical retained retry, with exactly `{authorization,recipientIdentity}`: original signed wrapper and complete recipient identity bundle. Different authenticated bytes under the same request conflict409; invalid signatures cannot reserve that namespace.
 
-`PUT /routes/preparations/{preparation}` body `{proof}` is signed by the recipient binding key over exactly the retained preparation. Recheck all local authority and a fresh source read before activation. A changed dependency holds activation, not substitution in place. Activate route/alias and consume preparation atomically. Result/invitation is exactly `{approval,recipientIdentity}`. The sender independently verifies expected peer/current identity and source scope; it does not treat possession of the invitation as route-key possession.
+Retain the original endpoint/descriptor/signature. For a later unrelated identity or descriptor advance, use [unchanged-binding ancestry](provider-grants.md#retain-an-unchanged-device-binding) for its receive role and the same selected service/stable key/current descriptor authority. Do not demand a signature for each descriptor byte change or alias. Missing ancestry, revoked/changed authorizing binding, conflict, state1 repair, changed principal/incarnation or expired family holds new use until a fresh eligible service association. It cannot repin a correspondent or restore authority from historical archives.
 
-`POST /routes/{route}/inspect` body `{proof}` uses the route key. The inspection payload is exactly `{version,purpose,issuer,route,nonce,notBefore,notAfter}`, purpose `relay-inspect`; nonce64hex and a finite fresh interval inside the route lifetime. The issuer validates key/scope and active local state plus a fresh source permission read before returning the original invitation. No token, private account mapping or new lifetime is returned. A reply cannot extend a stale grant. Unknown/invalid/expired traffic cannot discover a route by comparing outcomes.
+Private account admission/contact/block policy determines which authenticated sources receive routes; no universal allow-all default is implied. Do not disclose that policy’s contact/principal inventory in this public record. `DELETE /receiving-service/{authorization}` requires own-account manage scope, returns204 for own known/unknown IDs and atomically withdraws its routes and unreleased work. Reconnection or refresh-token rotation in the same eligible family cannot extend the original authorization; obtaining a fresh finite authorization is account connection maintenance, never alias consent.
 
-POST preparation request IDs are scoped by account/incarnation/family/endpoint. Persist original input/preparation/result before success. Exact retries never allocate a second permission or alias; authenticated different-byte reuse returns409. Invalid proofs cannot reserve an authoritative conflict. Active-result retries still check withdrawal; a retained result does not reactivate anything.
+:::
+
+## Exact route issuance, inspection and immutable retries
+
+::: {.details summary="Exact route issuance, inspection and immutable retries"}
+
+### Select the existing source permission
+
+The source preparation/activation/live inspection and exact result `{proof,identity}` use [source-permission0](relay-routes-compatibility.md#source-permission), with its original `email2/relay/source-permission/v0` signature domain and exact schemas. Select it explicitly under descriptor1; do not rename its signed bytes. Its descriptor digest binds the actual selected source descriptor. Sender/account/device/key, recipient principal, conversation, targetService, source/incarnation abuse handles, sender-mode/outerFrom, interval and byte limit retain every original check. The source device independently has current send/receive authority; an account link alone grants no sending authority.
+
+The original source permission stays active at its own service. The destination discovers the declared sourceDomain, validates its current allowed descriptor and exact issuer/delegation, and fetches only the selected permissionPrefix plus expected identifier over authenticated HTTPS. No arbitrary URL, HTTP cache or remembered active boolean substitutes for that live observation. Source outage holds new route work. The original source-account abuse handle remains stable across reset/relink/new aliases; reset rotates a separate incarnation and invalidates permissions.
+
+### Request a provider-issued route
+
+`POST <permissionPrefix>routes` is a public proof-authenticated operation. Body has exactly `{request,sourcePermission}`: original sending-device signed request wrapper and the complete original source permission result. The request payload has exactly:
+
+| Field | Required value or meaning |
+| --- | --- |
+| `version`, `purpose` | `"1"`, `"relay-route-request"` |
+| `request`, `nonce` | Fresh request ObjectId and64hex nonce |
+| `issuer`, `delegation` | Exact destination origin and SHA256 of its selected descriptor1 bytes |
+| `recipient`, `sender`, `conversation` | Intended recipient principal, original source endpoint and conversation ObjectId |
+| `sourceDomain`, `sourceService`, `sourcePermission`, `sourceDigest` | Authorized source domain/origin, permission64hex and SHA256 of original source-permission payload |
+| `notBefore`, `notAfter`, `maxCarrierBytes` | Original finite requested interval and positive byte limit |
+
+Authenticate the signature against the exact source endpoint and independently validated complete identity/current authority. Then validate the live source permission, exact destination/recipient/conversation, requested intervals and deployment budgets **before private recipient lookup or authoritative request allocation**. Invalid source signatures cannot reserve a conflict, trigger a private lookup or cause a callback. Previously unknown recipient evidence is not installed as a client identity pin by the service.
+
+For every valid authorized source request, return202 exactly `{issuance,state}`, state `pending`, including unknown, blocked, opted-out or currently unavailable recipient cases. Issuance is64 lowercase hex: SHA256 of ASCII `mail/relay/issuance/v1`, NUL, U16-length-prefixed destination origin, U16-length-prefixed source service origin, raw32-byte sourcePermission, raw16-byte request ObjectId and raw32-byte SHA256 of original request payload. Origin lengths count UTF-8 bytes and must fit U16. Keep the original source/request namespace across versions. Check authenticated different-byte request reuse before deriving/creating another result; it conflicts409 rather than selecting another handle. The committed request’s source identity is `(sourceService,sourcePermission,request)`; a new descriptor/version cannot reset it.
+
+Durably retain the exact request, source evidence, handle and pending receipt before success. A duplicate joins the original work and returns the same receipt without another alias. The HTTP202 response never claims routing readiness or recipient/device presence. Apply the same bounded response shape and finite processing policy across target states; no exact constant-time or invisible successful opt-in claim is made. Live source unavailability before authorization gives generic503, not a guessed target result.
+
+The provider may allocate immediately or later while original request/source bounds remain valid. It derives the recipient account privately from its own current service association and account policy. Check active service authorization/link/family/incarnation, current receive authority, certified provider key, source blocks and per-source/destination limits in the same local serialization boundary as route/alias allocation. Allocate random nonzero64hex route ID and alias `r-<random nonzero ObjectId>@<descriptor domain>`, with128 independent random bits and no personal-address encoding. The alias maps only to this account incarnation; it is never reassigned. No live recipient process or per-alias signature is involved.
+
+### Inspect pending or issued work
+
+`POST <permissionPrefix>issuances/{issuance}/inspect` has exactly `{proof}`. It is signed by the original source permission’s route key. Its payload is exactly `{version,purpose,issuer,issuance,requestDigest,nonce,notBefore,notAfter}`, with `"1"`, `"relay-route-request-inspect"`, exact origin/handle and original request SHA256, fresh64hex nonce and finite interval inside the original request and source permission. A fresh proof cannot refresh either deadline. Validate structure, signature and current source before disclosing a result. Scope the nonce journal to the retained issuance and authorized route key: exact inspection bytes may be retried within their original interval and return the current eligible pending/ready observation; different authenticated bytes under that nonce conflict409. An invalid proof cannot reserve a nonce or an authoritative conflict. Status observations do not activate a route or extend any authority. Invalid/unknown/nonmatching proofs get indistinguishable404 and cannot consume another source’s inspection/replay capacity.
+
+The response is exactly `{issuance,state,invitation}`. Pending has state `pending` and invitation the empty string. Ready has state `ready` and invitation canonical base64 of the original complete invitation1 bytes. Unknown/unavailable/blocked target states remain pending for the authorized source. Recheck original request bounds, live source permission, private disclosure policy and current local dependencies before returning ready. Retain request/inspection conflict and finite nonce-replay state under the existing source authority; exhaustion holds rather than evicting live safety state. GET never mutates authority.
+
+### Validate the issued route
+
+Invitation1 has exactly `{issuance,authorization,certificate,recipientIdentity}`. Issuance is the original provider-signed wrapper, authorization the original receiving-service wrapper, certificate the original provider route-key certificate, and recipientIdentity the complete identity bundle needed to validate the original service association and current recipient authority. There are no OAuth tokens, personal account mappings or contact lists.
+
+The provider-signed issued payload has exactly:
+
+| Field | Required value or meaning |
+| --- | --- |
+| `version`, `purpose` | `"1"`, `"relay-route-issued"` |
+| `issuance`, `request`, `nonce` | Original issuance64hex, request ObjectId and request nonce |
+| `issuer`, `delegation`, `authority` | Destination origin, original descriptor1 digest and SHA256 of original receiving-service authorization payload |
+| `route`, `alias` | Fresh64hex route ID and this provider’s opaque delivery mailbox |
+| `recipient`, `sender`, `conversation` | Recipient principal, exact original source endpoint and conversation ObjectId |
+| `sourceDomain`, `sourceService`, `sourcePermission`, `sourceDigest` | Exact original source permission bindings |
+| `routeKey` | Original source permission’s fresh route public key |
+| `notBefore`, `notAfter`, `maxCarrierBytes` | Actual offered finite interval and positive byte limit |
+
+The sender validates every original signature and commitment, selected expected recipient principal/association and current identity. Authorization/certificate/issued route must agree on service domain/origin and stable service key; certificate supplies the actual issuance key. Require the certificate interval, original service authority, source permission, both required device bindings, link/family/incarnation and current policy. Offered route duration must not exceed maxRouteSeconds; its interval and byte limit fit all authorities. A client checks actual offered limits rather than assuming requested limits were granted. A descriptor generation refresh may preserve this original record only under the service/key continuity rules above; changed scope is a new issuance, never a rewrite.
+
+Live activation inspection uses the exact existing route-key `POST /routes/{route}/inspect` payload/domain from [inspection0](relay-routes-compatibility.md#recipient-route), selected at managementPrefix. It returns this original invitation1 only while current service/account/certificate/route/source authority is active. It cannot extend validity or return a different alias. Source fetching remains origin-selected and bounded. A provider signature or a ready issuance response cannot substitute for this current check.
 
 :::
 
 ## Prove a delivery without exposing personal identities
 
-When recipient masking is selected, the outer message has exactly one `Email2-Route-Proof` header. It contains canonical base64 of the UTF-8 signed delivery wrapper. Normal header folding is allowed; remove only ASCII folding whitespace before canonical base64 validation. Multiple headers, invalid folding/base64, excessive size or unknown fields prevent route acceptance. This is an experimental header requiring registration; its name is not assigned.
+Use the exact [delivery0 proof, SMTP header and opaque carrier](relay-routes-compatibility.md#prove-a-delivery-without-exposing-personal-identities), including the original `Email2-Route-Proof` field and `email2/relay/delivery/v0` signature domain. Descriptor1 explicitly selects this delivery shape with route1. Its route key authenticates only transport scope; source/recipient identities and conversation scope are retained privately at the services, not added to the outer proof. Current application/control carriers remain their independently selected encrypted bytes; an opaque attachment is not proof of encryption.
 
-The decoded delivery payload is exactly:
-
-```
-{version,purpose,issuer,route,delivery,alias,outerFrom,mailFrom,messageId,
- carrierSha256,carrierBytes,notBefore,notAfter}
-```
-
-Version is `"0"`, purpose `relay-delivery`. Issuer/route/alias equal the approved destination route. Delivery is a fresh random nonzero ObjectId per prepared recipient copy; no global conversation/principal ID appears. CarrierSha256 and carrierBytes commit the exact decoded protected carrier bytes under the relay MIME extraction below. Do not hash a guessed part or treat an opaque part as proof that its contents are encrypted. CarrierBytes is positive and within the current permission/route limit. The proof interval lies within the route/source interval and the service's finite delivery-proof policy. Sign with the private route key.
-
-OuterFrom must match the source permission and the sole parsed outer From, without a personal display name in shared-relay mode. Alias must match the actual SMTP RCPT TO. MailFrom binds the actual SMTP reverse path. MessageId binds the sole outer Message-ID. For shared-relay origination use `b-<delivery>@<descriptor domain>` as the opaque reverse path and `<m-<delivery>@<descriptor domain>>` as Message-ID. They expose only this random delivery identifier. The source service atomically reserves their collision-free account/delivery mapping; an authenticated collision holds the new preparation. Personal-source mode retains its ordinary authorized reverse path and opaque Message-ID without claiming sender masking.
-
-### Relay MIME extraction
-
-The relay-originated message is exactly a `multipart/mixed` entity with MIME-Version1.0 and two direct parts: a generic `text/plain; charset=utf-8` notification, then one parameter-free `application/octet-stream` base64 attachment. The notification's decoded UTF-8 text is exactly `Protected Email/2 delivery.\r\n`; it contains no personal metadata. The attachment has exactly one `Content-Disposition: attachment; filename="message.bin"` and no Content-ID. The root Content-Type has exactly one boundary parameter and no other parameter. Preamble and epilogue are empty apart from MIME separator line breaks. Notification part headers are only Content-Type and its single7bit Content-Transfer-Encoding; attachment part headers are only Content-Type, its single base64 Content-Transfer-Encoding and Content-Disposition. No nested multipart, extra resource, forwarded message or external-body is admitted. Use normal MIME base64 folding; reject invalid alphabet, padding or nonzero unused bits. The attachment's exact transfer-decoded octets are the carrier commitment input. Transfer re-encoding can preserve that commitment; replacing decoded bytes cannot.
-
-Duplicate/ambiguous Content-Type, transfer-encoding, disposition or route-proof fields, malformed boundaries, excessive structure or unrecognized layout reject automatic route acceptance. Bound the SMTP input before parsing and the decoded attachment before allocation; enforce the active grant's carrier limit and local configured total-wire/header budgets. Reject incomplete processing rather than delivering a prefix. Source retention follows the mailbox's bounded storage policy.
-
-The client passes these original carrier bytes to the independently selected protected application or control contract; the route proof does not select an older parser or authorize a group transition. Raw JSON containing personal addresses or public identity evidence is not made confidential by wrapping it in an octet-stream attachment. Current-suite control/admission uses the [sealed-control binding](suite-profile.md#confidential-setup-and-control). Its exact encrypted binary is the opaque carrier, and the recipient checks its inner actor/target/conversation against this route after decryption. Unsupported protected-control carriage remains held, not downgraded into a readable attachment. Provider-assisted first-contact traffic keeps its separate setup-metadata boundary.
-
-The originating relay's authenticated `POST /submissions` requires submit scope, an active own-account source permission and device/route-key possession. Body is exactly `{permission,proof,carrier}`; carrier is canonical base64 decoded bytes matching the delivery commitment. For sender-only masking, the same proof has empty issuer/route and a personal recipient as alias; no destination route or proof-header claim is made. The service verifies source account/device and its exact projection, stores an immutable per-account/incarnation/permission/delivery outbox and returns202 only after durable local acceptance. The202 body is exactly `{submission,delivery,state}`, with submission a nonzero ObjectId, delivery the original delivery ID and state `queued`; it is the immutable local acceptance receipt, not current progress. Exact retained retries return that same receipt, not a second send. A changed signed intent under that delivery is409. Current release and DSN/uncertainty rules still apply;202 is not recipient acceptance.
-
-Authenticated `GET /submissions/{submission}` under the same own-account submit authority returns exactly `{submission,delivery,state}` with state `queued`, `released`, `uncertain`, `failed` or `cancelled`. Released means accepted by the selected next transport hop, not read or end-to-end recipient acceptance. Preserve attempt/uncertainty history internally; a status refresh must not manufacture a fresh send or imply recall. Unknown IDs under that account return404. Disconnection/revocation can cancel only unreleased work.
-
-A client using personal-source mode can instead submit through its normally authenticated SMTP provider, retaining the exact proof header/carrier/envelope. Neither path transmits route private keys. A sender-only relay checks its own current permission and normal accountable outbound policy even though the destination does not implement recipient masking.
+The source provider’s authenticated submission/status API retains its exact version0 body/receipt/status inventories, immutable accepted outbox and uncertainty semantics. It cannot change the alias or signed carrier after submission. Personal-source mode keeps its independent SMTP account authority. Sender-only masking uses the exact empty destination route/issuer case and cannot claim recipient masking.
 
 ## Destination acceptance and retries
 
-Before committing a new masked delivery, the receiving relay:
+For every new delivery, the destination:
 
-1. Selects the exact local alias/route and checks structural/header/carrier limits without automatic callbacks from message-supplied locations.
-2. Verifies the original delivery signature using that route's retained authorized key and matches issuer, alias, sole outer From, actual MAIL FROM, Message-ID and decoded carrier commitment.
-3. Checks the retained accepted-delivery key `(route, delivery)`. Identical original signed proof and carrier bytes return the original SMTP acceptance without another mailbox insertion. Different authenticated content under that identity is a conflict. Invalid signatures cannot create one.
-4. For a new delivery, checks active recipient account/link/incarnation, local route/device authority, expiry, byte/rate budgets and source-account block policy. It freshly reads the exact source permission over authenticated HTTPS, requiring the original committed bytes and active current state; no HTTP cache or remembered `active:true` can substitute. Transient unavailability holds with temporary SMTP failure.
-5. Rechecks local dependencies under the same serialization boundary as its durable acceptance and mailbox-queue commitment. Commit the original proof, carrier, immutable envelope observations and deduplication row together, with an idempotent mailbox-delivery intent. Only then return SMTP success.
+1. Selects the local alias/route and enforces exact SMTP/header/MIME/carrier limits, without following message-supplied locations.
+2. Validates the original delivery signature and exact issuer/route/alias, sole outer From, actual MAIL FROM, Message-ID and decoded encrypted-carrier commitment.
+3. Checks retained `(route,delivery)`. Identical original authenticated proof and carrier bytes return the original SMTP outcome without another insertion; different authenticated bytes conflict. Invalid proofs cannot reserve that identity.
+4. Checks current account/link/family/incarnation, service authorization, provider certificate/key, recipient authority, route/source expiry, block policy and byte/rate bounds. It freshly fetches the exact live source permission from its accepted service. Unavailable current evidence holds with temporary SMTP failure.
+5. Serializes local dependency recheck, exact proof/carrier/envelope observations, deduplication row and idempotent mailbox-delivery intent in one durable decision before SMTP success.
 
-Use temporary SMTP failure for unavailable dependencies/resources, permanent generic rejection for invalid/revoked/unsupported authority, under the [SMTP error rules](transport.md). Do not reveal account identity, mailbox existence, block status or detailed cryptographic errors in the reply. Never bounce a decrypted original to the generic relay address.
+Mailbox append participates in that decision or consumes its durable intent idempotently. Crash/restart cannot lose an acknowledged delivery or replay its visible application effects. Temporary dependency/resource failure and generic permanent invalid/revoked/unsupported failure follow [SMTP error rules](transport.md), without exposing account existence, block status or detailed crypto failures. Never bounce a decrypted original to a generic relay.
 
-The accepted-delivery row is not a read receipt. Mailbox append must participate in that transaction or consume the durable intent idempotently. A crash cannot create an acknowledged-but-lost local delivery. Downstream retries may still create physical copies; application/carrier identity handling must not turn them into repeated visible effects. Exact accepted retries can receive the prior success after withdrawal/expiry because no new delivery occurs; this does not reactivate the route.
+Accepted duplicates can return prior success after expiry or withdrawal because they create no new delivery. Preserve replay evidence through route validity and the retained retry horizon; do not evict live identities to admit more work. Once retired without retained state, expired/revoked traffic cannot become new work. A live source observation is not instantaneous distributed revocation. Downstream copies still need owning application identity/deduplication checks.
 
-Retain accepted replay records at least through route validity and the retained retry horizon. Do not evict a live accepted identity to make room for a new delivery. After retirement, missing old replay state must reject expired/revoked traffic, never treat it as new. Provider outages or an unseen remote revocation are not solved by a local transaction: the source fetch proves a live service observation at that check, not instantaneous distributed revocation or independent ownership verification.
+## Withdrawal, blocks and account changes
 
-## Withdrawal, blocking and account changes
+Own-account manage operations retain `DELETE /permissions/{permission}`, `DELETE /routes/{route}`, their whole collections and the source-block create/delete schema from the [retained management subset](relay-routes-compatibility.md#withdrawal-blocking-and-account-changes). Their existing exact source handle/known-principal attribution, idempotent result, account isolation and request-conflict rules remain required. Add the receiving-service withdrawal above. Withdrawal serializes with local admission/release and prevents later new effects; it cannot recall earlier bytes or erase correspondence.
 
-Own-account management can `DELETE /permissions/{permission}`, `DELETE /routes/{route}`, or delete all under either collection. Scope is the authenticated account incarnation; unknown IDs yield the same204. Withdrawal and admission/outbox release serialize locally. A completed delete prevents subsequent new local release/admission, but cannot recall bytes already released or erase received history. Source permission withdrawal makes destination checks fail; destination-local route withdrawal requires no cooperation from the sender.
+Source-account blocks persist across relinking/reset, new route keys/aliases and source incarnation changes. Authenticated known sender principals stay blocked across service changes. Unblocking one record does not clear another active block. Alias rotation cannot bypass either policy. Provider admission policy does not claim universal real-person identification: a hostile service can issue new accounts, and a person can change both service and identity. No government identity check or central relay allowlist is required.
 
-`POST /blocks` is an authenticated recipient manage operation with exact body `{version,purpose,request,sourceService,source}`, purpose `relay-source-block`. It blocks that source-service/account handle across current and future routes at this destination, revokes its existing local routes and suppresses new preparations. The service derives the handle from retained authenticated source evidence; an arbitrary user-supplied handle must not block another account's unrelated traffic. On success return200 with exactly `{block}`, a retained nonzero ObjectId in this recipient account. Exact request retries return the original block identifier. Unblock requires a separate deliberate own-account decision using `DELETE /blocks/{block}`. The block also retains the sender principals authenticated by this account's routes for that source handle. Those known principals remain blocked if they switch source services. Reset, device change or alias rotation cannot erase either block. Unblocking one record cannot remove another independently active account/peer block.
+Deleting/disconnecting/resetting a relay account link or family revokes derived service authorizations, source permissions, routes and unreleased work. Reassignment rotates the account incarnation and never reuses aliases. An unrelated accepted identity advance uses unchanged-binding ancestry; a changed authorizing key/required role, unresolved conflict or state1 repair requires a fresh service association/source permission as appropriate. This is service/account maintenance, not device approval of individual routes. Identity retirement blocks new operational release. Preserve original records, uncertainty and historical identity attribution.
 
-Deleting/disconnecting/resetting an account link or OAuth family revokes derived permissions, routes and queued unreleased intents. Mailbox/account reassignment rotates the account incarnation and never reuses old aliases. An unrelated accepted identity advance preserves existing permission/route approval only through the [unchanged-binding ancestry checks](provider-grants.md#retain-an-unchanged-device-binding). Preserve original endpoint references and signatures. A changed binding, key, required role or scope requires fresh exact approval; eligible remembered policy may approve that maintenance automatically. No silent peer substitution, account migration or alias retargeting is permitted. Moving service origin requires fresh account connection and new routes; retain uncertainty/history from old delivery attempts.
-
-An independent receiving relay stores the encrypted mailbox itself and provides authenticated retrieval under the [mailbox integration contract](mailbox-integration.md). This baseline does not forward to a personal SMTP address. Multi-provider opaque forwarding chains need their own complete per-hop authorization and privacy binding before support; an arbitrary onward alias is not sufficient. Either mailbox providers or independent relay accounts can implement the defined direct-retrieval path.
-
-A destination also applies its explicitly configured source-service admission and abuse policy. HTTPS establishes control of a service origin, not that its operator is honest or requires costly account creation. A hostile operator can issue new accounts/handles, and a person can change both provider and cryptographic identity. Account/peer blocks, finite issuer/source/destination budgets and deliberate recipient opt-in mitigate that abuse; they are not a universal real-person identity or anti-harassment guarantee. This contract requires no government identity check or central relay allowlist.
+Moving service origin/stable service key requires normal account reconnection and fresh service authority. An independent receiving relay retains direct encrypted-mailbox retrieval under [mailbox integration](mailbox-integration.md); forwarding to a personal SMTP destination is not selected. A future opaque forwarding chain needs a complete per-hop authorization/privacy contract.
 
 ## Route-key retirement
 
-A route key is a signing credential, not a message-decryption credential or a one-use MLS admission key. Retain its private part only while that authorized route needs fresh signatures. On expiry, withdrawal, source-account reset or local route disablement, retire it promptly under the [secret-retirement contract](setup-secret-retirement.md). Precomputed exact delivery proofs remain available for permitted retries without retaining the private key; a new route or changed intent needs fresh authorization and a fresh key. Do not retain it indefinitely to inspect old correspondence.
+The sending route private key is a signing credential, never a decryption or admission key. Keep it only while its source/route scope needs new signatures. Expiry, withdrawal, source reset or local disablement retires it under [secret retirement](setup-secret-retirement.md). Exact precomputed delivery proofs can support authorized retries without retaining that key; renewal creates fresh material. Historical archives exclude live route keys, service-management credentials and outbox authority.
 
-Neither provider receives the private route key. Portable historical archives exclude it with other live credentials. Public grant/signature evidence may remain to interpret history and deduplicate already accepted deliveries. Losing the key cannot change the author of an old message or be repaired by restoring a historical archive. Physical erasure still needs platform evidence; deleting a database field alone is not proof that every copy disappeared.
+Providers receive no route private key or endpoint decryption key. They hold their own route/service signing keys under operational custody and finite certificate policy. Public evidence may remain for historical interpretation and deduplication. Deleting a row is not proof of physical erasure; platform evidence is separate.
 
 ## Acceptance obligations
 
-Test issuance, exact recipient approval, source live-account evidence, role separation, per-device keys, scope/alias substitution, source/recipient resets, current head changes, known revocation, concurrent revoke/accept, duplicate/conflicting delivery identities, queue/append crash points, lost responses, changed routes during retries and bounds exhaustion. Inspect actual SMTP proof-header/envelope/carrier extraction and account-scoped source blocks across newly created aliases. Include independent relay retrieval and negative personal-forwarding privacy cases.
+Demonstrate initial route issuance and renewal with the recipient device process stopped, using actual source, recipient-service association and provider signatures. The client must send/receive a real encrypted message and display personal addresses while raw transport contains only the selected opaque projection. An alias-allocation fixture or configured active flag is insufficient.
 
-The local component's signed-grant and durable queue checks do not establish these full public-service, SMTP, OAuth or mailbox outcomes. Public discovery/linking, automatic unknown-peer setup, deployed providers, independent implementations and security review remain separate evidence. Unknown-peer bootstrap must not be claimed complete merely because known approved peers can issue a route.
+Exercise wrong issuer/domain/key/certificate/descriptor/recipient/account, changed stable service key, certificate rotation/withdrawal, absolute expiry, unrelated accepted identity advance, revoked binding, conflict and state1 repair. Prove automatic renewal preserves private blocks/budgets and exact old uncertain attempts. Inspect source/account/role separation, direct independent-relay retrieval, negative personal forwarding, trace/DSN/report/log leakage and current release checks.
 
+Exercise uniform pending admission before any recipient process runs; route-key inspection, invalid-proof non-poisoning, exact replay/conflict across versions, lost responses, concurrent allocation/revoke/reset, durable restart/crash before/after route and inbox commitment, and exhaustion without dropping live safety state. A public service must preserve the complete current discovery/login/account/link/source authority; mocked identities or trusted booleans cannot establish it.
 
-A [state1 identity repair](identity-state.md#concurrent-administration-and-retirement) is a fresh-authorization boundary for retained endpoint permissions and route grants. Do not keep a route operational by selecting only one parent path through the repaired identity. Obtain a newly scoped approval from the repaired head; preserve earlier proofs and uncertain delivery identities without extending them. Administrative proof exchange does not override route withdrawal, grant expiry or required masking. Identity retirement disables further operational release under that identity; it cannot erase prior deliveries.
+The [synthetic original records](examples/provider-route-records.json) and `evidence/provider-route-records.test.mjs` exercise actual independent signatures, complete field inventories, scope/interval commitments and provider-certified key rotation on constructed inputs. They are not a strict wire decoder, accepted identity journal or runtime provider. Specification compilation and these narrow cases do not prove a provider implementation, native integration, actual SMTP privacy, independently developed interoperability or security assurance. Record each observation at its actual tested scope.

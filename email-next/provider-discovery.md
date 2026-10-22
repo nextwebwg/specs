@@ -190,7 +190,7 @@ Required public-deployment evidence additionally includes domain delegation thro
 
 ## Independent relay capability
 
-The [relay module](relay-routes.md#discover-a-relay-service) reuses the transport, publication, native authorization and credential-isolation mechanics here under its own descriptor, scopes and namespace. Relay-only providers need not advertise or implement the queue. An existing queue registration or token does not silently gain relay administration/submission rights.
+The [relay module](relay-routes.md#discover-the-selected-service) reuses the transport, publication, native authorization and credential-isolation mechanics here under its own descriptor, scopes and namespace. Relay-only providers need not advertise or implement the queue. An existing queue registration or token does not silently gain relay administration/submission rights.
 
 
 ## Reply-aware queue discovery

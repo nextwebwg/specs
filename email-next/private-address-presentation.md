@@ -129,7 +129,7 @@ Perform the following checks before exposing an accepted address presentation:
 
 A client can show an authenticated author's message while clearly reporting a conflicting mailbox claim; it cannot show the conflicting address as a verified replacement. Before complete acceptance, expose only provisional transport information and safe diagnostics, not a decrypted familiar contact as though application acceptance succeeded. Render mailbox text as text, never HTML or an automatically invoked URL.
 
-Retain exact original event and MIME bytes, authenticated evidence and the address-assurance decision separately from mutable contact labels. Reopening history does not require a currently live alias, and route expiry does not retroactively erase an admitted contribution. Historical verification keeps its original scope; current account reassignment does not reattribute old messages.
+Retain exact original event and MIME bytes, authenticated evidence and the address-assurance decision separately from mutable contact labels. Reopening history does not require a currently live alias, and route expiry does not retroactively erase an admitted contribution. The provider/transport adapter renews temporary routes automatically under account policy; normal contacts and personal addresses remain stable. A new reply resolves current authorized routing rather than reusing an expired source alias. Historical verification keeps its original scope; current account reassignment does not reattribute old messages.
 
 ## Acceptance evidence and limits
 

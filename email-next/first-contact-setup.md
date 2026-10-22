@@ -15,7 +15,7 @@ The first transmission to a new person can be a setup request rather than their 
 > Bob sees Alice's message, not an exchange of protocol emails. If the setup cannot complete, Alice's writing stays queued under its selected delivery policy.
 
 > [!note] Defined contract; complete journey not yet implemented
-> The [automatic first-contact exchange](bootstrap.md) specifies domain discovery, source-account authorization, device possession, the private control inbox, signed replies, offline publication and optional relay follow-up. Known-pair [queue grants](provider-grants.md) remain separate authority. The local bootstrap component tests part of this contract; it does not establish a working public service or complete first-message encryption journey.
+> The [automatic first-contact exchange](bootstrap.md) specifies domain discovery, source-account authorization, device possession, the private control inbox, signed replies, offline publication and direct inbox-provider route issuance. Known-pair [queue grants](provider-grants.md) remain separate authority. The local bootstrap component tests part of this contract; it does not establish a working public service or complete first-message encryption journey.
 
 ## Use the available setup carrier
 
@@ -54,7 +54,7 @@ Apply the [freshness contract](freshness.md) to the selected delivery. Published
 
 The recipient client durably saves a signed response and any allocated package before upload. Retrying returns the same result. The response does not elicit another setup response, and opening a received message never starts this state machine. Providers must not represent control records as ordinary mailbox messages requiring a legacy client to hide or discard them.
 
-Private-addressing setup additionally returns an independently provider-authorized recipient alias, bound by the recipient device to this peer and routing scope. The [private-addressing contract](private-routing.md) requires personal From/To/Cc inside encryption, transport substitution before submission and separate route-use authorization. The [route authorization contract](relay-routes.md) supplies source-account permission and recipient route approval after the peer identities/setup scope are available. The [bootstrap relay follow-up](bootstrap.md#finish-private-routing-in-the-same-handshake) obtains those routes after learning the intended recipient identity and before content release when masking is required. A key package or queue credential never becomes routing permission.
+Private-addressing setup identifies the recipient’s already configured receiving service. After independently validating the intended identity/setup, the sender obtains accountable source permission and requests a route directly from that service under [provider-issued route1](relay-routes.md). The normal inbox provider can allocate or renew an alias while all recipient devices are offline. It needs no recipient-device approval of individual addresses. The [private-addressing contract](private-routing.md) keeps personal From/To/Cc inside encryption and performs the transport substitution before submission. Service association, active routing policy and exact route-use permission remain independent of native encryption admission. A key package or queue credential is never routing authority. Required masking holds if the current route is unavailable; routine renewal does not change the personal contact or a frozen uncertain retry.
 
 ## Validate, establish encryption, then send
 

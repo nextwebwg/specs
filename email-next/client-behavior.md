@@ -47,7 +47,7 @@ The default conversation list identifies people rather than using a workspace ch
 
 The default list provides separate **Contacts** and **Other** views. A conversation belongs in Contacts only when every other participant is associated with a local contact through the identity or mailbox evidence applicable to that conversation. Otherwise it belongs in Other. Local contact association is not cryptographic verification; a legacy contact remains an ordinary-email identity. Unknown or unresolved associations must not borrow protected identity from a similarly spelled address or name.
 
-Conversation lists put the most recently active conversation first. Default activity is the local acceptance of a new visible message, question, answer or correction, or a new local send of such a contribution. Reactions, retries, background control records, historical backfill and duplicate receipt do not independently promote a conversation. Record a durable local activity sequence, with a stable conversation-key tie-breaker, so reopening the application does not reshuffle equal entries. Sender dates do not control this sequence. Local list order is not a claim of authenticated causal order and need not be identical across devices.
+Conversation lists put the most recently active conversation first. Default activity is the local acceptance of a new visible message, question, answer or correction, or a new local send of such a contribution. A newly established actionable send problem or validated correlated delivery failure also promotes its original conversation once, under the [failure presentation procedure](#delivery-problems-stay-with-the-message). Reactions, ordinary retries, background control records, historical backfill and duplicate receipt do not independently promote a conversation. Record a durable local activity sequence, with a stable conversation-key tie-breaker, so reopening the application does not reshuffle equal entries. Sender dates do not control this sequence. Local list order is not a claim of authenticated causal order and need not be identical across devices.
 
 A client may expose other sorting and grouping preferences. Those preferences must not change conversation identity, audience, membership or interaction targets.
 
@@ -211,6 +211,40 @@ Show protection through compact client-owned indicators with accessible names an
 The sender's selected policy governs incompatible recipients, key changes and discovery failure. Preserve drafts and unresolved sends while awaiting required evidence. Resolve each actual selected delivery's recipients and devices under the owning authority rules, while retaining other intended slots and their independent pending obligations; aliases, mailbox login and server capability advertisements are not substitutes. Device enrollment, removal, key loss and history restoration use the specified lifecycle, never an invented UI shortcut that reactivates stale keys.
 
 A send result must expose unresolved and failed recipient outcomes. SMTP acceptance does not mean decryption or reading. Do not present “seen” without evidence under an explicitly supported receipt contract. Optional provider upgrades may improve discovery or carriage without changing these meanings.
+
+## Delivery problems stay with the message
+
+A delivery problem belongs beside the outgoing message that encountered it. It is not a new contribution from a mail daemon. Keep the original report inspectable through message details and ordinary mailbox/source access.
+
+> [!ex] One message, different recipient outcomes
+> Alice sends to Bob and Carol. Bob's protected delivery succeeds; Carol's setup ends without usable encryption. Alice sees Bob's success and Carol's unresolved protection beside the same outgoing contribution. She can wait, retry eligible setup, or authorize a permitted ordinary or hosted copy for Carol. Bob's successful copy is not sent again.
+
+Before releasing human content, show which recipients have usable protected delivery and which do not. Do not send an unreadable encrypted test message to discover whether a legacy client supports it. A missing hint, failed lookup or timeout leaves protection unknown or unavailable for this send; it does not prove permanent incompatibility. A draft waiting for setup is not a sent message.
+
+| Evidence | Required visible meaning |
+| --- | --- |
+| Enabled setup is progressing | Checking protection or waiting, with the affected recipient inspectable |
+| Setup ends without usable protected delivery | Protection unavailable for this send; offer wait, eligible setup retry or a separately permitted compatible mode |
+| Explicit temporary refusal before accepted handoff | Waiting for eligible retry under the existing policy |
+| Conclusive local failure or validated correlated terminal report | Error indicator on the affected outgoing message, with recipient results and an eligible corrective action |
+| Possible release without a decisive result | Delivery uncertain; preserve that uncertainty while reconciling the original operation |
+| Some recipients succeed while others wait or fail | Preserve each result; neither universal success nor universal failure |
+
+A terminal send failure uses a red error indicator accompanied by an accessible name and a non-color signal. An unresolved setup step can use a waiting indicator. These indicators are client-owned and cannot be supplied, hidden or restyled by sender HTML.
+
+::: {.details summary="Failure activity, source validation and safe recovery"}
+
+When a newly established actionable local send problem or validated correlated delivery failure first becomes visible, retain one durable local activity observation and promote the original conversation in the default list. Use the local activity sequence, not the report's Date. Duplicate reports, reopen, restored historical reports, unchanged polling and repeated failures of the same unresolved retry cannot repeatedly promote it. Custom sorting remains available.
+
+Use the [transport report procedure](transport.md#interpret-machine-readable-delivery-reports) before applying an incoming report. Retain its source, correlation and affected scope. Insufficiently validated or uncorrelated diagnostics remain inspectable but cannot mark an unrelated message failed, add a participant or promote an arbitrary conversation. Capability evidence and delivery evidence remain separate. No report alone installs keys, revokes identity or permits weaker protection.
+
+Persist report deduplication and the derived status/activity change together, or retain an idempotent durable intent that completes that projection after restart. Preserve accepted handoff alongside a later failure, another recipient's success and any earlier uncertain exposure. Processing a diagnostic sends no response, human reply, reaction or service action.
+
+Offer only recovery supported by the actual evidence and policy: inspect, wait, reconcile, retry eligible setup, retry the unchanged prepared delivery, or authorize a separately eligible delivery mode. Show the resulting per-recipient protection before a new disclosure. Changing encryption is a new authorized preparation, not mutation of an exact retry. Recheck current audience, identity, account, route and inherited confidentiality under [delivery policy](delivery-policy.md#check-protection-before-releasing-content).
+
+Apply recovery only to the unsatisfied scope. Do not resend successful recipients, allocate another human contribution unnecessarily, repeat a button's service effect or pretend to recall a possibly delivered copy. The exact owning agreement determines contribution and replacement-delivery identities.
+
+:::
 
 ## What a status can tell you
 

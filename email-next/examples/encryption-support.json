@@ -1,0 +1,5 @@
+{
+  "request": {"version": "0", "recipient": "bob@example.org"},
+  "advertisedResponse": {"version": "0", "support": "advertised"},
+  "uniformNegativeResponse": {"version": "0", "support": "not-advertised"}
+}

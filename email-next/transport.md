@@ -260,7 +260,32 @@ Track achieved transport protection separately from end-to-end message protectio
 
 Keep the expected service identity and the authorization for endpoint delegation when discovering submission or account-access services. An unauthenticated redirect cannot make its target the trusted reference identity merely because the target presents a valid certificate. SNI selects a certificate; certificate and service-identity validation remain necessary.
 
-Provider-service authentication does not establish a correspondent's device key or authorize replacing a pinned key. Apply the [identity lifecycle](identity-lifecycle.md) independently. The [mail service identity audit](audits/mail-service-identity.md) covers RFC 7817; the final certificate profile must reconcile its historical rules with current general TLS identity guidance. Relay-to-relay authentication uses its own transport policy.
+Provider-service authentication does not establish a correspondent's device key or authorize replacing a pinned key. Apply the [identity lifecycle](identity-lifecycle.md) independently. Submission and mailbox-access connections use the email reference identifiers defined by [RFC7817 §3](https://www.rfc-editor.org/rfc/rfc7817.html#section-3), with the current matching rules of [RFC9525 §6](https://www.rfc-editor.org/rfc/rfc9525.html#section-6). Relay-to-relay authentication keeps its separate transport policy.
+
+::: {.details summary="Certificate names, authorized delegation and validation"}
+
+Construct acceptable reference identifiers before examining the peer certificate. Clients MUST support DNS-ID and, when using SRV-based mail discovery, SRV-ID. Common Name fallback and URI-ID matching are forbidden in this profile. Removing the historical Common Name allowance follows RFC9525; it is an intentional difference from RFC7817's compatibility rule.
+
+| How the account selected the service | Acceptable reference identifiers |
+| --- | --- |
+| Independently configured DNS hostname | That hostname as a DNS-ID, without CNAME canonicalization |
+| Address-based discovery | The original account domain as a DNS-ID, plus the selected service's SRV-ID when using SRV discovery |
+| Independently configured or authenticated delegation | The authorized delegated hostname may additionally supply a DNS-ID |
+| Independently configured IP literal | That literal as an IP-ID under RFC9525 §6.4; compare the actual address, with no reverse-DNS substitution |
+
+An unsigned SRV answer or CNAME alone cannot authorize a delegated reference. An IP address obtained by resolving a DNS name is not a configured IP reference. Neither the peer certificate nor an unauthenticated redirect may expand the reference set. A reference match authenticates the selected service only; account credentials still need their independently authorized destination and scope.
+
+For a DNS-named endpoint, send that connection endpoint's DNS hostname as SNI, using its validated ASCII A-label spelling without a trailing dot. The routing name may differ from the account-domain references; sending it does not authorize its delegation or make its certificate acceptable. Omit SNI for a directly configured IP literal. Never send a mailbox local part, personal address or the whole reference list as SNI. Apply [RFC6066 §3](https://www.rfc-editor.org/rfc/rfc6066.html#section-3) through the maintained backend; SNI does not authenticate the server or conceal the routing name.
+
+For example, IMAPS discovery for `alice@example.net` supplies the references `example.net` and `_imaps.example.net`. A target such as `mail.hosting.example` becomes an additional DNS-ID only after its delegation is independently authorized. A certificate solely for an attacker-selected target is insufficient. An SRV-ID contains the registered service label and account domain, without the DNS lookup's `_tcp` component. Use the selected submission, IMAP or POP service label, including the implicit-TLS labels defined by the [submission/access profile](audits/submission-access-tls.md).
+
+Apply RFC9525's identifier-specific matching, validated IDNA processing and wildcard restrictions. A DNS wildcard occupies one complete leftmost label and matches one label; it cannot substitute for the SRV service label. A backend without SRV-ID support cannot claim that support by treating an SRV-ID as a DNS name. An independently authenticated DNS-ID route remains usable; otherwise hold the connection.
+
+Use the common [certificate-path requirements](service-answers.md#establish-the-protected-connection), [algorithm and backend policy](service-answers.md#certificate-algorithms-and-validation-backend), and [certificate-status modes](service-answers.md#select-a-certificate-status-mode), including their status-evidence and resumption requirements. Those requirements apply here with the email-specific reference set above. They do not import HTTPS origin, path or token rules into SMTP, IMAP or POP. Trust anchors remain independently configured. A failed name, path, algorithm or required status check holds account operations and credentials, without a click-through exception or automatic plaintext fallback.
+
+This account-access profile does not select DANE authentication. Relay DANE and MTA-STS retain their own owners, including their distinct certificate-name, path and expiry rules; generic Web PKI checks must not silently replace them.
+
+:::
 
 ## Refresh endpoints without changing account behavior
 
@@ -270,9 +295,28 @@ Distinguish a missing service record, a temporary lookup failure and an explicit
 
 ## Connection confidentiality indications
 
-For submission and account access, a confidential-connection indication requires at least TLS 1.2, successful certificate verification and satisfaction of the account's protection policy. A stronger configured minimum still applies. This is a connection indication; it must not imply end-to-end message protection.
+Submission and mailbox-access adapters MUST support TLS 1.3 and prefer it when the service supports it. Restricted TLS 1.2 compatibility remains permitted when the account's configured minimum allows it; older SSL/TLS versions are forbidden. An account can require TLS 1.3. Failure cannot lower that minimum, replace the configured service or authorize sending credentials.
 
-Apply the [TLS version update](audits/tls-version-update.md) when inheriting RFC 8314. The complete TLS algorithm and certificate profile remains subject to the outstanding dependency audit.
+A confidential-connection indication requires successful certificate validation and satisfaction of the account's complete protection policy. It describes the connection, not end-to-end message protection. Existing SMTP, IMAP and POP compatibility follows the [RFC8314/RFC8997 adoption path](audits/tls-version-update.md); it does not add TLS 1.2 to newly defined Email/2 HTTPS services, whose [TLS 1.3 minimum](service-answers.md#establish-the-protected-connection) remains unchanged.
+
+::: {.details summary="TLS algorithms, compatibility and session lifetime"}
+
+Use a maintained TLS implementation with the common [TLS 1.3 implementation capabilities](service-answers.md#tls-1-3-implementation-capabilities) and current [TLS 1.3 protocol requirements](audits/tls13.md). For TLS 1.2 compatibility, the adapter's permitted cipher suites are exactly:
+
+| Authentication | Permitted TLS 1.2 suites |
+| --- | --- |
+| RSA signing certificate | `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256`, `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384` |
+| ECDSA signing certificate | `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`, `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384` |
+
+Implement the [RFC9325 controls](audits/tls-configuration.md) for these suites, including key strength, curve validation, AES-GCM nonce uniqueness, record/key usage limits, and secure resumption. Require extended master secret and secure renegotiation on a TLS 1.2 connection; if the peer cannot satisfy these requirements, hold the connection. Disable TLS record compression. Static RSA, static DH/ECDH, finite-field DHE, CBC, RC4, NULL, export and other unlisted suites are not permitted in this restricted adapter profile. RSA certificate authentication is distinct from RSA key exchange. These choices incorporate the [RFC10015 key-exchange prohibitions](audits/tls-legacy-key-exchange.md); the narrower suite list is this profile's selection, not a claim that every omitted suite is prohibited by RFC9325 itself.
+
+TLS 1.2 clients MUST send `signature_algorithms` excluding MD5 and SHA-1, following [RFC9155 §§2–5](https://www.rfc-editor.org/rfc/rfc9155.html#section-2). Advertise only implemented, mapped RSA/ECDSA schemes using SHA-256, SHA-384 or SHA-512; verify the actual handshake signature under the selected scheme and its encoding rules. An absent extension or legacy default cannot authorize a SHA-1 fallback. PKCS #1 v1.5 RSA handshake signatures remain permitted in TLS 1.2; they are not permitted as TLS 1.3 CertificateVerify signatures. PSS support follows its version-specific scheme, key-identifier, hash, mask and salt rules, not generic certificate-library defaults. A cipher suite's SHA256/SHA384 suffix selects its PRF and does not select the handshake signature's hash.
+
+For both versions, protect resumption-ticket state and preserve the authenticated service, certificate-status mode and account policy. Enforce the backend's bounded key usage and ticket/session validity; a reusable session cannot outlive the applicable policy or extend a credential's authority. Require fresh key agreement for TLS 1.3 resumption rather than PSK-only resumption. This profile sends no account credentials, submissions or mailbox operations as early data. Wait for the authenticated handshake and all applicable checks before those operations. Before TLS, an authorized STARTTLS connection is limited to the capability discovery and upgrade needed to establish that protection; SMTP must obtain fresh EHLO capabilities afterward.
+
+Prefer implicit TLS. An account-authorized STARTTLS service must meet the same minimum and certificate policy. An omitted STARTTLS advertisement, negotiation failure or expired session is a transport failure, not permission to weaken protection or infer that a correspondent lacks Email/2 support. Transport TLS lifetimes remain separate from correspondent device-key expiry and conversation-key rotation.
+
+:::
 
 ## Apply account protection before service preference
 

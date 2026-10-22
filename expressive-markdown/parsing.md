@@ -103,10 +103,10 @@ container.
 or quote, its last line comes before the first nonblank line indented less than
 that block, and a typed opener without a closing line runs to that point.
 
-**Indentation.** A fence's own indentation, zero to three spaces in Markdown,
-leaves each line it encloses, up to that many leading spaces per line, as a code
-fence's does. A line indented four columns beyond the fence is indented code
-within the container.
+**Indentation.** Indentation inside a container counts from the fence's edge,
+as it does inside a code fence. Each enclosed line loses up to as many leading
+spaces as the fence has, zero to three in Markdown, and a line indented four
+columns beyond the fence is indented code within the container.
 
 | Rule | Accepted form |
 | --- | --- |

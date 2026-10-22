@@ -131,7 +131,7 @@ No received `jwks_uri`, documentation link or signed-metadata field is fetched b
 
 [Dynamic client registration](https://www.rfc-editor.org/rfc/rfc7591.html#section-3) supplies a client identifier without requiring every email client developer to arrange credentials with every provider. This profile selects unauthenticated registration for a public native client. The provider can enforce finite rate and capacity limits, but cannot advertise this public profile while requiring an undisclosed initial access token, developer allowlist, software statement or public-client secret. Registration establishes no trusted application brand, human identity, mailbox authority or Email/2 authority.
 
-::: {.details summary="Native registration and authorization binding"}
+:::: {.details summary="Native registration and authorization binding"}
 
 POST `application/json` to the exact selected registration endpoint, with no Authorization header or ambient credentials. The request has exactly:
 
@@ -180,7 +180,7 @@ HTTP503 means the token may still be valid remotely. Lost responses, other error
 
 The bearer risk described by [service authorization](service-authorization.md#implementation-evidence-and-boundaries) remains: possession of a stolen management token can exercise its authorized service grant. PKCE, a linked device signature and a registered client ID do not create per-request sender constraint. This chapter does not claim complete current OAuth security compliance or select a DPoP binding.
 
-:::
+::::
 
 ## Evidence and remaining binding
 

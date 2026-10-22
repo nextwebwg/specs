@@ -815,6 +815,25 @@ The policy does not alter literal code examples: HTML written inside a code
 span or code block remains inert code text. A preserved `literal` recovery node
 is escaped text, not executable HTML.
 
+### Trusted host profile
+
+The safe profile is the default. A host whose content only its own authors
+write, such as a documentation site's pages, may choose a trusted host profile
+explicitly, so components and page styles written in Markdown reach its output.
+
+- Parsing keeps each raw HTML block and each inline HTML tag as an opaque
+  `html` node with its source verbatim: no filtering, no mapping to structured
+  nodes. Markdown between inline tags stays Markdown.
+- Writers write those nodes back verbatim.
+- Rendering still applies the safe profile, extended by the host's allowlist of
+  elements, attributes, style properties and URL schemes, to all output: raw
+  HTML, built-in mappings and extension output alike.
+- Event-handler attributes and script URLs stay blocked unless the host names
+  them individually; both grant the content script access.
+
+**Trust boundary:** the trusted profile is for content the host's own authors
+write. User-submitted, imported and third-party content uses the safe profile.
+
 ## Recommended output anchors
 
 This algorithm recommends output IDs; it grants no implicit identity in source

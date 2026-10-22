@@ -188,7 +188,8 @@ In an ordinary block quote, protect literal text that would open an alert.
 - `#id` and `id=…` set the ID; `.name` adds a class. Class shorthands
   accumulate in source order, space-separated, so `{.render .wide}` gives
   `class: "render wide"`. An assigned `class=…` replaces the value gathered so
-  far, by last occurrence wins, and later shorthands add to it. A class
+  far, by last occurrence wins, and later shorthands add to it. The longhand
+  `{class="render wide" id="intro"}` works the same as `{.render .wide #intro}`. A class
   shorthand is an ASCII letter, `_` or `-`, then letters, digits, `_` or `-`.
   A class stays a class: `::: {.render}` is a generic container
   with `class: "render"`.
@@ -211,7 +212,7 @@ Source names are case-insensitive; AST attribute keys use camelCase. Lowercase t
 ```md
 ## Deployment {#deployment}
 ![Service diagram](services.svg){width=640 responsive}
-[Release notes](release.md){class="release-link"}
+[Release notes](release.md){.release-link}
 ```
 
 A heading's final whitespace-separated list attaches to the heading. An immediately adjacent list attaches to a completed image/link, and to a bracket that forms no link as a [bracketed span](#bracketed-spans). Attachments stay on the target's source line; code-span whitespace is not attachment syntax. Multiple lists resolve in source order; malformed lists stay literal. Escape `{` to prevent attachment. Code-fence attributes are described in the [language guide](/expressive-markdown/language#code-blocks-and-presentation-metadata); other block styling uses supported safe HTML.
@@ -229,7 +230,7 @@ Unknown attributes remain data. An arbitrary flag does not acquire native HTML b
 ## Bracketed spans
 
 ```md
-[word]{class="kw"}
+[word]{.kw}
 [word]{.kw #w key="v"}
 ```
 
@@ -1022,7 +1023,7 @@ the preferred form, so a document written in preferred forms carries none.
 | Tab group | Adjacent tabs; explicit `tabs` container | Adjacent tabs | `form: "explicit"` |
 | Table | Named list fields; positional list rows; GFM pipes | Named fields | `form: "positional"`; `form: "pipe"` with `markdown` |
 | Mention | `@[label]`; bare `@handle` | `@[label]` | `form: "bare"` |
-| Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `#id`, `class="…"`, double quotes, spaces | `attributes` |
+| Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `.class`, `#id`, double quotes, spaces | `attributes` |
 | Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
 | Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |
 | Frontmatter | YAML as authored | Generated YAML | `frontmatter` on the document |

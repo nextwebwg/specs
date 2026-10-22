@@ -366,7 +366,7 @@ their spacing or visual wrapping must not flatten their document structure.
 A colon container without a type groups blocks and carries attributes:
 
 ```md
-::: {#summary class="wide"}
+::: {.wide #summary}
 The release ships on Friday.
 :::
 ```
@@ -383,7 +383,7 @@ title renders as the div's first child, a `<header>`. The div omits
 A bracketed span is the inline counterpart:
 
 ```md
-Run [`--force`]{class="flag"} once.
+Run [`--force`]{.flag} once.
 ```
 
 ```html

@@ -735,11 +735,11 @@ The general attribute notation is:
 | `open=foo` | String `"foo"`. |
 | `open=false` / `open="false"` | String `"false"`, not a boolean. |
 | `#check` / `id=check` | Exact node ID `"check"`. |
-| `class="wide"` / `.wide` | Class `"wide"`; several shorthands accumulate. |
+| `.wide` / `class="wide"` | Class `"wide"`; several shorthands accumulate. |
 
-Examples use `#id` for IDs and `class="…"` for classes. The `.class` shorthand
-is also supported: `{.render .wide #intro}` gives the ID `intro` and the class
-`"render wide"`. A class stays a class: `::: {.render}` is a generic container.
+Examples use `.class` and `#id`: `{.render .wide #intro}` gives the ID `intro`
+and the class `"render wide"`. The longhand `{class="render wide" id="intro"}`
+works the same. A class stays a class: `::: {.render}` is a generic container.
 
 Whitespace and an optional `&` separate entries. These are equivalent:
 
@@ -785,7 +785,7 @@ Attach identity or presentation to the content it describes:
 ## Deployment {#deployment}
 ![Service diagram](services.svg){width=640 responsive}
 
-[Release notes](release.md){class="release-link"}
+[Release notes](release.md){.release-link}
 ```
 
 **HTML representation**
@@ -852,7 +852,7 @@ omitted. Native boolean attributes follow HTML presence: an assigned string
 Give a run of text attributes without a semantic type:
 
 ```md
-Use the [`--force`]{class="flag"} option with care.
+Use the [`--force`]{.flag} option with care.
 ```
 
 :::: {.render title="Bracketed span" height="105"}
@@ -877,8 +877,8 @@ A bracketed span is an `inline` node without a `subType`.
 ::::
 
 The bracket holds inline Markdown, and an attribute list follows it
-immediately. `[--force]{.flag}` is also supported; examples write classes as
-`class="…"`. A class stays a class: `:flag[…]` gives an inline with a type.
+immediately. The longhand `[--force]{class="flag"}` works the same as
+`[--force]{.flag}`. A class stays a class: `:flag[…]` gives an inline with a type.
 When the bracket is also a link, such as `[word](url)` or a reference that
 resolves, it stays a link and the list attaches to the link. See the
 [span rules](/expressive-markdown/parsing#bracketed-spans).

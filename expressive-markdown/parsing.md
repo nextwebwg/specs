@@ -116,7 +116,8 @@ Writers use `3 + maximum descendant container depth` colons, recalculating withi
 
 A block quote is an alert when its first line starts with `[!type]` followed
 by a space, a tab or the line end. `type` is an identifier, matched
-case-insensitively and stored lowercase as `subType`. The rest of that line,
+case-insensitively and stored lowercase as `subType`; writers keep its authored
+case, so `> [!NOTE]` stays `> [!NOTE]`. The rest of that line,
 trimmed, is the inline-Markdown title; when it is empty the alert has no title.
 The quote's remaining content is the body, read as ordinary blocks. The result
 is a `container` with `spelling: "alert"`.
@@ -881,10 +882,15 @@ Quoting suppresses this advisory. Assigned values remain strings either way.
 
 Round-tripping preserves meaning, order, explicit lines, authored IDs, unknown
 types, supported metadata and presentation. Discarded unsafe HTML is excluded
-and must never be restored from source records. Byte-identical output is
-optional; it needs original whitespace, quotes, overwritten attributes and
-delimiters. Content stays where it was written: writers keep each block,
-including footnote and link reference definitions, at its place in the tree.
+and must never be restored from source records. Content stays where it was
+written: writers keep each block, including footnote and link reference
+definitions, at its place in the tree, and write each construct in its
+[authored form](#authored-forms). Byte-identical output is optional: canonical
+writing normalizes whitespace inside constructs, character escapes and
+overwritten duplicate attributes.
+
+The table lists the preferred forms, which writers use for content without a
+recorded authored form, such as content a tool inserts.
 
 | Writers use | Preserve |
 | --- | --- |
@@ -897,6 +903,77 @@ including footnote and link reference definitions, at its place in the tree.
 | YAML strings for title/ID; string lists for tags | Custom metadata, quoting strings YAML would otherwise type differently. |
 | `[^label]` and `[^label]:` with four-space continuation | Each footnote definition at its place in the tree. |
 | Reference links in their authored form; `[label]: destination "title"` | Each definition at its place in the tree. |
+
+### Authored forms
+
+Where the language accepts more than one spelling for the same thing, the AST
+records which one the author used and writers write it back. The record lives
+in the node's `source` provenance: it never changes the node's meaning, and
+generic traversal ignores it. Parsers record only spellings that differ from
+the preferred form, so a document written in preferred forms carries none.
+
+```md
+* Use _care_.
+```
+
+```json
+{
+  "type": "list", "ordered": false, "tight": true,
+  "source": { "marker": "*" },
+  "children": [{ "type": "listItem", "body": [{ "type": "paragraph", "children": [
+    { "type": "text", "value": "Use " },
+    { "type": "emphasis", "source": { "marker": "_" }, "value": "care" },
+    { "type": "text", "value": "." }
+  ] }] }]
+}
+```
+
+| Construct | Spellings | Preferred | Recorded |
+| --- | --- | --- | --- |
+| Emphasis, strong | `*a*` / `_a_`, `**a**` / `__a__` | `*`, `**` | `marker: "_"` |
+| Bullet list | `-`, `*`, `+` | `-` | `marker` |
+| Ordered list | `1.` / `1)`; incrementing or repeated numbers | `.`, incrementing | `marker: ")"`, `numbering: "same"` |
+| Task marker | `[x]` / `[X]` | `[x]` | `marker: "X"` |
+| Heading | ATX, ATX with closing hashes, setext | ATX | `form: "setext"` with `underline`; `closing` |
+| Code block | Backtick or tilde fence of any length; indented | Shortest backtick fence | `fence`; `form: "indented"` |
+| Code span | Backtick runs of any length | Shortest run | `fence` |
+| Thematic break | `---`, `***`, `___`, spaced or longer | `---` | `marker` |
+| Hard break | Backslash; two or more trailing spaces | Backslash | `spaces` |
+| Autolink | `<url>`, bare URL, `[url](url)` | `[text](url)` | `form: "angle"` or `"bare"` |
+| Link target | Destination with or without `<…>`; `"`, `'` or `(…)` title | Canonical destination, `"` title | `target` |
+| Link reference definition | As authored | `[label]: destination "title"` | `markdown` |
+| Link reference | Full, collapsed, shortcut | As authored | `referenceType` |
+| Callout | Colon container; alert, with the type in any case | Colon container, lowercase type | `spelling: "alert"`; `type` for an alert type not written in lowercase |
+| Container title | `[Title]`; unbracketed | `[Title]` | `titleSpelling: "unbracketed"` |
+| Container header | Type case, spacing, part order, attribute spelling | `type [Title] {attributes}` | `header` |
+| Container fence | Any length longer than its contents' | 3 plus nesting depth | `fence` |
+| Tab group | Adjacent tabs; explicit `tabs` container | Adjacent tabs | `form: "explicit"` |
+| Table | Named list fields; positional list rows; GFM pipes | Named fields | `form: "positional"`; `form: "pipe"` with `markdown` |
+| Mention | `@[label]`; bare `@handle` | `@[label]` | `form: "bare"` |
+| Attribute list | `#id` / `id=…`, quoting, `&` separators, order | `id="…"`, double quotes, spaces | `attributes` |
+| Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
+| Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |
+| Frontmatter | YAML as authored | Generated YAML | `frontmatter` on the document |
+
+`referenceType`, `spelling` and `titleSpelling` are node fields because the
+choice also shapes how the node is read: a reference names its label through
+its form. All other spellings use `source`.
+
+**Writing.** Write each recorded spelling while it still applies to the node,
+and the preferred form otherwise:
+
+- An enum spelling applies while the construct can carry it: a setext heading
+  at level 1 or 2, `_` emphasis at word boundaries, indented code without info
+  or surrounding blank lines, a bare URL or mention the reader links again.
+- A raw spelling (`header`, `attributes`, `info`, `target`, `markdown`,
+  `frontmatter`) applies while reading it gives the node's current data.
+  Editing the data writes the preferred form.
+- A fence keeps its recorded length while it exceeds its contents' fences, and
+  lengthens otherwise.
+
+**Exceptions.** Conflict and safety rules are not spellings and stay as
+defined: duplicate attributes and YAML keys resolve by last occurrence and are
+written resolved, and unsafe URLs and `script` elements are removed.
 
 ### Text and formatting boundaries
 
@@ -999,7 +1076,7 @@ These shared rules apply to every node.
 | `value` | String | Literal content. Never reparse it as Markdown. |
 | `attributes` | Object of string or boolean values | Authored properties/presentation. Keys use camelCase mapped from case-insensitive, dash-separated source names; `show-line-numbers` becomes `showLineNumbers`. Assigned values are strings; flags are booleans. Generic ID lives in `id`, not here. |
 | `position` | `Position` | Optional original-source range, defined below. |
-| `source` | JSON object | Optional lexical provenance for source preservation. It is not another semantic value or a traversable subtree. |
+| `source` | JSON object | Optional lexical provenance for source preservation, including each [authored form](#authored-forms). It is not another semantic value or a traversable subtree. |
 | `data` | JSON object | Optional application/tool annotations. Not interpreted as content by generic traversal. |
 
 `body`, `children` and `value` are mutually exclusive. A node can have none,

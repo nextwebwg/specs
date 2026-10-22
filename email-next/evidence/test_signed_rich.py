@@ -1,5 +1,6 @@
 """Signed common roster admission followed by actual rich protected SMTP."""
 import hashlib,io,unittest
+from unittest.mock import patch
 from PIL import Image
 import test_initial_roster_lifecycle as fixture
 from initial_roster import parse
@@ -16,7 +17,11 @@ class SignedRich(unittest.TestCase):
     endpoint=fixture.RosterLifecycleTests.endpoint;prepare=fixture.RosterLifecycleTests.prepare
     def test_signed_roster_smtp_then_rich_resource(self):
         ident,invitation=next(iter(self.prepare().items()));smtp=LocalSMTP()
-        with SenderWorker(self.sender) as worker:worker.submit_initial_roster(ident,port=smtp.port,time=self.time)
+        # This historical crypto/SMTP fixture fixes its declared time. Separate
+        # sender-clock tests exercise advancing time and fail-closed holds.
+        with patch('sender_worker.elapsed_time.monotonic_ns',return_value=0), SenderWorker(self.sender) as worker:
+            initial=worker.submit_initial_roster(ident,port=smtp.port,time=self.time)
+        self.assertEqual(initial['state'],'accepted',initial)
         smtp.done();self.assertEqual(smtp.wire,invitation);raw=select(smtp.wire);p=parse(raw)
         target=next(d for d in self.f.devices if d['device']==p['value']['target']['device'] and d['principal']==p['value']['target']['principal'])
         identity,sender,selected=self.endpoint('richreceiver');admission=InitialRosterAdmission(identity,self.f.binary);admission.publish_local(target)
@@ -27,7 +32,9 @@ class SignedRich(unittest.TestCase):
         source=next(c['mailbox'] for d,c in zip(self.f.devices,self.selected) if d['device']==self.f.creator['device'] and d['principal']==self.f.creator['principal']);recipients=sorted({c['mailbox'] for c in self.selected}-{source})
         wire=self.sender.prepare('richbody',encode_event(event),key=self.f.creator['key'],envelope_sender=source,recipients=recipients,time=self.time,resources={resource:data})
         smtp=LocalSMTP()
-        with SenderWorker(self.sender) as worker:worker.submit('richbody',port=smtp.port,time=self.time)
+        with patch('sender_worker.elapsed_time.monotonic_ns',return_value=0), SenderWorker(self.sender) as worker:
+            submitted=worker.submit('richbody',port=smtp.port,time=self.time)
+        self.assertEqual(submitted['state'],'accepted',submitted)
         smtp.done();self.assertEqual(smtp.wire,wire);self.assertEqual(sender.receiver.receive(unpack(wire),time=self.time,trust_policy='allow-unverified')['applicationState'],'accepted')
         result=render(sender.receiver,{k:event[k] for k in ('principal','conversation','event')},carrier=hashlib.sha256(unpack(wire)).hexdigest());self.assertEqual(next(iter(result['images'].values()))['rgba'],[255,0,0,255])
         self.display_receiver=sender.receiver;self.display_reference={k:event[k] for k in ('principal','conversation','event')};self.display_carrier=hashlib.sha256(unpack(wire)).hexdigest();self.display_text=event['operation']['text']

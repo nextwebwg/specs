@@ -1,0 +1,99 @@
+{
+  "format": "asynchronous-readable-offers-examples-0",
+  "scope": "Synthetic per-device offer objects only, not signed assertion10 records, native credentials, supported implementations or authority. Catalog is not a wire record.",
+  "devices": [
+    {
+      "name": "Alice",
+      "principal": "enp0:bd1f83220d795b11750b4e841df816a3c24b901dbb4b638bd896023aed8c4826",
+      "device": "end0:50e64a6fb49711a1b3b7b17955a35ff57dee8b3c6017e291b632d17fe7c5d9f8",
+      "applications": [
+        {
+          "envelopeVersion": "6",
+          "payload": "mime-suite-v2",
+          "operations": [
+            "answer",
+            "attachment-message",
+            "edit",
+            "hosted-holder-observation",
+            "message",
+            "question",
+            "reaction",
+            "reaction-withdraw",
+            "recipient-resolution",
+            "reply-message",
+            "rich-message",
+            "service-question"
+          ],
+          "ordering": "sender-stream-v0",
+          "interactions": [
+            "answers",
+            "corrections",
+            "hosted-replies",
+            "reactions",
+            "service-actions"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bob",
+      "principal": "enp0:7bd1f6cf105f608b5465b5ddbfa486fd190814935bebd56a061defbc0bb3bfc7",
+      "device": "end0:df7c33edd06f9cba50609d8f6b78684cb50abe6f7ee8cc4fcb963bcd727c0c25",
+      "applications": [
+        {
+          "envelopeVersion": "6",
+          "payload": "mime-suite-v2",
+          "operations": [
+            "answer",
+            "attachment-message",
+            "edit",
+            "hosted-holder-observation",
+            "message",
+            "question",
+            "reaction",
+            "reaction-withdraw",
+            "recipient-resolution",
+            "reply-message",
+            "rich-message",
+            "service-question"
+          ],
+          "ordering": "sender-stream-v0",
+          "interactions": [
+            "answers",
+            "reactions"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Carol",
+      "principal": "enp0:67e2e3361cf1db533cc1459389c76aa5ac15079e7a49f1ea8eaa1636b837a206",
+      "device": "end0:aca2b3b25e287f5424a860b227010e29a2cef2153fe3144c3187f0250c40c0b4",
+      "applications": [
+        {
+          "envelopeVersion": "6",
+          "payload": "mime-suite-v2",
+          "operations": [
+            "answer",
+            "attachment-message",
+            "edit",
+            "hosted-holder-observation",
+            "message",
+            "question",
+            "reaction",
+            "reaction-withdraw",
+            "recipient-resolution",
+            "reply-message",
+            "rich-message",
+            "service-question"
+          ],
+          "ordering": "sender-stream-v0",
+          "interactions": []
+        }
+      ]
+    }
+  ],
+  "application": "async-application.json",
+  "question": "async-readable-question-authored.json",
+  "simplerWrittenReply": "async-simple-reader-reply-authored.json"
+}

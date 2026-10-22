@@ -7,7 +7,7 @@ sectionNav: true
 
 # Freshness, clocks and revocation knowledge
 
-Routine Email/2 delivery can use accepted setup while the recipient is offline. The sender checks that its evidence is still valid and that no known revocation or conflict prevents the send. A stricter local policy can require a recent account assertion or a fresh response from each intended receiving device.
+Routine Email/2 delivery can use accepted setup while the recipient is offline. The sender checks that its evidence is still valid and that no known revocation or conflict prevents the send. A stricter local policy can require a recent account assertion or a fresh response from each device selected for an actual delivery. Other intended recipients can remain pending while eligible deliveries proceed.
 
 These checks answer different questions. A valid encryption key can belong to an identity whose ownership has never been independently verified. A device can answer a fresh challenge while a provider withholds a newer revocation. Neither a directory lookup nor a successful handshake proves that every remote change has been disclosed.
 
@@ -32,9 +32,9 @@ Live confirmation requires a device signature. A provider's authenticated HTTP r
 
 ## Apply the requirement to the selected devices
 
-Evaluate every intended remote receiving endpoint, including a paired device on another machine. The result names its exact principal, device, key, binding, accepted head and original assertion. One device's response cannot refresh another device or an account-wide roster. Locally originating devices still need their own current authority checks. Membership, administrators, ordering witnesses, verification and historical access retain their independent rules.
+Evaluate every remote receiving endpoint selected for the actual delivery, including a paired device on another machine. Intended recipients still awaiting setup are not treated as having passed this check; their later deliveries need their own eligible evidence. The result names its exact principal, device, key, binding, accepted head and original assertion. One device's response cannot refresh another device or an account-wide roster. Locally originating devices still need their own current authority checks. Membership, administrators, ordering witnesses, verification and historical access retain their independent rules.
 
-Every mode first requires the selected identity chain, applicable independent-verification policy, current role and binding, signed assertion8/application support, full validity intervals, mailbox association and known-conflict/revocation checks. A freshness result alone cannot admit a package, install a group, authorize a route or release content. Learning a newer accepted state invalidates evidence tied to the former exact head; a known authorized conflict holds affected work. Missing or invalid unsolicited claims cannot replace an accepted head or create an authorized fork.
+Every mode first requires the selected identity chain, applicable independent-verification policy, current role and binding, the selected signed assertion/application support (assertion10 for the current baseline, with assertion9/assertion8 only under their exact earlier agreements), full validity intervals, mailbox association and known-conflict/revocation checks. A freshness result alone cannot admit a package, install a group, authorize a route or release content. Learning a newer accepted state invalidates the previous freshness decision, which must be recomputed; still-valid selected assertion evidence can retain its original anchor under the [purpose-specific continuity rules](provider-grants.md#continuity-and-freshness-have-different-scopes). Recent-checkpoint mode uses the current head, while live target responses retain their exact-head requirement; a known authorized conflict holds affected work. Missing or invalid unsolicited claims cannot replace an accepted head or create an authorized fork.
 
 ::: {.details summary="Exact age checks and live-attempt binding"}
 
@@ -50,15 +50,43 @@ Resolve the exact current accepted head and its original signed identity-state b
 
 ### Live confirmation
 
-Use either the [known-pair device exchange](provider-control.md#signed-challenge-and-response-records) or a fresh [bootstrap response](bootstrap.md#recipient-control-inbox-and-fresh-response). Both must carry the current agreement's original assertion8 and pass their complete owning account, signature, purpose, target, authorization and identity checks. Earlier experimental advertisement decoders are not current-suite adapters.
+For the current baseline, use exact [provider control2](provider-control.md#obtain-asynchronous-device-evidence), a fresh [bootstrap2 response](bootstrap.md#automatic-setup-for-independently-ready-recipients), or the [mailbox setup2 response](mailbox-setup.md#set-up-an-asynchronous-delivery), with original assertion10 and all owning account, signature, purpose, target, authorization and identity checks. Earlier agreement support uses its original version1/assertion9 or version0/assertion8 exchanges instead. Neither an earlier advertisement decoder nor its response can satisfy a current attempt.
 
-Before emitting a challenge, durably retain its original signed bytes and signature, nonce, protocol/service/grant scope, selected own account/device, intended mailbox and known target when available, local policy revision, operation identity and credible creation interval `[startEarliest, startLatest]`. A first-contact target can be bound after independent association selection; it must match the returned signed evidence and exact intended mailbox. Operation identity is a local random intent identifier, not a human-message content hash. The setup traffic stays content-free.
+Before emitting a challenge, durably retain its original signed bytes and signature, nonce, exact protocol and applicable service/grant or mailbox-carrier scope, selected own account/device, intended mailbox and known target when available, local policy revision, operation identity and credible creation interval `[startEarliest, startLatest]`. A first-contact target can be bound after independent association selection; it must match the returned signed evidence and exact intended mailbox. Operation identity is a local random intent identifier, not a human-message content hash. The setup traffic stays content-free.
 
-The challenge has its protocol's original fixed deadline. For use, require the same local operation/policy/account and original outstanding request, exact response request hash/digest, nonce, participants, service and scope, current authorized device signature, exact assertion/head/binding and all original intervals. Bootstrap publications and another operation's response do not qualify. Require `latest - startEarliest <= maximumAge`; a smaller signed/protocol lifetime still applies. If a known clock movement or restore makes that local creation interval unreliable, hold and retire the attempt. Starting a newly authorized attempt needs a fresh identifier/nonce and cannot refresh the old one.
+The challenge has its protocol's original fixed deadline. For use, require the same local operation/policy/account and original outstanding request, exact response request hash/digest, nonce, participants, service and scope, current authorized device signature, exact current target head/binding and original assertion/challenge correlation with all original intervals. The source preparation may retain unchanged-binding ancestry, without changing its signed bytes or creation interval. Bootstrap publications and another operation's response do not qualify. Require `latest - startEarliest <= maximumAge`; a smaller signed/protocol lifetime still applies. If a known clock movement or restore makes that local creation interval unreliable, hold and retire the attempt. Starting a newly authorized attempt needs a fresh identifier/nonce and cannot refresh the old one.
 
 Exact retry, reopening storage and delayed response retrieval retain the creation interval. Cancellation is terminal for future use of that attempt. A cancelled/expired result remains historical evidence; it cannot become a new live permission. Account/policy/device changes require reevaluation, not clearing terminal state. The known-pair exchange cannot answer for a requested old state after the target has advanced; obtain independently valid identity evidence and authorize a new exact challenge instead.
 
 :::
+
+## Live confirmation through existing mailboxes
+
+An enabled compatible device can answer a setup request through ordinary email and supply fresh device evidence without a provider control service. This proves that the signing device answered that request within its bounded attempt. It does not prove human presence, independent mailbox ownership or knowledge of every later revocation.
+
+Use the existing mailbox setup exchange, not a second probe or an acknowledgment of the response. All automatic-response policy, direct-delivery authentication, abuse limits, confidentiality, receiving-key custody and no-loop rules remain required. Slow delivery may leave a strict freshness requirement waiting; it never permits a weaker send. Required address masking still applies: if the ordinary mailbox carrier cannot meet it, use an independently permitted setup path or wait.
+
+::: {.details summary="Exact mailbox-response qualification and retained attempt"}
+
+For the current agreement, select mailbox-setup-v2 and its original assertion10, response signature and sealed2. Retained earlier agreements use exact version1/assertion9/sealed1 or version0/assertion8/sealed0; no mixed parser or fallback is permitted. No new wire member, response kind or media type is introduced.
+
+Before the request leaves, durably bind its exact signed bytes, original request/nonce/digest, selected source and target mailboxes, own account/principal/device, required agreement, local send-intent revision, freshness policy/maximum age, credible creation interval and original deadline to that attempt. Retain the dedicated response-decryption key under its existing immutable receiving promise. A response cannot supply these local facts or create its own pending attempt.
+
+After full carrier/sealed-response validation, independently validate the response wrapper, original advertisement commitment and device authority. Match the original request, requestDigest, nonce, source/target, agreement and actual responder across the response, advertisement and sealed intent. Resolve the intended principal/device under the current association/verification policy; first-contact ambiguity remains a hold. The response advertisement must name the exact currently accepted target head and binding for live use, not merely an older still-authorized cached anchor. A known target-head change invalidates that live result; an eligible cached assertion can remain cached evidence only.
+
+Require the entire credible current interval inside every original request, response, assertion, binding and owning key lifetime. Retain the original local creation interval and apply the same maximum-age and backward-clock checks as other live attempts. Neither mail receipt time nor Message Date resets the age. Exact duplicate responses and retries retain the same attempt and result. Cancellation, expiry, unreliable restored timing or changed account/policy/intent dependencies cannot reactivate it. A new permitted attempt has fresh request identity/nonce/key and its own finite retry policy; it does not erase old uncertain submission or retirement obligations.
+
+Qualify each remote device selected for that delivery separately. One mailbox response cannot prove freshness of another device sharing the address. Devices that did not respond remain unavailable under live policy. A response for a completed setup may be retained as evidence for that exact send while its original live window and dependencies remain valid; it cannot become an account-wide reusable freshness token or authorize another send intent. Finishing acquisition may retire its temporary key without changing the retained response bytes; use still needs the original independently validated evidence and current authority.
+
+The mailbox response's admission package retains its single-use rules. Checking fresh evidence does not itself consume that package, create a group or require an established conversation to replace its keys. If an existing context lacks eligible fresh evidence, hold it or perform separately authorized setup for this actual send; do not turn ordinary reading into presence polling. Final preparation/release repeats the normal current authority and freshness checks. A fully validated fresh response is neither an MLS acknowledgment nor a content-release permission.
+
+:::
+
+## Freshness does not repair a restored authority store
+
+A new challenge, recent directory response or current wall clock cannot by itself prove that the client's own identity, allocation, ratchet, vote or action history survived restoration. A response from a removed device can still verify against an old snapshot that forgot the removal. Apply the [recovery hold and fresh-enrollment rules](identity-lifecycle.md#a-restored-device-is-not-an-ordinary-restart) before using restored operational state. Freshness policies remain checks on their exact evidence, not whole-store rollback detection.
+
+Do not reset an outstanding attempt's creation interval or reuse its nonce after a known restore. Retire the unusable attempt while preserving possible release and cleanup obligations; any permitted new attempt needs current independently established authority and fresh identifiers. Historical reading does not require such a challenge and cannot release the hold.
 
 ## Recheck at release
 
@@ -73,3 +101,30 @@ Immediately before actual transport handoff, apply the existing final authority 
 An enabled device may answer automatically under its authorized setup policy. A valid fresh response reveals to the permitted requester that the signing device processed the challenge within that window; it does not prove human presence or reading. There is no public presence query. Service omission, exhaustion or timeout means freshness unavailable, not identity revoked or ordinary delivery authorized. A stronger requirement can intentionally sacrifice offline availability.
 
 The [freshness component](evidence/README.md#freshness-policy-gate) exercises current accepted identity and actual assertion8/bootstrap signatures, recent declared-state age and a durable local live-attempt journal. It is not a trusted clock service, public provider, complete association/verification adapter, MLS admission or serialized send-release implementation. Current-suite integration remains required for both live exchange adapters.
+
+
+A [state1 repair](identity-state.md#concurrent-administration-and-retirement) is a fresh-authorization boundary. Earlier cached assertions, pending challenges and prior freshness results are preserved as evidence but do not become current permissions through a guessed DAG path. Acquire the owning new evidence from the repaired head. Repair's derived issuedAt is the maximum parent time; its certificate is not itself a fresh live response or a current-time checkpoint.
+
+
+## Reply-aware setup freshness
+
+For the retained mail-conversation-v1 [reply-aware agreement](reply-intent.md#reply-aware-protected-agreement), the same cached-continuity, recent-checkpoint and live-device policies validate original assertion9. Its exact new signature, tuple, package/control-key and identity rules apply. A newer agreement does not relax the configured freshness mode or independently verified identity policy.
+
+A live result uses its exact [provider exchange1](provider-control.md#reply-aware-known-pair-exchanges), [bootstrap1 response](bootstrap.md#provider-setup-for-declared-reply-policies), or qualified [mailbox setup1 response](#live-confirmation-through-existing-mailboxes), original local attempt, current target head/binding, purpose, agreement, nonce and complete credible interval. Original assertion8 evidence, a version0 result, publication retrieval or a service's ready status cannot satisfy it. Bootstrap publication1 can supply eligible cached evidence only under its own allocation and authorization rules; it is not a live challenge. Recompute after current identity/policy/source changes and retain original deadline/age anchors across retries. These requirements do not establish that current successor live-exchange adapters exist.
+
+
+## Freshness for asynchronous deliveries
+
+The selected freshness policy applies separately to each actual delivery's devices. A ready Bob does not prove that Carol is ready, and a pending Carol does not by itself stop an eligible delivery to Bob.
+
+::: {.details summary="Assertion10, original live attempts and per-copy release"}
+
+For mail-conversation-v2, validate original assertion10 under its exact signature, fixed readable application, per-device interactions, package/control-key receiving windows, current identity/association and known-negative rules. Cached continuity, recent checkpoint and live confirmation retain their meanings, local policy inputs and full credible-time checks. A newer agreement does not relax independent verification or make a publication live.
+
+Live evidence uses an exact [control2 device response](provider-control.md#obtain-asynchronous-device-evidence), fresh [bootstrap2 response](bootstrap.md#automatic-setup-for-independently-ready-recipients), or qualified [mailbox setup2 response](mailbox-setup.md#set-up-an-asynchronous-delivery). It must match the original locally outstanding intent/attempt, source account, target mailbox/device, agreement, nonce/digests, current exact target head/binding, original interval and selected maximum age. Apply all owning account/grant/disclosure/signature checks before freshness. Earlier responses, provider-ready states, publication retrieval and another target's valid response do not satisfy it.
+
+Freeze each attempt's credible creation interval and original age/deadline anchors. Retry, late arrival, route completion or a change of acquisition version cannot reset them. A changed target head, account, policy, required agreement or selected intent invalidates dependent live decisions. Preserve accepted negative facts and uncertain submissions; another source cannot clear them by supplying newer-looking evidence.
+
+For a ready cohort, independently qualify every actual selected device and the separate ordinary creator receiving evidence. Still-pending intended slots are not claimed to have responded. A later delivery obtains its own eligible current evidence and admission without rewriting the common authored bytes. No earlier live result is an account-wide token or a permission to disclose content beyond its retained original send intent. Package single use, retirement, native membership and final release remain independently required. Restored operational uncertainty remains a hold, even when fresh remote evidence exists.
+
+:::

@@ -1,5 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 import tempfile
+import base64
+import sqlite3
+from contextlib import closing
 import subprocess
 import json
 import sys
@@ -58,6 +61,39 @@ class IdentityStoreTests(unittest.TestCase):
         self.assertEqual(retry,{'status':'already-recorded','head':f['removalDigest']})
         self.assertEqual(store.current_state(f['bundle']['principal']),{'head':f['removalDigest'],'conflicted':False})
         store.close()
+
+    def test_restoring_whole_authority_store_demonstrates_missing_rollback_detection(self):
+        # A limitation test: transaction/replay safety is not an external
+        # monotonic anchor. No production restore path is authorized here.
+        f = fixture()
+        store = IdentityStore(self.path)
+        self.addCleanup(store.close)
+        seed(store, f)
+        store.accept_successor(encode_event(f['bundle']), candidate_digest=f['candidateDigest'], time=TIME)
+        binding = json.loads(base64.b64decode(f['bundle']['bindings'][0]['payload']))
+        self.assertEqual(binding['device'], 'end0:' + '2'*64)
+        credential = b'email-next/device/v0\0' + bytes.fromhex(binding['principal'][5:] + binding['device'][5:])
+        key = bytes.fromhex(binding['signingKey'])
+        snapshot = Path(self.temp.name)/'earlier-authority.sqlite'
+        with closing(sqlite3.connect(snapshot)) as backup:
+            store.db.backup(backup)
+        store.accept_successor(encode_event(f['removalBundle']), candidate_digest=f['removalDigest'], time=TIME)
+        current = store.check_device(credential, key, role='send', time=TIME, trust_policy='allow-unverified')
+        self.assertEqual((current['status'], current['reason']), ('unauthorized', 'revoked'))
+        restored_path = Path(self.temp.name)/'isolated-restored-authority.sqlite'
+        with closing(sqlite3.connect(snapshot)) as source, closing(sqlite3.connect(restored_path)) as target:
+            source.backup(target)
+        restored = IdentityStore(restored_path)
+        self.addCleanup(restored.close)
+        old = restored.check_device(credential, key, role='send', time=TIME, trust_policy='allow-unverified')
+        self.assertEqual(old['status'], 'authorized-unverified')
+        self.assertEqual(old['head'], f['candidateDigest'])
+        # Supplying separately retained authentic revocation resolves this
+        # configured stale view; it is not proof no other state was withheld.
+        restored.accept_successor(encode_event(f['removalBundle']), candidate_digest=f['removalDigest'], time=TIME)
+        learned = restored.check_device(credential, key, role='send', time=TIME, trust_policy='allow-unverified')
+        self.assertEqual((learned['status'], learned['reason']), ('unauthorized', 'revoked'))
+        self.assertEqual(store.current_state(binding['principal'])['head'], f['removalDigest'])
 
     def test_authorized_record_id_reuse_cannot_advance_head(self):
         f=fixture('--record-collision');store=IdentityStore(self.path);seed(store,f)

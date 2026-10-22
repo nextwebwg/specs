@@ -24,6 +24,15 @@ class Parse5AdapterTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'malformed head noscript'):
                 self.parse('<noscript><p>hidden</p></noscript>'+tail)
 
+    def test_direction_refusal_matches_common_projection_without_partial_tree(self):
+        for source in ('<p>before</p><section dir="rtl">שלום</section><p>after</p>',
+                       '<p><unknown dir="auto">123 שלום</unknown>tail</p>'):
+            with self.subTest(source=source),self.assertRaisesRegex(ValueError,'unpreserved-direction-boundary'):
+                self.parse(source)
+        result=self.parse('<form dir="auto">123 שלום</form>tail')
+        self.assertEqual(result['tree'][0]['attributes']['dir'],'auto')
+        self.assertEqual(result['tree'][1],'tail')
+
     def test_duplicate_encoding_attributes_preserve_diagnostics(self):
         self.assertEqual(self.parse('<meta charset=utf-8 charset=windows-1252><p>x</p>')['encodingState'],'nonconforming')
 if __name__=='__main__':unittest.main()

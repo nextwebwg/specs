@@ -10,19 +10,31 @@ sectionNav: true
 Email/2 initially travels as ordinary MIME mail through existing submission, relay and delivery services. An upgraded client does not require a new SMTP command to send a structured contribution. Provider upgrades can add discovery, control-message routing and faster delivery through separately negotiated contracts.
 
 > [!note] Proposed application contract
-> The requirements below define how an Email/2 client interprets transport outcomes. They do not replace SMTP. MIME packaging, submission integration and security-profile selection remain dependent work. The [SMTP audit](audits/smtp.md) records source coverage and unresolved dependencies.
+> The requirements below define how an Email/2 client interprets transport outcomes. They do not replace SMTP. The selected suite owns MIME/security-profile binding; complete implementation and submission integration remain required. The [SMTP audit](audits/smtp.md) records source coverage and unresolved dependencies.
+
+The [client outcome contract](client-behavior.md#what-a-status-can-tell-you) defines evidence-bound delivery labels, absence of read/presence claims and the distinct boundaries of local deletion, cancellation and revocation.
 
 ## Contribution, delivery and attempt
+
+A local [send intent](first-contact-setup.md#finish-setup-for-one-intended-send) freezes the person’s authorized draft revision before secure setup. It is not a contribution or transport identifier; setup completion binds it to the retained planned contributions and delivery sets. Separate private copies retain their own identities and outcomes.
 
 A contribution is the authored event. A delivery is a representation of that contribution prepared for a particular recipient set and security policy. An attempt is one transport operation for that delivery. These objects have different lifetimes.
 
 Before submitting a delivery, the client records the immutable contribution, intended envelope recipients, prepared representation, protection mode and retry state durably. A retry preserves the contribution identity and meaning. It must not create another answer, service submission or reaction merely because transport was interrupted.
 
-The exact relationship between contribution identity, MIME part identity and `Message-ID` is specified by the eventual wire profile. A retry does not repurpose `Message-ID` as a fresh attempt identifier. A delivery with materially changed content is a new message version; a new application contribution is necessary when the author changes the contribution itself.
+The [mail-version mapping](event-identifiers.md#map-contributions-to-ordinary-mail) specifies contribution, prepared Message-ID, MIME-part and attempt lifetimes, recipient-scoped parent provenance and privacy-preserving legacy reply projection. A retry does not repurpose `Message-ID` as a fresh attempt identifier. A delivery with materially changed content is a new message version; a new application contribution is necessary when the author changes the contribution itself.
 
 A client may group recipients into one SMTP transaction only when they receive the same prepared message and that grouping preserves confidentiality. Bcc recipients require recipient-isolated metadata and protection against leakage through shared envelopes and trace fields. Separate Bcc transactions are the proposed default. Do not expose hidden recipients in an event's shared audience or encryption-key list.
 
+For the selected asynchronous agreement, the [pending-delivery lifecycle](delivery-policy.md#complete-a-pending-delivery) defines how frozen slot/mailbox obligations relate to original authored bytes, late preparations and exact retries. It preserves this chapter’s current authorization, transport uncertainty and crash boundaries.
+
 ## Local authorization and release
+
+A queued message is not permission to send forever. The client checks its current permissions, recipients and protection policy when it claims the work, then checks again immediately before handing over the message body. A change learned while the network is waiting can still stop content that has not been released.
+
+Once content may have crossed that boundary, keep the real outcome: accepted, rejected or uncertain. Canceling a job, losing permission or reconnecting cannot recall the earlier bytes or turn uncertainty into a fresh unsent message.
+
+:::: {.details summary="Attempt ownership, final body authorization and crash recovery"}
 
 Preparing or durably queuing a delivery does not authorize a transport worker to submit it indefinitely. The prepared record MUST retain the immutable contribution and encoded representation, exact envelope recipients, protection and fallback policy, authenticated group identifier and epoch when applicable, and the identity-state and binding digests on which its device authorization depends. These references are dependencies to recheck, not proofs of current authority.
 
@@ -37,13 +49,24 @@ Before a worker can start an attempt, one serialized local operation MUST:
 3. Compare the prepared dependencies with those results. A conflict, missing evidence, changed policy, changed group epoch or superseded identity dependency holds the prepared attempt. The application may explicitly reauthorize and reconstruct a replacement delivery; it cannot merely relabel the old ciphertext.
 4. Durably record authorization and exclusive ownership of the attempt before permitting that worker to transmit it. Identity-state installation, group-state installation and this authorization operation must share a serialization boundary. An already installed local revocation cannot be bypassed by an earlier computation.
 
-That operation is the local release decision. It is distinct from successful SMTP handoff. A local outbox insertion, worker claim, socket connection or RCPT acceptance MUST NOT be presented as proof that a server accepted responsibility. A worker must transmit only the immutable representation and recipient subset bound to its attempt; content or target changes require a new authorized delivery decision.
+That operation claims and provisionally authorizes one attempt. It is not the final body-release decision and is distinct from successful SMTP handoff. A local outbox insertion, worker claim, socket connection or RCPT acceptance MUST NOT be presented as proof that a server accepted responsibility. A worker must transmit only the immutable representation and recipient subset bound to its attempt; content or target changes require a new authorized delivery decision.
 
 The release decision covers one attempt, not an open-ended retry delegation. A worker that loses ownership or is replaced cannot resume using its old authorization. Before reassignment, the system must establish that the previous worker can no longer transmit, or retain an uncertain in-progress state; expiry of a lease alone cannot fence a live SMTP connection. A replacement worker must not create concurrent retries merely because a local timer elapsed.
 
+### The final body-release decision
+
+After network waits and immediately before the first content octet can be handed to the transport, repeat the applicable current identity, role, audience/group, protection/disclosure, source account, destination association/route, cancellation and validity checks under the same local serialization boundary used to install those changes. Recheck original prepared dependencies and exclusive worker ownership. Durably record the exact attempt, authorized recipient subset, dependency/policy generations and decision-time evidence before permitting body release. A missing, changed or conflicted dependency holds or aborts unreleased work; an earlier worker claim, socket, MAIL/RCPT success or expired lease cannot override it.
+
+For SMTP DATA, this check occurs after the 354 reply and before writing body bytes. For BDAT, it precedes the first body-bearing chunk; an intervening wait before a later client-controlled chunk requires current checks for further release. For BURL or an equivalent submission API, apply the check before the command/request that allows the service to obtain the protected content, not after its fetch. HTTP disclosure/submission jobs follow their owning contract before a content-bearing request. A carrier change cannot bypass the applicable check or expand its authority.
+
+The check uses a current credible time interval, including elapsed connection, protocol and verification work. Freezing the original queue/attempt timestamp cannot keep an expired assertion, key, grant or action usable. If time or authority cannot be established at the decision, hold. An implementation may use a trusted elapsed-time source to advance a retained interval, with uncertainty and rollback detection; this selects no new wire timestamp, fixed retry budget or extension of the original validity interval.
+
+Do not hold a database write lock across network waits. The local decision and transmission are not one atomic transaction with every remote system: record a conservative possible-release marker before handing bytes to the transport, and proceed without an intervening network wait. If execution is suspended or delayed before that handoff, revalidate before resuming it. A crash with only possible-release evidence remains uncertain unless trusted retained evidence proves the body was not released. No observation made after possible release can retrospectively authorize it.
+
 ### Changes after local release
 
-A locally accepted revocation before the release decision blocks it. A revocation accepted after release is ordered after that attempt's authorization. The worker SHOULD abort an attempt known not to have disclosed message data when it learns of the change; it MUST NOT claim that this can recall already transmitted data. Other devices and providers may learn the revocation later, so this rule supplies local ordering rather than a global cutoff time.
+A locally installed revocation or cancellation before the final body-release decision blocks it, including one learned while waiting for DATA acceptance. A change installed after that serialized decision is ordered after its authorization. Abort further release when current applicable checks fail, but do not claim this recalls bytes already handed over. Other devices and providers may learn the change later; the rule supplies local ordering rather than a globally simultaneous cutoff. Remote services independently enforce their execution-time authority and lifetime rules.
+
 
 A subsequent client-controlled retry is a new attempt and MUST recheck current authorization, including after an explicit temporary failure or an uncertain result. If the old ciphertext includes a device now known to be unauthorized, hold that retry. Preserve evidence that an earlier uncertain attempt may already have disclosed the content. Neither holding the retry nor generating newly authorized ciphertext makes the earlier copy inaccessible.
 
@@ -73,6 +96,8 @@ Do not repair uncertainty by incrementing an application counter, changing the e
 Previously prepared ciphertext remains distinct from new encryption. It may be retried only when its exact bytes, recipient scope and attempt evidence are retained and the ordinary release checks permit it. Missing attempt history remains uncertainty; restoration must not turn it into a claim that nothing was sent. Historical reading does not grant permission to resume sending.
 
 The [AEAD interface audit](audits/aead-interface.md) and [GCM nonce-lifecycle review](audits/gcm.md#limits-and-nonce-lifecycle) explain the nonce-reuse boundary. A restore-safe store and its recovery adapter remain required implementation work; the process-crash experiments do not supply them.
+
+::::
 
 ## Transport state
 
@@ -113,16 +138,16 @@ RSET, QUIT and connection closure do not recall an already accepted message. A r
 
 ## Duplicate and conflicting contributions
 
-Transport does not provide exactly-once delivery. An upgraded receiver performs the following checks before changing interaction state:
+Transport does not provide exactly-once delivery. A receiver follows the selected profile's identity, exact comparison and durable acceptance rules before changing interaction state. Under the current agreement, the [two typed ledgers](event-identifiers.md#keep-delivery-identity-separate-from-message-identity) independently retain authored-message variants and actual delivery variants. A delivery collision must not hide authored equivocation or turn a different message into an exact retry.
 
-1. Parse and validate the contribution under its advertised profile. Preserve the received source independently.
-2. Establish the contribution's authenticated author/session context when protected, or explicitly record its unverified status when ordinary mail is permitted.
-3. Compare the contribution identity within that context against previously processed contributions. An unauthenticated claimant must not reserve an identifier in another author's authenticated namespace.
-4. If the identity and authenticated semantic content match, retain delivery evidence as needed but do not apply the interaction again.
-5. If the same authenticated identity carries conflicting semantic content, retain both representations as a conflict and do not silently replace either one.
-6. Commit the interaction effect and the record that it was processed atomically. After a crash, replay must not apply a committed effect again.
+1. Complete the owning carrier, author, native context, scope and contribution validation. Preserve original bytes and actual authenticated provenance independently of the displayed projection. Invalid input cannot reserve an accepted namespace.
+2. Resolve the owning typed identity keys. Current authored and delivery keys are separately typed `(principal,event)` pairs across conversations, not keys scoped to the displayed conversation or one native stream. Ordinary unverified mail cannot reserve another author's authenticated namespace.
+3. Compare the exact representations required by that profile. Current authored equality requires identical original authored bytes; delivery equality also checks the retained original native preparation under its owning rule. Matching visible text, parsed JSON values, a subject or reconstructed HTML does not establish equality.
+4. Retain each independently validated variant in both applicable ledgers before deriving duplicate/conflict outcomes. An exact repeated authored message has one logical effect even through different eligible deliveries. A delivery-key conflict alone cannot retract independently accepted content, repeat its effect or settle an uncertain transport attempt.
+5. Preserve authenticated conflicting variants and their dependent holds without selecting a winner or silently replacing accepted history. Current authored comparison still runs when its delivery key conflicts; the owning conflict matrix determines the separate outcomes.
+6. Atomically commit the required namespace/provenance, receipt, effect or pending dependency and conflict invalidations. After a crash, replay must not apply a committed effect again. An in-memory comparison alone does not supply that durable transaction.
 
-The wire/security profile must define the exact comparison representation and replay retention behavior. A display-only legacy heuristic must not serve as a cryptographic duplicate detector. A client that cannot establish the required identity or comparison data leaves the structured action inactive and exposes the readable message.
+Earlier agreements retain their exact comparison and replay rules; these current typed records cannot be synthesized by relabeling an old event. A display-only legacy heuristic is never a cryptographic duplicate detector. If required identity, source bytes or comparison evidence is unavailable, keep the relevant structured action inactive with its owning pending/unavailable outcome and retain inspectable original content. Missing evidence does not authorize a guessed equality or a new effect.
 
 ## Retry scope and negative results
 

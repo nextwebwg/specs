@@ -15,8 +15,31 @@ from urllib.parse import urlsplit
 from provider_control import node
 from service_authorization import oauth_json
 
-SCOPES = ['email2.provider.link', 'email2.provider.manage']
-CALLBACKS = ['http://127.0.0.1:1/email2/provider/callback', 'http://[::1]:1/email2/provider/callback']
+SCOPES = ['mail.provider.link', 'mail.provider.manage']
+CALLBACKS = ['http://127.0.0.1:1/mail/provider/callback', 'http://[::1]:1/mail/provider/callback']
+NATIVE_SCOPES = {
+    'provider': SCOPES,
+    'relay': ['mail.relay.link', 'mail.relay.manage', 'mail.relay.submit'],
+    'bootstrap': ['mail.setup.link', 'mail.setup.request', 'mail.setup.respond'],
+}
+
+
+def native_profile(module='provider', scopes=None):
+    # Shared callback spelling does not share account/module grant authority.
+    if type(module) is not str or module not in NATIVE_SCOPES:
+        raise ValueError('Selected native authorization module required')
+    if scopes is None:
+        if module != 'provider':
+            raise ValueError('Explicit requested module scopes required')
+        scopes = SCOPES[:]
+    if (type(scopes) is not list or not scopes or
+            any(type(scope) is not str for scope in scopes) or
+            len(set(scopes)) != len(scopes) or not set(scopes) <= set(NATIVE_SCOPES[module])):
+        raise ValueError('Distinct nonempty module scope selection required')
+    if module == 'provider' and set(scopes) != set(SCOPES):
+        raise ValueError('Both provider scopes required')
+    return sorted(scopes)
+
 FIELDS = set('version purpose domain publication generation service controlPrefix managementPrefix notBefore notAfter'.split())
 
 
@@ -93,7 +116,7 @@ def current(value, time):
 
 def descriptor(raw, domain, facts, *, time):
     domain_name(domain)
-    value = fetched(raw, facts, 'https://' + domain + '/.well-known/email2-provider')
+    value = fetched(raw, facts, 'https://' + domain + '/.well-known/mail-provider')
     if set(value) != FIELDS or value['version'] != '0' or value['purpose'] != 'provider-service-discovery' or value['domain'] != domain:
         raise ValueError('Exact delegation schema/domain')
     if type(value['publication']) is not str or not re.fullmatch(r'[0-9a-f]{32}', value['publication']) or value['publication'] == '0' * 32:
@@ -113,9 +136,10 @@ def string_list(value):
     return value
 
 
-def metadata(raw, delegation, facts, *, purpose='account-setup'):
+def metadata(raw, delegation, facts, *, purpose='account-setup', module='provider', scopes=None):
     if purpose != 'account-setup':
         raise ValueError('Recipient bootstrap cannot acquire management authorization')
+    selected_scopes = native_profile(module, scopes)
     service = delegation['service']
     value = fetched(raw, facts, service + '/.well-known/oauth-authorization-server')
     if value.get('issuer') != service or value.get('authorization_response_iss_parameter_supported') is not True:
@@ -126,7 +150,7 @@ def metadata(raw, delegation, facts, *, purpose='account-setup'):
         urls(service, endpoints=endpoints)
         if len(set(endpoints)) != 4:
             raise ValueError('Distinct OAuth endpoints required')
-        for key, required in [('response_types_supported', ['code']), ('grant_types_supported', ['authorization_code', 'refresh_token']), ('token_endpoint_auth_methods_supported', ['none']), ('code_challenge_methods_supported', ['S256']), ('scopes_supported', SCOPES)]:
+        for key, required in [('response_types_supported', ['code']), ('grant_types_supported', ['authorization_code', 'refresh_token']), ('token_endpoint_auth_methods_supported', ['none']), ('code_challenge_methods_supported', ['S256']), ('scopes_supported', selected_scopes)]:
             if not set(required) <= set(string_list(value[key])):
                 raise ValueError('Required public native authorization capability')
     except (KeyError, TypeError) as error:
@@ -134,20 +158,23 @@ def metadata(raw, delegation, facts, *, purpose='account-setup'):
     return value
 
 
-def registration_request():
+def registration_request(*, module='provider', scopes=None):
+    selected_scopes = native_profile(module, scopes)
     return dict(redirect_uris=CALLBACKS[:], grant_types=['authorization_code', 'refresh_token'],
-                response_types=['code'], token_endpoint_auth_method='none', scope=' '.join(SCOPES))
+                response_types=['code'], token_endpoint_auth_method='none', scope=' '.join(selected_scopes))
 
 
-def registration_response(raw, selected_metadata, facts):
+def registration_response(raw, selected_metadata, facts, *, module='provider', scopes=None):
     value = fetched(raw, facts, selected_metadata['registration_endpoint'], status=201)
     if {'client_secret', 'client_secret_expires_at', 'registration_access_token', 'registration_client_uri'} & set(value):
         raise ValueError('Unmanaged public client required')
-    expected = registration_request()
+    expected = registration_request(module=module, scopes=scopes)
     for key, required in expected.items():
         if key == 'scope':
             actual = value.get(key)
-            if type(actual) is not str or actual.split(' ') not in [SCOPES, SCOPES[::-1]]:
+            tokens = actual.split(' ') if type(actual) is str else []
+            if (not tokens or len(set(tokens)) != len(tokens) or
+                    set(tokens) != set(required.split(' '))):
                 raise ValueError('Exact scope set required')
         elif value.get(key) != required:
             raise ValueError('Registered native metadata changed')

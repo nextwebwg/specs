@@ -128,6 +128,8 @@ class MlsReceive:
                 states[digest]='held:membership-episode';continue
             outcome=check(raw,p['group'],p['epoch'],p['sender'],p['credential'],p['aad'],snap['group'],snap['epoch'],snap['context'],snap['members'],
                 identity_store=None if historical else self._identity_authority(),time=time,trust_policy=trust_policy,configured_endpoint_ordering=self.configured_endpoint_ordering(p['group']),configured_quorum_ordering=self.configured_quorum_ordering(p['group']),configured_application=self.configured_application(p['group'],snap['members'],instance=origin))
+            from sender_stream_admission import owner_guard
+            outcome=owner_guard(self.db,p,snap,historical=historical) or outcome
             if outcome not in ('projected-context-matched','pending'):
                 states[digest]='held:'+outcome
                 continue
@@ -337,6 +339,8 @@ class MlsReceive:
                 raw=b'';representation={'status':'invalid-carriage'};outcome='invalid-application-encoding'
             else:
                 outcome=check(raw,p['group'],p['epoch'],p['sender'],p['credential'],p['aad'],s['group'],s['epoch'],s['context'],s['members'],identity_store=self._identity_authority(),time=time,trust_policy=trust_policy,configured_endpoint_ordering=self.configured_endpoint_ordering(p['group']),configured_quorum_ordering=self.configured_quorum_ordering(p['group']),configured_application=self.configured_application(p['group'],s['members']))
+            from sender_stream_admission import owner_guard
+            outcome=owner_guard(self.db,p,s) or outcome
             if not episodes.permits_processed(self.db,p,s):outcome='membership-episode'
             result={'status':outcome,'revision':row[0]+1,'effectsApplied':False}
             # Only plain-message projection is journaled in this bounded stage.

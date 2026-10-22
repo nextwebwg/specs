@@ -39,6 +39,17 @@ class AddressMetadataTests(unittest.TestCase):
         self.assertEqual(p['state'],'candidate-address-metadata')
         self.assertNotEqual(raw,encode_event(p['event']))
 
+    def test_private_return_author_and_from_are_not_the_original_originator(self):
+        e=fixture();e['principal']=B;e['presentation']['to']=[A]
+        e['presentation']['addresses']=dict(**{'from':'dana@recipient.example'},to=[dict(principal=A,mailbox='alice@sender.example')],cc=[])
+        parsed=self.inspect(e)
+        selected=context();selected['delivery']=dict(kind='private-copy-v0',originator=A,recipient=B)
+        check_context(parsed,selected,author=B,audience=[A,B])
+        self.assertEqual(parsed['event']['presentation']['addresses']['from'],'dana@recipient.example')
+        self.assertEqual(selected['delivery']['originator'],A)
+        leaked=copy.deepcopy(e);leaked['presentation']['addresses']['cc']=[dict(principal=C,mailbox='bob@other.example')]
+        with self.assertRaises(ValueError):self.inspect(leaked)
+
     def test_multiple_addresses_for_one_principal_preserve_order(self):
         e=fixture();e['presentation']['addresses']['to'].append(dict(principal=B,mailbox='b+other@recipient.example'))
         self.assertEqual(self.inspect(e)['event'],e)
@@ -119,7 +130,7 @@ class AddressMetadataTests(unittest.TestCase):
         p=self.inspect();check_context(p,context(),author=A,audience=[B,A])
         for patch in [dict(version='9'),dict(conversation='3'*32),dict(application=dict(APPLICATION,payload='mime-rich-v0')),
                       dict(application=dict(APPLICATION,envelopeVersion='3')),
-                      dict(application=dict(APPLICATION,operations=APPLICATION['operations'][:-1]))]:
+                      dict(application=dict(APPLICATION,operations=[op for op in APPLICATION['operations'] if op!='reply-message']))]:
             with self.subTest(patch=patch),self.assertRaises(ValueError):check_context(p,dict(context(),**patch),author=A,audience=[A,B])
         from suite_modules import application
         check_context(p,dict(context(),application=application()),author=A,audience=[A,B])

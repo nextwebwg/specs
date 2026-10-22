@@ -12,11 +12,11 @@ import struct
 
 from event_encoding import decode_event,encode_event
 from identity_bundle import decode_identity_bundle
-from history_transfer import endpoint,authority_snapshot
-from passive_discovery import uint64
+from history_transfer import endpoint,authority_snapshot,authorize
+from passive_discovery import uint64,decode_assertion
 from email2_mailbox import validate as validate_mailbox,selected_domain
 from relay_routes import exact,hex_value,origin,current
-from suite_modules import validate_offers
+from suite_modules import validate_offers,exchanges
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
@@ -90,13 +90,13 @@ def interval(v,time):
 def advertisement(encoded,actor,address,time,*,package=False):
     # Supplemental assertion8 checks; no accepted identity anchor is installed.
     wrapper=decode_event(b64(encoded))['value'];exact(wrapper,'payload signature identity')
-    raw=b64(wrapper['payload']);v=decode_event(raw)['value']
-    exact(v,'version purpose record principal device state binding mailbox notBefore notAfter features keyPackage applications orderingExchanges')
+    raw=b64(wrapper['payload']);v=decode_assertion(raw)['value']
+    exact(v,'version purpose record principal device state binding mailbox notBefore notAfter features keyPackage applications orderingExchanges keyPackageReceiveUntil controlKey')
     if v['version']!='8' or v['purpose']!='passive-discovery':raise ValueError('Required assertion8')
     for k in ['principal','device','state','binding']:
         if v[k]!=actor[k]:raise ValueError('Assertion endpoint mismatch')
     hex_value(v['record'],32);mailbox(v['mailbox'])
-    if v['mailbox']!=address or v['features']!=['mls-1-0001'] or v['orderingExchanges']!=[dict(format='quorum-exchange-experiment',version='2')]:
+    if v['mailbox']!=address or v['features']!=['mls-1-0001'] or v['orderingExchanges']!=exchanges(v['applications']):
         raise ValueError('Exact advertisement mailbox/features')
     validate_offers(v['applications']);interval(v,time)
     identity=decode_identity_bundle(encode_event(wrapper['identity']))
@@ -158,7 +158,7 @@ def authorize_source(proof,account,identities,*,retained_preparation,target_doma
     interval(v,time);verify('source',raw,sig,account.sender['key'])
     with authority_snapshot(identities):
         for role in ['send','receive']:
-            bound=current(identities,account.sender,role,time,'allow-unverified')
+            bound=authorize(identities,account.sender,role,dict(earliest=str(time[0]),latest=str(time[1])),'allow-unverified')
             if int(v['notBefore'])<bound['before'] or int(v['notAfter'])>bound['after']:raise ValueError('Source device lifetime')
         ad,_=advertisement(v['advertisement'],v['sender'],v['senderMailbox'],time)
         if int(v['notBefore'])<int(ad['notBefore']) or int(v['notAfter'])>int(ad['notAfter']):raise ValueError('Source advertisement interval')
@@ -242,11 +242,13 @@ class BootstrapExchange:
         raw,v,sig=parse(proof,'publication')
         if not isinstance(slot,RecipientSlot) or not(slot.active and slot.enabled and slot.device_enabled):
             raise ValueError('Own enabled publication account/device required')
-        if (v['issuer']!=self.issuer or v['mailbox']!=slot.mailbox or selected_domain(slot.mailbox)!=self.domain or v['device']!=slot.device
+        if (v['issuer']!=self.issuer or v['mailbox']!=slot.mailbox or selected_domain(slot.mailbox)!=self.domain or any(v['device'][k]!=slot.device[k] for k in ('principal','device','binding','key'))
                 or v['relayDomain']!=slot.relay_domain):raise ValueError('Publication account/device/service/relay scope')
         verify('publication',raw,sig,slot.device['key']);interval(v,time)
-        bound=current(self.identity,slot.device,'receive',time,'allow-unverified')
-        ad,packages=advertisement(v['advertisement'],slot.device,slot.mailbox,time,package=True)
+        clock=dict(earliest=str(time[0]),latest=str(time[1]))
+        authorize(self.identity,slot.device,'receive',clock,'allow-unverified')
+        bound=authorize(self.identity,v['device'],'receive',clock,'allow-unverified')
+        ad,packages=advertisement(v['advertisement'],v['device'],slot.mailbox,time,package=True)
         if int(v['notBefore'])<max(bound['before'],int(ad['notBefore'])) or int(v['notAfter'])>min(bound['after'],int(ad['notAfter'])):
             raise ValueError('Publication authority interval')
         return raw,v,sig,packages

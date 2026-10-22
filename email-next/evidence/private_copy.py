@@ -1,6 +1,6 @@
 """Authenticated private-copy roster invariant, not an outer-header inference."""
 def check_roster(context,principals):
-    if context.get('version') not in ('5','6','7'):return
+    if context.get('version') not in ('5','6','7','8'):return
     value=context.get('delivery')
     if not isinstance(value,dict):raise ValueError('Delivery role')
     if value=={'kind':'ordinary-v0'}:return

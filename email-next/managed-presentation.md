@@ -24,11 +24,11 @@ Older managed profiles do not authenticate their outer subject or date. Clients 
 
 ## Recipients and replies
 
-To and Cc contain principals, not mailbox addresses. They describe the author's recipient roles within the already authenticated audience. They do not grant mailbox ownership, create a new recipient or select an endpoint. Replies continue to use the [selected mailbox association](mailbox-association.md) and [release checks](transport.md).
+In the current [authored0 presentation](event-encoding.md#asynchronous-authored-records-and-deliveries), To and Cc identify intended mailbox slots with their exact address choices. Envelope6 separately binds the actual delivery’s selected slots to principals; pending intended slots do not become native members. In the retained envelope3 profile specified below, To and Cc instead contain principal identifiers and describe roles within its complete authenticated audience. They do not grant mailbox ownership, create a new recipient or select an endpoint. Replies continue to use the [selected mailbox association](mailbox-association.md) and [release checks](transport.md).
 
 A [private copy](private-copies.md) has its own audience and contribution. Its roles cannot mention recipients outside that audience. The same rule applies when several authorized devices belong to one principal: recipient roles describe the person or account, while device membership follows the group contract.
 
-The [required Email/2 suite](suite-profile.md) additionally carries [encrypted personal mailbox addresses](private-address-presentation.md) under envelope4. This chapter's envelope3 describes the earlier subject/role component; it does not establish complete Email/2 conformance. [Opaque provider routes](private-routing.md) remain a separate delivery capability whose provisioning/use and integration are unfinished.
+The [required Email/2 suite](suite-profile.md) carries [encrypted personal mailbox addresses](private-address-presentation.md) in authored0/envelope6. Retained envelope4 adds addresses to the earlier envelope3 subject/role component described here. Implementing either retained component alone does not establish current Email/2 conformance. [Opaque provider routes](private-routing.md) remain a separate delivery capability whose provisioning/use and integration are unfinished.
 
 ## Confidentiality and ordinary copies
 

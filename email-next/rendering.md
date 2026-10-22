@@ -92,7 +92,7 @@ RFC3676 remains the processing authority for flowed plain text, including messag
 
 ::::
 
-The [local conversation demo](evidence/README.md#inspectable-legacy-conversation-demo) makes the plain-text and narrow HTML experiments inspectable through expandable quotations, source navigation and an Original view. Its synthetic fixtures do not establish general legacy-client compatibility.
+The [local conversation demo](evidence/README.md#inspectable-legacy-conversation-demo) makes the plain-text and narrow HTML experiments inspectable through expandable quotations, source navigation and an Original view. Its synthetic fixtures do not establish general legacy-client compatibility. Fixture IDs, inferred-source labels and source offsets are diagnostic controls in that test harness, not prescribed client wording or a product interface. A client can offer a simple “Show quoted text” disclosure and expose the matching evidence and uncertainty through inspection; collapsing a quotation does not authenticate its author or source relationship.
 
 :::: {.details summary="HTML quotations: map the source before rendering"}
 
@@ -204,11 +204,13 @@ URL alternatives represent alternative ways to perform one command, not a batch 
 
 ::::
 
+The [presentation failure matrix](presentation-profile.md#when-presentation-cannot-finish) distinguishes invalid carriers, refused rich projections, unavailable individual resources and valid accessibility preferences. A recovered reading view cannot supply missing authorization or silently change quotation/source roles.
+
 ## Rendering tests
 
 The profile requires fixtures for nesting, malformed input, unsupported CSS, remote-resource attempts, keyboard-only interaction, screen-reader semantics, long text, right-to-left content, and style isolation. Legacy fixtures should include bottom-posting, top-posting, interleaved replies, localized quotation markers, edited quotations, forwarded messages, and signatures containing meaningful answers.
 
-Profile identifiers and negotiation belong in the wire-format draft. The [interoperability chapter](interoperability.md) lists what must be settled before claiming support.
+The [suite agreement](suite-profile.md) selects the exact required presentation profiles and authenticated negotiation. The [acceptance inventory](acceptance-inventory.md) and [interoperability coverage](interoperability.md) distinguish their complete implementation requirements from existing component evidence.
 
 ## References
 

@@ -21,6 +21,60 @@ The adapter has four jobs:
 > [!note] Implementation status
 > These are proposed integration requirements. The source audits identify inherited behavior and remaining dependencies; a provider adapter and cross-provider acceptance runs remain unfinished. The [adoption plan](adoption.md#email-server-adoption) describes the evidence needed to claim support.
 
+## From mailbox changes to accepted conversations
+
+Synchronization first saves the original message and where it came from. Email/2 then checks its contents and adds the accepted contribution to the conversation. Those are separate steps: a successful sync does not mean every message was understood, and a message arriving twice must not produce two answers.
+
+If synchronization stops halfway through, the client resumes from its retained work. Moving messages, rebuilding a mailbox cache or reconnecting an account does not reset encryption state or make old messages new. Missing conversation parts remain visibly missing while the client looks through the mail it is already authorized to access.
+
+:::: {.details summary="Durable import sequence, source scopes and missing-control recovery"}
+
+### Select and preserve the account boundary
+
+Establish mailbox access through independently trusted account setup and the provider's supported authentication method. Keep the authorized service/endpoints, internal provider account, effective permissions and local profile/vault selection separate from email address display strings. A JMAP account, shared mailbox or successful IMAP login is not an Email/2 principal. Receiving a message cannot install a service, select another account or supply its credentials.
+
+Bind synchronization state to a stable local account connection and its actual service/account namespace. IMAP locators additionally bind mailbox and UIDVALIDITY; JMAP record/blob/type identifiers retain their account scopes. Track credential/permission changes separately: refreshing a credential for the same independently established account does not make every message new. A changed or unverifiable account incarnation, replaced service, reassigned login or permission scope requires explicit reconciliation and a fresh appropriate cache namespace, never silent cursor reuse against another account. Local display names and matching email spellings cannot prove continuity.
+
+Cache namespace reset does not erase the selected local security profile's accepted identities, contributions, conflicts, operation receipts, membership periods, source ownership or nonce/replay history. Conversely, another local user/profile cannot reuse that vault's acceptance merely because it can access the same provider record. Retain the account and security-profile provenance of every import; explicit account copying grants no new principal or history authority.
+
+### Commit enumeration and durable work together
+
+For each bounded mailbox enumeration/change result:
+
+1. Check the exact requested source namespace and prior opaque state/cursor. Interpret per-record and per-method results under IMAP/JMAP, not HTTP success or result position. A provider response is retrieval evidence, not a signed event.
+2. Retain each returned locator and its source state. Fetch the complete raw verification input non-markingly where supported. Keep the source bytes separate from parsed headers, provider previews and decoded projections. If bytes are unavailable, retain an explicit fetch/dependency job and reason; a preview cannot stand in for them.
+3. Persist original bytes in the selected profile's protected local storage, with their exact digest, source locator/version and complete/incomplete status. A content-addressed store needs exact byte equality as well as its digest. If blob storage and the journal are separate, durably finalize the blob before committing its journal reference; collect an unreferenced staged blob only under explicit local retention policy. Never commit a cursor pointing only at volatile bytes or a vanished temporary file.
+4. Atomically commit all covered source observations, retained byte references or durable unresolved jobs, and the matching next enumeration cursor/state. On failure commit none of that batch. Recheck the source/account generation at commit so an in-flight response from a disconnected/replaced account cannot advance its replacement. Do not hold a database write lock across network I/O.
+5. Resume retained jobs independently of later provider changes. Enumeration progress means the returned observations have durable work, not that every protected input was fetched, decoded or accepted. Keep separate fetch, verification/application and current caught-up status. A terminal unavailable record remains explicit evidence of a gap; it is not successful content processing or proof that the event never existed.
+
+JMAP changes follow each matching newState/hasMoreChanges sequence; query caches retain their separate query scope. IMAP progress uses actually inspected scoped UIDs, not sequence numbers, a maximum requested number or an assumption that a sparse/empty response proves every missing UID was fetched. On invalidated state rebuild the appropriate cache and deduplicate retained work. An incomplete local resource budget leaves work pending and cannot advance past observations that were not durably retained.
+
+If an allegedly immutable locator/blob produces different bytes, retain both observations and the provider inconsistency. Do not overwrite accepted source or choose the last arrival as authentic. Only the owning Email/2 validator can determine whether differently encoded carriers contain the same protected/event bytes or conflicting contributions.
+
+### Validate and assemble without replaying effects
+
+Dispatch complete protected inputs through their exact selected owning validators and local membership instances. Classifying an opaque sealed control or recognizing a JSON purpose is not validation. Unknown own-key/retired-key inputs retain their specified pending/inert outcomes; no generic mailbox cleanup deletes them or replies to an outer return address.
+
+Before consuming cryptographic message material, consult the owning protocol's durable input receipt under the same local processing transaction. Its identity includes the actual local security/membership instance and original protected bytes, not just a provider ID or Message-ID. Exact accepted replay reuses its receipt; it does not decrypt with consumed state again. Commit key/epoch/checkpoint advancement, original evidence, contribution acceptance and effect/deduplication state together, or use the owning protocol's specified crash-safe equivalent. A mailbox cursor is never that cryptographic checkpoint.
+
+After full acceptance, enforce the [principal/event namespace](event-identifiers.md#detect-reuse-across-conversations) before assembling the exact authenticated `(principal, conversation, event)` reference and complete content/resource commitments. Retain each carrier’s provenance. A different conversation cannot make a reused principal/event valid; invalidate affected local views without exporting another conversation’s content. Copies and folder moves can produce one graph node with several locations. Differing authenticated bytes under that identity remain a conflict. A missing parent remains unresolved; later arrival triggers the owning revalidation without a second answer/reaction/effect. Receiving/importing an action descriptor or service receipt never authorizes an external service submission.
+
+### Find missing messages and controls within existing permission
+
+Use retained raw inputs and local accepted indexes first. A missing predecessor/control can schedule bounded background scans/fetches through configured authorized mailbox sources; provider threads, outer reference/header search and filenames supply candidates only. Validate complete native successor/context/control chains privately before installation. Never select a competing branch by search rank, arrival time, highest claimed epoch or provider thread order.
+
+An encrypted subject, event reference, private role pair or decrypted phrase must not become a plaintext provider-search query merely because the client needs a dependency. Prefer opaque authorized mailbox locators and local indexing. Any separate search mechanism exposing protected terms needs an independently selected disclosure contract. An incoming URL/reference cannot add a new source, request another account's records or authorize callback retrieval. Additional configured sources retain independent scope/cursors and their actual account permissions.
+
+Keep missing, inaccessible, expired, unsupported and resource-limited outcomes distinct. Finding no candidate does not establish that no control exists. A recovery job cannot install an intermediate revoked membership, merge sources' conflicting native states, revive a retired local instance or manufacture history rights. The selected [membership catch-up rules](group-conversations.md#finding-missing-controls-automatically), [ordinary-stream contract](suite-profile.md#ordinary-protected-conversations) and [historical-copy recovery](suite-profile.md#unread-mail-and-long-offline-periods) determine what a complete authorized recovery may do.
+
+### Acceptance and current evidence
+
+Test interruption before/after byte retention and cursor commit, a lost fetch result, changed namespace during network I/O, UIDVALIDITY/cannotCalculateChanges rebuild, reordered/partial results, duplicate provider locations, immutable-locator contradiction, missing raw bytes with a preview, revoked account permission, local profile switching, delayed dependencies and a budget reached mid-batch. Reimport after restart/cache rebuild must not replay cryptographic consumption, answers or external effects. Confirm background retrieval does not mark read or leak protected search terms.
+
+The configured local recovery spool exercises native control-chain retrieval, duplicate/gap/fork handling, cursor/storage atomicity, budgets and process crashes. Its persistent source fingerprint now prevents a newly configured spool from inheriting another source's cursor; missing legacy provenance requires an explicitly fresh source scope. That fingerprint is trusted fixture metadata, not real provider/account authentication. The spool stores raw fixture bytes and supplies neither a production protected mailbox store nor IMAP/JMAP network acquisition. Full account authentication, durable fetch queues, encrypted storage/custody, actual remote sync and complete current-suite receiving remain unimplemented acceptance work.
+
+::::
+
 ## IMAP access
 
 An IMAP client can retrieve messages and learn about mailbox changes without a server upgrade specific to Email/2. It then verifies contributions locally and reconstructs the conversation. The mailbox remains usable by ordinary clients; IMAP does not supply an invisible control-message format.
@@ -237,6 +291,26 @@ Email/parse can display an attached message without importing it into the mailbo
 
 These creation, import and parsing behaviors are defined in [RFC8621 §§4.6–4.9](https://www.rfc-editor.org/rfc/rfc8621.html#section-4.6). Importing a message into a mailbox is separate from submitting it for delivery. Saving changed draft content may create a new Email record rather than mutate the original. Preserve the previous draft until creation of its replacement is confirmed; a create and an unconditional destroy in one request are not an all-or-nothing save. Reconcile concurrent draft versions instead of selecting one by response arrival order.
 
+
+### Match an imported candidate to the intended contribution
+
+A provider may say that a message already exists because it found the same outer Message-ID. That is a lookup hint, not proof that the existing record is the one the client meant to save. A different valid email can use that same header.
+
+::: {.details summary="Expected-content checks, repaired bytes and uncertain submission"}
+
+Before Email/import or an equivalent create/copy, retain the exact local operation and selected account/copy, intended original message/version or protected representation, contribution identity and complete content/resource commitments where applicable. Keep its sending intent and any prior transport/submission outcome separately. A provider result cannot supply or change those expected values.
+
+For an alreadyExists/existingId result:
+
+1. Resolve the candidate only within the authenticated service/account/type and current access scope. Do not probe another account or hidden record to test for a matching identifier. If complete permitted bytes cannot be obtained, retain an unresolved operation; a preview or a returned identifier cannot complete it.
+2. Obtain the complete original representation. Exact byte equality with independently retained expected raw bytes can establish storage preservation even for content the client cannot interpret; keep that content opaque, without claiming application acceptance or effects. Otherwise apply the actual selected parser/protection/carrier checks before claiming a semantic match. A syntactically valid or independently authenticated **different** contribution still does not satisfy the expected import. Compare the actual intended principal/conversation/event, original event bytes and resource commitments, plus the copy-specific presentation, routing and carrier dependencies under their owning rules. Legacy input uses its expected original representation and provenance; Message-ID alone supplies no equality. Receiving rules may tolerate an unavailable image or attachment, but that does not complete an import intended to retain those bytes. Verify each expected stored resource or an independently authorized omission under its own persistence/binding contract; a matching manifest digest alone does not prove the resource was preserved.
+3. Apply the selected protection's byte-preservation and permitted-transformation rules. MIME repair/re-encoding may preserve some protected commitments, but successful decryption or matching visible text is insufficient. Do not replace a frozen prepared/retry version with changed bytes or strip a required outer privacy binding to accept the candidate. Hold an unproven match; any separately authorized replacement follows the existing immutable-version and uncertain-send rules.
+4. Commit a proven match and its exact candidate/source provenance with the local mailbox operation result under the current account generation. Preserve contradictory records separately. Never overwrite or delete a colliding provider message merely to force the import to succeed.
+5. Treat completion as mailbox storage only. Neither a matched existing object nor a successful import proves that its intended submission happened, failed or remains unsent. Reconcile sending using the original retained submission/transport identity and recipient outcomes. Do not create another send to resolve an uncertain earlier one.
+
+For a newly created record, also verify any provider-repaired representation before relying on its protected commitments. A provider record or copy may be useful storage without being the exact intended protected version. Its mismatch cannot change accepted event identity, revive a consumed cryptographic input or install a reply edge. A failed local commit retains the original expected operation and uncertain remote result, not a new import identity.
+
+:::
 
 ## Search highlights are display data
 

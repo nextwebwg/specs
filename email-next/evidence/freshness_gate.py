@@ -12,10 +12,16 @@ import json
 
 from event_encoding import encode_event,decode_event
 from identity_bundle import decode_identity_bundle
-from history_transfer import authority_snapshot
-from relay_routes import current,hex_value
+from history_transfer import authority_snapshot,authorize
+from relay_routes import hex_value
 from bootstrap_exchange import parse,verify,interval,advertisement,handle
 from passive_discovery import uint64
+
+
+def current(store,ref,role,clock,policy):
+    # Cached endpoint anchors can survive unchanged accepted ancestry. This is
+    # not a recent-state timestamp or live response; those gates follow below.
+    return authorize(store,ref,role,dict(earliest=str(clock[0]),latest=str(clock[1])),policy)
 
 
 @dataclass(frozen=True)
@@ -95,18 +101,21 @@ class FreshnessGate:
             self.db.execute('UPDATE freshness_attempt SET cancelled=1 WHERE account=? AND operation=?',(self.account,operation))
 
     def _checkpoint(self,actor,clock,policy):
+        # Current authority was checked in this transaction. Use the current
+        # accepted head, never the older actor/advertisement anchor's date.
+        head=self.ids.current_state(actor['principal'])['head']
         row=self.db.execute('SELECT bundle FROM identity_transitions WHERE principal=? AND digest=? AND accepted=1',
-                            (actor['principal'],actor['state'])).fetchone()
+                            (actor['principal'],head)).fetchone()
         if row:
             records=decode_identity_bundle(row[0])['states']
-            state=next(s['value'] for s in records if s['digest']==actor['state'])
+            state=next(s['value'] for s in records if s['digest']==head)
         else:
-            row=self.db.execute('SELECT record FROM claims WHERE principal=? AND digest=?',(actor['principal'],actor['state'])).fetchone()
+            row=self.db.execute('SELECT record FROM claims WHERE principal=? AND digest=?',(actor['principal'],head)).fetchone()
             if not row:raise ValueError('Accepted checkpoint bytes required')
             state=decode_event(base64.b64decode(json.loads(row[0])['state'],validate=True))['value']
         issued=uint64(state['issuedAt'])
         if issued>clock[0] or clock[1]-issued>policy.maximum_age:raise ValueError('Checkpoint outside explicit age window')
-        return actor['state']
+        return head
 
     def evaluate(self,policy,actor,mailbox,encoded_advertisement,*,clock,operation=None,response=None):
         clock_interval(clock,policy)
@@ -125,6 +134,7 @@ class FreshnessGate:
                 source=_wrapper(row[1],row[2]);_,s,_=parse(source,'source')
                 self._own(s,clock);interval(s,clock)
                 raw,r,sig=parse(response,'response');verify('response',raw,sig,actor['key']);interval(r,clock)
+                if actor['state']!=bound['head']:raise ValueError('Live response requires exact current head')
                 if (r['issuer']!=s['targetService'] or r['exchange']!=handle(s)
                         or r['sourceDigest']!=hashlib.sha256(row[1]).hexdigest() or r['nonce']!=s['nonce']
                         or r['device']!=actor or r['mailbox']!=s['targetMailbox']
@@ -134,4 +144,4 @@ class FreshnessGate:
                         or int(r['notBefore'])<max(int(ad['notBefore']),bound['before'])):
                     raise ValueError('Live evidence authority interval')
                 evidence=hashlib.sha256(raw).hexdigest()
-            return dict(status='freshness-satisfied-only',mode=policy.mode,head=actor['state'],binding=actor['binding'],evidence=evidence)
+            return dict(status='freshness-satisfied-only',mode=policy.mode,head=bound['head'],binding=actor['binding'],evidence=evidence)

@@ -10,12 +10,14 @@ sectionNav: true
 A client can learn where a mail domain offers an Email/2 control service without putting an address in a public lookup. It asks the selected domain for a small service record, checks that domain's HTTPS identity, and retains the exact delegation. Signing in and authorizing a particular peer are later, separate steps.
 
 > [!ex] A custom-domain account
-> Alice connects her existing `alice@example.org` account. During explicitly enabled provider setup, the client asks `https://example.org/.well-known/email2-provider` for service locations. The domain delegates to `https://mail-service.example`. Alice sees that service when she connects it. Her mailbox password and existing access tokens are never sent to the discovered location.
+> Alice connects her existing `alice@example.org` account. During explicitly enabled provider setup, the client asks `https://example.org/.well-known/mail-provider` for service locations. The domain delegates to `https://mail-service.example`. Alice sees that service when she connects it. Her mailbox password and existing access tokens are never sent to the discovered location.
 >
 > The domain record does not contain Bob's keys or establish his identity. Alice's client still needs independently accepted device evidence and the permission required for a particular exchange.
 
-> [!note] Proposed discovery profile
+> [!note] Retained version0 discovery profile
 > `email2-provider-discovery-v0` selects account-domain delegation and native public-client registration. The well-known suffix and profile identifier are draft allocations, not registered names. The [configured queue contract](provider-control.md) remains unchanged. The [public grant profile](provider-grants.md) separately defines account/device links and pair-specific queue credentials. The [unknown-peer bootstrap contract](bootstrap.md) separately defines first-contact authority. Joined implementations remain unfinished; discovery alone does not make a service publicly interoperable.
+
+The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [provider descriptor2](#discover-the-asynchronous-agreement) when this capability is offered. Retained descriptor0/1 definitions remain exact for earlier exchanges. Version2 selects the asynchronous application while preserving shared account authority; a descriptor is not evidence that the complete service is implemented.
 
 ## Discover for an explicit setup purpose
 
@@ -23,11 +25,11 @@ Account-setup discovery starts from an account the person has explicitly connect
 
 Use the [canonical mailbox-address contract](mailbox-addresses.md), including internationalized and quoted local parts. Select the parsed lowercase A-label domain; an `@` inside a quoted local part is not a domain boundary. Only that domain enters discovery URLs. No local-part normalization, address-literal lookup or inference from a display name is permitted. Validation unavailable under the selected IDNA provider holds this extension without preventing separate ordinary-mail use.
 
-Fetch exactly `https://<selected-domain>/.well-known/email2-provider`, using the proposed [RFC8615 well-known suffix](https://www.rfc-editor.org/rfc/rfc8615.html#section-3), at port 443, without a query, fragment, mailbox address, Authorization header, cookies, ambient client certificate or HTTP authentication. Do not follow redirects. TLS 1.3 and the [service identity contract](service-answers.md#establish-the-protected-connection) apply, with the original selected domain as the DNS-ID reference. Neither DNS resolution nor a certificate-selected name changes that reference. A CNAME does not authorize a different HTTP origin.
+Fetch exactly `https://<selected-domain>/.well-known/mail-provider`, using the proposed [RFC8615 well-known suffix](https://www.rfc-editor.org/rfc/rfc8615.html#section-3), at port 443, without a query, fragment, mailbox address, Authorization header, cookies, ambient client certificate or HTTP authentication. Do not follow redirects. TLS 1.3 and the [service identity contract](service-answers.md#establish-the-protected-connection) apply, with the original selected domain as the DNS-ID reference. Neither DNS resolution nor a certificate-selected name changes that reference. A CNAME does not authorize a different HTTP origin.
 
 Only a 200 `application/json` response with identity content coding can supply a record. Reject compressed representations, duplicate JSON names, invalid UTF-8, unknown fields and bodies larger than 65536 octets; JSON container depth is at most 16. Enforce response-header and connection budgets before parsing. Servers use `Cache-Control: no-store`; clients request no-store and do not obtain the record from an unauthenticated cache. Client and server implementations retain finite connection, deadline and retry settings rather than claiming this representation limit bounds all network work.
 
-A 404 or 410 means that this fetch has no usable public delegation. A timeout, TLS failure, 429, 5xx, redirect or invalid representation means unavailable or invalid, not permanent lack of Email/2 support. None authorizes plaintext delivery, clears a previous service binding, or changes a peer's identity. Apply Retry-After where valid, bounded local backoff otherwise; setup failure never starts a mail probe.
+A 404 or 410 means that this fetch has no usable public delegation. A timeout, TLS failure, 429, 5xx, redirect or invalid representation means unavailable or invalid, not permanent lack of Email/2 support. None supplies new permission for plaintext delivery, clears a previous service binding, or changes a peer’s identity. Apply Retry-After where valid, bounded local backoff otherwise. Failure alone cannot start mailbox setup; a separately enabled [ordinary-mail setup policy](mailbox-setup.md) may select its own bounded authorized attempt. A retained delivery fallback condition still follows the [frozen policy and disclosure rules](delivery-policy.md#freeze-disclosure-before-releasing-content); a failed lookup does not authenticate incompatibility.
 
 Automated network access must respect the client's configured network boundary. Public discovery must not release requests to loopback, link-local, private or otherwise disallowed resolved addresses. Apply the policy to every candidate address and the actual connected endpoint, including across DNS changes; do not validate one answer and connect to an unchecked second answer. An explicitly configured enterprise/test network can authorize its own destinations while retaining TLS identity, exact-origin and credential isolation. A received record cannot change that policy. The prototype below does not implement a DNS resolver or these socket checks.
 
@@ -71,13 +73,41 @@ Updating a delegation invalidates pending native authorization and account-link 
 
 :::
 
+## Reuse sign-in mechanics without sharing permissions
+
+Provider control, relay management and automatic setup use the same native sign-in procedure. Each connection still has its own module, delegated service and exact requested scopes. Connecting one does not connect the others.
+
+| Own-account connection | Selected scopes |
+| --- | --- |
+| Provider control | Both `mail.provider.link` and `mail.provider.manage` |
+| Relay | An explicitly selected nonempty subset of `mail.relay.link`, `mail.relay.manage`, `mail.relay.submit`, sufficient for the intended operations |
+| Automatic setup | An explicitly selected nonempty subset of `mail.setup.link`, `mail.setup.request`, `mail.setup.respond`, sufficient for the intended operations |
+
+Request only the permissions needed. An operation that lacks a required scope or account/device link stays unavailable; the client cannot borrow it from another connection. Finding a recipient's service is not an own-account connection and cannot start sign-in.
+
+:::: {.details summary="Shared callbacks, exact registration and module isolation"}
+
+All three connections use exactly the two registered loopback callback forms shown below: `http://127.0.0.1:1/mail/provider/callback` and `http://[::1]:1/mail/provider/callback`. The provider spelling names the shared callback route; it does not select a provider-control grant. Keep the existing ephemeral-port exception, external-browser, issuer, state and PKCE checks. Do not derive another callback path from a module label or accept a wildcard path.
+
+For each connection, validate the exact descriptor under that module's owning discovery contract. Fetch OAuth metadata only from its selected service origin. All required metadata capabilities, same-origin endpoint restrictions, public-client rules and response bounds in this chapter still apply. Replace only the required scope set with the exact set selected for that module. Additional advertised scopes do not become requested permissions.
+
+The registration request has the same exact fields and callback array as the provider example, with `scope` containing only the selected module's scopes, once each, separated by one ASCII space. The response must retain that exact set, in any order, without omissions, additions, duplicates or malformed separators. The token response and subsequent refreshes retain the same exact selected scope set under the existing native authorization rules. Other protocol fields and required validation do not acquire new defaults.
+
+Bind retained registrations, pending state/PKCE records, account grants and local lookup keys to the selected module, own-account purpose, original delegation and metadata bytes/digests, issuer, client ID, registered callback forms, exact scope set and local setup generation. A shared origin, identical callback path or equal client ID cannot merge these records or make a different grant acceptable. The callback selects only its exact retained one-time attempt; a URL path alone cannot select a module or account.
+
+Reuse a registration only under that complete unchanged binding. A different module or requested scope set needs its own registration and authorization; no registration-update API or refresh-based scope widening is selected. A changed descriptor/metadata binding invalidates pending attempts as specified below. Previously issued credentials retain only their original scope, endpoint and lifecycle; they cannot be forwarded to a replacement service or silently repurposed. Preserve uncertain operations and their old outcomes during reconnection.
+
+These rules define native authorization reuse only. Queue, relay and bootstrap account-link records, device proofs, role checks and operation lifecycles remain owned by their respective contracts. A native token is not a queue-role credential, route permission, recipient key or content-release authorization.
+
+::::
+
 ## Register and sign in through the selected service
 
 This section applies only to connecting the person's own account, never to recipient bootstrap. A recipient's descriptor cannot trigger OAuth registration or sign-in.
 
 The service origin is the OAuth issuer in this version. Obtain its [RFC8414 authorization-server metadata](https://www.rfc-editor.org/rfc/rfc8414.html#section-3) from `service + "/.well-known/oauth-authorization-server"` through the same credential-free, redirect-free transport rules. Require exact issuer equality. Unknown metadata extensions may be ignored; they cannot replace selected fields or install credentials.
 
-Metadata must advertise distinct canonical same-origin `authorization_endpoint`, `token_endpoint`, `registration_endpoint` and `revocation_endpoint`; `response_types_supported` including `code`; `grant_types_supported` including `authorization_code` and `refresh_token`; `token_endpoint_auth_methods_supported` including `none`; `code_challenge_methods_supported` including `S256`; `authorization_response_iss_parameter_supported:true`; and both exact scopes `email2.provider.link` and `email2.provider.manage` in `scopes_supported`. Each selected list is an array of unique nonempty ASCII strings. Additional advertised supported values do not select them. Absent requirements leave this profile unavailable; do not infer support from an endpoint's name. No received `jwks_uri`, documentation link or signed-metadata field is fetched by this profile.
+Metadata must advertise distinct canonical same-origin `authorization_endpoint`, `token_endpoint`, `registration_endpoint` and `revocation_endpoint`; `response_types_supported` including `code`; `grant_types_supported` including `authorization_code` and `refresh_token`; `token_endpoint_auth_methods_supported` including `none`; `code_challenge_methods_supported` including `S256`; `authorization_response_iss_parameter_supported:true`; and both exact scopes `mail.provider.link` and `mail.provider.manage` in `scopes_supported`. Each selected list is an array of unique nonempty ASCII strings. Additional advertised supported values do not select them. Absent requirements leave this profile unavailable; do not infer support from an endpoint's name. No received `jwks_uri`, documentation link or signed-metadata field is fetched by this profile.
 
 [Dynamic client registration](https://www.rfc-editor.org/rfc/rfc7591.html#section-3) supplies a client identifier without requiring every email client developer to arrange credentials with every provider. This profile selects unauthenticated registration for a public native client. The provider can enforce finite rate and capacity limits, but cannot advertise this public profile while requiring an undisclosed initial access token, developer allowlist, software statement or public-client secret. Registration establishes no trusted application brand, human identity, mailbox authority or Email/2 authority.
 
@@ -88,21 +118,21 @@ POST `application/json` to the exact selected registration endpoint, with no Aut
 ```json
 {
   "redirect_uris": [
-    "http://127.0.0.1:1/email2/provider/callback",
-    "http://[::1]:1/email2/provider/callback"
+    "http://127.0.0.1:1/mail/provider/callback",
+    "http://[::1]:1/mail/provider/callback"
   ],
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
   "token_endpoint_auth_method": "none",
-  "scope": "email2.provider.link email2.provider.manage"
+  "scope": "mail.provider.link mail.provider.manage"
 }
 ```
 
 The literal port 1 registers the two exact host/path forms, not a port to bind or an address to visit. For the native authorization request, the server accepts an available ephemeral port under the [RFC8252 loopback exception](https://www.rfc-editor.org/rfc/rfc8252.html#section-7.3). There are no wildcard hosts, localhost resolution, custom schemes or embedded browser callbacks in this version.
 
-Require HTTP201, no-store JSON and bounded uncompressed bytes. The response includes the exact registered metadata, a nonempty opaque ASCII `client_id` of at most 256 characters, and a nonnegative safe JSON integer `client_id_issued_at`. The scope may reorder the same two strings, with no duplicates, additions or omissions. Other client metadata is not selected. RFC7591 additional response members may be ignored, except `client_secret`, `client_secret_expires_at`, `registration_access_token` and `registration_client_uri`, whose presence rejects this selected unmanaged public-client registration. No returned URL can change the retained endpoints. This is a profile restriction, not a claim that those members are generally unsafe in OAuth.
+Require HTTP201, no-store JSON and bounded uncompressed bytes. The response includes the exact registered metadata, a nonempty opaque ASCII `client_id` of at most 256 characters, and a nonnegative safe JSON integer `client_id_issued_at`. The scope may reorder the exact requested set, with no duplicates, additions or omissions. The provider-control example requests its two scopes; relay and setup use their explicitly selected nonempty sets under the shared native-module rules. Other client metadata is not selected. RFC7591 additional response members may be ignored, except `client_secret`, `client_secret_expires_at`, `registration_access_token` and `registration_client_uri`, whose presence rejects this selected unmanaged public-client registration. No returned URL can change the retained endpoints. This is a profile restriction, not a claim that those members are generally unsafe in OAuth.
 
-Retain the original delegation bytes/digest, exact selected metadata bytes/digest, client ID and registered callback forms before sign-in. Reuse the resulting client registration for the same accepted delegation and metadata; do not register on every message or restart. A lost registration response may leave an unused public registration: it grants no account access. Retry only through bounded setup policy; do not guess the lost identifier or claim exact registration idempotency. No dynamic registration-update API is selected.
+Retain the original delegation bytes/digest, exact selected metadata bytes/digest, client ID and registered callback forms before sign-in. Reuse the resulting client registration for the same complete [module, delegation, metadata and scope binding](#reuse-sign-in-mechanics-without-sharing-permissions); do not register on every message or restart. A lost registration response may leave an unused public registration: it grants no account access. Retry only through bounded setup policy; do not guess the lost identifier or claim exact registration idempotency. No dynamic registration-update API is selected.
 
 Use authorization code with S256 PKCE, external system browser, fresh state, exact issuer-response checking, the retained ephemeral loopback redirect, no public-client secret and no resource-owner-password grant. The [native service authorization rules](service-authorization.md#authorization-and-callback) define those mechanics and code/refresh uncertainty handling. Here the selected callback path and scopes are the provider values above, not service-button scopes. Tokens are opaque Bearer credentials restricted to this provider's management resources. Rotate public-client refresh tokens with reuse detection. A token response must return exactly the selected scope set. A provider-management token is never a queue-role credential and cannot be sent to a peer provider.
 
@@ -125,3 +155,37 @@ Required public-deployment evidence additionally includes domain delegation thro
 ## Independent relay capability
 
 The [relay module](relay-routes.md#discover-a-relay-service) reuses the transport, publication, native authorization and credential-isolation mechanics here under its own descriptor, scopes and namespace. Relay-only providers need not advertise or implement the queue. An existing queue registration or token does not silently gain relay administration/submission rights.
+
+
+## Reply-aware queue discovery
+
+A provider advertising automatic setup for declared reply policies uses descriptor1 for the known-pair queue. It says which exact agreement the service carries; it does not prove that a recipient device supports that agreement.
+
+::: {.details summary="Exact provider descriptor1 and account boundaries"}
+
+Descriptor1 has exactly descriptor0's fields plus required `agreement`, with version `"1"` and agreement exactly `"mail-conversation-v1"`. Purpose, selected-domain validation, well-known path `/.well-known/mail-provider`, publication/generation, canonical service, two distinct same-origin prefixes, transport/validity and retained high-water rules remain unchanged. Its controlPrefix selects [mail-provider-control-v1](provider-control.md#reply-aware-known-pair-exchanges); its managementPrefix selects [mail-provider-grants-v1](provider-grants.md#reply-aware-account-and-pair-permissions). Active version0 and version1 prefixes at one service cannot overlap by segment containment. Version is not a new domain-delegation, account or publication namespace.
+
+Native public-client registration/login/PKCE, the exact selected mail.provider.link/mail.provider.manage scopes, origin-bound credentials, callback forms and module separation remain unchanged. A new descriptor or agreement does not authorize a new origin, broader scopes, another principal or a recipient's account. Account/family/incarnation and link/reset/revocation state remain authoritative across queue versions. Unsupported descriptor1 leaves this provider path unavailable; never reinterpret it as0 or infer a compatible endpoint from its URL spelling. Existing version0 records retain their original routes/validity while independently eligible.
+
+Fresh role credentials and pair approval must name the exact successor configuration. An old active grant cannot be edited into the new profile, even when participants, service and account names match. A remembered eligible approval policy may authorize a new preparation, but the service cannot silently replace the approved bytes or expand peer scope.
+
+:::
+
+
+## Discover the asynchronous agreement
+
+A provider can offer setup for independently ready deliveries through descriptor2. The selected agreement identifies the records the service carries. Each actual recipient device must still publish its own valid support; a provider cannot promise that support on its behalf.
+
+::: {.details summary="Exact descriptor2 and connection boundaries"}
+
+Descriptor2 has exactly descriptor1's member inventory, with `version` equal to `"2"` and `agreement` equal to `"mail-conversation-v2"`. Purpose remains provider-service-discovery. The selected-domain grammar, `/.well-known/mail-provider` path, service origin, publication/generation, two prefixes, validity, strict parsing and transport rules remain unchanged. Its controlPrefix selects [mail-provider-control-v2](provider-control.md#obtain-asynchronous-device-evidence); managementPrefix selects [mail-provider-grants-v2](provider-grants.md#authorize-asynchronous-pair-exchanges).
+
+Active prefixes for different queue versions at one service cannot overlap by segment containment. The descriptor response selects one exact branch before validation; a failed descriptor2 cannot be parsed as1 or0. Unsupported discovery leaves this path unavailable for the retained required agreement. It neither proves recipient incompatibility nor authorizes an older agreement or ordinary delivery.
+
+All versions share the same domain/purpose/publication high-water and account/module authority. Changing any accepted descriptor bytes requires a higher generation. Version is not another publication, rollback escape or reset namespace. Retained earlier grants keep their original locations, deadlines and authorization; a descriptor update cannot edit them.
+
+Use the existing native registration/login, issuer-bound authorization-code/S256 PKCE, exact mail.provider.link/mail.provider.manage scopes, account/device linking and origin-bound credentials. Descriptor2 introduces no scope, callback or sign-in permission. Origin changes require the existing reconnection decision. A recipient lookup never signs the sender into that recipient's service. New grants and role credentials bind the exact accepted descriptor2/configuration bytes; old tokens are not migrated.
+
+The [synthetic queue descriptor](examples/async-provider-descriptor.json) illustrates only discovery fields. It is not an active delegation, account login or device advertisement.
+
+:::

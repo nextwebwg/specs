@@ -31,6 +31,14 @@ class EncodingTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 encode_event(value)
 
+    def test_null_exception_is_explicit_and_root_field_only(self):
+        raw = b'{"keyPackageReceiveUntil":null}'
+        with self.assertRaises(ValueError):decode_event(raw)
+        self.assertIsNone(decode_event(raw, nullable_members=('keyPackageReceiveUntil',))['value']['keyPackageReceiveUntil'])
+        self.assertEqual(encode_event({'keyPackageReceiveUntil':None}, nullable_members=('keyPackageReceiveUntil',)), raw)
+        for other in (b'{"other":null}', b'{"nested":{"keyPackageReceiveUntil":null}}', b'{"keyPackageReceiveUntil":[null]}'):
+            with self.subTest(other=other), self.assertRaises(ValueError):decode_event(other, nullable_members=('keyPackageReceiveUntil',))
+
     def test_bytes_preserved_and_unicode_decoded(self):
         original = b' {"text":"\\ud83d\\ude00", "required":true} \r\n'
         result = decode_event(original)

@@ -43,7 +43,7 @@ The complete [RFC9420](https://www.rfc-editor.org/rfc/rfc9420.html), all structu
 | 7 | Ratchet Tree Operations | All tree operations reviewed. |
 | 7.1 | Parent Node Contents | Parent public key/hash and sorted unmerged-leaf indices reviewed. |
 | 7.2 | Leaf Node Contents | Signed leaf capabilities, source-specific fields and lifetime maximum are application-relevant requirements. |
-| 7.3 | Leaf Node Validation | All credential/signature/capability/lifetime/source/unique-key checks reviewed; default-list tension retained. |
+| 7.3 | Leaf Node Validation | Credential/signature/capability/source/unique-key checks remain required. Sending lifetime validation is mandatory; receiving validation is recommended with a transit-delay exception. The [current suite](../suite-profile.md#creating-a-delivery-and-receiving-it-later) bounds that exception explicitly; older strict experiments remain unchanged. |
 | 7.4 | Ratchet Tree Evolution | Fresh path/node derivation reviewed; obsolete leaf_secret figure covered by reported8211. |
 | 7.5 | Synchronizing Views of the Tree | Full synchronization sequence, derived-public-key comparison and obsolete-secret deletion reviewed. |
 | 7.6 | Update Paths | Exact ordered encrypted resolution excludes new leaves; provisional context binds HPKE. |

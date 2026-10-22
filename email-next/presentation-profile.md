@@ -14,7 +14,7 @@ This is a proposed interoperable rendering vocabulary for newly generated Email/
 
 The defined HTML/CSS presentation is a required part of the Email/2 client baseline. A conforming reading client MUST implement `html-css-v0` as specified in this chapter, including parsing, filtering, resource handling, client-owned styles and failure behavior. A composing client MUST generate supported HTML whenever it supplies an HTML body. There is no text-only Email/2 client conformance class: substituting a plain-text alternative because the client lacks the required renderer does not satisfy this requirement. A transport-only server does not need to render messages.
 
-HTML/CSS is the shared presentation format, not an optional enhancement that each client may approximate differently. This does not require arbitrary web content, identical pixels or an HTML body on every protocol event. Text-bearing operations and client-owned interaction controls retain their exact schemas; their readable presentation is constructed under the selected presentation contract. The separately versioned reply-content extension is not enabled merely by baseline support.
+HTML/CSS is the shared presentation format, not an optional enhancement that each client may approximate differently. This does not require arbitrary web content, identical pixels or an HTML body on every protocol event. Text-bearing operations and client-owned interaction controls retain their exact schemas; their readable presentation is constructed under the selected presentation contract. The current [mail-conversation-v2 client baseline](suite-profile.md#current-client-baseline) also requires the separately defined `html-css-reply-v0` profile for [indexed reply content](reply-content.md#microdata-vocabulary). Implementing `html-css-v0` alone does not implement that extension or satisfy the whole client baseline.
 
 Plain-text MIME alternatives remain compatibility representations for existing email clients. Existing carriers that require them still require them. Structured `text` fields remain available for matching, indexing, accessible reading and explicit text views; they do not provide an alternative route to client conformance. This requirement does not remove text fields or change an immutable wire schema.
 
@@ -84,7 +84,7 @@ Language processing MUST NOT fetch registry data in response to a message, rewri
 | th | scope: row, col, rowgroup, colgroup |
 | col, colgroup | span |
 
-The separately proposed [reply-content presentation](reply-content.md#microdata-vocabulary) permits only its scoped Microdata, wrapper IDs and metadata under a new profile. It does not widen this baseline or allow a renderer to claim support before implementing that profile.
+The separately defined [reply-content presentation](reply-content.md#microdata-vocabulary) permits only its scoped Microdata, wrapper IDs and metadata under `html-css-reply-v0`, which the current client baseline also requires. That profile does not widen the `html-css-v0` attribute allowlist or permit a renderer to claim reply-profile support before implementing its additional rules.
 
 No other baseline attributes survive, including event handlers, custom data attributes, IDs, classes, ARIA overrides, hidden, tabindex, contenteditable, download, target, ping and srcset. Native semantic elements supply accessibility roles. Client-rendered interaction controls are outside this sender-authored tree.
 
@@ -167,6 +167,52 @@ The baseline uses native HTML display semantics and system Canvas, CanvasText an
 
 The [isolated browser experiment](evidence/README.md#isolated-browser-rendering) accepts a client-owned root font size and keeps sender `rem` values relative to it. Chromium tests cover nested sizes and spacing, preference changes and overflowing content contained within the message frame. This is implementation evidence for root sizing, not evidence of native zoom, minimum-font restrictions or assistive-technology behavior.
 
+## When presentation cannot finish
+
+A damaged image should leave its description available. A message whose HTML cannot be safely interpreted should still have its separately handled readable presentation and an explanation. Neither outcome rewrites the original message or changes who sent it.
+
+> [!ex] One unavailable image does not erase the message
+> Alice's message contains a heading, a paragraph and a diagram. If the diagram is missing, corrupt or points outside this message's declared resources, Bob still sees the accepted heading and paragraph, plus the diagram's alternative text and a client-owned reason. His client does not fetch a replacement from Alice's website or reinterpret the diagram as a downloadable file.
+
+A client keeps message acceptance, display quality and permission to act separate. A readable recovery view cannot repair a failed signature, conflicting encoding or missing authorization. Conversely, a later image-decoding failure does not retract an answer that was already validly accepted.
+
+:::: {.details summary="Rendering outcomes, failure scope and accessibility precedence"}
+
+### Apply failures at their owning boundary
+
+The following outcomes are local processing results, not new wire fields, automatic replies or remote security evidence. Preserve exact authenticated event/MIME source and provenance separately from derived text, HTML trees, pixels and mutable display preferences.
+
+| Condition | Receiving outcome |
+| --- | --- |
+| Authentication, current authority, required application agreement, event binding or complete carrier selection fails | Do not activate the representation or apply new structured effects. Keep the owning contract's pending/unsupported/invalid outcome and safely accessible original/diagnostics. A rich-looking recovery view cannot establish an authenticated author or repair the failure. |
+| Missing/conflicting required charset, invalid UTF-8 or ambiguous source encoding declaration | No new-profile activation through guessed or repaired characters. Retain source; a separately labeled legacy/diagnostic reading view is not successful acceptance of the failed representation. |
+| Ordinary HTML parse recovery followed by complete safe filtering | Use the fresh permitted tree and retain relevant diagnostics. Never attach the parsed source tree. Unknown CSS/attributes are discarded under their defined rules; filtered presentation grants no interaction authority. Nonconforming author input is not the same as receiver failure to implement the filter. |
+| Malformed head-noscript recovery, insufficient required parser diagnostics or a direction boundary whose specified replacement is unavailable | Refuse the complete rich projection, including any prefix already processed. Keep the separately handled readable alternative/diagnostic and original. Do not claim a partial tree has preserved meaning. |
+| Parser/tree/output processing budget, timeout or containment failure | Stop the affected projection without partial-success output. Report incomplete/temporarily unavailable processing, not malformedness, malicious authorship or absence of format support inferred solely from a local budget. A later authorized retry uses original bytes; it does not fetch replacement content. |
+| Missing, ambiguous, integrity-failed, unsupported or budget-rejected image | Retain its authenticated alternative text and a client-owned reason. Do not borrow a same-named part from another message, use an unrestricted second decoder, fetch a remote replacement or count unverified bytes as an attachment. Other independently accepted text may remain readable. |
+| Rejected navigation destination | Retain the link text without a live destination. No DNS, preview, credential lookup or navigation follows from validation failure. |
+| User text view, larger fonts, forced colors or other accessibility preference | Apply the requested client-owned display override without rewriting source or downgrading protection. These are valid user presentation choices, not missing HTML support or permission to ignore required semantic/resource validation. |
+
+An unavailable resource does not become valid because text remains readable. Complete MIME framing/required operation agreement remains necessary even when individual resources may be absent under their selected contract. New downloads, interaction effects, source quotations and conversation graph relationships retain their own exact acceptance/authorization gates. Rendering diagnostics do not manufacture them or roll back already accepted history. An application operation remains pending if its owning contract needs an unresolved dependency; an unrelated image placeholder does not choose a replacement target.
+
+Apply image-work limits across the entire projection, not just independently to every decoder call. Check a configured image-count bound before beginning image resolution/decoding. A projection-wide count or processing failure returns an incomplete diagnostic presentation, without a partially successful rich tree. For a shared decoded-pixel budget, process retained image positions in the projection's stable traversal order and pass the remaining allowance to the next decoder before allocation. Once exhausted, keep subsequent alternative text without invoking another decoder. Repeated placements consume the actual retained output budget unless an implementation safely shares the same immutable decoded storage; a cache cannot bypass message/resource scope or integrity validation. Local limits and their reported outcomes remain distinct from mandatory format support and do not select a universal image quota.
+
+The diagnostic/source view itself must be inert and contained. Showing original HTML means escaped source or an isolated filtered reading projection, never executing it in the application's origin. No recovery state automatically submits forms, sends receipts, updates registries, fetches resources or weakens transport/encryption. A request to inspect an attachment or navigate follows that distinct deliberate-action contract.
+
+### Accessibility and trusted controls
+
+User/client enforcement outranks sender declarations on every affected element, including inline author values. Retain native heading/list/table/link semantics and meaningful alternative text. Keep client-owned identity, audience, protection, unavailable-content explanations and real interaction controls outside the sender tree. Sender title, language, direction, formatting or apparent button text cannot name, cover, reorder or activate those controls.
+
+A user-selected text view must still distinguish quotation/source attribution and unavailable content where that context is needed to understand the accepted contribution. It cannot silently turn quoted text into new authored text, a passage into an answer target or a private copy into a broader audience. Keep the original accessible for inspection. Enlarged fonts, contrast replacement and scrolling retain text and keyboard reachability rather than clipping it or widening the application's trusted layout.
+
+Record positive finite deployment budgets and reference datasets/engines with acceptance evidence. A client can advertise only what it actually implements within its declared limits; a syntactically recognized format, preview screenshot, watchdog or one engine's round trip is not complete rendering or accessibility conformance. Native zoom, assistive technology, hard containment and cross-engine behavior require their own evidence.
+
+### Acceptance cases
+
+Test each failure independently and in combination with an accepted message, private reply, indexed quotation and deliberate interaction. Include malformed/duplicate encodings, parse recovery, resource ID collision, invalid digest, absent image, rejected link, resource exhaustion before/after tree construction, late rendering failure after accepted history, nested RTL/auto direction and unpreserved removed wrappers. Refusal must expose no partial rich tree or effects. Repeat with enlarged fonts, forced colors and keyboard-only navigation; verify trusted labels remain outside content and rejected links/images cause no network work. Source bytes and event identity remain unchanged across retries and preference changes.
+
+::::
+
 ## Implementation evidence and limits
 
 The evidence implements parts of this contract, not a conforming renderer. The current boundaries are:
@@ -197,4 +243,4 @@ The vocabulary, source references, language-data policy, image interpretation an
 
 Preserve direction boundaries rather than copying `dir` onto every descendant. The local projection retains explicit `html` and `body` direction as nested message-only containers, so client-generated titles cannot determine `auto` direction. A direction-bearing form in supported body-flow contexts becomes one inert block boundary; its trailing text stays outside. A `bdi` with omitted direction retains its automatic behavior.
 
-Automatic direction applies to filtered message content. This is a proposed projection policy, not a promise to preserve the source document's computed direction after removing content. Other removed direction-bearing wrappers produce a diagnostic until a context-safe replacement is defined. A Chromium geometry check verifies that a Hebrew paragraph in `pre dir="auto"` reads right to left and a following Latin paragraph reads left to right, with the newline preserved. This is one actual layout case, not complete bidi coverage. Nested mixed-direction text, malformed table reparsing, other engines and assistive-technology output still need validation.
+Automatic direction applies to filtered message content. This is a proposed projection policy, not a promise to preserve the source document's computed direction after removing content. If another unlisted wrapper has a valid explicit `dir` value (`ltr`, `rtl` or `auto`) that would be lost by removal, refuse the entire rich projection with an unpreserved-direction diagnostic. Do not return a partial rich tree or copy that direction onto each descendant: either can change reading order and isolation. Invalid direction values establish no boundary and follow ordinary filtering. This is the selected recovery outcome for nonconforming wrapper content, not an unresolved replacement algorithm. Newly generated conforming content uses the permitted elements and preserves its valid direction boundaries. A Chromium geometry check verifies that a Hebrew paragraph in `pre dir="auto"` reads right to left and a following Latin paragraph reads left to right, with the newline preserved. This is one actual layout case, not complete bidi coverage. Nested mixed-direction text, malformed table reparsing, other engines and assistive-technology output still need validation.

@@ -17,6 +17,8 @@ This experimental profile carries a signed challenge and one signed device respo
 
 The profile transports discovery evidence, not message content. The initiator must independently validate the returned advertisement and any MLS admission material, then follow the security profile. A successful HTTP exchange is never key confirmation.
 
+The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [provider control2](#obtain-asynchronous-device-evidence) when this capability is offered. Current exchanges retain their original required agreement and assertion10. Retained version0/1 records remain exact; no old response is relabeled and no complete implementation follows from these bindings.
+
 ## Configuration and participant credentials
 
 ::: {.details summary="Configuration and participant credentials: implementation rules"}
@@ -60,11 +62,24 @@ Missing/invalid bearer credentials use RFC6750's applicable WWW-Authenticate cha
 
 Configuration exact object:
 
-```
-{profile, grant, account, service, prefix, initiator, target,
- initiatorState, initiatorBinding, targetState, targetBinding,
- role, operations, notBefore, notAfter, limits}
-```
+| Field | Meaning |
+| --- | --- |
+| `profile` | The exact profile identifier specified below. |
+| `grant` | The immutable pair-grant identifier. |
+| `account` | The configured provider account identifier; its owning account grammar applies. |
+| `service` | The exact selected service origin. |
+| `prefix` | The canonical configured control-service prefix. |
+| `initiator` | The initiating device endpoint reference. |
+| `target` | The target device endpoint reference. |
+| `initiatorState` | Digest of the accepted initiator state named by the configuration. |
+| `initiatorBinding` | Digest of that initiator device binding. |
+| `targetState` | Digest of the accepted target state named by the configuration. |
+| `targetBinding` | Digest of that target device binding. |
+| `role` | The exact configured participant role. |
+| `operations` | The exact operations allowed for that role. |
+| `notBefore` | The start of the validity interval, using this record’s time grammar. |
+| `notAfter` | The end of the validity interval, using this record’s time grammar. |
+| `limits` | The complete limits object under the queue contract. |
 
 `profile` is `en-provider-control-0`; IDs and digest fields have their declared 64-lowercase-hex syntax. Participant is exactly `{principal,device}` under existing identity grammars. `role` and `operations` obey the role sets above. All times are nonnegative safe JSON integers (at most 9007199254740991), and notBefore <= notAfter. Unlike the string-only event schema, this control schema deliberately uses integer timestamps/limits and the explicitly allowed null fields below; booleans and fractional numbers are never accepted. Depth is counted with root container at one.
 
@@ -86,26 +101,56 @@ Request and response wrappers each have exact fields `{payload,signature}`. `pay
 
 Request exact fields:
 
-```
-{profile, kind, id, service, prefix, grant, account, initiator, target,
- initiatorState, initiatorBinding, targetState, targetBinding,
- nonce, notBefore, notAfter, purpose}
-```
+| Field | Meaning |
+| --- | --- |
+| `profile` | The exact profile identifier specified below. |
+| `kind` | The record kind specified below. |
+| `id` | The exchange identifier; it must match the route. |
+| `service` | The exact selected service origin. |
+| `prefix` | The canonical configured control-service prefix. |
+| `grant` | The immutable pair-grant identifier. |
+| `account` | The configured provider account identifier; its owning account grammar applies. |
+| `initiator` | The initiating device endpoint reference. |
+| `target` | The target device endpoint reference. |
+| `initiatorState` | Digest of the accepted initiator state named by the configuration. |
+| `initiatorBinding` | Digest of that initiator device binding. |
+| `targetState` | Digest of the accepted target state named by the configuration. |
+| `targetBinding` | Digest of that target device binding. |
+| `nonce` | The random challenge nonce, under the exact grammar below. |
+| `notBefore` | The start of the validity interval, using this record’s time grammar. |
+| `notAfter` | The end of the validity interval, using this record’s time grammar. |
+| `purpose` | The exact purpose specified below. |
 
 `profile` is `en-provider-control-0`; kind `challenge`; purpose `fresh-device-discovery`; service and prefix equal the configured origin and absolute prefix exactly; grant and account equal the shared configuration. State and binding fields are existing lowercase SHA256 payload digests. nonce is fresh 32-byte random lowercase hex. Times are integer Unix seconds under the existing uncertainty-interval rule. Request ID must equal route ID. Request signer must be the initiator device binding named under its accepted state and currently authorized to receive; this is a new narrow discovery-signing use of receive authority, consistent with passive discovery, not enroll/revoke/send authority.
 
 Response exact fields:
 
-```
-{profile, kind, id, service, prefix, grant, account, requestHash,
- initiator, target, nonce, notBefore, notAfter, advertisement}
-```
+| Field | Meaning |
+| --- | --- |
+| `profile` | The exact profile identifier specified below. |
+| `kind` | The record kind specified below. |
+| `id` | The exchange identifier; it must match the route. |
+| `service` | The exact selected service origin. |
+| `prefix` | The canonical configured control-service prefix. |
+| `grant` | The immutable pair-grant identifier. |
+| `account` | The configured provider account identifier; its owning account grammar applies. |
+| `requestHash` | SHA256 of the original signed request payload bytes. |
+| `initiator` | The initiating device endpoint reference. |
+| `target` | The target device endpoint reference. |
+| `nonce` | The random challenge nonce, under the exact grammar below. |
+| `notBefore` | The start of the validity interval, using this record’s time grammar. |
+| `notAfter` | The end of the validity interval, using this record’s time grammar. |
+| `advertisement` | The target device’s complete original signed capability advertisement. |
 
-kind is `device-evidence`. requestHash is SHA256 of the exact signed request payload bytes. All common binding values equal the request. For the current Email/2 agreement, advertisement is the complete original assertion8 wrapper under the [suite binding](suite-profile.md), with canonical mailbox spelling and the exact supported application offers, signed by the target device. A KeyPackage is optional for refreshing an established conversation; new admission requires its own usable package. Earlier configured experiments use older nested advertisements and do not establish current-suite support. Response signer is that same target device. The advertisement's principal/device must equal target; mailbox must equal the independently configured target mailbox association; state/binding must equal the request's targetState/targetBinding and the target's current accepted head/binding. The response interval must be nonempty: request notBefore <= response notBefore <= response notAfter <= request notAfter. Its notAfter also cannot exceed advertisement, binding or supplied package expiry. At response creation and new admission the entire trusted local clock interval must fit within both request and response intervals. Request interval must fit inside the configured grant interval; equal endpoints are permitted syntactically but cannot be used unless the full clock interval fits. No generic `supported:true`, account device list or service-signed substitute is allowed.
+kind is `device-evidence`. requestHash is SHA256 of the exact signed request payload bytes. All common binding values equal the request. For the version0 exchange defined in this section, advertisement is the complete original assertion8 wrapper under the [suite binding](suite-profile.md), with canonical mailbox spelling and the exact supported application offers, signed by the target device. A KeyPackage is optional for refreshing an established conversation; new admission requires its own usable package.
+
+Earlier configured experiments use older nested advertisements and do not establish current-suite support. Response signer is that same target device. The advertisement's principal/device must equal target; mailbox must equal the independently configured target mailbox association; state/binding must equal the request's targetState/targetBinding and the target's current accepted head/binding.
+
+The response interval must be nonempty: request notBefore <= response notBefore <= response notAfter <= request notAfter. Its notAfter also cannot exceed advertisement, binding or supplied package expiry. At response creation and new admission the entire trusted local clock interval must fit within both request and response intervals. Request interval must fit inside the configured grant interval; equal endpoints are permitted syntactically but cannot be used unless the full clock interval fits. No generic `supported:true`, account device list or service-signed substitute is allowed.
 
 The initiator verifies its locally outstanding exact request, response signature, current device authority, request hash, nonce, purpose and complete current uncertainty interval inside both validity intervals. It then independently validates the advertisement, identity and package through existing validators. A provider replay cannot satisfy a new challenge. A provider signature or TLS connection cannot replace the device signature. Invalid or different unsolicited replies do not cancel a valid outstanding request or poison an established identity.
 
-If the target has moved to another accepted state, it must not sign evidence for the requested old state. This version leaves the challenge unanswered until expiry; normal independent identity evidence can advance the initiator and permit a separately authorized new challenge. No in-band replacement-key shortcut. This conservative choice trades progress for a small auditable first contract.
+If the target has moved to another accepted state, it must not sign evidence for the requested old state. This version leaves the challenge unanswered until expiry; normal independent identity evidence can advance the initiator and permit a separately authorized new challenge. If the configured grant freezes the former target state, this also requires a fresh exact pair grant/configuration approved under its own policy; preserving an old grant’s unchanged-binding authority does not edit its requested state or produce a live target response. The [purpose-specific continuity rules](provider-grants.md#continuity-and-freshness-have-different-scopes) distinguish original evidence from that new live authorization. No in-band replacement-key shortcut. This conservative choice trades progress for a small auditable first contract.
 
 :::
 
@@ -113,7 +158,16 @@ If the target has moved to another accepted state, it must not sign evidence for
 
 ::: {.details summary="Validation and transaction order: implementation rules"}
 
-**Service request admission:** (1) enforce HTTP framing/body/header limits and authenticated TLS; (2) authenticate token, expiry, role and configured grant, then rate limits; (3) parse bounded wrapper and payload, reject duplicate decoded names and invalid exact schemas/encodings; (4) compare route ID, account, grant, origin/prefix, participants, purpose, state/binding and interval to immutable provisioning; (5) verify Ed25519 using the provisioned initiating key; (6) atomically check retained exact wrapper identity, lifetime and all admission budgets, then create or return the unchanged stored record. Signature-valid does not mean the provider verified mailbox ownership. No credential holder can enqueue unsigned traffic for the peer to verify later.
+**Service request admission:**
+
+1. Enforce HTTP framing/body/header limits and authenticated TLS
+2. Authenticate token, expiry, role and configured grant, then rate limits
+3. Parse bounded wrapper and payload, reject duplicate decoded names and invalid exact schemas/encodings
+4. Compare route ID, account, grant, origin/prefix, participants, purpose, state/binding and interval to immutable provisioning
+5. Verify Ed25519 using the provisioned initiating key
+6. Atomically check retained exact wrapper identity, lifetime and all admission budgets, then create or return the unchanged stored record.
+
+Signature-valid does not mean the provider verified mailbox ownership. No credential holder can enqueue unsigned traffic for the peer to verify later.
 
 Exact retry means byte-identical original PUT wrapper body, not merely equal parsed JSON; clients retain that body. Collision is checked only after authentication, schema and signature checks, so an invalid forgery cannot cause an authoritative conflict. A retained identical request may be retrieved after expiry while the credential/grant still permits access, but cannot be enqueued again. New expired requests are rejected. Records lost in a service restore must not be treated as absent: disable writes for affected grants until reconciliation or revoke them and provision new grants.
 
@@ -174,4 +228,46 @@ A reference service must preserve grants, immutable exchanges, responses and rep
 
 The positive integration test uses a real validated KeyPackage from a response in the existing MLS invitation flow. Admission, protected delivery and confirmation must succeed independently of the provider's HTTP status. The queue does not reserve or consume the package. A competing invitation must still respect single-use admission.
 
-Public deployments additionally need integration of the selected [queue-grant lifecycle](provider-grants.md) and [service discovery binding](provider-discovery.md). The [automatic first-contact exchange](bootstrap.md) defines separate unknown-peer authority; this pair-grant protocol cannot authorize an unknown sender by itself. [Freshness policy](freshness.md) binds a validated current-suite response to its original local operation, age anchor and release checks; older nested-advertisement experiments are not that complete adapter. The configured bearer mechanism inherits the [service-answer credential limitations](service-answers.md): token theft is not prevented by response deduplication, and sender-constrained credentials remain unresolved. The [TLS 1.3](audits/tls13.md), [service identity](audits/service-identity.md), [HTTP](audits/http-semantics.md) and [automatic-response](audits/automatic-responses.md) audits describe related inherited boundaries; their existence is not implementation evidence.
+Public deployments additionally need integration of the selected [queue-grant lifecycle](provider-grants.md) and [service discovery binding](provider-discovery.md). The [automatic first-contact exchange](bootstrap.md) defines separate unknown-peer authority; this pair-grant protocol cannot authorize an unknown sender by itself. [Freshness policy](freshness.md) binds a validated current-suite response to its original local operation, age anchor and release checks; older nested-advertisement experiments are not that complete adapter. The configured bearer mechanism inherits the [service-answer credential limitations](service-answers.md): token theft is not prevented by response deduplication, and this selected bearer profile does not supply sender-constrained credentials. Any future sender-constrained capability requires its own exact binding; it cannot be inferred from a device signature or deduplicated response. The [TLS 1.3](audits/tls13.md), [service identity](audits/service-identity.md), [HTTP](audits/http-semantics.md) and [automatic-response](audits/automatic-responses.md) audits describe related inherited boundaries; their existence is not implementation evidence.
+
+
+## Reply-aware known-pair exchanges
+
+A known-pair provider exchange can obtain the exact device evidence needed for a declared reply policy. Both sides retain the requested agreement throughout the exchange. Provider acceptance still does not establish encryption, human verification or delivery of a human message.
+
+::: {.details summary="Exact successor configuration, proofs and device checks"}
+
+The profile is `mail-provider-control-v1`, selected only through [descriptor1](provider-discovery.md#reply-aware-queue-discovery) or independently trusted exact configuration. Configuration has exactly the profile0 fields plus required `agreement`, with agreement `"mail-conversation-v1"`. Its profile is the new literal. Initiator/target roles, exact operation arrays, account/grant/device/state/binding/limits, safe integer times, prefixes and authoritative active-account/family checks remain unchanged. Old and new grants remain immutable; allocate a fresh grant/configuration for a profile change rather than editing a retained pair.
+
+Challenge and device-evidence payloads each have exactly their profile0 member inventory plus required `agreement`, and profile equal to the new literal. Agreement is exactly `"mail-conversation-v1"` and equals the current immutable configuration. Their signature domain is `mail/provider-control/v1`, using the unchanged Ed25519 NUL/U32-length/original-byte framing. Wrappers remain exactly payload/signature. The request's original context, nonce, target state, interval and source role bind the response as before.
+
+The response advertisement is exactly one original assertion9 wrapper. Independently validate its signature/domain, current accepted target identity/receive authority, mailbox association, exact requested state/binding, original validity/control-key promises and complete reply-aware operation offers. It must contain the selected context9 application before it can supply receiving support. A package remains optional for capability refresh; admission still needs its own usable material. No tuple from assertion8, provider status or remembered boolean can supply assertion9 support.
+
+HTTP methods, suffixes, no-store representations, bounded work, pending/response states, immutable exact PUT retry and original requestHash correlation retain their meanings. Configuration and exchange responses use the new profile literal; the exchange representation otherwise keeps exactly its existing fields. No additional agreement field is inserted into the unsigned exchange wrapper: its immutable request/response and active configuration bind that value. Select the exact profile before parsing or signature verification; never try profile0 after a failed profile1 check.
+
+Every queue mutation/read retains current token/account/grant/role and device checks. Reset, unlink, family revocation, expiry, source blocking and restored-store uncertainty cannot be bypassed by switching profile. A target-head change requires the original protocol's fresh evidence/new authorized pair preparation, not reinterpretation of cached support as a live response. Exact lost-result retrieval never refreshes the original proof interval.
+
+After validation, run the [reply-aware handoff](first-contact-setup.md#reply-aware-acquisition-and-handoff) with every intended assertion9, current authority and original local intent revision. The queue result cannot release content, promote identity verification, change reply intent or invent group membership. Complete successor account/pair authorization, HTTP and admission integration remain implementation/acceptance obligations.
+
+:::
+
+
+## Obtain asynchronous device evidence
+
+The known-pair queue can request the asynchronous agreement without waiting for every invitee. Each exchange concerns its exact known target device. A valid result can help one actual delivery progress while other recipients remain pending.
+
+::: {.details summary="Exact control2 records, evidence and retry boundaries"}
+
+Select `mail-provider-control-v2` through [descriptor2](provider-discovery.md#discover-the-asynchronous-agreement) or independently trusted exact configuration. Configuration has exactly control1's member inventory, with profile `"mail-provider-control-v2"` and agreement `"mail-conversation-v2"`. All original service/prefix/account/grant, endpoint/state/binding, role/operation, limits and safe JSON integer time rules apply. A fresh exact configuration/grant is required; no retained grant is edited into this profile.
+
+Challenge and device-evidence payloads have exactly their control1 member inventories, including required agreement. Profile and agreement use those same two literals. Sign the exact original payload bytes under `mail/provider-control/v2`, followed by NUL and the existing U32 big-endian payload length/original-byte framing. Wrappers remain exactly payload/signature. Purpose, current receive-role signing, request ID, requestHash, target state/binding, nonce, interval and grant/role correlation retain their original requirements.
+
+The response advertisement is one complete original assertion10 wrapper under its independent `mail/passive-discovery/v10` signature. Validate current target identity/receive authority, exact configured canonical mailbox, request state/binding, original validity/control-key promises, package material and the complete [assertion10 offers](suite-profile.md#asynchronous-protected-agreement). Its chosen ordering must project to the fixed context10 application. Retain the device's interactions; do not apply the older optional-block intersection. A missing package may suffice for capability refresh, but not admission requiring a package. No earlier assertion, provider status or remembered capability supplies this evidence.
+
+HTTP routes/methods and bounded no-store representations retain their exact control1 shapes. Configuration and exchange representations use profile mail-provider-control-v2 wherever their owning schema has a profile. The unsigned exchange wrapper gains no agreement field: the active configuration and original signed request/response already bind it. Parse only the selected branch; failed control2 verification cannot activate an older branch.
+
+Current token/account/family/grant/device/role checks and serialized revocation apply to each operation. Target-head change cannot be answered as the old head; independently obtain current evidence and authorize any required new pair. Version does not reset request/conflict namespaces, source blocks, limits, deadlines, restored-store holds or uncertain results. An exact response retry returns its retained bytes, not a new package or fresh timestamp.
+
+Pass accepted evidence to the [per-delivery handoff](first-contact-setup.md#acquisition-for-independently-ready-deliveries). The result does not bind an unresolved invitation slot, alter the authored audience, install native membership, satisfy human verification or release content. Other pending exchanges do not block an independently eligible delivery under the selected progression policy.
+
+:::

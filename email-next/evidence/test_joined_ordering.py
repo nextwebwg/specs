@@ -128,4 +128,34 @@ identity.close()
         with self.assertRaisesRegex(ValueError,'current account authority'):self.groups[1].install(candidate,proof,time=self.time)
         self.assertEqual(before,self.groups[1].live())
 
+    def test_last_device_of_another_administrator_is_not_removable(self):
+        # A distinct native group with two administrator principals. Keeping the
+        # creator is insufficient: every immutable administrator must survive.
+        context=json.loads(json.dumps(self.context))
+        context['administrators']=sorted(d['principal'] for d in self.devices[:2])
+        a=self.devices[0]
+        created=call(self.worker,op='create',checkpoint=a['checkpoint'],key=a['key'],identity=a['identity'],context=encode(context).hex())
+        initial=call(self.worker,op='candidate',checkpoint=created['checkpoint'],key=a['key'],group=created['snapshot']['group'],packages=[d['package'] for d in self.devices[1:]])
+        identity=IdentityStore(self.root/'two-admins.sqlite');self.identities.append(identity)
+        for peer in self.devices:identity.observe(peer['record'],first_contact_policy='allow-unverified')
+        group=JoinedOrdering(identity,self.worker,a)
+        group.install_fixture({'snapshot':initial['after'],'checkpoint':initial['checkpoint']})
+        before=tuple(identity.db.iterdump())
+        target=next(int(m['index']) for m in group.live()[1]['snapshot']['members'] if m['identity']==self.devices[1]['identity'])
+        with self.assertRaisesRegex(ValueError,'administrator absent'):
+            group.stage(ProviderKey(self.provider,a),time=self.time,removals=[target])
+        self.assertEqual(tuple(identity.db.iterdump()),before)
+        self.assertEqual(len(json.loads(bytes.fromhex(group.live()[1]['snapshot']['context']))['administrators']),2)
+
+    def test_native_context_changes_do_not_publish_or_advance_live_state(self):
+        group=self.groups[0];before=tuple(group.db.iterdump())
+        for kind in ('administrators','application','delivery'):
+            context=json.loads(json.dumps(self.context))
+            if kind=='administrators':context[kind]=sorted(d['principal'] for d in self.devices[:2])
+            elif kind=='application':context[kind]['operations']=['message','question']
+            else:context[kind]=dict(kind='private-copy-v0',originator=self.devices[0]['principal'],recipient=self.devices[1]['principal'])
+            with self.subTest(kind=kind),self.assertRaisesRegex(ValueError,'unselected application/admin change'):
+                group.stage(ProviderKey(self.provider,self.devices[0]),time=self.time,new_context=context)
+            self.assertEqual(tuple(group.db.iterdump()),before)
+
 if __name__=='__main__':unittest.main()

@@ -14,6 +14,8 @@ A rich message carries a readable text version, an HTML presentation and an expl
 
 This chapter defines the existing experimental `rich-message` operation and `mime-rich-v0` carriage. Authentication, recipient authority and exact-byte event identity still come from the enclosing [security profile](security-profile.md), not from HTML, MIME filenames or resource hashes.
 
+Current Encryption uses authored0/envelope6 and mime-suite-v2 under the [asynchronous baseline](suite-profile.md#current-client-baseline). This chapter owns shared rich-operation and resource rules. Earlier MIME layouts remain exact; the [current carrier](suite-profile.md#asynchronous-protected-agreement) uses its own logical-resource namespace and original authored bytes, without reinterpreting an old representation.
+
 ## HTML presentation and compatibility text
 
 The author supplies both `text` and `html`. The HTML uses the defined [HTML/CSS presentation profile](presentation-profile.md); it is not permission to embed an unrestricted web page. Email/2 clients are required to support that profile. The text version supports existing clients, quotation matching, indexing and explicit simpler reading views. It may also be exposed with a diagnostic when rich presentation fails; it is not a negotiated substitute for implementing the required renderer. See [required presentation](presentation-profile.md#required-presentation).
@@ -133,6 +135,38 @@ Wire, decoded-byte, part-count, parser, image and output budgets are explicit lo
 The initial selected binding is context4, envelope1 and payload `mime-rich-v0`, supported through signed assertion3 tuples. The exact operation set must include `rich-message` on every admitted device. Implementing the operation parser or advertising a different payload does not imply support. Initial invitation version 3 uses common roster version 0; established invitations use version 3. Both bind that agreement as specified in their owning chapters.
 
 The [private-copy profile](private-copies.md) independently versions its envelope/context/assertion while reusing this operation and payload. Later profiles must explicitly select their own exact tuple and preserve the operation's rules; no inferred cross-product or silent upgrade is permitted. Existing raw-event/body-only contexts do not accept a rich payload merely because it contains recognizable MIME.
+
+## Accept the event; check its presentation separately
+
+A compatibility alternative is not a second source of message meaning. When a valid carrier's readable copy disagrees with its authenticated event, the client reports the discrepancy and reads the accepted event. Broken carrier framing or an invalid operation is different: neither can be repaired by choosing whichever alternative looks plausible.
+
+:::: {.details summary="Carrier, operation, indexed-content and display acceptance order"}
+
+These are local processing boundaries, not new wire fields or a universal success ladder. Each owning validator retains its actual pending/unsupported/invalid outcome and original evidence. Commit native message-consumption/replay state safely even when application processing cannot finish; a later retry resumes retained staged bytes rather than decrypting with consumed state again.
+
+| Boundary and condition | Required application outcome |
+| --- | --- |
+| Authentication, authority, selected agreement, direct MIME structure, required part/header/charset, transfer decoding or strict UTF-8 fails | No new structured activation or effects through that carrier. Retain safe source/diagnostics and any required native receipt. Do not recursively find another event, try raw JSON or select a different agreement. |
+| Carrier and event are valid, but a readable MIME alternative disagrees with the event's owning projection | Record a discrepancy for this exact carrier. The accepted operation/event fields remain authoritative. Never replace them with that alternative or use it to choose action labels, targets, audience, service authority or source quotations. A well-decoded discrepancy alone does not invalidate the otherwise accepted event. |
+| Operation/envelope shape, required field agreement or supported operation selection fails | No active operation or accepted event namespace reservation from the invalid record. Preserve attributed cryptographic/transport observations separately from an application acceptance claim. Readable content is diagnostic only. |
+| A reply-message's complete source HTML/index/Microdata map cannot be established | Hold the indexed operation and its derived reply/source relationships. A processing limit or missing required parser result remains incomplete; a proven schema/index contradiction is invalid. Preserve the complete original and inert readable text with unestablished boundaries, so new writing is not discarded. Do not activate a prefix or identify authored chunks from styling. |
+| A complete valid indexed map has an unavailable/invalid primary relationship (including failed source reply permission) or an unavailable, conflicted or mismatched quotation claim | Keep the accepted contribution and all authored/quotation chunks visible with the [specified pending/conflict/mismatch labels](reply-content.md#receiver-procedure). Only the affected edge or source claim remains unestablished. A missing quoted message is not permission to discard new writing or fetch history. |
+| The accepted event/map exists, but fresh filtering, layout, image decoding or a user display override changes its presentation | Apply the [presentation failure matrix](presentation-profile.md#when-presentation-cannot-finish). Keep accepted meaning/provenance and independently valid effects; no diagnostic view or image placeholder creates another authorization. |
+| A newly learned identity/event conflict invalidates a previously used source | Apply its owning conflict/revocation rules to current derived eligibility and pending work. Retain historical outcomes. A later display failure is not that conflict and cannot itself reverse an executed service effect. |
+
+For rich and indexed operations, rendering and source-map validation use the authenticated operation's HTML, text and inventory. The MIME text/HTML leaves still have to meet the carrier's mandatory structure, declared charset, strict decoding and resource-processing limits. A leaf containing invalid UTF-8 is therefore a carrier failure even if its event alternative can be decoded. A well-decoded HTML leaf with different content is a projection discrepancy; its apparent content cannot become the accepted message or an action surface. Generators must produce the owning faithful projections, not rely on receivers tolerating discrepancies.
+
+For resource-free operations the client derives its trusted question/answer/reaction/edit presentation from accepted fields and exact authorized dependencies. HTML templates and localized client labels need not be byte-identical between implementations. Compare exact bytes only where the owning projection defines that serialization; a different permitted template alone does not prove different meaning. Retain a comparison that cannot finish as pending/unknown, not a fabricated match. Client-owned controls remain outside the sender tree and disclose their actual target/audience.
+
+An indexed map is complete only after its entire operation/index schema and required inert source parsing, element uniqueness/order and metadata/text/source agreement succeed. If required source decoding or parser diagnostics are unavailable, no complete map exists. Once those checks succeed, inability to produce the fresh rich rendering does not erase the accepted chunk roles/text. A simpler view retains that complete attribution and each source-resolution label. It is not successful rich rendering, a text-only implementation class or permission to manufacture a map from an invalid prefix.
+
+Missing or corrupt individual resources follow their selected availability rules; they do not silently become unbounded carrier recovery. An accepted manifest can identify an unavailable image or attachment without releasing its unverified bytes. An actual download, quotation match, answer, reaction or service action still needs its independent exact acceptance/authority checks.
+
+Required cases distinguish a well-decoded mismatched MIME leaf, an invalid-UTF8 leaf, malformed direct structure, an invalid indexed element/index pair, an incomplete parser run, a complete map with unavailable source, later renderer/image failure, exact replay and source conflict learned after acceptance. Observe native/checkpoint/receipt state, journal/graph/effect eligibility and actual content rendered. A primitive parser or mismatch flag is not the complete current-suite acceptance path.
+
+::::
+
+The selected [asynchronous agreement’s mime-suite-v2](suite-profile.md#asynchronous-protected-agreement) uses the authored record’s logical event and the literal resources.mail.invalid domain for scoped Content-IDs. This overrides only that carrier’s resource-namespace projection; the HTML/CSS safety profile, exact resource bytes/roles and isolated decoding remain required. Earlier carriers retain the literal forms above.
 
 ## Evidence and remaining limits
 

@@ -25,7 +25,7 @@ class ProviderDiscoveryTests(unittest.TestCase):
                           publication='a' * 32, generation='1', service='https://mail.example',
                           controlPrefix='https://mail.example/control/', managementPrefix='https://mail.example/manage/',
                           notBefore='10', notAfter='100')
-        self.facts = FetchFacts('https://example.org/.well-known/email2-provider')
+        self.facts = FetchFacts('https://example.org/.well-known/mail-provider')
         self.meta = dict(issuer='https://mail.example', authorization_endpoint='https://mail.example/authorize',
                          token_endpoint='https://mail.example/token', registration_endpoint='https://mail.example/register',
                          revocation_endpoint='https://mail.example/revoke', authorization_response_iss_parameter_supported=True,
@@ -33,6 +33,60 @@ class ProviderDiscoveryTests(unittest.TestCase):
                          token_endpoint_auth_methods_supported=['none'], code_challenge_methods_supported=['S256'],
                          scopes_supported=SCOPES[:])
         self.meta_facts = FetchFacts('https://mail.example/.well-known/oauth-authorization-server')
+
+    def test_relay_and_bootstrap_register_each_exact_requested_subset(self):
+        from itertools import combinations, permutations
+        from provider_discovery import NATIVE_SCOPES
+        for module in ['relay', 'bootstrap']:
+            all_scopes=NATIVE_SCOPES[module]
+            meta=dict(self.meta,scopes_supported=all_scopes[:])
+            for size in range(1,len(all_scopes)+1):
+                for selected in combinations(all_scopes,size):
+                    scopes=list(selected)
+                    accepted=metadata(wire(meta),self.value,self.meta_facts,module=module,scopes=scopes)
+                    request=registration_request(module=module,scopes=scopes)
+                    self.assertEqual(request['redirect_uris'],CALLBACKS)
+                    for order in permutations(scopes):
+                        response=dict(request,scope=' '.join(order),client_id='native',client_id_issued_at=20)
+                        result=registration_response(wire(response),accepted,FetchFacts(meta['registration_endpoint'],status=201),module=module,scopes=scopes)
+                        self.assertEqual(result['scope'],' '.join(order))
+
+    def test_module_scope_selection_cannot_borrow_or_default_other_authority(self):
+        for module in ['relay','bootstrap','unknown']:
+            with self.assertRaises(ValueError):registration_request(module=module)
+        for module,scopes in [('relay',SCOPES),('bootstrap',['mail.relay.link']),('provider',[SCOPES[0]]),('relay',[]),('relay',['mail.relay.link']*2)]:
+            with self.subTest(module=module,scopes=scopes), self.assertRaises(ValueError):
+                registration_request(module=module,scopes=scopes)
+        with self.assertRaises(ValueError):
+            metadata(wire(self.meta),self.value,self.meta_facts,purpose='recipient-bootstrap',module='bootstrap',scopes=['mail.setup.link'])
+
+    def test_scope_response_never_adds_omits_duplicates_or_changes_module(self):
+        scopes=['mail.setup.link','mail.setup.request','mail.setup.respond']
+        request=registration_request(module='bootstrap',scopes=scopes)
+        for actual in [' '.join(scopes+[SCOPES[0]]),' '.join(scopes[:2]),' '.join(scopes+[scopes[0]]),'  '.join(scopes),' '.join(SCOPES),'\t'.join(scopes)]:
+            response=dict(request,scope=actual,client_id='native',client_id_issued_at=20)
+            with self.subTest(scope=actual), self.assertRaises(ValueError):
+                registration_response(wire(response),self.meta,FetchFacts(self.meta['registration_endpoint'],status=201),module='bootstrap',scopes=scopes)
+
+    def test_module_metadata_requires_the_selected_scope_not_another_namesake(self):
+        meta=dict(self.meta,scopes_supported=['mail.setup.link','mail.relay.manage'])
+        with self.assertRaises(ValueError):
+            metadata(wire(meta),self.value,self.meta_facts,module='bootstrap',scopes=['mail.setup.link','mail.setup.request'])
+        wrong=dict(self.meta,issuer='https://other.example',scopes_supported=['mail.setup.link'])
+        with self.assertRaises(ValueError):
+            metadata(wire(wrong),self.value,self.meta_facts,module='bootstrap',scopes=['mail.setup.link'])
+
+    def test_previous_draft_scopes_and_paths_are_not_implicit_aliases(self):
+        old_scopes=['email2.provider.link','email2.provider.manage']
+        old_meta=dict(self.meta,scopes_supported=old_scopes)
+        with self.assertRaises(ValueError):metadata(wire(old_meta),self.value,self.meta_facts)
+        old_fetch=replace(self.facts,url='https://example.org/.well-known/email2-provider')
+        with self.assertRaises(ValueError):descriptor(wire(self.value),'example.org',old_fetch,time=(20,21))
+        response=dict(registration_request(),client_id='native',client_id_issued_at=20)
+        facts=FetchFacts(self.meta['registration_endpoint'],status=201)
+        for patch in [dict(scope=' '.join(old_scopes)),dict(redirect_uris=['http://127.0.0.1:1/email2/provider/callback','http://[::1]:1/email2/provider/callback'])]:
+            with self.subTest(patch=patch), self.assertRaises(ValueError):
+                registration_response(wire(dict(response,**patch)),self.meta,facts)
 
     def accept(self, value=None, **kwargs):
         return self.store.accept(wire(value or self.value), 'example.org', self.facts, time=(20, 21),
@@ -70,7 +124,7 @@ class ProviderDiscoveryTests(unittest.TestCase):
         self.assertIsNone(self.store.snapshot('example.org'))
 
     def test_fetch_facts_cannot_redirect_change_origin_or_supply_ambient_credentials(self):
-        changes = [dict(url='https://mail.example/.well-known/email2-provider'), dict(status=302),
+        changes = [dict(url='https://mail.example/.well-known/mail-provider'), dict(status=302),
                    dict(tls_authenticated=False), dict(redirected=True), dict(network_allowed=False),
                    dict(ambient_credentials=True), dict(no_store=False), dict(content_type='text/html'), dict(content_coding='gzip')]
         for change in changes:
@@ -182,7 +236,7 @@ class ProviderDiscoveryTests(unittest.TestCase):
         self.assertEqual(registration_response(wire(value), self.meta, facts), value)
         for change in [dict(client_id=''), dict(client_id_issued_at=True), dict(scope=SCOPES[0]),
                        dict(scope=' '.join(SCOPES + SCOPES)), dict(token_endpoint_auth_method='client_secret_basic'),
-                       dict(redirect_uris=['http://localhost:1/email2/provider/callback'])]:
+                       dict(redirect_uris=['http://localhost:1/mail/provider/callback'])]:
             with self.subTest(change=change), self.assertRaises(ValueError):
                 registration_response(wire(dict(response, **change)), self.meta, facts)
         for member in ['client_secret', 'client_secret_expires_at', 'registration_access_token', 'registration_client_uri']:

@@ -45,14 +45,14 @@ The registration has exactly these members. Duplicate decoded names, omitted mem
 | `service`, `issuer` | Identical canonical HTTPS origins using the service-origin grammar |
 | `clientId` | Nonempty opaque ASCII identifier, compared exactly |
 | `authorization`, `token`, `linkChallenge`, `linkComplete` | Four distinct canonical HTTPS endpoints at that origin |
-| `redirectPath` | `/email-next/oauth/callback` |
-| `scopes` | Exactly `["email-next.link", "email-next.status", "email-next.submit"]` |
+| `redirectPath` | `/mail/oauth/callback` |
+| `scopes` | Exactly `["mail.service.link", "mail.service.status", "mail.service.submit"]` |
 
 These are operator-defined scope strings, not claims of IANA registration. `registrationDigest` is lowercase SHA-256 of the exact retained UTF-8 registration bytes. Reserialization changes that digest. The service retains the registrations it authorizes for each client and rejects unknown or withdrawn digests.
 
 ### Authorization and callback
 
-The native loopback URI is `http://127.0.0.1:<port>/email-next/oauth/callback` or `http://[::1]:<port>/email-next/oauth/callback`. Exact registered host/path matching permits only the native-loopback ephemeral-port exception. No localhost resolution or arbitrary redirect is permitted. Supporting this client flow does not establish the full server redirect-option support described by RFC8252.
+The native loopback URI is `http://127.0.0.1:<port>/mail/oauth/callback` or `http://[::1]:<port>/mail/oauth/callback`. Exact registered host/path matching permits only the native-loopback ephemeral-port exception. No localhost resolution or arbitrary redirect is permitted. Supporting this client flow does not establish the full server redirect-option support described by RFC8252.
 
 Each attempt uses independent cryptographically random 32-byte state and PKCE verifier values encoded as unpadded base64url. The S256 challenge is unpadded base64url of SHA-256 over the verifier's ASCII bytes. Persist the selected registration, exact redirect, verifier, state and attempt expiry in secret storage before browser navigation.
 
@@ -74,7 +74,7 @@ Refresh is restricted to the same client, registration and original scope. Rotat
 
 ### Challenge request and response
 
-The challenge request has exactly `version:"0"`, `purpose:"service-account-link-request"`, `registrationDigest`, `principal`, `device`, `state` and `binding`. The principal/device use existing enp0/end0 grammars; state and binding are exact lowercase SHA-256 digests. An access token with `email-next.link` authorizes this endpoint, not a client-supplied account identifier.
+The challenge request has exactly `version:"0"`, `purpose:"service-account-link-request"`, `registrationDigest`, `principal`, `device`, `state` and `binding`. The principal/device use existing enp0/end0 grammars; state and binding are exact lowercase SHA-256 digests. An access token with `mail.service.link` authorizes this endpoint, not a client-supplied account identifier.
 
 The returned challenge has exactly the following fields:
 
@@ -105,6 +105,42 @@ Mapping is scoped to issuer, internal account key, client and grant family. It r
 The receipt has exactly `version:"0"`, `purpose:"service-account-link-result"`, `challenge`, `requestDigest`, `service`, `principal`, `link`, `generation` and `outcome:"linked"`. The digest is SHA-256 of the exact challenge payload; link is a nonzero ObjectId and generation a positive canonical uint64 string. No token, account ID or identity bundle is included.
 
 Retain the exact signed proof before submission. A currently authorized same-family retry with identical payload **and signature** returns the retained receipt, including after challenge expiry. Changed signature or payload cannot use that shortcut or poison the accepted mapping. Withdrawal still blocks authorization. The receipt records a link; it does not replace the service's current grant checks or become a conversation answer.
+
+::::
+
+## Reconnect without changing the action
+
+Signing back in can restore access to an existing submission, but it must not move that submission to a different service account. The service binds each person's action to the account authorized for it. Choosing another account does not change that binding, even when both accounts are linked to the same Email/2 identity.
+
+Replacing or revoking a device binding stops its old service link from authorizing new work. A currently authorized device can connect again through fresh sign-in and linking. Existing request bytes and receipts remain intact; reconnecting does not mean an uncertain action failed or should be performed again.
+
+:::: {.details summary="Account isolation, link continuity, disconnect and execution boundaries"}
+
+### Immutable action-account authority
+
+For this native profile the service's independently provisioned action authorization binds each `(service, action, answering principal)` to exactly one internal account incarnation. The account handle is non-reassigned service state, not an email address, OAuth subject supplied by a client, request member or public receipt field. The service checks that binding for both POST and GET. Linking another account to the same principal does not authorize inspecting, replacing or repeating the original account's action. A missing authorization record holds access; first submission cannot allocate that authority.
+
+An action intended for a different account needs independently provisioned action authority with a new action identity and its corresponding immutable question binding. The client cannot make that change as a retry or use it to resolve a possibly completed earlier action. The existing principal/action/submission deduplication and replacement chain remain unchanged; the immutable action-account authorization prevents using the same chain through another account. Reassignment or deletion of an account invalidates its grants and authorization before reuse of any login name; the new incarnation never inherits those records.
+
+A reconnected family for the original account and principal can inspect retained submissions under current status authority. A different account receives an authorization denial with no receipt or effect details. An HTTP denial, missing record or successful sign-in does not prove whether an earlier action executed. Account authentication and Email/2 linking alone do not provision an action, choose its options or authorize a business effect.
+
+### Current link and unchanged authority
+
+Retain the linked principal, device, original accepted state and binding with the family. At each new service operation require current device send authority and [unchanged-binding accepted ancestry](provider-grants.md#retain-an-unchanged-device-binding) from that exact link. An unrelated accepted identity-head advance may preserve it; a different binding, key, role gap, known conflict, revocation or state1 repair does not. Loading the device's newest key or binding is not permission to retarget the old link. A link receipt is historical evidence, not a current authorization credential.
+
+Version 0 permits one principal/device link per grant family. Apart from exact retained completion replay it does not refresh that mapping in place. A binding change or repair therefore requires disconnecting the old family and obtaining a new account grant and current signed link; a fresh login cannot change an old submission's action-account binding. Full state1 validation remains necessary before claiming repair-aware support. A retired principal cannot regain sending power through a service login. If current linking/status authority cannot be obtained, retain existing local evidence and hold protocol access rather than forging the old identity.
+
+### Disconnect and revoked grants
+
+`DELETE` to the exact registered `linkComplete` endpoint, with no body and an access token carrying `mail.service.link`, disconnects that authenticated family. No account/family selector is accepted in a body or URL. This method on the existing registered endpoint adds no guessed path or new registration field. Use the profile's direct TLS, no ambient credentials, no redirects, no-store and Bearer error rules. Commit family/link withdrawal and access/refresh invalidation before returning HTTP204 with an empty body. A still-valid independently authorized family cannot disconnect another family through a supplied identifier.
+
+The client stops using and clears the selected local credentials even if the disconnect response is lost; it retains non-secret submission/receipt evidence and any required protected retry journal. An invalid or expired token cannot prove remote withdrawal. Reconnect or the service's separately trusted account-management interface may be required to finish revocation; report the uncertainty instead of saying every session is disabled. Disconnect is neither cancellation of a pending action nor reversal of a completed effect. Already authorized irreversible external work may still complete.
+
+Registration withdrawal, refresh reuse, known incompatible identity changes and account deletion must be effective at the serialized resource decision, not merely checked at a preceding HTTP handler. Authorization and the effect/status read must share authoritative serialization or a fail-closed authorization lease invalidated before a conflicting withdrawal commits. A token snapshot from another connection cannot authorize a later mutation after revocation wins that order. Separate databases do not provide this property automatically. Retained pending effects need their documented recovery/reconciliation protocol; withdrawal never justifies a false rejected/not-applied receipt.
+
+### Acceptance cases
+
+Test the same principal in two authenticated accounts, absence of action-account provisioning, attempted authorization retargeting, reconnect to the original account, unchanged-binding head advance, changed binding with the same signing key and send role, state1 repair, retired identity, exact old link receipt replay, disconnect/lost response, expired revocation credentials, refresh reuse and concurrent resource commit/withdrawal. Original receipts remain historical; unknown outcomes cannot generate a replacement submission. Cross-account denial cannot disclose original receipts. The configured component covers selected account/binding cases, not full state1, public disconnect transport or cross-database revocation serialization.
 
 ::::
 

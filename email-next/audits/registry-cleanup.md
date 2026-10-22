@@ -29,7 +29,15 @@ A submission permission of MAY does not require a provider to implement the exte
 
 ## Length values require careful interpretation
 
-The draft changes SMTPUTF8's increment to 9 and CHECKPOINT's to 89, identifying off-by-one corrections, and gives NO-SOLICITING an increment of 1009. SMTPUTF8 has been checked against RFC 6531 §3.1: the valueless eight-character token plus its preceding space occupies nine octets. The published document nevertheless grants ten extra characters of MAIL command allowance. Actual serialized length and the receiver’s published allowance are separate quantities; the nine-octet calculation does not by itself authorize reducing receiver acceptance. CHECKPOINT and NO-SOLICITING still require independent grammar reconciliation. Proposed corrections are not silently adopted as published updates here.
+The draft proposes increments of 9 for SMTPUTF8, 89 for CHECKPOINT and 1009 for NO-SOLICITING. Serialized grammar and published receiver allowance are separate quantities:
+
+| Extension | Serialized increment | Published source discrepancy |
+| --- | --- | --- |
+| SMTPUTF8 | Eight-character valueless token plus preceding space: 9 octets | RFC6531 §3.1 grants 10 additional characters; calculating 9 does not authorize reducing receiver acceptance. |
+| CHECKPOINT | Space, seven-character `TRANSID`, equals sign and value of at most80 characters: 89 octets | RFC1845 §2 items4–5 bounds the value including angle brackets but grants only88 additional characters. |
+| NO-SOLICITING | Space plus `SOLICIT=` occupies9 octets; adding the grammar/registration maximum1000 gives1009 | RFC3865 §4.1 grants1007. Its §2.2 prose also says the keyword set is strictly shorter than1000, which would instead give a maximum1008. The grammar/registration and prose boundaries disagree. |
+
+The CHECKPOINT calculation follows [RFC1845 §§2–3](https://www.rfc-editor.org/rfc/rfc1845.html#section-2). The NO-SOLICITING discrepancy follows [RFC3865 §§2.2–2.3,4.1 and AppendixA](https://www.rfc-editor.org/rfc/rfc3865.html#section-2.2). The draft's1009 does not resolve that source's prose boundary or amend the published1007 allowance. These are scoped grammar findings, not complete audits of either extension. Neither extension is selected as an Email/2 retry, consent or key-discovery mechanism. Proposed corrections are not silently adopted as published receiver requirements.
 
 The length table repeats CONPERM and does not provide a separately labelled CONNEG row. Its NO-SOLICITING explanation points to section 2.3 of “this document”, which does not exist in this draft. Do not infer the missing row's identity or the intended reference. The complete table has been read, but independent recalculation of every listed extension's maximum remains outstanding.
 
@@ -37,4 +45,4 @@ The specification must calculate command lengths from the negotiated extension g
 
 ## Remaining work
 
-Reconcile the original extension grammars and errata for the proposed length corrections, track resolution of the table defects, and recheck the live registry before claiming these edits are applied. No external report or registration has been submitted as part of this audit.
+The CHECKPOINT and NO-SOLICITING source calculations above retain their published conflicts. A future adapter selecting either extension must define its sender/receiver interoperability policy explicitly; the general Email/2 profile does not depend on them. Track resolution of the NO-SOLICITING boundary and draft table defects, and recheck the live registry before claiming proposed edits are applied. Recalculation of other optional extensions remains separately scoped. No external report or registration has been submitted as part of this audit.

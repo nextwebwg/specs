@@ -345,6 +345,8 @@ Derive a same-key renewal repair from independently validated competing parent s
 
 Valid binding authorization and possession without the complete repair certificate remain staged and grant no role. Test missing approval, substituted possession, incomplete parent evidence, changed frontier before installation and atomic failure before commit. Ordinary enrollment against those same conflicted parents remains held. The existing first-repair candidate tests cover deterministic bytes and proof binding using trusted state0 parent snapshots; they do not establish complete state1 parent validation, staging persistence or atomic installation.
 
+Collect a primary authorizer's binding proof and another device's possession proof in a share assembled by a third eligible device. Each forwarded proof must retain its actual signer and purpose. A nonempty top-level proof from a device other than `by`, a substituted proof domain or a sealed source different from `by` must fail the applicable validation. An unsigned public `by` label cannot authenticate the assembler. Compare authentic but unresolved-time evidence with a currently usable approval; neither a claimed old signing time nor an embedded parent bundle may bypass the independent history and current-authority checks. Reject malformed framing before any proof is staged. Combining otherwise valid partial shares cannot install the repair, send an automatic response or increase any device's permissions.
+
 
 ## Retirement does not depend on notice delivery
 
@@ -502,5 +504,33 @@ The [authored-history mapping](encrypted-archives.md#preserve-messages-that-have
 | Same principal reuses an accepted old event ID in authored0 | Retain an authenticated namespace conflict; a version change is not another namespace. Untrusted archive claims cannot create this evidence. |
 
 Archive byte-preservation evidence does not establish authored0 semantic parsing, full resource validation, native revalidation or transactional live effects. Tests and reports must identify which of these boundaries they actually exercise.
+
+:::
+
+## Authenticate existing mail services without weakening account policy
+
+The [submission/access profile](transport.md#authenticate-the-discovered-service) must authenticate the intended account service before disclosing credentials. A successful connection still says nothing about a correspondent's message-encryption support.
+
+::: {.details summary="Mail service identity and TLS acceptance cases"}
+
+| Scenario | Required result |
+| --- | --- |
+| Existing TLS1.2 service, permitted ECDHE/AES-GCM suite, valid service certificate and compatible account minimum | Connection permitted after all checks; no end-to-end protection inference. |
+| Same service with an account minimum of TLS1.3 | Hold account operations; do not lower the minimum or try credentials elsewhere. |
+| TLS1.2 peer offers only static RSA, DHE, CBC, or lacks required EMS/secure renegotiation | Fail the restricted compatibility profile despite an otherwise valid certificate. |
+| TLS1.2 client omits required `signature_algorithms`, or a permitted AES-GCM suite is followed by an MD5/SHA-1 handshake signature or invalid signature encoding | Reject; the suite's PRF hash and a valid certificate cannot excuse the handshake failure. |
+| Unsigned SRV target presents a valid certificate only for the target | Fail unless that target was independently authorized as a reference; routing and SNI do not authorize it. |
+| Discovered IMAPS service presents the original-domain DNS-ID or correct `_imaps` SRV-ID | Either independently permitted matching reference can authenticate it after path/status checks. A wrong service label cannot match the SRV reference. |
+| Hostname delegation is authenticated; another hostname appears only through CNAME | Only the authorized delegation can add its DNS-ID. Do not use the CNAME to expand references. |
+| Directly configured IP literal versus an address returned by DNS | Only the former can supply an IP-ID reference. Omit IP-literal SNI; no reverse-DNS substitution. |
+| CN-only, partial-label wildcard or multiple-label wildcard certificate | Reject the invalid name match. A separate valid permitted SAN match remains independently evaluated. |
+| Authorized STARTTLS succeeds after different pre-TLS EHLO capabilities | Apply the same account policy, obtain fresh EHLO capabilities and do not reuse pre-TLS advertisements. |
+| TLS1.2 mail compatibility exists beside an Email/2 HTTPS action service | HTTPS still requires TLS1.3. No cross-account credentials, certificate exception or early-data permission follows. |
+| Account TLS policy is mistakenly applied to a DANE-EE relay | Preserve the relay's own TLSA rules rather than substituting account Web PKI name/expiry checks. |
+| Reused connection or resumed session has expired validation, missing required staple or newly learned distrust | Revalidate or hold/full-handshake as specified; resumption cannot refresh evidence by itself. |
+
+Verify the [common TLS1.3 capabilities](service-answers.md#tls-1-3-implementation-capabilities) through the selected backend, including required cipher/group/signature support, cookie handling and certificate-signature extension support. Test conditional extension placement and rejected malformed handshakes rather than requiring every extension in every message. No client certificate or account credential is released by a capability test.
+
+Use actual maintained TLS and certificate backends for claims about negotiation, wire extensions, status and credential withholding. A reference-name table or mocked version value does not establish those behaviors. Existing HTTPS fixtures do not by themselves prove the mail adapter's SRV-ID, TLS1.2 or STARTTLS integration.
 
 :::

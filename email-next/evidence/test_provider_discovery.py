@@ -30,7 +30,8 @@ class ProviderDiscoveryTests(unittest.TestCase):
                          token_endpoint='https://mail.example/token', registration_endpoint='https://mail.example/register',
                          revocation_endpoint='https://mail.example/revoke', authorization_response_iss_parameter_supported=True,
                          response_types_supported=['code'], grant_types_supported=['authorization_code', 'refresh_token'],
-                         token_endpoint_auth_methods_supported=['none'], code_challenge_methods_supported=['S256'],
+                         token_endpoint_auth_methods_supported=['none'],
+                         revocation_endpoint_auth_methods_supported=['none'], code_challenge_methods_supported=['S256'],
                          scopes_supported=SCOPES[:])
         self.meta_facts = FetchFacts('https://mail.example/.well-known/oauth-authorization-server')
 
@@ -50,6 +51,28 @@ class ProviderDiscoveryTests(unittest.TestCase):
                         response=dict(request,scope=' '.join(order),client_id='native',client_id_issued_at=20)
                         result=registration_response(wire(response),accepted,FetchFacts(meta['registration_endpoint'],status=201),module=module,scopes=scopes)
                         self.assertEqual(result['scope'],' '.join(order))
+
+    def test_token_and_revocation_methods_are_independent_public_capabilities(self):
+        from provider_discovery import NATIVE_SCOPES
+        missing = object()
+        for module, scopes in NATIVE_SCOPES.items():
+            selected = list(scopes)
+            valid = dict(self.meta, scopes_supported=selected,
+                         token_endpoint_auth_methods_supported=['none', 'client_secret_basic'],
+                         revocation_endpoint_auth_methods_supported=['none'])
+            metadata(wire(valid), self.value, self.meta_facts, module=module, scopes=selected)
+            for field in ['token_endpoint_auth_methods_supported',
+                          'revocation_endpoint_auth_methods_supported']:
+                for value in [missing, ['client_secret_basic'], [], 'none', None,
+                              ['none', 'none'], [False]]:
+                    changed = copy.deepcopy(valid)
+                    if value is missing:
+                        del changed[field]
+                    else:
+                        changed[field] = value
+                    with self.subTest(module=module, field=field, value=repr(value)), self.assertRaises(ValueError):
+                        metadata(wire(changed), self.value, self.meta_facts,
+                                 module=module, scopes=selected)
 
     def test_module_scope_selection_cannot_borrow_or_default_other_authority(self):
         for module in ['relay','bootstrap','unknown']:

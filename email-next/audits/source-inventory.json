@@ -4576,5 +4576,136 @@
         "bytes": 1666
       }
     }
+  },
+  {
+    "rfc": 5246,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text reviewed: 104 pages, physical LF lines1\u20135827, including figures, structures, appendices, references and end matter; selected applicability recorded separately; no runtime conformance claim; own all-status errata records: 22 (10 Verified, 5 Held for Document Update, 7 Rejected)",
+    "title": "The Transport Layer Security (TLS) Protocol Version 1.2",
+    "pub_date": "August 2008",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [
+      "RFC4492"
+    ],
+    "updated_by": [
+      "RFC5746",
+      "RFC5878",
+      "RFC6176",
+      "RFC7465",
+      "RFC7507",
+      "RFC7568",
+      "RFC7627",
+      "RFC7685",
+      "RFC7905",
+      "RFC7919",
+      "RFC8447",
+      "RFC9155",
+      "RFC10015"
+    ],
+    "obsoletes": [
+      "RFC3268",
+      "RFC4346",
+      "RFC4366"
+    ],
+    "obsoleted_by": [
+      "RFC8446",
+      "RFC9846"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5246.txt",
+        "sha256": "2ebe1b8e651696aeacc8ab3848bedb465505737901ea3b691acf40c392958feb",
+        "bytes": 222395
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5246.json",
+        "sha256": "e50470b833d0d89b93d5f2ca083955b1b907497a77fa9b342aa07b605be9efc0",
+        "bytes": 1367
+      }
+    },
+    "errata_review": {
+      "record_count": 22,
+      "status_counts": {
+        "Verified": 10,
+        "Held for Document Update": 5,
+        "Rejected": 7
+      },
+      "source": "https://errata.rfc-editor.org/search/?rfc_number=5246&status=any&presentation=records",
+      "scope": "All records in captured explicit all-status listing read; no implication of future freshness."
+    }
+  },
+  {
+    "rfc": 5077,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text reviewed: 20 pages, physical LF lines1\u20131123, including figures, structures, appendices, references and end matter; selected applicability recorded separately; no runtime conformance claim; own all-status errata records: 1 (1 Reported)",
+    "title": "Transport Layer Security (TLS) Session Resumption without Server-Side State",
+    "pub_date": "January 2008",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC8447"
+    ],
+    "obsoletes": [
+      "RFC4507"
+    ],
+    "obsoleted_by": [
+      "RFC8446",
+      "RFC9846"
+    ],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5077.txt",
+        "sha256": "e9f9cb247c4930a773dadf87b4cedf06cad9bbeec5e364d08fd5a83f678817ef",
+        "bytes": 41989
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5077.json",
+        "sha256": "7b0735e2ca5dd58e64e71f42cb108adb39862c58dc6e260eb6161d173d0ff5f2",
+        "bytes": 1114
+      }
+    },
+    "errata_review": {
+      "record_count": 1,
+      "status_counts": {
+        "Reported": 1
+      },
+      "source": "https://errata.rfc-editor.org/search/?rfc_number=5077&status=any&presentation=records",
+      "scope": "All records in captured explicit all-status listing read; no implication of future freshness."
+    }
+  },
+  {
+    "rfc": 5289,
+    "text": "retrieved",
+    "metadata": "retrieved",
+    "read": "Complete base text reviewed: 6 pages, physical LF lines1\u2013345, including figures, structures, appendices, references and end matter; selected applicability recorded separately; no runtime conformance claim; own all-status errata records: 0",
+    "title": "TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode (GCM)",
+    "pub_date": "August 2008",
+    "current_status": "PROPOSED STANDARD",
+    "updates": [],
+    "updated_by": [
+      "RFC10015"
+    ],
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "source_snapshots": {
+      "base_text": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5289.txt",
+        "sha256": "4bc7e5ae5b8a9e8c022a85530989593ba95bff2d2153aaf2aa5c017f2bd1410b",
+        "bytes": 12195
+      },
+      "metadata": {
+        "source": "https://www.rfc-editor.org/rfc/rfc5289.json",
+        "sha256": "49ca27a0dde5ac343c5b7c40ec27da6e06386db5c5883ac7334913dbf69be6a7",
+        "bytes": 1128
+      }
+    },
+    "errata_review": {
+      "record_count": 0,
+      "status_counts": {},
+      "source": "https://errata.rfc-editor.org/search/?rfc_number=5289&status=any&presentation=records",
+      "scope": "All records in captured explicit all-status listing read; no implication of future freshness."
+    }
   }
 ]

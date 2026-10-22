@@ -150,7 +150,17 @@ def metadata(raw, delegation, facts, *, purpose='account-setup', module='provide
         urls(service, endpoints=endpoints)
         if len(set(endpoints)) != 4:
             raise ValueError('Distinct OAuth endpoints required')
-        for key, required in [('response_types_supported', ['code']), ('grant_types_supported', ['authorization_code', 'refresh_token']), ('token_endpoint_auth_methods_supported', ['none']), ('code_challenge_methods_supported', ['S256']), ('scopes_supported', selected_scopes)]:
+        # RFC8414 defaults the two endpoint methods independently. Token-endpoint
+        # public-client support cannot authorize secret-free revocation.
+        required_capabilities = [
+            ('response_types_supported', ['code']),
+            ('grant_types_supported', ['authorization_code', 'refresh_token']),
+            ('token_endpoint_auth_methods_supported', ['none']),
+            ('revocation_endpoint_auth_methods_supported', ['none']),
+            ('code_challenge_methods_supported', ['S256']),
+            ('scopes_supported', selected_scopes),
+        ]
+        for key, required in required_capabilities:
             if not set(required) <= set(string_list(value[key])):
                 raise ValueError('Required public native authorization capability')
     except (KeyError, TypeError) as error:

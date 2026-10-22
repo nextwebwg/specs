@@ -107,7 +107,27 @@ This section applies only to connecting the person's own account, never to recip
 
 The service origin is the OAuth issuer in this version. Obtain its [RFC8414 authorization-server metadata](https://www.rfc-editor.org/rfc/rfc8414.html#section-3) from `service + "/.well-known/oauth-authorization-server"` through the same credential-free, redirect-free transport rules. Require exact issuer equality. Unknown metadata extensions may be ignored; they cannot replace selected fields or install credentials.
 
-Metadata must advertise distinct canonical same-origin `authorization_endpoint`, `token_endpoint`, `registration_endpoint` and `revocation_endpoint`; `response_types_supported` including `code`; `grant_types_supported` including `authorization_code` and `refresh_token`; `token_endpoint_auth_methods_supported` including `none`; `code_challenge_methods_supported` including `S256`; `authorization_response_iss_parameter_supported:true`; and both exact scopes `mail.provider.link` and `mail.provider.manage` in `scopes_supported`. Each selected list is an array of unique nonempty ASCII strings. Additional advertised supported values do not select them. Absent requirements leave this profile unavailable; do not infer support from an endpoint's name. No received `jwks_uri`, documentation link or signed-metadata field is fetched by this profile.
+The service must explicitly support native public clients both when issuing tokens and when revoking them. Token support alone does not establish revocation support: RFC8414 gives each endpoint its own authentication-method declaration, with a secret-based default when that declaration is absent.
+
+::: {.details summary="Required authorization-server metadata"}
+
+Require the following fields. Each selected list is an array of unique nonempty ASCII strings. Additional supported values do not select them. An absent requirement leaves this profile unavailable; endpoint names cannot establish support.
+
+| Field | Required value or included values |
+| --- | --- |
+| `issuer` | Exact selected service origin. |
+| `authorization_endpoint`, `token_endpoint`, `registration_endpoint`, `revocation_endpoint` | Four distinct canonical same-origin endpoints. |
+| `response_types_supported` | `code`. |
+| `grant_types_supported` | `authorization_code` and `refresh_token`. |
+| `token_endpoint_auth_methods_supported` | `none`, explicitly advertised. |
+| `revocation_endpoint_auth_methods_supported` | `none`, independently and explicitly advertised. |
+| `code_challenge_methods_supported` | `S256`. |
+| `authorization_response_iss_parameter_supported` | JSON boolean `true`. |
+| `scopes_supported` | The exact selected module's scope set; provider control requires `mail.provider.link` and `mail.provider.manage`. |
+
+No received `jwks_uri`, documentation link or signed-metadata field is fetched by this profile. Unknown extensions cannot replace required fields, change the selected origin or install credentials.
+
+:::
 
 [Dynamic client registration](https://www.rfc-editor.org/rfc/rfc7591.html#section-3) supplies a client identifier without requiring every email client developer to arrange credentials with every provider. This profile selects unauthenticated registration for a public native client. The provider can enforce finite rate and capacity limits, but cannot advertise this public profile while requiring an undisclosed initial access token, developer allowlist, software statement or public-client secret. Registration establishes no trusted application brand, human identity, mailbox authority or Email/2 authority.
 
@@ -132,6 +152,8 @@ The literal port 1 registers the two exact host/path forms, not a port to bind o
 
 Require HTTP201, no-store JSON and bounded uncompressed bytes. The response includes the exact registered metadata, a nonempty opaque ASCII `client_id` of at most 256 characters, and a nonnegative safe JSON integer `client_id_issued_at`. The scope may reorder the exact requested set, with no duplicates, additions or omissions. The provider-control example requests its two scopes; relay and setup use their explicitly selected nonempty sets under the shared native-module rules. Other client metadata is not selected. RFC7591 additional response members may be ignored, except `client_secret`, `client_secret_expires_at`, `registration_access_token` and `registration_client_uri`, whose presence rejects this selected unmanaged public-client registration. No returned URL can change the retained endpoints. This is a profile restriction, not a claim that those members are generally unsafe in OAuth.
 
+A registration error installs no client identifier, endpoints or permissions. For HTTP400, treat RFC7591's `error` and optional `error_description` as bounded inert data; never execute a returned description or use it to repair a redirect URI automatically. Other errors, malformed responses and unexpected success statuses also install nothing. An HTTP401 challenge does not authorize supplying a developer secret, initial access token or software statement. Rate limits, temporary failures and lost responses permit only bounded retry under the original setup policy and endpoint binding.
+
 Retain the original delegation bytes/digest, exact selected metadata bytes/digest, client ID and registered callback forms before sign-in. Reuse the resulting client registration for the same complete [module, delegation, metadata and scope binding](#reuse-sign-in-mechanics-without-sharing-permissions); do not register on every message or restart. A lost registration response may leave an unused public registration: it grants no account access. Retry only through bounded setup policy; do not guess the lost identifier or claim exact registration idempotency. No dynamic registration-update API is selected.
 
 Use authorization code with S256 PKCE, external system browser, fresh state, exact issuer-response checking, the retained ephemeral loopback redirect, no public-client secret and no resource-owner-password grant. The [native service authorization rules](service-authorization.md#authorization-and-callback) define those mechanics and code/refresh uncertainty handling. Here the selected callback path and scopes are the provider values above, not service-button scopes. Tokens are opaque Bearer credentials restricted to this provider's management resources. Rotate public-client refresh tokens with reuse detection. A token response must return exactly the selected scope set. A provider-management token is never a queue-role credential and cannot be sent to a peer provider.
@@ -140,7 +162,21 @@ The server derives the authenticated account from its own login/consent system; 
 
 The client binds every pending attempt to both exact retained descriptor digests, issuer, client ID, callback, scopes and current local setup generation. Recheck these before navigation, callback consumption, token exchange and link completion. A changed binding or uncertain code/refresh redemption holds the attempt and requires reconnecting. Changes cannot clear uncertain queue operations or authorize a fallback.
 
-Use the discovered `revocation_endpoint` under [RFC7009](https://www.rfc-editor.org/rfc/rfc7009.html#section-2), POST form-encoded `token`, `token_type_hint=refresh_token`, `client_id`, no client secret and no ambient credentials. The server revokes the entire management grant family and its access/refresh tokens. HTTP200 does not prove remote deletion or that every device learned of a revocation. An uncertain result leaves the local family disabled and permits bounded exact retry. Never forward an old token to a changed endpoint; retain its original trusted endpoint binding for an explicit disconnect attempt. Local disconnect stops new requests immediately. Its effect on queue grants is defined by the [grant lifecycle](provider-grants.md#credentials-and-revocation): management-family withdrawal invalidates every derived queue credential and blocks reads as well as writes.
+Local disconnect disables the management family immediately. Submit revocation only to its originally trusted `revocation_endpoint`; a changed discovery record cannot receive an old token. Use the following [RFC7009](https://www.rfc-editor.org/rfc/rfc7009.html#section-2) binding.
+
+::: {.details summary="Revocation request, family effects and uncertain results"}
+
+POST form-encoded `token` containing the original refresh token, `token_type_hint=refresh_token` and the original `client_id`. Send no Authorization header, client secret or ambient credentials. No query-string, JSONP or browser-script revocation mechanism is selected.
+
+The server validates the registered client identifier and, for a recognized token, verifies that the token belongs to that client before changing a grant family. A client identifier alone cannot select an account or family. This profile returns HTTP400 `invalid_client` for an unknown client, and HTTP400 `invalid_grant` for a recognized token belonging to another client; these error mappings are profile choices, not additional RFC7009 requirements.
+
+For a recognized eligible refresh token, revoke the entire management grant family and its access/refresh tokens atomically under the [grant lifecycle](provider-grants.md#credentials-and-revocation). That lifecycle also invalidates every derived queue credential and blocks reads as well as writes. An unknown or already-invalid token receives HTTP200 without selecting or changing another family. Ignore the HTTP200 body. Success does not prove that a particular token existed, that every device learned of the revocation, or that stored message data were deleted.
+
+The token-type hint only guides lookup. Ignore an unsupported hint; if the hinted lookup misses, check other supported token types as RFC7009 requires. Bound parsing, lookup and connection work through the service's declared finite capacity and rate policy. A lookup miss cannot authorize searching an arbitrary account selected by client input.
+
+HTTP503 means the token may still be valid remotely. Lost responses, other errors and unsupported token types also leave the result uncertain. Keep the local family disabled and preserve the original token, client and endpoint binding for bounded retry, respecting applicable Retry-After and backoff. Do not switch token type, endpoint, origin or authentication method automatically to overcome an error.
+
+:::
 
 The bearer risk described by [service authorization](service-authorization.md#implementation-evidence-and-boundaries) remains: possession of a stolen management token can exercise its authorized service grant. PKCE, a linked device signature and a registered client ID do not create per-request sender constraint. This chapter does not claim complete current OAuth security compliance or select a DPoP binding.
 

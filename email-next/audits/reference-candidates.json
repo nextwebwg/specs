@@ -640,6 +640,18 @@
     {
       "rfc": 10015,
       "sha256": "1cc53f068b7c02e7c49c77816d16d6453b6f094762fb16e361d358da96ac1086"
+    },
+    {
+      "rfc": 5246,
+      "sha256": "2ebe1b8e651696aeacc8ab3848bedb465505737901ea3b691acf40c392958feb"
+    },
+    {
+      "rfc": 5077,
+      "sha256": "e9f9cb247c4930a773dadf87b4cedf06cad9bbeec5e364d08fd5a83f678817ef"
+    },
+    {
+      "rfc": 5289,
+      "sha256": "4bc7e5ae5b8a9e8c022a85530989593ba95bff2d2153aaf2aa5c017f2bd1410b"
     }
   ],
   "missing_input_rfcs": [],
@@ -673,6 +685,7 @@
     {
       "rfc": 793,
       "cited_by": [
+        5246,
         8314,
         9110
       ],
@@ -969,6 +982,7 @@
         2104,
         2557,
         5147,
+        5246,
         6151,
         9580
       ],
@@ -1501,6 +1515,13 @@
       "status": "Unclassified citation candidate; applicability and review not established"
     },
     {
+      "rfc": 1948,
+      "cited_by": [
+        5246
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
       "rfc": 1950,
       "cited_by": [
         9110,
@@ -1918,6 +1939,8 @@
       "cited_by": [
         3207,
         3501,
+        5077,
+        5246,
         6749,
         6750,
         8996,
@@ -2089,6 +2112,7 @@
         3834,
         3864,
         5116,
+        5246,
         8126
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -2313,6 +2337,13 @@
       "status": "Unclassified citation candidate; applicability and review not established"
     },
     {
+      "rfc": 2712,
+      "cited_by": [
+        5077
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
       "rfc": 2717,
       "cited_by": [
         3986
@@ -2366,6 +2397,7 @@
     {
       "rfc": 2785,
       "cited_by": [
+        5246,
         8551
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -2660,6 +2692,13 @@
       "status": "Unclassified citation candidate; applicability and review not established"
     },
     {
+      "rfc": 3268,
+      "cited_by": [
+        5246
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
       "rfc": 3274,
       "cited_by": [
         8551,
@@ -2681,6 +2720,7 @@
       "cited_by": [
         4954,
         5035,
+        5246,
         5280,
         9846
       ],
@@ -2803,6 +2843,7 @@
     {
       "rfc": 3447,
       "cited_by": [
+        5246,
         6211,
         6376,
         8463,
@@ -2908,6 +2949,13 @@
       "rfc": 3516,
       "cited_by": [
         9051
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 3526,
+      "cited_by": [
+        5246
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
     },
@@ -3078,6 +3126,7 @@
     {
       "rfc": 3749,
       "cited_by": [
+        5246,
         8996
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -3085,6 +3134,7 @@
     {
       "rfc": 3766,
       "cited_by": [
+        5246,
         6376,
         8551,
         9325
@@ -3400,7 +3450,9 @@
     {
       "rfc": 4086,
       "cited_by": [
+        5077,
         5116,
+        5246,
         5652,
         8032,
         8551,
@@ -3442,6 +3494,7 @@
       "rfc": 4120,
       "cited_by": [
         4468,
+        5077,
         5280,
         8553
       ],
@@ -3604,6 +3657,8 @@
     {
       "rfc": 4279,
       "cited_by": [
+        5077,
+        5246,
         8996,
         10015
       ],
@@ -3660,9 +3715,17 @@
       "status": "Unclassified citation candidate; applicability and review not established"
     },
     {
+      "rfc": 4302,
+      "cited_by": [
+        5246
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
       "rfc": 4303,
       "cited_by": [
-        5116
+        5116,
+        5246
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
     },
@@ -3670,6 +3733,13 @@
       "rfc": 4306,
       "cited_by": [
         5869
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
+      "rfc": 4307,
+      "cited_by": [
+        5246
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
     },
@@ -3725,6 +3795,9 @@
       "cited_by": [
         4954,
         5034,
+        5077,
+        5246,
+        5289,
         8314,
         8996,
         8997,
@@ -3756,6 +3829,8 @@
     {
       "rfc": 4366,
       "cited_by": [
+        5077,
+        5246,
         8996,
         9846
       ],
@@ -3856,6 +3931,8 @@
     {
       "rfc": 4492,
       "cited_by": [
+        5246,
+        5289,
         8996,
         9846,
         10015
@@ -3884,8 +3961,16 @@
       "status": "Unclassified citation candidate; applicability and review not established"
     },
     {
+      "rfc": 4506,
+      "cited_by": [
+        5246
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
       "rfc": 4507,
       "cited_by": [
+        5077,
         8996
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -4066,6 +4151,13 @@
       "status": "Unclassified citation candidate; applicability and review not established"
     },
     {
+      "rfc": 4634,
+      "cited_by": [
+        5077
+      ],
+      "status": "Unclassified citation candidate; applicability and review not established"
+    },
+    {
       "rfc": 4637,
       "cited_by": [
         8126
@@ -4227,6 +4319,7 @@
     {
       "rfc": 4851,
       "cited_by": [
+        5077,
         8996
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -4428,18 +4521,9 @@
       "status": "Unclassified citation candidate; applicability and review not established"
     },
     {
-      "rfc": 5077,
-      "cited_by": [
-        7301,
-        8996,
-        9325,
-        9846
-      ],
-      "status": "Unclassified citation candidate; applicability and review not established"
-    },
-    {
       "rfc": 5081,
       "cited_by": [
+        5246,
         8996
       ],
       "status": "Unclassified citation candidate; applicability and review not established"
@@ -4604,29 +4688,6 @@
       "status": "Unclassified citation candidate; applicability and review not established"
     },
     {
-      "rfc": 5246,
-      "cited_by": [
-        5890,
-        6186,
-        6749,
-        6750,
-        7301,
-        7672,
-        8126,
-        8314,
-        8461,
-        8620,
-        8996,
-        8997,
-        9051,
-        9325,
-        9846,
-        9852,
-        10015
-      ],
-      "status": "Unclassified citation candidate; applicability and review not established"
-    },
-    {
       "rfc": 5255,
       "cited_by": [
         9051
@@ -4665,17 +4726,14 @@
     {
       "rfc": 5288,
       "cited_by": [
+        5289,
         9325,
         10015
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
-    },
-    {
-      "rfc": 5289,
-      "cited_by": [
-        10015
-      ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected TLS1.2 AES-GCM nonce, framing and record-protection rules reviewed; not complete base.",
+      "classification": "selected-applicable-source",
+      "review": "selected-ranges-reviewed",
+      "evidence": "selected-crypto.md"
     },
     {
       "rfc": 5293,
@@ -5009,7 +5067,10 @@
         9325,
         9852
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected initial secure-renegotiation acknowledgement and conditional Finished bindings reviewed; renegotiation need not be enabled.",
+      "classification": "selected-applicable-source",
+      "review": "selected-ranges-reviewed",
+      "evidence": "selected-crypto.md"
     },
     {
       "rfc": 5750,
@@ -5910,9 +5971,9 @@
         9608,
         9846
       ],
-      "status": "Selected OCSP response acceptance is required when the service consumes OCSP evidence. Responder authority, certificate binding, freshness and relevant corrections have scoped review; optional OCSP features and complete module imports remain outside that review.",
-      "classification": "selected-normative-dependency",
-      "review": "selected-sections-reviewed",
+      "status": "Selected OCSP response/status/signature/time rules and reached current ASN.1 imports are mapped in the certificate-status owner; exact source coverage and runtime limits remain separate.",
+      "classification": "selected-applicable-source",
+      "review": "selected-ranges-reviewed",
       "evidence": "certificate-status.md",
       "basis": "service-status-scoped-review.json"
     },
@@ -6277,7 +6338,10 @@
         9207,
         9700
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected native public registration metadata, success/error and security rules reviewed. No JWT/software-statement or registration-management path; selected ranges only.",
+      "classification": "selected-applicable-source",
+      "review": "selected-ranges-reviewed",
+      "evidence": "oauth-provider-discovery.md"
     },
     {
       "rfc": 7595,
@@ -6336,7 +6400,10 @@
         9325,
         9846
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected full and resumed extended-master-secret rules reviewed; no legacy no-EMS fallback.",
+      "classification": "selected-applicable-source",
+      "review": "selected-ranges-reviewed",
+      "evidence": "selected-crypto.md"
     },
     {
       "rfc": 7633,
@@ -6736,7 +6803,10 @@
         9207,
         9700
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected public-provider metadata rules; independent endpoint authentication declarations, issuer equality and exact scope/endpoint binding reviewed. Selected ranges only; no complete base review.",
+      "classification": "selected-applicable-source",
+      "review": "selected-ranges-reviewed",
+      "evidence": "oauth-provider-discovery.md"
     },
     {
       "rfc": 8418,
@@ -6760,7 +6830,10 @@
         9846,
         10015
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected authenticated ECDHE, point validation and fixed-width shared-secret rules reviewed; unselected static and DTLS branches remain separate.",
+      "classification": "selected-applicable-source",
+      "review": "selected-ranges-reviewed",
+      "evidence": "selected-crypto.md"
     },
     {
       "rfc": 8438,
@@ -6775,7 +6848,10 @@
         9180,
         9846
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected ChaCha20-Poly1305 primitive/AEAD/security rules and all captured errata reviewed for age and TLS1.3; not complete base or all vectors.",
+      "classification": "selected-applicable-source",
+      "review": "selected-ranges-reviewed",
+      "evidence": "selected-crypto.md"
     },
     {
       "rfc": 8446,
@@ -7106,7 +7182,10 @@
       "cited_by": [
         9325
       ],
-      "status": "Unclassified citation candidate; applicability and review not established"
+      "status": "Selected TLS1.2 signature-algorithm restrictions reviewed; no MD5/SHA1 handshake fallback.",
+      "classification": "selected-applicable-source",
+      "review": "selected-ranges-reviewed",
+      "evidence": "selected-crypto.md"
     },
     {
       "rfc": 9162,

@@ -9,16 +9,16 @@ This candidate list exposes RFC-number citations outside the current source inve
 
 Each candidate needs an applicability decision: required normative behavior, conditional feature dependency, historical context, or out of scope with rationale. Required and conditional dependencies need an appropriate source review and successor/errata checks. No candidate is marked reviewed by extraction. Non-RFC documents, registries and transitive references from these candidates remain separate work.
 
-54 candidates have explicit applicability classifications; classification does not mean their base texts were reviewed.
+62 candidates have explicit applicability classifications; classification does not mean their base texts were reviewed.
 
-The scan covered 160 captured texts from 160 inventory records and found 777 distinct out-of-inventory RFC candidates. Missing source texts: none. Input SHA-256 values and parent citations are recorded in `reference-candidates.json` alongside this chapter.
+The scan covered 163 captured texts from 163 inventory records and found 782 distinct out-of-inventory RFC candidates. Missing source texts: none. Input SHA-256 values and parent citations are recorded in `reference-candidates.json` alongside this chapter.
 
 | Candidate | Cited by inventoried RFCs | Disposition |
 | --- | --- | --- |
 | [RFC733](https://www.rfc-editor.org/rfc/rfc733.html) | 5234, 5598 | Unclassified citation candidate; applicability and review not established |
 | [RFC783](https://www.rfc-editor.org/rfc/rfc783.html) | 2046, 2049 | Unclassified citation candidate; applicability and review not established |
 | [RFC791](https://www.rfc-editor.org/rfc/rfc791.html) | 5280, 5598, 8126, 9525 | Unclassified citation candidate; applicability and review not established |
-| [RFC793](https://www.rfc-editor.org/rfc/rfc793.html) | 8314, 9110 | Unclassified citation candidate; applicability and review not established |
+| [RFC793](https://www.rfc-editor.org/rfc/rfc793.html) | 5246, 8314, 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC821](https://www.rfc-editor.org/rfc/rfc821.html) | 1870, 1939, 2045, 2046, 2049, 2449, 2557, 2646, 2920, 3030, 3207, 3461, 3463, 3464, 3501, 5321, 5598, 6530 | Historical SMTP predecessor: RFC5321 section1.2 explicitly supersedes this source. Selected transport and routing behavior follows the reviewed RFC5321 contract and applicable updates; omitted historical transport models are not selected. This classification does not claim a review of the predecessor text. [Selected source review](smtp.md). |
 | [RFC822](https://www.rfc-editor.org/rfc/rfc822.html) | 1847, 1870, 1939, 2045, 2046, 2047, 2049, 2183, 2184, 2231, 2369, 2387, 2392, 2449, 2480, 2557, 2634, 2919, 3030, 3156, 3461, 3464, 3501, 3503, 3798, 3834, 3864, 3886, 5173, 5234, 5321, 5322, 5335, 5337, 5598, 6522, 6530, 6532, 6533, 6854, 8098, 8551, 8601, 8621, 9051, 9787, 9788, 9991 | Historical message-format predecessor: selected syntax and obsolete-syntax reception follow reviewed RFC5322 and applicable updates. RFC5322 describes the succession through RFC2822; this classification does not claim a review of every historical RFC822 behavior. [Selected source review](message-format.md). |
 | [RFC850](https://www.rfc-editor.org/rfc/rfc850.html) | 9110 | Unclassified citation candidate; applicability and review not established |
@@ -39,7 +39,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC1176](https://www.rfc-editor.org/rfc/rfc1176.html) | 3501, 5321, 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC1211](https://www.rfc-editor.org/rfc/rfc1211.html) | 3461 | Historical mailing-list operational evidence motivating DSNs. Selected report syntax and delivery behavior come from reviewed RFC3461/3464; no RFC1211 implementation is selected. Base text unreviewed. [Selected source review](dsn-extension.md). |
 | [RFC1305](https://www.rfc-editor.org/rfc/rfc1305.html) | 5322 | Unclassified citation candidate; applicability and review not established |
-| [RFC1321](https://www.rfc-editor.org/rfc/rfc1321.html) | 1939, 2104, 2557, 5147, 6151, 9580 | Unclassified citation candidate; applicability and review not established |
+| [RFC1321](https://www.rfc-editor.org/rfc/rfc1321.html) | 1939, 2104, 2557, 5147, 5246, 6151, 9580 | Unclassified citation candidate; applicability and review not established |
 | [RFC1341](https://www.rfc-editor.org/rfc/rfc1341.html) | 2046, 2049, 9694 | Historical MIME predecessor: the reviewed MIME series describes the RFC1341/RFC1342 → RFC1521/RFC1522 → RFC2045–2049 succession. Current body and encoded-header handling follows that reviewed series and its updates; historical syntax is not an independent sending profile. This applicability classification does not claim review of the predecessor base text. [Selected source review](mime-conformance.md). |
 | [RFC1342](https://www.rfc-editor.org/rfc/rfc1342.html) | 2049 | Historical MIME predecessor: the reviewed MIME series describes the RFC1341/RFC1342 → RFC1521/RFC1522 → RFC2045–2049 succession. Current body and encoded-header handling follows that reviewed series and its updates; historical syntax is not an independent sending profile. This applicability classification does not claim review of the predecessor base text. [Selected source review](mime-conformance.md). |
 | [RFC1344](https://www.rfc-editor.org/rfc/rfc1344.html) | 2045, 2049 | Unclassified citation candidate; applicability and review not established |
@@ -50,7 +50,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC1424](https://www.rfc-editor.org/rfc/rfc1424.html) | 2046, 2049 | Unclassified citation candidate; applicability and review not established |
 | [RFC1425](https://www.rfc-editor.org/rfc/rfc1425.html) | 2920 | Unclassified citation candidate; applicability and review not established |
 | [RFC1428](https://www.rfc-editor.org/rfc/rfc1428.html) | 2557 | Unclassified citation candidate; applicability and review not established |
-| [RFC1437](https://www.rfc-editor.org/rfc/rfc1437.html) | 9694 | Historical example in RFC9694 section3: an unregistered April Fools media type. Email/2 proposes application subtypes under the reviewed registration rules, so this entertainment example supplies no required wire behavior. RFC1437 base text is not claimed reviewed. [Selected source review](media-top-level.md). |
+| [RFC1437](https://www.rfc-editor.org/rfc/rfc1437.html) | 9694 | Historical example in RFC9694 section3: an unregistered April Fools media type. Email Next proposes application subtypes under the reviewed registration rules, so this entertainment example supplies no required wire behavior. RFC1437 base text is not claimed reviewed. [Selected source review](media-top-level.md). |
 | [RFC1460](https://www.rfc-editor.org/rfc/rfc1460.html) | 1939 | Historical POP3 ancestry in RFC1939 section14. The selected command, UIDL and transaction semantics come from reviewed RFC1939 and applicable updates; no separate RFC1460 mode is selected. This disposition does not claim review of RFC1460 base text. [Selected source review](pop-base.md). |
 | [RFC1496](https://www.rfc-editor.org/rfc/rfc1496.html) | 3864 | Unclassified citation candidate; applicability and review not established |
 | [RFC1505](https://www.rfc-editor.org/rfc/rfc1505.html) | 3864 | Unclassified citation candidate; applicability and review not established |
@@ -99,6 +99,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC1896](https://www.rfc-editor.org/rfc/rfc1896.html) | 2046, 2049, 2646, 3676 | Unclassified citation candidate; applicability and review not established |
 | [RFC1919](https://www.rfc-editor.org/rfc/rfc1919.html) | 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC1945](https://www.rfc-editor.org/rfc/rfc1945.html) | 2557, 3864, 9110 | Unclassified citation candidate; applicability and review not established |
+| [RFC1948](https://www.rfc-editor.org/rfc/rfc1948.html) | 5246 | Unclassified citation candidate; applicability and review not established |
 | [RFC1950](https://www.rfc-editor.org/rfc/rfc1950.html) | 9110, 9580 | Selected PNG decompression dependency: RFC1950 sections 2.1–2.3 reviewed with current errata and update checks. The image-format audit defines the selected zlib/DEFLATE path. This is not a complete RFC base review, codec certification or review of every HTTP/OpenPGP compression use. [Selected source review](image-formats.md). |
 | [RFC1951](https://www.rfc-editor.org/rfc/rfc1951.html) | 9110, 9580 | Selected PNG decompression dependency: RFC1951 sections 3.1–3.3 reviewed with current errata and update checks. The image-format audit defines the selected zlib/DEFLATE path. This is not a complete RFC base review, codec certification or review of every HTTP/OpenPGP compression use. [Selected source review](image-formats.md). |
 | [RFC1952](https://www.rfc-editor.org/rfc/rfc1952.html) | 8460, 9110, 9990 | Unclassified citation candidate; applicability and review not established |
@@ -147,7 +148,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC2234](https://www.rfc-editor.org/rfc/rfc2234.html) | 2449, 2557, 2646, 2919, 3501, 3629, 3676, 3834, 3885, 3886, 3986 | Unclassified citation candidate; applicability and review not established |
 | [RFC2244](https://www.rfc-editor.org/rfc/rfc2244.html) | 3501, 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC2245](https://www.rfc-editor.org/rfc/rfc2245.html) | 3501 | Unclassified citation candidate; applicability and review not established |
-| [RFC2246](https://www.rfc-editor.org/rfc/rfc2246.html) | 3207, 3501, 6749, 6750, 8996, 9325, 9846 | TLS1.0 is prohibited by reviewed RFC8996. Historical references do not authorize its negotiation or fallback in the selected service profile; no independent implementation of this obsolete version is selected. [Selected source review](tls-deprecation.md). |
+| [RFC2246](https://www.rfc-editor.org/rfc/rfc2246.html) | 3207, 3501, 5077, 5246, 6749, 6750, 8996, 9325, 9846 | TLS1.0 is prohibited by reviewed RFC8996. Historical references do not authorize its negotiation or fallback in the selected service profile; no independent implementation of this obsolete version is selected. [Selected source review](tls-deprecation.md). |
 | [RFC2268](https://www.rfc-editor.org/rfc/rfc2268.html) | 8551 | Unclassified citation candidate; applicability and review not established |
 | [RFC2277](https://www.rfc-editor.org/rfc/rfc2277.html) | 5280, 5337, 5646, 6533 | Unclassified citation candidate; applicability and review not established |
 | [RFC2279](https://www.rfc-editor.org/rfc/rfc2279.html) | 2634, 3629, 5280 | Unclassified citation candidate; applicability and review not established |
@@ -166,7 +167,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC2389](https://www.rfc-editor.org/rfc/rfc2389.html) | 2557 | Unclassified citation candidate; applicability and review not established |
 | [RFC2396](https://www.rfc-editor.org/rfc/rfc2396.html) | 3864, 3986 | Unclassified citation candidate; applicability and review not established |
 | [RFC2421](https://www.rfc-editor.org/rfc/rfc2421.html) | 3864 | Unclassified citation candidate; applicability and review not established |
-| [RFC2434](https://www.rfc-editor.org/rfc/rfc2434.html) | 2449, 3834, 3864, 5116, 8126 | Unclassified citation candidate; applicability and review not established |
+| [RFC2434](https://www.rfc-editor.org/rfc/rfc2434.html) | 2449, 3834, 3864, 5116, 5246, 8126 | Unclassified citation candidate; applicability and review not established |
 | [RFC2437](https://www.rfc-editor.org/rfc/rfc2437.html) | 5652 | Unclassified citation candidate; applicability and review not established |
 | [RFC2440](https://www.rfc-editor.org/rfc/rfc2440.html) | 3156, 3676, 4648, 9580 | Unclassified citation candidate; applicability and review not established |
 | [RFC2442](https://www.rfc-editor.org/rfc/rfc2442.html) | 5598 | Unclassified citation candidate; applicability and review not established |
@@ -192,13 +193,14 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC2672](https://www.rfc-editor.org/rfc/rfc2672.html) | 5893 | Unclassified citation candidate; applicability and review not established |
 | [RFC2673](https://www.rfc-editor.org/rfc/rfc2673.html) | 5890 | Unclassified citation candidate; applicability and review not established |
 | [RFC2683](https://www.rfc-editor.org/rfc/rfc2683.html) | 3501, 9051 | Unclassified citation candidate; applicability and review not established |
+| [RFC2712](https://www.rfc-editor.org/rfc/rfc2712.html) | 5077 | Unclassified citation candidate; applicability and review not established |
 | [RFC2717](https://www.rfc-editor.org/rfc/rfc2717.html) | 3986 | Unclassified citation candidate; applicability and review not established |
 | [RFC2718](https://www.rfc-editor.org/rfc/rfc2718.html) | 3986 | Unclassified citation candidate; applicability and review not established |
 | [RFC2732](https://www.rfc-editor.org/rfc/rfc2732.html) | 3986 | Unclassified citation candidate; applicability and review not established |
 | [RFC2774](https://www.rfc-editor.org/rfc/rfc2774.html) | 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC2781](https://www.rfc-editor.org/rfc/rfc2781.html) | 3030, 5147, 5646 | Unclassified citation candidate; applicability and review not established |
 | [RFC2782](https://www.rfc-editor.org/rfc/rfc2782.html) | 5890, 6186, 7208, 7505, 8552, 8553, 8620, 9525 | Unclassified citation candidate; applicability and review not established |
-| [RFC2785](https://www.rfc-editor.org/rfc/rfc2785.html) | 8551 | Unclassified citation candidate; applicability and review not established |
+| [RFC2785](https://www.rfc-editor.org/rfc/rfc2785.html) | 5246, 8551 | Unclassified citation candidate; applicability and review not established |
 | [RFC2797](https://www.rfc-editor.org/rfc/rfc2797.html) | 5280 | Unclassified citation candidate; applicability and review not established |
 | [RFC2818](https://www.rfc-editor.org/rfc/rfc2818.html) | 6749, 6750, 8461, 8620, 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC2821](https://www.rfc-editor.org/rfc/rfc2821.html) | 3207, 3501, 3676, 3798, 3864, 3885, 4468, 4865, 4954, 5228, 5248, 5280, 5321, 5335, 5337, 5598, 6530 | Historical SMTP predecessor: selected transport behavior is reviewed under RFC5321 and its applicable updates. RFC5321 explicitly obsoletes this document; this disposition does not claim a full review of historical differences. [Selected source review](smtp.md). |
@@ -219,7 +221,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC3028](https://www.rfc-editor.org/rfc/rfc3028.html) | 5228, 5429 | Unclassified citation candidate; applicability and review not established |
 | [RFC3040](https://www.rfc-editor.org/rfc/rfc3040.html) | 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC3066](https://www.rfc-editor.org/rfc/rfc3066.html) | 3501, 5646 | Unclassified citation candidate; applicability and review not established |
-| [RFC3114](https://www.rfc-editor.org/rfc/rfc3114.html) | 8550 | Company classification-label policy is not selected for Email/2. The parent citation illustrates an optional attribute-certificate application, not basic S/MIME key validation. Base text not reviewed. [Selected source review](smime-certificates.md). |
+| [RFC3114](https://www.rfc-editor.org/rfc/rfc3114.html) | 8550 | Company classification-label policy is not selected for Email Next. The parent citation illustrates an optional attribute-certificate application, not basic S/MIME key validation. Base text not reviewed. [Selected source review](smime-certificates.md). |
 | [RFC3161](https://www.rfc-editor.org/rfc/rfc3161.html) | 5280, 8933 | Unclassified citation candidate; applicability and review not established |
 | [RFC3192](https://www.rfc-editor.org/rfc/rfc3192.html) | 5598 | Unclassified citation candidate; applicability and review not established |
 | [RFC3206](https://www.rfc-editor.org/rfc/rfc3206.html) | 5034 | Unclassified citation candidate; applicability and review not established |
@@ -227,12 +229,13 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC3218](https://www.rfc-editor.org/rfc/rfc3218.html) | 8551 | Unclassified citation candidate; applicability and review not established |
 | [RFC3228](https://www.rfc-editor.org/rfc/rfc3228.html) | 8126 | Unclassified citation candidate; applicability and review not established |
 | [RFC3230](https://www.rfc-editor.org/rfc/rfc3230.html) | 9404 | Unclassified citation candidate; applicability and review not established |
-| [RFC3249](https://www.rfc-editor.org/rfc/rfc3249.html) | 8098 | Fax application profile is outside the selected Email/2 feature set. The MDN automatic-action label remains supported without implementing fax processing. This classification does not review RFC3249 or imply rejection of ordinary messages containing fax documents. [Selected source review](disposition-notifications.md). |
+| [RFC3249](https://www.rfc-editor.org/rfc/rfc3249.html) | 8098 | Fax application profile is outside the selected Email Next feature set. The MDN automatic-action label remains supported without implementing fax processing. This classification does not review RFC3249 or imply rejection of ordinary messages containing fax documents. [Selected source review](disposition-notifications.md). |
 | [RFC3261](https://www.rfc-editor.org/rfc/rfc3261.html) | 3864, 8996, 9325, 9525 | Unclassified citation candidate; applicability and review not established |
 | [RFC3263](https://www.rfc-editor.org/rfc/rfc3263.html) | 8553 | Unclassified citation candidate; applicability and review not established |
+| [RFC3268](https://www.rfc-editor.org/rfc/rfc3268.html) | 5246 | Unclassified citation candidate; applicability and review not established |
 | [RFC3274](https://www.rfc-editor.org/rfc/rfc3274.html) | 8551, 9787 | Unclassified citation candidate; applicability and review not established |
 | [RFC3279](https://www.rfc-editor.org/rfc/rfc3279.html) | 5280, 8550, 9846 | Unclassified citation candidate; applicability and review not established |
-| [RFC3280](https://www.rfc-editor.org/rfc/rfc3280.html) | 4954, 5035, 5280, 9846 | Unclassified citation candidate; applicability and review not established |
+| [RFC3280](https://www.rfc-editor.org/rfc/rfc3280.html) | 4954, 5035, 5246, 5280, 9846 | Unclassified citation candidate; applicability and review not established |
 | [RFC3281](https://www.rfc-editor.org/rfc/rfc3281.html) | 5652, 9608 | Unclassified citation candidate; applicability and review not established |
 | [RFC3282](https://www.rfc-editor.org/rfc/rfc3282.html) | 3864, 5646, 8621, 8753, 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC3297](https://www.rfc-editor.org/rfc/rfc3297.html) | 5598 | Unclassified citation candidate; applicability and review not established |
@@ -247,7 +250,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC3394](https://www.rfc-editor.org/rfc/rfc3394.html) | 9580 | Unclassified citation candidate; applicability and review not established |
 | [RFC3403](https://www.rfc-editor.org/rfc/rfc3403.html) | 9525 | Unclassified citation candidate; applicability and review not established |
 | [RFC3436](https://www.rfc-editor.org/rfc/rfc3436.html) | 8996 | Unclassified citation candidate; applicability and review not established |
-| [RFC3447](https://www.rfc-editor.org/rfc/rfc3447.html) | 6211, 6376, 8463, 8550 | Unclassified citation candidate; applicability and review not established |
+| [RFC3447](https://www.rfc-editor.org/rfc/rfc3447.html) | 5246, 6211, 6376, 8463, 8550 | Unclassified citation candidate; applicability and review not established |
 | [RFC3454](https://www.rfc-editor.org/rfc/rfc3454.html) | 4954, 5034, 5280, 5890, 5892, 5893, 8753, 9233 | Unclassified citation candidate; applicability and review not established |
 | [RFC3458](https://www.rfc-editor.org/rfc/rfc3458.html) | 5598 | Unclassified citation candidate; applicability and review not established |
 | [RFC3462](https://www.rfc-editor.org/rfc/rfc3462.html) | 3461, 3464, 3798, 5337, 5429, 5598, 6522 | Historical report predecessor: selected behavior follows reviewed RFC6522, including removal of the outermost-only multipart/report constraint. The older text is not a separate compatibility profile and has not been reviewed in this classification. [Selected source review](report-container.md). |
@@ -258,6 +261,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC3502](https://www.rfc-editor.org/rfc/rfc3502.html) | 6785, 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC3513](https://www.rfc-editor.org/rfc/rfc3513.html) | 3986 | Unclassified citation candidate; applicability and review not established |
 | [RFC3516](https://www.rfc-editor.org/rfc/rfc3516.html) | 9051 | Unclassified citation candidate; applicability and review not established |
+| [RFC3526](https://www.rfc-editor.org/rfc/rfc3526.html) | 5246 | Unclassified citation candidate; applicability and review not established |
 | [RFC3529](https://www.rfc-editor.org/rfc/rfc3529.html) | 8553 | Unclassified citation candidate; applicability and review not established |
 | [RFC3546](https://www.rfc-editor.org/rfc/rfc3546.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC3548](https://www.rfc-editor.org/rfc/rfc3548.html) | 4648 | Historical predecessor; RFC4648 supplies the selected byte-encoding contract. No implementation of the obsolete version is selected. |
@@ -280,8 +284,8 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC3713](https://www.rfc-editor.org/rfc/rfc3713.html) | 9580 | Unclassified citation candidate; applicability and review not established |
 | [RFC3734](https://www.rfc-editor.org/rfc/rfc3734.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC3748](https://www.rfc-editor.org/rfc/rfc3748.html) | 8126 | Unclassified citation candidate; applicability and review not established |
-| [RFC3749](https://www.rfc-editor.org/rfc/rfc3749.html) | 8996 | Unclassified citation candidate; applicability and review not established |
-| [RFC3766](https://www.rfc-editor.org/rfc/rfc3766.html) | 6376, 8551, 9325 | Unclassified citation candidate; applicability and review not established |
+| [RFC3749](https://www.rfc-editor.org/rfc/rfc3749.html) | 5246, 8996 | Unclassified citation candidate; applicability and review not established |
+| [RFC3766](https://www.rfc-editor.org/rfc/rfc3766.html) | 5246, 6376, 8551, 9325 | Unclassified citation candidate; applicability and review not established |
 | [RFC3767](https://www.rfc-editor.org/rfc/rfc3767.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC3801](https://www.rfc-editor.org/rfc/rfc3801.html) | 3864, 5598, 8098 | Specialized VPIM voice gateway behavior is not selected. General message transport, opaque local parts and MDN labels do not require implementing voice gateway addressing or processing. Base text remains unreviewed; the cross-reference label mismatch is not treated as protocol evidence. [Selected source review](disposition-notifications.md). |
 | [RFC3832](https://www.rfc-editor.org/rfc/rfc3832.html) | 8553 | Unclassified citation candidate; applicability and review not established |
@@ -319,12 +323,12 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC4044](https://www.rfc-editor.org/rfc/rfc4044.html) | 8126 | Unclassified citation candidate; applicability and review not established |
 | [RFC4055](https://www.rfc-editor.org/rfc/rfc4055.html) | 5280, 8550 | Unclassified citation candidate; applicability and review not established |
 | [RFC4056](https://www.rfc-editor.org/rfc/rfc4056.html) | 6211, 8550, 8551 | Unclassified citation candidate; applicability and review not established |
-| [RFC4086](https://www.rfc-editor.org/rfc/rfc4086.html) | 5116, 5652, 8032, 8551, 9580, 9629, 9846 | Unclassified citation candidate; applicability and review not established |
+| [RFC4086](https://www.rfc-editor.org/rfc/rfc4086.html) | 5077, 5116, 5246, 5652, 8032, 8551, 9580, 9629, 9846 | Unclassified citation candidate; applicability and review not established |
 | [RFC4097](https://www.rfc-editor.org/rfc/rfc4097.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC4106](https://www.rfc-editor.org/rfc/rfc4106.html) | 5116 | Unclassified citation candidate; applicability and review not established |
 | [RFC4107](https://www.rfc-editor.org/rfc/rfc4107.html) | 5116 | Unclassified citation candidate; applicability and review not established |
 | [RFC4111](https://www.rfc-editor.org/rfc/rfc4111.html) | 8996 | Unclassified citation candidate; applicability and review not established |
-| [RFC4120](https://www.rfc-editor.org/rfc/rfc4120.html) | 4468, 5280, 8553 | Unclassified citation candidate; applicability and review not established |
+| [RFC4120](https://www.rfc-editor.org/rfc/rfc4120.html) | 4468, 5077, 5280, 8553 | Unclassified citation candidate; applicability and review not established |
 | [RFC4124](https://www.rfc-editor.org/rfc/rfc4124.html) | 8126 | Unclassified citation candidate; applicability and review not established |
 | [RFC4132](https://www.rfc-editor.org/rfc/rfc4132.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC4134](https://www.rfc-editor.org/rfc/rfc4134.html) | 8551 | Unclassified citation candidate; applicability and review not established |
@@ -346,24 +350,26 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC4261](https://www.rfc-editor.org/rfc/rfc4261.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC4270](https://www.rfc-editor.org/rfc/rfc4270.html) | 6151, 8551 | Unclassified citation candidate; applicability and review not established |
 | [RFC4271](https://www.rfc-editor.org/rfc/rfc4271.html) | 8126 | Unclassified citation candidate; applicability and review not established |
-| [RFC4279](https://www.rfc-editor.org/rfc/rfc4279.html) | 8996, 10015 | Unclassified citation candidate; applicability and review not established |
+| [RFC4279](https://www.rfc-editor.org/rfc/rfc4279.html) | 5077, 5246, 8996, 10015 | Unclassified citation candidate; applicability and review not established |
 | [RFC4283](https://www.rfc-editor.org/rfc/rfc4283.html) | 8126 | Unclassified citation candidate; applicability and review not established |
-| [RFC4288](https://www.rfc-editor.org/rfc/rfc4288.html) | 5147, 5322, 5598, 6522, 6838, 8126 | Historical media-registration predecessor: reviewed RFC6838 replaces the registration process, structured suffix rules, review procedure and template. New Email/2 registrations use that successor and updates; RFC4288 is not an alternative registration route. This applicability classification does not claim review of the predecessor base text. [Selected source review](media-registration.md). |
+| [RFC4288](https://www.rfc-editor.org/rfc/rfc4288.html) | 5147, 5322, 5598, 6522, 6838, 8126 | Historical media-registration predecessor: reviewed RFC6838 replaces the registration process, structured suffix rules, review procedure and template. New Email Next registrations use that successor and updates; RFC4288 is not an alternative registration route. This applicability classification does not claim review of the predecessor base text. [Selected source review](media-registration.md). |
 | [RFC4289](https://www.rfc-editor.org/rfc/rfc4289.html) | 5322, 5598, 8551, 9110, 9787 | Unclassified citation candidate; applicability and review not established |
 | [RFC4291](https://www.rfc-editor.org/rfc/rfc4291.html) | 5321, 7208, 9525 | Unclassified citation candidate; applicability and review not established |
 | [RFC4301](https://www.rfc-editor.org/rfc/rfc4301.html) | 6409 | Unclassified citation candidate; applicability and review not established |
-| [RFC4303](https://www.rfc-editor.org/rfc/rfc4303.html) | 5116 | Unclassified citation candidate; applicability and review not established |
+| [RFC4302](https://www.rfc-editor.org/rfc/rfc4302.html) | 5246 | Unclassified citation candidate; applicability and review not established |
+| [RFC4303](https://www.rfc-editor.org/rfc/rfc4303.html) | 5116, 5246 | Unclassified citation candidate; applicability and review not established |
 | [RFC4306](https://www.rfc-editor.org/rfc/rfc4306.html) | 5869 | Unclassified citation candidate; applicability and review not established |
+| [RFC4307](https://www.rfc-editor.org/rfc/rfc4307.html) | 5246 | Unclassified citation candidate; applicability and review not established |
 | [RFC4309](https://www.rfc-editor.org/rfc/rfc4309.html) | 5116 | Unclassified citation candidate; applicability and review not established |
 | [RFC4314](https://www.rfc-editor.org/rfc/rfc4314.html) | 8621, 9042, 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC4315](https://www.rfc-editor.org/rfc/rfc4315.html) | 6785, 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC4325](https://www.rfc-editor.org/rfc/rfc4325.html) | 5280 | Unclassified citation candidate; applicability and review not established |
 | [RFC4340](https://www.rfc-editor.org/rfc/rfc4340.html) | 8126 | Unclassified citation candidate; applicability and review not established |
 | [RFC4343](https://www.rfc-editor.org/rfc/rfc4343.html) | 7489, 9525, 9989 | Unclassified citation candidate; applicability and review not established |
-| [RFC4346](https://www.rfc-editor.org/rfc/rfc4346.html) | 4954, 5034, 8314, 8996, 8997, 9325, 9846, 10015 | TLS1.1 is prohibited by reviewed RFC8996. Historical references do not authorize its negotiation or fallback in the selected service profile; no independent implementation of this obsolete version is selected. [Selected source review](tls-deprecation.md). |
+| [RFC4346](https://www.rfc-editor.org/rfc/rfc4346.html) | 4954, 5034, 5077, 5246, 5289, 8314, 8996, 8997, 9325, 9846, 10015 | TLS1.1 is prohibited by reviewed RFC8996. Historical references do not authorize its negotiation or fallback in the selected service profile; no independent implementation of this obsolete version is selected. [Selected source review](tls-deprecation.md). |
 | [RFC4347](https://www.rfc-editor.org/rfc/rfc4347.html) | 8996, 9325 | Unclassified citation candidate; applicability and review not established |
 | [RFC4356](https://www.rfc-editor.org/rfc/rfc4356.html) | 5598 | Unclassified citation candidate; applicability and review not established |
-| [RFC4366](https://www.rfc-editor.org/rfc/rfc4366.html) | 8996, 9846 | Unclassified citation candidate; applicability and review not established |
+| [RFC4366](https://www.rfc-editor.org/rfc/rfc4366.html) | 5077, 5246, 8996, 9846 | Unclassified citation candidate; applicability and review not established |
 | [RFC4386](https://www.rfc-editor.org/rfc/rfc4386.html) | 8552, 8553 | Unclassified citation candidate; applicability and review not established |
 | [RFC4387](https://www.rfc-editor.org/rfc/rfc4387.html) | 8553 | Unclassified citation candidate; applicability and review not established |
 | [RFC4406](https://www.rfc-editor.org/rfc/rfc4406.html) | 8601 | Unclassified citation candidate; applicability and review not established |
@@ -374,11 +380,12 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC4466](https://www.rfc-editor.org/rfc/rfc4466.html) | 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC4467](https://www.rfc-editor.org/rfc/rfc4467.html) | 4468 | Unclassified citation candidate; applicability and review not established |
 | [RFC4491](https://www.rfc-editor.org/rfc/rfc4491.html) | 5280 | Unclassified citation candidate; applicability and review not established |
-| [RFC4492](https://www.rfc-editor.org/rfc/rfc4492.html) | 8996, 9846, 10015 | Unclassified citation candidate; applicability and review not established |
+| [RFC4492](https://www.rfc-editor.org/rfc/rfc4492.html) | 5246, 5289, 8996, 9846, 10015 | Unclassified citation candidate; applicability and review not established |
 | [RFC4493](https://www.rfc-editor.org/rfc/rfc4493.html) | 6151 | Unclassified citation candidate; applicability and review not established |
 | [RFC4497](https://www.rfc-editor.org/rfc/rfc4497.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC4505](https://www.rfc-editor.org/rfc/rfc4505.html) | 9051 | Unclassified citation candidate; applicability and review not established |
-| [RFC4507](https://www.rfc-editor.org/rfc/rfc4507.html) | 8996 | Unclassified citation candidate; applicability and review not established |
+| [RFC4506](https://www.rfc-editor.org/rfc/rfc4506.html) | 5246 | Unclassified citation candidate; applicability and review not established |
+| [RFC4507](https://www.rfc-editor.org/rfc/rfc4507.html) | 5077, 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC4510](https://www.rfc-editor.org/rfc/rfc4510.html) | 5280 | Unclassified citation candidate; applicability and review not established |
 | [RFC4511](https://www.rfc-editor.org/rfc/rfc4511.html) | 9787 | Unclassified citation candidate; applicability and review not established |
 | [RFC4512](https://www.rfc-editor.org/rfc/rfc4512.html) | 5280 | Unclassified citation candidate; applicability and review not established |
@@ -402,6 +409,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC4627](https://www.rfc-editor.org/rfc/rfc4627.html) | 6749, 6839, 8259 | Historical predecessor, superseded by RFC7159, itself superseded by RFC8259. JSON encoding follows RFC8259 and the selected application constraints; the older object/array-only JSON definition is not a second decoding mode. This classification does not claim a review of the predecessor text. [Selected source review](json-encoding.md). |
 | [RFC4630](https://www.rfc-editor.org/rfc/rfc4630.html) | 5280 | Unclassified citation candidate; applicability and review not established |
 | [RFC4632](https://www.rfc-editor.org/rfc/rfc4632.html) | 5280, 7208 | Unclassified citation candidate; applicability and review not established |
+| [RFC4634](https://www.rfc-editor.org/rfc/rfc4634.html) | 5077 | Unclassified citation candidate; applicability and review not established |
 | [RFC4637](https://www.rfc-editor.org/rfc/rfc4637.html) | 8126 | Unclassified citation candidate; applicability and review not established |
 | [RFC4642](https://www.rfc-editor.org/rfc/rfc4642.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC4645](https://www.rfc-editor.org/rfc/rfc4645.html) | 5646 | Unclassified citation candidate; applicability and review not established |
@@ -423,7 +431,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC4790](https://www.rfc-editor.org/rfc/rfc4790.html) | 5228, 8620 | Unclassified citation candidate; applicability and review not established |
 | [RFC4791](https://www.rfc-editor.org/rfc/rfc4791.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC4823](https://www.rfc-editor.org/rfc/rfc4823.html) | 8996 | Unclassified citation candidate; applicability and review not established |
-| [RFC4851](https://www.rfc-editor.org/rfc/rfc4851.html) | 8996 | Unclassified citation candidate; applicability and review not established |
+| [RFC4851](https://www.rfc-editor.org/rfc/rfc4851.html) | 5077, 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC4853](https://www.rfc-editor.org/rfc/rfc4853.html) | 5652 | Multiple-signer clarification incorporated into the reviewed CMS base. Selected behavior is recorded in RFC5652; RFC4853 has not been separately reviewed. [Selected source review](cms.md). |
 | [RFC4855](https://www.rfc-editor.org/rfc/rfc4855.html) | 6838 | Unclassified citation candidate; applicability and review not established |
 | [RFC4870](https://www.rfc-editor.org/rfc/rfc4870.html) | 6376, 8601, 9989 | Unclassified citation candidate; applicability and review not established |
@@ -448,8 +456,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC5051](https://www.rfc-editor.org/rfc/rfc5051.html) | 8620 | Unclassified citation candidate; applicability and review not established |
 | [RFC5054](https://www.rfc-editor.org/rfc/rfc5054.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC5068](https://www.rfc-editor.org/rfc/rfc5068.html) | 5598, 8314 | Unclassified citation candidate; applicability and review not established |
-| [RFC5077](https://www.rfc-editor.org/rfc/rfc5077.html) | 7301, 8996, 9325, 9846 | Unclassified citation candidate; applicability and review not established |
-| [RFC5081](https://www.rfc-editor.org/rfc/rfc5081.html) | 8996 | Unclassified citation candidate; applicability and review not established |
+| [RFC5081](https://www.rfc-editor.org/rfc/rfc5081.html) | 5246, 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC5083](https://www.rfc-editor.org/rfc/rfc5083.html) | 8551, 8933, 9629, 9788 | Unclassified citation candidate; applicability and review not established |
 | [RFC5084](https://www.rfc-editor.org/rfc/rfc5084.html) | 8551 | Unclassified citation candidate; applicability and review not established |
 | [RFC5091](https://www.rfc-editor.org/rfc/rfc5091.html) | 8996 | Unclassified citation candidate; applicability and review not established |
@@ -469,14 +476,12 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC5233](https://www.rfc-editor.org/rfc/rfc5233.html) | 8098 | Subaddressing explains why two notification addresses may not match; it does not authorize stripping tags or treating mailboxes as identical. The selected exact-address comparison follows reviewed RFC8098. The Sieve subaddress extension itself is not selected by this citation; base text unreviewed. [Selected source review](disposition-notifications.md). |
 | [RFC5235](https://www.rfc-editor.org/rfc/rfc5235.html) | 5229, 5429, 5598, 6785 | Unclassified citation candidate; applicability and review not established |
 | [RFC5238](https://www.rfc-editor.org/rfc/rfc5238.html) | 8996 | Unclassified citation candidate; applicability and review not established |
-| [RFC5246](https://www.rfc-editor.org/rfc/rfc5246.html) | 5890, 6186, 6749, 6750, 7301, 7672, 8126, 8314, 8461, 8620, 8996, 8997, 9051, 9325, 9846, 9852, 10015 | Unclassified citation candidate; applicability and review not established |
 | [RFC5255](https://www.rfc-editor.org/rfc/rfc5255.html) | 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC5256](https://www.rfc-editor.org/rfc/rfc5256.html) | 8621, 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC5258](https://www.rfc-editor.org/rfc/rfc5258.html) | 9051 | Unclassified citation candidate; applicability and review not established |
 | [RFC5263](https://www.rfc-editor.org/rfc/rfc5263.html) | 8996 | Unclassified citation candidate; applicability and review not established |
 | [RFC5281](https://www.rfc-editor.org/rfc/rfc5281.html) | 8996 | Unclassified citation candidate; applicability and review not established |
-| [RFC5288](https://www.rfc-editor.org/rfc/rfc5288.html) | 9325, 10015 | Unclassified citation candidate; applicability and review not established |
-| [RFC5289](https://www.rfc-editor.org/rfc/rfc5289.html) | 10015 | Unclassified citation candidate; applicability and review not established |
+| [RFC5288](https://www.rfc-editor.org/rfc/rfc5288.html) | 5289, 9325, 10015 | Selected TLS1.2 AES-GCM nonce, framing and record-protection rules reviewed; not complete base. [Selected source review](selected-crypto.md). |
 | [RFC5293](https://www.rfc-editor.org/rfc/rfc5293.html) | 6785 | Unclassified citation candidate; applicability and review not established |
 | [RFC5328](https://www.rfc-editor.org/rfc/rfc5328.html) | 8553 | Unclassified citation candidate; applicability and review not established |
 | [RFC5336](https://www.rfc-editor.org/rfc/rfc5336.html) | 5335, 5337, 5598, 6530, 6531 | Unclassified citation candidate; applicability and review not established |
@@ -515,12 +520,12 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC5738](https://www.rfc-editor.org/rfc/rfc5738.html) | 6530 | Unclassified citation candidate; applicability and review not established |
 | [RFC5741](https://www.rfc-editor.org/rfc/rfc5741.html) | 5869, 5890, 5891, 5892, 5893, 6151, 6152, 6186, 6211, 6376, 6409, 6452, 6522, 6530, 6531, 6532, 6533, 6657, 6749, 6750, 6785, 6818, 6838, 6839, 6854, 7208, 7293, 7301, 7372, 7405, 7489, 7504, 7505, 7578, 7636, 7672, 7748, 7817 | Publication-status context, not an email processing requirement. All cited parent occurrences refer to RFC status boilerplate; RFC5741 base text has not been reviewed. [Selected source review](reference-candidates.md). |
 | [RFC5742](https://www.rfc-editor.org/rfc/rfc5742.html) | 8126 | Unclassified citation candidate; applicability and review not established |
-| [RFC5746](https://www.rfc-editor.org/rfc/rfc5746.html) | 9325, 9852 | Unclassified citation candidate; applicability and review not established |
+| [RFC5746](https://www.rfc-editor.org/rfc/rfc5746.html) | 9325, 9852 | Selected initial secure-renegotiation acknowledgement and conditional Finished bindings reviewed; renegotiation need not be enabled. [Selected source review](selected-crypto.md). |
 | [RFC5750](https://www.rfc-editor.org/rfc/rfc5750.html) | 8550, 8551 | Unclassified citation candidate; applicability and review not established |
 | [RFC5751](https://www.rfc-editor.org/rfc/rfc5751.html) | 6376, 6409, 6530, 7208, 8550, 8551, 9788 | Conditional historical-message dependency: RFC8551 supersedes S/MIME 3.2 for current S/MIME 4.0 and separately discusses historic-email processing. Legacy protected-mail reception may require version-specific behavior; RFC5751 is not dismissed merely because superseded, nor does it authorize old algorithms for new messages. That compatibility review remains open. This applicability classification does not claim review of the predecessor base text. [Selected source review](smime-message.md). |
 | [RFC5753](https://www.rfc-editor.org/rfc/rfc5753.html) | 8551 | Unclassified citation candidate; applicability and review not established |
 | [RFC5754](https://www.rfc-editor.org/rfc/rfc5754.html) | 8551 | Unclassified citation candidate; applicability and review not established |
-| [RFC5755](https://www.rfc-editor.org/rfc/rfc5755.html) | 8550 | Conditional dependency for recommended S/MIME v2 attribute-certificate handling. It is not an Email/2 principal-authority mechanism; exact syntax/validation review remains pending before claiming that compatibility capability. [Selected source review](smime-certificates.md). |
+| [RFC5755](https://www.rfc-editor.org/rfc/rfc5755.html) | 8550 | Conditional dependency for recommended S/MIME v2 attribute-certificate handling. It is not an Email Next principal-authority mechanism; exact syntax/validation review remains pending before claiming that compatibility capability. [Selected source review](smime-certificates.md). |
 | [RFC5756](https://www.rfc-editor.org/rfc/rfc5756.html) | 9846 | Unclassified citation candidate; applicability and review not established |
 | [RFC5758](https://www.rfc-editor.org/rfc/rfc5758.html) | 8550 | Unclassified citation candidate; applicability and review not established |
 | [RFC5763](https://www.rfc-editor.org/rfc/rfc5763.html) | 9846 | Unclassified citation candidate; applicability and review not established |
@@ -627,7 +632,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC6901](https://www.rfc-editor.org/rfc/rfc6901.html) | 8620, 8820 | Unclassified citation candidate; applicability and review not established |
 | [RFC6912](https://www.rfc-editor.org/rfc/rfc6912.html) | 9233 | Unclassified citation candidate; applicability and review not established |
 | [RFC6943](https://www.rfc-editor.org/rfc/rfc6943.html) | 8820 | Unclassified citation candidate; applicability and review not established |
-| [RFC6960](https://www.rfc-editor.org/rfc/rfc6960.html) | 8461, 9325, 9608, 9846 | Selected OCSP response acceptance is required when the service consumes OCSP evidence. Responder authority, certificate binding, freshness and relevant corrections have scoped review; optional OCSP features and complete module imports remain outside that review. [Selected source review](certificate-status.md). |
+| [RFC6960](https://www.rfc-editor.org/rfc/rfc6960.html) | 8461, 9325, 9608, 9846 | Selected OCSP response/status/signature/time rules and reached current ASN.1 imports are mapped in the certificate-status owner; exact source coverage and runtime limits remain separate. [Selected source review](certificate-status.md). |
 | [RFC6961](https://www.rfc-editor.org/rfc/rfc6961.html) | 9325, 9846 | Unclassified citation candidate; applicability and review not established |
 | [RFC6962](https://www.rfc-editor.org/rfc/rfc6962.html) | 9846 | Unclassified citation candidate; applicability and review not established |
 | [RFC6979](https://www.rfc-editor.org/rfc/rfc6979.html) | 8550, 9325, 9846 | Unclassified citation candidate; applicability and review not established |
@@ -673,14 +678,14 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC7566](https://www.rfc-editor.org/rfc/rfc7566.html) | 8552 | Unclassified citation candidate; applicability and review not established |
 | [RFC7568](https://www.rfc-editor.org/rfc/rfc7568.html) | 8996, 9325, 9846 | Unclassified citation candidate; applicability and review not established |
 | [RFC7590](https://www.rfc-editor.org/rfc/rfc7590.html) | 9325 | Unclassified citation candidate; applicability and review not established |
-| [RFC7591](https://www.rfc-editor.org/rfc/rfc7591.html) | 8252, 9207, 9700 | Unclassified citation candidate; applicability and review not established |
+| [RFC7591](https://www.rfc-editor.org/rfc/rfc7591.html) | 8252, 9207, 9700 | Selected native public registration metadata, success/error and security rules reviewed. No JWT/software-statement or registration-management path; selected ranges only. [Selected source review](oauth-provider-discovery.md). |
 | [RFC7595](https://www.rfc-editor.org/rfc/rfc7595.html) | 8126, 8252, 8820, 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC7601](https://www.rfc-editor.org/rfc/rfc7601.html) | 8601 | Historical Authentication-Results predecessor: reviewed RFC8601 supplies current grammar, trust-boundary handling, EAI guidance and revised property registrations. Earlier local authentication results do not acquire endpoint-authority status. This applicability classification does not claim review of the predecessor base text. [Selected source review](authentication-results.md). |
 | [RFC7615](https://www.rfc-editor.org/rfc/rfc7615.html) | 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC7616](https://www.rfc-editor.org/rfc/rfc7616.html) | 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC7617](https://www.rfc-editor.org/rfc/rfc7617.html) | 8620, 9110 | Unclassified citation candidate; applicability and review not established |
 | [RFC7624](https://www.rfc-editor.org/rfc/rfc7624.html) | 9846, 9990 | Unclassified citation candidate; applicability and review not established |
-| [RFC7627](https://www.rfc-editor.org/rfc/rfc7627.html) | 9325, 9846 | Unclassified citation candidate; applicability and review not established |
+| [RFC7627](https://www.rfc-editor.org/rfc/rfc7627.html) | 9325, 9846 | Selected full and resumed extended-master-secret rules reviewed; no legacy no-EMS fallback. [Selected source review](selected-crypto.md). |
 | [RFC7633](https://www.rfc-editor.org/rfc/rfc7633.html) | 9325 | TLS Feature enforcement is required for service certificates declaring required stapling. The selected review covers the declaration and enforcement rules; required-staple sessions use full handshakes. This is not a full base-text or backend-conformance claim. [Selected source review](certificate-status.md). |
 | [RFC7671](https://www.rfc-editor.org/rfc/rfc7671.html) | 7672, 8460, 8552 | Unclassified citation candidate; applicability and review not established |
 | [RFC7673](https://www.rfc-editor.org/rfc/rfc7673.html) | 7672, 9325 | Unclassified citation candidate; applicability and review not established |
@@ -723,12 +728,12 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC8398](https://www.rfc-editor.org/rfc/rfc8398.html) | 8550, 9549, 9598 | Unclassified citation candidate; applicability and review not established |
 | [RFC8399](https://www.rfc-editor.org/rfc/rfc8399.html) | 9549 | Unclassified citation candidate; applicability and review not established |
 | [RFC8410](https://www.rfc-editor.org/rfc/rfc8410.html) | 8550 | Unclassified citation candidate; applicability and review not established |
-| [RFC8414](https://www.rfc-editor.org/rfc/rfc8414.html) | 9207, 9700 | Unclassified citation candidate; applicability and review not established |
+| [RFC8414](https://www.rfc-editor.org/rfc/rfc8414.html) | 9207, 9700 | Selected public-provider metadata rules; independent endpoint authentication declarations, issuer equality and exact scope/endpoint binding reviewed. Selected ranges only; no complete base review. [Selected source review](oauth-provider-discovery.md). |
 | [RFC8418](https://www.rfc-editor.org/rfc/rfc8418.html) | 8551 | Unclassified citation candidate; applicability and review not established |
 | [RFC8419](https://www.rfc-editor.org/rfc/rfc8419.html) | 8551 | Unclassified citation candidate; applicability and review not established |
-| [RFC8422](https://www.rfc-editor.org/rfc/rfc8422.html) | 8996, 9325, 9846, 10015 | Unclassified citation candidate; applicability and review not established |
+| [RFC8422](https://www.rfc-editor.org/rfc/rfc8422.html) | 8996, 9325, 9846, 10015 | Selected authenticated ECDHE, point validation and fixed-width shared-secret rules reviewed; unselected static and DTLS branches remain separate. [Selected source review](selected-crypto.md). |
 | [RFC8438](https://www.rfc-editor.org/rfc/rfc8438.html) | 9051 | Unclassified citation candidate; applicability and review not established |
-| [RFC8439](https://www.rfc-editor.org/rfc/rfc8439.html) | 9180, 9846 | Unclassified citation candidate; applicability and review not established |
+| [RFC8439](https://www.rfc-editor.org/rfc/rfc8439.html) | 9180, 9846 | Selected ChaCha20-Poly1305 primitive/AEAD/security rules and all captured errata reviewed for age and TLS1.3; not complete base or all vectors. [Selected source review](selected-crypto.md). |
 | [RFC8446](https://www.rfc-editor.org/rfc/rfc8446.html) | 8461, 8620, 8996, 8997, 9051, 9110, 9180, 9325, 9420, 9525, 9618, 9750, 9846, 9925, 9963 | Historical TLS 1.3 predecessor: the selected current protocol follows reviewed RFC9846, which obsoletes RFC8446 while preserving wire compatibility. Its explicit compatibility requirements remain applicable; this classification does not claim a complete independent RFC8446 review. [Selected source review](tls13.md). |
 | [RFC8447](https://www.rfc-editor.org/rfc/rfc8447.html) | 8996, 9846 | Selected ALPN registry name and alert120 update reviewed in audits/tls-service-negotiation.md; other registries and9847dependency separate |
 | [RFC8448](https://www.rfc-editor.org/rfc/rfc8448.html) | 9846 | Unclassified citation candidate; applicability and review not established |
@@ -769,7 +774,7 @@ The scan covered 160 captured texts from 160 inventory records and found 777 dis
 | [RFC9126](https://www.rfc-editor.org/rfc/rfc9126.html) | 9700 | Unclassified citation candidate; applicability and review not established |
 | [RFC9147](https://www.rfc-editor.org/rfc/rfc9147.html) | 9325, 9525, 9846, 10015 | Unclassified citation candidate; applicability and review not established |
 | [RFC9149](https://www.rfc-editor.org/rfc/rfc9149.html) | 9846 | Unclassified citation candidate; applicability and review not established |
-| [RFC9155](https://www.rfc-editor.org/rfc/rfc9155.html) | 9325 | Unclassified citation candidate; applicability and review not established |
+| [RFC9155](https://www.rfc-editor.org/rfc/rfc9155.html) | 9325 | Selected TLS1.2 signature-algorithm restrictions reviewed; no MD5/SHA1 handshake fallback. [Selected source review](selected-crypto.md). |
 | [RFC9162](https://www.rfc-editor.org/rfc/rfc9162.html) | 9325, 9846 | Unclassified citation candidate; applicability and review not established |
 | [RFC9191](https://www.rfc-editor.org/rfc/rfc9191.html) | 9325 | Unclassified citation candidate; applicability and review not established |
 | [RFC9216](https://www.rfc-editor.org/rfc/rfc9216.html) | 9787, 9788 | Unclassified citation candidate; applicability and review not established |

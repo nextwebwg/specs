@@ -5,7 +5,7 @@ sectionNav: true
 
 # Audit review index
 
-This index links recorded base-document reviews. It does not certify dependency closure, deployed interoperability or the complete Email/2 design. The source inventory currently contains 160 RFCs; 160 have a recorded complete base-text review. Other documents may have individual reviewed points without a full audit.
+This index links recorded base-document reviews. It does not certify dependency closure, deployed interoperability or the complete Email/2 design. The source inventory currently contains 163 RFCs; 163 have a recorded complete base-text review. Other documents may have individual reviewed points without a full audit.
 
 | RFC | Recorded review |
 | --- | --- |
@@ -169,6 +169,9 @@ This index links recorded base-document reviews. It does not certify dependency 
 | 8252 | [OAuth security](oauth-security.md) |
 | 9207 | [OAuth security](oauth-security.md) |
 | 6211 | [CMS algorithm protection](cms-algorithm-protection.md) |
+| 5246 | [The Transport Layer Security (TLS) Protocol Version 1.2](selected-crypto.md) |
+| 5077 | [Transport Layer Security (TLS) Session Resumption without Server-Side State](selected-crypto.md) |
+| 5289 | [TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode (GCM)](selected-crypto.md) |
 
 ## Downloadable audit records
 
@@ -256,3 +259,5 @@ The [OAuth framework audit](oauth-framework.md) provides complete RFC6749 sectio
 The [image-format audit](image-formats.md) records selected PNG, JPEG, Exif and ICC requirements, their compression dependencies and correction dispositions. It defines orientation, high-depth and color behavior separately from the decoder experiment. These scoped reviews do not increase the full-RFC base-review count.
 
 The [Apple email relay comparison](relay-aliasing.md) covers selected public product documentation: aliases, forwarding, sender authentication and service-specific controls. It is not a full RFC review and does not change the source-inventory count.
+
+The [public provider authorization review](oauth-provider-discovery.md) covers selected metadata, registration and revocation rules. It is separate from the complete-base RFC count above.

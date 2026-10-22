@@ -58,6 +58,11 @@ class IDNA17Tests(unittest.TestCase):
   self.assertEqual([x for x in set(sys.modules)-before if x.startswith('_email_next_private_idna17_')],[])
  def test_utf16_supplementary(self):
   u=ICU17(self.cfg);self.assertEqual(u.normalize('NFC','x\U0001e6c0'), 'x\U0001e6c0');self.assertEqual(u.casefold('ß'),'ss')
+ def test_a7f1_unstable_character_cannot_enter_a_domain(self):
+  # Unicode17 compatibility decomposition makes this DISALLOWED under RFC5892.
+  # An older generated IDNA table incorrectly marked it PVALID.
+  label='xn--'+ '\ua7f1'.encode('punycode').decode()
+  with self.assertRaises(UnicodeError):validate_domain(label+'.example')
  def test_malformed_punycode(self):
   for label in ['xn--','xn--a','xn--abc-','xn--0','xn--zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz','xn--a-ecp','xn--ib9b']:
    with self.subTest(label=label),self.assertRaises((UnicodeError,ValueError)):validate_domain(label+'.example')

@@ -18,7 +18,7 @@ This chapter describes proposed implementation paths and the evidence needed to 
 | Implementer | Practical starting point | What is available now |
 | --- | --- | --- |
 | Client | Open the conversation demos, then reproduce one exchange in your client | A source-preserving reader, joined interactions and signed protected rich-message fixtures; no complete client acceptance harness |
-| Mail provider | Submit and retrieve representative messages through a test account, comparing preserved content with the source | Example messages and local checks; no completed provider deployment adapter |
+| Mail provider | Add the small setup-discovery service, or test protected-message carriage through the existing mail system | A defined discovery-only contract, example messages and local checks; no completed provider deployment adapter |
 | Interoperability contributor | Reproduce a published case and record the observed result against its requirement | Button and configured provider/admission report manifests; independent client/server results remain needed |
 
 The [available starting material](#available-starting-material) distinguishes these development inputs from the proposed acceptance kit.
@@ -38,6 +38,8 @@ Price is only one barrier. Installation, mailbox connection, first contact, addi
 ## For email client developers {#email-client-adoption}
 
 Start with the existing mailbox connection and retained originals. Protected clients obtain and validate actual setup through enabled ordinary-mail exchange or separately supported provider services. The optional [Setup discovery hint](encryption-discovery.md) can help choose a path; it never replaces keys, current authority or the sender’s protection policy. Show missing protection and mixed-recipient choices before human content is released.
+
+**Use discovery before sending.** A provider may offer only this small service while keeping its existing mail server. A positive answer means the account advertises setup support; the client must still obtain and validate the setup before calling the message encrypted. An unadvertised result does not reveal whether the account exists. A timeout or unavailable service means the result is unknown, not that encryption is unsupported; independently usable setup already held by the client remains usable.
 
 The [client behavior contract](client-behavior.md) defines the target of these implementation stages, including people and thread lists, explicit composition targets, reactions, restart behavior and protection outcomes.
 

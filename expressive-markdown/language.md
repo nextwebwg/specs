@@ -592,7 +592,7 @@ Back up the database first.
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `container` | String `subType`; blocks. | Optional structured `title`. All colon containers share this family, including nested/custom types. Optional `spelling`: `"alert"` for a callout written as an [alert](#alert-spelling); absent or `"container"` means the colon form. |
+| `container` | String `subType`; blocks. | Optional structured `title`. All colon containers share this family, including nested/custom types. Optional `spelling`: `"alert"` for a callout written as an [alert](#alert-spelling); absent or `"container"` means the colon form. Optional `titleSpelling`: `"unbracketed"` for a title written without brackets; absent or `"bracketed"` means `[Title]`. |
 | `leaf` | String `subType`; no main content field. | Optional structured `title` for a directive label; “leaf” denotes bodyless authoring scope, not an assertion about title descendants. |
 
 | Type | Required fields/content | Additional fields and constraints |
@@ -607,6 +607,10 @@ Back up the database first.
 - Keep the opening header on one source line. Spaces between parts are optional;
   brackets and braces have no padding immediately inside them.
 - Titles and inline labels support inline Markdown.
+- An unbracketed title is also supported, as other documentation tools write
+  it: `::: warning Before you upgrade`. The text up to any trailing
+  attributes is the title, and writers keep that spelling. See the
+  [header rules](/expressive-markdown/parsing#named-constructs).
 - Inline constructs use `:type[label]{attributes}`; bodyless blocks use
   `::type[label]{attributes}` on their own line. An inline construct needs a label
   or attributes, so bare `:word` is ordinary text.

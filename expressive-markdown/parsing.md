@@ -61,7 +61,19 @@ Plain-text projection concatenates readable inline text, link labels, image and 
 ::: warning {#check} [Before deploying]
 ```
 
-Both open the same container. The type comes first; optional title and attributes may follow in either order on **one source line**. Writers use `::: type [Title] {attributes}`. Unbracketed container titles are outside the core.
+Both open the same container. The type comes first; optional title and attributes may follow in either order on **one source line**. Writers use `::: type [Title] {attributes}` unless the title was authored unbracketed.
+
+**Unbracketed titles.** A container header also supports a title without brackets, as Docusaurus, VitePress and markdown-it-container write it: `::: warning Before you upgrade`. After the type and any attribute lists, text that starts with neither `[` nor `{` is the title: the rest of the line, up to trailing attribute lists, read as inline Markdown.
+
+| Case | Rule |
+| --- | --- |
+| Trailing attributes | Whitespace-separated attribute lists that end the line attach to the container, as on a heading: `::: details Show the output {open}`. A final `{…}` that is not a valid attribute list is title text. |
+| `[`, `]`, `{`, `}` in the text | Literal title text. A title that starts with `[` uses the bracket form, so `\[` or `\{` starts an unbracketed title with a literal bracket or brace. |
+| Whitespace | Trimmed from both ends; inner spacing is kept. |
+| With a bracket form | One title per header. `[Title]` followed by more words leaves the line as ordinary text. |
+| `::: tabs Install` | The group's title, by the same rule as every type. A group's shared selection name is `{group=name}`; converters that know a tool's own `tabs name` convention map it once. |
+
+The AST records `titleSpelling: "unbracketed"`; absent or `"bracketed"` means the bracket form. Writers write the recorded spelling, and the bracket form for new titles. An unbracketed writer protects an opening bracket or brace, and a final list that would read as attributes. Leaf directives keep bracketed labels.
 
 | Rule | Accepted form |
 | --- | --- |

@@ -116,7 +116,8 @@ Writers use `3 + maximum descendant container depth` colons, recalculating withi
 
 A block quote is an alert when its first line starts with `[!type]` followed
 by a space, a tab or the line end. `type` is an identifier, matched
-case-insensitively and stored lowercase as `subType`. The rest of that line,
+case-insensitively and stored lowercase as `subType`; writers keep its authored
+case, so `> [!NOTE]` stays `> [!NOTE]`. The rest of that line,
 trimmed, is the inline-Markdown title; when it is empty the alert has no title.
 The quote's remaining content is the body, read as ordinary blocks. The result
 is a `container` with `spelling: "alert"`.
@@ -942,7 +943,7 @@ the preferred form, so a document written in preferred forms carries none.
 | Link target | Destination with or without `<…>`; `"`, `'` or `(…)` title | Canonical destination, `"` title | `target` |
 | Link reference definition | As authored | `[label]: destination "title"` | `markdown` |
 | Link reference | Full, collapsed, shortcut | As authored | `referenceType` |
-| Callout | Colon container; alert | Colon container | `spelling: "alert"` |
+| Callout | Colon container; alert, with the type in any case | Colon container, lowercase type | `spelling: "alert"`; `type` for an alert type not written in lowercase |
 | Container title | `[Title]`; unbracketed | `[Title]` | `titleSpelling: "unbracketed"` |
 | Container header | Type case, spacing, part order, attribute spelling | `type [Title] {attributes}` | `header` |
 | Container fence | Any length longer than its contents' | 3 plus nesting depth | `fence` |

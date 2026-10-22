@@ -269,9 +269,62 @@ Both keep `url` and optional tooltip `title`; a link holds inline content,
 while an image holds string `alt`. The result is a labelled link and the supplied
 image; no separate asset preview is needed here.
 
-Reference-style and inline links produce the same nodes. Unresolved references
-use CommonMark's literal fallback. An isolated image stays in its paragraph;
-only an explicit figure supplies a caption, separate from image alternative text.
+An isolated image stays in its paragraph; only an explicit figure supplies a
+caption, separate from image alternative text.
+
+### Reference-style links
+
+Name a link's target once and refer to it by label. The definition can sit
+anywhere in the document, often under the section that uses it:
+
+```md
+Read the [setup guide][guide], then the [FAQ][] and the [changelog].
+
+[guide]: /docs/setup "Setup guide"
+[FAQ]: /faq
+[changelog]: /changes
+```
+
+**HTML representation**
+
+```html
+<p>Read the <a href="/docs/setup" title="Setup guide">setup guide</a>, then the <a href="/faq">FAQ</a> and the <a href="/changes">changelog</a>.</p>
+```
+
+::: {.details #link-reference-ast summary="AST"}
+```json
+[
+  {
+    "type": "paragraph",
+    "children": [
+      { "type": "text", "value": "Read the " },
+      { "type": "linkReference", "label": "guide", "referenceType": "full", "value": "setup guide" },
+      { "type": "text", "value": ", then the " },
+      { "type": "linkReference", "label": "FAQ", "referenceType": "collapsed", "value": "FAQ" },
+      { "type": "text", "value": " and the " },
+      { "type": "linkReference", "label": "changelog", "referenceType": "shortcut", "value": "changelog" },
+      { "type": "text", "value": "." }
+    ]
+  },
+  { "type": "definition", "label": "guide", "url": "/docs/setup", "title": "Setup guide" },
+  { "type": "definition", "label": "FAQ", "url": "/faq" },
+  { "type": "definition", "label": "changelog", "url": "/changes" }
+]
+```
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
+| `definition` | String `label`, string `url`. | Block. Optional string tooltip `title`. Stays where it was written. |
+| `linkReference` | String `label`, `referenceType`; inline content. | `referenceType` is `full` (`[text][label]`), `collapsed` (`[text][]`) or `shortcut` (`[text]`). No `url` field: the definition holds the target. |
+| `imageReference` | String `label`, `referenceType`, string `alt`. | The image form, such as `![Logo][logo]`. No content field. |
+:::
+
+The reference keeps its form and its label; the definition keeps its place.
+That keeps the source readable after an edit: changing a target or tooltip
+changes the definition, and every reference to it follows. Renderers resolve
+each reference to its definition. A reference with no matching definition is
+ordinary text, following CommonMark. See the
+[link reference rules](/expressive-markdown/parsing#link-references).
 
 ### Lists and literal markers
 
@@ -1072,6 +1125,84 @@ Both forms produce a `break` inside a `paragraph`, not a `lineBlock`. They can
 render alike, but writers must preserve the node type: keeping a paragraph's
 hard break must not silently turn it into a line block. See the
 [writer rules](/expressive-markdown/parsing#writing-and-preservation).
+
+## Footnotes
+
+Put `[^label]` where a note applies. Write the note on its own line, starting
+with `[^label]:`, anywhere in the document:
+
+```md
+The build writes a log[^log], kept for a week[^log].
+
+[^log]: The log holds every step.
+
+    Indented lines continue the note,
+    so it can hold paragraphs, lists and code.
+```
+
+:::: {.render title="Footnote with two references" height="220"}
+```html
+<p>The build writes a log<sup><a href="#fn:log" id="fnref:log" data-footnote-ref>1</a></sup>, kept for a week<sup><a href="#fn:log" id="fnref:log:2" data-footnote-ref>1</a></sup>.</p>
+<section data-footnotes aria-label="Footnotes"><ol><li id="fn:log"><p>The log holds every step.</p><p>Indented lines continue the note, so it can hold paragraphs, lists and code. <a href="#fnref:log" data-footnote-backref aria-label="Back to reference 1">↩</a> <a href="#fnref:log:2" data-footnote-backref aria-label="Back to reference 1-2">↩<sup>2</sup></a></p></li></ol></section>
+```
+
+::: {.details #footnote-ast summary="AST"}
+```json
+[
+  {
+    "type": "paragraph",
+    "children": [
+      { "type": "text", "value": "The build writes a log" },
+      { "type": "footnoteReference", "label": "log" },
+      { "type": "text", "value": ", kept for a week" },
+      { "type": "footnoteReference", "label": "log" },
+      { "type": "text", "value": "." }
+    ]
+  },
+  {
+    "type": "footnoteDefinition",
+    "label": "log",
+    "body": [
+      { "type": "paragraph", "value": "The log holds every step." },
+      {
+        "type": "paragraph",
+        "children": [
+          { "type": "text", "value": "Indented lines continue the note," },
+          { "type": "softBreak" },
+          { "type": "text", "value": "so it can hold paragraphs, lists and code." }
+        ]
+      }
+    ]
+  }
+]
+```
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
+| `footnoteReference` | String `label`; no content field. | Inline. Its number comes from document order when rendering; the AST stores no number. |
+| `footnoteDefinition` | String `label`; blocks. | Block. Stays where it was written, in any block body. |
+:::
+::::
+
+The definition stays where the author put it: beside the paragraph it explains,
+or after the text. Renderers gather the notes into one numbered list at the end
+of the document, so placement affects the source only. Editing tools save the
+document with each note where it was. A tool that adds a new footnote appends
+its definition to the end of the document body.
+
+| Situation | Result |
+| --- | --- |
+| Label characters | Unicode letters, numbers, `_` and `-`, starting with a letter, number or `_`. `[^1]`, `[^log]` and `[^über-note]` are labels. |
+| Label case | Exact match: `[^Log]` and `[^log]` are different notes. |
+| Numbering | Order of first reference in the text. A note first cited inside another note follows the text's own references. |
+| Repeated reference | One note and one number; the note links back to every reference. |
+| Reference with no definition | Ordinary text, as for an unresolved link reference. |
+| Definition with no reference | Kept in the document; renders nothing. |
+| Two definitions of one label | The first is the note. Later ones are kept in the document and render nothing. |
+
+The syntax is the one PHP Markdown Extra introduced and GFM, Pandoc,
+MultiMarkdown and Djot share. `^[text]` is ordinary text: write the note as a
+definition. See the [footnote parser and writer rules](/expressive-markdown/parsing#footnotes).
 
 ## Code blocks and presentation metadata
 
@@ -3057,6 +3188,7 @@ CSS display. JavaScript execution, MDX/JSX and framework APIs are outside the co
 | [Docusaurus](https://docusaurus.io/docs/markdown-features/admonitions) | Callouts and nested colon fences. | Independent of MDX, components and themes. |
 | [remark directives](https://github.com/remarkjs/remark-directive) | Inline, leaf and container forms. | Shared meanings, fields and string/flag rules. |
 | [Pandoc](https://pandoc.org/MANUAL.html#pandocs-markdown) | IDs and leading-pipe lines. | Defined line boundaries without visual source indentation. |
+| [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#footnotes) | Footnote references and indented definitions, also in [GFM](https://github.blog/changelog/2021-09-30-footnotes-now-supported-in-markdown-fields/) and [Pandoc](https://pandoc.org/MANUAL.html#footnotes). | Definitions stay in place; labels are identifiers matched exactly. |
 | [UMD](https://docs.rs/crate/umd/0.2.0/source/README.md) | Cell merge markers. | Rectangular grid, numeric spans and loss-preserving recovery. |
 | [MyST](https://mystmd.org/guide/figures) / [Quarto](https://quarto.org/docs/authoring/figures-and-layout.html#figure-divs) | Structured figures and captions. | Shared container family with explicit subtype meanings. |
 | [mdast](https://github.com/syntax-tree/mdast) / [unist](https://github.com/syntax-tree/unist) | Documented trees. | Independent title/body/children/value fields and traversal. |

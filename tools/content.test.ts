@@ -70,7 +70,7 @@ test("reactivity defines the Signals boundary and lifecycle-owned JavaScript API
   const reactivity = chapter("reactivity");
   const javascript = chapter("javascript");
 
-  assert.match(reactivity, /integrates with, but does not depend on/);
+  assert.match(reactivity, /treats the TC39 Signals proposal as an optional integration/);
   assert.match(reactivity, /\*\*Connection owns observation\.\*\*/);
   assert.match(reactivity, /`State`[^\n]*`Computed`[^\n]*`Watcher`/);
   assert.match(javascript, /interface ComponentHost/);
@@ -90,8 +90,8 @@ test("proposal callouts name their contract and review requests demand attention
 });
 
 test("expressions read declarations only through $ references; bind: takes a path", () => {
-  assert.match(chapter("expressions"), /A bare word inside an expression is never a reference: it is a keyword literal/);
-  assert.match(chapter("bindings"), /its value is a \*\*path field, not an expression field\*\*: write the path without `\$`/);
+  assert.match(chapter("expressions"), /A bare word inside an expression is always a keyword literal/);
+  assert.match(chapter("bindings"), /its value is a \*\*path field\*\*, which names that location itself: write the path without `\$`/);
 });
 
 test("polymorphic roots use explicit native branches", () => {
@@ -101,14 +101,14 @@ test("polymorphic roots use explicit native branches", () => {
   assert.match(components, /<a \$when="\$as = 'a'">/);
   assert.match(components, /<button \$else>/);
   assert.doesNotMatch(components, /<button as="button \| a">/);
-  assert.match(components, /The prop does not retag an element/);
+  assert.match(components, /The prop selects a branch: the definition contains the actual `<button>` and `<a>` branches/);
 });
 
 test("props are initial configuration without required data-* reflection", () => {
   const components = chapter("components");
   const reactivity = chapter("reactivity");
 
-  assert.match(components, /A prop is input to that rendering; it is not automatically exposed as `data-<name>`/);
+  assert.match(components, /A prop is input to that rendering; it reaches the root's attributes only through a binding the template writes/);
   assert.match(components, /A literal attribute on the invocation supplies the prop's \*\*initial configuration\*\*/);
   assert.doesNotMatch(components, /effective value \(passed or default\)/);
   assert.doesNotMatch(reactivity, /This is `attributeChangedCallback`/);
@@ -151,7 +151,7 @@ test("writes are reactive data effects and commands remain author-owned", () => 
     /Level&nbsp;1 keywords are `get`, `query`, `post`, `put`, `patch`, and `delete`/,
     /Initial connection samples .* baseline and does not send a write/, /last acknowledged body/,
     /immutable resolved resource identity and body snapshot/, /preserves its dirty latest snapshot/, /old-key completion/,
-    /For a read, a param change cancels/, /does not own controls or create a rendered `<form>`/,
+    /For a read, a param change cancels/, /A writable data resource is a declaration in `<defs>`; controls and any `<form>` belong to the rendered markup/,
     /validation contract\]\(\/declarative-components\/validation\) applies the result to the field's validity/,
     /native form submission, an imperative controller call, or a component event/]) {
     assert.match(reactivity, phrase);
@@ -248,7 +248,7 @@ test("browser discovery covers later definitions without changing controller bin
 
   for (const phrase of [/Definitions and instances added after boot/, /MutationObserver/, /instance arrives before its definition/,
     /application-owned resolution and import-map trust/, /Sanitized `\$html` and CMS content remain excluded/,
-    /Removal disconnects the instance and disposes its owned work/, /Compiled\/AOT builds[\s\S]*do not use `MutationObserver/]) {
+    /Removal disconnects the instance and disposes its owned work/, /Compiled\/AOT builds[\s\S]*`MutationObserver` discovery belongs to the in-browser runtime alone/]) {
     assert.match(javascript, phrase);
   }
 });

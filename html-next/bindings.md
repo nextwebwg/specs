@@ -8,11 +8,11 @@ status: Stage 0 · Level 1 proposal
 
 # Bindings & Events
 
-One consistent family of attribute bindings, all ordinary attribute names under the real HTML parser, so the same source is browser-parseable and framework-compilable. Behavior stays **local to the element** — you can tell what an element does by reading the element itself (locality of behaviour) — but typed and reactive, never a string reaching into a global.
+One consistent family of attribute bindings, all ordinary attribute names under the real HTML parser, so the same source is browser-parseable and framework-compilable. Behavior stays **local to the element** — you can tell what an element does by reading the element itself (locality of behaviour) — and typed and reactive.
 
 ## The binding family
 
-An unprefixed attribute supplies a fixed literal. A declared component prop parses that literal according to its type; an undeclared or native attribute keeps its ordinary HTML meaning. A prefix marks a binding. The colon is verified across Chromium, Firefox, and WebKit to be an ordinary attribute-name character (not an XML namespace), so every form survives the parser and round-trips through `outerHTML`.
+An unprefixed attribute supplies a fixed literal. A declared component prop parses that literal according to its type; an undeclared or native attribute keeps its ordinary HTML meaning. A prefix marks a binding. The colon is verified across Chromium, Firefox, and WebKit to be an ordinary attribute-name character, so every form survives the parser and round-trips through `outerHTML`.
 
 The shapes have direct framework precedent[^3]: `from:attr` supplies values to an element as Vue's `v-bind` does, while `bind:` (two-way) and `on:` (event) match Svelte verbatim. Angular `[(ngModel)]`, its banana-in-a-box, is the canonical one-way-in-plus-event-out two-way model that the `bind:` writability rules follow.
 
@@ -32,7 +32,7 @@ For example, when a component declares `count` as `number` and `point` as `objec
 <x-plot from:count="$nextCount" from:point="{ x: $currentX, y: 5 }"></x-plot>
 ```
 
-The first invocation supplies fixed values. The second evaluates expressions that read `nextCount` and `currentX`. A plain structured value uses HTML Next's [object literal syntax](/declarative-components/types), not JSON; references such as `currentX` require `from:`. The prefix selects reactive expression evaluation, not a data type.
+The first invocation supplies fixed values. The second evaluates expressions that read `nextCount` and `currentX`. A plain structured value uses HTML Next's [object literal syntax](/declarative-components/types); references such as `currentX` require `from:`. The prefix selects reactive expression evaluation; the destination's declared type selects the data type.
 
 A live binding writes only a result that has its destination's declared type. If one evaluation has the wrong type, it leaves the destination at its last successfully written value; before the first successful write, the destination retains its default or `null`. The binding still watches its dependencies and can write again when the result becomes valid. This rule applies equally when the expression is a direct reference or a function call. A value of the right type that fails `min`, `max`, or another value constraint **does** get written and sets validity. [Reactivity](/declarative-components/reactivity#invalid-reactive-results) shows the full sequence.
 
@@ -41,7 +41,7 @@ A live binding writes only a result that has its destination's declared type. If
 
 ### Constant, action-time, and computed values
 
-These forms answer two separate questions: **is the supplied text a literal or an expression, and when is it used?** A literal is parsed through the destination's declared type; it is not necessarily a JavaScript string.
+These forms answer two separate questions: **is the supplied text a literal or an expression, and when is it used?** A literal is parsed through the destination's declared type, so it can produce a number, an object, or any other declared type.
 
 | Form | Interpretation | When it takes effect |
 | --- | --- | --- |
@@ -74,9 +74,9 @@ The `title` parameter recomputes as the draft changes. The data resource's `send
 
 ## One-way bindings
 
-`from:name="expr"` binds an attribute or a contract-declared property. It normalizes before resolving: strip `from:`, ASCII-lowercase the remainder, look the key up in the generated platform manifest, and assign using the returned canonical spelling, **which may be an attribute or a DOM property**. The expression is evaluated when the element is created and again whenever its dependencies change. A dependency can be a prop or a state value. There is deliberately **no separate raw-property syntax**: the manifest is authoritative, so an author never hand-picks an exact IDL name, and no binding reaches an arbitrary DOM property outside the contract.
+`from:name="expr"` binds an attribute or a contract-declared property. It normalizes before resolving: strip `from:`, ASCII-lowercase the remainder, look the key up in the generated platform manifest, and assign using the returned canonical spelling, **which may be an attribute or a DOM property**. The expression is evaluated when the element is created and again whenever its dependencies change. A dependency can be a prop or a state value. `from:` is deliberately **the one syntax for attributes and properties alike**: the manifest is authoritative, so it selects the exact IDL name, and a binding reaches only the DOM properties the contract declares.
 
-Replacing an element's content is not a binding but a [templating](/declarative-components/templating) directive: escaped text is `$value`, sanitized markup is `$html`. Inline `{expression}` inserts escaped text among surrounding content without replacing the element's contents. Raw, unsanitized HTML is available only through the dedicated trusted-HTML type (see [Types](/declarative-components/types)), never an ordinary string.
+Replacing an element's content is a [templating](/declarative-components/templating) directive: escaped text is `$value`, sanitized markup is `$html`. Inline `{expression}` inserts escaped text among surrounding content without replacing the element's contents. Raw, unsanitized HTML is available only through the dedicated trusted-HTML type (see [Types](/declarative-components/types)).
 
 ### Future exploration: writable computed values
 
@@ -90,7 +90,7 @@ A computed value could declare both its live read and the action to take when a 
 <x-stepper bind:value="percentage"></x-stepper>
 ```
 
-The read expression would recompute when `$fraction` changes. The `bind:value` target is the concrete writable path `percentage`; it is not an expression. When the component reports a new numeric value through `bind:value`, the write expression would set the writable `fraction` state. This keeps the inverse mapping in one declaration and reuses `bind:` at the call site, instead of pairing `from:value` and `to:value` on each invocation. The `fraction:` part is a proposed writable destination, not general expression assignment.
+The read expression would recompute when `$fraction` changes. The `bind:value` target is the concrete writable path `percentage`. When the component reports a new numeric value through `bind:value`, the write expression would set the writable `fraction` state. This keeps the inverse mapping in one declaration and reuses `bind:` at the call site. The `fraction:` part is a proposed writable destination.
 
 This syntax is exploratory. Design still needs to choose `read` versus the existing `<computed from>` spelling, define the component event that supplies `$value`, check the write result against the destination type, and prevent feedback loops. A read expression need not have an inverse: for `hasQuery = $query != ''`, writing `false` can clear the query, but writing `true` cannot reconstruct text that was never supplied. Level&nbsp;1 computeds remain read-only and cannot be `bind:` destinations.
 
@@ -106,16 +106,16 @@ A binding evaluates to a typed value, and how that value lands depends on the va
 | a number | stringified |
 | a list | space-joined, for token-list attributes |
 
-The `false`/`null` → removed rule is what makes boolean attributes work with no special case: `from:disabled="$isDisabled"` adds `disabled` when true and removes it when false, never the `disabled="false"` trap (which is actually disabled). When you want the *characters* "false", bind a string, `from:data-state="'false'"`, or an identifier that resolves to one.
+The `false`/`null` → removed rule is what makes boolean attributes work with no special case: `from:disabled="$isDisabled"` adds `disabled` when true and removes it when false, so presence matches the boolean (a literal `disabled="false"` still disables the element). When you want the *characters* "false", bind a string, `from:data-state="'false'"`, or an identifier that resolves to one.
 
 > [!note] Two kinds get specific wiring
-> **URL attributes** (`href`, `src`, `action`, …) are stringified and then have dangerous schemes stripped, the same posture the sanitizer applies to `$html`, so a bound `javascript:` URL is dropped. **Enumerated true/false attributes** (the `aria-*` family, `contenteditable`) take the literal strings `"true"`/`"false"` rather than presence, so a bound boolean coerces to that string: `from:aria-expanded="$isOpen"` yields `aria-expanded="false"` when closed rather than removing it. Both are the manifest doing the work; the author writes the same `from:attr` either way.
+> **URL attributes** (`href`, `src`, `action`, …) are stringified and then have dangerous schemes stripped, the same posture the sanitizer applies to `$html`, so a bound `javascript:` URL is dropped. **Enumerated true/false attributes** (the `aria-*` family, `contenteditable`) take the literal strings `"true"`/`"false"`, so a bound boolean coerces to that string: `from:aria-expanded="$isOpen"` yields `aria-expanded="false"` when closed. Both are the manifest doing the work; the author writes the same `from:attr` either way.
 
 Because the mapping is fixed and manifest-driven, every target serializes identically, the equivalence contract applied to attribute writes: the polyfill and the React/Vue/Svelte outputs each compile to their own idiom while producing the same observable attribute.
 
 ## Two-way binding: bind:
 
-`bind:prop="path"` reflects the value and writes user input back to `path`. It is the forms workhorse, and it requires a **writable path** plus an element contract that supports updates. Because a two-way binding must write back to a location, its value is a **path field, not an expression field**: write the path without `$`, as in `search.query`. A leading `$` is accepted even though it is not required. A bracketed index inside the path is an ordinary expression, as in `rows[$i].done`.
+`bind:prop="path"` reflects the value and writes user input back to `path`. It is the forms workhorse, and it requires a **writable path** plus an element contract that supports updates. Because a two-way binding must write back to a location, its value is a **path field**, which names that location itself: write the path without `$`, as in `search.query`. A leading `$` is optional. A bracketed index inside the path is an ordinary expression, as in `rows[$i].done`.
 
 ```html
 <input bind:value="search.query">
@@ -137,7 +137,7 @@ A writable path is a member or index access chain rooted at a **`<state>`** cell
 Writability flows from the root: a `$each` local or `$with` alias is writable exactly when it aliases a writable path, an item of a `<state>` collection is, an item of a `<data>` collection is not. Writing a sub-path changes that path and nothing that contains it, and re-runs that path's dependents and every reader that takes a whole value containing it (see [What counts as a change](/declarative-components/reactivity#changes)). An implementation may track mutations or store structural copies, as long as readers observe exactly that.
 
 > [!note] Editing fetched data
-> A GET `<data>` result is read-only, so you do not `bind:` to it. Copy the fetched value into a `<state>` draft and bind controls to the draft. If that draft should autosave, a writable [`<data method="patch" send="change">`](/declarative-components/reactivity) observes the fields it sends, including a change inside an object or list field such as a tag list. The fetched value, in-progress edit, and write effect remain distinct.
+> A GET `<data>` result is read-only. Copy the fetched value into a `<state>` draft and bind controls to the draft. If that draft should autosave, a writable [`<data method="patch" send="change">`](/declarative-components/reactivity) observes the fields it sends, including a change inside an object or list field such as a tag list. The fetched value, in-progress edit, and write effect remain distinct.
 
 > [!note] Attribute vs. property
 > Binding distinguishes an input's initial `value` attribute (serialized/default state) from its live `value` property (current control state). `from:value` updates the attribute from an expression; `bind:value` tracks the live property.
@@ -154,10 +154,10 @@ Conditional presentation uses **keyed live bindings**, one class token or style 
 
 ## Events & handlers
 
-`on:event="handler"` wires a DOM event to a declared **handler**. The form echoes native `onclick` and joins the binding family, but the browser does *not* execute `on:click` as script: the value names a `<handler>`, it is not an expression. Behavior and visible markup stay cleanly separated, the handler lives in the definition's `<defs>` region (see [Components](/declarative-components/components)), the content just points at it by name.
+`on:event="handler"` wires a DOM event to a declared **handler**. The form echoes native `onclick` and joins the binding family, and the browser treats `on:click` as an ordinary attribute: the value names a `<handler>`. Behavior and visible markup stay cleanly separated, the handler lives in the definition's `<defs>` region (see [Components](/declarative-components/components)), the content just points at it by name.
 
 ```html
-<!-- content references behavior by name; no steps inline -->
+<!-- content references behavior by name -->
 <button type="button" on:click="startEdit">Edit</button>
 
 <!-- An internal button can ask the component's owner to run a command. -->
@@ -177,7 +177,7 @@ Conditional presentation uses **keyed live bindings**, one class token or style 
 
 ### The triggering event: $$event {#triggering-event}
 
-The event that invoked a handler is referenced through **`$$event`**. It is the native event supplied to the listener, with that event's ordinary properties: for example `$$event.key` for a keyboard event, or `$$event.detail` for a component `CustomEvent`. The name is reserved and read-only. It is available in that invocation's handler expressions and guards, not in a persistent template binding or computed state.
+The event that invoked a handler is referenced through **`$$event`**. It is the native event supplied to the listener, with that event's ordinary properties: for example `$$event.key` for a keyboard event, or `$$event.detail` for a component `CustomEvent`. The name is reserved and read-only. It is available only in that invocation's handler expressions and guards.
 
 ```html
 <event name="activate" type="event"></event>
@@ -202,13 +202,13 @@ The payload can also select incoming data or combine it with component state:
 
 Each destination retains its declared type checks. A structure may explicitly retain the event itself, but that native object does not become reactive: state observes the assigned value, not changes to the event's internal fields. Selected scalar fields are sampled when the step runs. Native dispatch-time fields keep native behavior; for example `currentTarget` is cleared when dispatch finishes.[^6]
 
-Nested dispatch invokes another handler with its own `$$event`; returning to the outer handler restores its triggering event. Forwarding a payload does not redispatch the source event, automatically unwrap nested details, or couple cancellation of the new event to cancellation of the source. A controller that receives the source event can use its native operations during synchronous dispatch. The component event's `detail` is the payload itself, not a second `{ detail: payload }` object.
+Nested dispatch invokes another handler with its own `$$event`; returning to the outer handler restores its triggering event. Forwarding a payload does not redispatch the source event, automatically unwrap nested details, or couple cancellation of the new event to cancellation of the source. A controller that receives the source event can use its native operations during synchronous dispatch. The component event's `detail` is the payload itself.
 
 This follows native `CustomEvent`, Lit's component-event convention, and Svelte's earlier typed `createEventDispatcher` API.[^6][^7][^8] The `$$event` expression spelling is an HTML Next addition.
 
 ### Dispatch to a component-local ref {#dispatch-target}
 
-A `<dispatch>` without `target` dispatches from the current component's root. Its optional `target` names a `$ref` declared in that same component definition. Each instance resolves its own refs; `target` is not a DOM ID, selector, or expression, and does not change native `id` or `commandfor` behavior.
+A `<dispatch>` without `target` dispatches from the current component's root. Its optional `target` names a `$ref` declared in that same component definition. Each instance resolves its own refs; `target` is a ref name, and native `id` and `commandfor` keep their own behavior.
 
 ```html
 <defs>
@@ -227,7 +227,7 @@ A `<dispatch>` without `target` dispatches from the current component's root. It
 <ui-toast-region $ref="notifications"></ui-toast-region>
 ```
 
-The targeted element receives a native `CustomEvent`. Its controller may listen with `host.on('validate', callback)`, or its root may bind `on:validate` to a declarative handler. Dispatch does not discover or invoke a JavaScript function by name. The dispatching component's event declaration supplies the payload type check and native event flags, just as for an untargeted dispatch.
+The targeted element receives a native `CustomEvent`. Its controller may listen with `host.on('validate', callback)`, or its root may bind `on:validate` to a declarative handler. Dispatch delivers the event through the native event channel. The dispatching component's event declaration supplies the payload type check and native event flags, just as for an untargeted dispatch.
 
 A ref inside `$each` identifies a collection. A targeted dispatch sends a separate native event to **every currently rendered element in that collection, in rendered order**. The payload expression is evaluated and checked against its declared type once for the handler step, including when the collection is empty; each event's `detail` holds that same value. A receiver may mutate a shared object payload; delivery to later receivers does not repeat the sender's type check. The target list is sampled before invoking the first listener: newly rendered targets do not join that step, and targets removed before their turn are skipped. Each event has independent propagation and cancellation; canceling one does not cancel dispatch to another target. The original triggering event remains `$$event` throughout the step.
 
@@ -235,23 +235,23 @@ An undeclared ref name is an authoring error. A declared ref that currently rend
 
 ### Handler steps
 
-A handler is an ordered, enumerable list of declarative steps. The vocabulary is deliberately tiny and never names a userland JavaScript function. A `<dispatch>` uses the native event channel, which a controller or another DOM listener can observe.
+A handler is an ordered, enumerable list of declarative steps. The vocabulary is deliberately tiny, and every step is a declarative element. A `<dispatch>` uses the native event channel, which a controller or another DOM listener can observe.
 
 | Step | Effect |
 | --- | --- |
-| `<set name value>` or `<set name expr:value>` | Write a local state cell. `name` is a path field written without `$`, like `bind:`; a leading `$` is accepted even though it is not required. `value` is a typed constant; `expr:value` is evaluated when the handler runs. |
+| `<set name value>` or `<set name expr:value>` | Write a local state cell. `name` is a path field written without `$`, like `bind:`; a leading `$` is optional. `value` is a typed constant; `expr:value` is evaluated when the handler runs. |
 | `<dispatch event target? value?>` or `<dispatch event target? expr:value?>` | Dispatch a native component event from the current root or to a component-local ref, with an optional typed constant or action-time expression as its payload. |
 | `$if` (on a step) | Guard a step; it runs only when the expression is truthy, the same `$if` directive used in templating. |
 
 > [!norm] Handlers-only, by design
-> State changes live in `<handler>` steps or `bind:`, never inline in the template. Assignment is absent from the expression language, so expressions stay pure. Reactive network synchronization belongs to a declared [`<data>` effect](/declarative-components/reactivity); a component that requests a one-shot command *dispatches an event*[^2] and lets its owner decide whether to submit a form or call imperative code. The payoff is that a component's entire declarative behavior is enumerable from its markup.
+> State changes live in `<handler>` steps or `bind:`. Assignment is absent from the expression language, so expressions stay pure. Reactive network synchronization belongs to a declared [`<data>` effect](/declarative-components/reactivity); a component that requests a one-shot command *dispatches an event*[^2] and lets its owner decide whether to submit a form or call imperative code. The payoff is that a component's entire declarative behavior is enumerable from its markup.
 
 ### Platform verbs: native invoker commands
 
-Opening a dialog or toggling a popover is not component logic, it is a platform verb on a specific element. The platform already ships the declarative answer: **invoker commands** (`command` / `commandfor`), shipped in Chromium, WebKit, and Firefox.[^1] Use them directly, HTML Next adds nothing here.
+Opening a dialog or toggling a popover is a platform verb on a specific element. The platform already ships the declarative answer: **invoker commands** (`command` / `commandfor`), shipped in Chromium, WebKit, and Firefox.[^1] Use them directly.
 
 ```html
-<!-- platform verbs: native invoker commands, no <handler> block needed -->
+<!-- platform verbs: native invoker commands -->
 <button command="show-modal" commandfor="editor">Edit</button>
 <dialog id="editor">…</dialog>
 
@@ -264,17 +264,17 @@ Opening a dialog or toggling a popover is not component logic, it is a platform 
 
 ### Modifiers & component events
 
-A handler runs as declarative steps, so the operations you would otherwise call on the event object, `preventDefault`, `stopPropagation`, and the `addEventListener` options, have no imperative place to live. They ride the event name as **dotted modifiers**, each naming a real DOM operation: `on:submit.prevent`, `on:click.stop`, `on:click.once`, `on:scroll.passive`, `on:click.capture`. The dotted syntax itself is Vue's prior art, not an HTML native; key filters such as `on:keydown.enter` are convenience layered on top. A component declares emitted events in its contract; a consumer listens with the same form: `<x-dialog on:saved="refresh">`, where `refresh` is one of its own handlers. The same `on:` family carries the **lifecycle events** `on:connect`/`on:disconnect` (see [Lifecycle](/declarative-components/reactivity)).
+A handler runs as declarative steps, so the operations you would otherwise call on the event object, `preventDefault`, `stopPropagation`, and the `addEventListener` options, have no imperative place to live. They ride the event name as **dotted modifiers**, each naming a real DOM operation: `on:submit.prevent`, `on:click.stop`, `on:click.once`, `on:scroll.passive`, `on:click.capture`. The dotted syntax itself is Vue's prior art; key filters such as `on:keydown.enter` are convenience layered on top. A component declares emitted events in its contract; a consumer listens with the same form: `<x-dialog on:saved="refresh">`, where `refresh` is one of its own handlers. The same `on:` family carries the **lifecycle events** `on:connect`/`on:disconnect` (see [Lifecycle](/declarative-components/reactivity)).
 
 ## Keys
 
-`$key="expr"`, a modifier on `$each` (see [Templating](/declarative-components/templating)), gives each iterated item a stable identity, so reactive updates and reordering are correct rather than index-positional. Keyed reconciliation is well-trodden prior art[^5]: React introduced `key`, and Vue, Svelte, Angular, and Lit each carry their own form.
+`$key="expr"`, a modifier on `$each` (see [Templating](/declarative-components/templating)), gives each iterated item a stable identity, so reactive updates and reordering follow each item's identity. Keyed reconciliation is well-trodden prior art[^5]: React introduced `key`, and Vue, Svelte, Angular, and Lit each carry their own form.
 
 ### Replacing ref
 
-Frameworks expose a `ref` handle so imperative code can reach a node. HTML Next has no imperative handler, so there is nothing to dereference, and each concrete use of a ref maps to a declarative form:
+Frameworks expose a `ref` handle so imperative code can reach a node. HTML Next handlers are declarative, so each concrete use of a ref maps to a declarative form:
 
-| What a `ref` was for | HTML Next |
+| What a framework `ref` does | HTML Next |
 | --- | --- |
 | `inputRef.current.value` (read a control) | it is already state: `bind:value="draft.title"` |
 | `ref.current.focus()` on mount | `autofocus` |
@@ -283,18 +283,18 @@ Frameworks expose a `ref` handle so imperative code can reach a node. HTML Next 
 | play / pause media | invoker commands for media (emerging) |
 | scroll into view, measure, other imperative calls | [open]{.kw}: no declarative form yet, a genuine platform gap |
 
-The pattern: reading is `bind:`; platform verbs are invoker commands addressed by `id` (the way `label[for]` and `[aria-controls]` already cross-reference); and the residual imperative cases are an acknowledged open area, not a hidden `ref`.
+The pattern: reading is `bind:`; platform verbs are invoker commands addressed by `id` (the way `label[for]` and `[aria-controls]` already cross-reference); and the residual imperative cases are an acknowledged open area.
 
 ## Non-conforming
 
 > [!warn] Rejected
-> Inline `on*` handlers (the browser *executes* them) and other frameworks' directive prefixes (`@`, `v-`, `#`, `.`, `use:`, `transition:`, `animate:`) are non-conforming as literal attributes. Because there is no raw property binding, the dangerous sinks (`innerHTML`, `outerHTML`, `srcdoc`, `on*`) are simply unreachable by a binding: markup is set with `$html` (sanitized) or the trusted-HTML type, never a string assigned to a property.
+> Inline `on*` handlers (the browser *executes* them) and other frameworks' directive prefixes (`@`, `v-`, `#`, `.`, `use:`, `transition:`, `animate:`) are non-conforming as literal attributes. Bindings reach only the names the manifest declares, so the dangerous sinks (`innerHTML`, `outerHTML`, `srcdoc`, `on*`) are unreachable by a binding: markup is set with `$html` (sanitized) or the trusted-HTML type.
 
 ## Element reference
 
 ::: {.entry name="on:event" role="event binding attribute"}
 Value
-: Name of a declared `<handler>` (not an expression).
+: Name of a declared `<handler>`.
 
 Modifiers
 : `.prevent` `.stop` `.once` `.enter` (and other key names)
@@ -314,7 +314,7 @@ Placement
 : In the definition's `<defs>` region, alongside `<state>` and `<data>`.
 
 Children
-: `<set>` and `<dispatch>`, each optionally guarded with `$if`. Ordered; no route to arbitrary code.
+: `<set>` and `<dispatch>`, each optionally guarded with `$if`. Ordered; declarative steps only.
 
 Level
 : [L1]{.pill .l1}
@@ -322,13 +322,13 @@ Level
 
 ## Availability of a bound input {#availability}
 
-A binding can own an input before it has produced a value. A parent binding that is pending or failed still supplies the child's prop; its unavailability is not an omitted caller input. Ordinary values keep their declared types. Asynchronous status is observed with [`$await`](/declarative-components/templating#await), not by wrapping application values or introducing a global metadata map.
+A binding can own an input before it has produced a value. A parent binding that is pending or failed still supplies the child's prop; its unavailability is not an omitted caller input. Ordinary values keep their declared types. Asynchronous status is observed with [`$await`](/declarative-components/templating#await).
 
 This also applies to expressions on an invocation. For `from:product="$useRemote ? $remoteProduct : $fixture"`, the child follows the selected branch's availability. While `useRemote` is false, a pending or failed `remoteProduct` does not block the fixture. Switching to the remote branch makes its current availability observable in the child.
 
 A default source is eligible only when the caller has not supplied that input. Explicit supplied data bypasses default reading and subscriptions. Releasing a caller input with undefined restores default-source eligibility; valid null and other falsy values do not release it. A supplied null resolves to the prop's declared default when it has one; it remains a supplied input even though its effective value is the default. Without a default, a valid null remains null and is available. Accepted transactions preserve the distinction between caller input and source results through rendering and adoption. Invalid attempts do not transfer ownership or erase the last accepted value.
 
-This is the common input contract. A JavaScript library can supply selected-input readers, subscriptions and policies, and an application host can prepare those values for SSR or static generation. The component language does not prescribe those libraries' configuration fields, request context, RPC endpoints or cache policy.
+This is the common input contract. A JavaScript library can supply selected-input readers, subscriptions and policies, and an application host can prepare those values for SSR or static generation. Those libraries define their own configuration fields, request context, RPC endpoints and cache policy.
 
 ## References
 

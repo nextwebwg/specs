@@ -933,10 +933,20 @@ letter, number or `_`, then Unicode letters, combining marks, numbers, `_` and
 
 **Definitions.** A line starting `[^label]:`, after any block-relative
 indentation, opens a `footnoteDefinition`. Its content starts
-after the colon and optional spaces or tabs, and continues on lines indented at
-least four columns past the marker's block indentation. Read that content as
-blocks, as a list item's content is read: every continuation line is
-indented, so a less indented nonblank line ends the definition. A definition may interrupt a paragraph. It is recognized in every
+after the colon and optional spaces or tabs, and continues on lines indented
+more than the marker, by any amount, as [list nesting](#lists) is relative.
+Read that content as blocks, as a list item's content is read: a nonblank line
+indented no more than the marker ends the definition. A definition may
+interrupt a paragraph.
+
+```md
+[^a]: First.
+
+  Second.
+After.
+```
+
+The note holds two paragraphs, and `After.` follows it in the document. It is recognized in every
 block context: the document, containers, quotes, list items, cell bodies and
 other definitions. `[^text]:` whose text is not a label follows CommonMark,
 which reads a valid line as a link reference definition.

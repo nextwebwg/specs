@@ -340,8 +340,8 @@ Both open the same container. The type comes first; optional title and attribute
 The AST records `titleSpelling: "unbracketed"`; absent or `"bracketed"` means the bracket form. Writers write the recorded spelling, and the bracket form for new titles. An unbracketed writer protects an opening bracket or brace, and a final list that would read as attributes. Leaf directives keep bracketed labels.
 
 **Every colon fence opens a container.** A line of three or more colons, at
-zero–three spaces of block-relative indentation, opens a container whatever its
-header holds, and it may interrupt a paragraph.
+any block-relative indentation, opens a container whatever its header holds,
+and it may interrupt a paragraph.
 
 | Header | Container |
 | --- | --- |

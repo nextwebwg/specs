@@ -594,7 +594,8 @@ Back up the database first.
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `container` | String `subType`; blocks. | Optional structured `title`. All colon containers share this family, including nested/custom types. Optional `spelling`: `"alert"` for a callout written as an [alert](#alert-spelling); absent or `"container"` means the colon form. Optional `titleSpelling`: `"unbracketed"` for a title written without brackets; absent or `"bracketed"` means `[Title]`. |
+| `strayFence` | String `value`, a colon run of three or more. | A bare fence with no closing line; its rendering is empty. |
+| `container` | Blocks. | Optional string `subType`; absent for a [generic container](/expressive-markdown/parsing#named-constructs). Optional structured `title`. All colon containers share this family, including nested/custom types. Optional `spelling`: `"alert"` for a callout written as an [alert](#alert-spelling); absent or `"container"` means the colon form. Optional `titleSpelling`: `"unbracketed"` for a title written without brackets; absent or `"bracketed"` means `[Title]`. |
 | `leaf` | String `subType`; no main content field. | Optional structured `title` for a directive label; “leaf” denotes bodyless authoring scope, not an assertion about title descendants. |
 
 | Type | Required fields/content | Additional fields and constraints |
@@ -734,6 +735,11 @@ The general attribute notation is:
 | `open=foo` | String `"foo"`. |
 | `open=false` / `open="false"` | String `"false"`, not a boolean. |
 | `#check` / `id=check` | Exact node ID `"check"`. |
+| `.wide` / `class="wide"` | Class `"wide"`; several shorthands accumulate. |
+
+Examples use `.class` and `#id`: `{.render .wide #intro}` gives the ID `intro`
+and the class `"render wide"`. The longhand `{class="render wide" id="intro"}`
+works the same. A class stays a class: `::: {.render}` is a generic container.
 
 Whitespace and an optional `&` separate entries. These are equivalent:
 
@@ -779,7 +785,7 @@ Attach identity or presentation to the content it describes:
 ## Deployment {#deployment}
 ![Service diagram](services.svg){width=640 responsive}
 
-[Release notes](release.md){class="release-link"}
+[Release notes](release.md){.release-link}
 ```
 
 **HTML representation**
@@ -840,6 +846,42 @@ Escape `{` to write literal text. Other block styling uses supported safe HTML.
 attributes to `data-*`. Custom true flags are present/empty; false flags are
 omitted. Native boolean attributes follow HTML presence: an assigned string
 `"false"` still enables them. See the [attribute conversion rules](/expressive-markdown/parsing#attributes-and-identity).
+
+### Bracketed spans
+
+Give a run of text attributes without a semantic type:
+
+```md
+Use the [`--force`]{.flag} option with care.
+```
+
+:::: {.render title="Bracketed span" height="105"}
+```html
+<p>Use the <span class="flag"><code>--force</code></span> option with care.</p>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "paragraph",
+  "children": [
+    { "type": "text", "value": "Use the " },
+    { "type": "inline", "attributes": { "class": "flag" }, "children": [{ "type": "inlineCode", "value": "--force" }] },
+    { "type": "text", "value": " option with care." }
+  ]
+}
+```
+
+A bracketed span is an `inline` node without a `subType`.
+:::
+::::
+
+The bracket holds inline Markdown, and an attribute list follows it
+immediately. The longhand `[--force]{class="flag"}` works the same as
+`[--force]{.flag}`. A class stays a class: `:flag[…]` gives an inline with a type.
+When the bracket is also a link, such as `[word](url)` or a reference that
+resolves, it stays a link and the list attaches to the link. See the
+[span rules](/expressive-markdown/parsing#bracketed-spans).
 
 ## YAML frontmatter
 
@@ -3024,7 +3066,7 @@ interactive presentation.
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `inline` | String `subType`; optional inline content. | Attribute-only atomic directives may omit content. |
+| `inline` | Optional string `subType`; optional inline content. | Attribute-only atomic directives may omit content. Without a `subType`, a [bracketed span](#bracketed-spans). |
 :::
 ::::
 

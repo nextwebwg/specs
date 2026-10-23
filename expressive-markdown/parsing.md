@@ -829,7 +829,18 @@ Some **bold** text.
 A start tag at the start of a line opens a block element. It runs to its
 matching end tag, counting nested elements of the same name, or to where HTML
 closes it otherwise. Its content is Markdown, read as a block context of its
-own.
+own. Code is opaque: a tag inside a code span or a fenced code block never
+counts when finding where an element ends.
+
+```md
+<details>
+Use `</details>` to close it.
+</details>
+```
+
+```html
+<details>Use <code>&lt;/details&gt;</code> to close it.</details>
+```
 
 Line breaks and indentation inside an element carry no meaning: the element's
 common indentation is removed, and indentation never makes code. These three
@@ -925,24 +936,25 @@ Block
 <p>Text</p><div>Block</div>
 ```
 
-An element without its end tag ends with its enclosing block, such as a list
-item or the document. Recommend a diagnostic.
+An element without its end tag ends at its first blank line outside code, or
+with its enclosing block, such as a list item, if that ends first; inline, it
+ends with its paragraph. Recommend a diagnostic.
 
 ```md
-- <div>
-  open
+<div>
+open
 
 After
 ```
 
 ```html
-<ul><li><div>open</div></li></ul><p>After</p>
+<div>open</div><p>After</p>
 ```
 
 ### Raw text
 
 `script`, `style`, `textarea`, `title` and `pre` hold their content as written
-through their end tag. A comment (`<!-- … -->`), processing instruction,
+through their end tag, at block level and inside a paragraph alike. A comment (`<!-- … -->`), processing instruction,
 declaration or CDATA section runs to its terminator and takes the rest of that
 line:
 
@@ -960,6 +972,14 @@ text
 
 text
 </pre>
+```
+
+```md
+Run <script>if (a **b** c) `x`</script> now.
+```
+
+```html
+<p>Run <script>if (a **b** c) `x`</script> now.</p>
 ```
 
 ### Tags

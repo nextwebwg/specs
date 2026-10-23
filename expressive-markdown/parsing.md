@@ -70,10 +70,38 @@ Both open the same container. The type comes first; optional title and attribute
 | Trailing attributes | Whitespace-separated attribute lists that end the line attach to the container, as on a heading: `::: details Show the output {open}`. A final `{…}` that is not a valid attribute list is title text. |
 | `[`, `]`, `{`, `}` in the text | Literal title text. A title that starts with `[` uses the bracket form, so `\[` or `\{` starts an unbracketed title with a literal bracket or brace. |
 | Whitespace | Trimmed from both ends; inner spacing is kept. |
-| With a bracket form | One title per header. `[Title]` followed by more words leaves the line as ordinary text. |
+| With a bracket form | One title per header. `[Title]` followed by more words is an unreadable header; see below. |
 | `::: tabs Install` | The group's title, by the same rule as every type. A group's shared selection name is `{group=name}`; converters that know a tool's own `tabs name` convention map it once. |
 
 The AST records `titleSpelling: "unbracketed"`; absent or `"bracketed"` means the bracket form. Writers write the recorded spelling, and the bracket form for new titles. An unbracketed writer protects an opening bracket or brace, and a final list that would read as attributes. Leaf directives keep bracketed labels.
+
+**Every colon fence opens a container.** A line of three or more colons, at
+zero–three spaces of block-relative indentation, opens a container whatever its
+header holds, and it may interrupt a paragraph.
+
+| Header | Container |
+| --- | --- |
+| `::: note [Title] {attributes}` | `subType: "note"`, with its title and attributes. |
+| `::: {.render title="x"}`, `::: [Title]`, bare `:::` | A **generic container**: no `subType`, with any title and attributes. |
+| An unreadable header, such as `::: note [unclosed` or `::: [Title] more` | A container with the type the header names, `note` here, or a generic container when it names none. `source.rest` keeps the remainder after the type, and writers write the type and that remainder back as authored. Recommend an `invalid-container-header` warning. |
+
+A generic container groups blocks without a semantic type; its
+[recommended HTML](/expressive-markdown/presentation#generic-containers-and-spans)
+is a `<div>` carrying its attributes. Closing and nesting work as for every
+container: the closing line holds only the opening's colon run, and a direct
+child uses fewer colons than its parent. Inside a container, a bare colon line
+of the parent's length closes it; a shorter one opens or closes a nested
+container.
+
+| Fence situation | Reading |
+| --- | --- |
+| Bare `:::` whose closing line follows before any other opening fence of its length or longer | A generic container. |
+| Bare `:::` with no such closing line | A **stray fence**: a `strayFence` node whose `value` is the fence line's colon run. Its rendering is empty; it writes back as authored and recommends a `stray-fence` warning. The lines after it read as they would without it. |
+| Typed, titled or attributed opener with no closing line | A container running to the end of its enclosing block, or to the line before a longer closing fence, which it leaves to its parent. Recommend an `unclosed-container` warning. Writers add the closing line. |
+
+**Enclosing block.** A container ends with its enclosing block: in a list item
+or quote, its last line comes before the first nonblank line indented less than
+that block, and a typed opener without a closing line runs to that point.
 
 | Rule | Accepted form |
 | --- | --- |
@@ -150,7 +178,16 @@ In an ordinary block quote, protect literal text that would open an alert.
 | `open=foo` | String `"foo"`. |
 | `open=false` / `open="false"` | String `"false"`, never boolean. |
 | `#check` / `id=check` | Node `id: "check"`. |
+| `.render` | Adds `render` to string `attributes.class`. |
 
+- `#id` and `id=…` set the ID; `.name` adds a class. Class shorthands
+  accumulate in source order, space-separated, so `{.render .wide}` gives
+  `class: "render wide"`. An assigned `class=…` replaces the value gathered so
+  far, by last occurrence wins, and later shorthands add to it. The longhand
+  `{class="render wide" id="intro"}` works the same as `{.render .wide #intro}`. A class
+  shorthand is an ASCII letter, `_` or `-`, then letters, digits, `_` or `-`.
+  A class stays a class: `::: {.render}` is a generic container
+  with `class: "render"`.
 - Separate entries with spaces/tabs, `&`, or both. Tight `{a=1&b=2}` is valid.
 - Outside quotes, `&` is a separator. Unquoted values are nonempty and end at
   whitespace, `&` or `}`.
@@ -170,10 +207,10 @@ Source names are case-insensitive; AST attribute keys use camelCase. Lowercase t
 ```md
 ## Deployment {#deployment}
 ![Service diagram](services.svg){width=640 responsive}
-[Release notes](release.md){class="release-link"}
+[Release notes](release.md){.release-link}
 ```
 
-A heading's final whitespace-separated list attaches to the heading. An immediately adjacent list attaches to a completed image/link. Attachments stay on the target's source line; code-span whitespace is not attachment syntax. Multiple lists resolve in source order; malformed lists stay literal. Escape `{` to prevent attachment. Code-fence attributes are described in the [language guide](/expressive-markdown/language#code-blocks-and-presentation-metadata); other block styling uses supported safe HTML.
+A heading's final whitespace-separated list attaches to the heading. An immediately adjacent list attaches to a completed image/link, and to a bracket that forms no link as a [bracketed span](#bracketed-spans). Attachments stay on the target's source line; code-span whitespace is not attachment syntax. Multiple lists resolve in source order; malformed lists stay literal. Escape `{` to prevent attachment. Code-fence attributes are described in the [language guide](/expressive-markdown/language#code-blocks-and-presentation-metadata); other block styling uses supported safe HTML.
 
 | Recommended HTML mapping | Behavior |
 | --- | --- |
@@ -184,6 +221,35 @@ A heading's final whitespace-separated list attaches to the heading. An immediat
 | Conversion-owned `data-type` (AST `dataType`) | Identifies the construct. Preserve a colliding authored value in the AST and diagnose instead of replacing output identity. |
 
 Unknown attributes remain data. An arbitrary flag does not acquire native HTML behavior.
+
+## Bracketed spans
+
+```md
+[word]{.kw}
+[word]{.kw #w key="v"}
+```
+
+A bracket followed immediately by one or more attribute lists is a bracketed
+span: an `inline` node without a `subType`, holding the bracket's inline
+Markdown and the lists' ID and attributes. An empty list `{}` also forms a span.
+
+| Source | Reading |
+| --- | --- |
+| `[w](url){…}`, `[w][ref]{…}`, or `[w]{…}` when `w` resolves | The link or reference; the list attaches to it. |
+| `[w]{…}` with no matching definition | A span. |
+| `![a]{…}` | Image syntax: the image when it forms, otherwise text. |
+| `@[a]{…}` | Mention syntax: the mention when it forms, otherwise text. |
+| `:name[a]{…}` | Inline-type syntax: the typed inline when it forms, otherwise text. |
+| `[^n]{…}` | Footnote syntax: the reference and literal `{…}` when `n` is defined, otherwise text. |
+| `[w][]{…}`, `[w][label]{…}` | Reference syntax: the reference when it resolves, otherwise text. |
+| `\![a]{…}`, `\@[a]{…}`, `\:name[a]{…}` | An escaped marker is text, and the bracket that follows is a span. |
+| A span inside link text, `[a [b]{.x}](/u)` | The link, holding the span. |
+| `` `[a]{…}` ``, `\[a]{…}` | Code and escaped text. |
+| `[a] {…}` | Text: the list must follow the bracket immediately. |
+
+Classes stay classes: `[w]{.kw}` is a span with the class `kw`. Writers write a typeless `inline` as
+`[content]{attributes}`, writing `{}` when it has no attributes, and protect
+literal text that would read as a span.
 
 ## Automatic tab grouping
 
@@ -862,8 +928,10 @@ without writing them back as authored document IDs.
 | --- | --- |
 | Unknown type/key | Valid; preserve it. |
 | Duplicate attributes | Valid; final occurrence wins. Recommend a warning. |
-| Invalid directive opener/attachment | Local literal text; do not consume unrelated following content. |
-| Unclosed container or mismatched nesting | `literal` node preserving the region through its enclosing block context; code retains lexical precedence when locating boundaries. |
+| Invalid inline or leaf directive opener, or attachment | Local literal text; do not consume unrelated following content. |
+| Unreadable container header | Container with the type it names, keeping the remainder in `source.rest`. Recommend a warning. |
+| Unclosed container | Container running to the end of its enclosing block, or to a longer closing fence; code retains lexical precedence when locating boundaries. Recommend a warning. |
+| Bare fence without a closing line | `strayFence` node. Recommend a warning. |
 | Opening `---` without a close | Ordinary Markdown. |
 | Delimited but invalid/unsupported frontmatter | Entire block as `literal`; no guessed metadata. |
 | Invalid merged table | Whole table as block `literal`. |
@@ -950,7 +1018,7 @@ the preferred form, so a document written in preferred forms carries none.
 | Tab group | Adjacent tabs; explicit `tabs` container | Adjacent tabs | `form: "explicit"` |
 | Table | Named list fields; positional list rows; GFM pipes | Named fields | `form: "positional"`; `form: "pipe"` with `markdown` |
 | Mention | `@[label]`; bare `@handle` | `@[label]` | `form: "bare"` |
-| Attribute list | `#id` / `id=…`, quoting, `&` separators, order | `id="…"`, double quotes, spaces | `attributes` |
+| Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `.class`, `#id`, double quotes, spaces | `attributes` |
 | Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
 | Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |
 | Frontmatter | YAML as authored | Generated YAML | `frontmatter` on the document |
@@ -1172,7 +1240,7 @@ shared fields above. Each feature disclosure defines its required content and ad
 
 Block content admits paragraph, heading, quote, list, code, line block, table,
 container, leaf, horizontal rule, footnote definition, link reference
-definition and block-display group/HTML/literal. Inline content admits text,
+definition, stray fence and block-display group/HTML/literal. Inline content admits text,
 inline formatting, inline code, link, image, link and image reference, footnote
 reference, break/soft break, inline directive and
 inline-display group/HTML/literal.

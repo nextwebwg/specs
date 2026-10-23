@@ -361,6 +361,37 @@ Renderers should adapt page-level styles to the available cell space:
 Use semantic HTML lists and code blocks within native table cells. Changing
 their spacing or visual wrapping must not flatten their document structure.
 
+## Generic containers and spans
+
+A colon container without a type groups blocks and carries attributes:
+
+```md
+::: {.wide #summary}
+The release ships on Friday.
+:::
+```
+
+```html
+<div class="wide" id="summary"><p>The release ships on Friday.</p></div>
+```
+
+Render it as a plain `<div>` with its attributes, following the
+[attribute mapping](/expressive-markdown/parsing#attributes-and-identity). A
+title renders as the div's first child, a `<header>`. The div omits
+`data-type`, since the container names no semantic type.
+
+A bracketed span is the inline counterpart:
+
+```md
+Run [`--force`]{.flag} once.
+```
+
+```html
+<p>Run <span class="flag"><code>--force</code></span> once.</p>
+```
+
+Render it as a `<span>` carrying only its attributes.
+
 ## Layout
 
 Align a group's child blocks and their text together. Use logical directions so

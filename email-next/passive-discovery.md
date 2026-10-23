@@ -45,6 +45,8 @@ The sender emits at most one such part per ordinary message. The attachment does
 
 ## Receiving is not answering
 
+The separate [automatic-upgrade invitation](automatic-upgrade.md) can explicitly authorize a targeted setup offer alongside a real ordinary message. This passive advertisement remains observation only; its filename, signature or capability claim cannot select that invitation protocol.
+
 Processing an advertisement is local observation only. It cannot send an acknowledgment, invoke a service endpoint, fetch an attachment URL or automatically mail the recipient's own keys. A person's separately authorized ordinary send may attach at most one current advertisement under the publication/disclosure settings. That readable email remains ordinary even if its introduction later enables encryption; a client must not retroactively mark it protected.
 
 A forwarded attachment retains its original signature but gains no authority from the forwarding person's address. Nested forwarded mail is not scanned for discovery. If a copying client moves the attachment into the recognized outer position, the receiver still checks the actual outer From, original signed mailbox, identity evidence and current eligibility; a mismatch cannot create an association. Even a match is unverified first-contact evidence unless an independent selected verification mechanism succeeds. The matching From is not an origin signature over the surrounding message.

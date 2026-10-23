@@ -32,8 +32,9 @@ and the [shared AST contract](/expressive-markdown/parsing#shared-ast-contract).
 
 ## Text, headings and lists
 
-These forms follow CommonMark and GFM. Each is explained below, including its
-source syntax, HTML, AST and rendering.
+These forms are CommonMark and GFM's, read with the
+[Markdown rules](/expressive-markdown/parsing#markdown-rules). Each is explained
+below, including its source syntax, HTML, AST and rendering.
 
 ### Paragraphs and headings
 
@@ -179,11 +180,10 @@ continues the same paragraph.
 Use [leading-pipe line blocks](#leading-pipe-line-blocks) when line divisions
 are part of the content.
 
-Use `---` on its own, separated from surrounding paragraphs by blank lines,
-for a thematic break. Its **HTML representation** is `<hr>` and its **AST** is
+Use `---` on its own line for a thematic break, directly under a paragraph
+too. Its **HTML representation** is `<hr>` and its **AST** is
 [`horizontalRule`](/expressive-markdown/language#container-ast); it normally renders as a
-horizontal separator. It is distinct from opening YAML frontmatter or a
-Setext heading underline in the CommonMark contexts that recognize those forms.
+horizontal separator. It is distinct from opening YAML frontmatter.
 
 ### Quotations
 
@@ -457,7 +457,7 @@ control that writes the change back to the document.
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
 | `list` | Boolean `ordered`; `children: ListItem[]`. | Optional integer `start` (default 1 when ordered), boolean `tight` (default false). `start` is nonnegative. |
-| `listItem` | Blocks. | Optional boolean `checked`; absent means ordinary item. |
+| `listItem` | Blocks. | Optional boolean `checked`; absent means ordinary item. `tight: false` when blank lines separate its blocks, which then render with `<p>`. |
 :::
 ::::
 
@@ -1128,11 +1128,10 @@ formatting. See [terminal empty-line handling](/expressive-markdown/parsing#lead
 > The marker is visible and sits at the start of the affected line. It makes
 > intentional line divisions easy to distinguish from ordinary source wrapping.
 
-### CommonMark compatibility
+### Hard breaks in paragraphs
 
-Existing CommonMark text can use a trailing backslash before a newline to
-request a hard break within a paragraph. Expressive Markdown accepts this
-form for compatibility; use leading pipes when authoring line blocks.
+A trailing backslash before a newline requests a hard break within a
+paragraph. Use leading pipes when authoring line blocks.
 
 A trailing backslash commonly means **explicit continuation** in programming
 languages: the next source line continues the same logical line, as in
@@ -1146,7 +1145,7 @@ continues the same paragraph.\
 This starts a new displayed line.
 ```
 
-:::: {.render title="CommonMark hard-break compatibility" height="130"}
+:::: {.render title="Hard break" height="130"}
 ```html
 <p>An ordinary source wrap continues the same paragraph.<br>This starts a new displayed line.</p>
 ```
@@ -1184,11 +1183,12 @@ This starts a new displayed line.
 :::
 ::::
 
-Two or more trailing spaces before a newline have the same hard-break meaning.
-Neither form adds a break at the end of a block, nor inside a code span or HTML
-tag. These rules follow [CommonMark hard line breaks](https://spec.commonmark.org/0.31.2/#hard-line-breaks).
+Trailing spaces are insignificant, as the
+[Markdown rules](/expressive-markdown/parsing#hard-breaks) state. A trailing
+backslash adds no break at the end of a block, nor inside a code span or HTML
+tag, following [CommonMark hard line breaks](https://spec.commonmark.org/0.31.2/#hard-line-breaks).
 
-Both forms produce a `break` inside a `paragraph`, not a `lineBlock`. They can
+A hard break is a `break` inside a `paragraph`, not a `lineBlock`. They can
 render alike, but writers must preserve the node type: keeping a paragraph's
 hard break must not silently turn it into a line block. See the
 [writer rules](/expressive-markdown/parsing#writing-and-preservation).
@@ -3220,8 +3220,8 @@ See [recovery rules](/expressive-markdown/parsing#recovery-and-diagnostics).
 
 Writers preserve meaning, order, IDs, metadata, supported presentation and
 explicit lines, and write each construct in the spelling its author chose, such
-as `_` emphasis, `*` bullets or a setext heading. Byte-identical output is
-optional. Discarded unsafe HTML is outside preservation. See
+as `_` emphasis, `*` bullets or a tilde fence. An unedited document is
+written back byte for byte. Discarded unsafe HTML is outside preservation. See
 [authored forms](/expressive-markdown/parsing#authored-forms) and
 [canonical writing](/expressive-markdown/parsing#writing-and-preservation).
 
@@ -3229,7 +3229,9 @@ optional. Discarded unsafe HTML is outside preservation. See
 
 The base is [CommonMark 0.31.2](https://spec.commonmark.org/0.31.2/) with
 [GFM](https://github.github.com/gfm/) tables, tasks, strikethrough and extended
-autolinks. Expressive rules override that base where specified. “Must” is
+autolinks. Expressive Markdown's rules override that base where specified,
+including its [Markdown rules](/expressive-markdown/parsing#markdown-rules) and
+[HTML element rules](/expressive-markdown/parsing#html-elements). “Must” is
 required, “should” recommended and “may” optional. Parsing, meanings, AST data
 and preservation form the contract; HTML output is informative.
 

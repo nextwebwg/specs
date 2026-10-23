@@ -3178,8 +3178,8 @@ See [recovery rules](/expressive-markdown/parsing#recovery-and-diagnostics).
 
 Writers preserve meaning, order, IDs, metadata, supported presentation and
 explicit lines, and write each construct in the spelling its author chose, such
-as `_` emphasis, `*` bullets or a tilde fence. Byte-identical output is
-optional. Discarded unsafe HTML is outside preservation. See
+as `_` emphasis, `*` bullets or a tilde fence. An unedited document is
+written back byte for byte. Discarded unsafe HTML is outside preservation. See
 [authored forms](/expressive-markdown/parsing#authored-forms) and
 [canonical writing](/expressive-markdown/parsing#writing-and-preservation).
 

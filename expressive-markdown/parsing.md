@@ -1424,9 +1424,16 @@ types, supported metadata and presentation. Discarded unsafe HTML is excluded
 and must never be restored from source records. Content stays where it was
 written: writers keep each block, including footnote and link reference
 definitions, at its place in the tree, and write each construct in its
-[authored form](#authored-forms). Byte-identical output is optional: canonical
-writing normalizes whitespace inside constructs, character escapes and
-overwritten duplicate attributes.
+[authored form](#authored-forms).
+
+**Exact writing.** An unedited document is written back byte for byte, spacing
+between blocks and line endings included. A parser records the source text and
+each top-level block's range in the document's `source`, with a way to
+recognize the block unedited, such as a hash of its data. A writer writes each
+unedited block from its range, and the source's spacing between two unedited
+neighbours. An edited or new block is written canonically: whitespace inside
+constructs, character escapes and overwritten duplicate attributes are
+normalized. Source the safe profile filters is never written from the record.
 
 The table lists the preferred forms, which writers use for content without a
 recorded authored form, such as content a tool inserts.
@@ -1731,8 +1738,8 @@ a document together with diagnostics and optional source records; this reference
 does not prescribe their API. See [expressmark](https://github.com/nextwebwg/expressmark)
 for the JavaScript tooling project.
 
-Round-tripping preserves supported semantic data, not necessarily byte-identical
-Markdown. Application-only IDs without a source attachment cannot always be
+Round-tripping preserves supported semantic data, and an unedited document's
+Markdown byte for byte. Application-only IDs without a source attachment cannot always be
 written; report that limitation. Discarded unsafe HTML is never restored.
 See [writer rules](/expressive-markdown/parsing#writing-and-preservation) for
 canonical output and preservation boundaries.

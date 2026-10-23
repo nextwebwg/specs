@@ -502,16 +502,16 @@ matching form:
   "type": "paragraph",
   "children": [
     {
-      "type": "underline",
-      "value": "Underlined"
+      "type": "htmlElement", "display": "inline", "tag": "u",
+      "open": "<u>", "close": "</u>", "value": "Underlined"
     },
     {
       "type": "text",
       "value": " and "
     },
     {
-      "type": "highlight",
-      "value": "highlighted"
+      "type": "htmlElement", "display": "inline", "tag": "mark",
+      "open": "<mark>", "close": "</mark>", "value": "highlighted"
     },
     {
       "type": "text",
@@ -524,19 +524,19 @@ matching form:
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
 | `group` | `children: Node[]`; `display: "inline"\|"block"`. | Generic structural wrapper; optional native wrapper `tag` is `span` or `div`, consistent with display. |
-| `html` | String `value`; `display: "inline"\|"block"`. | Supported safe HTML after allowlist filtering; never includes discarded unsafe content. |
+| `htmlElement` | `tag`; `open`; `display: "inline"\|"block"`; `body` (block), inline content, or raw `value`. | An [HTML element](/expressive-markdown/parsing#html-elements): `open` and `close` hold its tags as written; `close` is absent when the element closes otherwise; `tight: false` when blank lines separate its blocks. |
+| `html` | String `value`; `display: "inline"\|"block"`. | A comment, declaration or stray end tag, after allowlist filtering. |
 | `literal` | String `value`; `display: "inline"\|"block"`. | Preserved invalid/uninterpreted source for recovery, escaped for display. |
 
 HTML is filtered using a maintained sanitizer allowlist for elements, attributes
-and URLs. Parsing discards `script` elements and their contents; writers never
-replay discarded unsafe content. The exact sanitizer preset is still to be
-selected. Report filtering losses, and exclude discarded unsafe content from
-round-trip guarantees.
+and URLs. An element the allowlist disallows is shown as text, as GitHub's tag
+filter shows it; writers never replay filtered unsafe content. The exact
+sanitizer preset is still to be selected. Report filtering, and exclude
+filtered content from round-trip guarantees.
 
-Map supported safe HTML to its structured nodes: paragraphs, headings, lists,
-quotes, images, links, tables, details and figures. Use a `group` for a safe
-`span`/`div` that supplies grouping or styling without a stronger meaning. Other
-supported safe HTML may remain an `html` node.
+Each HTML element is an `htmlElement` node whose content is Markdown, read by
+the [HTML element rules](/expressive-markdown/parsing#html-elements). A `group`
+is a structural wrapper that tools create without authored tags.
 
 An integration documents which safe HTML it maps and which it retains as a
 string. Keeping an HTML string does not establish editable support. Preserve
@@ -549,9 +549,9 @@ HTML uses a maintained sanitizer allowlist for elements, attributes and URLs.
 `script` elements **and their contents** are discarded during parsing and never
 serialized again. A host that publishes only its own authors' content may
 choose the [trusted host profile](/expressive-markdown/parsing#trusted-host-profile)
-instead, which keeps raw HTML verbatim and renders it through the host's allowlist. Supported safe HTML can become structured nodes, including
-`underline`/`highlight` for `<u>`/`<mark>`. Other safe markup can remain an `html`
-node. Report filtering losses; unsafe discarded content is outside preservation.
+instead, which keeps HTML tags as written and renders them through the host's allowlist.
+Each element is an `htmlElement` node, and an element the policy disallows is
+shown as text. Report filtering; filtered content is outside preservation.
 The exact sanitizer preset remains to be selected.
 
 

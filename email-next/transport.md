@@ -7,7 +7,7 @@ sectionNav: true
 
 # Transport and delivery
 
-Email/2 initially travels as ordinary MIME mail through existing submission, relay and delivery services. An upgraded client does not require a new SMTP command to send a structured contribution. Provider upgrades can add discovery, control-message routing and faster delivery through separately negotiated contracts.
+Email/2 initially travels as ordinary MIME mail through existing submission, relay and delivery services. The [encrypted application carrier](application-carriage.md) defines the exact current application attachment and its receiving boundary. An upgraded client does not require a new SMTP command to send a structured contribution. Provider upgrades can add discovery, control-message routing and faster delivery through separately negotiated contracts.
 
 > [!note] Proposed application contract
 > The requirements below define how an Email/2 client interprets transport outcomes. They do not replace SMTP. The selected suite owns MIME/security-profile binding; complete implementation and submission integration remain required. The [SMTP audit](audits/smtp.md) records source coverage and unresolved dependencies.

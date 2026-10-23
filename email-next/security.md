@@ -258,6 +258,13 @@ DKIM evidence records the signing domain, verified coverage and algorithm-policy
 
 Apply the [algorithm requirements update](audits/dkim-algorithms.md) and [Ed25519 update](audits/dkim-ed25519.md) when evaluating DKIM. RSA-SHA1 and undersized RSA signatures cannot count as valid under the updated rules. A valid signature must still cover the fields required by the operation relying on it. Ed25519-SHA256 uses Ed25519 over the DKIM SHA-256 digest; a different prehash variant or direct signature of canonicalized headers is not interchangeable.
 
+For RSA DKIM keys, verifiers MUST support both a DER `RSAPublicKey` and a DER `SubjectPublicKeyInfo` carrying that key. The SPKI form uses `rsaEncryption` (`1.2.840.113549.1.1.1`), ASN.1 NULL algorithm parameters and a BIT STRING containing the DER `RSAPublicKey`, as defined in [RFC3279 section 2.3.1](https://www.rfc-editor.org/rfc/rfc3279.html#section-2.3.1). Reject malformed DER, trailing data, another algorithm identifier, absent or non-NULL parameters, and an invalid embedded key.
+
+Both representations remain subject to the same algorithm, key-strength, service-restriction and coverage checks. Ed25519 DNS keys retain RFC8463’s raw 32-octet format; an ASN.1 wrapper is not that format.
+
+> [!note] Why accept two RSA key encodings?
+> RFC6376 names `RSAPublicKey`, while the published RSA example in [RFC8463 Appendix A.2](https://www.rfc-editor.org/rfc/rfc8463.html#appendix-A.2) uses `SubjectPublicKeyInfo`. Supporting both preserves interoperability without changing the RSA signature algorithm, key-strength policy or coverage checks. This profile makes that compatibility choice explicitly; it does not change the status of the [related errata](audits/dkim-errata.md).
+
 These domain-signature algorithms do not select the Email/2 end-to-end encryption suite.
 
 ### Domain-signature history and parsing

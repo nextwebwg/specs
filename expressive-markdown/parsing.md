@@ -17,13 +17,277 @@ HTML conversion recommendations are informative.
 ## Parsing order
 
 1. Normalize CRLF/CR to LF; retained positions refer to original input.
-2. Recognize optional opening frontmatter, then CommonMark blocks, containers, leaf directives, footnote definitions, tables and line blocks in their enclosing block context.
+2. Recognize optional opening frontmatter, then Markdown blocks by the [Markdown rules](#markdown-rules), [HTML elements](#html-elements), containers, leaf directives, footnote definitions, tables and line blocks in their enclosing block context.
 3. Parse inline content and titles after block boundaries, once every footnote label is known.
 
-Code spans, fenced/indented code and HTML blocks retain their lexical boundaries;
+Code spans, fenced code and raw-text HTML retain their lexical boundaries;
 their contents do not open directives or line blocks. GFM tables take precedence
 over leading-pipe line blocks. Escaped structural punctuation stays literal.
 Apply the [safe HTML policy](#safe-html) when importing HTML and before writing it.
+
+## Markdown rules
+
+Expressive Markdown reads CommonMark 0.31.2 and GFM's blocks and inline content
+with these rules, so that each line reads as it looks. Where a rule differs from
+CommonMark or GFM, a callout shows their reading of the same example and why
+Expressive Markdown reads it this way.
+
+### Indentation and code
+
+Code is fenced, with ```` ``` ```` or `~~~`. Indentation never makes code: an
+indented line reads as it would unindented, at the top level and in list
+items, containers and HTML elements.
+
+```md
+    const x = 1;
+
+    # Title
+```
+
+```html
+<p>const x = 1;</p>
+<h1>Title</h1>
+```
+
+> [!note] CommonMark
+> **CommonMark:** four columns of indentation make indented code, so the
+> example renders as `<pre><code>const x = 1;</code></pre>` followed by a
+> second code block. Indentation then changes meaning by accident, inside
+> lists, containers and HTML. Fenced code says explicitly that it is code, and
+> it is what authors use today.
+
+### Headings
+
+A heading starts with one to six `#`. A `---` line under a paragraph is a
+thematic break, and a `===` line is paragraph text:
+
+```md
+Title
+---
+
+Title
+===
+```
+
+```html
+<p>Title</p><hr>
+<p>Title
+===</p>
+```
+
+> [!note] CommonMark
+> **CommonMark:** a `---` line under a paragraph makes it a level-2 heading,
+> `<h2>Title</h2>`, and a `===` line a level-1 heading. A `---` meant as a
+> divider then silently turns the paragraph above it into a heading. With `#`
+> as the only way to write a heading, `---` is always a divider.
+
+### Hard breaks
+
+A trailing `\` or a `<br>` breaks a line. Trailing spaces are insignificant:
+
+```md
+one␠␠
+two
+
+one\
+two
+```
+
+```html
+<p>one
+two</p>
+<p>one<br>
+two</p>
+```
+
+(`␠` marks a space.)
+
+> [!note] CommonMark
+> **CommonMark:** two or more trailing spaces also make a hard break, so the
+> first example renders as `<p>one<br>two</p>`. Invisible whitespace then
+> changes the output, and editors strip it. `\` and `<br>` are visible.
+
+### Code spans in table cells
+
+A code span inside a table cell is literal, its pipes included. Outside code,
+`\|` writes a pipe:
+
+```md
+| Expression | Reads |
+| --- | --- |
+| `a || b` | or |
+| x \| y | either |
+```
+
+```html
+<table>
+<tr><th>Expression</th><th>Reads</th></tr>
+<tr><td><code>a || b</code></td><td>or</td></tr>
+<tr><td>x | y</td><td>either</td></tr>
+</table>
+```
+
+> [!note] GFM
+> **GFM:** a `|` splits the cell inside a code span too, so `` `a || b` `` fills
+> three cells unless each pipe is written `\|`. A code span is literal
+> everywhere else, so a `|` inside one splitting the cell is inconsistent.
+
+### Quotes and continuation lines
+
+Every line of a block quote carries its own `>`, so a line without one ends the
+quote. A list item's continuation lines are indented under it, so an unindented
+line ends the list:
+
+```md
+> quoted
+not quoted
+
+- item
+not item
+```
+
+```html
+<blockquote><p>quoted</p></blockquote><p>not quoted</p>
+<ul><li>item</li></ul><p>not item</p>
+```
+
+> [!note] CommonMark
+> **CommonMark:** a paragraph continues lazily onto a line without the quote
+> marker or the list indentation, so `not quoted` joins the quote's paragraph
+> and `not item` the item's. The source then reads differently from how it
+> renders. A line without `>` does not look quoted, so it is not quoted.
+
+### Lists
+
+**Markers.** A list continues when its bullet changes among `-`, `*` and `+`,
+or its delimiter between `.` and `)`:
+
+```md
+- a
+* b
++ c
+
+1. one
+2) two
+```
+
+```html
+<ul><li>a</li><li>b</li><li>c</li></ul>
+<ol><li>one</li><li>two</li></ol>
+```
+
+> [!note] CommonMark
+> **CommonMark:** changing the bullet character or delimiter starts a new list,
+> giving three lists and two. A different bullet looks like the same list to a
+> reader, so it stays one list.
+
+**Nesting** is relative. A line indented more than the list item above it
+belongs to that item, by any amount: one space, two spaces or a tab. Equal
+indentation makes a sibling, and less indentation closes items back to the
+matching level:
+
+```md
+- a
+ - b
+- c
+```
+
+```html
+<ul><li>a<ul><li>b</li></ul></li><li>c</li></ul>
+```
+
+A line is deeper when its leading whitespace starts with the item's and has
+more after it. When neither starts with the other, as when tabs and spaces mix,
+a tab advances to the next multiple of four columns; recommend a warning.
+
+> [!note] CommonMark
+> **CommonMark:** a line belongs to an item when it is indented to the item's
+> content column, two columns for `- `, so ` - b` is a sibling item. The
+> author's intent is "deeper than the item above", and aligning content to a
+> column is invisible bookkeeping.
+
+**Blank lines.** A blank line between two items at the same level ends the
+list, and the next item starts a new one; an ordered list carries its
+numbering into the new list's `start`. A blank line followed by indented
+content continues the current item, and an item holding blank-line-separated
+blocks gives them `<p>`, as an HTML element's blank lines do. Its siblings keep
+theirs:
+
+```md
+- a
+- b
+
+- c
+
+- a
+
+  more
+- b
+
+1. one
+2. two
+
+3. three
+```
+
+```html
+<ul><li>a</li><li>b</li></ul><ul><li>c</li></ul>
+<ul><li><p>a</p><p>more</p></li><li>b</li></ul>
+<ol><li>one</li><li>two</li></ol><ol start="3"><li>three</li></ol>
+```
+
+A list's `tight` is `true`; an item holding blank-line-separated blocks has
+`tight: false`.
+
+> [!note] CommonMark
+> **CommonMark:** a blank line between items keeps one list and makes it
+> loose, giving every item `<p>`: `<ul><li><p>a</p></li><li><p>b</p></li><li><p>c</p></li></ul>`.
+> A single blank line then changes the spacing of every item in the list.
+> Here, blank lines separate things, the same as inside HTML elements.
+
+### Link targets
+
+A link or image target may hold spaces. It runs to the `)` that balances the
+opening `(` on the same line, and a final quoted title, after a space, is the
+title. A target without spaces, or in `<…>`, reads as CommonMark reads it:
+
+```md
+[Notes](my notes.md)
+[Draft](notes (draft).md "Draft") and [Next](next.md)
+![Chart](my chart.png)
+```
+
+```html
+<p><a href="my%20notes.md">Notes</a>
+<a href="notes%20(draft).md" title="Draft">Draft</a> and <a href="next.md">Next</a>
+<img src="my%20chart.png" alt="Chart"></p>
+```
+
+> [!note] CommonMark
+> **CommonMark:** a destination with spaces needs `<…>`, so `[Notes](my notes.md)`
+> stays text. File names contain spaces, and the target is unambiguous within
+> the parentheses.
+
+### Duplicate link definitions
+
+When a link reference label is defined more than once, the last definition is
+its target. Recommend a diagnostic:
+
+```md
+[x]
+
+[x]: /one
+[x]: /two
+```
+
+```html
+<p><a href="/two">x</a></p>
+```
+
+> [!note] CommonMark
+> **CommonMark:** the first definition wins, so the link goes to `/one`. Last
+> wins matches how duplicate keys and attributes resolve everywhere else in
+> Expressive Markdown.
 
 ## YAML frontmatter
 
@@ -78,7 +342,7 @@ The AST records `titleSpelling: "unbracketed"`; absent or `"bracketed"` means th
 | Rule | Accepted form |
 | --- | --- |
 | Identifier | ASCII letter, then ASCII letters, digits, `_` or `-`. Types become lowercase; attribute names use the mapping below. Text, values and IDs retain Unicode. |
-| Container spacing | Zero–three spaces of block-relative indentation; optional spaces/tabs after colons and between header parts. |
+| Container spacing | Any block-relative indentation; optional spaces/tabs after colons and between header parts. |
 | Wrappers | No padding inside the outer `[…]` or `{…}`; internal word/attribute separation remains meaningful. |
 | Label/title | Inline Markdown. Balanced brackets and matched code spans do not close the label early. Escape a literal bracket where it would close or unbalance the label. |
 | Inline/leaf scope | `:type[label]{attributes}` / `::type[label]{attributes}`. Inline needs a label or attributes, so bare `:word` stays text. Leaf occupies its own line. |
@@ -133,7 +397,7 @@ is a `container` with `spelling: "alert"`.
 **Writing.** Write a container with `spelling: "alert"` as an alert:
 `> [!type]`, then ` Title` when present, then the body on following `> `
 lines. Start the body after a `>` line when its first block is not a
-paragraph or begins with a setext underline. An alert has no attribute syntax:
+paragraph. An alert has no attribute syntax:
 write an alert with an ID, attributes or a structural type in the colon form
 and recommend a diagnostic. Without a recorded spelling, write the colon form.
 In an ordinary block quote, protect literal text that would open an alert.
@@ -243,7 +507,7 @@ or broadening mention recognition. For example,
 | Fourth line
 ```
 
-Each `| ` or pipe-plus-tab starts a represented line; a bare `|` requests an empty line. `|Text` stays ordinary text. Allow zero–three spaces of block-relative indentation; strip marker separation and additional leading whitespace. Indentation is not visual indentation.
+Each `| ` or pipe-plus-tab starts a represented line; a bare `|` requests an empty line. `|Text` stays ordinary text. Allow any block-relative indentation; strip marker separation and additional leading whitespace. Indentation is not visual indentation.
 
 | Source situation | Meaning |
 | --- | --- |
@@ -279,14 +543,14 @@ The AST uses `lineBlock.children` with `break` nodes; consecutive/leading/traili
 
 **Recommended HTML:** `<p>` with `<br>` boundaries and preserved inline wrappers. Append one layout `<br>` for a terminal empty line, or for an entirely empty one-line block, so HTML does not absorb it. This extra layout break is not an AST break. Explicit empty lines add to normal paragraph spacing.
 
-### CommonMark compatibility
+### Hard breaks in paragraphs
 
-Accept CommonMark's trailing-backslash and two-or-more-trailing-spaces hard
-breaks as `break` nodes within a paragraph. Their lexical boundaries follow
+A trailing backslash is a `break` node within a paragraph, as the
+[Markdown rules](#hard-breaks) state; its lexical boundaries follow
 [CommonMark hard line breaks](https://spec.commonmark.org/0.31.2/#hard-line-breaks).
-The [Language compatibility examples](/expressive-markdown/language#commonmark-compatibility)
+The [language examples](/expressive-markdown/language#hard-breaks-in-paragraphs)
 show the source, HTML and AST. Leading pipes are the preferred authoring form
-for line blocks; compatibility hard breaks do not change a paragraph into a
+for line blocks; a hard break does not change a paragraph into a
 `lineBlock`. Writers preserve that distinction under the [writer contract](#writing-and-preservation).
 
 ## Tables
@@ -667,13 +931,12 @@ A label uses the bare-handle token from [mentions](#mentions): a Unicode
 letter, number or `_`, then Unicode letters, combining marks, numbers, `_` and
 `-`. Labels match exactly, including case.
 
-**Definitions.** A line starting `[^label]:`, after zero–three spaces of
-block-relative indentation, opens a `footnoteDefinition`. Its content starts
+**Definitions.** A line starting `[^label]:`, after any block-relative
+indentation, opens a `footnoteDefinition`. Its content starts
 after the colon and optional spaces or tabs, and continues on lines indented at
 least four columns past the marker's block indentation. Read that content as
-blocks, as a list item's content is read: paragraph continuation lines may be
-lazy, and a blank line followed by a less indented nonblank line ends the
-definition. A definition may interrupt a paragraph. It is recognized in every
+blocks, as a list item's content is read: every continuation line is
+indented, so a less indented nonblank line ends the definition. A definition may interrupt a paragraph. It is recognized in every
 block context: the document, containers, quotes, list items, cell bodies and
 other definitions. `[^text]:` whose text is not a label follows CommonMark,
 which reads a valid line as a link reference definition.
@@ -757,8 +1020,9 @@ for links and images. Expressive Markdown keeps both in their authored form.
 
 - Labels match as CommonMark matches them: after trimming, collapsing
   whitespace and Unicode case folding. `label` keeps the authored spelling.
-- A label's target is its first definition in document order. Later
-  definitions of that label are kept in place and resolve nothing.
+- A label's target is its last definition in document order, as the
+  [Markdown rules](#duplicate-link-definitions) state. Every definition stays in
+  place.
 - A reference whose label has no definition remains text, using CommonMark's
   literal fallback.
 - Definitions are recognized in every block context and stay in their
@@ -1176,16 +1440,15 @@ the preferred form, so a document written in preferred forms carries none.
 | Construct | Spellings | Preferred | Recorded |
 | --- | --- | --- | --- |
 | Emphasis, strong | `*a*` / `_a_`, `**a**` / `__a__` | `*`, `**` | `marker: "_"` |
-| Bullet list | `-`, `*`, `+` | `-` | `marker` |
-| Ordered list | `1.` / `1)`; incrementing or repeated numbers | `.`, incrementing | `marker: ")"`, `numbering: "same"` |
+| Bullet list | `-`, `*`, `+`, each item its own | `-` | `marker`; `bullet` on an item whose bullet differs from its list's |
+| Ordered list | `1.` / `1)`, each item its own; incrementing or repeated numbers | `.`, incrementing | `marker: ")"`, `numbering: "same"`; `bullet` on an item whose delimiter differs |
 | Task marker | `[x]` / `[X]` | `[x]` | `marker: "X"` |
-| Heading | ATX, ATX with closing hashes, setext | ATX | `form: "setext"` with `underline`; `closing` |
-| Code block | Backtick or tilde fence of any length; indented | Shortest backtick fence | `fence`; `form: "indented"` |
+| Heading | ATX, ATX with closing hashes | ATX | `closing` |
+| Code block | Backtick or tilde fence of any length | Shortest backtick fence | `fence` |
 | Code span | Backtick runs of any length | Shortest run | `fence` |
 | Thematic break | `---`, `***`, `___`, spaced or longer | `---` | `marker` |
-| Hard break | Backslash; two or more trailing spaces | Backslash | `spaces` |
 | Autolink | `<url>`, bare URL, `[url](url)` | `[text](url)` | `form: "angle"` or `"bare"` |
-| Link target | Destination with or without `<…>`; `"`, `'` or `(…)` title | Canonical destination, `"` title | `target` |
+| Link target | Destination with or without `<…>`, or holding spaces; `"`, `'` or `(…)` title | Canonical destination, `"` title | `target` |
 | Link reference definition | As authored | `[label]: destination "title"` | `markdown` |
 | Link reference | Full, collapsed, shortcut | As authored | `referenceType` |
 | Callout | Colon container; alert, with the type in any case | Colon container, lowercase type | `spelling: "alert"`; `type` for an alert type not written in lowercase |
@@ -1207,9 +1470,8 @@ its form. All other spellings use `source`.
 **Writing.** Write each recorded spelling while it still applies to the node,
 and the preferred form otherwise:
 
-- An enum spelling applies while the construct can carry it: a setext heading
-  at level 1 or 2, `_` emphasis at word boundaries, indented code without info
-  or surrounding blank lines, a bare URL or mention the reader links again.
+- An enum spelling applies while the construct can carry it: `_` emphasis at
+  word boundaries, a bare URL or mention the reader links again.
 - A raw spelling (`header`, `attributes`, `info`, `target`, `markdown`,
   `frontmatter`) applies while reading it gives the node's current data.
   Editing the data writes the preferred form.

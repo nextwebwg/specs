@@ -863,16 +863,282 @@ Code attributes share the ordinary string/flag grammar and camelCase key mapping
 
 Recommended HTML escapes literal code. Per-line decoration must preserve the code's text and line divisions; copied code excludes generated line-number labels. A profile that cannot display a setting preserves it and reports the unsupported presentation.
 
+## HTML elements
+
+Expressive Markdown reads HTML elements as HTML matches tags, and reads
+Markdown inside them:
+
+```md
+<div class="entry">
+Some **bold** text.
+</div>
+```
+
+```html
+<div class="entry">Some <strong>bold</strong> text.</div>
+```
+
+> [!note] CommonMark
+> **CommonMark:** an HTML block starts at a line that meets one of seven
+> conditions: `<script`, `<pre`, `<style` or `<textarea`; a comment; a
+> processing instruction; a declaration; CDATA; one of a list of block-level tag
+> names; or any complete tag alone on its line. The first five run to their end
+> marker and the last two to a blank line, and the HTML inside stays raw text,
+> so the example above renders as written, with `**bold**` unread. CommonMark
+> decides from a block's first line without matching closing tags, so a
+> tag-name list and blank lines stand in for real element boundaries. Matching
+> tags as HTML does gives every element the same behavior, and Markdown works
+> inside elements. Line breaks inside an element carry no meaning, as in HTML.
+
+### Content
+
+A start tag at the start of a line opens a block element. It runs to its
+matching end tag, counting nested elements of the same name, or to where HTML
+closes it otherwise. Its content is Markdown, read as a block context of its
+own. Code is opaque: a tag inside a code span or a fenced code block never
+counts when finding where an element ends.
+
+```md
+<details>
+Use `</details>` to close it.
+</details>
+```
+
+```html
+<details>Use <code>&lt;/details&gt;</code> to close it.</details>
+```
+
+Line breaks and indentation inside an element carry no meaning: the element's
+common indentation is removed, and indentation never makes code. These three
+read alike:
+
+```md
+<div>Some **bold**</div>
+
+<div>
+Some **bold**
+</div>
+
+<div>
+  Some **bold**
+</div>
+```
+
+```html
+<div>Some <strong>bold</strong></div>
+```
+
+Blank lines between an element's blocks give its paragraphs `<p>`, as in a
+list item. Without them, its paragraphs take none:
+
+```md
+<div>
+
+A
+
+B
+
+</div>
+```
+
+```html
+<div><p>A</p><p>B</p></div>
+```
+
+Every element's content is read the same way, whatever the element:
+
+```md
+<span># tag</span>
+```
+
+```html
+<span><h1>tag</h1></span>
+```
+
+### Elements and lines
+
+An element followed by text on its line is inline content of a paragraph,
+matched by the same tag rules within the paragraph:
+
+```md
+<kbd>Ctrl</kbd>+<kbd>C</kbd> copies **x**
+```
+
+```html
+<p><kbd>Ctrl</kbd>+<kbd>C</kbd> copies <strong>x</strong></p>
+```
+
+Elements separated only by whitespace on a line are each a block:
+
+```md
+<details><summary>Notes</summary><div>
+
+Body
+
+</div></details>
+```
+
+```html
+<details><summary>Notes</summary><div><p>Body</p></div></details>
+```
+
+An element interrupts a paragraph when it runs past its first line or its
+start tag ends the line. A one-line element and a void element continue the
+paragraph's text:
+
+```md
+Text
+<a href="/x">link</a>
+
+Text
+<div>
+Block
+</div>
+```
+
+```html
+<p>Text
+<a href="/x">link</a></p>
+<p>Text</p><div>Block</div>
+```
+
+An element without its end tag ends at its first blank line outside code, or
+with its enclosing block, such as a list item, if that ends first; inline, it
+ends with its paragraph. Recommend a diagnostic.
+
+```md
+<div>
+open
+
+After
+```
+
+```html
+<div>open</div><p>After</p>
+```
+
+### Raw text
+
+`script`, `style`, `textarea`, `title` and `pre` hold their content as written
+through their end tag, at block level and inside a paragraph alike. A comment (`<!-- … -->`), processing instruction,
+declaration or CDATA section runs to its terminator and takes the rest of that
+line:
+
+```md
+<pre>
+**raw**
+
+text
+</pre>
+```
+
+```html
+<pre>
+**raw**
+
+text
+</pre>
+```
+
+```md
+Run <script>if (a **b** c) `x`</script> now.
+```
+
+```html
+<p>Run <script>if (a **b** c) `x`</script> now.</p>
+```
+
+### Tags
+
+**Void elements** are HTML's: `area`, `base`, `br`, `col`, `embed`, `hr`, `img`,
+`input`, `link`, `meta`, `source`, `track` and `wbr`. They take no end tag, and
+`<img src="a.png">` and `<img src="a.png" />` are the same element.
+
+**`/>` closes every element.** `<x-embed video="1" />` is a complete, empty
+element, at block level and inline, and HTML output writes it as
+`<x-embed video="1"></x-embed>`. Writers keep the authored `/>`.
+
+```md
+<div><x-a /><p>b</p></div>
+```
+
+```html
+<div><x-a></x-a><p>b</p></div>
+```
+
+> [!note] HTML
+> **HTML:** `/>` on a non-void element is ignored, so `<x-embed />` stays open
+> until `</x-embed>` or its parent closes it. Markdown favors convenient
+> authoring, and Expressive Markdown produces HTML, so it writes the complete
+> element. The [Self-Closing HTML proposal](https://nextwebwg.org/self-closing-html/)
+> is related work.
+
+A tag is self-closing only as HTML's tokenizer reads it: `/` right before `>`,
+outside an attribute value. `<a href=/docs/>Docs</a>` is an ordinary start tag
+whose `href` is `/docs/`.
+
+**Optional end tags** close as HTML defines them: `li`, `dt`, `dd`, `p`, `rt`,
+`rp`, `optgroup`, `option`, `thead`, `tbody`, `tfoot`, `tr`, `td` and `th` close
+before the start tags HTML's
+[optional tags](https://html.spec.whatwg.org/multipage/syntax.html#optional-tags)
+rules list for them, or at the end of their parent's content, and a heading's
+start tag closes an open heading.
+
+```md
+<ul><li>a<li>b</ul>
+
+<table>
+<tr><td>a<td>b
+<tr><td>c
+</table>
+```
+
+```html
+<ul><li>a</li><li>b</li></ul>
+<table><tr><td>a</td><td>b</td></tr><tr><td>c</td></tr></table>
+```
+
+**A stray end tag**, one that closes no open element, is ignored. Recommend a
+diagnostic. `</br>` is a `<br>`; recommend a warning that suggests `<br>`.
+
+```md
+a </span> b
+
+line one</br>
+line two
+```
+
+```html
+<p>a  b</p>
+<p>line one<br>
+line two</p>
+```
+
+> [!note] HTML
+> **HTML:** `</p>` with no open `p` creates an empty `p` element. A closing tag
+> never creates an element. `</br>` keeps HTML's reading because authors write
+> `</br>` to mean a line break.
+
+### AST
+
+An element is an `htmlElement` node with `display`, its `tag` name, `open`,
+its start tag as written, and `close`, its end tag as written, absent when the
+element closes otherwise. A block element holds `body` blocks, with
+`tight: false` when blank lines separate them; an inline element holds inline
+content; a raw-text element holds its content as `value`; a void or
+self-closing element holds none. Comments and declarations are `html` nodes, as
+is a stray end tag, kept for writing and rendering nothing.
+
 ## Safe HTML
 
 HTML import and output use a maintained sanitizer allowlist for elements,
 attributes and URLs, rather than a hand-written blacklist. The exact preset
 remains to be selected.
 
-- Discard `script` elements **and their contents** during parsing. They never
-  appear in the semantic document or subsequent Markdown output.
-- Map supported safe HTML to structured nodes where possible. Other supported
-  safe markup may remain an `html` node with its inline/block display context.
+- Show an authored element the policy disallows as text, its raw-text content
+  included, as GitHub's tag filter shows it, and report it:
+  `<input type="checkbox">` renders as `&lt;input type="checkbox"&gt;`.
+- Filter the attributes and URLs of each element the policy allows.
 - Apply the policy to supplied AST HTML and presentation attributes when writing;
   do not trust them merely because they arrived as document data.
 - Report filtering and unsupported conversion. Never replay discarded unsafe
@@ -888,9 +1154,8 @@ The safe profile is the default. A host whose content only its own authors
 write, such as a documentation site's pages, may choose a trusted host profile
 explicitly, so components and page styles written in Markdown reach its output.
 
-- Parsing keeps each raw HTML block and each inline HTML tag as an opaque
-  `html` node with its source verbatim: no filtering, no mapping to structured
-  nodes. Markdown between inline tags stays Markdown.
+- Parsing keeps each element's tags as written, unfiltered, in its
+  `htmlElement` node, and comments and declarations in `html` nodes.
 - Writers write those nodes back verbatim.
 - Rendering still applies the safe profile, extended by the host's allowlist of
   elements, attributes, style properties and URL schemes, to all output: raw
@@ -1240,10 +1505,10 @@ shared fields above. Each feature disclosure defines its required content and ad
 
 Block content admits paragraph, heading, quote, list, code, line block, table,
 container, leaf, horizontal rule, footnote definition, link reference
-definition, stray fence and block-display group/HTML/literal. Inline content admits text,
+definition, stray fence and block-display group/HTML element/HTML/literal. Inline content admits text,
 inline formatting, inline code, link, image, link and image reference, footnote
 reference, break/soft break, inline directive and
-inline-display group/HTML/literal.
+inline-display group/HTML element/HTML/literal.
 `title` is a designated title-field node, not an ordinary paragraph body child.
 Lists contain list items; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
 

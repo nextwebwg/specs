@@ -13,6 +13,34 @@ The architecture below defines their responsibilities. The exact federation, ren
 
 Your app can use your email provider or an independent **home service** while you keep your existing email address. The service can help you connect without holding the keys that decrypt your messages. Your mailbox provider does not need to upgrade first.
 
+## Your mailbox and your Email/2 service
+
+The app can combine two connections into one conversation view:
+
+- **Mailbox connection:** sends and retrieves email through your existing provider. Your address and mailbox can stay where they are.
+- **Email/2 connection:** supplies the selected discovery, secure setup and live-communication capabilities. This service can be part of your email provider or an independent companion service.
+
+An upgraded provider can supply both connections. With an unchanged provider, the app connects to the mailbox as usual and signs in separately to the companion service. Two correspondents can choose the same companion service, or their different services can communicate through the selected federation. They do not need to move their mailboxes or choose the same app.
+
+> [!ex] The mailbox stays where it is
+> Alice keeps her existing mailbox and connects her app to a companion service. Bob does the same. Their apps still send and retrieve ordinary email through their respective mailbox providers. The companion connection helps their authorized devices find setup and exchange encrypted traffic immediately when a usable live path exists.
+>
+> If Alice and Bob use the same companion service, that service can connect them. If they use different services, those services cooperate under the federation contract. A direct connection is an additional option; it is not required for the two-connection model.
+
+The live connection can also support separately negotiated typing and optional read indicators. Those signals belong to the exact thread and audience; a private reply does not announce activity to the wider discussion. Their wire format and permissions need their own complete contract before clients advertise support. Delivery, mailbox read flags and discovery responses cannot substitute for them.
+
+::: {.details summary="Two connections do not merge credentials or authority"}
+
+A client using an independent companion keeps its mailbox and companion connections separately configured and authenticated. Mailbox credentials go only to their authorized mailbox endpoints. Companion credentials go only to that service's selected module endpoints; they are not forwarded to a correspondent's service. One provider may offer a shared sign-in experience, but each connection retains its own scopes, origin and authorization.
+
+Connecting a companion does not grant it mailbox access, message-decryption keys, device-enrollment authority or permission to replace a pinned identity. Its own account/device link and any association with an existing email address follow their respective authorization contracts. A successful service login alone proves neither mailbox control nor a correspondent's identity. Routine use of an already authorized connection needs no new per-contact sign-in.
+
+Using the same home service does not bypass device authentication, recipient policy, exact audience checks or content encryption. Using different services does not require either service to control the mailbox domain. A common discovery federation or an already accepted locator is still needed to find an independently chosen service.
+
+The client assembles accepted messages from every authorized path using the same protected contribution and delivery identities. Changing the connection does not create a new conversation, turn an uncertain send into a failure, mark a message read or remove an intended recipient. Failure of an optional live service leaves separately authorized mailbox paths available; it cannot silently downgrade protection.
+
+:::
+
 > [!ex] Alice and Bob use different apps
 > Alice adds Bob to a message. Her app finds Bob's signed setup through a service they can both use and checks whether it can encrypt for his authorized devices. If it can, it encrypts before sending.
 >

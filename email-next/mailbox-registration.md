@@ -35,7 +35,7 @@ This chapter specifies the registrar descriptor and registration records. It doe
 | Dependency | Owning contract and boundary |
 | --- | --- |
 | Native sign-in | The [shared native connection mechanics](provider-discovery.md#reuse-sign-in-mechanics-without-sharing-permissions) supply issuer checks, authorization-code/S256 PKCE, public-client authentication, exact callbacks and isolated attempts. The [independent-module selection](provider-discovery.md#independent-registrar-and-home-connections) fixes this module's exact scopes, descriptor, metadata and registration binding. Implement and test that selection explicitly; an earlier native-flow implementation does not acquire it automatically. |
-| Account reset and inspection | The [shared account-link/reset owner](provider-grants.md#shared-account-links-separate-module-authority) supplies transaction, continuing-owner and uncertainty semantics. Its retained provider-specific profile, purposes and integer timestamps are not automatically renamed. This proposal fixes association-link records below; exact association reset/inspection wire substitutions remain to be selected. Until then, reset/inspection interoperability is unimplemented. |
+| Account reset and inspection | The [shared account-link/reset owner](provider-grants.md#shared-account-links-separate-module-authority) supplies transaction, continuing-owner and uncertainty semantics. Its retained provider-specific profile, purposes and integer timestamps are not automatically renamed. The association-link and reset/inspection records below select this module's exact wire format. Implement the continuing-owner, atomic reset and uncertain-outcome rules explicitly; defining the records does not establish runtime support. |
 | Independent home authorization | [Service federation](service-federation.md#connect-through-the-services-first) owns the architecture. The proposed [rendezvous owner](rendezvous.md#bind-the-home-account-once) defines an independent descriptor and device-signed home authorization, while its native-module/reset and management-route prerequisites remain incomplete; domain-delegated bootstrap evidence cannot be substituted for them. |
 | Identity and setup | [Identity state](identity-state.md), [mailbox associations](mailbox-association.md) and the selected setup owner retain their current authority. This registration cannot manufacture a current receive role, native assertion/control descriptor, one-use package allocation or live answer. |
 | Realm acceptance | [Discovery realms](discovery-realms.md) admit registrar evidence. A runtime accepting an opaque descriptor or decrypted snapshot cell has not validated this descriptor, complete publication or the joined Store decision. |
@@ -90,7 +90,7 @@ The descriptor follows [provider discovery](provider-discovery.md) origin/path/T
 
 The new module is `mailbox-association`; its exact native scope set is `mail.association.link mail.association.manage`. Reuse the [existing native authorization-code/S256 PKCE flow](provider-discovery.md#reuse-sign-in-mechanics-without-sharing-permissions), issuer checks, external browser, exact shared callback forms, revocation and module-separated storage. [RFC8252](https://www.rfc-editor.org/rfc/rfc8252.html) supplies the native-app authorization precedent. A provider/relay/setup/rendezvous token never acquires association scope.
 
-Use the new association record profile below. Reuse the [shared-link transaction semantics](provider-grants.md#shared-account-links-separate-module-authority) with the following exact association-link substitution. Reset transaction semantics remain required, but the association reset wire selection is unresolved as stated above:
+Use the new association record profile below. Reuse the [shared-link transaction semantics](provider-grants.md#shared-account-links-separate-module-authority) with the following exact association-link substitution. The reset and inspection binding below selects its own records; retained provider records do not become valid association records:
 
 | Record | Exact purpose |
 | --- | --- |
@@ -121,6 +121,42 @@ Each record has exactly the required members listed below. A dash means that mem
 | `link` | — | — | — | Required |
 
 There is no mailbox field in this link. Authenticate the same own account, current incarnation, OAuth family, original descriptor and current device receive authority; consume the exact challenge atomically. A self-consistent first own identity may remain unverified under enabled local policy. Account access cannot replace an already linked principal or enroll a device. A reset affects this module's account permissions/publications; it does not reset correspondent pins or another module.
+
+### Reset this connection without replacing a contact's identity
+
+A reset disconnects this module's account links and withdraws its mailbox associations. It does not change the person's encryption identity, erase correspondence or replace an identity remembered by a contact. Before confirmation, the service names the selected registrar and explains those consequences. Opening the confirmation page alone performs no reset.
+
+The following selection reuses the shared owner's [reset transaction and continuing-owner rules](provider-grants.md#inspect-a-reset-after-reconnecting). It selects exact association records, rather than trying a retained provider parser. All records below are strict JSON objects: every listed member is required and no other member is allowed. Profile is `mail-mailbox-association-v0`. Times are canonical unsigned-64 Unix-second strings under this chapter's common types; safe JSON integer times from retained provider records are not accepted here. These four records travel as bare management JSON, without a `{payload,signature}` wrapper. Their authenticated responses are not signed mailbox or endpoint-identity evidence.
+
+| Operation under the selected management prefix | Required authorization and result |
+| --- | --- |
+| `GET /account` | Current `mail.association.link` grant; 200 current-account record below. |
+| `POST /account-reset/preparations` | Current link grant; exact request below; 200 retained reset preparation. |
+| `PUT /account-reset/preparations/{preparation}` | Original family and link grant, plus server-retained fresh account-UI approval; no request body; 204 after the atomic reset. |
+| `GET /account-reset/preparations/{preparation}` | Current link grant for the same continuing internal account owner and module; 200 retained reset-state record below. A fresh family can inspect but cannot complete the old family's preparation. |
+
+Route parameters are the original nonzero ObjectIds. GET has no body or query. These routes inherit the shared owner's exact representation, status/error, no-store, finite admission, exact-request retry and retention rules. They acquire no queue, setup, relay or rendezvous scopes. Descriptor, service, module and authenticated internal account select the namespace; an incoming mailbox or identifier cannot select another owner.
+
+| Record | Exact required members | Purpose |
+| --- | --- | --- |
+| Reset request | `profile`, `request` | No purpose member. |
+| Prepared reset | `profile`, `purpose`, `preparation`, `account`, `family`, `nonce`, `confirmation`, `notBefore`, `notAfter` | `association-account-reset` |
+| Current account | `profile`, `purpose`, `account`, `family`, `principal` | `association-account-state` |
+| Retained reset state | `profile`, `purpose`, `preparation`, `outcome`, `account` | `association-account-reset-state` |
+
+`request` and `preparation` are nonzero ObjectIds. `account` is the selected account incarnation and `family` the authenticated OAuth family, each exactly 64 lowercase hexadecimal characters under the shared owner. `nonce` is 32-byte lowercase hex. `principal` is the current linked nonzero `enp0:` principal, or the empty string when unlinked. `confirmation` is a canonical same-origin HTTPS URL for the service's separate account UI, with no credentials in the URL. Do not copy management credentials into that view or its cookies into management requests. `notBefore < notAfter`; the whole credible clock interval must fit the retained original preparation interval, current account/family authority and explicit finite operator reset-preparation policy.
+
+The preparation request uses the authenticated module/account/family/route/request retry namespace and retains the exact original bytes, preparation and result. An exact retry does not issue another preparation or extend its deadline. Different authenticated bytes in that namespace return 409. The separate service UI requires fresh account authentication and CSRF-protected explicit confirmation. Its single-use server-held approval binds the exact preparation, nonce, family, module, account incarnation and original expiry. No JSON consent boolean, device signature or successful ordinary sign-in replaces that approval.
+
+Reset completion atomically consumes the approval, rotates the module's account incarnation, revokes its old families, links and pending registration authority, and retains the immutable completed reset result. In that same local transaction, record an `account-reset` withdrawal under each affected association's existing generation/CAS rules, together with durable pending publication work. If the complete bounded reset cannot commit, none of those local changes commits; admission failure cannot evict retained outcomes or report success. Registrations, renewals, withdrawals and reset serialize against this account transition. A previously completed registration result remains historical; it cannot reactivate the withdrawn association.
+
+Delivering those withdrawals to an external index is asynchronous. A 204 confirms the registrar's local reset and retained withdrawal work, not atomic withdrawal from every mirror or a recall of evidence already disclosed. Known reset/withdrawal evidence blocks fresh use immediately at the owner that has it; remote clients retain their independent currentness, high-water and expiry checks. Reset cannot delete another registrar's evidence, another module's authority or a correspondent's saved identity.
+
+`outcome` is exactly `pending`, `completed` or `expired`. For `completed`, `account` is the immutable resulting incarnation of that exact reset; otherwise it is the original preparation's incarnation. Pending retains only the original completion authority and interval. Expired cannot later complete, including after original-family withdrawal or an incompatible incarnation change. Completed cannot later become pending/expired or change its resulting incarnation. Retain and read these states under the same transaction boundary as completion and the shared continuing-owner rule. Reassignment/reprovisioning starts a new internal owner generation; a later owner cannot inspect earlier outcomes merely because a mailbox or internal identifier was reused.
+
+After an uncertain completion, disable the old local module permissions, reconnect through fresh native authorization and inspect both the current account and original preparation. These are separate read transactions, not one atomic snapshot. A historical completed result does not install its incarnation as current. Unknown, foreign-owner and garbage-collected preparations have the same 404 response. Neither 404 nor a network failure proves the reset failed. Preserve the original uncertainty and any known completed result; do not reset again automatically, restore the old grant or change a contact's identity pin.
+
+Acceptance must exercise original-byte retries, changed-byte conflicts, wrong module/family/owner, missing or replayed UI approval, expiry/clock uncertainty, simultaneous registration and reset, crash before/after commit, retained completion after later resets, account reassignment, unavailable inspection and external-index publication failure. Wire selection, account safety and actual mailbox/index transports require separate runtime evidence.
 
 ::::
 
@@ -233,7 +269,7 @@ All routes are suffixes of the selected full managementPrefix. The leading `/` b
 
 | Route | Authority and exact result |
 | --- | --- |
-| Shared /account, /links/challenges, /links/{link}, /account-reset/preparations subset | Association link scope; the new link schemas and original shared reset transaction only |
+| Shared /account, /links/challenges, /links/{link}, /account-reset/preparations subset | Association link scope; the exact association link/reset/inspection schemas and shared transaction rules above only |
 | POST /registrations | Association manage scope and active link; exact registration request; 202 `{profile,request,registration,outcome,notBefore,notAfter}` with outcome `pending` |
 | POST /associations/{association}/renewals | Same active original account/link under manage scope; `{profile,request,link,expected,device,homeAuthorization}`; subject mailbox and publication derive from the exact owned association; same pending-registration result as initial creation |
 | GET /registrations/{registration} | Same account-owner generation and module; 200 `{profile,registration,outcome,publication}`; outcome pending, completed or expired; publication is empty string unless completed, then the original complete publication object |

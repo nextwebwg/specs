@@ -576,6 +576,8 @@ MTA-STS and DANE belong to provider-to-provider transport policy. Keep their res
 
 MTA-STS policy identifiers are change tokens, not ordered revisions. A missing usable DNS advertisement does not by itself erase a cached policy. Its policy parser also has its own extension and duplicate-field rules; the event JSON parser's stricter rules must not be substituted for them.
 
+A relay can advertise more than one transport-security mechanism. Email/2 selects one for each attempt: DANE when authenticated DNS binds both the destination route and a usable relay key; otherwise applicable MTA-STS protects the route. A failed selected DANE check cannot be retried as MTA-STS on the same candidate. This choice never changes the message's endpoint encryption or recipients.
+
 ::: {.details summary="Inherited MTA-STS discovery, enforcement and rollout behavior"}
 
 ### Fetching and selecting a policy
@@ -584,11 +586,33 @@ A sending MTA fetches the policy from the fixed HTTPS endpoint with a certificat
 
 For a configured smart host, the policy domain is that relay's domain. A mailbox at a subdomain does not inherit its parent domain's MTA-STS policy. Delegating policy hosting does not change the certificate name that the original policy endpoint must authenticate.
 
-### Applying a policy
+### Selecting authentication when policies overlap
 
-Enforcement checks both the permitted MX hostname and the receiving server's STARTTLS support and certificate. An MX wildcard matches exactly one leftmost label: `*.example.com` matches `mail.example.com`, but neither `example.com` nor `a.mail.example.com`. A testing policy may report failures while allowing delivery; it MUST NOT be shown as enforced transport protection.
+The sender MUST select authentication separately for each eligible MX candidate, without changing MX preference or loop prevention:
 
-An enforcing sender must not deliver to a candidate that fails validation. It preserves ordinary MX traversal, treating an invalid candidate as unreachable rather than prefiltering the list in a way that changes loop prevention. Before permanently failing delivery under an enforcing policy, it checks for a policy update; transient failure and retry remain the recommended handling. None of these outcomes changes the conversation's authorized plaintext, hosted-access or endpoint-encrypted delivery choice.
+| Candidate and policy | Selection |
+| --- | --- |
+| Authenticated destination route and usable secure TLSA association | DANE; send the TLSA base as SNI and apply that association's usage-specific certificate rules |
+| Unauthenticated MX route and an applicable enforcing MTA-STS policy | MTA-STS; send the MX hostname as SNI and validate its policy authorization and PKIX certificate |
+| No usable DANE association on an authenticated route | Apply other configured transport requirements and any applicable MTA-STS policy; a secure, nonempty all-unusable TLSA set still requires TLS |
+
+For the first row, the sender MUST NOT also require MTA-STS MX-list, PKIX or policy-expiry validation for that attempt. It MUST record MTA-STS as **not applied because DANE was selected**, rather than passed or failed. A retained policy can apply to a later candidate. A DANE handshake or association failure makes this candidate unreachable; it MUST NOT trigger a retry of that candidate using MTA-STS or unauthenticated TLS. Other eligible MX candidates retain their own independently selected requirements.
+
+For the second row, selection MUST occur before optional TLSA discovery. RFC7672 section2.2.1 permits a sender to elect DANE for an insecure MX route; this profile does not elect it when enforcing MTA-STS protects that route. The sender MUST NOT first perform that optional lookup and then ignore its failure or an association mismatch. Relevant address and alias lookup errors still make the candidate unreachable. A configured requirement for DANE-authenticated destination delivery MUST instead hold an unauthenticated MX route; MTA-STS cannot satisfy that requirement.
+
+Record usability MUST be determined using the supported TLSA usages, selectors, matching algorithms and association encodings of the maintained DANE verifier. A nonempty set alone is insufficient. All-unusable records do not establish DANE authentication, so they do not suppress applicable MTA-STS. No selection can convert a required DNS error, bogus result or indeterminate result into authenticated absence.
+
+A testing MTA-STS policy does not enforce delivery refusal. Without an enforcing policy, optional DANE on an unauthenticated MX route may authenticate the relay but MUST NOT be reported as authenticated delivery to the intended destination domain. Its observed result and any testing-policy diagnostics remain distinct from destination authentication and enforced MTA-STS.
+
+The sender MUST preserve the selected mechanism's current evidence through the final release check. A DANE-selected attempt checks its routing and TLSA evidence, without acquiring a new dependency on an unused MTA-STS policy's lifetime. An MTA-STS-selected attempt checks the applicable policy and its authenticated session. An expired or changed required input holds release; it cannot silently switch mechanisms after the owner authorized that release. Earlier delivery records without a mechanism disposition retain an unknown disposition; they MUST NOT acquire a retrospective MTA-STS pass.
+
+This selection is an explicit Email/2 profile rule. [RFC8461 section2](https://www.rfc-editor.org/rfc/rfc8461.html#section-2) prohibits MTA-STS from rescuing failed DANE; it does not universally require the precedence chosen here. Applying [RFC7672 section8.1](https://www.rfc-editor.org/rfc/rfc7672.html#section-8.1) to a selected DANE attempt and [RFC8461 section7.1](https://www.rfc-editor.org/rfc/rfc8461.html#section-7.1) to a selected MTA-STS attempt avoids requiring two different SNI hostnames in one ClientHello. The optional insecure-MX selection follows [RFC7672 section2.2.1](https://www.rfc-editor.org/rfc/rfc7672.html#section-2.2.1).
+
+### Applying a selected MTA-STS policy
+
+For an attempt selecting MTA-STS, enforcement checks both the permitted MX hostname and the receiving server's STARTTLS support and certificate. An MX wildcard matches exactly one leftmost label: `*.example.com` matches `mail.example.com`, but neither `example.com` nor `a.mail.example.com`. A testing policy may report failures while allowing delivery; it MUST NOT be shown as enforced transport protection.
+
+A sender applying an enforcing MTA-STS policy must not deliver to a candidate that fails that validation. It preserves ordinary MX traversal, treating an invalid candidate as unreachable rather than prefiltering the list in a way that changes loop prevention. Before permanently failing delivery under an enforcing policy, it checks for a policy update; transient failure and retry remain the recommended handling. None of these outcomes changes the conversation's authorized plaintext, hosted-access or endpoint-encrypted delivery choice.
 
 ### Limits of the protection
 

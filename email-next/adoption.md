@@ -27,6 +27,14 @@ The [joined conversation demonstration](evidence/README.md#joined-question-and-o
 
 New clients claiming Encryption target the [current asynchronous baseline](suite-profile.md#current-client-baseline). Provider carriage remains independently adoptable, and optional provider/setup or managed-group roles keep their declared bindings. Earlier experiments demonstrate only their exact compatibility or component scope.
 
+The [cooperating-service architecture](service-federation.md) also lets a client
+choose an independent home service while its existing mailbox provider stays
+unchanged. A provider can contribute domain delegation or discovery alone before
+adding rendezvous or fast delivery. Each capability needs its own complete wire
+binding and acceptance evidence; the federation and fast-path bindings remain
+unfinished. A directory result is not presence, a device enrollment or permission
+to send content.
+
 ## No-cost participation
 
 Two-way encryption depends on the recipient having a usable compatible client. The adoption target is a maintained client available at no cost for ordinary protected conversation, so receiving an invitation does not introduce a purchase decision. A paid-only client cannot assume correspondents will buy software merely to reply privately.

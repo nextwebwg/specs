@@ -32,6 +32,11 @@ A provider account administrator can authorize queue access but cannot thereby e
 
 For different providers, the initiator directly uses the target's configured service with its target-service grant; replies stay in that same exchange resource. No server federation, arbitrary callback URL, forwarding chain or credential forwarding is introduced. This is deployable in two controlled accounts, although convenient cross-provider grant acquisition remains a separate adoption problem.
 
+The separate [service-federation architecture](service-federation.md) assigns
+home-to-home rendezvous and fast delivery their own future exact bindings.
+Existing queue credentials and endpoints cannot acquire those permissions merely
+because two services support this control profile.
+
 ### Provisioning and role scope
 
 The shared grant is immutable and identified by a random 64-lowercase-hex `grant` ID. Its service account ID is another opaque 64-lowercase-hex ID, not an email address or JMAP identifier. Configuration replacement requires a new grant ID; revocation prevents all subsequent access, including reads. Token renewal may preserve the grant and role but cannot change participants, origin, prefix, limits or expiry. Each token has its own expiry no later than the grant's expiry; tokens never appear in signed payloads or responses.

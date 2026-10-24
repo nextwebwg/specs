@@ -20,6 +20,14 @@ Before using a rich interaction or encryption, a client needs to know what the r
 | Upgraded provider | An authorized discovery or control service supports exchanges outside normal inbox delivery | Device enrollment or support by every client using the account |
 | Both endpoints available | A fresh authenticated exchange can confirm a session | Peer identity merely because someone is online |
 
+The [cooperating-service architecture](service-federation.md) adds a proposed path
+for clients using different services, including independent services beside
+unchanged mailboxes. It separates private discovery, offline setup, live connection
+negotiation and fast encrypted delivery. Finding setup does not mean a device is
+online. Finding an independent operator requires domain delegation, a previously
+accepted locator or a configured common discovery federation; clients do not ask
+every known service. Its complete wire bindings remain to be specified.
+
 Support is checked feature by feature and for the actual destination. A client may support answer buttons while lacking current encryption material. A provider may offer a control service while a legacy client still reads the same mailbox.
 
 > [!note] Proposed decision contract

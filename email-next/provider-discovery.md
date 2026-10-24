@@ -19,6 +19,13 @@ A client can learn where a mail domain offers an Email/2 control service without
 
 The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [provider descriptor2](#discover-the-asynchronous-agreement) when this capability is offered. Retained descriptor0/1 definitions remain exact for earlier exchanges. Version2 selects the asynchronous application while preserving shared account authority; a descriptor is not evidence that the complete service is implemented.
 
+The [cooperating-service architecture](service-federation.md) additionally calls
+for separately scoped directory, rendezvous and ciphertext-delivery roles. Those
+roles need an exact new discovery binding. They are not extra fields in the
+retained strict descriptors below, and a domain delegation still does not prove a
+mailbox-to-device identity. Clients using independent services need an accepted
+locator or configured common federation when their email domain supplies none.
+
 ## Discover for an explicit setup purpose
 
 Account-setup discovery starts from an account the person has explicitly connected or selected, using its retained domain spelling. The separate [first-contact flow](first-contact-setup.md) may also discover the domain of an explicitly selected recipient under enabled secure-setup policy. Neither path starts from arbitrary incoming content, an HTML link, a signature block, an MX target or an HTTP authentication challenge. A client may remember the person's permission to refresh this account's provider setup.

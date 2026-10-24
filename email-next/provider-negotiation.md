@@ -9,6 +9,13 @@ sectionNav: true
 
 A provider can help two clients exchange fresh key information without sending extra messages into either inbox. The provider carries the exchange; each client still decides whether the other device is authorized.
 
+The [cooperating-service architecture](service-federation.md) describes the broader
+path: each client can use its own chosen home service, those services can negotiate
+a live exchange, and an optional direct connection can carry the same encrypted
+packet. These are independently negotiated capabilities in this specification.
+Their exact new bindings remain unfinished; they do not widen the configured
+challenge queue defined in this chapter.
+
 > [!ex] Both clients are available
 > Alice's client already recognizes Bob's device, but needs fresh discovery evidence. It places a signed challenge in Bob's authorized control service. Bob's client retrieves it and returns a signed advertisement tied to that challenge. Alice validates the response, then uses the normal encryption protocol to establish the conversation.
 >

@@ -54,6 +54,13 @@ Encryption protects message contents. Additional address-protection features can
 
 [Follow the encryption journey](encryption-journey.md), including the everyday experience, adding a device and recovery.
 
+The [cooperating-service design](service-federation.md) explains the next delivery
+path: your app can use your provider or an independent service, find a
+correspondent through authorized discovery, and exchange encrypted packets
+quickly through their services or an optional direct connection. The same
+conversation and mailbox history survive a route change. Exact federation and
+fast-delivery bindings are still being specified.
+
 ## Add a device without starting over
 
 Scan a pairing code and approve the new device on an existing device authorized to add devices. The app brings across the security setup for your contacts and prepares the new device to send encrypted mail using its own keys. You should not have to re-verify every unchanged contact.
@@ -80,6 +87,7 @@ These are independent capabilities within one specification, not a promise that 
 - [Mailbox addresses](mailbox-addresses.md) defines internationalized and quoted address spelling, equality, safe display and transport requirements.
 - [Freshness and revocation knowledge](freshness.md) defines cached continuity, recent account assertions, live device evidence and use-time checks.
 - [Security and discovery](security.md) explains automatic encryption and its trust boundaries.
+- [Cooperating services and live connections](service-federation.md) separates private discovery, offline setup, service federation, optional direct connections and durable delivery outcomes.
 - [Optional provider negotiation](provider-negotiation.md) explains how upgraded services can obtain fresh device evidence outside the inbox. [Service discovery](provider-discovery.md) defines domain delegation and native client registration; [exchange authorization](provider-grants.md) defines account links and separate peer credentials.
 - [Private addressing](private-routing.md) separates personal addresses inside encryption from authorized provider relay addresses used for delivery; [route authorization](relay-routes.md) binds account permissions, peer approval and delivery proofs.
 - [Encrypting the first message](first-contact-setup.md) keeps the writing private while automatic provider-assisted setup runs, then releases the first encrypted human message; the [automatic exchange](bootstrap.md) defines who may ask, how providers verify authority and what setup may be returned. Complete joined implementation remains required.

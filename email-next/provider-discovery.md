@@ -108,6 +108,25 @@ These rules define native authorization reuse only. Queue, relay and bootstrap a
 
 ::::
 
+### Independent registrar and home connections
+
+An independent registrar or home service uses the native sign-in procedure above under the following explicit candidate module selection. This connects the person's own selected service account. It does not prove control of a mailbox or authorize another person's account.
+
+| Module | Selected descriptor | Exact requested scope set |
+| --- | --- | --- |
+| `mailbox-association` | [Association descriptor](mailbox-registration.md#exact-service-descriptor), profile `mail-association-service-v0` | `mail.association.link mail.association.manage` |
+| `rendezvous` | [Home-service descriptor](rendezvous.md), profile `mail-rendezvous-v0` and purpose `rendezvous-service` | `mail.rendezvous.link mail.rendezvous.manage` |
+
+For either candidate, the selected descriptor comes from explicit own-account service configuration or an already accepted delegation under its owning contract. Preserve that original selection and its trust provenance; do not manufacture a mailbox-domain delegation for an independent service. Incoming recipient evidence cannot select this login or install a new service origin. Rendezvous currently selects explicit own-account configuration; its still-undefined domain-discovery binding cannot be inferred from this shared sign-in procedure.
+
+The selected origin supplies the required RFC8414 metadata at the same well-known location defined below. Its `scopes_supported` must include both exact scopes for the selected row. The other metadata, public-client registration, issuer, endpoints, external-browser, S256 PKCE, token, refresh and revocation requirements remain unchanged. These bindings introduce no new OAuth metadata member or discovery URL. The same two registered loopback callback forms apply; do not derive an association or rendezvous callback path from the module name.
+
+Register each module separately with exactly its selected scope set. Retain the selected module, descriptor bytes/digest, own-account configuration or delegation provenance, metadata bytes/digest, issuer, client ID, callback forms, scope set and local setup generation in the attempt and credential binding. A shared origin, client ID or callback does not merge grants. A descriptor or metadata change invalidates pending attempts; it does not forward an old credential to the replacement service. Refresh cannot add another module's scopes.
+
+A successful native login supplies only the selected account-management grant. The association and rendezvous owners define their own device-link records, signature purposes, string timestamps, reset/inspection and later operation permissions. Existing provider/relay/setup links, proofs and credentials cannot be relabeled for these candidates. A client implementing only the earlier three modules does not gain either capability merely because a server advertises these scope strings.
+
+Acceptance evidence must include both modules at a shared origin with equal callback/client identifiers, wrong or missing advertised scopes, changed descriptor/metadata during an attempt, a callback from another module's pending attempt, an incorrectly scoped token or refresh, and revocation restricted to its original grant family. Successful native authorization must still leave mailbox verification and device/home authority unestablished until their actual owning checks complete. The new candidate bindings require their own implementation evidence; earlier native-flow tests do not establish their support.
+
 ## Register and sign in through the selected service
 
 This section applies only to connecting the person's own account, never to recipient bootstrap. A recipient's descriptor cannot trigger OAuth registration or sign-in.

@@ -21,7 +21,7 @@ The first request does not require a pre-existing provider-queue grant. It requi
 
 ## Implementation prerequisites
 
-The records below do not yet supply a complete interoperable service. The shared native sign-in metadata does not advertise the new rendezvous module or scopes. Exact module-specific account inspection/reset records and pending-offer retrieval, cursor and answer-preparation route bindings still need their own complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
+The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. Exact module-specific account inspection/reset records and pending-offer retrieval, cursor and answer-preparation route bindings still need their own complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
 
 First-contact admission also requires the complete [mailbox registration](mailbox-registration.md) owner and its actual registrar/native validation. [Service federation](service-federation.md) defines the architecture; it cannot substitute for a missing record parser or permission. Until these dependencies are implemented and tested, this chapter does not authorize advertising interoperable rendezvous support.
 

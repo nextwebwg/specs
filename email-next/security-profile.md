@@ -137,7 +137,9 @@ At publication expiry, unused material stops serving new setup. Older encodings 
 
 The maximum is a positive unsigned-64 duration in seconds supplied by trusted local configuration; zero, overflow, missing configuration after an explicit policy selection, or a malformed configured value holds use. Omission selects the documented seven-day default. Compare `not_after - not_before` only after checking the interval is ordered, using arithmetic that cannot wrap. A more permissive configured maximum never extends the authenticated end time or overrides revocation, consumption or another required credential's expiry.
 
-The [lifetime experiment](evidence/README.md#admission-lifetime-decisions) checks unsigned bounds, configurable policy and uncertain clocks. The separate real-MLS validator exercises actual signed packages. Neither supplies trusted time or complete admission. The pinned OpenMLS implementation additionally imposes its own maximum range and system-clock check; configuring a longer local policy does not bypass those library limitations. Unavailable support holds admission instead of weakening validation.
+The [lifetime experiment](evidence/README.md#admission-lifetime-decisions) checks unsigned bounds, configurable policy and uncertain clocks. The separate real-MLS validator checks the configured maximum explicitly; native signature validation alone does not enforce it. Neither experiment supplies trusted time or complete admission.
+
+The pinned OpenMLS implementation also checks the system clock. A supplied uncertainty interval cannot bypass that additional check. Receiving-time exceptions still need an adapter that preserves all cryptographic validation; unavailable support holds admission instead of weakening it. The [native validation evidence](evidence/README.md#passive-mls-admission-package-checks) records the library boundary.
 
 ### Renewal without manual key exchange
 

@@ -97,3 +97,31 @@ The [registration inventory](registration-inventory.md) also owns the parameter-
 For envelope6, the media-type payload is one complete delivery object. Its authored member contains canonical base64 of one original authored0 record; that member is not another MIME alternative or permission to parse arbitrary nested content. The selected wrapper and authored bounds apply independently. The type label or a generic JSON reader does not activate either record or bypass native author/audience/slot acceptance.
 
 For sealed2, fixed MAILCTL2 magic selects the exact container only within its independently supported control binding; the selected kind and original body still require complete owning validation. Unsupported framing remains retained and inactive without trial decryption, clear fallback or another version parser. Registration still needs the existing filing prerequisites; no name or code point has been assigned by these additions.
+
+
+## Ordinary authored candidate
+
+`application/vnd.threadlabs.mail-authored+json` is a separate unregistered
+candidate for the [ordinary authored carriage](event-encoding.md#ordinary-authored-carriage).
+Its decoded payload is one complete original authored0 record, not envelope6 or
+arbitrary JSON. The first binding admits reaction and reaction-withdraw operations
+only. It supplies no encryption, authentication, native membership or authority
+to apply a structured effect.
+
+| Registration field | Proposed value |
+| --- | --- |
+| Type / subtype | `application` / `vnd.threadlabs.mail-authored+json` |
+| Required / optional parameters | None; generators omit all parameters and receivers leave parameterized input structurally inactive. |
+| Encoding | Binary; strict UTF-8 JSON without BOM. The generated MIME binding uses base64 transfer encoding. |
+| Fragment semantics | No additional syntax or semantics; JSON Pointer is not implicitly selected. |
+| Purpose and bounds | Exact authored0 purpose/version, original octets, existing 1,048,576-octet and depth32 bounds, and the restricted ordinary operation binding. |
+| Security | Unprotected candidate data, with complete-record disclosure authorization and no automatic effects, lookup or resource retrieval. |
+| Interoperability | Unknown types, parameters or unsupported operations retain readable ordinary alternatives; no reinterpretation of a failed secured carrier. |
+| Contact / change controller | Unappointed; the common registration prerequisites above apply before filing. |
+| Intended usage | Limited agreed experiments; no assigned name, filing or deployed interoperability is claimed. |
+
+The common vendor-tree, suffix, registration and change-control requirements
+above also apply. The ordinary representation is distinct from
+`application/vnd.threadlabs.mail-event+json`, whose current payload remains a
+complete envelope6 delivery. Merely recognizing either type cannot establish
+recipient capability or protection status.

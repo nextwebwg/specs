@@ -164,6 +164,75 @@ Version `1` requires the [version `2` authenticated application context](securit
 :::
 
 
+## Ordinary authored carriage
+
+An ordinary email can include the same structured reaction that an upgraded client
+would receive through a protected delivery. It carries the original writing, not
+an invented encryption envelope. The receiving client can inspect its exact reply
+target while keeping the email's actual unprotected status visible.
+
+The ordinary representation uses the unregistered candidate
+`application/vnd.threadlabs.mail-authored+json`. The
+[registration contract](media-type-registration.md#ordinary-authored-candidate)
+owns its media-type rules. This representation does not change the secured
+`mail-event` carrier or supply encryption support for a recipient.
+
+::: {.details summary="Exact ordinary representation and trust boundary"}
+
+The decoded payload MUST be the complete original authored0 octets, with
+`version` equal to `0` and `purpose` equal to `authored-contribution`. Apply the
+[authored-record schema](#asynchronous-authored-records-and-deliveries), strict JSON,
+Unicode, duplicate/unknown-member, byte and depth rules. Do not reserialize or
+strip scope, addresses or disclosure members. No delivery event, native audience,
+slot mapping, package or protection context is added. The first ordinary binding
+admits only the selected `reaction` and `reaction-withdraw` operations; it carries
+no resources. Other operations remain unsupported in this binding.
+
+The generated ordinary layout is `multipart/alternative` with exactly three
+children in order: UTF-8 `text/plain`, inert UTF-8 `text/html`, and the ordinary
+authored representation. The structured child has no media parameters and uses
+base64 transfer encoding. The readable children preserve the operation's meaning
+and exact references without quoting target content. The optional first RFC9078
+part and its enclosing mixed wrapper follow the
+[reaction projection](reactions.md#readable-ordinary-email-projection). It is not
+an extra part in a secured mime-suite-v2 carrier. Ambiguous, duplicate, nested or
+wrong-order candidates leave this generated-layout selector inactive with the
+original source available.
+
+Every parsed result MUST remain an ordinary unprotected, unverified candidate.
+Syntax, From, DKIM, transport TLS, a Message-ID and a matching emoji MUST NOT admit
+a native contribution, reserve an authenticated namespace, change a trusted
+reaction count, withdraw an accepted reaction, execute a service action or supply
+missing target history. Failed or unsupported structured parsing MUST NOT promote
+a neighboring legacy reaction to trusted status. Reading this representation
+MUST NOT trigger setup, remote resource retrieval or another response.
+
+A receiver MAY relate the ordinary representation to an independently accepted
+protected event only after comparing the complete original authored bytes and
+rechecking the owning current presentation permission. That comparison adds
+ordinary delivery provenance; it does not authenticate this carrier or create a
+second trusted effect. Different authenticated bytes retain the existing
+conflict rules. Unauthenticated variants cannot reserve or poison a protected
+namespace. A gateway that removes or changes the structured record leaves no
+proof of equivalence from emoji, subject or sender spelling alone.
+
+Before generation or release, the sender MUST retain the deliberate ordinary
+permission for the actual destination and the complete exposed authored record,
+including its scope, personal addresses, identifiers and references, plus the
+readable alternatives and outer routing metadata. Authorization for visible text
+alone is insufficient. Private/Bcc copies use their own independently authored
+records; a visible record MUST NOT be substituted or edited into a private copy.
+A reference alone authorizes neither disclosure of its target nor resource access.
+
+The ordinary sender retains immutable prepared bytes, original deadlines,
+per-destination outcomes and possible-release uncertainty under the existing
+outbox contract. Separate ordinary permission does not mutate an earlier
+protected preparation or claim atomic network delivery. Earlier media types and
+negotiated carriers keep their original parsers; receivers MUST NOT try this
+ordinary parser as recovery for a failed secured carrier.
+
+:::
+
 ## Asynchronous authored records and deliveries
 
 One person’s writing can travel through several separately encrypted deliveries. Keep the writing as one immutable record. Put the actual recipients and delivery identity around it, so a later copy for a newly ready recipient does not become a second message or change what the author originally said.

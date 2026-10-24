@@ -335,7 +335,13 @@ Neither submission nor status requests follow redirects, even to the same origin
 
 ### HTTP results and polling
 
-All profile requests and responses include `Cache-Control: no-store`; local deliberate evidence retention is separate. Success responses use `application/json` and the same byte/depth bounds. Version 0 sends no compressed payload; unsupported Content-Encoding is not decoded optimistically.
+All service-submission and status requests and responses include
+`Cache-Control: no-store`; local deliberate evidence retention is separate.
+The separate [native authorization contract](service-authorization.md#authorization-and-callback)
+owns browser navigation and sign-in responses. Its browser GET exception does
+not apply to these programmatic submission or status requests. Success responses
+use `application/json` and the same byte/depth bounds. Version 0 sends no
+compressed payload; unsupported Content-Encoding is not decoded optimistically.
 
 POST or GET returns 200 with a terminal receipt, or 202 with a pending receipt. Another status or a missing/malformed/mismatched receipt is not application confirmation. Preserve the per-attempt meanings of 401, 408 and 421 without inferring what happened on earlier attempts. A 401 may permit independently configured credential renewal; a retry retains the exact request and submission. Redirects are never followed, including same-origin 307/308. An origin move needs a new authenticated migration profile; v0 holds the existing submission.
 

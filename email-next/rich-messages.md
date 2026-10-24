@@ -166,7 +166,7 @@ Required cases distinguish a well-decoded mismatched MIME leaf, an invalid-UTF8 
 
 ::::
 
-The selected [asynchronous agreement’s mime-suite-v2](suite-profile.md#asynchronous-protected-agreement) uses the authored record’s logical event and the literal resources.mail.invalid domain for scoped Content-IDs. This overrides only that carrier’s resource-namespace projection; the HTML/CSS safety profile, exact resource bytes/roles and isolated decoding remain required. Earlier carriers retain the literal forms above.
+The selected [asynchronous agreement’s mime-suite-v2](suite-profile.md#asynchronous-protected-agreement) uses the authored record’s logical event and the literal resources.mail.invalid domain for scoped Content-IDs. That carrier also selects its explicit [attachment-name receiving rule](suite-profile.md#attachment-names-on-receipt). These current-only bindings leave the HTML/CSS safety profile, exact resource bytes/roles and isolated decoding required. Earlier carriers retain the literal forms above.
 
 ## Evidence and remaining limits
 

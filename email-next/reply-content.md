@@ -19,7 +19,7 @@ The structured message contains a **chunk index**. Each entry points to one HTML
 
 ## What a sender includes
 
-A normal reply can contain just its new content and an exact reply reference. Quoted history is not required. When the author includes context, the composer identifies the selected passages separately from new writing and retains their authored order, including interleaved answers.
+A normal reply can contain just its new content and an exact reply reference. Quoted history is not required. A readable reply intended for an older client normally shows the new response followed by its immediate parent, under the [two-contribution layout and disclosure rules](messages.md#conversation-history-and-forwarding). That context must be encoded during composition under the selected contract; it is not an automatic transcript or an unsigned addition after signing. When the author includes context, the composer identifies the selected passages separately from new writing and retains their authored order, including interleaved answers.
 
 | Piece | Purpose |
 | --- | --- |
@@ -32,7 +32,7 @@ A normal reply can contain just its new content and an exact reply reference. Qu
 
 The index and annotated HTML belong to the same event and, when protected, the same authentication boundary. For protected delivery, both and the readable alternatives belong inside encryption. Ordinary delivery keeps its actual unprotected status. Recognizing Microdata never authenticates a sender.
 
-The sender does not attach an invisible transcript to make the reply self-contained. Only deliberately included context is copied. Copying source passages and their identifiers follows the existing [history and forwarding rules](messages.md#conversation-history-and-forwarding) and [disclosure policy](delivery-policy.md). A reference cannot authorize fetching or sharing its source.
+The sender does not attach an invisible transcript to make the reply self-contained. Only context selected for this reply is copied, including eligible immediate-parent context under that layout. Copying source passages and their identifiers follows the existing [history and forwarding rules](messages.md#conversation-history-and-forwarding) and [disclosure policy](delivery-policy.md). A reference cannot authorize fetching or sharing its source.
 
 ## Stable chunks, explicit roles
 

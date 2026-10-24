@@ -73,6 +73,25 @@ The builder pads to exactly slots rows and exactly cellBytes encrypted plaintext
 
 Every canonical mailbox has one real row containing all its complete bounded publication entries/tombstones, not one row per device or an address-prefix shard. Dummy tags/nonces/ciphertexts/authentication tags are random of the same lengths; reject tag collision and regenerate dummy rows during the one original build. The index may know real membership; public mirrors receive only the same encrypted file/checkpoint. Public geometry conceals actual member/record length only within that geometry, not the realm size class or traffic timing.
 
+### Publishing safely across an interruption
+
+A directory rebuild must not become a different directory under an already used epoch number. Readers see either the previously committed publication or the complete new one. A half-written file, a checkpoint without its file, or a file without its matching evaluator cannot become the new publication.
+
+| Authority state | What may happen next |
+| --- | --- |
+| Epoch reserved durably | Build one fresh context and key for that reservation. The reservation remains consumed even if the process stops. |
+| Build staged privately | Validate the complete file, checkpoint and matching evaluator custody. Staged data is not a published result. |
+| Publication committed | Serve its exact original artifacts, subject to current configuration and expiry checks. A retry cannot replace them. |
+| Reservation failed or abandoned | Retain the consumed epoch and failure state. A replacement build reserves a new epoch. |
+
+The publication transaction compares the reserved predecessor and configuration against the authority's current state. It commits the original context/file/checkpoint, recoverable custody of the matching evaluator key and new successful head together, or commits none of that publication. A competing publisher, later successful head or configuration change cannot let an older reservation overwrite current state. Index sequence cannot decrease across successful publications. Configuration changes do not reset the realm's reservation or successful-checkpoint history.
+
+After restart, a reservation with no complete committed publication is not a successful checkpoint. Recovery may finish the exact retained staged build if its original reservation and all current publication checks still hold, or abandon it. It must not generate a replacement key, context or dataset under that same epoch. Failed reservations do not become predecessors; the next successful checkpoint names the last successful original checkpoint payload.
+
+Private evaluator-key persistence belongs to the protected authority-storage adapter. Restoring a key must verify that it matches the original checkpoint's authenticated context and file before evaluation is possible. Storage encryption does not establish operating-system key protection or make old copies on backups or storage media disappear. Retirement must stop new evaluations under an expired or otherwise ineligible context; cached artifacts and a successful restart cannot extend its original interval.
+
+Acceptance evidence must exercise interruption after reservation and before publication, restart with a consumed failed epoch, concurrent publishers, a configuration change during a build, nondecreasing successful index cuts, exact retries, mismatched or damaged restored key/file/checkpoint custody, and refusal of expired evaluation, including an expired observation followed by an older clock reading or restart. Verify both retained history and the actual artifacts an evaluator serves. A one-shot builder value or an in-memory lock is insufficient evidence of these durable properties.
+
 ### Row content and currentness
 
 Cell plaintext is U32BE length, that many original UTF-8 cell bytes, then random padding to cellBytes. Length must fit cellBytes-4; no truncation/spillover allowed. Cell strict JSON exactly `{profile,purpose,realm,mailbox,entries}`, purpose snapshot-cell. Entries is a sorted bounded array of tagged objects:

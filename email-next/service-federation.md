@@ -58,6 +58,8 @@ The client begins with the complete recipient the person selected. It can use:
 - An authenticated service delegation from the recipient's email domain.
 - A private lookup in a discovery federation configured for this account.
 
+The proposed [discovery realm binding](discovery-realms.md) supplies a pinned configuration, admitted publishers and publication lifecycle for a bounded common index. [Private snapshot lookup](private-snapshot.md) defines complete acquisition on ordinary hardware, and [installation access](realm-access.md) defines its background resource admission. These are reference bindings with explicit scale, trusted-index and combined-compromise limits; their joined registration, allocation and Store acceptance prerequisites remain separate.
+
 A **discovery federation** is a common index that accepts authorized publications from several services. Several mirrors can serve that same index. The client queries one eligible mirror; it does not send the recipient's address to every participating service.
 
 > [!note] An unchanged domain cannot name an unknown service
@@ -211,7 +213,7 @@ Unknown discovery need not send an automatic encryption probe into an older inbo
 
 The architecture fixes service roles, authority separation, progressive adoption and safe state outcomes. The following exact wire choices remain necessary:
 
-- One mandatory private publication/retrieval construction per interoperable federation profile, authenticated epoch/snapshot rules and complete setup acquisition. Private membership lookup does not itself allocate a one-use package.
+- A complete production private publication/retrieval construction per interoperable federation profile. The [bounded snapshot reference](private-snapshot.md) specifies epoch/file rules and complete static acquisition but does not establish scalable production privacy or combined-compromise protection. Private membership lookup does not itself allocate a one-use package.
 - Registrar admission, federation bootstrap/update authority, reassignment/migration and witness/consistency assumptions. Unconfigured realms are not universally discoverable.
 - Exact descriptor role extensions, service-to-service authentication and known-pair/first-contact grant acquisition; no implicit reuse of old challenge-queue permissions.
 - Offer/answer codecs, multi-device selection and exact transcript binding.

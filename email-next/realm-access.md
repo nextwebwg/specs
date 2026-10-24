@@ -53,14 +53,20 @@ Limits has the following exact required members:
 | `evaluationsPerWindow` | Positive canonical uint64 string. Maximum blinded evaluations in the work window. |
 | `snapshotBytesPerWindow` | Positive canonical uint64 string. Maximum full-snapshot response bytes in the work window. |
 | `mutationBytesPerWindow` | Positive canonical uint64 string. Maximum mutation bytes in the work window. |
-| `maxRows` | Positive canonical uint64 string. Maximum rows admitted by the access policy. |
+| `maxRows` | Positive canonical uint64 string. Maximum retained execution rows, including reserved, completed, uncertain and replay-tombstone rows. |
 | `maxRequestBytes` | Positive canonical uint64 string. Maximum complete request bytes. |
 | `maxResponseBytes` | Positive canonical uint64 string. Maximum complete encoded response-envelope bytes. |
 | `maxStoredResponseBytes` | Positive canonical uint64 string. Maximum total retained execution-result and reservation storage bytes. |
 | `maxWorkers` | Positive canonical uint64 string. Maximum concurrent admitted workers. |
 | `workerDeadlineMs` | Positive canonical uint64 string. Maximum worker lifetime in milliseconds. |
 
-All positive canonical unsigned-64 strings, adjustable operator bounds rather than invented user quotas. maxResponseBytes must fit the complete encoded response envelope for the configured full snapshot; reject unsupported geometry before serving, never stream a selected row as fallback. maxStoredResponseBytes bounds the sum of all retained execution results/reservations, including uncertain work, not just response count. Client applies stricter local ceilings before parsing. Operator may add finite network/IP/header/proof-work budgets under privileged deployment policy without turning them into hidden user requirements.
+All limits are positive canonical unsigned-64 strings and adjustable operator bounds. They do not define user quotas. Client applies stricter local ceilings before parsing.
+
+`maxResponseBytes` must fit the complete encoded response envelope for the configured full snapshot. Reject unsupported geometry before serving; never stream a selected row as fallback.
+
+`maxStoredResponseBytes` bounds all retained execution results and reservations, including uncertain work. Reserve the maximum complete response-envelope allowance before an effect; replace it with exact retained bytes only after durable completion. Retained request commitments, nonces and execution metadata also count toward this bound.
+
+Challenges and installations have separate explicit finite operator bounds. They do not consume execution rows under `maxRows`. Operator may add finite network, IP, header or proof-work budgets under privileged deployment policy without making them hidden user requirements.
 
 The app selects this access mapping from the authenticated current realm configuration, never from a peer or lookup response. Installation key is fresh Ed25519 and separate from email device identity; use a different per-origin/realm installation key by default to avoid unnecessary cross-origin correlation. Reuse the same retained key for renewal/recovery; key regeneration must not be used automatically to evade denial or budgets. Server still sees the requesting network address and stable installation identity at that origin.
 
@@ -210,7 +216,11 @@ requestDigest hashes original complete operation-envelope bytes; status a canoni
 
 Outer response 200 application/octet-stream; each child signature/proof/file hash is still independently checked. Snapshot decoded bytes are the same entire file for every target. Account credentials/enrollment contain no selected recipient; evaluate contains blinded input only. Publication bodies intentionally reveal the publisher's own address to the index.
 
-At a request, first enforce transport/body/worker ceilings, then actual digest/signature/current credential/app/realm/scope/policy/time and complete allowed operation. Require the entire credible current interval inside notBefore inclusive/notAfter exclusive for credential/proof, expires>created, proof span <= proofLifetimeSeconds, expires <= credential.notAfter and original inner operation deadline.
+At a request, first enforce transport/body/worker ceilings, then actual digest/signature/current credential/app/realm/scope/policy/time and complete allowed operation. Require the entire credible current interval inside notBefore inclusive/notAfter exclusive for credential/proof, expires>created, proof span <= proofLifetimeSeconds and expires <= credential.notAfter. The selected current configuration and actual worker deadline also bound the attempt.
+
+The signed `expires` is the server-visible attempt deadline. There is no extra deadline member in an empty `current`/`checkpoints` body or in the defined snapshot/evaluation request. The client keeps the original human setup/send deadline in protected local attempt state and chooses `expires` no later than that deadline. A server cannot enforce a client-local deadline it has not received.
+
+For `snapshot` and `evaluate`, the selected original checkpoint/context interval additionally bounds resource use and final disclosure. Mutation and association-withdrawal handlers enforce the original signed inner record's interval and authorization under their owning contracts. None of these bounds can be refreshed by polling, token renewal or exact retry; changing signed expiry creates a different authenticated request commitment. A new permitted attempt still retains the original client-local deadline.
 
 Under owning database lock recheck current authority and credible clock; reserve per-installation/origin/realm/scope rate/evaluation/snapshot-byte/mutation-byte counters plus sufficient response-storage/work budget **before** expensive VOPRF/full snapshot copy/native publication validation.
 

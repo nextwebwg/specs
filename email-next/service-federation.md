@@ -67,6 +67,26 @@ A **discovery federation** is a common index that accepts authorized publication
 
 The client should reuse accepted evidence when it remains eligible. If it checks more than one authorized source, a conflicting identity stays a conflict; the first or fastest answer does not win. An absent entry or failed request means that this path supplied no usable setup. It does not prove that the address does not exist, cannot encrypt or is offline.
 
+## How Alice finds Bob before sending
+
+The intended first-contact flow is:
+
+1. **Bob connects his account.** His app connects to his mailbox and chosen Email/2 companion. The selected registration process verifies control of his email address and binds the publication to an authorized device. This can happen automatically under his account policy; Bob does not approve each future sender individually.
+2. **His app publishes a signed service locator.** Registration evidence connects Bob's address, authorized devices and chosen service. The publication enters a discovery federation configured for his account, with its original validity and withdrawal rules. The companion need not operate his mailbox or own its domain.
+3. **Alice enters Bob's address.** Her app uses eligible cached evidence, domain delegation or a private query to an already configured discovery federation. It looks up this selected recipient, without uploading Alice's address book or sending a setup probe into Bob's inbox.
+4. **Alice's app validates the result.** It checks the original registration and device evidence, service authorization, identity continuity, supported capabilities and expiry. A directory cannot replace the identity Alice already trusts for Bob or turn mailbox control into verified personal identity.
+5. **The app obtains usable encryption setup.** The selected private-discovery contract must cover complete locator/setup retrieval. If setup needs a one-use package, a separately authorized allocation reserves it before disclosure; that operation has its own metadata and privacy boundary. A support indicator alone is insufficient. Eligible prepublished setup can allow an encrypted first message while Bob's device is offline.
+6. **Alice sends through an authorized path.** Her app encrypts for the eligible intended recipients and uses the selected mailbox or service-delivery contract. Their services can negotiate a permitted live path when their devices are connected. Typing and enabled read indicators then follow their own exact thread, audience and permission rules.
+
+Alice and Bob can share a companion or use different companions that publish into a common discovery federation. Both clients need to know that federation's configuration beforehand, or have another accepted locator/delegation. Choosing a companion per account does not make unrelated directories automatically discoverable.
+
+> [!note] Discovery and readiness stay separate
+> Discovery has a bounded attempt, not an indefinite automatic wait. A missing entry leaves capability unknown. An exhausted package pool or unavailable service can leave a known-capable recipient pending. None of these outcomes proves Bob cannot encrypt.
+>
+> Required-protection messages stay pending until eligible setup is available or the sender makes a separately authorized permitted choice. Under an already permitted ordinary-send policy, the first human message can carry Alice's setup information so an upgraded recipient can begin the bounded automatic upgrade. This does not send background probes to legacy recipients or retroactively encrypt that first readable message.
+
+These are the intended service and client responsibilities. The exact federation bootstrap, registration, private-retrieval and allocation bindings must be complete and tested before advertising this whole flow as interoperable support. Existing primitive experiments or a working same-service demo do not establish it.
+
 ::: {.details summary="Service delegation, federation bootstrap and registration authority"}
 
 Domain discovery uses the existing parsed mailbox-domain and HTTPS delegation rules. Only the domain enters the initial discovery URL. A new binding owned by [service discovery](provider-discovery.md) must separately identify directory, rendezvous and ciphertext-delivery roles, their exact HTTPS origins and paths, protocol profiles, signing-key authority and validity. A shared origin does not merge permissions. MX records, CNAMEs, DKIM keys, diagnostic links and arbitrary redirects do not supply these roles.
@@ -74,6 +94,10 @@ Domain discovery uses the existing parsed mailbox-domain and HTTPS delegation ru
 A client-selected independent service can register a person's existing address after the selected own-account mailbox-control verification and authorized device publication succeed. Mailbox control is not independent personal identity and cannot defeat a malicious mailbox provider. The original verification evidence and its limits remain distinct from device signatures and correspondent pins.
 
 Federation configuration must identify the realm, authenticated configuration history, admitted registrar authority, mandatory private-retrieval construction and parameters, evaluator key epoch, dataset verification/checkpoint keys, eligible mirror origins and validity. It comes from account configuration or an accepted configuration-update chain, not from incoming email or a failed lookup. A new trust root is a local account/configuration decision. Existing credentials remain restricted to their original purpose and origin.
+
+A client distribution or account setup may supply an initial eligible federation configuration. Its exact bootstrap and authenticated update contract must identify the trust roots and complete retrieval profile; a familiar service brand is not a substitute. Different independent operators may serve the same configured index. An independently selected service becomes discoverable through that index only after its publication authority and the person's registration are admitted.
+
+A federation may partition its implementation by email domain. Such a partition is a routing or isolation choice, not authority to represent that domain or select every account's companion. Two people with addresses at the same unchanged provider may choose different homes. Separate handlers or hostnames alone establish neither private lookup nor resistance to combined operator compromise; those properties depend on the selected construction and its stated trust assumptions. Do not derive an unconfigured backup authority from the mailbox spelling.
 
 A registrar authorizes enrollment and publication. An index admits complete protected records and withdrawals. A mirror serves authenticated dataset material. None can replace a pinned principal or grant membership merely by returning an entry. The client independently validates the exact mailbox subject, enrollment authority, original device signature, identity continuity, current roles, selected application and all original expiry conditions.
 

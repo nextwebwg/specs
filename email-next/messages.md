@@ -482,7 +482,7 @@ The ordinary readable reply body SHOULD show these two contributions, in order:
 2. The message it answers, with that message's inherited quoted or forwarded chain omitted.
 
 > [!ex] A rolling two-contribution window
-> Bob's reply carries Bob's response followed by Alice's message. Carol replies to Bob: her new email carries Carol's response followed by Bob's contribution. Alice's previous reply-context preview is omitted from the new outgoing copy. A subsequent reply repeats the same rule; previews do not accumulate into a transcript.
+> Bob's reply carries Bob's response followed by a preview of Alice's message. Carol replies to Bob: her new email carries Carol's response followed by Bob's contribution, without the previous preview of Alice's message. A subsequent reply repeats the same rule; previews do not accumulate into a transcript.
 
 The copied parent is its contribution, not its entire previously delivered body. Exclude that parent's own appended reply-context preview when constructing the next reply. This changes the new outgoing projection only; it does not delete earlier received messages or erase deliberately authored quotations and interleaved answers. Where the selected format supplies explicit boundaries, use them. A legacy heuristic must not treat every blockquote as a disposable preview or silently remove authored text. If a previous preview cannot be separated reliably, omit the automatic preview or let the sender select a passage instead of recursively copying the whole body.
 

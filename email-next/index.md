@@ -46,7 +46,7 @@ Older apps receive a readable version when that delivery is permitted. Supportin
 
 ## Encryption happens before the writing leaves
 
-For an encrypted send, your app first finds the recipient's authorized devices and obtains the public setup information it needs. Compatible apps can [exchange setup through ordinary email](mailbox-setup.md) while your writing stays private. Upgraded providers can exchange that information separately, avoiding setup emails in the inbox. Then your app encrypts the message and sends it through email infrastructure.
+For an encrypted send, your app first finds the recipient's authorized devices and obtains the public setup information it needs. Compatible apps can [exchange setup through ordinary email](mailbox-setup.md) while your writing stays private. An optional [four-step address round trip](mailbox-return.md) also supplies receiving setup in both directions when the provider cannot establish how the setup email reached the inbox. Upgraded providers can exchange that information separately, avoiding setup emails in the inbox. Then your app encrypts the message and sends it through email infrastructure.
 
 If setup cannot finish, your writing waits. You can decide whether a recipient may instead receive ordinary email, a hosted link, or must use a compatible app. Those choices have different privacy consequences; the app must not quietly make the choice for you.
 

@@ -66,6 +66,8 @@ Once discovery is valid, use the suite's existing MLS invitation, context, membe
 
 ## Finish setup for one intended send
 
+For the optional [mailbox-return profile](mailbox-return.md), the initiator completes its local proof only at leg four; the responder completes its proof at leg three. The third leg’s independently valid ordinary receiving assertion/package supplies the initiator’s receiving evidence for a return stream. Both directions still resolve current authority and exact single-use allocations, then perform their own admission, retirement and outbox transaction below. A temporary request assertion is never substituted, and an incoming stream does not confer sending authority on its recipient.
+
 Receiving encryption details does not mean your message is ready to send. The app still has to prepare the conversation, finish the required key cleanup and queue the message and its planned copies. If you edit or cancel a waiting message, a late setup response must not send its old version.
 
 ::: {.details summary="Conversation evidence, draft revisions and crash-safe handoff"}
@@ -102,6 +104,7 @@ For mail-conversation-v2, the same setup-to-outbox transaction applies to each a
 | Known pair | [Provider descriptor2](provider-discovery.md#discover-the-asynchronous-agreement), grant2 and immutable control2 configuration | Original control2 response and assertion10 |
 | First contact through providers | [Bootstrap descriptor2/source2](bootstrap.md#automatic-setup-for-independently-ready-recipients), independently authorized source/recipient operations | Original fresh response2 or allocated publication2 and assertion10 |
 | Existing mailboxes | [Mailbox setup2](mailbox-setup.md#set-up-an-asynchronous-delivery), enabled direct-authenticated request/response policy | Original setup2 response, assertion10 and exact pending attempt, through sealed2 |
+| Address round trip | [Mailbox return0](mailbox-return.md), enabled bounded account policy, original selected target | Exact four-leg transcript and completed local observation, original assertion10 receiving material in both directions, exact branch/package restrictions |
 
 These branches supply candidates, not current membership or release permission. Use the [exact v2 binding](suite-profile.md#asynchronous-protected-agreement): context10/initial10/roster7/established10, ordinary controls2 or managed exchange4/final5, sealed2 and mime-suite-v2. Keep every original proof and independently validate current identity, selected mailbox/account association, verification/freshness, allocation and route authority. The acquisition/receiving table's role and custody distinctions apply using original assertion10, including the separate creator receiving assertion; an attempt-only mailbox key is not promoted.
 

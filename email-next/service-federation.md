@@ -123,6 +123,8 @@ Both apps use connections they opened themselves. That works with ordinary firew
 
 Alice's own service is her connection point, not an authority to disclose her recipient to arbitrary operators. The client performs the selected private lookup, or uses an independently specified privacy-preserving broker. An ordinary cleartext “look up Bob for me” request has a different disclosure contract.
 
+The proposed [home-service rendezvous binding](rendezvous.md) defines device-signed homes, source dispatch and exact request-bound answers. Its native-module/reset, pending retrieval and preparation-route prerequisites remain explicit; it does not define content upload or advertise direct WebRTC.
+
 When a live exchange is needed, Alice's app makes one authorized **rendezvous offer**. Bob's service can pass it to his permitted devices without publishing an online roster. One device may return a short-lived answer automatically under the account's existing policy. The clients validate the answer and their common capabilities before using the selected path.
 
 The service's initial “accepted for processing” response does not say whether Bob exists or is online. A missing answer leaves this route unavailable or expired; encrypted mailbox delivery can continue if its own conditions are satisfied.

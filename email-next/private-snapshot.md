@@ -144,6 +144,8 @@ Access tokens and per-origin installation keys can link queries while VOPRF stil
 | Mirror GET /snapshots/{epoch} | canonical uint epoch, no query/body/Range |200 application/octet-stream exact full immutable file named by selected checkpoint |
 | Evaluator POST `/evaluate` | `application/json`; exact evaluation request below | HTTP 200 exact evaluation response below |
 
+Checkpoint history can be empty before the first successful publication. It can also include an expired head or checkpoints from earlier configurations. A successful `/checkpoints` response preserves that complete original history under the current configuration; it does not assert that its last checkpoint is eligible setup. Its cached observation must still match the actual successful head, including an empty history. `/current`, snapshot acquisition and evaluation retain their separate live-resource checks.
+
 The evaluation request contains exactly `profile`, `request`, `checkpointDigest`, `contextDigest` and `element`. The response contains exactly those members plus `proof`:
 
 | Member | Request | Response |

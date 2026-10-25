@@ -218,13 +218,14 @@ A send result must expose unresolved and failed recipient outcomes. SMTP accepta
 
 Email/2 keeps those facts separate. This version does not provide a read-receipt, typing or online-presence module. Deleting a message from your view also does not erase someone else's copy or withdraw an answer you already sent.
 
-Present [Undo send, local deletion and provider recall](delivery-policy.md#undo-send-deletion-and-recall)
-as distinct actions. During an Undo send hold, show that delivery is still queued.
-After release, show a supported recall as pending until its authenticated result
-arrives, and retain any unsupported, failed or unknown recipients. Confirmed
-removal by a service must not be presented as proof that the message was never
-seen or that every copy disappeared. A local Delete action affects the person's
-own selected copy and does not silently request recall.
+Present [local deletion and deletion requests](delivery-policy.md#deletion-requests-and-local-deletion)
+as distinct actions. A sender requesting remote deletion sees a local marker
+that does not imply confirmed removal elsewhere. A recipient system honoring the
+request removes the message silently, without a deletion marker, notification or
+conversation announcement. No recipient acknowledgement is required. Local Delete
+affects only the person's selected copy and does not silently request remote
+deletion. The native request's wire binding remains unresolved as described in
+the delivery policy.
 
 :::: {.details summary="Evidence-bound status, local deletion and retained safety state"}
 

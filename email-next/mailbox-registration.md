@@ -291,6 +291,15 @@ The record has exactly these required members; the surrounding rules define thei
 
 The registrar atomically retains the exact request, random challenge ID and random 32-octet secret, original interval, current account-incarnation/family/link/device dependencies and one prepared verification-message job. The secret is never returned over the management API. Job retries retain the same secret/message identity and bounded interval; duplicate delivery cannot allocate another registration. SMTP acceptance is only custody evidence, not successful mailbox control. A permanent delivery failure or timeout does not prove the address does not exist.
 
+An already authorized job retains its original active family, account, link,
+device, home and interval dependencies. Expiry of the access token used to prepare
+it does not alone revoke that family or cancel the job. Background release must
+recheck the actual native family owner and every original dependency at each
+bounded transport release; a stale derived credential or submitted family ID is
+insufficient. Family withdrawal/reuse detection, reset, reassignment or loss of a
+required dependency blocks new release. This rule authorizes only the retained
+job, not another preparation, a new token, a wider scope or an extended deadline.
+
 The signed challenge has exactly:
 
 | Field group | Required members |
@@ -311,6 +320,12 @@ The registering app scans only that direct part in its own authorized mailbox ac
 The local proof-preparation owner obtains the original message from a current authorized mailbox source and retains its exact source incarnation, acquisition generation, input identity and original-byte digest. It must match the own-account mailbox selected before registration. Source access, original input and current device authority are rechecked before releasing proof. An arbitrary caller-supplied string, a From header or a claimed source ID is insufficient. Standard authorized IMAP/JMAP retrieval remains a local mailbox boundary; the registrar does not receive the person's mailbox credentials. [RFC7628](https://www.rfc-editor.org/rfc/rfc7628.html) is an existing OAuth/SASL mechanism for IMAP-style access, not transferable evidence of mailbox identity.
 
 The device signs the exact **device proof record** below with purpose `mailbox-association-proof`. challengeDigest binds the original signed challenge payload, not a reserialized object. Completion is exactly `{challenge,proof,nonce}`. The server checks the exact retained preparation, same authenticated account/family/link, both original signatures and current device authority, secret in constant time and the complete credible clock interval. Invalid proofs cannot consume the challenge or install a pin. Account/link withdrawal or descriptor incompatibility blocks new completion. One transaction consumes the challenge and records its immutable result before replying. Delete the retained raw secret and unreleased verification-job copies after completion/expiry; retain its non-secret digest and exact original outcome for retry. Never log the raw secret. A mailbox provider may retain the delivered message; the consumed secret authorizes no future registration and this protocol promises no erasure of those independent copies.
+
+Bind exact authenticated completion retries with SHA256 of their
+original bytes, retaining the original non-secret challenge, proof and public
+outcome. Do not retain a raw completion body containing the nonce merely to
+implement retry. Historical retry recognition does not bypass current account
+inspection authority or restore completion permission.
 
 ### Device proof members
 
@@ -377,7 +392,34 @@ All routes are suffixes of the selected full managementPrefix. The leading `/` b
 
 No public address/association/status enumeration route exists. An enrollment challenge is sent only after an authenticated own registration request and its local enabled policy. Deployment limits and backoff must prevent repeated challenge mail; retries cannot resend indefinitely or reset the original interval. A GET or lost PUT response never allocates another challenge. An expired challenge or one invalidated by withdrawal cannot later complete. A completed registration result remains completed with its original publication after later withdrawal; inspect current association state separately, and never use a historical success to reactivate it. A lost completion remains uncertain until the original retained result is inspected; absence is not proof of failure. Same request with changed authenticated bytes returns 409; unauthenticated or invalid signatures cannot create authoritative conflicts.
 
+Authenticated inspection uses the same continuing internal owner generation and
+module under a current grant, including a fresh family after reset. It need not
+match a historical result's old incarnation or family. Expired original evidence
+can be read as history; its dates are not renewed and it gains no current-use
+authority. Reassignment or reprovisioning creates a different owner and cannot
+inherit these reads. Inspection never reveals a raw verification secret.
+
 Withdrawal produces the exact signed **withdrawal record** below. Purpose is `mailbox-association-withdrawal`; reason is exactly `withdrawn`, `account-reset`, `mailbox-reassigned` or `migrated`. It advances this publication's generation under expected-current-digest CAS. The registrar may retract its own assurance under account security policy even if the device was lost; it cannot replace the principal or withdraw another registrar's publication. Preserve tombstones and high-water evidence. Expiry alone is not a signed withdrawal or permission to erase pins.
+
+A withdrawal retracts the exact locally owned assurance; it is not a new positive
+attestation. Expiry of the old attestation, home or device does not prevent its
+owner from retracting it or completing an account reset. Use the publication's
+retained original registrar signer, exact current predecessor CAS and current
+authenticated account/security authority. Choose one finite closed withdrawal
+interval under the registrar's explicit trusted withdrawal/retention policy and
+credible clock. Do not copy an expired home interval or silently extend the
+original positive evidence. Retain the withdrawal's original bytes and interval
+for retries. Missing required signer, ownership history or policy prevents the
+complete required signed transition; it does not permit partial reset success.
+
+Consumer validation binds this retraction to authenticated original
+issuer/publication evidence under its owning retained history and local policy.
+This narrow historical signing authority does not generally trust an expired or
+revoked key, bypass known issuer/key conflicts, authorize a new attestation or
+replace a correspondent pin. A known tombstone or high-water decision remains
+safety evidence after its interval ends; expiry cannot resurrect a superseded
+attestation. Publishing a retraction and recalling previously disclosed evidence
+remain different operations.
 
 ### Withdrawal members
 

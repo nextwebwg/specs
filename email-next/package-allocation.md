@@ -361,8 +361,35 @@ withdraws that delegation and suppresses all dependent new disclosure/allocation
 Return 204. The authenticated continuing account owner may perform this negative
 operation after the original device/family expires; it grants no positive role.
 Exact installation retries after withdrawal may recover their historical result
-but never reactivate the delegation. Keep the terminal marker across restart and
-reset. New delegation uses a fresh ID and independently eligible authority.
+under the historical acknowledgement rules below. Keep the terminal marker across
+restart and reset. New delegation uses a fresh ID and independently eligible authority.
+
+### Recover an installation receipt
+
+An exact retry of a delegation installation, static assertion installation or
+package publication may return its original 200 acknowledgement after that
+resource becomes inactive. This receipt confirms the original operation; it does
+not establish that its authority is still usable.
+
+The service MUST authenticate a current managing connection belonging to the same
+continuing internal account owner. It MUST match the complete retained request
+bytes and original account incarnation, link and resource ID before returning the
+immutable stored result. A reused mailbox name or account identifier does not
+establish continuing ownership. Reassigning the account to another owner MUST NOT
+give that owner access to the former owner's receipts.
+
+The original device, link, grant family, delegation or descriptor may have expired.
+A reset may have changed the account incarnation. A successor descriptor may have
+been activated for the same publication, origin and path prefix. These changes do
+not prevent the continuing owner from recovering an exact receipt through a
+currently authorized managing connection. They MUST NOT make an old bearer valid,
+rewrite the retained request or extend its original intervals. Selecting a
+different publication, origin or path prefix does not transfer receipt access.
+
+Returning a receipt MUST NOT reactivate the resource, clear a terminal marker,
+install a new permission or disclose a package. Any subsequent resource use MUST
+independently satisfy its current authorization and lifetime checks. Clients MUST
+NOT treat a successful installation retry as evidence of current usability.
 
 ### Install the static assertion
 

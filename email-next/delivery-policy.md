@@ -481,8 +481,116 @@ Use RFC8098 for current MDN generation rather than copying contradictory removed
 
 ::::
 
+## Undo send, deletion and recall
+
+An app can stop a message before it leaves, delete the reader's own copy, or ask
+a supported mail service to recall a delivered copy. These are different actions.
+The interface must say which one it performed.
+
+| Action | What it changes |
+| --- | --- |
+| Undo send | Cancels copies that have not crossed their actual release boundary. A configurable delay gives the sender time to undo. |
+| Delete for me | Removes a copy from the person's selected mailbox or local view, under that account's deletion and retention policy. |
+| Recall | Asks a service that supports recall to remove the delivered copies it controls. Results can differ by recipient. |
+
+Clients SHOULD offer a configurable Undo send period and expose recall when their
+authenticated provider integration supports it. They MUST NOT describe deleting
+a sent-folder item as cancelling delivery. A recall request that is still pending
+must not make the original message look as though nobody received it.
+
+> [!ex] One message, three outcomes
+> Alice undoes a message while Carol's copy is still queued. Bob's copy has already
+> reached a service that supports recall; his service confirms removal. Dan's
+> provider does not support recall. Show Carol as cancelled, Bob as recalled by his
+> service, and Dan as not recalled. Do not replace that result with “unsent.”
+
+:::: {.details summary="Cancellation races, provider recall and deletion boundaries"}
+
+### Stop unreleased work durably
+
+An Undo send delay is a local release hold, not permission to extend an original
+setup, identity, encryption or human-send deadline. Persist the hold and the
+original operation identity. Persist cancellation and invalidate its queued
+release generation before reporting local cancellation; restart, an offline
+retry or a restored timer MUST NOT release the cancelled work.
+
+Cancellation and release MUST serialize at the owning outbox boundary. If a
+release may already have happened, retain that copy's accepted or uncertain
+outcome. Cancelling remaining copies cannot turn that outcome into “not sent.”
+Where a provider owns the queued send, a local click or connection failure is not
+confirmation that the provider cancelled it. Await the provider's authenticated
+cancellation result or keep the outcome unresolved. See the
+[transport release boundary](transport.md).
+
+### Use the provider's actual recall facility
+
+A provider adapter MUST use its supported authenticated recall mechanism and
+correlate the operation to the retained original submission, sending account and
+exact recipient copies. Neither a matching subject nor an unauthenticated
+`Message-ID` claim authorizes deletion. Recall authority does not grant access to
+another account, another sender's message or the rest of the conversation.
+
+Retain a local operation identity and its exact request/result through uncertain
+replies, restart and later status checks, together with any operation handle the
+provider supplies. Do not invent a provider handle or status endpoint where none
+exists. Distinguish unsupported, requested, pending,
+confirmed removal, failed and unknown outcomes for each affected copy. A request
+acknowledgement is not confirmation of removal. A generic HTTP or SMTP success,
+a receipt with disposition `deleted`, or the absence of a message in one local
+snapshot MUST NOT be promoted into recall success. Recheck actual account and
+provider authority before each retry or inspection. Do not repeat a destructive
+request under a fresh identity merely because its response was lost.
+
+Provider status can remove only the copies within its stated scope. It does not
+prove that the message was unread, unseen in a notification, absent from a
+forwarded copy, or erased from exports, backups or retained records. It cannot
+revoke knowledge of plaintext or make an already disclosed encryption key secret
+again. Replacing a recalled message is a new authored contribution and a new
+authorized send, not an edit of the immutable original delivery.
+
+Provider recall is an adapter capability, not an implied SMTP feature. The
+current Email/2 agreements do not define a universal peer-to-peer recall event;
+implementations MUST NOT invent one by relabeling an edit, reaction withdrawal or
+unknown operation. A future interoperable recall module needs its own negotiated
+records, authorization, outcomes and conflict rules.
+
+### Keep local deletion separate
+
+Deleting a local or own-mailbox copy MUST NOT emit a recall request, withdraw an
+answer or delete another participant's contribution. Apply the selected account's
+own synchronization and retention policy. Preserve the minimal replay, conflict
+and cryptographic-continuity records required by the owning contracts; deleting
+displayed content is not permission to reset those safety records or reuse an
+event identity. A retained reply to a missing or removed parent stays attached to
+that exact reference, without inventing a replacement parent or fetching history.
+
+### Existing service precedents
+
+[Gmail Undo Send](https://support.google.com/mail/answer/2819488?hl=en) offers a
+short configurable cancellation window. [Exchange Online recall](https://learn.microsoft.com/en-us/exchange/mail-flow-best-practices/work-with-cloud-based-message-recall)
+uses service-side removal and recipient-specific results within supported
+Exchange boundaries; receiving organizations control permitted cross-tenant
+recalls. These precedents motivate the separate actions above. Provider support
+must be checked through the actual integration rather than inferred from the
+email address or product name.
+
+A product's recall feature does not establish a production API for other clients.
+For example, Microsoft's [Graph recall method](https://learn.microsoft.com/en-us/graph/api/message-recall?view=graph-rest-beta)
+is documented as beta, unsuitable for production use; its 202 response confirms
+request submission rather than removal. An adapter must establish its actual
+supported request and result mechanisms before advertising recall support.
+
+::::
+
 ## Required verification
 
 Conformance fixtures must cover remembered policy, a stripped advertisement, mixed recipients, Bcc grants, partial transport acceptance, retries after key changes, host failure, link forwarding, scanner prefetch, expiry, revocation, account recovery, forged bearer replies and quoting old content into a new audience. Test evidence must identify which access model and security profile were exercised.
+
+Cancellation and recall fixtures must cover restart during an Undo send hold,
+the cancel/release race, an already uncertain submission, mixed cancelled and
+delivered copies, unsupported recall, lost recall acknowledgements, forged or
+wrong-account results, recipient-specific partial success and local deletion
+without remote effects. Test the actual selected provider adapter separately;
+a mock recall result does not establish Gmail or Exchange interoperability.
 
 This chapter owns policy and disclosure behavior. The [security profile](security-profile.md), [hosted-access contract](hosted-access.md) and [protected private-copy contract](private-copies.md) own the selected algorithms, wire formats and access boundaries. Implementers must name the profiles they support and their tested limits; the policy alone is not a complete secure-delivery implementation.

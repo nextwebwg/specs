@@ -218,6 +218,14 @@ A send result must expose unresolved and failed recipient outcomes. SMTP accepta
 
 Email/2 keeps those facts separate. This version does not provide a read-receipt, typing or online-presence module. Deleting a message from your view also does not erase someone else's copy or withdraw an answer you already sent.
 
+Present [Undo send, local deletion and provider recall](delivery-policy.md#undo-send-deletion-and-recall)
+as distinct actions. During an Undo send hold, show that delivery is still queued.
+After release, show a supported recall as pending until its authenticated result
+arrives, and retain any unsupported, failed or unknown recipients. Confirmed
+removal by a service must not be presented as proof that the message was never
+seen or that every copy disappeared. A local Delete action affects the person's
+own selected copy and does not silently request recall.
+
 :::: {.details summary="Evidence-bound status, local deletion and retained safety state"}
 
 ### Status is scoped evidence, not one universal progress ladder

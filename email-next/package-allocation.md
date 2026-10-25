@@ -337,7 +337,14 @@ reserving another package. Before releasing a cached positive outer result,
 recheck its actual inner account, identity, delegation, publication and original
 intervals. If disclosure is now suppressed, return the current signed 410 status
 without rewriting the immutable original positive result. Cached bytes do not
-bypass withdrawal. Honour backoff without resetting the human-send deadline.
+bypass withdrawal. A response with outer status 429 or 503, or outer status 200
+carrying logical status 429 or 503, supplies a positive decimal-seconds
+`Retry-After` header under the service's current deployment backoff policy. This
+header is advisory deployment metadata: it may change on an exact replay without
+changing the immutable recorded result body. It grants no permission to rerun an
+effect, create a fresh inner allocation attempt, renew an original interval, or
+reset the human-send deadline. Honour backoff while preserving uncertainty; a
+retry remains an explicit action under the original owning rules.
 
 All resource routes below are relative to the selected descriptor prefix. Append
 suffixes without their displayed leading slash. JSON requests/responses have

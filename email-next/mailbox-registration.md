@@ -166,6 +166,10 @@ Acceptance must exercise original-byte retries, changed-byte conflicts, wrong mo
 
 Registration payloads use profile `mail-mailbox-association-v0`. Apply the existing strict original-byte wrapper: exactly `{payload,signature}`, canonical padded base64 payload, lowercase 128-hex Ed25519 signature, signed purpose-specific ASCII domain, NUL, U32 big-endian byte length and original payload bytes. Reject duplicate, missing or unknown members, invalid UTF-8, null and JSON numeric values. Times/generations are canonical unsigned-64 strings. IDs are nonzero random 16-byte lowercase hex; digests/nonces use 32-byte lowercase hex. An endpoint is exactly `{principal,device,state,binding,key}` under the [existing identity grammars](identity-state.md). Mailboxes use the [canonical address owner](mailbox-addresses.md); preserve local-part spelling and do not infer aliases.
 
+Association-owned descriptor, link, reset-preparation, verification-challenge and association-publication intervals are closed: require `notBefore < notAfter` and `notBefore <= earliest <= latest <= notAfter` for the complete credible clock interval. An exact endpoint is eligible only while every other required authority also remains eligible. This convention does not extend an OAuth credential/family, device binding, home authorization or realm configuration beyond its owning rules; for example, the realm configuration's strict upper bound still applies. Unavailable or contradictory credible time holds new effects.
+
+Boundary tests must distinguish equality at each association endpoint, one second outside, an interval straddling an endpoint, and a still-eligible association whose independent authority has already expired. Historical inspection and retained exact retries keep their specified rules; reading an old completed result does not make it current authority.
+
 | Purpose | Signature domain | Signer |
 | --- | --- | --- |
 | association-account-link | mail/association/account-link/v0 | Current linked device |

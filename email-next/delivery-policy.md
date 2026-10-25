@@ -532,6 +532,92 @@ conversation message. Silence does not require erasing security records or
 prevent an account owner from inspecting an explicitly opened administrative or
 security audit view.
 
+### Identify the exact request and original message
+
+A deletion request names one original message, not an entire conversation. It
+also commits the original writing's digest, so matching an identifier alone cannot
+select a conflicting version or a replacement delivery. The digest identifies
+bytes; it does not prove that the recipient accepted those bytes.
+
+::: {.details summary="Signed deletion-request0 record — not yet a negotiated carrier"}
+
+The request payload is a strict UTF-8 JSON object with exactly these nine members.
+The existing duplicate-name, Unicode, unknown-member and scalar restrictions
+apply. The payload is at most 1,048,576 octets with container depth at most32.
+These reuse the authored-record processing allowance; they are not storage quotas.
+
+| Member | Required value |
+| --- | --- |
+| `version` | String `"0"`. |
+| `purpose` | String `"deletion-request"`. |
+| `record` | Fresh nonzero ObjectId for this device's request; exact retries retain it. |
+| `actor` | Exact four-member object: `principal`, `device`, `state`, `binding`. |
+| `target` | Complete logical authored reference: `principal`, `conversation`, `event`. Never a delivery identifier. |
+| `targetDigest` | Lowercase SHA-256 hex digest of the complete original authored UTF-8 octets. |
+| `scope` | Complete logical reference to that original contribution's scope root. |
+| `notBefore` | Canonical uint64 decimal string of the inclusive acceptance start. |
+| `notAfter` | Canonical uint64 decimal string of the exclusive acceptance end, greater than notBefore. |
+
+Actor principal/device use the existing `enp0`/`end0` grammars. State and binding
+are lowercase 32-octet hex digests naming the original claimed identity state and
+device binding; they supply no trust anchor. Target principal MUST equal actor
+principal. Scope and target MUST name the same conversation; the scope creator
+need not be the target author. A matching personal mailbox is not a substitute
+for any of these bindings.
+
+The signed wrapper has exactly `payload` and `signature`. Payload is canonical
+padded base64 of the complete original payload octets; signature is lowercase hex
+of exactly64 Ed25519 signature octets. The wrapper is at most 4,194,304 octets,
+reusing the sealed-control body allowance, with container depth at most32. Check
+encoded payload length before allocating decoded bytes, then enforce its decoded
+bound and complete strict schema. No null, numeric JSON values, extra members,
+partial payload, alternate alphabet or noncanonical padding is accepted. Keep
+original wrapper and payload bytes; reserialization is not a retry.
+
+Sign ASCII `mail/deletion-request/v0`, one NUL octet, the unsigned U32 big-endian
+original payload length, then those exact original payload octets. Apply the
+existing [strict application-signature rules](security-profile.md) under the
+actor's independently accepted device key. The supplied signature key is not
+selected by the payload or its digests. A valid signature alone does not supply
+current Send authority, an original message, accepted scope, actual recipient
+membership, negotiated support or permission to disclose the request.
+
+Before any effect, the recipient's system independently obtains the accepted
+original authored record and compares its full reference, complete-byte digest
+and exact scope root. Eligible targets are message, attachment-message,
+rich-message, reply-message, question, service-question, answer, edit and
+hosted-holder-observation. A reaction, withdrawal, recipient-resolution or another
+protocol control is not a human-message deletion target. This operation neither
+withdraws an answer nor reverses an external service effect. Apply the existing
+rules for retained independent replies and quotations.
+
+Missing original evidence remains pending. A conflicting or invalid target does
+not become eligible by matching one claimed digest. Preserve all independently
+authenticated conflict evidence. An already honored disposition is not undone by
+later conflict discovery or by expiry of this request. For first acceptance,
+the entire credible current interval must fit within `[notBefore, notAfter)`;
+checking the claimed timestamp alone is insufficient.
+
+Retain request identity as `(actor principal, actor device, record)` with its
+exact original signed payload. Equal original signed payload bytes under that
+identity have one request effect, even if a protected carrier is independently
+re-encrypted. Different independently authenticated payload bytes under that
+identity are a request conflict; do not choose by arrival order. Invalid or
+unauthenticated candidates cannot reserve that identity. Another authorized
+device can issue its own fresh request for the same original target; it cannot
+reuse the first device's request identity. Multiple valid requests do not create
+multiple visible removals or acknowledgements.
+
+**Carriage boundary.** This defines the request record only. It is not an authored0
+operation, a new sealed-control-v2 kind, a MIME fallback or a discovery response.
+The current closed application/control vocabularies remain unchanged. Until a
+complete signed receiving-support advertisement, protected carrier and release/
+receipt transaction are selected, this record MUST NOT be sent or activated as a
+native deletion request. A parser or supplied-key signature check cannot
+advertise interoperable remote-deletion support.
+
+:::
+
 ### Keep requests durable without producing receipts
 
 Persist the exact request identity and target before release. Offline queuing,
@@ -659,9 +745,10 @@ does not establish removal.
 **Native wire binding remains unresolved.** The behavior above is the proposed
 deletion contract. The current closed Email/2 operation vocabulary does not yet
 carry a deletion request. Before native interoperability can be claimed, the
-specification must define its negotiated operation, exact request encoding,
-the exact lifecycle-authority proofs, representation and bounded processing of
-suppression records under the retention rules above, and protected carriage.
+specification must bind the signed deletion-request0 record above to exact
+receiving-support negotiation, lifecycle-authority proofs, protected carriage and
+release/receipt transactions, and the representation and bounded processing of
+suppression records under the retention rules above.
 Implementations MUST NOT substitute an edit, reaction withdrawal, setup control
 or unknown operation for that binding. Existing provider
 recall is a separate adapter capability, not proof of this native protocol.

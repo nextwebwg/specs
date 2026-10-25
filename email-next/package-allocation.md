@@ -408,11 +408,13 @@ NOT treat a successful installation retry as evidence of current usability.
 
 ### Install the static assertion
 
-`PUT /authorizations/{authorization}/assertions/{assertionDigest}` takes exactly
+`PUT /authorizations/{authorization}/{authorizationDigest}/assertions/{assertionDigest}` takes exactly
 `{assertion,identity}`, both canonical padded base64 original complete assertion10
 wrapper and current identity inventory. Require current own management, the same
-active account/link and exact installed delegation. The path digest is SHA256 of
-the original assertion payload. Validate the original device/native signature,
+active account/link and exact installed delegation. The authorization digest selects
+the original installed delegation payload, as in the withdrawal route; it does not
+replace those positive checks. The assertion digest is SHA256 of the original
+assertion payload. Both digests use 64 lowercase hexadecimal characters. Validate the original device/native signature,
 exact delegated mailbox/endpoint, current accepted ancestry, applications and real
 public control descriptor. It must contain `keyPackage:[]` and
 `keyPackageReceiveUntil:null`; removing fields from an existing signed wrapper is

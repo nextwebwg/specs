@@ -183,7 +183,98 @@ These are purpose-separated uses of existing Ed25519 and framing, not new crypto
 
 ### Retain the registration before sending anything
 
-The registration request is the exact **registration request record** below. homeAuthorization is the digest of the original device-signed home authorization under the separately negotiated [rendezvous owner](service-federation.md#connect-through-the-services-first). Submit its original wrapper and identity bundle when installing that authorization; a digest alone is not evidence. The service derives account/family from authentication and requires that same current module link/device. The home authorization must name the chosen current device and an independently eligible service, without claiming control of a foreign mailbox domain.
+The registration request is the exact **registration request record** below. homeAuthorization is the digest of the original device-signed home authorization under the separately negotiated [rendezvous owner](service-federation.md#connect-through-the-services-first). First [install the original home evidence](#install-the-home-evidence); a digest alone is not evidence. The service derives account/family from authentication and requires that same current module link/device. The home authorization must name the chosen current device and an independently eligible service, without claiming control of a foreign mailbox domain.
+
+### Install the home evidence
+
+Before verifying the mailbox, the app supplies the signed home authorization and
+its original descriptor. This lets the registrar check which device chose that
+home. It does not give the registrar access to messages or prove that the home
+service is online.
+
+Use `POST /home-authorizations` under the selected registrar management prefix.
+Require a current `mail.association.manage` grant and the same active
+association-module account/device link. The request is strict bare JSON with
+exactly these members:
+
+| Member | Required value |
+| --- | --- |
+| `profile` | `mail-mailbox-association-v0`. |
+| `request` | Caller-generated nonzero ObjectId for this exact installation. |
+| `link` | The active association-module link under the authenticated account/family. |
+| `home` | Original device-signed `rendezvous-home-authorization` wrapper, with its own `mail-rendezvous-v0` payload and signature domain. |
+| `identity` | Complete original identity bundle under the current identity owner. |
+| `descriptor` | Canonical padded base64 of the original strict home-service descriptor bytes. |
+
+The descriptor must exactly match an independently accepted home selection for
+this own account: original service origin, publication/generation, descriptor
+digest, prefix, key, limits and interval. The selection comes from trusted
+own-account service configuration or an actually supported accepted delegation,
+with its original provenance and owning high-water/conflict rules. This POST
+cannot install that trust, follow a submitted URL, fetch metadata, start login or
+infer a domain delegation. A supplied descriptor or its key cannot admit itself.
+An unavailable selection holds installation. Configuring a destination supplies
+neither device authority nor evidence that a remote home account is active.
+
+Validate the original home wrapper and its purpose-separated signature, exact
+descriptor binding, interval and endpoint. Independently validate the complete
+identity through the accepted journal, current RECEIVE role, selected principal
+and same active association link. The home endpoint is its original identity
+anchor. An accepted descendant may preserve it only with the same principal,
+device, binding and key and a validated accepted path from that anchor to the
+current head. Do not require raw state-digest equality or rewrite the original
+proof. A fork, repair boundary, retired/replaced binding or unavailable path holds
+installation and use.
+
+Serialize installation with the actual native account/family, association
+incarnation/link, accepted identity and selected configuration owners. Retain the
+exact request, original home wrapper, descriptor, identity evidence and original
+result before replying. The retry namespace is account incarnation, family,
+route and request. Return 201 for the first commit, 200 for an identical retained
+retry and 409 for changed authenticated bytes. Invalid proofs cannot consume a
+request or create an authoritative conflict. Apply the same finite admission,
+no-store and error rules as the registration routes; no network work runs inside
+these writers.
+
+The authenticated result is bare JSON with exactly:
+
+| Member | Required value |
+| --- | --- |
+| `profile`, `purpose` | `mail-mailbox-association-v0`, `association-home-installed`. |
+| `request`, `link` | Original request and association-link ObjectIds. |
+| `homeAuthorization` | SHA256 of the original signed home-authorization payload. |
+| `descriptorDigest` | SHA256 of the original home-service descriptor bytes. |
+| `device` | The original home authorization's endpoint, including its anchor state. |
+| `notBefore`, `notAfter` | Exact original home-authorization times, as canonical uint64 strings. |
+
+These echoed times keep the home's exclusive upper endpoint; the receipt grants
+no new interval. It is a local authenticated installation result, not signed
+mailbox evidence, home-service permission, presence or proof that the remote home
+accepted an account/link. The home service's own [atomic authorization
+installation](rendezvous.md#bind-the-home-account-once) remains separately required.
+The registrar neither needs nor obtains the person's home-management credential
+and does not query an arbitrary remote status endpoint to make this receipt.
+
+Registration and renewal resolve the installed original home payload digest under
+the same account, original family/link and exact device binding. Recheck current
+selection, accepted identity continuity, required roles and all original
+intervals when preparing, completing or releasing a result. Source-owned
+descriptor, account/link or family changes cannot retarget this evidence. Reset,
+reassignment and withdrawal serialize with these checks and disable dependent
+authority in their owning transaction. An exact historical receipt may remain
+inspectable; replay cannot reinstall or reactivate it.
+
+The complete publication below intentionally carries the home wrapper but not its
+descriptor. Its receiver must already possess an independently accepted matching
+descriptor under the owning home-selection rules; a matching digest or incoming
+URL cannot supply that authority. Missing evidence holds the dependent operation.
+
+Acceptance includes changed original bytes, malformed wrappers, wrong native
+module/account/family/link, unaccepted or conflicting descriptor selection,
+valid signatures with absent current RECEIVE authority, accepted descendants and
+replaced bindings, uncertain clocks, exact retries after restart, concurrent
+reset/configuration changes and failure after an inner commit. A wire definition
+alone establishes none of those runtime outcomes.
 
 ### Registration request members
 
@@ -274,6 +365,7 @@ All routes are suffixes of the selected full managementPrefix. The leading `/` b
 | Route | Authority and exact result |
 | --- | --- |
 | Shared /account, /links/challenges, /links/{link}, /account-reset/preparations subset | Association link scope; the exact association link/reset/inspection schemas and shared transaction rules above only |
+| POST /home-authorizations | Association manage scope and same active account/family/link; the exact home-evidence request and authenticated 201/200 installation result above |
 | POST /registrations | Association manage scope and active link; exact registration request; 202 `{profile,request,registration,outcome,notBefore,notAfter}` with outcome `pending` |
 | POST /associations/{association}/renewals | Same active original account/link under manage scope; `{profile,request,link,expected,device,homeAuthorization}`; subject mailbox and publication derive from the exact owned association; same pending-registration result as initial creation |
 | GET /registrations/{registration} | Same account-owner generation and module; 200 `{profile,registration,outcome,publication}`; outcome pending, completed or expired; publication is empty string unless completed, then the original complete publication object |

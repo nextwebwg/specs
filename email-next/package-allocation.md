@@ -126,8 +126,11 @@ Its signature domain is `mail/packages/authorization/v0`. The account binding is
 only under that actual current linked own account/family and management grant.
 Validate the original registrar publication, admitted issuer, mailbox, home and
 current accepted device Receive authority before installation. The complete
-interval fits descriptor, association, link, family and device authority. A
-publication interval also fits its static assertion, native package publication
+interval fits descriptor, association, link, family and device authority. Its
+notAfter must be numerically no greater than the original registrar attestation's
+notAfter, even though that older owner has a closed endpoint. Do not add a second
+or widen an original promise when checking this containment. A publication
+interval also fits its static assertion, native package publication
 lifetime and all current delegated device dependencies; a receiving-only deadline
 does not extend publication eligibility.
 

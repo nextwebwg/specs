@@ -21,7 +21,7 @@ The first request does not require a pre-existing provider-queue grant. It requi
 
 ## Implementation prerequisites
 
-The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. The account-link routes, [reset and inspection binding](#reset-the-home-connection) and [answer-preparation operation](#prepare-the-exact-answer) below select their management records and routes. Home installation routes and pending-offer retrieval and cursor bindings still need complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
+The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. The account-link routes, [reset and inspection binding](#reset-the-home-connection) and [answer-preparation operation](#prepare-the-exact-answer) below select their management records and routes. The [home-installation routes](#install-the-home-authorization) below select installation, inspection and withdrawal. Pending-offer retrieval and cursor bindings still need complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
 
 First-contact admission also requires the complete [mailbox registration](mailbox-registration.md) owner and its actual registrar/native validation. [Service federation](service-federation.md) defines the architecture; it cannot substitute for a missing record parser or permission. Until these dependencies are implemented and tested, this chapter does not authorize advertising interoperable rendezvous support.
 
@@ -195,6 +195,127 @@ After linking, the device signs a home authorization exactly:
 | `notAfter` | Exclusive canonical uint64 Unix-seconds string. |
 
 Purpose is `rendezvous-home-authorization`. The service atomically installs it only under the same active linked account/family and exact retained descriptor. Its interval fits the descriptor, link, family and device binding. The device may publish the original signed authorization alongside its independently authenticated setup. An untrusted directory cannot manufacture or broaden it. For a known correspondent, this device delegation can name an independent home; it needs no claim that the home controls the correspondent's mailbox domain.
+
+### Install the home authorization
+
+The app sends its signed delegation to its own home service after linking the
+device. Installation enables that exact delegation at the service. It does not
+publish it to a directory, contact another service, or establish a connection.
+The app keeps the original request before sending it so a lost response can be
+recovered without creating another authorization.
+
+Append the following suffixes to the selected descriptor's full `prefix`,
+preserving its path. Use a current own-account native access token with
+`mail.rendezvous.manage`. No incoming account string, mailbox, device key or
+public directory result can select the authenticated internal owner.
+
+| Operation | Request and result |
+| --- | --- |
+| `PUT /home-authorizations/{authorization}` | Exact installation object below; 201 for a newly committed authorization, 200 for an eligible identical retained retry. Returns the retained installation receipt. |
+| `GET /home-authorizations/{authorization}` | No body or query; 200 current inspection below, or 404 when no record is available to this original account incarnation and family. |
+| `DELETE /home-authorizations/{authorization}` | No body or query; 204 after withdrawing the owned authorization and its derived positive permissions. Unknown or unavailable-to-this-owner identifiers also return 204 without creating a record. |
+
+The path parameter is the original authorization ObjectId. Installation is
+`application/json` with exactly these members:
+
+| Member | Type and binding |
+| --- | --- |
+| `proof` | Original device-signed home-authorization wrapper defined above. |
+| `identity` | Complete original identity bundle under the owning identity rules. |
+
+All three routes require the record's original account incarnation and native
+family. A new login cannot inherit a previous family's delegation. Account reset
+and link deletion retain their separate account-owner revocation authority.
+
+The authenticated native module, continuing internal owner generation, account
+incarnation and authorization ObjectId select one installation namespace. The
+signed `account` must equal that authenticated incarnation's opaque account
+binding. Its `link` belongs to the same account and original native family;
+its endpoint belongs to that link. Its `authorization` equals the path parameter.
+The descriptor digest, service, prefix and service key match the original
+selected descriptor exactly. A proof cannot select another account, link,
+descriptor, module or origin.
+
+Before first installation, validate the actual device signature and identity
+bundle, the original linked endpoint, independently accepted identity history
+and current RECEIVE authority. The entire requested home interval fits the
+original descriptor, link, native family and device binding, and contains the
+complete credible current clock interval. Keep the exact requested interval;
+do not shorten it to make an otherwise invalid authorization fit. Recheck all
+local dependencies at the atomic commit. Unavailable authority holds the operation.
+
+Retain the exact installation request, proof, original dependency bindings and
+receipt atomically before replying. The advertised retention must cover the
+accepted home interval and supported uncertain-outcome recovery; reject an
+unsupported interval before installation rather than evicting an accepted
+outcome. Invalid proofs and foreign bindings cannot occupy the namespace. Different valid installation bytes under an occupied
+namespace return 409; that includes changing its link or replacing the identity
+bundle. An identical eligible retry returns the same receipt bytes, without
+renewing any deadline or reactivating withdrawn authority. The original identity
+bundle remains evidence; current authority is resolved independently rather than
+requiring a rewritten retry body.
+
+### Installation receipt
+
+The bare service-authenticated receipt has exactly the following members. It is
+not a signed transferable delegation and cannot replace the device's proof.
+
+| Member | Type and binding |
+| --- | --- |
+| `profile` | Exactly `mail-rendezvous-v0`. |
+| `purpose` | Exactly `rendezvous-home-installed`. |
+| `authorization` | Original home-authorization ObjectId. |
+| `authorizationDigest` | SHA256 of the original home-authorization payload bytes. |
+| `link` | Original linked device's ObjectId. |
+| `notBefore` | Exact original home-authorization inclusive time string. |
+| `notAfter` | Exact original home-authorization exclusive time string. |
+
+This receipt records installation, not continuing availability. An eligible
+historical retry can recover it after expiry or withdrawal while the caller
+still has current management access under that original owner, incarnation and
+family. It cannot restore a retired family or bypass account reset/reassignment.
+A client with an uncertain installation inspects the original identifier; it
+does not allocate a replacement merely because a response was lost.
+
+### Inspect or withdraw the delegation
+
+Inspection returns bare JSON with exactly `profile`, `purpose`, `authorization`,
+`authorizationDigest` and `state`. Their values are `mail-rendezvous-v0`,
+`rendezvous-home-state`, the original ObjectId, the original payload digest, and
+exactly `active` or `inactive`. The original account incarnation and native
+family must match. Foreign, reset and unknown records have the same 404 result.
+A missing response or 404 cannot prove that installation never happened.
+
+`active` requires the installed, unwithdrawn original authorization and all
+current local descriptor, account, family, link, identity and interval checks.
+Known expiry, withdrawal or invalidation yields `inactive`; unavailable current
+evidence yields 503 instead of guessing. Recheck before disclosing this result.
+An inspection is an observation, not a lease or a credential. Its response
+cannot authorize a later operation after a dependency changes.
+
+Withdrawal serializes against installation, offer dispatch/admission, answer
+activation and commands under the same authoritative account state. It disables
+all positive permissions derived from this authorization, retains required
+negative state and uncertain outcomes, and never withdraws a different module
+or account. An accepted authorization identifier cannot be reused to replace
+that retired authorization. A racing installation retry cannot reactivate it.
+Work already disclosed cannot be recalled; required remote invalidations stay
+durably queued under the existing account/link invalidation rules.
+
+All three operations inherit this chapter's exact management TLS, no-redirect,
+no-0-RTT, credential separation, representation, finite admission and no-store
+rules. Unsupported methods return 405 with `Allow: GET, PUT, DELETE` and no
+body. Missing
+credentials are 401, insufficient scope 403, malformed proof or body 400,
+unsupported media 415 and oversized bodies 413. Admission exhaustion returns
+429 with positive `Retry-After` seconds; unavailable current authority returns
+503. Apply descriptor payload/submission/depth limits before allocation. Error
+bodies are exactly `{error}` with the shared values: 400 `invalid`, 401 and 403
+`unauthorized`, 404 `notFound`, 409 `conflict`, 413 `tooLarge`, 415
+`unsupportedRepresentation`, 429 `rateLimited`, and 503 `unavailable`. Errors
+never echo records or tokens. Successful inspections use `application/json`;
+204 has no body.
+These results authorize neither a plaintext fallback nor a new send.
 
 A home authorization's endpoint state is its original accepted anchor. At use, the offer endpoint must retain the same principal, device, binding and key, with an independently validated accepted path from that anchor to the current head. Do not require raw state-digest equality for binding-continuity use and do not replace the original home proof. The exact target-state challenge rule below applies separately to the live offer.
 

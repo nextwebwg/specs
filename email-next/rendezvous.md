@@ -21,7 +21,7 @@ The first request does not require a pre-existing provider-queue grant. It requi
 
 ## Implementation prerequisites
 
-The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. Exact module-specific account inspection/reset records and pending-offer retrieval, cursor and answer-preparation route bindings still need their own complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
+The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. The [account reset and inspection binding](#reset-the-home-connection) below selects its exact management records. Link/home installation routes and pending-offer retrieval, cursor and answer-preparation route bindings still need complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
 
 First-contact admission also requires the complete [mailbox registration](mailbox-registration.md) owner and its actual registrar/native validation. [Service federation](service-federation.md) defines the architecture; it cannot substitute for a missing record parser or permission. Until these dependencies are implemented and tested, this chapter does not authorize advertising interoperable rendezvous support.
 
@@ -46,7 +46,7 @@ The client selects and authorizes its own home origin through account configurat
 
 The new module is `rendezvous`. Its exact native scope set is `mail.rendezvous.link mail.rendezvous.manage`. Reuse [native connection mechanics](provider-discovery.md#reuse-sign-in-mechanics-without-sharing-permissions), exact issuer/origin checks, external-browser authorization-code/S256 PKCE, shared callback forms, refresh handling and module-separated storage. A distinct module registration and grant are required. Existing provider, relay and setup tokens do not gain these scopes. Existing bearer-token limitations remain.
 
-Use a new `mail-rendezvous-v0` account-link challenge and completion. Reuse the [shared account-link owner](provider-grants.md#shared-account-links-separate-module-authority)'s transaction, possession proof, identity-bundle validation, retry, reset and revocation rules, with the following exact account-link records. The account-reset and inspection substitutions remain separate prerequisites; an old proof cannot be relabeled:
+Use a new `mail-rendezvous-v0` account-link challenge and completion. Reuse the [shared account-link owner](provider-grants.md#shared-account-links-separate-module-authority)'s transaction, possession proof, identity-bundle validation, retry, reset and revocation rules, with the following exact account-link records. The [reset and inspection selection](#reset-the-home-connection) is separate; an old proof cannot be relabeled:
 
 ### Challenge request
 
@@ -152,6 +152,149 @@ Purpose is `rendezvous-home-authorization`. The service atomically installs it o
 A home authorization's endpoint state is its original accepted anchor. At use, the offer endpoint must retain the same principal, device, binding and key, with an independently validated accepted path from that anchor to the current head. Do not require raw state-digest equality for binding-continuity use and do not replace the original home proof. The exact target-state challenge rule below applies separately to the live offer.
 
 A new device needs its own link and authorization. Delegating a home service neither enrolls that device nor gives the service a device signing key. An origin/key/account change needs a fresh authorization under an already eligible remembered policy or account reconnection; no credential migrates automatically.
+
+::::
+
+## Reset the home connection
+
+A reset disconnects this account's rendezvous permissions. It stops new connection
+requests and use of the account's existing rendezvous grants. It does not change
+the person's encryption identity, erase messages, or disconnect their mailbox,
+registrar or another home account. An independently eligible encrypted email can
+still be delivered through its mailbox path.
+
+The service explains those consequences and names the selected home account
+before confirmation. Opening the confirmation page alone does nothing. After a
+lost response, the app reconnects and checks the original reset; it does not ask
+the person to repeat the reset or assume that their old permissions still work.
+
+:::: {.details summary="Exact account records, reset transaction and recovery"}
+
+### Account management selection
+
+This selection reuses the shared owner's [reset and continuing-owner semantics](provider-grants.md#inspect-a-reset-after-reconnecting).
+It selects new rendezvous records, not a renamed provider parser. Every record
+below is a strict JSON object with exactly the listed members. The profile is
+`mail-rendezvous-v0`. Times are canonical unsigned-64 Unix-second strings under
+this chapter's common grammar; retained provider JSON integer times are invalid
+here. These records are bare management JSON, without a signed wrapper. A
+response authenticates the service-account operation, not a mailbox claim or an
+encryption identity.
+
+Append these suffixes to the originally selected descriptor's `prefix`,
+preserving its path. Do not resolve a suffix outside that canonical same-origin
+prefix. The authenticated module, internal account owner, current incarnation
+and original family select the namespace. A submitted address, account string,
+preparation identifier or principal cannot select another owner.
+
+| Operation | Required authority and result |
+| --- | --- |
+| `GET /account` | Current `mail.rendezvous.link` grant; 200 current-account record. |
+| `POST /account-reset/preparations` | Current link grant and exact reset request; 200 retained preparation. |
+| `PUT /account-reset/preparations/{preparation}` | Original family and link grant, plus fresh server-held account-UI approval; no request body; 204 after the atomic reset. |
+| `GET /account-reset/preparations/{preparation}` | Current link grant for the same module and continuing internal owner; 200 retained reset state. A new family can inspect but cannot complete the old family's preparation. |
+
+These account routes inherit the shared owner's TLS, no-redirect,
+no-ambient-credential, representation, no-store, status/error, finite admission,
+original-byte retry and retention rules. GET has no body or query; route
+parameters are original nonzero ObjectIds. Other methods on these routes return
+405 with Allow. No account route accepts a token from another module or confers
+mailbox, content-delivery, relay, archive or device-enrollment authority.
+
+### Exact records
+
+| Record | Required members | Purpose |
+| --- | --- | --- |
+| Reset request | `profile`, `request` | No purpose member. |
+| Prepared reset | `profile`, `purpose`, `preparation`, `account`, `family`, `nonce`, `confirmation`, `notBefore`, `notAfter` | `rendezvous-account-reset` |
+| Current account | `profile`, `purpose`, `account`, `family`, `principal` | `rendezvous-account-state` |
+| Retained reset state | `profile`, `purpose`, `preparation`, `outcome`, `account` | `rendezvous-account-reset-state` |
+
+`request` and `preparation` are nonzero ObjectIds. `account` is the selected
+account incarnation; `family` is the authenticated OAuth family. Both are exactly
+64 lowercase hexadecimal characters. `nonce` is 32-byte lowercase hex.
+`principal` is the current linked nonzero `enp0:` principal, or the empty string
+when unlinked. None is an address or a credential accepted from client input.
+
+`confirmation` is a canonical same-origin HTTPS URL for the separate account UI,
+with no credentials in the URL. Management credentials do not enter that view;
+its cookies do not enter the management API. `notBefore < notAfter`. The entire
+credible time interval must fit the original preparation interval, current
+account/family authority and the service's explicit finite preparation policy.
+
+### Commit once under fresh account approval
+
+The preparation retry namespace is the authenticated module, account, family,
+route and request. Retain the original request bytes, preparation and result
+before replying. An exact retry returns that preparation without extending its
+deadline; different authenticated bytes in that namespace return 409.
+
+The separate account UI requires fresh authentication of the same account and
+explicit CSRF-protected confirmation. Its single-use approval binds the exact
+preparation, nonce, family, module, incarnation and original expiry. Ordinary
+sign-in, a device signature or a submitted consent boolean cannot replace that
+approval. A different family cannot complete the preparation.
+
+Completion atomically consumes the approval, rotates this module's account
+incarnation, revokes its old families and device links, and disables its home
+authorizations, pending offers/answers, dispatch permissions and derived
+rendezvous grants. Retain the immutable completed reset result in that same
+transaction. Serialize reset with account linking, home authorization,
+offer admission, dispatch, answer activation, commands and reads: work admitted
+before reset cannot obtain fresh authority after it. Account reassignment or
+reprovisioning applies the same invalidation under a new internal owner
+generation.
+
+Where an owning operation requires notification or publication to another
+service, retain that pending work durably in the local transition. Network
+delivery is asynchronous and cannot be part of the local atomic commit. A 204
+confirms local reset, not that every remote service has already learned of it or
+that disclosed information was recalled. A service that knows the reset blocks
+fresh effects immediately; other services retain their current-authority,
+inspection and expiry checks. Missing transport bindings remain implementation
+prerequisites, not permission to omit required invalidation work.
+
+If the complete bounded local reset cannot commit, none of its local effects
+commits. Admission failure cannot evict retained outcomes or report success.
+Historical link, home or answer receipts remain historical: replaying them
+cannot reactivate a disabled permission. A later connection needs current
+native authorization and the actual device/home checks.
+
+### Recover an uncertain result
+
+`outcome` is exactly `pending`, `completed` or `expired`. Pending retains only
+the original family's completion authority and deadline. Expired cannot later
+complete, including after family withdrawal or an incompatible incarnation
+change. For completed, `account` is the immutable resulting incarnation of that
+exact reset; otherwise it is the original preparation's incarnation. Read
+eligibility under the same transaction boundary as completion. Completed cannot
+become pending or expired, or change its recorded resulting incarnation.
+
+After an uncertain completion, disable the old local rendezvous permissions.
+Reconnect through fresh native authorization and inspect both the current
+account and original preparation. These are separate observations, not an
+atomic snapshot. A completed historical result does not install its incarnation
+as current or restore a grant. A new family may inspect only for the same
+continuing internal owner and module; account reassignment does not transfer
+access to the previous owner's outcomes.
+
+Unknown, foreign-owner and garbage-collected preparations return the same 404.
+A 404, missing inspection or network failure does not prove the reset failed.
+Preserve the original uncertainty and any known completed result. A different
+resulting incarnation for the same completed preparation is a conflict and holds
+affected operations. Do not reset again automatically, reuse the old family,
+restore old permissions from backup or change a contact's saved identity.
+
+### Acceptance boundary
+
+Exercise original-byte retries and changed-byte conflicts; wrong module,
+family and owner; absent, expired or replayed UI approval; credible-clock
+uncertainty; concurrent linking, offers, reads and reset; crash before and after
+commit; retained completion after later resets; account reassignment; unavailable
+inspection; and failed remote notification. Defining these records supplies no
+runtime evidence. Native authorization, account state, device/home authority,
+network release and remote effects each require their own joined acceptance
+cases.
 
 ::::
 

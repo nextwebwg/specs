@@ -183,6 +183,77 @@ rotation, retained negative state and uncertainty rules. A reset disables this
 module's delegations/publications/allocations, not correspondent identity or another
 module. It must not reactivate or return an exposed package to the pool.
 
+### Account routes at the selected package service
+
+Account management uses the same selected package service as the resource pool,
+with its separate native package grant. Append these suffixes to the descriptor's
+original `prefix`, removing the suffix's leading slash. Preserve that prefix's
+path; reject a suffix that escapes it, a redirect or a query.
+For example, prefix `https://packages.example/mail/packages/` places the link
+challenge route at `https://packages.example/mail/packages/links/challenges`.
+
+| Operation | Required authority and response |
+| --- | --- |
+| `GET /account` | Current package link grant; 200 current-account record. |
+| `POST /links/challenges` | Current package link grant; challenge request from the member matrix above; 200 retained prepared challenge. |
+| `PUT /links/challenges/{challenge}` | Same authenticated account incarnation and original family, current link grant and exact device completion; 201 newly committed link or 200 exact retained retry. |
+| `DELETE /links/{link}` | Current package link grant for the same account incarnation and continuing owner; no body; 204 after disabling the owned link and its derived positive permissions. |
+| `POST /account-reset/preparations` | Current package link grant and exact reset request; 200 retained preparation. |
+| `PUT /account-reset/preparations/{preparation}` | Original family and current link grant, plus fresh server-held account-UI approval; no body; 204 after the atomic reset. |
+| `GET /account-reset/preparations/{preparation}` | Current package link grant for the same continuing internal owner; 200 retained reset state. A fresh family may inspect but cannot complete the old family's preparation. |
+
+Here, a package link grant has scope `mail.packages.link`; resource management
+still requires `mail.packages.manage`. Object parameters are the original
+nonzero ObjectIds. GET has no body. JSON requests and responses use
+`application/json`; 204 has no body. Prepared challenges, link results, account
+records and reset records are bare JSON. The completion contains the original
+device-signed `proof` wrapper and complete original `identity` bundle. A link
+result's `requestDigest` is SHA256 of the exact original prepared challenge
+payload, not the initial request or completion container.
+
+Apply the shared owner's exact HTTP authentication, error, no-store, finite
+admission and original-byte retry rules. Unsupported methods on a known route
+return 405 with `Allow`. Account, family, module and descriptor come from the
+authenticated selected connection. An address, ObjectId, body field or signature
+cannot choose another account. Queue, relay and registrar routes are not inherited.
+
+Deleting a link disables its dependent delegations and undisclosed positive work
+in the same owning transaction. It cannot restore an exposed or reserved native
+package to an unused pool. Retain the original outcomes, spent-reference history
+and required negative work. A retained retry reports its historical result; it
+cannot recreate the link or its derived permissions. Deleting one link does not
+rotate the account incarnation or revoke another module's authority.
+
+### Account deadlines and retention
+
+The service configures positive finite account-link, reset-preparation and fresh
+account-UI lifetimes as local deployment policy. It states each selected
+preparation interval in the returned record before approval. These are not new
+descriptor members or fixed user quotas. `requestLifetimeSeconds` bounds the
+allocation and inspection requests defined below; it does not select an account
+link or reset lifetime.
+
+A prepared link fits the selected descriptor, its actual original family and the
+local link policy. Completion additionally requires that the entire original
+challenge interval fit the accepted device binding, with the original endpoint
+and current RECEIVE authority validated through the owning identity rules.
+Missing device evidence at preparation cannot be treated as accepted
+authority; a completion that cannot satisfy these checks is held. A successful
+link result retains that challenge interval. Do not silently shorten or renew it.
+An access-token refresh does not extend the family, challenge or device binding.
+
+Reset preparation and its single-use fresh-UI approval fit their actual original
+family, descriptor and respective local policies. The whole credible clock
+interval must fit every required interval, with exclusive `notAfter` throughout
+these package records. Reading a historical completed result grants no fresh
+positive permission.
+
+The advertised `retentionSeconds` also covers the accepted account preparations,
+original completions and supported uncertain-outcome recovery. Reject an interval
+the service cannot retain before issuing it. Capacity pressure cannot evict an
+accepted retry, reset outcome or spent package reference to make room for another
+operation. A changed descriptor or policy cannot edit an original promise.
+
 ### Resource admission without another account login
 
 Source admission uses a new `mail-package-access-v0` selection of the

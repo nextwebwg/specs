@@ -21,7 +21,7 @@ The first request does not require a pre-existing provider-queue grant. It requi
 
 ## Implementation prerequisites
 
-The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. The [account reset and inspection binding](#reset-the-home-connection) below selects its exact management records. Link/home installation routes and pending-offer retrieval, cursor and answer-preparation route bindings still need complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
+The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. The account-link routes and [reset and inspection binding](#reset-the-home-connection) below select their exact management records. Home installation routes and pending-offer retrieval, cursor and answer-preparation route bindings still need complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
 
 First-contact admission also requires the complete [mailbox registration](mailbox-registration.md) owner and its actual registrar/native validation. [Service federation](service-federation.md) defines the architecture; it cannot substitute for a missing record parser or permission. Until these dependencies are implemented and tested, this chapter does not authorize advertising interoperable rendezvous support.
 
@@ -100,6 +100,53 @@ Purpose is `rendezvous-account-link`.
 Purpose is `rendezvous-account-linked`.
 
 There is deliberately no `mailbox` field. This link authorizes a service account and device, not an email-address claim. The server derives account and family from its own authentication. It must not accept a submitted account identifier instead. Current receive authority is required; first observation remains explicitly unverified when the owning identity policy permits it. The result is service-authenticated local state, not transferable evidence of mailbox ownership.
+
+### Account-link routes and deadlines
+
+Append these suffixes to the original selected home descriptor's `prefix`,
+removing the leading slash and preserving its path. Reject a suffix that escapes
+that canonical same-origin prefix, a query or a redirect.
+
+| Operation | Required authority and response |
+| --- | --- |
+| `POST /links/challenges` | Current `mail.rendezvous.link` grant and the exact challenge request above; 200 retained prepared challenge. |
+| `PUT /links/challenges/{challenge}` | Same account incarnation and original family, current link grant and exact completion above; 201 newly committed link or 200 identical retained retry. |
+| `DELETE /links/{link}` | Current link grant for the same account incarnation and continuing owner; no body; 204 after disabling the owned link and its derived positive permissions. |
+
+Parameters are the original nonzero ObjectIds. JSON requests and responses use
+`application/json`; 204 has no body. Challenges and link results are bare JSON;
+the completion contains the original signed `proof` wrapper and complete original
+`identity` bundle. The result's `requestDigest` is SHA256 of the exact original
+prepared challenge payload. Inherit the shared owner's authentication, no-store,
+finite admission, error and original-byte retry rules. Unsupported methods on
+these routes return 405 with `Allow`. Account/reset routes and their exact records
+are selected [below](#reset-the-home-connection); no provider queue route is inherited.
+
+Configure positive finite local account-link, reset-preparation and fresh-UI
+lifetimes independently of offer, cursor and polling policy. None of those
+descriptor limits selects an account lifetime. State each
+selected preparation interval before approval. A link preparation fits the
+descriptor, actual original family and local link policy. Completion additionally
+checks that the entire original challenge interval fits the accepted device
+binding, and validates the original endpoint and current RECEIVE authority under
+the owning identity rules. A successful result retains that original
+interval; it cannot be shortened or renewed during completion. Missing evidence
+at preparation supplies no device authority. An access refresh does not extend
+the family, link challenge or device binding.
+
+Reset and its single-use fresh-UI approval fit their actual original family,
+descriptor and respective finite local policies. Apply exclusive `notAfter` and
+the full credible clock interval to these rendezvous records. The service's
+advertised retention also covers accepted account preparations, completions and
+supported uncertain-outcome recovery; refuse an unsupported interval before
+issuing it. Never evict an accepted outcome or silently alter its deadline.
+
+Deleting a link atomically disables its dependent home authorizations, pending
+offers/answers, dispatch permissions and derived rendezvous grants. Retain their
+required negative state and uncertain outcomes. The link's historical retry
+cannot reactivate those permissions. Deletion does not rotate the account
+incarnation, recall disclosed material, revoke contact identity or affect another
+module.
 
 The home service descriptor has the following exact required members.
 

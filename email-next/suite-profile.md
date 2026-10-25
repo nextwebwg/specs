@@ -435,6 +435,11 @@ Invitations and key updates can themselves contain personal addresses. Email/2 e
 
 Each device publishes a separate, expiring control-encryption key with its signed setup. It is not an account password, an MLS group key or a backup key. Remembered setup policy can manage it automatically. A missing or expired key holds the affected control delivery; it does not permit a readable replacement or a misleading address-masking indicator.
 
+The optional [deletion-control module](deletion-controls.md) uses a separate signed
+receiving offer and dedicated HPKE key. Its MAILDEL0 profile is not another
+sealed-control-v2 kind and cannot use an assertion control key. The baseline
+application, receiving assertion and control grammars below remain unchanged.
+
 :::: {.details summary="Exact sealed-control format, recipient keys and lifecycle"}
 
 **Selected construction.** `sealed-control-v0` uses [RFC9180 §6.1](https://www.rfc-editor.org/rfc/rfc9180.html#section-6.1) single-shot HPKE Base mode with KEM `0x0020` (DHKEM X25519/HKDF-SHA256), KDF `0x0001` (HKDF-SHA256), and AEAD `0x0001` (AES-128-GCM). These are the HPKE components already selected by the MLS suite, with a separate recipient key and application context. No PSK, Auth-mode substitution, exporter-only mode, alternative algorithm or trial decryption is selected. Base encryption does not authenticate a sender; the signed intent and original owning protocol do that separately.

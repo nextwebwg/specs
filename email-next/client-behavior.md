@@ -224,8 +224,8 @@ that does not imply confirmed removal elsewhere. A recipient system honoring the
 request removes the message silently, without a deletion marker, notification or
 conversation announcement. No recipient acknowledgement is required. Local Delete
 affects only the person's selected copy and does not silently request remote
-deletion. The native request's wire binding remains unresolved as described in
-the delivery policy.
+deletion. Native support requires the complete [deletion-control binding](deletion-controls.md),
+including its receiving offer, dedicated key and durable recipient acceptance.
 
 :::: {.details summary="Evidence-bound status, local deletion and retained safety state"}
 

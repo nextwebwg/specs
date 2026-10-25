@@ -43,6 +43,11 @@ The sender emits at most one such part per ordinary message. The attachment does
 
 :::
 
+The optional [deletion receiving offer](deletion-controls.md#advertise-support-without-sending-control-only-mail)
+uses a separately typed metadata child with its own signature and dedicated key.
+It does not add a member to the discovery wrapper, widen assertion10 or make
+ordinary encryption support imply deletion support.
+
 ## Receiving is not answering
 
 Processing an advertisement is local observation only. It cannot send an acknowledgment, invoke a service endpoint, fetch an attachment URL or automatically mail the recipient's own keys. A person's separately authorized ordinary send may attach at most one current advertisement under the publication/disclosure settings. That readable email remains ordinary even if its introduction later enables encryption; a client must not retroactively mark it protected.

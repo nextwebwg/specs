@@ -125,3 +125,20 @@ above also apply. The ordinary representation is distinct from
 `application/vnd.threadlabs.mail-event+json`, whose current payload remains a
 complete envelope6 delivery. Merely recognizing either type cannot establish
 recipient capability or protection status.
+
+
+## Deletion-support candidate and separate control profile
+
+The parameter-free `application/vnd.threadlabs.mail-deletion-offer+json` candidate
+identifies the exact signed receiving-offer0 owned by [deletion controls](deletion-controls.md).
+Its [registration-inventory row](registration-inventory.md) and the common draft
+filing fields form its template. It is read-only capability metadata, not proof
+of mailbox ownership, a deletion command or a public discovery response.
+
+The request itself remains encrypted under the version-neutral mail-control
+candidate. Exact MAILDEL0 magic selects sealed-deletion-v0 only with independently
+offered support and its dedicated receiving-key inventory. It does not widen
+sealed-control-v2, infer another profile from a failed decryption, or permit a
+clear request fallback. Bounds, original signatures, recipient and offer binding,
+key custody and silent durable acceptance are owned by the deletion chapter.
+Registration, external interoperability and security validation remain separate.

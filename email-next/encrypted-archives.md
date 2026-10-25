@@ -198,6 +198,14 @@ A new identity cannot answer an old question or edit an old author's message mer
 
 ::::
 
+## Preserve honored deletion during restoration
+
+An archive may contain a message that the recipient's system later removed.
+Restoring that archive does not override a retained deletion disposition or turn
+its target into a new message. Apply the [suppression and restoration rules](delivery-policy.md#retain-suppression-for-as-long-as-the-original-can-return)
+before promoting historical material into ordinary conversation presentation.
+Historical inspection does not establish that every exported copy was erased.
+
 ## Rotation, compromise and rollback
 
 Changing the archive-encryption recipient or writer starts a new archive identifier, independent keys and kit, and a new sequence-zero chain. Re-encrypt selected historical content only with explicit scope authorization and verify the new recoverable snapshot before retiring local old keys. The old kit still unlocks old exported files; rotation does not recall them. A compromised writer or stolen kit requires disclosure of that exposure, not a claim that rotation erases it.

@@ -549,6 +549,77 @@ recall reports, if an integration already supplies them, remain scoped evidence;
 they MUST NOT generate recipient-side deletion announcements or become a promise
 of universal erasure.
 
+### Check the original author and recipients
+
+A request from a different device of the original author is not automatically a
+forgery. It needs that device's current accepted authority for the same principal,
+including the owning identity history and any applicable retirement or conflict
+checks. Possession of an old signing key, a restored mailbox or the same personal
+address does not supply that authority. A reassigned address cannot delete its
+previous owner's contributions.
+
+The target is the complete logical authored reference, not one delivery event.
+The request cannot broaden the original contribution's intended recipients or
+turn an undisclosed private copy into part of a visible discussion. Each private
+copy retains its own independent identity and scope. Do not obtain a deletion
+recipient list by taking the current conversation roster or every historical
+participant. A recipient that never received an eligible original gains no right
+to its content from receiving a request.
+
+### Keep removal effective when deliveries arrive out of order
+
+The recipient's system distinguishes these outcomes internally; none is a
+recipient-facing message or an automatic response to the sender.
+
+| Available evidence | Recipient-system behavior |
+| --- | --- |
+| Invalid author, scope or request | No deletion effect and no reservation of the claimed target's identity. |
+| Authenticated request, but target evidence needed for authorization is missing | Retain a bounded pending dependency. Do not hide a claimed target merely because its identifier appears in the request. |
+| Complete authority and target checks, but recipient policy does not honor deletion | Retain the message under that policy; emit no automatic decision receipt. |
+| Complete checks and recipient policy honors deletion | Commit suppression and removal from ordinary presentation together. Later eligible copies of that same logical message remain suppressed. |
+
+Target-dependent validation must compare independently accepted original evidence
+with the request's author, conversation and recipient scope. The request's own
+claims cannot supply the missing original. Request and original arrival order
+MUST NOT select different authorized outcomes when the same valid evidence is
+available. Concurrent acceptance, local rendering and deletion serialize through
+the recipient's durable state owner. A stale projection cannot reinstall removed
+content after that owner commits the deletion. Retaining a pending request does
+not extend its original acceptance deadlines or supply authority after expiry.
+
+### Retain suppression for as long as the original can return
+
+A request's release deadline and the lifetime of an honored deletion are different
+things. Expiring the request, rotating a key, changing a relay route or completing
+one transport attempt does not cancel an already honored deletion. A newly
+prepared delivery of the same original authored bytes remains the same logical
+message, even with a fresh delivery identifier or encryption epoch.
+
+The recipient's system MUST retain enough protected local evidence to bind the
+honored disposition to the exact target, the accepted authorization and the
+existing replay/conflict records. This does not require retaining the target's
+readable body merely to hide it. Unavailable original bytes do not prove a later
+variant equal, erase an existing conflict or make its identifier unused. The
+[identity ledgers](event-identifiers.md#keep-delivery-identity-separate-from-message-identity)
+continue to govern those decisions.
+
+Suppression MUST NOT be evicted merely because a timer or storage threshold was
+reached while that target could still be accepted through live delivery, mailbox
+rescan or restoration into ordinary presentation. An implementation may compact
+records while preserving those checks. If its configured storage or processing
+budget cannot safely retain the needed evidence, it holds the affected acceptance
+or restoration work; it must not silently forget the disposition and redisplay
+the content. Local budgets are implementation policy, not a new universal quota.
+
+Historical archive inspection remains distinct from ordinary conversation
+presentation. Restoring an older archive cannot override a deletion disposition
+that the recipient's system still retains. If independent evidence shows that
+required suppression or replay state is missing or inconsistent, hold promotion
+into the ordinary view rather than treating the imported target as unseen.
+An archive can still contain readable historical copies, and a complete rollback
+of all independent evidence may be undetectable. Neither deletion nor restoration
+promises erasure of already exported history or resistance to such a rollback.
+
 ### Stop unreleased work durably
 
 Cancellation and release MUST serialize at the owning outbox boundary. Persist
@@ -589,9 +660,10 @@ does not establish removal.
 deletion contract. The current closed Email/2 operation vocabulary does not yet
 carry a deletion request. Before native interoperability can be claimed, the
 specification must define its negotiated operation, exact request encoding,
-authorization across device changes, bounded suppression-record retention and
-protected carriage. Implementations MUST NOT substitute an edit, reaction
-withdrawal, setup control or unknown operation for that binding. Existing provider
+the exact lifecycle-authority proofs, representation and bounded processing of
+suppression records under the retention rules above, and protected carriage.
+Implementations MUST NOT substitute an edit, reaction withdrawal, setup control
+or unknown operation for that binding. Existing provider
 recall is a separate adapter capability, not proof of this native protocol.
 
 ::::
@@ -605,6 +677,11 @@ original ordering, duplicate requests, restart, late original delivery, retentio
 policy, unsupported recipients and mixed local outcomes. Verify that honoring a
 request creates no recipient marker, notification, conversation announcement or
 automatic receipt; the sender's local marker must not imply remote confirmation.
+Deletion acceptance must also exercise same-principal device replacement, retired
+keys, reassigned addresses, concurrent original/request acceptance, refreshed
+delivery identities, budget exhaustion and restoration of an older archive.
+Verify that a missing target remains pending without hiding an unauthenticated
+claim, and that a committed suppression survives request expiry and key rotation.
 Cancellation fixtures must cover the cancel/release race and already uncertain
 submission. Test actual provider integrations separately; mocks do not establish
 Exchange interoperability or native deletion support.

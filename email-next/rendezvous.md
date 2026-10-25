@@ -21,7 +21,7 @@ The first request does not require a pre-existing provider-queue grant. It requi
 
 ## Implementation prerequisites
 
-The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. The account-link routes, [reset and inspection binding](#reset-the-home-connection) and [answer-preparation operation](#prepare-the-exact-answer) below select their management records and routes. The [home-installation routes](#install-the-home-authorization) below select installation, inspection and withdrawal. Pending-offer retrieval and cursor bindings still need complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
+The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. The account-link routes, [reset and inspection binding](#reset-the-home-connection) and [answer-preparation operation](#prepare-the-exact-answer) below select their management records and routes. The [home-installation routes](#install-the-home-authorization) below select installation, inspection and withdrawal. The [pending-offer reader](#read-pending-connection-requests) selects pagination and cursor recovery. Actual joined service owners and acceptance evidence remain required. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
 
 First-contact admission also requires the complete [mailbox registration](mailbox-registration.md) owner and its actual registrar/native validation. [Service federation](service-federation.md) defines the architecture; it cannot substitute for a missing record parser or permission. Until these dependencies are implemented and tested, this chapter does not authorize advertising interoperable rendezvous support.
 
@@ -170,8 +170,8 @@ Its purpose is `rendezvous-service`. The descriptor is obtained through the sele
 | `maxPayloadBytes` | Positive canonical uint64 maximum original signed-payload bytes. |
 | `maxSubmissionBytes` | Positive canonical uint64 maximum complete immutable submission bytes. |
 | `maxDepth` | Positive canonical uint64 strict-object nesting limit. |
-| `pendingPageSize` | Positive canonical uint64 maximum pending entries per page; retrieval wire remains a separate prerequisite. |
-| `cursorLifetimeSeconds` | Positive canonical uint64 maximum pending-cursor interval in seconds; cursor wire remains a separate prerequisite. |
+| `pendingPageSize` | Positive canonical uint64 maximum pending entries per page. |
+| `cursorLifetimeSeconds` | Positive canonical uint64 maximum pending-cursor interval in seconds. |
 | `pollSeconds` | Positive canonical uint64 minimum polling interval in seconds. |
 | `retentionSeconds` | Positive canonical uint64 retention interval covering the accepted offer and supported uncertain-outcome recovery. |
 
@@ -583,6 +583,189 @@ Before admitting a new request, activating an answer, resuming a grant or disclo
 Inspection is an observation, not a cross-provider distributed transaction. If source revocation committed first, inspection must return closed. If revocation happens after a successful inspection, it cannot retract bytes already disclosed. The destination rechecks at each new effect; no lease may extend the offer interval. The sender independently checks current own authority before further content release. A service must not promise instantaneous global revocation or use an earlier active result as permanent account authority.
 
 A valid transport submission receives `202 {profile,id,state:"pending"}`. This says only that the request was processed under the private admission boundary. It does not distinguish a missing, blocked, disabled or currently disconnected destination. A destination may retain a bounded negative replay receipt without creating a device queue entry. A later identical retry cannot turn this receipt into a fresh admitted request. No automatic email is generated.
+
+::::
+
+## Read pending connection requests
+
+The receiving app reads connection requests from its own home service. Reading
+never accepts a request or removes it from the queue. The app validates each
+original request before deciding whether to answer. If it stops midway through
+a page, it can read that page again; receiving the same request twice does not
+create a second connection.
+
+:::: {.details summary="Pending pages, opaque cursors and current disclosure checks"}
+
+### Request and response
+
+Use `POST /offers/pending` under the selected descriptor's full `prefix`, with
+current own-account `mail.rendezvous.manage` access. This is a nondestructive
+read, not an offer submission or an account mutation. Its strict JSON request
+has exactly the following members:
+
+| Member | Type and binding |
+| --- | --- |
+| `profile` | Exactly `mail-rendezvous-v0`. |
+| `descriptorDigest` | SHA256 of the original selected descriptor bytes. |
+| `link` | Original active target device-link ObjectId. |
+| `cursor` | Empty string to begin a scan; otherwise the exact opaque cursor returned by this reader. |
+
+The authenticated module, continuing internal owner, current account incarnation,
+original native family, exact link and accepted descriptor select the reader.
+The link belongs to that account and family and retains current RECEIVE
+authority. A submitted account or mailbox cannot select a queue. No query,
+callback, cookie, peer access token, arbitrary URL or public device-listing route
+exists. `/offers/pending` is a literal route, not an offer ObjectId.
+
+A successful response is 200 `application/json` with exactly these members:
+
+| Member | Type and binding |
+| --- | --- |
+| `profile` | Exactly `mail-rendezvous-v0`. |
+| `entries` | Ordered array of zero through `pendingPageSize` entries defined below. |
+| `cursor` | Empty string if this scan is exhausted; otherwise a nonzero random 32-byte lowercase-hex opaque continuation. |
+| `notBefore` | Original scan's inclusive canonical uint64 Unix-seconds string. |
+| `notAfter` | Original scan's exclusive canonical uint64 Unix-seconds string. |
+
+Each entry is exactly `{submissionBytes,dispatchBytes}`. Both values are canonical
+padded base64: the complete original immutable submission bytes and the complete
+original source-signed dispatch wrapper bytes, respectively. Decoding yields the
+existing strict records, not a replacement signature format. Preserve all
+original bytes, including the submission's identity/evidence bundles and both
+home authorizations. Never reconstruct a submission from a summary or return
+only the public offer identifier.
+
+The app independently validates those records under the existing offer and
+admission rules. It retains the qualified source home, initiator principal/device,
+offer payload digest and dispatch payload digest. Equal public offer IDs from
+different admitted sources remain distinct. A page is not proof of a known
+correspondent, current connection, message delivery or encryption capability.
+
+### Keep one bounded scan
+
+On the first read, the home freezes an ordered set of references to this link's
+admitted, unanswered offers. Use the stable total order persisted at original
+admission, never a sender-supplied date, claimed sequence or public identifier.
+New offers admitted after this cut wait for the next scan. Retain the original
+qualified references and cursor state durably before disclosing a continuation;
+a service restart cannot reuse a cursor for a different scan or account.
+
+Each cursor binds that scan, its next unexamined reference position, retained
+deferred references, selected descriptor, module, continuing owner, account
+incarnation, original family and exact link.
+Its value reveals none of those fields. Possession supplies no authority without
+the same current management connection and local checks. Do not put a cursor in
+a URL, forward it to another home or accept it as an access token.
+
+The original scan interval fits the selected descriptor, original family and
+link intervals and the descriptor's `cursorLifetimeSeconds`. It contains the
+complete credible clock interval at creation. Every continuation retains these
+exact bounds. Reading, retrying, refresh-token rotation and service restart do
+not extend them. Unavailable time holds disclosure. A cursor's lifetime never
+extends any offer, dispatch, home authorization, device binding or local send
+policy.
+
+Advance through the retained references in order. Return only entries that are
+still admitted, unanswered and eligible for disclosure to this exact device.
+Known closed, expired, answered or withdrawn entries may be skipped. Unavailable
+per-offer evidence is not a closed entry: retain that qualified reference as
+deferred, without disclosing its bytes, and continue to other references within
+the work allowance. It must not block independently eligible requests. An entry
+admitted after the scan cut cannot be inserted into an older page.
+
+The continuation preserves both the next unexamined position and every unresolved
+deferred reference. Examine unexamined references before retrying deferred ones,
+so repeated failure at an earlier source cannot starve later requests. Pages may
+therefore disclose a later ready request before an earlier deferred request;
+this is discovery order, not conversation-message order.
+
+A bounded work allowance may stop scanning early, including an empty page with a
+nonempty continuation. Such a continuation must advance the unexamined position
+or resolve at least one deferred reference. Moving a newly examined unavailable
+reference into the retained deferred set advances the position; repeatedly
+moving an already deferred reference does not. If only unavailable deferred
+work remains, return 503 with no successful advancement rather than manufacturing
+an unproductive continuation. An empty cursor is permitted only after all scan
+references are closed or disclosed and no unresolved reference remains. It says
+nothing about offers admitted after the cut.
+
+### Recheck before releasing a page
+
+Before disclosing an entry, perform the existing signed source-dispatch inspection
+at its already admitted origin. Do network work outside the local account writer.
+A closed inspection prevents disclosure; an unreachable or unavailable inspection
+holds that entry in the deferred set while other eligible entries can proceed.
+Unavailable own-account or scan authority holds the whole page with 503. No page
+request selects a new source origin, registrar, realm root or inspection callback.
+
+Recheck the current local account, family, link, identity, installed target home,
+offer/cancellation state, original intervals and scan interval at the page's local
+commit and actual response-release fences. Serialize those decisions against
+answer activation, withdrawal, reset and block changes. If a page cannot still be
+released, keep its original scan position available for an eligible retry rather
+than reporting successful advancement. This is not an atomic transaction with a
+foreign service; the existing source-inspection revocation boundary still applies.
+
+Re-reading a cursor re-evaluates current disclosure authority at the same scan
+position. It may omit entries that have since closed or been answered; it must
+not return newly admitted offers or revive old permissions. Page observations
+need not be byte-identical. The embedded submission and dispatch bytes remain
+immutable. Do not reuse a cached positive page after current authority is lost.
+
+### Recover without consuming requests
+
+The client retains received original entries and its next continuation durably
+before moving to that continuation. On a lost response or interrupted save, it
+reads the previous cursor again. Deduplicate by the qualified offer/dispatch
+binding, not the public identifier. Reading or saving a page does not acknowledge,
+answer, cancel, consume or extend an offer; those effects use their existing
+separately authorized operations.
+
+After restoring a deferred source, recheck its full current authority; a previous
+failed inspection is neither a permanent rejection nor permission to disclose.
+The client may begin a new scan under current polling policy to find newer offers
+while an older scan still holds deferred references. Retain and deduplicate both
+until their original bounds or existing cancellation policy end them.
+
+Unknown, expired, foreign-scope, reset and unavailable-to-this-family cursors have
+the same 404 `notFound` result after current own authentication. A service that
+lost its retained scan must fail this way rather than bind that cursor to a new
+scan. The app can begin a new bounded scan under current policy while retaining
+already accepted entries and existing send/setup deadlines. A missing page is
+not evidence that no request exists or that encryption is unsupported.
+
+New scans and retries honor the selected home's `pollSeconds`; continuation reads
+also respect that minimum and any positive `Retry-After`. Cursor retention and
+admission policy must support the advertised paging and uncertain-response
+recovery. Do not admit work that the service cannot retain and expose within its
+supported bounds. Reject new work or a new scan before allocation instead of
+evicting a live cursor or an accepted request to make room.
+
+### Bound the complete representation
+
+Each original submission and original dispatch wrapper in this reader fits
+`maxSubmissionBytes`; validate this before admitting an offer into this reader.
+Their signed payloads also obey `maxPayloadBytes` and strict records obey
+`maxDepth`. The page has no more than `pendingPageSize` entries.
+
+The complete encoded JSON page is at most
+`512 + pendingPageSize * (64 + 8 * ceil(maxSubmissionBytes / 3))` octets.
+The fixed allowance covers the outer fields and each entry's names, quotes and
+separators; both base64 values count in the variable allowance. Use checked
+integer arithmetic and apply smaller finite local body/allocation limits before
+reading or parsing. A service must be able to emit at least one eligible admitted
+entry within its actual configured page limit. Never truncate an entry, omit a
+signature or silently increase a published bound to fit it.
+
+Requests use `application/json` and fit `maxSubmissionBytes` and `maxDepth`.
+Inherit this chapter's TLS, no-redirect, no-0-RTT, no ambient credentials, no
+compressed bodies, no-store and shared exact `{error}` rules. Unsupported methods
+return 405 with `Allow: POST` and no body. Malformed input is 400 `invalid`, absent
+credentials 401 `unauthorized`, insufficient scope 403 `unauthorized`, unsupported
+media 415 `unsupportedRepresentation`, and oversized bodies 413 `tooLarge`.
+Admission/work exhaustion uses 429 `rateLimited` with positive `Retry-After`
+seconds or 503 `unavailable`. No error consumes queue entries, changes membership,
+starts an email exchange or permits an automatic plaintext downgrade.
 
 ::::
 

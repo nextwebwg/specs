@@ -515,9 +515,22 @@ for this exact authorization/static assertion/device. In one durable transaction
 reserve its native reference and retain the original result before disclosure.
 The collision namespace includes allocator account incarnation, authorization,
 source principal/device/binding/key and request ID. Identical retries recover that
-same result; changed authenticated bytes return 409. Invalid source proofs cannot
-consume an ID or reserve a package. Concurrent distinct attempts cannot obtain the
-same reference. Exhaustion refuses new work rather than evicting retained evidence.
+same result. Retry identity is the exact original source-signed `request` wrapper,
+not the complete `{request,identity}` resource. Changed wrapper bytes in the same
+collision namespace return 409, even if their decoded meaning is equivalent.
+Invalid source proofs cannot consume an ID or reserve a package.
+
+The accompanying `identity` inventory may be refreshed. Validate it on every
+submission against the original endpoint, exact source key and accepted identity
+history, including current revocation and safety state. Refreshing this evidence
+does not replace the original request, change its deadline or authorize a different
+binding or key. Identity changes still require their owning lifecycle procedure.
+
+A refreshed inventory changes the resource bytes. Submit those bytes through a
+new admitted outer operation while retaining the original inner setup-attempt ID.
+An exact outer-operation retry retains its complete original bytes. Neither kind
+of retry may allocate a new inner ID to escape an uncertain result. Concurrent
+distinct attempts cannot obtain the same reference. Exhaustion refuses new work rather than evicting retained evidence.
 
 The signed result payload has exactly `{profile,purpose,requestDigest,authorizationDigest,staticAssertionDigest,state,publication,publicationDigest,packageReference,publicationBundle,notBefore,notAfter}`.
 Purpose is `package-allocation-result`; domain `mail/packages/result/v0`.
@@ -586,8 +599,13 @@ Purpose is `package-allocation-status`; domain `mail/packages/status/v0`.
 committed allocation result is present in this current owning namespace; it is
 not proof that an uncertain in-flight worker cannot still commit. Depleted is
 only an actually committed depleted result. Withdrawn/expired/disabled describe
-current suppression of a previously committed result. Those suppressions never
-return an exposed reference to the pool or rewrite the original result.
+current suppression of a previously committed result. Report `expired` only when
+the earliest credible current time is at or after the original result's exclusive
+`notAfter`. A credible interval that straddles that end does not establish expiry;
+hold the operation or report unavailability without claiming a definite state.
+An independently established withdrawal or disablement can still be reported.
+Missing positive authority alone is not evidence of disablement. Those suppressions
+never return an exposed reference to the pool or rewrite the original result.
 
 `resultDigest` hashes the original signed result payload, empty only while pending.
 Publication digest and native reference retain their original allocated values,
@@ -603,9 +621,23 @@ address-existence claim or assertion that no previous result was committed.
 
 Inspection returns metadata only. Original POST retry can recover the retained
 complete result while current source/recipient/delegation/publication authority
-still permits re-disclosure. If a committed result is now suppressed, return 410
-with that signed current status. A currently eligible depleted retry returns its
-original result. Never expose package bytes through a diagnostic/status path.
+still permits re-disclosure. A currently eligible depleted retry returns its
+original result.
+
+A suppressed-result retry may return 410 with signed current status only while
+the original allocation request remains current and its exact source-key proof
+and safety checks succeed. For this response, status `notBefore` is the maximum,
+and `notAfter` the minimum, of the original allocation request, currently selected
+descriptor and actual admission intervals. The complete credible current time
+must fit that nonempty interval. This original request is the proof for the 410
+response; the allocation resource does not acquire an inspection member.
+
+If that request proof is expired or otherwise not current, return generic 403
+without result-specific metadata, regardless of whether a result is retained.
+The caller can use a fresh signed inspection to obtain metadata under the
+inspection rules above. Neither an expired proof nor a freshly admitted outer
+operation renews the allocation request or grants permission to disclose package
+bytes. Never expose package bytes through a diagnostic/status path.
 A caller that lost those bytes and cannot recover them holds the original send;
 a later separately authorized attempt requires genuinely eligible fresh material.
 

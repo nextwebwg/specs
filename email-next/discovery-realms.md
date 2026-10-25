@@ -132,13 +132,15 @@ A directory publication payload has the following exact required members:
 | `generation` | Canonical uint64 string; lineage rules below apply. |
 | `predecessor` | Original predecessor payload digest, or the explicitly allowed empty string. |
 | `mailbox` | Exact canonical mailbox spelling. |
-| `device` | Exact authorized device identity. |
+| `device` | Exact endpoint object `{principal,device,state,binding,key}` under the [registration identity grammar](mailbox-registration.md). |
 | `associationDigest` | SHA256 of the original registrar attestation payload. |
 | `bundleDigest` | SHA256 of the original complete bundle bytes. |
 | `notBefore` | Canonical uint64 Unix-seconds string. |
 | `notAfter` | Canonical uint64 Unix-seconds string. |
 
 Its purpose is `directory-publication`. It is signed by that exact accepted device. Initial generation 0/predecessor empty; successors increment 1 and name the exact previous directory-publication payload digest. Publication identity is `(realm,publication)` and cannot change mailbox/principal/device/binding/key. New devices require their own registration/publication; mailbox address equality uses canonical mailbox-addresses rules, including exact Unicode/local spelling. No lowercasing, alias inference, plus stripping or predictable address hash substitutes.
+
+The `state` member names the accepted identity state used for this publication. It may advance only through the existing accepted identity ancestry while the publication's principal, device, binding and signing key remain unchanged. A different state digest alone proves no continuity or current Receive authority. Identity repair, revocation and role barriers keep their existing effects.
 
 The strict JSON bundle has the following exact required members:
 
@@ -256,7 +258,7 @@ Migration first creates an independently authorized destination registration/bun
 | `generation` | Canonical uint64 string; lineage rules below apply. |
 | `predecessor` | Original predecessor payload digest, or the explicitly allowed empty string. |
 | `mailbox` | Exact canonical mailbox spelling. |
-| `device` | Exact authorized device identity. |
+| `device` | Exact endpoint object `{principal,device,state,binding,key}` under the [registration identity grammar](mailbox-registration.md). |
 | `sourceAssociationDigest` | Original source association digest. |
 | `destinationPublication` | Independently authorized destination publication ID. |
 | `destinationDigest` | SHA256 of the original destination publication payload. |

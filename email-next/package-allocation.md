@@ -112,7 +112,7 @@ The device-signed authorization has exactly:
 | Member | Contract |
 | --- | --- |
 | `profile`, `purpose` | This profile, `package-authorization`. |
-| `authorization` | Nonzero authorization ObjectId. |
+| `authorization` | Nonzero authorization ObjectId; immutable within its account incarnation/link. |
 | `descriptorDigest` | SHA256 of the exact original selected descriptor bytes. |
 | `service`, `prefix`, `serviceKey` | Exact original descriptor values. |
 | `account`, `link` | Opaque service account-incarnation binding and active package-module link. |
@@ -356,13 +356,28 @@ retry, each exactly `{authorizationDigest}` with the original authorization payl
 hash. Changed authenticated bytes under this account/link/ID return 409. Invalid
 proofs cannot occupy an authoritative conflict slot.
 
-`DELETE /authorizations/{authorization}` under current own management atomically
-withdraws that delegation and suppresses all dependent new disclosure/allocation.
-Return 204. The authenticated continuing account owner may perform this negative
-operation after the original device/family expires; it grants no positive role.
+`DELETE /authorizations/{authorization}/{authorizationDigest}` under current own
+management atomically withdraws that exact delegation and suppresses all dependent
+new disclosure/allocation. The digest is SHA256 of the original signed authorization
+payload, in 64 lowercase hexadecimal characters. This request has no body.
+Return 204 for the matching retained target, including an already withdrawn target.
+The authenticated continuing account owner may perform this negative operation
+after the original device/family expires; it grants no positive role.
 Exact installation retries after withdrawal may recover their historical result
 under the historical acknowledgement rules below. Keep the terminal marker across
-restart and reset. New delegation uses a fresh ID and independently eligible authority.
+restart and reset. New delegation uses a fresh ID within its account-incarnation/link
+namespace and independently eligible authority. Another account incarnation or link
+may use the same route ID; it does not replace or reactivate the earlier delegation.
+
+Both withdrawal routes in this section identify an exact original resource by its
+route ID **and payload digest**. Find the retained original account incarnation,
+link and resource under the authenticated continuing internal owner; do not infer
+the target from the current link, mailbox spelling or route ID alone. Withdrawing
+one target MUST NOT withdraw another same-ID resource. A matching digest is a
+selector, never account authorization. For a currently authenticated managing owner,
+no matching accessible retained target returns 404 without changing any resource.
+That response does not prove that the resource never existed. A current management
+grant remains required; the digest does not revive an expired bearer.
 
 ### Recover an installation receipt
 
@@ -454,10 +469,13 @@ the receiver retains its independent single-use check. Return 201 initially,
 200 for exact retained retry, each exactly `{publicationDigest}`. Changed valid
 bytes return 409. Invalid signatures cannot reserve an ID or reference.
 
-`DELETE /publications/{publication}` uses the same continuing-owner negative
-withdrawal exception as delegation deletion and returns 204. It checks exact
-retained account ownership with a fresh current management grant, without
-requiring the expired original link/device or renewing positive authority. It
+`DELETE /publications/{publication}/{publicationDigest}` uses the same
+continuing-owner negative withdrawal exception as delegation deletion and has no
+body. The digest is SHA256 of the original signed publication payload, in 64
+lowercase hexadecimal characters. Return 204 for the matching retained target,
+including an already withdrawn target. It checks exact retained account ownership
+with a fresh current management grant, without requiring the expired original
+link/device or renewing positive authority. It
 stops further disclosure/allocation. It preserves terminal reservation evidence;
 it cannot recall bytes already exposed. Exact upload retries recover their
 historical acknowledgement without reactivation. Historical inspection is metadata

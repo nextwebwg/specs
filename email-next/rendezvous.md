@@ -21,7 +21,7 @@ The first request does not require a pre-existing provider-queue grant. It requi
 
 ## Implementation prerequisites
 
-The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. The account-link routes and [reset and inspection binding](#reset-the-home-connection) below select their exact management records. Home installation routes and pending-offer retrieval, cursor and answer-preparation route bindings still need complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
+The records below do not yet supply a complete interoperable service. The [independent native-module binding](provider-discovery.md#independent-registrar-and-home-connections) defines this module's sign-in selection, but still requires actual implementation and acceptance evidence. The account-link routes, [reset and inspection binding](#reset-the-home-connection) and [answer-preparation operation](#prepare-the-exact-answer) below select their management records and routes. Home installation routes and pending-offer retrieval and cursor bindings still need complete wire definitions. Existing provider-grant profiles, signature purposes and integer timestamps cannot be relabeled as these string-timestamp records.
 
 First-contact admission also requires the complete [mailbox registration](mailbox-registration.md) owner and its actual registrar/native validation. [Service federation](service-federation.md) defines the architecture; it cannot substitute for a missing record parser or permission. Until these dependencies are implemented and tested, this chapter does not authorize advertising interoperable rendezvous support.
 
@@ -508,7 +508,100 @@ His service returns retained original bytes for:
 
 Purpose is `rendezvous-answer`; preparation/request/grant are fresh IDs. `path` is exactly `home-ciphertext`. `operations` is exactly `["connection-resume","status-read"]`. These permit connection rendezvous only, not ciphertext upload, archive access or mailbox-copy suppression. The interval fits all original offer/dispatch/home/account/device intervals. The server may reject an unsuitable requested interval; it cannot silently change approved bytes.
 
+### Prepare the exact answer
+
+The receiving app asks its own home service to prepare the answer. The service
+returns the exact unsigned bytes the device will sign. Preparation alone does
+not activate a grant or tell the sender that the recipient is connected.
+
+Append `offers/{id}/answer-preparations` to the originally selected descriptor's
+full `prefix`, preserving that prefix path. `{id}` is the original offer ObjectId.
+Use `POST` with the exact answer-preparation request table above as the complete
+`application/json` body. There is no query string, callback URL, cookie or
+submitted account selector. Use the receiving account's current rendezvous
+management access token with `mail.rendezvous.manage`; never send that token to
+the initiating service.
+
+| Result | Meaning |
+| --- | --- |
+| 200 with `application/json` | The exact original unsigned answer payload from the prepared-answer table above. Creation and an eligible identical retry use the same representation. |
+| 404 | No eligible retained retry or answerable offer is available under this account, link and exact offer/dispatch pair. Unknown, foreign-account and closed offers without an eligible retained retry have the same result. |
+| 409 | A valid request changes the retained request bytes under the same preparation-request namespace. It cannot replace the original preparation. |
+| 405 with `Allow: POST` | This preparation route does not support the requested method. |
+
+Inherit the shared management owner's TLS, credential separation, authentication
+errors, finite admission and `Cache-Control: no-store` rules for every response.
+Do not redirect. Bound the complete request by `maxSubmissionBytes`, the prepared
+payload by `maxPayloadBytes`, and strict JSON nesting by `maxDepth`. Enforce any
+smaller local processing bounds before allocating retained work. Exhaustion
+does not create a preparation, evict an existing outcome or imply that encryption
+is unsupported. Errors use the shared exact `{error}` representation: malformed
+requests are 400 `invalid`, unsupported media types are 415
+`unsupportedRepresentation`, and excessive bodies are 413 `tooLarge`. Deployment
+admission exhaustion is 429 `rateLimited` with positive `Retry-After` seconds.
+An unavailable source inspection or unavailable current authority is 503
+`unavailable`; neither authorizes a replacement operation or a plaintext send.
+
+### Select one admitted offer
+
+The path's public `{id}` is insufficient to select a request. Before creating
+work, the service joins all of the following:
+
+- The authenticated internal owner, current account incarnation and original
+  native family.
+- The request's active target `link`, owned by that account and family, with its
+  exact target device and current RECEIVE authority.
+- The retained admitted offer, identified by `{id}`, `offerDigest` and
+  `dispatchDigest`. Both digests must name the original payloads in that same
+  retained submission; the request body's `id` must equal the path parameter.
+- The offer's exact target endpoint and both original home authorizations,
+  descriptors and identities under this chapter's admission rules. A different
+  current target state needs a new offer; it cannot be substituted into this one.
+
+Before a new preparation, perform the required signed source-dispatch inspection
+under the existing admitted-source policy. No incoming request selects a new
+inspection origin. Do network inspection outside the local account writer, then
+recheck the current local account, family, link, identity, home, offer and
+cancellation state at commitment. An unavailable or closed inspection holds
+creation; a cached active observation is not a permanent authorization.
+
+The complete credible clock interval must fit the requested interval. The entire
+requested interval must also fit every original offer, dispatch, home, family,
+link, descriptor and participating device-binding interval. Preserve the exact
+requested `notBefore` and `notAfter`, with an exclusive upper endpoint. Refuse an interval
+that cannot be honored and retained; do not shorten it or extend an older offer.
+
+### Recover preparation without activating it
+
+The preparation-request namespace is the rendezvous module, continuing internal
+owner generation, account incarnation, original family, exact target link and
+request ObjectId. Validate the authenticated account and admitted offer before
+reserving that namespace. Invalid or foreign requests cannot occupy it.
+
+Retain the original request bytes and complete prepared payload atomically before
+responding. Under that namespace, an identical request recovers the same
+preparation, grant, nonce, endpoints, digests and interval. Different valid bytes
+conflict, including an attempt to move the same request to another offer. A lost
+response must not generate another preparation or reset its deadline.
+
+An eligible retry may return a retained preparation as historical data after it
+has expired or become unusable. The caller still needs current management access
+for the same original owner, incarnation and family to recover it. Returning
+those bytes does not reactivate a link, reverse cancellation, prove current
+source authority or make the answer eligible for activation. A reset, family
+withdrawal or owner reassignment never gains fresh authority from a historical
+retry. If the original outcome is no longer inspectable, keep uncertainty rather
+than treating absence as proof that preparation never occurred.
+
 Bob signs those exact prepared bytes. `PUT /offers/{id}/answer` with `{proof}` atomically checks the same linked account/family, retained preparation, exact signature, all current authorities and intervals, then activates the request-bound grant and records the immutable answer. Creation returns 201, identical retry 200, different valid bytes 409. Invalid answers leave the slot and preparation available. A signed answer is evidence of a device response, not MLS key confirmation.
+
+Activation resolves the offer by the signed answer's original offer and dispatch
+digests as well as the path identifier. It consumes only its exact retained
+preparation. Concurrent preparations do not create multiple answer slots: the
+first valid committed answer wins under the destination's qualified offer
+namespace, and a different valid answer conflicts. Recheck current source
+inspection and local authority at activation; a previously prepared or signed
+answer cannot bypass a later cancellation, reset, expiry or identity hold.
 
 If Bob was offline and never prepared an answer, no answer is manufactured by his home service. Existing published setup can still enable first-message encryption; the connection grant is not an encryption prerequisite.
 

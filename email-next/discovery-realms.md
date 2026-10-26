@@ -220,9 +220,20 @@ Withdrawal payload has the following exact required members:
 | `notBefore` | Canonical uint64 Unix-seconds string. |
 | `notAfter` | Canonical uint64 Unix-seconds string. |
 
-Its purpose is `directory-withdrawal`. actor is `{kind:"device",device}` or `{kind:"registrar",registrar,key}`. Device is the unchanged original accepted device and signs mail/directory/withdrawal/v0; registrar is the admitted issuer of the original mailbox association and signs mail/directory/registrar-withdrawal/v0. Reasons withdrawn, account-reset, mailbox-reassigned or migrated. Both can retract this exact publication's positive use; neither can install another principal or withdraw a foreign registrar's proof. Generation advances1 from the exact directory head under CAS.
+Its purpose is `directory-withdrawal`. Actor is exactly one of:
 
-A registrar need not know every independently uploaded directory publication ID or its latest directory generation to retract its own assurance. The logical index POST `/association-withdrawals` has exactly `{profile,configurationDigest,association,source}`. association is base64 original complete registration publication; source its original signed registrar withdrawal wrapper. Verify the exact original registrar key/realm admission, association/publication/mailbox/predecessor rules and source signature.
+| Kind | Exact members and authority |
+| --- | --- |
+| `device` | `kind`, `device`. Device is the complete endpoint object `{principal,device,state,binding,key}`, not a bare device ID. Its principal/device/binding/key match the original directory publication; accepted identity ancestry must connect its claimed state to that unchanged device with the required authority. It signs `mail/directory/withdrawal/v0`. |
+| `registrar` | `kind`, `registrar`, `key`. Registrar is the exact admitted original association issuer origin; key is its exact originally admitted Ed25519 key, not a caller-selected trust anchor. It signs `mail/directory/registrar-withdrawal/v0` under the original-issuer retraction rules. |
+
+Reasons are exactly withdrawn, account-reset, mailbox-reassigned or migrated.
+Both actors can retract this publication's positive use; neither can install
+another principal or withdraw a foreign registrar's proof. Generation advances1
+from the exact directory head under CAS. The endpoint's state claim alone does
+not supply ancestry, current authority or a new correspondent pin.
+
+A registrar need not know every independently uploaded directory publication ID or its latest directory generation to retract its own assurance. The logical index POST `/association-withdrawals` has exactly `{profile,configurationDigest,association,source}`. Association and source are canonical padded base64 of, respectively, the complete original registration publication and complete original signed registrar withdrawal wrapper. Verify the exact original registrar key/realm admission, association/publication/mailbox/predecessor rules and source signature.
 
 Existing valid historical issuer authority may supply deny-only evidence even after expiry; it supplies no new positive identity/key authority. Derive all affected directory lineages from retained state, never from a caller mailbox list. Atomically retain the original source tombstone, association-level high-water/deny state and one global sequence before processing any later positive update. An original signed registrar safety stop does not need a device signature.
 
@@ -242,7 +253,17 @@ Source replay returns the original result; unequal authenticated same source gen
 
 Its purpose is `association-safety-committed`; index signature domain mail/directory/association-safety/v0. associationDigest hashes original attestation, sourceDigest original source withdrawal payload. This receipt asserts ordering only. Later snapshots include the original source proof in an association-withdrawn cell entry and exclude affected positives. It never fabricates a registrar-signed directory tombstone.
 
-Withdrawal evidence exactly `{kind:"withdrawal",association,source}`: association original complete registration publication bytes, source base64 original signed registrar mailbox-association-withdrawal or empty for a current device's own withdrawal. A registrar actor requires its actual source tombstone, exact association/mailbox/current generation, admitted original registrar key and source reason. If device private state is lost, registrar withdrawal can still stop its own assurance.
+Withdrawal evidence is exactly `{kind:"withdrawal",association,source}`.
+Association is canonical padded base64 of the complete original registration
+publication `{attestation,challenge,proof,identity,home}`, not an embedded object,
+attestation alone or parsed reserialization. Source is canonical padded base64 of
+the complete original signed registrar mailbox-association-withdrawal wrapper,
+or the empty string for a current device's own withdrawal. A registrar actor
+requires its actual source tombstone, exact association/mailbox/current
+generation, admitted original registrar key and source reason. If device private
+state is lost, registrar withdrawal can still stop its own assurance. The same
+association encoding applies to `/association-withdrawals` and its snapshot
+association-withdrawn entry; no alternate object spelling is inferred.
 
 Index also maintains association-level denial/high-water from that original source tombstone, so a copied old attestation cannot republish under a fresh directory ID. Directory withdrawal never rewrites the registrar's signed generation or resets contact pins.
 
@@ -266,9 +287,103 @@ Migration first creates an independently authorized destination registration/bun
 | `notBefore` | Canonical uint64 Unix-seconds string. |
 | `notAfter` | Canonical uint64 Unix-seconds string. |
 
-Its purpose is `directory-migration`; domain mail/directory/migration/v0. destinationDigest hashes original destination directory-publication payload. Evidence exactly `{kind:"migration",destination,associationMigration}`, destination original signed destination publication, associationMigration base64 complete original registration-owner migration result including its signed handover and source withdrawal. The submitted bundle is the original destination bundle; its bytes/digests and principal/device/home bindings are checked.
+Its purpose is `directory-migration`; domain `mail/directory/migration/v0`.
+DestinationDigest hashes the original destination directory-publication payload.
+Migration is a handover between services for the same accepted person, not
+permission to follow a URL or replace a known correspondent's identity.
 
-The index retains destination commit first, then CAS-marks the source lineage migrated with its exact handover evidence and one new sequence/receipt. Within one index this is transactional; different realm publication is not globally atomic and requires separately configured trust, not automatic following. Old home/grants/allocator packages never transfer. Lost response preserves both old uncertainty and destination evidence; retry original bytes only. Different principal is reassignment/continuity break, not migration.
+### Carry a complete service handover
+
+The handover retains both original setup bundles. The source bundle preserves
+the old association, identity and home evidence even after the old positive
+entry is replaced. The original destination bundle preserves what the device
+authorized, even after that destination later renews its publication. Neither
+historical bundle is a fresh claim that the corresponding service is ready now.
+
+::: {.details summary="Exact migration evidence and original-byte cross-bindings"}
+
+Evidence is exactly `{kind:"migration",destination,associationMigration}`.
+Destination is canonical padded base64 of the complete original signed
+destination directory-publication wrapper. AssociationMigration is canonical
+padded base64 of one original strict JSON object with exactly four members:
+
+| Member | Required value |
+| --- | --- |
+| `sourceBundle` | Canonical padded base64 of the complete original source directory-static-setup bundle. |
+| `destinationBundle` | Canonical padded base64 of the complete original destination directory-static-setup bundle. |
+| `result` | Canonical padded base64 of the complete original six-member registration-owner migration result JSON. |
+| `proof` | Canonical padded base64 of the complete original signed mailbox-association-migration proof wrapper. |
+
+These are four encoded original byte sequences, not embedded parsed objects.
+Result is the existing authenticated registrar response representation; it has
+no additional signature or invented handover member. Its original signed source
+withdrawal remains inside it. The separate proof supplies the original device
+signature. A result, digest or HTTP success by itself proves no handover.
+
+Use the following distinct bindings; a registration publication ID is not a
+directory publication ID:
+
+| Evidence | Required cross-check |
+| --- | --- |
+| Source directory predecessor | Its exact payload is the migration predecessor, with generation advanced1 under CAS. Its publication/mailbox and immutable principal/device/binding/key match the source migration. Its bundleDigest hashes the complete original sourceBundle. |
+| Source association | The sourceBundle's complete registration publication supplies the original attestation. Its payload digest equals the source directory predecessor's associationDigest, the migration's sourceAssociationDigest and the proof's sourceDigest. Its association/publication identify the proof's association/sourcePublication. |
+| Original destination | The signed destination wrapper's publication and payload digest equal destinationPublication/destinationDigest in the directory migration. Its bundleDigest and the migration's destinationBundleDigest both hash the complete original destinationBundle. The logical mutation's submitted bundle is byte-identical to that same destinationBundle. |
+| Destination association | The destinationBundle's original registrar attestation payload digest equals result.destinationDigest and proof.destinationDigest. The proof's destinationRegistrar/destinationAssociation match that attestation. Validate the original destination home, identity and device bindings through their owners. |
+| Registration result and proof | Their request IDs match; result.proofDigest hashes the complete original decoded proof payload, not its wrapper, container or reserialization. Independently validate the proof's original signature and unchanged source device authority. |
+| Source withdrawal | The result's complete original signed tombstone has reason migrated, the original source association/publication/mailbox/issuer/key, generation advanced1 from the source attestation and predecessor equal to its payload digest. Independently validate the original registrar signature and retained issuer authority. |
+
+Source and destination preserve the same canonical mailbox, accepted principal
+and device/binding/key; claimed state advances require accepted unchanged-device
+ancestry. A reassigned address, new key without its owning lifecycle proof or
+different principal is not this migration. Other current devices need their own
+registration/home and directory evidence; this handover cannot enroll them.
+
+The decoded handover container is bounded by maxMutationBytes; each decoded
+source/destination bundle by maxBundleBytes. Original result/proof/publication
+children also retain their independently admitted registrar/realm and local
+body limits. Check encoded lengths before decoding, then each decoded limit and
+maxDepth before building trees. Apply the strict duplicate/missing/unknown-member,
+UTF-8 and scalar rules at every layer. Original bytes and intervals never change
+to fit a smaller limit. The complete encoded mutation and cell must still fit
+their own bounds; two bundles do not create an exception or a spillover fetch.
+
+This explicitly defined container is not a migration result with hidden extra
+fields. A retained result alone, a result/proof-only object or an object missing
+either original bundle is incomplete and cannot authorize destination following.
+Do not guess another representation after validation fails.
+
+:::
+
+### Keep historical ownership separate from current destination setup
+
+Authenticate source signatures, issuer admission and original identity/home
+bindings as historical evidence through the exact retained configuration and
+identity owners. Carrying the source bundle avoids requiring the observer to
+have previously cached the old home descriptor. It does not admit an incoming
+descriptor by itself, mint a current registrar permission or revive an expired
+source home, key or setup assertion. Missing authenticated history remains
+pending. Known identity forks, revocations and continuity barriers keep their
+existing effects.
+
+For new migration preparation and index commitment, enforce the migration and
+registration proof's original current-authority/interval rules. A later snapshot
+retains their signed history and safety effect; it does not renew those intervals.
+An independently valid source withdrawal can stop old positive use even when
+the remaining handover or destination cannot be validated. Missing handover
+evidence is not permission to keep using a known withdrawn source.
+
+Before following the destination, independently validate its distinct active
+entry, current original bundle, index receipt, accepted current identity and
+service permissions at the actual current boundary. Its complete directory
+chain must contain the exact originally named destination payload and preserve
+the same immutable lineage and subject. A later valid successor may have a
+different bundle; that is why the handover retains the original separately.
+An embedded historical destination cannot replace a missing active entry,
+override its withdrawal or provide current setup on its own. Process all valid
+safety stops before choosing an active destination. No new principal is pinned
+merely because a registrar or index signed a migration-related record.
+
+The index retains destination commit first, then CAS-marks the source lineage migrated with its exact handover evidence and one new sequence/receipt. Within one index this is transactional; different realm publication is not globally atomic and requires separately configured trust, not automatic following. Old home/grants/allocator packages never transfer. Lost response preserves both old uncertainty and destination evidence; retry the complete original mutation bytes only. Different principal is reassignment/continuity break, not migration. Capacity refusal of this positive handover cannot erase an independently accepted source withdrawal; retain and process it through its safety owner even if destination following remains held.
 
 Snapshots retain per-mailbox complete current publication entries plus necessary directory predecessor chains and original proofs, within maxDevicesPerMailbox/maxPublicationHistory/maxCellBytes. A known client never accepts an active head across a missing required predecessor as if continuity were proved; full cell/history must provide its required original path. No unique follow-up GET obtains missing history.
 
@@ -291,3 +406,32 @@ The fixed public configuration bootstrap GET and signed acquisition metadata use
 No invalid proof can create an authoritative conflict or trigger verification mail. The logical role handlers described here are invoked only through [installation access](realm-access.md)'s deployed signed POST /operations; their direct anonymous HTTP forms are comparative/local-test mode, not additional advertised endpoints.
 
 Signature purposes/domains: realm-configuration → mail/realm/configuration/v0; directory-publication → mail/directory/publication/v0; directory-committed → mail/directory/committed/v0; withdrawal/migration as specified above. Configuration signs authority; registrar/device sign subject/setup; index signs ordering; checkpoint signs immutable dataset. None substitutes for the others. Their exact scopes and failure states remain distinct.
+
+## Verify a service handover
+
+Acceptance evidence must cover the complete owners and actual original records:
+
+- Reject a bare device ID where a withdrawal endpoint is required, substituted
+  endpoint/key/state claims and a registrar trying to retract another issuer.
+- Preserve the exact encoded association/source through the safety handler and
+  snapshot; retain the index receipt's existing wrapper-object representation.
+- Reject a result alone, a result/proof-only container, either missing bundle,
+  a reconstructed proof and changes to any original digest, subject or request.
+- Renew the destination after migration. Validate the original destination
+  bundle from the handover and its independently current successor separately;
+  reject a missing original target in the active chain or a withdrawn destination.
+- Expire the old home and rotate index configuration. Validate historical source
+  evidence only through retained authenticated history; never make it fresh
+  setup or use a caller-supplied descriptor/key as admission.
+- Process valid source withdrawal before positive selection even when migration
+  following fails. Preserve an existing correspondent pin across reassignment,
+  key/role barriers, concurrent updates and malformed competing evidence.
+- Interrupt before and after destination/source index commitment and reopen.
+  Recover the original complete mutation/result without another sequence,
+  fabricated cross-service atomicity or renewal of original deadlines.
+- Exceed encoded, decoded, depth and complete-cell limits without truncating
+  handover evidence, fetching a spillover URL or reviving a known withdrawn source.
+
+A parser, supplied-key signature check or generated source ledger is not these
+joined acceptance results. Record exact tested sources, actual transports and
+unsupported paths separately from independent implementation interoperability.

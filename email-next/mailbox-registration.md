@@ -457,6 +457,22 @@ The record has exactly these required members; the surrounding rules define thei
 | `sourceWithdrawal` | Original signed outgoing withdrawal wrapper. |
 | `destinationDigest` | SHA256 of the exact original destination attestation payload. |
 
+The migration result is one bare strict JSON object with these six members, not
+a `{payload,signature}` wrapper. No separate migration-result signature domain is
+selected. SourceWithdrawal is the original signed tombstone object, retaining
+its original signed payload and signature; it is not replaced by a digest or
+status boolean. The registrar's authenticated response alone does not make a
+copied result public proof of completion. A recipient independently validates
+the original device migration proof, original source withdrawal and complete
+source/destination evidence through their owners.
+
+The [directory handover container](discovery-realms.md#carry-a-complete-service-handover)
+defines how that existing result, its original signed device proof and both
+original static bundles travel together. It does not add proof or bundle members
+to this result. A stored proofDigest cannot reconstruct the missing signed
+proof. Management inspection returns the same retained result; the client must
+retain its original proof and destination evidence separately for publication.
+
 ### Migration proof members
 
 The record has exactly these required members; the surrounding rules define their values and bindings. No member may be omitted or added.

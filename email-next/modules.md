@@ -16,6 +16,33 @@ The **Conversations** base covers the [client conversation behavior](client-beha
 
 Optional modules have complete dependencies. A client implementing encryption must implement its identity, device, storage, cryptographic and protected-message rules; a provider carrying ciphertext need not hold decryption keys. Optionality is permission to omit a module, not to implement half its safety boundary and claim it.
 
+## Existing standards and experimental designs
+
+Email/2 is an experimental protocol suite. It reuses existing standards, but the new rules connecting them are not established Internet standards. Read a module's origin separately from its implementation status.
+
+| Origin | Meaning |
+| --- | --- |
+| Existing standard | Behavior taken from a named published standard. Cite the exact version and sections used, including any restrictions. |
+| Email/2 extension | A new format, exchange or binding defined here, including a new combination of existing protocols. It remains experimental even when its cryptographic components are standardized. |
+| Research | A proposed mechanism whose interoperable contract is not yet settled. It cannot serve as an implemented module's required mechanism until that contract is defined. |
+
+The [protocol baseline](baseline.md#protocol-suite) identifies the incorporated standards. The distinction applies within modules as well as between them:
+
+| Area | Existing foundations | What Email/2 adds |
+| --- | --- | --- |
+| Mail carriage | SMTP, Internet message format and MIME | Protected packet carriage, setup carriers and their processing rules. Ordinary mail delivery retains its existing contract. |
+| Conversations and presentation | Existing message identifiers, reply headers, HTML, CSS and HTML Microdata | Exact contribution and reply relationships, authored/quoted chunk bindings, the finite rendering profile and conversation behavior. |
+| Encryption and setup | MLS and the cryptographic standards selected by the protected profile | Mailbox/device authority, setup acquisition, application bindings, asynchronous delivery and lifecycle rules. Standard MLS does not by itself define these exchanges. |
+| Private addressing | Existing email addressing and the selected authentication and cryptographic mechanisms | Relay authorization, temporary route lifetimes, protected personal addresses and address swapping. |
+| Interactions and deletion | Existing MIME, HTTPS and selected signature/encryption mechanisms | Structured answers, service-action authorization and retry semantics, reactions, corrections and silent deletion requests. |
+| Backup and recovery | Selected cryptographic and serialization standards | Archive formats, completeness checks and the separation of historical recovery from live device authority. |
+
+These Email/2 additions are **Email/2 extensions**, not existing standards merely because they use standard components. Unsettled choices in [cooperating services and live connections](service-federation.md) and the [design inventory](design-resolution.md) remain **Research** where their exact bindings are still open. Classify the specific mechanism; a module can contain both a defined extension and an unresolved research path.
+
+Implementation evidence is a separate record: **planned**, **implemented**, **tested**, or **externally reviewed**, with the actor role, source revision, scope and limits stated. These descriptions can coexist; external review is not a substitute for tests, and one component test does not establish complete module support. A claim of testing links to the actual evidence. A claim of external review identifies what was reviewed and by whom. Neither changes the protocol's origin or implies standards adoption.
+
+These are documentation labels, not additional wire capabilities or message-security indicators. Use them in architecture references, SDK module documentation and implementation reports; ordinary conversation views retain the concise protection indicators below.
+
 ## Modules and responsibilities
 
 These are short human-facing names. The owning contracts define machine encodings and requirements; these labels are not newly registered protocol tokens.

@@ -20,6 +20,8 @@ For implementation, start with the [current protected client baseline](suite-pro
 
 **Independent discussion draft.** Parts of the design have local implementations and tests; the complete system is not yet implemented or independently evaluated. A future standards venue has not been selected. The name is a proposed platform name, not an official version number assigned to Internet email.
 
+The [module guide distinguishes existing standards from experimental Email/2 extensions and unresolved research](modules.md#existing-standards-and-experimental-designs). Implementation and testing status are recorded separately.
+
 The main reading path explains the experience. The architecture chapters define the exact requirements an implementer must follow. Expandable sections contain wire formats, algorithms and compatibility details; those requirements still apply when their disclosure is closed.
 
 ## How the conversation works

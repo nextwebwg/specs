@@ -58,6 +58,25 @@ A known frontier is the sorted set of maximal proof-valid tips belonging to that
 
 Fetch bounded missing public evidence through already selected channels before installation, then revalidate the complete known frontier under the local serialization boundary. Do not hold a database write lock during remote retrieval. A later valid branch absent from a repaired history reopens the affected conflict; no certificate proves global absence. A new repair must cover the new maximal frontier. Proof-valid descendants can be retained and checked while operational authority is paused, but only the restricted cleanup below or complete repair can advance reconciliation. They cannot release human content, authorize groups or issue ordinary grants while conflicted.
 
+### Preserve safety when storage is full {#identity-safety-on-resource-failure}
+
+Running out of space cannot make a known revoked device or conflicting identity
+usable again.
+
+Once the owning validator establishes a valid fork, revocation or continuity
+barrier for an already known identity, failure to persist the complete update
+MUST leave affected operations held, including after restart. It MUST NOT restore
+permission from the older local state. Retain the original authenticated evidence
+or a protected local recovery record that prevents that unsafe reuse until the
+evidence can be reconciled. Such recovery records are local storage, not a new
+wire format; they cannot renew signatures, roles or validity intervals.
+
+Malformed input and unverified claims MUST NOT create this safety hold. A limit
+reached before validation establishes the safety change is incomplete processing,
+not evidence that the identity was revoked or conflicted. Local processing and
+storage limits remain adjustable; silently dropping validated safety evidence is
+not a way to meet them.
+
 ### One deterministic repair candidate
 
 A repair has at least two parents. The parent records are original exact bytes, not reconstructed branch summaries. Let `P` be their sorted digests, and `S` be U32 big-endian parent count followed by each raw32-octet digest. Its revision is one plus the maximum parent revision; overflow holds repair. Its issuedAt is the maximum parent issuedAt, not a fresh signing-time or presence claim.

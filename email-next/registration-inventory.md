@@ -68,7 +68,7 @@ These are draft templates under the [media-registration rules](audits/media-regi
 
 These names remain documented for reproduction, not proposed for filing in this current bundle. They are not aliases for the current candidates listed above. Current sealed-control transport does not activate a clear old fixture after decryption/parse failure. The example-only `application/vnd.example+json` in negative tests is not an Email/2 proposal.
 
-Existing `application/json`, `application/octet-stream`, MIME multipart/text/image types and registered `message/mls` retain their own semantics. An octet-stream fixture is not automatically `message/mls`, and sealed-control is not an MLS wire-format registration.
+Existing `application/json`, `application/octet-stream` and MIME multipart/text/image types retain their own semantics. The [ordinary-mail application binding](application-carriage.md) selects existing `application/octet-stream` with MIME base64 for its exact MLS payload; it proposes no new media type. The registered [message/mls](https://www.iana.org/assignments/media-types/message/mls) retains its binary-object and embedded-version semantics, but this baseline does not assert permission to use it with email base64. An octet-stream part alone is not an MLS or route admission, and sealed-control is not an MLS wire-format registration.
 
 ::::
 

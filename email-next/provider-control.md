@@ -17,7 +17,7 @@ This experimental profile carries a signed challenge and one signed device respo
 
 The profile transports discovery evidence, not message content. The initiator must independently validate the returned advertisement and any MLS admission material, then follow the security profile. A successful HTTP exchange is never key confirmation.
 
-The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [provider control2](#obtain-asynchronous-device-evidence) when this capability is offered. Current exchanges retain their original required agreement and assertion10. Retained version0/1 records remain exact; no old response is relabeled and no complete implementation follows from these bindings.
+The selected opaque application carrier uses [provider control3](#obtain-complete-mail-receiving-evidence) when this capability is offered. It returns complete signed receiving support as well as assertion10. Control0/1/2 retain their original evidence and historical carriage scope; they cannot answer a version3 attempt or prove the new carrier. Complete joined implementation and acceptance remain required.
 
 ## Configuration and participant credentials
 
@@ -274,5 +274,25 @@ HTTP routes/methods and bounded no-store representations retain their exact cont
 Current token/account/family/grant/device/role checks and serialized revocation apply to each operation. Target-head change cannot be answered as the old head; independently obtain current evidence and authorize any required new pair. Version does not reset request/conflict namespaces, source blocks, limits, deadlines, restored-store holds or uncertain results. An exact response retry returns its retained bytes, not a new package or fresh timestamp.
 
 Pass accepted evidence to the [per-delivery handoff](first-contact-setup.md#acquisition-for-independently-ready-deliveries). The result does not bind an unresolved invitation slot, alter the authored audience, install native membership, satisfy human verification or release content. Other pending exchanges do not block an independently eligible delivery under the selected progression policy.
+
+:::
+
+## Obtain complete mail receiving evidence
+
+The provider3 exchange returns the target device's original native setup and its signed promise to receive the selected attachment format. This can refresh an existing group or prepare a first delivery through an already authorized pair. The provider carries the proof; it cannot invent it.
+
+::: {.details summary="Exact control3 configuration, response and retries"}
+
+Select profile `mail-provider-control-v3` through [descriptor3](provider-discovery.md#discover-complete-mail-receiving-support) or independently trusted exact configuration. Configuration has exactly control2's inventory, with profile3 and agreement `mail-conversation-v2`. Preserve all current service/prefix/account/grant, endpoint/state/binding, role/operation, safe JSON integer time, interval and processing bounds.
+
+Challenge has exactly control2's inventory, replacing its profile literal by3. Device-evidence response has exactly control2's inventory with profile3 and its member advertisement replaced by **receiving**. Receiving is canonical padded base64 of the complete original [receiving-bundle0](application-carriage.md#complete-receiving-bundle). No old advertisement field, optional companion, extension bag or bare supported boolean is admitted. Both signed payloads use domain `mail/provider-control/v3`, NUL, U32BE original payload length and original bytes. Wrappers remain exactly payload/signature.
+
+The current Receive-authorized response signer, requested target state/binding and bundle's actual assertion signer are the same independently authenticated device. The offer signer resolves to that same device/binding through its independently accepted original ancestry. Validate the offer, actual assertion and any exact offline join separately. Their canonical mailbox/account, complete chosen application and original control/package promises must fit the retained configuration and request. No field equality substitutes for current association or authority.
+
+Keep requestHash, nonce, exact request/route ID, purpose, grant/role and original credible intervals. Response validity cannot exceed any applicable request, offer, assertion, device or package publication bound. A new response cannot refresh its embedded offer or receiving deadline. A package-free response may refresh capabilities; native admission still needs its real independently eligible package/allocation.
+
+HTTP methods/routes, bounded no-store exchange/configuration representations and unsigned wrapper inventories are unchanged apart from the selected profile. The original signed response commits complete receiving bytes; retained-result retry returns that exact result. All current account/family/device/grant checks, restored-store holds, source blocks, cancellation/conflict namespaces and uncertainty span versions. Target-head change requires independently obtained current evidence and any required fresh pair authorization; no response signs the old head as current.
+
+Keep personal proofs in this existing authenticated private exchange transport and account-owned custody. Do not add a public mailbox-to-offer store or address-specific uncredentialed endpoint. Pass complete original evidence to the [carrier handoff](first-contact-setup.md#finish-acquisition-for-the-opaque-carrier); HTTP success supplies no membership, verification or content release.
 
 :::

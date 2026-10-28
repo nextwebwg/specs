@@ -7,7 +7,7 @@ sectionNav: true
 
 # Private snapshot lookup
 
-**Proposed bounded reference binding: `mail-private-snapshot-v0`.** This construction works on ordinary hardware. The evaluator sees a blinded element rather than the selected email address. Every querier downloads the same entire encrypted snapshot for its epoch, so no later setup request identifies the matching row. The decrypted row carries the complete bounded original setup and lifecycle evidence.
+The retained `mail-private-snapshot-v0` reference and its [carrier-aware schema successor](#private-acquisition-with-carrier-support) work on ordinary hardware. The evaluator sees a blinded element rather than the selected email address. Every querier downloads the same entire encrypted snapshot for its epoch, so no later setup request identifies the matching row. The decrypted row carries complete bounded original setup and lifecycle evidence, including the signed carrier promise under version1.
 
 The cost is linear bandwidth and rebuild work. The authoritative registrar/index sees enrollment publications, and theft of the encrypted snapshot together with the evaluator secret permits offline guessing and decryption of guessed entries. This construction does not meet a combined-operator-compromise objective or prove malicious-index completeness. It must not be marketed as a general production scalability or anonymity solution.
 
@@ -194,3 +194,23 @@ Stop/delete transient state when its attempt ends. Typing/presence/recipient inb
 | Authorized querier | Can query guessed selected inputs and learns returned setup; this protocol does not cryptographically stop chosen-address enumeration. Admission/metering/abuse limits add cost with stated privacy tradeoffs. |
 
 One selected recipient may be queried automatically under enabled account policy; no whole-contact-list upload or realm crawl is part of this profile. The reference avoids specialized hardware and target-specific retrieval, but bandwidth, operator knowledge, traffic analysis, access-token linkability and unavailable/latest-proof limits remain explicit. Production scaling, combined-compromise privacy and stronger consistency need separate maintained constructions and measured evidence; this bounded reference does not discharge those full-goal requirements.
+
+## Private acquisition with carrier support
+
+A private lookup can return the complete receiving proof before any human email is sent. The client still downloads the same encrypted snapshot as other clients and privately evaluates only the selected address. It does not follow a public address-specific link to obtain a separate support record.
+
+::: {.details summary="Exact snapshot1 schema selection and unchanged cryptography"}
+
+Select profile `mail-private-snapshot-v1` with the exact currently authorized realm1 configuration. Context, checkpoint, cell and request/result records retain snapshot0's complete inventories/types with this profile literal. Positive cell entries carry complete original realm1 static-setup receiving bundles and their original chain/receipts. Tagged entry inventories and all original registration, identity, receipt, migration, association-withdrawal and safety validation remain; historical0 ancestry is explicitly validated under its own grammar/domain as [realm1 requires](discovery-realms.md#publish-private-setup-with-carrier-support). A version0 cell is not silently decoded as1.
+
+Checkpoint signature domain is `mail/realm/checkpoint/v1`, with unchanged original-byte framing. Its context commits profile1, exact current configuration and all original geometry/epoch/indexSequence/interval values. Full original contextDigest still enters the lookup, key derivation and row AAD. A malicious clear profile string or valid old signature cannot substitute for that authenticated context.
+
+The binary/crypto construction remains unchanged: MAILSNAP0 file framing, maintained RFC9497 VOPRF suite, lookup input domain `mail/realm/lookup/v0`, HKDF tag/key domains `mail/realm/entry-tag/v0` and `mail/realm/entry-aead-key/v0`, AEAD and nonce/AAD/row length rules. Those0 names identify the unchanged construction, not permission to parse a0 semantic bundle as1. All context/profile/configuration commitments and bounded work checks apply before effects. No new cryptographic primitive, algorithm or trust assumption is introduced.
+
+A transition reserves a fresh global epoch and actual key/context/file under the original CAS owner; it does not rebuild an existing epoch. A version1 checkpoint may name the exact original0 successful predecessor only under the authenticated same-realm configuration history and shared high-water rules. Verify each predecessor with its original profile/domain/context. Epoch and indexSequence never reset or decrease; failed reservations still consume IDs, equal epoch unequal bytes conflicts, and known safety facts cannot disappear through version change.
+
+The entire personal receiving bundle remains inside the existing encrypted padded cell. No plaintext support map, additional address query, mailbox hash, secondary per-address fetch or callback is added. Existing installation resource scopes and realm-access-v0 authority are unchanged; they authenticate resource use, not address ownership or device capabilities. Keep the actual operator/index knowledge and evaluator-secret/snapshot compromise limits stated above.
+
+After checking the complete original static bundle/current identity, call the actual allocator0 under its original request/current-authority rules. Verify the exact request, signed publication/result, original publicationBundle, static assertion payload digest and native package reference through the [complete offline join](application-carriage.md#join-an-offline-package-with-its-support-proof). Missing proof, capacity exhaustion, depletion or unavailable original history leaves this path unknown/incomplete; it cannot generate a package, publish clear data or authorize another send mode.
+
+:::

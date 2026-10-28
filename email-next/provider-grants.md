@@ -15,7 +15,7 @@ A provider account can authorize a queue without becoming the authority for a pe
 > [!note] Retained version0 grant profile
 > `email2-provider-grants-v0` defines account/device linking and issuance for the existing `en-provider-control-0` pair queue. The identifiers and scope strings are draft names. The [discovery profile](provider-discovery.md) supplies domain delegation, native registration and browser authorization. This contract assumes the peer devices are already identified; the [first-contact flow](first-contact-setup.md) uses its own [bootstrap authority](bootstrap.md) before a known-pair permission can be selected. That binding is defined; its complete joined implementation remains unproven. Local approval/credential validation is not a deployed OAuth or grant service.
 
-The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [provider grants2](#authorize-asynchronous-pair-exchanges) when this capability is offered. Retained version0/1 records remain exact. Changing profile does not reset account/family blocks, revocation, replay, budgets or package allocation; these bindings do not establish a complete implementation.
+The selected opaque application carrier uses [provider grants3](#authorize-complete-receiving-exchanges) when this capability is offered. Retained grant0/1/2 records remain exact. Changing profile does not reset account/family blocks, revocation, replay, budgets or package allocation; these bindings do not establish a complete implementation.
 
 ## Connect the account and its device
 
@@ -386,5 +386,28 @@ An already accepted active queue account/family/device link may support a new gr
 Grant0/1/2 share the queue module's authoritative account, family/incarnation, reset/link, request/conflict and revocation state. Reset/unlink/family retirement serialize against old and new queue operations together. They do not acquire new namespaces or fresh budgets from a protocol label. A consumed or uncertain request remains so, including after restore. A freshly authorized grant can follow an independently eligible remembered approval policy, but no service can invent consent or replace the exact approved configuration.
 
 Relay and automatic-setup account links keep their separately selected shared-link subset and module-local lookup/reset authority. A bootstrap descriptor2 digest fits that existing generic digest field without changing the subset's literal profile or proof domains. Grant2 neither migrates those modules nor adds scopes. The [connection table](#shared-account-links-separate-module-authority) distinguishes the selected queue profile from those shared subsets.
+
+:::
+
+## Authorize complete receiving exchanges
+
+Grant3 authorizes the exact provider pair/configuration that carries the new receiving bundle. It preserves the account's existing device and revocation authority. Upgrading a protocol does not require disconnecting a healthy account or restore a revoked one.
+
+::: {.details summary="Exact grant3 records and shared conflict namespaces"}
+
+Select `mail-provider-grants-v3` through [descriptor3](provider-discovery.md#discover-complete-mail-receiving-support). Every grant2 request, challenge, completion, result, reset, pair-preparation/approval/invitation and role-credential record keeps its exact member inventory/types, substituting profile3 wherever its owning schema has profile. Embedded configurations must be complete [control3](provider-control.md#obtain-complete-mail-receiving-evidence) with agreement mail-conversation-v2.
+
+| Signed purpose | Domain |
+| --- | --- |
+| Account-link proof | `mail/provider-account-link/v3` |
+| Pair approval | `mail/provider-pair-approval/v3` |
+| Role request | `mail/provider-role-request/v3` |
+| Role-credential proof | `mail/provider-role-credential/v3` |
+
+Use unchanged NUL/U32BE/original-byte framing and complete purpose/account/family/link/device/key/nonce/time checks. Link proof commits exact descriptor3 bytes; approval commits the complete original control3 configuration and independently current participant evidence. A string change cannot turn old approval/token into this authority. Fresh request/role IDs and operation separation remain required.
+
+Account/family/incarnation, reset/link, source blocks, request/conflict, revocation and uncertainty state are shared across grant0/1/2/3. A currently eligible accepted same-service/account/device link may authorize a fresh grant3 preparation under the owning remembered-approval policy. Its original historical proof stays unchanged. Missing/replaced origin, account, family, key or authority follows the original reconnect/reset/enrollment rules. Descriptor/configuration refresh still requires current delegation and exact role/device checks.
+
+Relay/bootstrap shared-link subsets keep their original profiles, proofs, role lookup/reset authority and scopes. Their generic descriptor-digest field can bind original bootstrap descriptor3 without relabeling the link. No new capability proof enrolls a device, transfers another module's credential or grants permission to publish address-bearing information.
 
 :::

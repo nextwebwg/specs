@@ -460,3 +460,19 @@ The [control container](suite-profile.md#confidential-setup-and-control) separat
 ## Administrative repair and terminal authority
 
 The [selected state1 lifecycle](identity-state.md#concurrent-administration-and-retirement) adds deterministic revocation-preserving repair, same-key restrictive replacement, complete shared-administrator proofs, branch-only cleanup and explicit retirement. Binding0 and MLS credential bytes remain their existing formats. The repair is a fresh-authorization boundary: single-parent continuity cannot carry earlier grants or setup permissions across it. Administrative proof circulation has its narrowly scoped sealed-control purpose; it cannot authorize human content or group membership. Current component codecs/stores do not implement the complete state1 lifecycle, which remains required before a full current-suite claim.
+
+## Bind software support to the actual receiving device
+
+A valid MLS key says nothing about the email attachment formats its software understands. The selected application carrier therefore requires a [separately signed device promise](application-carriage.md#device-receiving-promise) and exact original receiving bundle. The service transports evidence; it cannot assert support for someone else's device.
+
+::: {.details summary="Authority, custody and separate publication/receiving checks"}
+
+Resolve the offer signer and actual package-bearing assertion signer to the same independently authenticated device/binding and current Receive authority. Preserve distinct original records and accepted identity ancestry. The [offline join](application-carriage.md#join-an-offline-package-with-its-support-proof) additionally requires original static installation, publication, allocation request/result and actual package references; matching fields or valid signatures in isolation cannot join them.
+
+New preparation and each final release require eligible publication intervals, credible time and current identity/account/association/route/disclosure checks. A retained receiving promise through receiveUntil is a different obligation: it preserves a decoder and applicable custody for already prepared data under its own lifecycle. It does not keep a retired identity, expired native package, revoked role or withdrawn key alive. Apply each independent native/control-key bound and preserve failures without inventing historical creation time.
+
+The optional sealed3 promise applies only to the exact original assertion10 controlKey and [mailbox3 response profile](suite-profile.md#complete-application-carrier-selection). Its offer publication fits that key's publication, and receiveUntil does not exceed the original key's receiveUntil. Old sealed2 support is not sealed3 support; native application support is neither. Published promises must be durably issued with real custody before exposure.
+
+Personal-address-bearing proof stays inside the chosen private/protected payload when masking is required. No public address hash, plaintext support registry or extra outer attachment is selected. Existing authoritative directory enrollment knowledge and private-snapshot compromise limits remain explicit; the new signature does not strengthen them.
+
+:::

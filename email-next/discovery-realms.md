@@ -9,7 +9,7 @@ sectionNav: true
 
 A **realm** is a shared directory that helps an app find someone's chosen Email/2 service before sending a message. Alice and Bob can keep their existing mailboxes and use different companion services. Their apps need a realm they already know how to trust; an email address alone cannot reveal an independent companion.
 
-This chapter proposes `mail-realm-v0`, a bounded reference binding within the Email/2 draft. It defines directory configuration, publication and withdrawal. [Private snapshot lookup](private-snapshot.md) defines acquisition, and [installation access](realm-access.md) defines background admission to the services. These new records do not add fields to existing provider, registrar or rendezvous descriptors.
+This chapter defines the retained mail-realm-v0 reference and its [carrier-aware successor mail-realm-v1](#publish-private-setup-with-carrier-support). Both use [private snapshot lookup](private-snapshot.md) and [installation access](realm-access.md) for their separately selected acquisition and service admission. The successor carries signed device support for the mail format inside the private payload; it does not widen existing provider, registrar or rendezvous descriptors.
 
 ## What happens for Alice and Bob
 
@@ -435,3 +435,34 @@ Acceptance evidence must cover the complete owners and actual original records:
 A parser, supplied-key signature check or generated source ledger is not these
 joined acceptance results. Record exact tested sources, actual transports and
 unsupported paths separately from independent implementation interoperability.
+
+## Publish private setup with carrier support
+
+Realm1 publishes complete native setup and the device's signed mail-format promise together. It keeps those personal proofs inside the same private lookup construction. The directory cannot manufacture decoder support, and its authoritative enrollment database does not become confidential merely because public snapshot rows are encrypted.
+
+::: {.details summary="Exact realm1 static bundle, signatures and shared history"}
+
+Profile is `mail-realm-v1`. Every realm0-owned configuration, publication, withdrawal, migration, commit receipt, association-safety receipt and route-specific unsigned operation retains its exact member inventory/types, replacing its owning profile literal by1. Its strict static-setup bundle has the same six members: profile, purpose, association, identity, assertions, services. Profile is mail-realm-v1; purpose remains directory-static-setup. **Assertions now contains complete original receiving-bundle0 bytes**, canonical base64 and uniquely sorted by the actual advertisement's original payload digest, rather than bare assertion wrappers.
+
+Every bundle is static: the actual assertion10 and its offer's embedded assertion are byte-identical, package-free and have null keyPackageReceiveUntil. Check both independent signatures, original registration/association, exact authenticated device/binding/current Receive authority and continuous accepted ancestry, mailbox/account and original application/control promises. Do not remove a package from an old signed wrapper or substitute another device's offer. Whole directory publication interval fits all original positive dependencies, including every carriage offer. Services/association/identity retain their original exact schemas and role authority.
+
+| Realm-owned purpose | Selected signature domain |
+| --- | --- |
+| Configuration | `mail/realm/configuration/v1` |
+| Publication | `mail/directory/publication/v1` |
+| Device withdrawal | `mail/directory/withdrawal/v1` |
+| Migration | `mail/directory/migration/v1` |
+| Commit receipt | `mail/directory/committed/v1` |
+| Association-safety receipt | `mail/directory/association-safety/v1` |
+
+Use unchanged original-byte Ed25519 framing. Independent original registrar registration/withdrawal, service home, installation admission and allocation proofs keep their own original domains; no string replacement turns an issuer's old proof into a new signature. In particular, registrar withdrawal still uses its original issuer contract and denies its original assurance across affected0/1 lineages.
+
+The original configured root authority must authorize the exact version1 configuration as a normal successor with generation+1 and exact previous configuration digest. Historical0 configurations/records/receipts and safety ancestry are validated under their own explicit grammar/domain, never relabeled. A first-ever version1 installation requires its actual own trusted bootstrap pin; incoming metadata cannot install one.
+
+A publication1 may continue a known0 lineage only when original realm/publication/mailbox/principal/device/binding/key remain identical, its generation advances exactly1 and predecessor names the original retained terminal publication payload. It uses independently eligible current registration and complete new bundle; old native support alone supplies no proof. Shared global indexSequence, generation/conflict, withdrawals, migration and negative facts are never reset by profile. A new schema cannot revive a known withdrawn association or erase uncertain mutation responsibility.
+
+Mutation and complete bundle remain inside the existing authenticated own-installation operation and confidential transport. The index validates originals before committing its actual ordering receipt. Public mirrors receive only the [encrypted full snapshot1](private-snapshot.md#private-acquisition-with-carrier-support); no new plaintext mailbox table, public digest or address-specific proof fetch is introduced. Registration and authoritative-index enrollment knowledge remain their explicitly stated limits.
+
+After private acquisition, obtain an actual package through the unchanged allocator0 owner and perform the [exact static/publication/result join](application-carriage.md#join-an-offline-package-with-its-support-proof). A static bundle or directory receipt alone is neither a one-use package, fresh device response nor content-release permission. Existing registrar/service prerequisites and complete joined implementation/acceptance obligations remain required.
+
+:::

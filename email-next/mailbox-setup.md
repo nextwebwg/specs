@@ -16,7 +16,7 @@ Two compatible clients can arrange encryption through their existing mailboxes b
 
 The original optional carrier `mailbox-setup-v0` and its [reply-aware version1 binding](#set-up-the-declared-reply-policy) are part of the same Email/2 specification. Encryption clients SHOULD implement the carrier version required by each protected agreement they advertise, alongside passive discovery; enabling automatic requests and enabling responses are separate, visible, revocable local policies. Provider-assisted [automatic setup](bootstrap.md) remains preferable when available because it avoids mailbox control traffic and supports separately authorized offline publication. Ordinary mailbox setup needs no new server operation, but depends on usable submission, retrieval and trustworthy receive authentication evidence.
 
-The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [mailbox-setup-v2](#set-up-an-asynchronous-delivery) when this capability is offered. Version0/1 records remain exact for earlier agreements; they cannot complete a version2 attempt. Current setup retains original assertion10, its pending request and independent receiving authority; these bindings do not establish a complete implementation.
+The selected opaque application carrier uses [mailbox-setup-v3](#set-up-the-opaque-application-carrier) when this capability is offered. It binds original assertion10 and signed carrier support to the exact pending attempt. Setup0/1/2 retain their original meanings and cannot complete a version3 attempt. Automatic setup and actual joined implementation remain separate policy and acceptance obligations.
 
 ## Choose an allowed path
 
@@ -217,5 +217,33 @@ Keep principal/device/request and responding-device outcome namespaces shared ac
 A valid response can qualify for [live confirmation](freshness.md#freshness-for-asynchronous-deliveries) only for its exact retained attempt, current target head/binding and original age window. Ordinary receipt, offline publication and another device's response cannot do so. Retire attempt-only secrets under their existing schedule; their continued custody is not a substitute for a separate creator receiving assertion10.
 
 Pass each qualified original assertion to the [per-delivery handoff](first-contact-setup.md#acquisition-for-independently-ready-deliveries). Required reply/private/no-replies semantics remain frozen in the authored record; capability discovery cannot change them. Actual native admission uses context10/initial10/roster7/established10 and the selected owning controls/carrier. Missing invitees remain pending rather than joining a fictitious native roster or blocking an otherwise eligible delivery.
+
+:::
+
+## Set up the opaque application carrier
+
+When ordinary-mail setup is independently enabled, a content-free request can obtain the device's complete receiving bundle before releasing the human message. Its automatic response is encrypted. Legacy clients may show the request notice; this protocol cannot make it invisible or assume that every recipient allows automatic setup.
+
+::: {.details summary="Exact setup3 request, response and pending attempt"}
+
+Select mailbox-setup-v3 before allocating the immutable local attempt. Its strict wrapper is exactly `{payload,signature,receiving}`. Receiving is canonical padded base64 of the complete original receiving-bundle0. The request payload has exactly setup2's ten members with version3 and member **assertion** replaced by **receiving**. In that payload, receiving is SHA256 of the complete original bundle bytes, not the wrapper, nested advertisement or reserialization. The response additionally has original requestDigest, unchanged in meaning. Agreement remains mail-conversation-v2.
+
+All other original purpose, source/target canonical address, request ObjectId, nonce, credible interval, byte/depth and commitment rules remain. Sign original request/response payload with `mail/setup-request/v3` or `mail/setup-response/v3`, NUL, U32BE original length and original bytes. Validate each embedded original device signature and its exact current authority independently. Missing/unknown/duplicate/null/wrongly typed fields fail without activating an earlier attempt.
+
+The initiating actual assertion10 is attempt-only: empty package, null package receiving deadline and fresh dedicated control key with the original request deadline. Its offer references that same original assertion and explicitly promises sealed-control-v3 for the key, with durable custody before request exposure. It is not ongoing creator receiving evidence or permission to import a package/native group. The responding bundle has actual eligible native admission material, its independent control key and a genuine carrier offer. Native handoff separately obtains the creator's ordinary complete receiving bundle.
+
+Keep request MIME type/placement/notice/filename, singleton headers, SMTP envelope, exact-domain/full-body DKIM/direct-delivery authentication and bounded opt-in/abuse policy unchanged. Version/purpose selects3 before full validation; type/filename alone cannot request a response. Preserve the original maximum request interval and shorter authority/custody bounds. Another retry/path/version cannot extend it or restart a block/consumed allocation.
+
+:::
+
+::: {.details summary="Sealed3 response, privacy and loop prevention"}
+
+Encrypt the complete original setup3 response wrapper through [sealed-control-v3](suite-profile.md#complete-application-carrier-selection), only kind mailbox-setup-response. All other control kinds retain their separately selected original versions. Actual sender is the response's authenticated current Receive-authorized device; recipient/key are exactly the initiating bundle/offer and its locally retained pending attempt. Require its explicit sealed3 promise and all original publication/receiving intervals before preparing/releasing a response.
+
+At receipt, first validate complete selected sealed3 framing and retained own key/promise, then authenticate/decrypt under the existing HPKE owner. Validate the exact response/pending request, requestDigest, request/nonce, source/target, agreement, bundle digest, original signer and current identity/account association. A provider boolean, DKIM result or AEAD success cannot create an outstanding attempt. Failed3 never tries2/1/0 or installs another selected source.
+
+Use unchanged automatic response headers, null reverse-path, generic subject, exact intended destination and no extra recipients. Original request Message-ID remains explanatory In-Reply-To only. No human writing, authored digest, group roster or clear support proof accompanies the sealed response. A response never causes another response; invalid requests do not erase previous identity or valid pending work.
+
+This request still exposes the personal addressing/setup metadata its actual ordinary carrier contains. Required Identity Protection or an opaque route can make it unsuitable; hold and use an independently permitted private path. Never add a real-address-bearing sibling to a masked opaque copy. Retire attempt-only secrets under their original schedule; expiry, cancellation, consumed/unknown results and restored-store holds keep their owning semantics.
 
 :::

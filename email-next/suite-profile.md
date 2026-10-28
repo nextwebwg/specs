@@ -17,6 +17,8 @@ This is the current selection within one unpublished Email/2 specification, not 
 
 An Encryption claim requires the complete asynchronous agreement below, not a parser, tuple name or older experiment. It uses the same MLS protocol and cipher suite as the earlier agreements; this selection defines the conversation behavior, not another encryption-strength level or edition of Email/2.
 
+The selected ordinary-mail carrier additionally requires each actual device's [authenticated receiving bundle](application-carriage.md#obtain-authenticated-carrier-support). Assertion10 and context10 still define the unchanged inner application; neither alone proves support for its outer attachment. New acquisition uses the [complete carrier selection](#complete-application-carrier-selection) below. Earlier records keep their exact native meaning and historical carriage scope.
+
 ::: {.details summary="Exact current versions and dependencies"}
 
 | Boundary | Current selection | Authoritative definition |
@@ -25,6 +27,7 @@ An Encryption claim requires the complete asynchronous agreement below, not a pa
 | Authored message, recipient scope and reply policy | Authored0; intended-recipients0 and creator resolution; slot reply-intent1 | [Exact records](event-encoding.md#asynchronous-authored-records-and-deliveries), [scope](delivery-policy.md#an-invitation-is-not-yet-an-encryption-identity) |
 | Actual secured delivery | Envelope6, independently authenticated actual native audience/slot map | [Delivery binding](event-encoding.md#asynchronous-authored-records-and-deliveries) |
 | Context and receiving advertisement | Context10 and original signed assertion10 | [Exact selection](#asynchronous-protected-agreement) |
+| Ordinary-mail carrier support | opaque-mls-application-v0; original device-signed carriage-offer0 and receiving-bundle0 | [Carrier selection](#complete-application-carrier-selection) |
 | Payload and rendering | mime-suite-v2; html-css-v0 and html-css-reply-v0 | [Carrier](#asynchronous-protected-agreement), [presentation](presentation-profile.md) |
 | Readable application | Fixed twelve-kind vocabulary; per-device implemented interactions separately declared | [Reading and interaction](#asynchronous-protected-agreement) |
 | Device administration and enrollment | State1/bundle1; pairing0 with existing binding0 and current authority | [Identity lifecycle](identity-state.md#concurrent-administration-and-retirement), [pairing](identity-lifecycle.md#pairing-another-device) |
@@ -32,8 +35,8 @@ An Encryption claim requires the complete asynchronous agreement below, not a pa
 | Ordinary conversation control | Required owner streams; source/update2 and sealed2 | [Native binding](#asynchronous-protected-agreement) |
 | Managed control, when offered | Exchange4/final5 and sealed2; separately supported quorum mode | [Native binding](#asynchronous-protected-agreement) |
 | Administration and optional history carriage | Their separately selected sealed-control-v0 records; no blanket control-version upgrade | [Control scope](#asynchronous-protected-agreement), [history](history-transfer.md#carriage-and-file-retrieval) |
-| Automatic mailbox setup, when offered | mailbox-setup-v2 with original assertion10 | [Mailbox setup](mailbox-setup.md#set-up-an-asynchronous-delivery) |
-| Public provider setup, when offered | Descriptor/control/grant/bootstrap2 under shared account authority | [Acquisition](first-contact-setup.md#acquisition-for-independently-ready-deliveries) |
+| Automatic mailbox setup, when offered | mailbox-setup-v3 with complete receiving-bundle0; sealed3 response | [Mailbox setup](mailbox-setup.md#set-up-the-opaque-application-carrier) |
+| Public provider setup, when offered | Descriptor/control/grant/bootstrap3 under shared account authority | [Acquisition](first-contact-setup.md#finish-acquisition-for-the-opaque-carrier) |
 | Paired configuration, when offered | Configuration3; current-authority own-setup0 for ongoing transfer | [Snapshot](paired-configuration.md#transfer-asynchronous-scope-metadata), [ongoing setup](paired-configuration.md#keep-setup-current-between-your-own-devices) |
 | Pending delivery | Retained original bytes, slot/mailbox obligations and current per-delivery release | [Lifecycle](delivery-policy.md#complete-a-pending-delivery) |
 | Historical recovery, when offered | Existing archive/set formats with exact authored0 mapping; inert import | [History mapping](encrypted-archives.md#preserve-messages-that-have-several-deliveries) |
@@ -622,3 +625,29 @@ For ordinary streams, additionally demonstrate independent laptop/phone/peer sou
 A complete-bundle positive run must send a rich message, indexed reply, predefined answer, reaction/withdrawal and plain-message correction between retained independent endpoint stores; then add and remove a device and repeat delivery after restart. It must demonstrate actual encryption and decryption through the mail path, not just parse the new descriptors. Also run core-only and every optional-module combination, including endpoints with different maximal support, no-common optional modules and attempted unsupported operations. Independent implementations and security review remain external evidence. No current reference experiment is claimed to pass the joined suite. The [module-selection component](evidence/README.md#protected-module-selection) covers only the bounded operation/offer algorithm.
 
 :::::
+
+## Complete application carrier selection
+
+One complete receiving bundle lets Alice check both Bob's native setup and the format his device can receive. The native agreement remains mail-conversation-v2. The following are technical acquisition/carriage versions, not a new edition of Email/2 or encryption-strength level.
+
+::: {.details summary="Selected records, control promise and compatibility boundary"}
+
+| Boundary | Exact selection |
+| --- | --- |
+| Protected application mail | opaque-mls-application-v0; [exact MIME and native object](application-carriage.md#encrypt-the-complete-message). |
+| Device transport support | [Carriage-offer0 and receiving-bundle0](application-carriage.md#obtain-authenticated-carrier-support), independently authenticated per actual selected device. |
+| Inner and native admission | Unchanged assertion10/context10, authored0/envelope6/mime-suite-v2, initial10/roster7/established10, stream controls2 or managed exchange4/final5. |
+| Known provider pair, when offered | Descriptor3, mail-provider-grants-v3 and mail-provider-control-v3. |
+| First contact through providers | Bootstrap descriptor/source/response/publication3 and complete original receiving bundle. |
+| Private offline acquisition | mail-realm-v1 and mail-private-snapshot-v1, then the unchanged actual package-allocation-v0 join. |
+| Enabled ordinary-mail setup | mailbox-setup-v3; response inside the narrowly selected sealed-control-v3 below. |
+
+The selected carriage-offer0 controls array independently declares whether the exact original assertion10 controlKey receives sealed-control-v3. Assertion10's existing sealed2 promise is insufficient. This adds no control-key bytes to assertion10 and changes no older key promise. All actual publication/receiving custody and current authority must pass separately.
+
+Sealed-control-v3 admits only kind mailbox-setup-response with the exact setup3 response body. Reuse sealed2's HPKE suite, key descriptor, intent member inventory, body/identity bounds and custody/release/receipt transactions. Outer magic is `MAILCTL3`; inner magic is `MAILCIN3`; intent version is `"3"`, purpose sealed-control-intent. HPKE info domain is `mail/sealed-control/v3`; signature domain is `mail/sealed-control-intent/v3`. Apply the unchanged NUL/raw-key-ID/public-key suffix, lengths, AAD construction and original Ed25519 framing to these selected values. No new crypto, trial decryption or inferred control support is defined.
+
+All other selected conversation and own-setup kinds keep their original sealed2 bodies/carriage; identity/history keep their separately selected sealed0. Recognizing3 never authorizes those bodies or rewrites their retained preparations. Setup3 validates the original initiating bundle/offer, pending attempt, exact control key and both device/transport permissions before releasing any response.
+
+The common native application projection is unchanged; companion support never changes membership, votes, author identity, reply scope or disclosure. An old provider2/setup2 result, context10, local software update or original advertisement cannot replace the new proof. Acquisition failure remains unknown/held under the frozen delivery policy. New profile labels do not reset shared allocation, account, request/conflict or uncertainty namespaces.
+
+:::

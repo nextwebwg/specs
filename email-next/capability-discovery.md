@@ -282,3 +282,21 @@ Current assertion10 and retained assertion9/assertion8 each bind the required [c
 
 
 For the selected [asynchronous agreement](suite-profile.md#asynchronous-protected-agreement), acquire original assertion10 through the [exact per-delivery setup paths](first-contact-setup.md#acquisition-for-independently-ready-deliveries). Validate every actual selected device, retain its independent interactions and keep pending slots separate from native membership. Assertion10 is the current baseline; assertion9 and earlier advertisements retain their exact compatibility scope. An older advertisement, provider response or MIME label cannot supply the current agreement by relabeling it.
+
+## Negotiate the mail carrier as well as encryption
+
+Knowing that a device understands MLS and mime-suite-v2 does not tell the sender which email attachment it can receive. The selected opaque carrier needs that device's [complete signed receiving bundle](application-carriage.md#obtain-authenticated-carrier-support). This is checked separately from native admission, mailbox identity and the person's permission to disclose content.
+
+::: {.details summary="Per-device support, automatic setup and safe unknown outcomes"}
+
+Use the [complete acquisition paths](first-contact-setup.md#finish-acquisition-for-the-opaque-carrier), including provider3/bootstrap3, private realm1/snapshot1 plus actual allocator0, separately enabled mailbox3, and permitted original human-message publication. Provider-first/offline paths can encrypt the first human message without a previous mail exchange; success still requires real eligible evidence and admission. There is no universal promise that every first message can be encrypted.
+
+For every actual selected recipient and participating sender device, validate current identity/Receive authority, association, original carrier offer, actual native application/ordering and package/control custody. One device's proof is not an account-wide promise, server claim or another alias's permission. Pending intended slots remain explicit while a ready actual cohort progresses under its frozen plan.
+
+Assertion10/context10 and old carrier evidence retain their exact meaning. Missing current support means unknown/held, not unsupported, unassigned or permanently offline. Failure never selects a weaker decoder, sends an allegedly hidden probe, silently drops a frozen target or permits a clear first message. Ordinary/hosted fallback needs its separately retained disclosure policy and visible protection status.
+
+A fresh device response can refresh capability evidence only for its original request, target/current state and deadlines. Offline bundles remain cached evidence. A new software install does not sign for another device, renew an earlier receiving promise or alter old prepared mail. Use the [historical-version boundary](application-carriage.md#historical-prepared-versions-and-explicit-reader-selection) for restart and migration; keep exact Message-ID/bytes/ciphertext/attempts/uncertainty.
+
+Required masking keeps all real-address-bearing proofs inside private acquisition/protected attachments. No clear sibling or personal-address digest belongs to the opaque application wrapper. Retain original proof provenance, conflicts, publication eligibility and receiveUntil independently; no stale promise revives retired native keys or account authority.
+
+:::

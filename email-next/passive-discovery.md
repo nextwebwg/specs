@@ -284,3 +284,21 @@ The assertion9/mailbox-setup1 signature and native-package components are [scope
 The selected [asynchronous binding](suite-profile.md#asynchronous-protected-agreement) uses exact assertion10, its fixed readable application and independent per-device interactions. Its canonical mailbox, original signature, package/receiving promises, current identity and known-negative checks remain mandatory. The [acquisition handoff](first-contact-setup.md#acquisition-for-independently-ready-deliveries) selects descriptor/control/grant/bootstrap/setup2 without converting an older signed assertion. A pending invitee does not supply an advertisement or become a native member.
 
 This is the current draft receiving binding, not a claim that the earlier reference verifiers implement assertion10. Parsing or receiving a discovery attachment cannot activate an interaction, create a setup request, allocate another package or release human content. Privacy policy still selects a permitted channel for personal-address-bearing proof.
+
+## Publish complete mail receiving support
+
+A normal human message can carry the device's native setup and signed attachment-format promise together. Receiving that metadata records a candidate; it never sends a reply, starts a URL fetch, publishes someone's address or establishes native membership.
+
+::: {.details summary="Exact ordinary and protected receiving-bundle placement"}
+
+The new metadata type is parameter-free application/vnd.threadlabs.mail-receiving+json, containing exactly one original [receiving-bundle0](application-carriage.md#complete-receiving-bundle). Use canonical MIME base64 and attachment disposition with filename `mail-receiving.json`. Filename supplies no authority. Apply this chapter's existing singleton-header, direct-child, nonrecursive, base64, resource-bound, outer-From and independent mailbox-association rules.
+
+For a permitted direct ordinary human message, place at most one such metadata child after its readable body in the outer mixed entity. A separately published original discovery attachment remains its own exact type/schema; it is not widened into a bundle. If both are deliberately included, their native assertion bytes must match the actual bundle advertisement; ambiguity leaves this acquisition inactive without erasing prior evidence. Neither received attachment triggers an automatic response.
+
+The embedded offer contains personal mailbox/device information. Clear publication is permitted only by that actual send's existing disclosure policy. Identity Protection or an opaque/masked route forbids this real-address-bearing clear child: use private acquisition or a protected attachment instead. Add no clear metadata sibling to the strict opaque application frame and no address/digest/proof to its outside notice/headers. Omission requires composing the authorized attachment inventory before freezing the authored bytes, not stripping a committed resource while claiming the same contribution.
+
+Protected publication uses an explicit independent attachment under the existing authored0 resource inventory. Recognize it only after complete native/application acceptance and authorized source/resource-role checks; no scan inside HTML, quoted/forwarded mail, archives or unrelated attachment bytes. This acquisition can refresh future sending. It is not a circular prerequisite for accepting the native cryptogram that carries it, a history grant or evidence for a different device.
+
+Retain original bundle, offer, assertions and observation provenance. Validate current identity/Receive authority and association independently before selection. Copying or forwarding metadata preserves its original signature, not the forwarder's identity. Valid old formats keep their original scope; software upgrade cannot turn assertion10 alone into new carrier support. Follow [complete per-device acquisition](first-contact-setup.md#finish-acquisition-for-the-opaque-carrier) for actual sending.
+
+:::

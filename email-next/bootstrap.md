@@ -19,7 +19,7 @@ This is the provider binding for [encrypting the first message](first-contact-se
 > [!note] Proposed contract; joined implementation remains required
 > The [bootstrap component](evidence/README.md#automatic-first-contact-authorization) checks account/device proof scope, uniform pending admission and signed-response correlation using configured service facts. It does not implement public provider login, network discovery, complete assertion8/package validation or the full first-message journey. Those remain acceptance obligations.
 
-The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [bootstrap2](#automatic-setup-for-independently-ready-recipients) when this capability is offered. Retained version0/1 records remain exact for earlier acquisition. Version2 preserves shared account/family, source permission and package-allocation authority; it does not relabel old results or establish a complete implementation.
+The selected opaque application carrier uses [bootstrap3](#first-message-setup-with-carrier-support) when this capability is offered. It acquires complete signed receiving support before the first human message. Bootstrap0/1/2 retain their exact earlier evidence and carriage scope. Shared account/family, source permission and allocation authority span versions; no old result is relabeled and complete joined implementation remains required.
 
 ## Account proof, device proof and verification
 
@@ -565,5 +565,45 @@ The actual issuing device's package custody, allocation realm and consumed/termi
 Route-request2/response2 preserve the source/agreement and original parent/request commitments. The retained parent/child retry procedure applies to the exact version2 bytes. Existing relay-source permission and route invitation formats retain their own independent authorization, identity and actual conversation scope. Opaque relay layout carries the exact selected sealed2 or protected application bytes without parsing/relabeling them. Source/recipient masking still waits for the required active route; setup success cannot downgrade it. No service follows an arbitrary callback or forwards another origin's credentials.
 
 Each result enters the [per-delivery handoff](first-contact-setup.md#acquisition-for-independently-ready-deliveries) for its exact local intent revision and selected mailbox/account. It does not resolve someone else's unknown scope slot, authorize automatic historical disclosure or make another device ready. Ready eligible deliveries may progress under the frozen send plan while the remaining intended slots retain explicit pending states. Cancellation, supersession and expiry stop their owning pending operations; neither a new acquisition path nor a fresh result revives the old intent. Native admission and final content release remain separate current checks.
+
+:::
+
+## First-message setup with carrier support
+
+Alice can obtain Bob's complete receiving setup before sending any human mail. His authorized service returns original device proof, or a previously issued offline result with a real allocated package. Her client checks support for the selected mail format as well as encryption. A timeout or missing result leaves Bob pending; it is not permission to send the writing unencrypted.
+
+::: {.details summary="Exact bootstrap3 delegation, source and response records"}
+
+Select descriptor3 and bootstrap3 for the [complete application carrier](application-carriage.md#obtain-authenticated-carrier-support). Agreement remains mail-conversation-v2. Descriptor3 has exactly descriptor2's inventory with version3; purpose, selected domain, well-known path, service/roles/three prefixes, publication/generation, current interval and strict network/parsing rules remain. Its prefixes select only3 operations and cannot overlap active earlier-version prefixes by segment containment.
+
+Every unsigned source-preparation and signed source, inspect, cancel, response, publication, route-request and route-response record keeps its exact bootstrap2 inventory/types with version3 and unchanged agreement. Wherever that inventory has **advertisement**, replace that member by **receiving**, canonical padded base64 of the complete original receiving-bundle0. Other records gain no receiving or extension field. TargetDelegation/delegation commit the original accepted target/source descriptor3 bytes, respectively. Wrappers remain exactly payload/signature; route-specific unsigned proof wrappers keep their inventories.
+
+| Record | Signature domain |
+| --- | --- |
+| Source | `mail/bootstrap/source/v3` |
+| Inspect | `mail/bootstrap/inspect/v3` |
+| Cancel | `mail/bootstrap/cancel/v3` |
+| Response | `mail/bootstrap/response/v3` |
+| Publication | `mail/bootstrap/publication/v3` |
+| Route request | `mail/bootstrap/route-request/v3` |
+| Route response | `mail/bootstrap/route-response/v3` |
+
+Use unchanged NUL/U32BE/original-byte framing. Exchange-ID domain is `mail/bootstrap/exchange/v3`, with the existing issuer-length/issuer/source-ID construction. No earlier source/result/descriptor activates3. Current identity, own mailbox/account membership, request-source/respond-target roles, shared link/family authority, domain delegation and exact original credible intervals remain mandatory; profile changes never reset a block or conflict namespace.
+
+Before private lookup/allocation, the target validates fresh origin-selected inspection of the original source permission, both descriptor commitments and exact service/agreement/device scope. Original sourceDigest, issuer/exchange, nonce, request commitments and fixed deadline correlate all owning result types. Unknown/unsupported/unavailable recipients remain uniformly pending without existence, device-count or online disclosure.
+
+:::
+
+::: {.details summary="Fresh and offline first-message acquisition"}
+
+A fresh response3 and offline publication3 each commit their complete original receiving bundle. Independently verify both device-signed dependencies, exact current identity/Receive authority and canonical account association. The actual advertisement and carrier offer resolve to the same authenticated device/binding, preserving their distinct state ancestry. Validate actual package/publication/allocation and control-key custody rather than create a package from a static record or service result.
+
+The receiving proof is inside the existing authenticated private source/result/publication payload and confidential transport. Where [private realm acquisition](private-snapshot.md#private-acquisition-with-carrier-support) supplies static setup, its complete bundle remains in encrypted snapshot cells and requires the exact actual allocator join. Add no public clear address-to-support registration table or address hash. Existing providers/index authorities retain only their stated original metadata knowledge; signatures do not erase it.
+
+The actual device durably issues support and package receiving promises before exposure. A service can allocate only under its already authorized immutable realm; wrapping a KeyPackageRef in another version/bundle/alias cannot allocate it twice. Cancellation, consumed/uncertain outcomes, source/account blocks and original deadlines remain shared. Fresh response is live evidence only for its exact retained attempt under current freshness rules; cached publication is not.
+
+Route-request3/response3 preserve original parent/child commitments and retry/cancellation boundaries. Relay route issuance, same-server trust and actual masking remain their separate owners. This version supplies no per-alias device approval and no right to expose personal addresses to bootstrap a masked copy. Incompatible disclosure holds that path.
+
+After complete evidence for every actual selected device, perform the [per-delivery carrier handoff](first-contact-setup.md#finish-acquisition-for-the-opaque-carrier). Include actual creator receiving evidence; preserve intended slots and each pending operation. Result acceptance alone creates no native membership, reply target, human verification or release. An independently ready delivery may proceed while other slots remain pending under the frozen policy.
 
 :::

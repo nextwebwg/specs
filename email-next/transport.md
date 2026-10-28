@@ -674,3 +674,11 @@ These rules follow [RFC7672 §§3–4](https://www.rfc-editor.org/rfc/rfc7672.ht
 Mailbox record identifiers, folders and provider-generated threads are storage views. They do not identify authors, establish conversation membership or authorize a repeated action. A copied message can have a new provider identifier while remaining the same authenticated contribution.
 
 The [mailbox integration chapter](mailbox-integration.md) specifies account scoping, synchronization, original-byte preservation, permissions and submission behavior for JMAP adapters. Clients using other access protocols retain the same separation between mailbox state and conversation authority.
+
+## Carry the selected receiving contract
+
+Before preparing the opaque encrypted application representation, the owning client selects [complete authenticated support](application-carriage.md#select-one-actual-delivery) for every actual device in that delivery. Setup success and outer parser success do not authorize release. The original native/key, current account/route and per-copy disclosure checks still apply.
+
+Retain the carrier selection and original receiving bundle with the immutable mail version. Receiving deadlines are checked independently from active publication and final-release eligibility. Retried prepared versions retain their original complete bytes/Message-ID and prior exposure, including versions using a historical carrier. A changed local codec cannot silently rewrap uncertain work or identify a new profile from context10 alone.
+
+Required masking keeps all real-address-bearing support material in the [private acquisition or protected attachment](application-carriage.md#acquire-support-without-exposing-the-private-address). No clear support sibling is permitted on the strict opaque application frame. Ordinary mailbox setup remains a separately enabled, disclosure-sensitive path; inability to use it supplies no permission to relax masking or send clear content.

@@ -17,7 +17,7 @@ A client can learn where a mail domain offers an Email/2 control service without
 > [!note] Retained version0 discovery profile
 > `email2-provider-discovery-v0` selects account-domain delegation and native public-client registration. The well-known suffix and profile identifier are draft allocations, not registered names. The [configured queue contract](provider-control.md) remains unchanged. The [public grant profile](provider-grants.md) separately defines account/device links and pair-specific queue credentials. The [unknown-peer bootstrap contract](bootstrap.md) separately defines first-contact authority. Joined implementations remain unfinished; discovery alone does not make a service publicly interoperable.
 
-The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [provider descriptor2](#discover-the-asynchronous-agreement) when this capability is offered. Retained descriptor0/1 definitions remain exact for earlier exchanges. Version2 selects the asynchronous application while preserving shared account authority; a descriptor is not evidence that the complete service is implemented.
+The selected opaque application carrier uses [provider descriptor3](#discover-complete-mail-receiving-support) when this capability is offered. It selects exchanges that carry both original native setup and signed device support for the mail format. Descriptor2 retains its exact asynchronous inner-agreement meaning; it does not prove the newer outer carrier. A descriptor is not evidence that the complete service is implemented.
 
 The [cooperating-service architecture](service-federation.md) additionally calls
 for separately scoped directory, rendezvous and ciphertext-delivery roles. Those
@@ -250,5 +250,19 @@ All versions share the same domain/purpose/publication high-water and account/mo
 Use the existing native registration/login, issuer-bound authorization-code/S256 PKCE, exact mail.provider.link/mail.provider.manage scopes, account/device linking and origin-bound credentials. Descriptor2 introduces no scope, callback or sign-in permission. Origin changes require the existing reconnection decision. A recipient lookup never signs the sender into that recipient's service. New grants and role credentials bind the exact accepted descriptor2/configuration bytes; old tokens are not migrated.
 
 The [synthetic queue descriptor](examples/async-provider-descriptor.json) illustrates only discovery fields. It is not an active delegation, account login or device advertisement.
+
+:::
+
+## Discover complete mail receiving support
+
+Descriptor3 locates a service that can carry complete device-signed receiving bundles. It does not announce that every client on an account can read encrypted mail. The actual selected devices must supply their own proof.
+
+::: {.details summary="Exact descriptor3 and shared account authority"}
+
+Descriptor3 has exactly descriptor2's members and types, with version `"3"` and agreement `"mail-conversation-v2"`. Its controlPrefix selects [mail-provider-control-v3](provider-control.md#obtain-complete-mail-receiving-evidence); managementPrefix selects [mail-provider-grants-v3](provider-grants.md#authorize-complete-receiving-exchanges). All original selected-domain, publication/generation/high-water, prefix separation, TLS identity, no-redirect, no-store, parsing and interval rules apply. Active prefixes across versions cannot overlap by segment containment.
+
+Select and freeze this exact original descriptor before configuration/grant preparation. Its bytes and current delegation bind those operations. A failed3 response cannot fall through to2; unsupported discovery leaves this path unknown/unavailable for the selected carrier without downgrading an existing required agreement.
+
+Existing native public-client registration/login, issuer-bound authorization-code/S256 PKCE, account/device links and mail.provider.link/mail.provider.manage scopes remain unchanged. No recipient login, forwarded credential, mailbox in the well-known URL or new OAuth scope is introduced. A changed origin requires the existing reconnection decision. Same-origin eligible current links can support fresh exact grants under their original authority; historical proof bytes and revoked/held state are not edited.
 
 :::

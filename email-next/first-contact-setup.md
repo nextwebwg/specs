@@ -185,3 +185,27 @@ Package races, revocation or an unsupported suite may require fresh setup. Keep 
 The complete positive journey must start with no recipient association or pair grant at the sender, deliver only content-free setup traffic, automatically produce device evidence without a human reply, validate it under explicit first-contact policy, admit the selected suite and exchange the first encrypted human message. Repeat with offline published material and with no material, checking that the latter sends no content.
 
 Negative cases include unsolicited probes, self-signed mailbox impersonation, provider-origin substitution, unsupported legacy accounts, address enumeration, forged or cached-as-fresh responses, replay, package races, changed identity, loss/restart at every durable handoff, cancellation and unknown delivery results. Inspect actual outgoing requests and mailbox contents, including subject, quoted text, attachments and draft synchronization—not just a mocked `ready` flag. Existing configured-pair evidence is not this first-contact test.
+
+## Finish acquisition for the opaque carrier
+
+For the selected application carrier, obtain a complete receiving bundle for each actual selected device before preparing the encrypted human message. Alice can do this before any human mail reaches Bob. A private directory or authorized first-contact provider exchange supplies his original setup and signed software-support promise; an actual allocation supplies any needed one-use package.
+
+::: {.details summary="Complete first-message and refresh path selection"}
+
+| Path | Exact evidence and next step |
+| --- | --- |
+| Known authorized provider pair | [Descriptor/grant/control3](provider-control.md#obtain-complete-mail-receiving-evidence), original response/request and complete receiving-bundle0. |
+| Unknown peer through providers | [Bootstrap3](bootstrap.md#first-message-setup-with-carrier-support), current source inspection and exact fresh response3 or allocated offline publication3, with receiving-bundle0. |
+| Independent companion/private directory | [Realm1/private snapshot1](private-snapshot.md#private-acquisition-with-carrier-support), complete private static bundle and unchanged actual allocator0; perform the [exact offline join](application-carriage.md#join-an-offline-package-with-its-support-proof). |
+| Existing mailboxes, separately enabled | [Mailbox setup3](mailbox-setup.md#set-up-the-opaque-application-carrier), exact authenticated request and sealed3 response tied to the retained attempt and initiating offer/key. |
+| Earlier human correspondence or protected refresh | [Original published bundle](passive-discovery.md#publish-complete-mail-receiving-support), independently current under its actual provenance; no automatic reply or fresh-response inference. |
+
+Freeze the original local intent/revision, selected acquisition/account/service, each actual target device and required disclosure/masking policy. Source and target services gain no human writing, authored digest, group roster or permission to answer for another device. Keep original source/request/response/publication and package-allocation identities, intervals, cancellation and uncertainty. Lookup failure does not start unsolicited setup email or relax protection.
+
+Validate every original carriage offer, actual native advertisement and independent identity/association. Include participating sender devices; an attempt-only mailbox request key is not ordinary ongoing creator receiving evidence. Current context10/admission still use the unchanged actual original assertion10, while the owner retains carrier proof as an additional mandatory release dependency. Other intended slots can remain pending outside an independently ready actual delivery.
+
+No result alone installs membership, resolves someone else's scope slot, grants verification or releases the editor's current text. Perform real admission, atomically retain native successor/ciphertext/non-releasable mail, allocate its immutable Message-ID and repeat final current authority/route/disclosure checks. Unknown, conflicted, expired, wrong-device or historical-only carrier evidence holds that delivery under the frozen fallback policy.
+
+Use these same paths to refresh support for an existing group or a newly authorized device. Refresh changes no native membership by itself. Earlier paired configuration records may preserve their original advertisements but do not transfer new carrier support; reacquire it before future release. A new software install or successful setup2 response cannot supply a missing receiving-bundle0.
+
+:::

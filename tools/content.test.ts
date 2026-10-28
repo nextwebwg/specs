@@ -265,3 +265,27 @@ test("text reaches v-html props escaped, never as markup", () => {
   assert.match(data, /"value":"<code>&lt;slot&gt;<\/code> &lt;i&gt;"/);
   assert.doesNotMatch(data, /<b>|<i>|<slot/);
 });
+
+// A current descriptor must select a usable strict block body without opening a new
+// conflict namespace. This is a source-contract check, not a provider runtime test.
+test("bootstrap3 selects the shared source-block contract", () => {
+  const source = readFileSync("email-next/bootstrap.md", "utf8");
+  const block = source.split("### Own-account source blocking\n")[1].split("### Failure, retention and budgets")[0];
+  const fields = [...block.matchAll(/^\| `([^`]+)` \|/gm)].map((row) => row[1]);
+  assert.deepEqual(fields, ["version", "purpose", "request", "exchange"]);
+  const versionRow = block.split("\n").find((line) => line.startsWith("| `version` |"))!;
+  assert.deepEqual([...versionRow.matchAll(/`"(\d+)"`/g)].map((value) => value[1]), ["0", "1", "2", "3"]);
+  assert.match(block, /exactly matching the bootstrap descriptor-bound route selected before parsing/);
+  assert.match(block, /same own-account bootstrap management namespace across supported route versions/);
+  assert.match(block, /including a changed version or exchange/);
+
+  const current = source.split("## First-message setup with carrier support\n")[1];
+  assert.match(current, /`POST \/blocks` under the selected bootstrap descriptor3 managementPrefix/);
+  assert.match(current, /exactly `version`, `purpose`, `request` and `exchange`, with version `"3"`/);
+  assert.match(current, /`mail.setup.respond` authority, retained-exchange attribution/);
+  assert.match(current, /Add no agreement, receiving bundle or device signature/);
+  assert.match(current, /Block state and the management request\/conflict namespace remain shared across versions0\/1\/2\/3/);
+  assert.match(current, /selecting3 cannot clear a block, reset a request or fall back to another version/);
+  const rendered = compileChapter(source, { proposalSnapshot: false, proposalImports: "" }).sfc;
+  assert.match(rendered, /id="own-account-source-blocking"/);
+});

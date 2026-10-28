@@ -82,6 +82,10 @@ A pending application outcome is already authenticated native consumption. If na
 
 The selected own mailbox is also an application binding. For a protected recipient, compare it with that recipient's actual per-message slot/address mapping; for an own-sender copy, compare it with the protected author/from mapping. An old scope invitation, outer address or another alias of the same authenticated principal/device cannot substitute for current support and authority for the selected account. Retain the original reader provenance for each physical carrier, separately from any earlier acceptance of the same native object through another explicit profile.
 
+The same mail bytes can arrive through more than one own account. Retain the carrier and account observation separately. An application hold caused by the wrong recipient account cannot reserve an accepted identity or block a later valid observation through the intended account. Reuse the retained native consumption and authenticated plaintext; do not decrypt again. Preserve the earlier observation and its original reader evidence.
+
+Once an application path is admitted, a later observation through the wrong account cannot inherit that path's accepted status or replace its account provenance. Logical contribution acceptance and the outcome of one account's received copy remain separate.
+
 An undecryptable or incomplete message remains inspectable under its actual reason. It cannot borrow a contact's identity from an untrusted field, disappear as supposedly hidden control traffic, activate a setup exchange or authorize an automatic clear retry. Mailbox arrival, native acceptance, application acceptance and human reading remain separate states.
 
 :::

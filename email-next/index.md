@@ -11,6 +11,7 @@ sectionNav: true
 
 Email that feels like a conversation, across the addresses and providers people already use.
 
+- [Why another encrypted-email standard?](#why-another-encrypted-email-standard)
 - [How the conversation works](#how-the-conversation-works)
 - [Follow the encryption journey](encryption-journey.md)
 
@@ -23,6 +24,43 @@ For implementation, start with the [current protected client baseline](suite-pro
 The [module guide distinguishes existing standards from experimental Email/2 extensions and unresolved research](modules.md#existing-standards-and-experimental-designs). Implementation and testing status are recorded separately.
 
 The main reading path explains the experience. The architecture chapters define the exact requirements an implementer must follow. Expandable sections contain wire formats, algorithms and compatibility details; those requirements still apply when their disclosure is closed.
+
+## Why another encrypted-email standard?
+
+**Email/2 makes the whole conversation work together:** finding compatible devices, protecting the first message, adding a phone, handling a late reply and keeping years of correspondence readable. Encryption is part of that experience, rather than a separate task the person has to manage.
+
+Existing encrypted email already protects messages. [PGP/MIME](https://www.rfc-editor.org/rfc/rfc3156.html) and [S/MIME](https://www.rfc-editor.org/rfc/rfc8551.html) define established ways to sign and encrypt mail. [Autocrypt](https://docs.autocrypt.org/level1.html) makes key exchange automatic over existing email. Email/2 builds on those lessons: its contribution is a shared conversation platform with defined behavior across apps, devices and providers.
+
+> [!ex] Alice writes to Bob for the first time
+> Alice uses Bob's existing address and presses Send. If both apps support the required setup and their policies allow it, they exchange public security information before releasing her writing. Bob receives the protected message in his conversation, answers its question and later adds a phone by scanning a pairing code. Neither person copies a key or changes email provider. If setup cannot finish, Alice's writing waits; it does not quietly leave unencrypted.
+
+The difference is what the standard asks every participating app to do together:
+
+- **Beyond an encrypted message format.** PGP/MIME and S/MIME define how to sign and encrypt mail. Email/2 also defines the surrounding conversation: discovering compatible devices, authorizing a new phone, handling delayed delivery, identifying replies and rendering rich content consistently. Existing products can assemble these features; Email/2 makes their shared behavior part of the contract.
+- **Beyond opportunistic key exchange.** Autocrypt Level 1 already automates key distribution through existing email providers. It focuses on protection against passive collection and can recommend unencrypted delivery to avoid unreadable mail. Email/2 defines an eligible setup exchange before releasing the first human message, separates automatic setup from independently verified identity, and makes an encryption-required send wait when protection is unavailable. Two compatible clients can start over ordinary email; upgraded providers can improve setup and private routing later.
+- **An evolving conversation, built on existing cryptography.** MLS supplies asynchronous group key agreement, forward secrecy and post-compromise security; these are existing MLS properties, not Email/2 inventions. Email/2 defines how to use that protocol with email identities, authorized devices and delayed messages, and keeps readable correspondence separate from short-lived delivery secrets. It also defines reply relationships, quotation boundaries and interaction meanings so the protected conversation remains useful across apps.
+
+The intended advantage is a reason to adopt the client for everyday email, plus a path to private conversations as correspondents upgrade. The protocol leaves room for different apps and business models; it does not require everyone to join one encrypted-mail service.
+
+**Choose protection before sending, without choosing everyone’s provider.** The client shows the intended protection for each recipient: end-to-end content encryption, independent identity verification, and sender or recipient address masking through authorized relays. These are separate capabilities, not different names for one lock. Missing or pending evidence stays visibly unresolved. Under the [delivery policy](delivery-policy.md), the sender can require protection and wait, or permit an eligible ordinary-email or hosted alternative. A downgrade is an explicit or remembered disclosure choice, never a consequence of a timeout. If any copy is ordinary email, encrypted copies elsewhere do not make the contribution confidential.
+
+This is a shared contract that different clients and providers can implement. Automatic setup should remove routine key-handling work between compatible endpoints; it cannot make an arbitrary older client understand Email/2 or make unavailable protection appear ready.
+
+::: {.details summary="How this builds on earlier approaches"}
+
+| Approach | What it contributes | What Email/2 defines around it or chooses differently |
+| --- | --- | --- |
+| [PGP/MIME](https://www.rfc-editor.org/rfc/rfc3156.html) and [S/MIME](https://www.rfc-editor.org/rfc/rfc8551.html) | Signing and encrypting MIME messages; existing clients can automate parts of their setup. | A joined contract for setup, device authority, evolving conversations, presentation and failure handling. Its selected encrypted conversation protocol is MLS, rather than a new PGP/MIME or S/MIME encoding. |
+| [Autocrypt Level 1](https://docs.autocrypt.org/level1.html) | Automatic, decentralized key distribution over existing mail, with an explicitly passive-attacker threat model and usability-driven encryption recommendations. | An enabled exchange before the first human message, explicit identity assurance and authorized device changes. An encryption-required send waits when protection is unavailable. Automatic first contact still does not establish independently verified identity. |
+| [Messaging Layer Security](https://www.rfc-editor.org/rfc/rfc9420.html) | An established protocol for asynchronous group key agreement and evolving secrets. | The surrounding email contract: who may use a device key, how setup travels, how delayed deliveries become one conversation, and how readable history survives without retaining every transport secret. MLS alone does not supply an email client. |
+
+Encrypted-mail services already offer some of these choices. For example, Proton Mail documents [encryption indicators in its composer](https://proton.me/support/encryption-lock-meaning), [external PGP interoperability, including WKD](https://proton.me/support/encryption-lock-meaning), and [password-protected browser access](https://proton.me/support/password-protected-emails); it also permits [ordinary external email](https://proton.me/support/how-to-use-pgp). Email/2 does not claim these features are unique. It specifies cross-provider setup, per-recipient delivery choices and independently indicated content, identity and routing protection as an interoperable contract, rather than relying on one service’s product behavior. Hosted access retains its own disclosure model and is not automatically equivalent to endpoint-only encryption.
+
+Email/2 follows the usability and authenticated-content lessons in [RFC 9787](https://www.rfc-editor.org/rfc/rfc9787.html). Its [security profile](security-profile.md#relationship-to-encrypted-email-guidance) and [mixed-delivery policy](delivery-policy.md#mixed-delivery-and-the-message-s-confidentiality-status) explain deliberate differences from that guidance. Earlier systems are not inherently incapable of a good experience; this proposal makes the integration a shared contract instead of leaving each product to assemble its own.
+
+The boundaries remain visible. Encryption is not independent identity verification. Providers still observe some routing and timing information. A compromised endpoint can expose its readable history, and first contact can remain vulnerable to identity substitution without independent verification. [Security and discovery](security.md) defines these limits. The [encryption journey](encryption-journey.md) explains the experience and the [adoption path](adoption.md) describes how clients and providers can participate.
+
+:::
 
 ## How the conversation works
 
@@ -91,7 +129,7 @@ These are independent capabilities within one specification, not a promise that 
 - [Security and discovery](security.md) explains automatic encryption and its trust boundaries.
 - [Cooperating services and live connections](service-federation.md) separates private discovery, offline setup, service federation, optional direct connections and durable delivery outcomes.
 - [Optional provider negotiation](provider-negotiation.md) explains how upgraded services can obtain fresh device evidence outside the inbox. [Service discovery](provider-discovery.md) defines domain delegation and native client registration; [exchange authorization](provider-grants.md) defines account links and separate peer credentials.
-- [Private addressing](private-routing.md) separates personal addresses inside encryption from authorized provider relay addresses used for delivery; [route authorization](relay-routes.md) binds account permissions, peer approval and delivery proofs.
+- [Private addressing](private-routing.md) separates personal addresses inside encryption from authorized provider relay addresses used for delivery; [route authorization](relay-routes.md) binds accountable source permissions, inbox-provider route issuance and delivery proofs.
 - [Encrypting the first message](first-contact-setup.md) keeps the writing private while automatic provider-assisted setup runs, then releases the first encrypted human message; the [automatic exchange](bootstrap.md) defines who may ask, how providers verify authority and what setup may be returned. Complete joined implementation remains required.
 
 The [baseline](baseline.md#protocol-suite) names the incorporated standards and the new bindings between them. The [design inventory](design-resolution.md) records unresolved internal work. The [coverage table](interoperability.md#contract-coverage-and-remaining-decisions) separates specified behavior from demonstrated implementation.

@@ -20,6 +20,8 @@ The [current Encryption baseline](suite-profile.md#current-client-baseline) uses
 
 ## Choose an allowed path
 
+When ordinary disclosure is actually authorized, a real message can instead carry the separate [automatic-upgrade invitation](automatic-upgrade.md). Its durable invitation, receiving offer and terminal confirmation all travel as email attachments. They do not widen this chapter’s content-free carrier, extend its 600-second active request or authorize fallback from a protected send.
+
 A local send intent to a selected recipient authorizes the client to consider setup. It does not authorize address-book scanning, an email’s requested callback, or disclosure of the draft. Use valid cached evidence first, then an authorized provider path or this enabled carrier. An implementation chooses one active acquisition path per send attempt; switching paths closes or records the earlier attempt, keeps its uncertainty and starts separately authorized work rather than racing two package allocations or sending duplicate content.
 
 The initial request exposes its addressing and the initiating device’s public identity/capabilities to mail infrastructure. It contains no human subject, body, attachment, quotation or digest of that writing. It cannot satisfy a policy requiring concealed personal addresses during setup. Such a policy uses a suitable existing private path or holds the send; it is never silently weakened to try this carrier.

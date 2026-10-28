@@ -93,15 +93,16 @@ Recognition of the field cannot authorize a route. Verify its original signed by
 
 :::: {.details summary="Well-known URI draft registrations"}
 
-Use these as three separate draft registrations under [RFC8615](https://www.rfc-editor.org/rfc/rfc8615.html#section-3.1). The common fields and each row's purpose/reference form the request. They register suffixes, not the operator-selected API paths returned by discovery.
+Use these as four separate draft registrations under [RFC8615](https://www.rfc-editor.org/rfc/rfc8615.html#section-3.1). The common fields and each row's purpose/reference form the request. They register suffixes, not the operator-selected API paths returned by discovery.
 
 | URI suffix | Purpose and specification |
 | --- | --- |
+| `mail-support` | Optional recipient setup-support hint; [Setup discovery](encryption-discovery.md) with exact POST request/response, selected-domain HTTPS, deliberate positive disclosure, uniform unadvertised result and no key or downgrade authority |
 | `mail-provider` | Mailbox-domain delegation of account-management service; [provider discovery](provider-discovery.md#keep-the-domain-and-service-authorities-distinct) and its exact domain/transport/publication rules |
 | `mail-setup` | Domain delegation of content-free recipient setup; [bootstrap discovery](bootstrap.md) with its separate account/pair/recipient authority and abuse controls |
-| `mail-relay` | Delegation of a selected provider/independent relay service; [relay discovery](relay-routes.md#discover-a-relay-service), declared roles and current route/account authority |
+| `mail-relay` | Delegation of a selected provider/independent relay service; [relay discovery](relay-routes.md#discover-the-selected-service), descriptor1 roles, finite inbox-service association, provider-signed route1 and current route/account authority |
 
-For each: **Change controller:** proposed responsible Email/2 project maintainer, nomination required before filing. **Specification documents:** the linked owning chapter and this inventory at the same stable revision, URI to be fixed when published. **Status requested:** provisional. **Related information:** canonical HTTPS, exact selected domain, no redirect/ambient credentials, bounded no-store JSON, separate purpose/publication high-water state and current authority as defined by that chapter. This is not a claim of provisional registration already granted.
+For each: **Change controller:** proposed responsible Email/2 project maintainer, nomination required before filing. **Specification documents:** the linked owning chapter and this inventory at the same stable revision, URI to be fixed when published. **Status requested:** provisional. **Related information:** canonical HTTPS, exact selected domain, no redirect/ambient credentials, bounded no-store JSON, purpose, retained publication high-water state where defined, and current authority as specified by each owning chapter. The observational mail-support response has no publication generation or key authority. This is not a claim of provisional registration already granted.
 
 Registration does not validate a particular domain, account, delegation or operator. A client must still apply the owning transport, source-domain, account, anti-rollback, private-network and abuse rules. The existing `oauth-authorization-server` location is reused through its standard binding; no new suffix is requested for it. Operator-defined API prefixes and the registered native client's exact loopback callback path are not additional well-known names.
 

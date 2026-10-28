@@ -21,6 +21,14 @@ The [encryption journey](encryption-journey.md) applies these permissions to fir
 
 The [module framework](modules.md) also treats content encryption, sender masking, recipient masking and identity verification independently. Remembered address-privacy requirements can hold an otherwise encrypted copy; permitted automatic upgrades select newly available protection without asking the person to edit addresses. The [swap sequence](private-routing.md#when-the-addresses-change) defines the exact composition, encryption, outer origination and receive-display boundaries.
 
+## Check protection before releasing content
+
+A client needs usable validated recipient setup before preparing endpoint-encrypted delivery. A provider support advertisement can help choose a setup path; it is not the setup itself. If enabled discovery or setup ends without usable evidence, show that limitation and the available choices while retaining the human content locally. Do not first send an encrypted test that an unsupported client cannot read.
+
+The sender may require protection and wait, explicitly authorize a compatible mode, or apply a remembered policy that already permits that mode under this condition. Present mixed protection per recipient before release: endpoint encryption, hosted access and ordinary readable delivery are distinct, as are sender masking, recipient masking and identity verification. An ordinary copy discloses the contribution even if another copy is encrypted.
+
+A timeout, unavailable service or missing advertisement supplies no new fallback permission and cannot invalidate independently usable accepted setup. Preserve unknown, stale and conflicting evidence rather than claiming that an account permanently lacks encryption. A later recovery choice applies to unsatisfied recipients; successful deliveries are not repeated. A prior accepted or uncertain attempt remains an earlier disclosure possibility when preparing a different protection mode. The [client failure presentation](client-behavior.md#delivery-problems-stay-with-the-message) keeps these choices attached to the original message.
+
 ## Per-recipient outcomes
 
 | Effective permission | Compatible authenticated endpoint available | No compatible endpoint available |

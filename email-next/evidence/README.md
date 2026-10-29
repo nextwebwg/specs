@@ -7,7 +7,7 @@ sectionNav: true
 
 These components exercise selected Email/2 contracts. Start with the [offline acceptance report](#offline-acceptance-report) for runnable button fixtures, the [adoption chapter](../adoption.md) for client and server integration paths, and the [validation record](../validation.md) for coverage. No complete client or provider adapter is included.
 
-The [current Encryption baseline](../suite-profile.md#current-client-baseline) is mail-conversation-v1 (assertion9/context9/envelope5). Historical assertion8/context8/envelope4 helpers and native fixtures retain their recorded earlier scope; names such as current-suite in an old experiment heading are not current conformance claims. Existing assertion9, setup1 and configuration2 candidates remain components, not a complete state1/admission/carrier/client implementation. No old report has been repinned by this baseline selection.
+The [current Encryption baseline](../suite-profile.md#current-client-baseline) is mail-conversation-v2 (assertion10/context10, authored0/envelope6 and mime-suite-v2), with complete authenticated receiving-bundle0 support for its selected ordinary-mail carrier. Historical assertion9/context9/envelope5 and assertion8/context8/envelope4 helpers and native fixtures retain their recorded earlier scope; names such as current-suite in an old experiment heading are not current conformance claims. Existing assertion9, setup1 and configuration2 candidates remain components, not a complete current state1/admission/carrier/client implementation. Current acquisition and configuration claims select their [matching bindings](../suite-profile.md#complete-application-carrier-selection); no old report is repinned by that selection.
 
 ## Run the integrated checks
 

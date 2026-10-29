@@ -1170,13 +1170,16 @@ An empty description writes `:` alone. Put one blank line before each term
 after the first, and no blank line between a term and its descriptions.
 
 - In a paragraph, protect a `:` that would start a marker line directly after
-  the paragraph's first line: write `\:`.
+  the paragraph's first line: write `\:`. Protect one that starts a paragraph
+  directly after a definition list, or a term after the first, too: there it
+  would add a description to the list.
 - Protect a term whose text would start another block, as for
   [literal block markers](#literal-block-markers).
 - Definition list nodes have no attribute attachment; report an ID or
   attributes on one as unsupported conversion.
-- Report unsupported conversion for a term holding a `break` or `softBreak`,
-  and for two adjacent `definitionList` siblings, which read back as one list.
+- Report unsupported conversion for a term holding a `break` or `softBreak`
+  or text that is empty or spans lines, and for two adjacent `definitionList`
+  siblings, which read back as one list.
 
 **Recommended HTML.** A `definitionList` renders as `<dl>`, each term as
 `<dt>` and each description as `<dd>`, in source order. A description renders
@@ -1645,6 +1648,10 @@ top-level block before the edit, until a block after the edit starts where a
 block started before, meets this. Frontmatter, link and footnote definitions,
 and in `standard` syntax HTML elements, which read through to their end tags,
 affect blocks beyond their own, so an edit touching them is re-read in full.
+A definition list continues past blank lines into a later term, so a re-read
+block may join the list before it, and a list after the edit may join the
+re-read one. Re-reading therefore starts at a definition list directly before
+the block the edit reaches, and does not stop where a definition list starts.
 
 The table lists the preferred forms, which writers use for content without a
 recorded authored form, such as content a tool inserts.
@@ -1710,7 +1717,7 @@ the preferred form, so a document written in preferred forms carries none.
 | Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `.class`, `#id`, double quotes, spaces | `attributes` |
 | Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
 | Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |
-| Definition list | Marker spacing and indentation, continuation indentation, blank lines between terms | `: `, two-space continuation, one blank line before each later term | `markdown` |
+| Definition list | Marker spacing and indentation, term indentation, continuation indentation, blank lines between terms and descriptions | `: `, two-space continuation, one blank line before each later term | `markdown` |
 | Frontmatter | YAML as authored | Generated YAML | `frontmatter` on the document |
 
 `referenceType`, `spelling` and `titleSpelling` are node fields because the

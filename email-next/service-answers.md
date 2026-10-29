@@ -412,7 +412,9 @@ Public interoperability still requires deployed implementation of the [selected 
 
 ## From an accepted question to a service action
 
-The selected joined binding is assertion5, context6, envelope3 and payload `mime-rich-v0`, with `service-question` explicitly present in every admitted device’s exact operation tuple. Ordinary `question` support does not imply it. Previously signed operation lists are unchanged, and a partial intersection cannot supply this capability. Older contexts and the separate context7 ordering experiment do not acquire it implicitly.
+The retained [joined service control experiment](evidence/README.md#joined-service-question-control) uses assertion5, context6, envelope3 and payload `mime-rich-v0`, with `service-question` explicitly present in every admitted device’s exact operation tuple. In that experiment, ordinary `question` support does not imply `service-question` support. Previously signed operation lists are unchanged, and a partial intersection cannot supply this capability. Older contexts and the separate context7 ordering experiment do not acquire it implicitly.
+
+The [current protected service agreement](#current-protected-service-agreement) above selects assertion10/context10, authored0/envelope6 and `mime-suite-v2`. Its fixed readable vocabulary and independently implemented `service-actions` interaction do not change the earlier experiment’s exact selection.
 
 The client derives the control from one accepted event and its exact retained carrier in the active membership instance. It displays the question, choices and destination service. A deliberate click supplies a choice and a snapshot token to the trusted client; the browser does not supply the endpoint, principal, action or credential. Viewing the message and replying by ordinary email do not execute the service action.
 

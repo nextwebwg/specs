@@ -175,7 +175,7 @@ For every module inheriting account linking, exercise a lost completion response
 
 ### First-message setup over existing mail
 
-Implement [mailbox-setup-v2](mailbox-setup.md#set-up-an-asynchronous-delivery) as the current separately declared carrier, not as an automatic reply to passive discovery. Exercise its complete no-provider, no-prior-association first-encrypted-message journey and negative/restart matrix. Signature/HPKE components alone cannot establish trusted envelope/DKIM coverage, disclosure admission, durable response reservation, bounded transport retry, package consumption or final human-content release. Include multiple recipient devices, unsupported legacy display and required address-masking holds.
+A current carrier claim implements [mailbox-setup-v3](mailbox-setup.md#set-up-the-opaque-application-carrier), including the complete authenticated receiving bundle. A retained [mailbox-setup-v2](mailbox-setup.md#set-up-an-asynchronous-delivery) claim keeps its exact earlier binding. Neither carrier sends an automatic reply to passive discovery. For each claimed carrier, exercise the complete no-provider, no-prior-association first-encrypted-message journey and negative/restart matrix. Signature/HPKE components alone cannot establish trusted envelope/DKIM coverage, disclosure admission, durable response reservation, bounded transport retry, package consumption or final human-content release. Include multiple recipient devices, unsupported legacy display and required address-masking holds.
 
 ### Setup-to-outbox handoff
 

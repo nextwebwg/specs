@@ -136,6 +136,10 @@ Before publication, durably retain the locally issued original offer, actual sup
 
 Offer identity is `(authenticated principal, authenticated device, record)`. Equal original payload bytes are duplicates. Independently authenticated unequal payloads under that identity conflict; arrival order chooses no winner. Invalid candidates cannot reserve it. Other offer IDs do not silently replace previously retained evidence or extend its deadlines.
 
+Reconstruct already accepted offer knowledge using independently retained original acceptance evidence and its credible observation interval. Revalidate the complete original source and its cryptographic, identity/account, package and interval dependencies at that original time. This can establish duplicate and conflict facts after publication or native-package expiry. An incoming record or sender-stated time cannot establish that earlier acceptance; missing or ambiguous original provenance stays held.
+
+Historical checking supplies no current permission to process a Welcome, decrypt a message again, install native state, acquire new material, select a delivery or release content. Retain the reconstructed facts under their owning retention and recovery rules. Expiry or reconstruction must not make a known offer identity fresh, erase a conflict, renew an original interval or revive retired custody. Every subsequent selection, admission and content release still applies its independent current checks.
+
 ### Complete receiving bundle
 
 Receiving-bundle0 is exactly the object below. The bundle adds no service signature or new identity authority.

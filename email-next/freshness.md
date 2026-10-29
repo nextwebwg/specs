@@ -50,7 +50,9 @@ Resolve the exact current accepted head and its original signed identity-state b
 
 ### Live confirmation
 
-For the current baseline, use exact [provider control2](provider-control.md#obtain-asynchronous-device-evidence), a fresh [bootstrap2 response](bootstrap.md#automatic-setup-for-independently-ready-recipients), or the [mailbox setup2 response](mailbox-setup.md#set-up-an-asynchronous-delivery), with original assertion10 and all owning account, signature, purpose, target, authorization and identity checks. Earlier agreement support uses its original version1/assertion9 or version0/assertion8 exchanges instead. Neither an earlier advertisement decoder nor its response can satisfy a current attempt.
+For the current opaque carrier, use exact [provider control3](provider-control.md#obtain-complete-mail-receiving-evidence), a fresh [bootstrap3 response](bootstrap.md#first-message-setup-with-carrier-support), or the [mailbox setup3 response](mailbox-setup.md#set-up-the-opaque-application-carrier). Each carries the complete original receiving-bundle0, including assertion10 and signed carrier support. Apply all owning account, signature, purpose, target, authorization and identity checks.
+
+Retained version2 exchanges keep their original assertion10 evidence and earlier carriage scope; version1/assertion9 and version0/assertion8 exchanges retain their own contracts. An older decoder or response cannot satisfy a current3 attempt.
 
 Before emitting a challenge, durably retain its original signed bytes and signature, nonce, exact protocol and applicable service/grant or mailbox-carrier scope, selected own account/device, intended mailbox and known target when available, local policy revision, operation identity and credible creation interval `[startEarliest, startLatest]`. A first-contact target can be bound after independent association selection; it must match the returned signed evidence and exact intended mailbox. Operation identity is a local random intent identifier, not a human-message content hash. The setup traffic stays content-free.
 
@@ -68,11 +70,17 @@ Use the existing mailbox setup exchange, not a second probe or an acknowledgment
 
 ::: {.details summary="Exact mailbox-response qualification and retained attempt"}
 
-For the current agreement, select mailbox-setup-v2 and its original assertion10, response signature and sealed2. Retained earlier agreements use exact version1/assertion9/sealed1 or version0/assertion8/sealed0; no mixed parser or fallback is permitted. No new wire member, response kind or media type is introduced.
+For the current opaque carrier, select mailbox-setup-v3, its complete original receiving-bundle0, response signature and narrowly selected sealed3 response.
+
+Retained mailbox-setup-v2 keeps its original assertion10/sealed2 binding; version1/assertion9/sealed1 and version0/assertion8/sealed0 retain their own bindings. Select the exact profile before creating the attempt; no mixed parser or fallback is permitted. These are the existing setup formats, not additional freshness records.
 
 Before the request leaves, durably bind its exact signed bytes, original request/nonce/digest, selected source and target mailboxes, own account/principal/device, required agreement, local send-intent revision, freshness policy/maximum age, credible creation interval and original deadline to that attempt. Retain the dedicated response-decryption key under its existing immutable receiving promise. A response cannot supply these local facts or create its own pending attempt.
 
-After full carrier/sealed-response validation, independently validate the response wrapper, original advertisement commitment and device authority. Match the original request, requestDigest, nonce, source/target, agreement and actual responder across the response, advertisement and sealed intent. Resolve the intended principal/device under the current association/verification policy; first-contact ambiguity remains a hold. The response advertisement must name the exact currently accepted target head and binding for live use, not merely an older still-authorized cached anchor. A known target-head change invalidates that live result; an eligible cached assertion can remain cached evidence only.
+After full carrier/sealed-response validation, independently validate the response wrapper, its exact selected commitment and device authority.
+
+Current3 commits the complete original receiving-bundle0; validate its advertisement and signed carrier support under the owning setup3 rules. Retained profiles keep their original advertisement commitments. Do not extract an advertisement from a current3 bundle and treat it as the complete setup proof.
+
+Match the original request, requestDigest, nonce, source/target, agreement and actual responder across the response, advertisement and sealed intent. Resolve the intended principal/device under the current association/verification policy; first-contact ambiguity remains a hold. The response advertisement must name the exact currently accepted target head and binding for live use, not merely an older still-authorized cached anchor. A known target-head change invalidates that live result; an eligible cached assertion can remain cached evidence only.
 
 Require the entire credible current interval inside every original request, response, assertion, binding and owning key lifetime. Retain the original local creation interval and apply the same maximum-age and backward-clock checks as other live attempts. Neither mail receipt time nor Message Date resets the age. Exact duplicate responses and retries retain the same attempt and result. Cancellation, expiry, unreliable restored timing or changed account/policy/intent dependencies cannot reactivate it. A new permitted attempt has fresh request identity/nonce/key and its own finite retry policy; it does not erase old uncertain submission or retirement obligations.
 
@@ -121,7 +129,11 @@ The selected freshness policy applies separately to each actual delivery's devic
 
 For mail-conversation-v2, validate original assertion10 under its exact signature, fixed readable application, per-device interactions, package/control-key receiving windows, current identity/association and known-negative rules. Cached continuity, recent checkpoint and live confirmation retain their meanings, local policy inputs and full credible-time checks. A newer agreement does not relax independent verification or make a publication live.
 
-Live evidence uses an exact [control2 device response](provider-control.md#obtain-asynchronous-device-evidence), fresh [bootstrap2 response](bootstrap.md#automatic-setup-for-independently-ready-recipients), or qualified [mailbox setup2 response](mailbox-setup.md#set-up-an-asynchronous-delivery). It must match the original locally outstanding intent/attempt, source account, target mailbox/device, agreement, nonce/digests, current exact target head/binding, original interval and selected maximum age. Apply all owning account/grant/disclosure/signature checks before freshness. Earlier responses, provider-ready states, publication retrieval and another target's valid response do not satisfy it.
+For the current opaque carrier, live evidence uses an exact [control3 device response](provider-control.md#obtain-complete-mail-receiving-evidence), fresh [bootstrap3 response](bootstrap.md#first-message-setup-with-carrier-support), or qualified [mailbox setup3 response](mailbox-setup.md#set-up-the-opaque-application-carrier), retaining the complete original receiving-bundle0 and signed carrier support.
+
+Retained version2 results keep their earlier carriage scope and cannot satisfy a current3 attempt.
+
+The selected live response must match the original locally outstanding intent/attempt, source account, target mailbox/device, agreement, nonce/digests, current exact target head/binding, original interval and selected maximum age. Apply all owning account/grant/disclosure/signature checks before freshness. Earlier responses, provider-ready states, publication retrieval and another target's valid response do not satisfy it.
 
 Freeze each attempt's credible creation interval and original age/deadline anchors. Retry, late arrival, route completion or a change of acquisition version cannot reset them. A changed target head, account, policy, required agreement or selected intent invalidates dependent live decisions. Preserve accepted negative facts and uncertain submissions; another source cannot clear them by supplying newer-looking evidence.
 

@@ -444,6 +444,8 @@ Realm1 publishes complete native setup and the device's signed mail-format promi
 
 Profile is `mail-realm-v1`. Every realm0-owned configuration, publication, withdrawal, migration, commit receipt, association-safety receipt and route-specific unsigned operation retains its exact member inventory/types, replacing its owning profile literal by1. Its strict static-setup bundle has the same six members: profile, purpose, association, identity, assertions, services. Profile is mail-realm-v1; purpose remains directory-static-setup. **Assertions now contains complete original receiving-bundle0 bytes**, canonical base64 and uniquely sorted by the actual advertisement's original payload digest, rather than bare assertion wrappers.
 
+In a realm1 configuration, `retrieval.profile` is exactly `mail-private-snapshot-v1`. Retained realm0 configurations keep `mail-private-snapshot-v0`. Validate historical configurations and checkpoints under their own original grammar and signature domains; the current selection does not rewrite them.
+
 Every bundle is static: the actual assertion10 and its offer's embedded assertion are byte-identical, package-free and have null keyPackageReceiveUntil. Check both independent signatures, original registration/association, exact authenticated device/binding/current Receive authority and continuous accepted ancestry, mailbox/account and original application/control promises. Do not remove a package from an old signed wrapper or substitute another device's offer. Whole directory publication interval fits all original positive dependencies, including every carriage offer. Services/association/identity retain their original exact schemas and role authority.
 
 | Realm-owned purpose | Selected signature domain |

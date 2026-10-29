@@ -19,9 +19,41 @@ The policy applies to this contribution and its intended audience. An encrypted 
 
 The [encryption journey](encryption-journey.md) applies these permissions to first contact, mixed recipients, device changes and recovery without requiring repeated routine decisions.
 
-The [module framework](modules.md) also treats content encryption, sender masking, recipient masking and identity verification independently. Remembered address-privacy requirements can hold an otherwise encrypted copy; permitted automatic upgrades select newly available protection without asking the person to edit addresses. The [swap sequence](private-routing.md#when-the-addresses-change) defines the exact composition, encryption, outer origination and receive-display boundaries.
+Encryption, hiding personal addresses and checking a contact’s identity are separate protections. If a protection you require is unavailable, that delivery waits.
 
 ## Per-recipient outcomes
+
+| Your choice | If protection is ready | If protection is not ready |
+| --- | --- | --- |
+| Require encryption | Send encrypted | Wait and explain what is missing |
+| Allow ordinary email | Prefer encrypted delivery | Send ordinary email under your saved permission |
+| Allow hosted access | Prefer encrypted delivery | Use the hosted service and access arrangement you approved |
+
+A permission to send an ordinary copy does not authorize publishing it at a new hosted service. A permission to use hosted access does not authorize a plaintext attachment after that service fails. The sender may explicitly permit more than one fallback; their order must be part of the effective policy.
+
+## When someone is still setting up
+
+You can start a group before everyone is ready. The app shows who is invited and which of your deliveries are pending. People who are ready can receive the message; later deliveries join the same conversation without adding another visible copy.
+
+Someone invited at the start is different from someone added later. Adding a person does not automatically give them earlier messages. A private reply or blind copy also stays separate from the visible group.
+
+## What the protection indicator means
+
+An encrypted copy does not make an ordinary copy private. If you permit ordinary delivery to one person, your sent view shows mixed protection. Each reply makes its own choice for its actual recipients; it does not inherit the first sender's permission to disclose content.
+
+The app can remember your preferences, but a failed lookup or delivery does not grant permission to weaken them. Changing your sending account also means checking that account's permissions before release.
+
+## If you change your mind
+
+Cancelling pending work cannot recall copies already sent. You can request deletion, but it cannot guarantee that nobody read or saved the message. A recipient system that honors the request removes the message silently; your own local marker records your request without claiming that remote deletion succeeded.
+
+Continue with the [everyday encryption journey](encryption-journey.md), or open the implementation reference below. Requirements in that reference still apply when its disclosure is closed.
+
+## Implementation reference
+
+::::: {.details summary="Implementation reference: delivery plans, pending recipients and deletion"}
+
+### Exact per-recipient outcomes
 
 | Effective permission | Compatible authenticated endpoint available | No compatible endpoint available |
 | --- | --- | --- |
@@ -29,13 +61,13 @@ The [module framework](modules.md) also treats content encryption, sender maskin
 | Permit ordinary copy | Prefer protected delivery where supported | Send readable ordinary email under the remembered permission |
 | Permit hosted access | Prefer protected delivery where supported | Use the approved hosted service and explicitly identified access model |
 
-A permission to send an ordinary copy does not authorize publishing it at a new hosted service. A permission to use hosted access does not authorize a plaintext attachment after that service fails. The sender may explicitly permit more than one fallback; their order must be part of the effective policy.
+The [module framework](modules.md) also treats content encryption, sender masking, recipient masking and identity verification independently. Remembered address-privacy requirements can hold an otherwise encrypted copy; permitted automatic upgrades select newly available protection without asking the person to edit addresses. The [swap sequence](private-routing.md#when-the-addresses-change) defines the exact composition, encryption, outer origination and receive-display boundaries.
 
 Under the retained mail-conversation-v1 copy contract, the sender may deliver an independently ready, authorized copy while another remains pending. The sent record distinguishes partial progress from delivery to everyone. An exact retry within an unchanged copy retains its original contribution, audience and prepared bytes; a newly scoped contribution for a different protected audience has its own identity. Neither path resends successful copies merely because another is waiting.
 
 If a recipient's identity evidence changes after planning but before submission, re-evaluate that recipient. A transport failure does not by itself justify a weaker mode. Once a copy has been accepted for delivery, switching mode is an additional disclosure, not cancellation of the earlier copy.
 
-## A waiting delivery is different from missing setup
+### A waiting delivery is different from missing setup
 
 The following frozen-copy planning rules retain the v1 contract and its shared transport/exposure safeguards. The current asynchronous agreement below uses its own intended-slot plan and actual delivery cohorts to retain one common authored message. A selected actual preparation still cannot omit a required device to hide a failed check.
 
@@ -90,7 +122,7 @@ Keep readiness, transport observations, hosted effects and content exposure as s
 
 :::
 
-## Start a group while invitees are pending
+### Start a group while invitees are pending
 
 People must be able to begin a group conversation before every intended participant has completed secure setup. Show the invited people and their pending delivery state; let eligible recipients receive independently. Do not silently remove a pending person from the intended discussion or claim that everyone received the message.
 
@@ -205,7 +237,7 @@ Only the sender’s own complete delivery ledger can establish which of its plan
 
 Private replies and Bcc copies create independently scoped roots and slot identities. They do not reuse the visible scope root, export its roster or report private activity into its delivery ledger. Adding someone later likewise requires a deliberately new scope and the applicable context/disclosure choices; a newly admitted device or a matching mailbox cannot make that person an originally pending recipient.
 
-## Complete a pending delivery
+### Complete a pending delivery
 
 A pending recipient can receive the original message later, after their setup succeeds. The sender keeps that message and its remaining delivery work; it does not rebuild the message from the conversation on screen. People who already received it do not receive a new message just because somebody else becomes ready.
 
@@ -278,7 +310,7 @@ Derive sender progress from the complete frozen obligation inventory and every l
 
 :::
 
-## Contribution-wide exposure
+### Contribution-wide exposure
 
 A client must distinguish **“this copy was encrypted”** from **“every copy was encrypted.”** If Alice permits an ordinary copy for Carol, the contribution MUST NOT be labeled “end-to-end encrypted for everyone,” even though Bob's copy is encrypted.
 
@@ -309,7 +341,7 @@ These permissions do not authorize weakening an enforced-encryption plan or disc
 
 ::::
 
-## Freeze disclosure before releasing content
+### Freeze disclosure before releasing content
 
 A protected copy describes the sharing its author planned when that copy was prepared. That statement is part of its immutable authenticated bytes. It cannot be rewritten later because another route failed or a broader fallback was selected.
 
@@ -329,7 +361,7 @@ Recipients interpret disclosure metadata as the authenticated plan for those ori
 
 :::
 
-## Choosing a sending account
+### Choosing a sending account
 
 A sender picker selects an account and its sending authority. It does not allow arbitrary From text. A compact address button may expose that choice without repeating it throughout the composer.
 
@@ -342,7 +374,7 @@ Changing the sender or final protection permission does not change draft-storage
 > [!ex] Personal and work accounts
 > Carol opens a reply from her personal account, then chooses her work address. The thread can remain visible while the client checks the work account's authority and delivery policy. If it cannot send a protected reply there, the client holds that mode or offers an independently authorized alternative. It does not silently borrow the personal account's key.
 
-## Remembered policy and the send plan
+### Remembered policy and the send plan
 
 A client MAY remember a user's policy for a correspondent or conversation. It MUST expose the effective policy before sending and let the user change it. This specification does not require a confirmation dialog on every send or select a universal default.
 
@@ -359,7 +391,7 @@ The plan is local authorization state, not a public recipient manifest. It MUST 
 
 Changes to audience, content, hosting service or protection mode require re-evaluation before the affected copy is submitted. A remembered policy may authorize a fallback without another prompt, but the composer and sent record must accurately reflect the resulting exposure. Failure to obtain capabilities MUST NOT silently amend a policy requiring encryption.
 
-## Hosted-access models
+### Hosted-access models
 
 A hosted fallback record identifies which of these models it implements. These names describe trust boundaries, not interchangeable security badges.
 
@@ -378,7 +410,7 @@ The notification contains minimal invitation text and the access link. It MUST N
 > [!ex] A forwarded link is still a bearer link
 > Carol forwards her access email to Dave. If possession of the link is enough to open it, Dave can use it too. A separate link for each recipient helps revoke grants independently; it does not prove who opened the page or who wrote a reply.
 
-## Link access, previews and replies
+### Link access, previews and replies
 
 Fetching a link MUST NOT submit an answer, send a read receipt, accept an invitation, consume a one-time grant or change conversation state. Email scanners and preview services may follow links without user intent. Any state-changing operation requires explicit interaction after the access page has loaded and a fresh authorization check.
 
@@ -402,7 +434,7 @@ A bearer link alone MUST NOT authorize a reply attributed as a verified mailbox 
 
 Replying through the host creates a new contribution with its own audience and protection policy. The host MUST NOT expose earlier conversation history to new recipients automatically. It must not convert a recipient's response into an ordinary-email copy merely because the original invitation arrived through email.
 
-## Expiry, revocation and failure
+### Expiry, revocation and failure
 
 A hosted grant has an explicit expiry policy, either a timestamp or an explicit no-expiry setting. The sender can inspect it before disclosure. Revocation prevents future authorized retrieval through that grant after enforcement takes effect; it cannot erase downloads, screenshots, caches or previously obtained decryption material.
 
@@ -410,7 +442,7 @@ An expired, revoked or unavailable grant shows a clear access failure without au
 
 The sender's record keeps separate facts for grant creation, notification submission, retrieval evidence, reply creation and revocation. None of these alone proves that the intended human read the contribution. A network request from a link scanner is not a read receipt.
 
-## Scheduled submission and accepted holds
+### Scheduled submission and accepted holds
 
 A locally scheduled draft remains subject to audience, identity and protection checks before submission. A message already accepted by a provider for future release has crossed that boundary. Show these states separately; do not present an accepted hold as a locally cancellable draft without a provider cancellation contract.
 
@@ -418,7 +450,7 @@ FUTURERELEASE does not define cancellation, ciphertext replacement or a fresh re
 
 A requested release time is not a guaranteed arrival time. Do not rewrite message history or trace fields to imply otherwise. The [future-release audit](audits/future-release.md) records existing timing rules and outstanding implementation dependencies.
 
-## Replies and private recipients
+### Replies and private recipients
 
 A new reply has a new audience. Adding someone does not automatically share earlier history, confidential subjects or private recipient information. A blind-copy recipient must be able to see when replying would reveal their participation.
 
@@ -463,7 +495,7 @@ For the RFC9788 composition path, compute the final outer-header values, includi
 
 ::::
 
-## Delivery reports do not change permission
+### Delivery reports do not change permission
 
 A refusal or missing receipt does not prove that someone lacks encryption support. It cannot authorize plaintext, hosted access or a different recipient. Keep each recipient's delivery result separate and apply the sender's existing policy.
 
@@ -481,7 +513,7 @@ Use RFC8098 for current MDN generation rather than copying contradictory removed
 
 ::::
 
-## Deletion requests and local deletion
+### Deletion requests and local deletion
 
 A sender can ask recipients to delete a message already delivered. A compatible
 recipient system that honors the request removes the message silently: it MUST
@@ -681,7 +713,7 @@ not proof of this native protocol.
 
 ::::
 
-## Required verification
+### Required verification
 
 Conformance fixtures must cover remembered policy, a stripped advertisement, mixed recipients, Bcc grants, partial transport acceptance, retries after key changes, host failure, link forwarding, scanner prefetch, expiry, revocation, account recovery, forged bearer replies and quoting old content into a new audience. Test evidence must identify which access model and security profile were exercised.
 
@@ -700,3 +732,5 @@ submission. Test actual provider integrations separately; mocks do not establish
 Exchange interoperability or native deletion support.
 
 This chapter owns policy and disclosure behavior. The [security profile](security-profile.md), [hosted-access contract](hosted-access.md) and [protected private-copy contract](private-copies.md) own the selected algorithms, wire formats and access boundaries. Implementers must name the profiles they support and their tested limits; the policy alone is not a complete secure-delivery implementation.
+
+:::::

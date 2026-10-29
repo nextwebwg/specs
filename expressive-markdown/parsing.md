@@ -1619,7 +1619,11 @@ between blocks and line endings included. A parser records the source text and
 each top-level block's range in the document's `source`, with a way to
 recognize the block unedited, such as a hash of its data. A writer writes each
 unedited block from its range, and the source's spacing between two unedited
-neighbours. An edited or new block is written canonically: whitespace inside
+neighbours, and ends the document as its source ended: the whitespace after the
+last recorded block, a final line ending or none, even when the last block is
+edited. A file's ending belongs to the file rather than to its last block, so
+editing that block leaves the ending, and a diff's end-of-file marker, alone.
+An edited or new block is written canonically: whitespace inside
 constructs, character escapes and overwritten duplicate attributes are
 normalized. Source the safe profile filters is never written from the record.
 

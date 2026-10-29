@@ -159,6 +159,20 @@ The signed response can supply [live device confirmation](freshness.md#live-conf
 
 The responder need not receive cancellation mail: its original finite request deadline bounds pending work. It retains any independently published receiving material under its own signed receiving promise; cancelling a request does not silently withdraw that promise. Retain consumed-package records, request/response identities, conflicts and original results through the owning validity/retention windows. Garbage collection cannot recreate authority or reset a timer. Restart reconciles stored work and credible time before any new release. Known restore/rollback disables uncertain local operational permissions until reconciled; it does not resend setup from absence.
 
+::: {.details summary="Recover an interrupted response check"}
+
+Bob sends two signed, unequal responses to the same setup request. If both are valid, a restart must not erase their conflict when a package expires.
+
+An authenticated encrypted control may be durably staged before its setup response is accepted. Staging alone supplies neither a valid response nor a conflict. Recovery that derives a conflict from that staged input MUST:
+
+1. Verify independently retained original receipt evidence, its credible observation interval, the complete original control signature and the exact pending-request correlation. Incoming bytes or a sender-stated time cannot establish earlier receipt.
+2. Apply the complete owning response checks at that original observation interval: body, request, identity/account authority, binding, cryptographic native-package proof and original bounds. Use the retained carrier version's own contract. A control signature alone cannot make an invalid response trustworthy.
+3. Compare only that fully validated original response with the retained outcome and install only the resulting negative fact. Preserve the original retention, uncertainty and retirement rules; expiry cannot erase a valid conflict or renew a deadline.
+
+Missing or ambiguous provenance stays held. This historical check cannot accept a new response, acquire or consume a package, restore a retired secret, install native state or authorize content release. Those operations still require their independent current checks. Recovery does not reopen the retired setup key to decrypt the control again.
+
+:::
+
 A compatible client can classify accepted controls in its protocol activity view, while keeping them inspectable. Malformed or unsupported mail remains available as received mail. This protocol never tells a legacy client to discard a message, hides human writing inside a control, or marks a draft as sent before protected transport handoff.
 
 ## Why the automatic-response exception is narrow

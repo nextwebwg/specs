@@ -1623,6 +1623,25 @@ neighbours. An edited or new block is written canonically: whitespace inside
 constructs, character escapes and overwritten duplicate attributes are
 normalized. Source the safe profile filters is never written from the record.
 
+Two blocks are written in parts, because an edit to one entry would otherwise
+rewrite every sibling, and the change a reviewer sees would cover the whole
+block. A top-level list records each item's range and recognition beside its
+own: an edited list writes each unedited item from its range, the source's
+spacing between unedited neighbours, and edited or new items canonically with
+the list's markers. A pipe table written from its authored source keeps every
+unedited cell's text and rewrites only the edited cells, when its rows,
+columns, header cells and alignment are unchanged. Either result is kept only
+when it reads back as the edited block; otherwise the block is written
+canonically.
+
+A tool that re-reads only the part of a document an edit touches produces the
+same document as reading the edited text in full. A top-level block's reading
+depends on its own lines and the line after them, so re-reading from the
+top-level block before the edit, until a block after the edit starts where a
+block started before, meets this. Frontmatter, link and footnote definitions,
+and in `standard` syntax HTML elements, which read through to their end tags,
+affect blocks beyond their own, so an edit touching them is re-read in full.
+
 The table lists the preferred forms, which writers use for content without a
 recorded authored form, such as content a tool inserts.
 

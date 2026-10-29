@@ -177,10 +177,14 @@ Its purpose is `realm-operation`; request ObjectId. Operation exactly `{kind,bod
 | --- | --- | --- |
 | current | mail.directory.snapshot | empty bytes; private-profile current checkpoint JSON |
 | checkpoints | mail.directory.snapshot | empty bytes; full common checkpoint-chain JSON |
-| snapshot | mail.directory.snapshot | strict `{profile,epoch,checkpointDigest}`, profile mail-private-snapshot-v0; complete matching binary file |
+| snapshot | mail.directory.snapshot | strict `{profile,epoch,checkpointDigest}`; profile exactly the private profile selected by the authenticated current realm configuration’s `retrieval.profile`; complete matching binary file |
 | evaluate | mail.directory.evaluate | original private-profile evaluate JSON; its request equals envelope request; exact evaluation/proof JSON |
 | mutation | mail.directory.publish | original realm `{record,bundle,evidence}`; exact index commit receipt JSON |
 | association-withdrawal | mail.directory.publish | original realm safety-withdrawal JSON; exact safety commit receipt JSON |
+
+For `current`, `checkpoints`, `snapshot` and `evaluate`, select the private handler from the authenticated current realm configuration before decoding an inner request or returning logical metadata. Realm0 selects `mail-private-snapshot-v0`; realm1 selects [mail-private-snapshot-v1](private-snapshot.md#private-acquisition-with-carrier-support). An unsupported configured profile leaves this path unavailable. A request-body profile cannot choose a decoder or downgrade the selected format.
+
+Original historical checkpoint and configuration wrappers keep their independently validated versions and signatures, including permitted snapshot0 ancestry under snapshot1. The outer `mail-realm-access-v0` envelope, routes, scopes, exact original request commitment and admission, currentness, replay and disclosure rules are unchanged.
 
 No caller URL/method/prefix/account callback selects a handler. Realm/configuration scope must match the current selected role mapping and original inner epoch/publication authorizations. The access credential supplies no additional enrollment truth or native identity role. The outer configurationDigest must match the currently selected realm role/access mapping; an old still-signed inner publication can retain its own historical configurationDigest under the publication owner.
 

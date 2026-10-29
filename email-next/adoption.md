@@ -14,6 +14,8 @@ Email/2 should become useful before every provider upgrades. A client can improv
 
 This chapter describes proposed implementation paths and the evidence needed to advance along them. Implementations advertise specific supported profiles, not a single “Email/2 compatible” flag. This chapter announces no vendor commitments or available certification.
 
+::: {.details summary="Existing demonstrations and their coverage"}
+
 | Implementer | Practical starting point | What is available now |
 | --- | --- | --- |
 | Client | Open the conversation demos, then reproduce one exchange in your client | A source-preserving reader, joined interactions and signed protected rich-message fixtures; no complete client acceptance harness |
@@ -23,6 +25,8 @@ This chapter describes proposed implementation paths and the evidence needed to 
 The [available starting material](#available-starting-material) distinguishes these development inputs from the proposed acceptance kit.
 
 The [joined conversation demonstration](evidence/README.md#joined-question-and-ordinary-reply) supplies a concrete local integration target: a protected question, a browser answer button, actual encrypted reply delivery, and an ordinary email reply in one readable conversation. Its contact-name conversation list separates known contacts from other participants, orders threads by recent activity and keeps rich messages in an open layout. Ordinary replies retain their original email and collapse only uniquely matched fixed-line quotations. Its accounts and application agreement are explicitly configured; it is a development fixture, not a complete client acceptance harness.
+
+:::
 
 New clients claiming Encryption target the [current asynchronous baseline](suite-profile.md#current-client-baseline). Provider carriage remains independently adoptable, and optional provider/setup or managed-group roles keep their declared bindings. Earlier experiments demonstrate only their exact compatibility or component scope.
 
@@ -47,6 +51,8 @@ Price is only one barrier. Installation, mailbox connection, first contact, addi
 The [client behavior contract](client-behavior.md) defines the target of these implementation stages, including people and thread lists, explicit composition targets, reactions, restart behavior and protection outcomes.
 
 A client can deliver the first benefit alone: make existing mail easier to follow. It can then add predictable rich presentation, protected exchanges and structured answers over the same email account. None of these steps requires a provider control service. Each advertised capability still needs its complete profile and dependencies. These are development stages, not separate conformance levels: an Email/2 reading client must implement the [required HTML/CSS presentation](presentation-profile.md#required-presentation). A useful legacy-mail reader or text-only prototype does not yet meet that requirement.
+
+::: {.details summary="Client integration sequence and acceptance checks"}
 
 | Release step | What the user gets | Starting point and acceptance check |
 | --- | --- | --- |
@@ -80,11 +86,15 @@ For evolving conversations, use the existing [initial roster](mls-invitations.md
 
 These sources are implemented local fixtures and reference components, not a finished client toolkit. Use the [acceptance reports](#available-starting-material) to see which cases actually ran, then add an adapter for your client. A local pass cannot stand in for real-provider carriage, independent peers or manual accessibility checks. Test the intended benefits too: whether people can find each person's answer, avoid repeated quoting and understand the actual protection state. No measured usability improvement is claimed yet.
 
+:::
+
 ## Email server adoption
 
 Providers can add support in stages while keeping existing addresses, SMTP delivery and IMAP or JMAP access. The first useful upgrade is dependable carriage: compatible clients can already exchange protected contributions through ordinary email. A provider does not need to hold decryption keys, render message HTML or run a key directory to preserve those packages.
 
 Each later stage advertises a specific capability. Upgrading a server can improve discovery or delivery, but it cannot make an older client understand a new message format. A successful transport negotiation describes that hop; protection still depends on the intended receiving devices and the sender's delivery policy.
+
+::: {.details summary="Server integration stages and rollout checks"}
 
 | Stage | What it unlocks | Evidence before advertising support |
 | --- | --- | --- |
@@ -122,9 +132,13 @@ After staging checks, an operator can choose an opt-in cohort and measure the be
 
 The intended gains are fewer damaged protected deliveries, less negotiation clutter and a documented client integration surface. These are benefits to measure, not established results or vendor commitments. Synchronization and upgraded relay features need completed contracts and independent evidence before advertisement. Existing transport remains useful throughout the rollout.
 
+:::
+
 ## Acceptance tools and interoperability program
 
 Start with one implemented profile and reproduce its report before writing an adapter for your client or server. The [implementation-claim rules](conformance.md) define what the result supports. Passing local checks establishes only the cases named by that manifest; it does not certify a client, establish mailbox ownership or demonstrate independent interoperability.
+
+::: {.details summary="Run acceptance reports and inspect the available manifests"}
 
 1. Choose a manifest below and follow its linked setup instructions. Preserve the selected profile and manifest revision rather than silently replacing an older wire version with a newer one.
 2. Run the [offline acceptance runner](evidence/README.md#offline-acceptance-report) with `--manifest` and retain its JSON report, source hashes and scenario results. The default manifest is the button example. For example, from the Email/2 directory after configuring the documented test dependencies:
@@ -170,6 +184,8 @@ Security cases include stripped capability advertisements, altered MIME alternat
 
 The service-answer adapter must also reorder acknowledgements: deliver pending after confirmed, duplicate a terminal receipt, return “not found” after a receipt has been retained, and supply incompatible authenticated terminal results. The client must preserve the confirmed outcome in the first three cases and show conflict in the last. An unauthenticated conflicting response must not alter the valid submission. These are required scenarios for the proposed cross-implementation service adapter. The joined service-answer manifest covers local lost-response and status reconciliation, but does not cover this complete reordering matrix or independent implementations. Local service experiments do not substitute for that external adapter.
 
+:::
+
 ## Making participation practical
 
 Publish a short entry point, downloadable fixtures and machine-readable results for each stage. Keep the first run local; offer optional adapters for real test accounts. An implementer can contribute one scenario by publishing the versions, topology and observed result, with a minimized reproduction and requirement link for any mismatch. Resolve disagreements in the specification and add a shared regression case. Independent client implementers, mail operators, accessibility specialists and security reviewers are prospective participants; no partnership or commitment is assumed.
@@ -183,6 +199,8 @@ Implementers can reproduce the [configured Unicode17 provider checks](evidence/I
 ## Available starting material
 
 The [local experiments](evidence/README.md) supply runnable components and synthetic messages. The [validation record](validation.md) identifies what ran and its limits. These are development inputs, not a complete client toolkit, provider deployment or certification program.
+
+::: {.details summary="Available fixtures, integration targets and remaining work"}
 
 | Start with | Available local evidence | Next integration step |
 | --- | --- | --- |
@@ -199,3 +217,5 @@ The [acceptance manifests above](#acceptance-tools-and-interoperability-program)
 HTML parsing and image decoding run in limited worker processes. The [resource-enforcement evidence](evidence/README.md#isolated-html-parsing) distinguishes tested CPU, output and time enforcement from the sampled memory watchdog on macOS. It does not claim a hard allocation ceiling, a security sandbox or complete decoder fidelity. Treat platform enforcement and rendering quality as separate checks.
 
 The next tooling work is to package the remaining profile cases and add actual client/server adapters. Independent implementations must then publish the versions, topology, outcomes and limitations of shared runs. The [open decisions](interoperability.md) identify boundaries still needing a complete contract or implementation.
+
+:::

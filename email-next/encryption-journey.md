@@ -280,4 +280,4 @@ The client can pause affected activity to reconcile conflicting account updates.
 
 :::
 
-To see how an app presents these choices, continue with [client behavior](client-behavior.md). To build a client or mail service, use the [adoption paths](adoption.md); the [architecture and acceptance cases above](#architecture-and-implementation) provide the detailed requirements.
+Continue with [delivery choices when someone is not ready](delivery-policy.md#per-recipient-outcomes). For implementation, use [client behavior](client-behavior.md), the [adoption paths](adoption.md), or the [architecture and acceptance cases above](#architecture-and-implementation).

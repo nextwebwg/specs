@@ -3,7 +3,6 @@ title: Messages and interactions
 order: 1
 blurb: conversations · answer buttons · fallback
 sectionNav: true
-navGroup: guide
 ---
 
 # Messages and interactions

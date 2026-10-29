@@ -3,7 +3,6 @@ title: Client and server adoption
 order: 16
 blurb: implementation stages · acceptance tools · interoperability
 sectionNav: true
-navGroup: guide
 ---
 
 # Client and server adoption

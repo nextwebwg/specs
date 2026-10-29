@@ -262,6 +262,10 @@ Finally, test whether ordinary people can complete first contact, interpret an u
 
 ## Sending from another enrolled device
 
+Another approved device can send using its own keys without first copying your old messages. The app handles the setup and shows any remaining wait.
+
+::: {.details summary="Sending streams, confidential setup and administrator conflicts"}
+
 For an ordinary protected conversation, the [sending-stream contract](suite-profile.md#ordinary-protected-conversations) lets an enrolled device establish its own fresh stream using current valid public setup for the selected recipients. It does not wait for their ordering votes, copy another device's live state or download old correspondence. Missing required setup still holds delivery. Exact reply references require their retained evidence; without it, a device can compose a new root contribution.
 
 Each stream keeps its exact owner and membership evidence. Current revocation, recipient repair and key-retention rules still apply. Managed groups keep their distinct shared membership/ordering procedure. A new ordinary stream is not a way to bypass a managed-group hold or acquire its history.
@@ -273,3 +277,7 @@ Invitations, updates and setup responses are confidential too: the sender [seals
 ### When two administrator devices update at once
 
 The client can pause affected activity to reconcile conflicting account updates. It preserves all revocations and collects the required surviving administrators' approvals for one exact repaired roster. Same-key renewal does not require arbitrarily choosing one device's longer expiry. Missing approvals remain visible; a timeout cannot restore a revoked administrator. The [state1 lifecycle](identity-state.md#concurrent-administration-and-retirement) defines proof collection, installation, explicit cleanup and the new-identity outcome when no qualifying authority survives. Repaired identity, refreshed delivery permission, submitted content and read history remain separate outcomes.
+
+:::
+
+To see how an app presents these choices, continue with [client behavior](client-behavior.md). To build a client or mail service, use the [adoption paths](adoption.md); the [architecture and acceptance cases above](#architecture-and-implementation) provide the detailed requirements.

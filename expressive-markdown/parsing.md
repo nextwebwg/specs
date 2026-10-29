@@ -17,7 +17,7 @@ HTML conversion recommendations are informative.
 ## Parsing order
 
 1. Normalize CRLF/CR to LF; retained positions refer to original input.
-2. Recognize optional opening frontmatter, then Markdown blocks by the [Markdown rules](#markdown-rules), [HTML elements](#html-elements), containers, leaf directives, footnote definitions, tables and line blocks in their enclosing block context.
+2. Recognize optional opening frontmatter, then Markdown blocks by the [Markdown rules](#markdown-rules), [HTML elements](#html-elements), containers, leaf directives, footnote definitions, definition lists, tables and line blocks in their enclosing block context.
 3. Parse inline content and titles after block boundaries, once every footnote label is known.
 
 Code spans, fenced code and raw-text HTML retain their lexical boundaries;
@@ -1074,6 +1074,125 @@ of the document; definitions render nothing in place:
   which contain letters, numbers, marks and hyphens.
 - `aria-label="Footnotes"` names the notes region without imposing a heading rank.
 - An unresolved supplied reference renders as its literal text.
+
+## Definition lists
+
+```md
+Term
+: First description,
+  continued.
+: Second description.
+
+Next term
+: Its description.
+```
+
+```html
+<dl>
+<dt>Term</dt>
+<dd>First description, continued.</dd>
+<dd>Second description.</dd>
+<dt>Next term</dt>
+<dd>Its description.</dd>
+</dl>
+```
+
+> [!note] CommonMark
+> **CommonMark:**
+>
+> ```html
+> <p>Term
+> : First description,
+> continued.
+> : Second description.</p>
+> <p>Next term
+> : Its description.</p>
+> ```
+
+**Terms.** A **marker line** is a line that starts, after any block-relative
+indentation, with one `:` followed by a space, a tab or the line end. A
+**term line** is the first line of a paragraph whose next line is a marker
+line. A term line opens a `definitionList`; trimmed, it is a `definitionTerm`
+holding inline Markdown. Definition lists are recognized in every block
+context: the document, containers, quotes, list items, footnote definitions,
+cell bodies and other descriptions.
+
+**Descriptions.** A marker line opens a `definitionDescription`. Its content
+starts after the colon and optional spaces or tabs, and continues on lines
+indented more than the marker, by any amount, as [list nesting](#lists) is
+relative. Read that content as blocks, as a list item's content is read: a
+nonblank line indented no more than the marker ends the description. A
+description holding blank-line-separated blocks has `tight: false`. A marker
+followed only by whitespace, with no indented content, gives `body: []`.
+
+**Continuing the list.** After a description, the list continues, after any
+blank lines, with:
+
+- a marker line, which adds a description to the same term;
+- a term line, which starts the next term.
+
+Any other nonblank line ends the list, and so does the end of its enclosing
+block.
+
+**Where a definition starts.** Only the term-line shape above starts a
+definition list, so every other line keeps its reading:
+
+| Source | Reading |
+| --- | --- |
+| `Term`<br>`: Description` | A definition list. |
+| `Term`<br>`:Description` | One paragraph: the marker needs a space, a tab or the line end after it. |
+| `Term`<br>`:kw[must] apply` | One paragraph holding an inline directive. |
+| `Term`<br>`::page-break` / `:::` | The leaf directive or colon fence reads by its own rules. |
+| `Term`<br>`\: Description` | One paragraph: the escaped colon is literal. |
+| `Term`<br>`~ Description` | One paragraph. |
+| `First line`<br>`Term`<br>`: Description` | One paragraph: its later lines continue it. |
+| `Term`, a blank line, `: Description` | Two paragraphs. |
+| `## Term`<br>`: Description` | A heading, then a paragraph. |
+| `- Term`<br>`: Description` | A list, then a paragraph: the unindented line ends the item. |
+| `- Term`, then `: Description` indented under it | A list item holding a definition list. |
+| `> Term`<br>`> : Description` | A quote holding a definition list. |
+| `> [!note] Term`<br>`> : Description` | A callout titled “Term”, whose body is a paragraph. |
+| `::: note [Term]`<br>`: Description` | A container whose body starts with a paragraph. |
+| `\| Term`<br>`: Description` | A line block, then a paragraph. |
+| `Term`<br>`: Description`, then `: More` indented under it | A description whose content is itself a definition list, with the term `Description`. |
+| `Term`<br>`: Description`<br>`continued` | A definition list, then the paragraph `continued`. |
+
+Code spans, fenced code and raw-text HTML keep their lexical boundaries, and
+block boundaries come first: a code span cannot join a term line to its marker
+line. In a [named table record](#named-fields-and-column-identity), a line at
+label indentation starts a field; a definition list sits inside a field body.
+
+**Writing.** Write a definition list where it sits in the tree. Write each
+term on its own line, then each of its descriptions: `:`, a space, then the
+first block, with every later nonblank line indented two spaces; blank lines
+stay empty. Separate a `tight: false` description's blocks with a blank line.
+An empty description writes `:` alone. Put one blank line before each term
+after the first, and no blank line between a term and its descriptions.
+
+- In a paragraph, protect a `:` that would start a marker line directly after
+  the paragraph's first line: write `\:`.
+- Protect a term whose text would start another block, as for
+  [literal block markers](#literal-block-markers).
+- Definition list nodes have no attribute attachment; report an ID or
+  attributes on one as unsupported conversion.
+- Report unsupported conversion for a term holding a `break` or `softBreak`,
+  and for two adjacent `definitionList` siblings, which read back as one list.
+
+**Recommended HTML.** A `definitionList` renders as `<dl>`, each term as
+`<dt>` and each description as `<dd>`, in source order. A description renders
+its blocks as a list item does: with `tight: false`, each paragraph is a `<p>`;
+otherwise paragraph content sits directly in the `<dd>`. An empty description
+renders as `<dd></dd>`.
+
+**Diagnostics.**
+
+| Input | Result |
+| --- | --- |
+| A paragraph whose later line starts with `:` or `~` followed by a space, a tab or the line end | Paragraph text. Recommend an `unattached-definition-marker` warning. |
+| A paragraph starting with such a `:` or `~`, after a one-line paragraph and a blank line | Paragraph text. Recommend an `unattached-definition-marker` warning. |
+| Mixed tabs and spaces in description indentation | Read as for [list nesting](#lists); recommend a warning. |
+| A supplied list that starts with a description, ends with a term or is empty | Invalid structure; report it. |
+
 ## Link references
 
 ```md
@@ -1477,6 +1596,7 @@ without writing them back as authored document IDs.
 | Footnote reference without a definition | Text. Recommend a warning. |
 | Unused or repeated footnote definition | Kept in place; renders nothing. Recommend a warning. |
 | Link reference without a definition | Text, using CommonMark's literal fallback. |
+| Definition marker without a term line | Paragraph text. Recommend a warning. |
 
 Recovery nodes keep original source in `value` and a `display` context. Recommend escaped inline text or block text with visible source-line breaks. Recovery is not an executable-content mechanism.
 
@@ -1517,6 +1637,7 @@ recorded authored form, such as content a tool inserts.
 | YAML strings for title/ID; string lists for tags | Custom metadata, quoting strings YAML would otherwise type differently. |
 | `[^label]` and `[^label]:` with four-space continuation | Each footnote definition at its place in the tree. |
 | Reference links in their authored form; `[label]: destination "title"` | Each definition at its place in the tree. |
+| A term line, then `: ` descriptions with two-space continuation; one blank line before each later term | Each term's descriptions and each description's `tight`. |
 
 ### Authored forms
 
@@ -1566,6 +1687,7 @@ the preferred form, so a document written in preferred forms carries none.
 | Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `.class`, `#id`, double quotes, spaces | `attributes` |
 | Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
 | Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |
+| Definition list | Marker spacing and indentation, continuation indentation, blank lines between terms | `: `, two-space continuation, one blank line before each later term | `markdown` |
 | Frontmatter | YAML as authored | Generated YAML | `frontmatter` on the document |
 
 `referenceType`, `spelling` and `titleSpelling` are node fields because the
@@ -1783,13 +1905,13 @@ The point format follows [unist positions](https://github.com/syntax-tree/unist#
 shared fields above. Each feature disclosure defines its required content and additional fields.
 
 Block content admits paragraph, heading, quote, list, code, line block, table,
-container, leaf, horizontal rule, footnote definition, link reference
-definition, stray fence and block-display group/HTML element/HTML/literal. Inline content admits text,
+container, leaf, horizontal rule, footnote definition, definition list, link
+reference definition, stray fence and block-display group/HTML element/HTML/literal. Inline content admits text,
 inline formatting, inline code, link, image, link and image reference, footnote
 reference, break/soft break, inline directive and
 inline-display group/HTML element/HTML/literal.
 `title` is a designated title-field node, not an ordinary paragraph body child.
-Lists contain list items; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
+Lists contain list items; definition lists contain terms and descriptions; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
 
 
 ### Serialization, extensions and diagnostics

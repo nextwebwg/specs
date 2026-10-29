@@ -392,6 +392,26 @@ Run [`--force`]{.flag} once.
 
 Render it as a `<span>` carrying only its attributes.
 
+## Definition lists
+
+Keep each term visibly tied to its descriptions:
+
+```md
+Fence
+: A line of colons around a container.
+: A line of backticks or tildes around code.
+```
+
+```html
+<dl><dt>Fence</dt><dd>A line of colons around a container.</dd><dd>A line of backticks or tildes around code.</dd></dl>
+```
+
+Render a native `<dl>` with `<dt>` and `<dd>` in source order, so assistive
+technology announces the list and its terms. Style the pairing with CSS, such
+as a bold term and an indented description, and keep every description of a
+term under that term. A table or a run of bold paragraphs loses that pairing.
+See the [definition list rules](/expressive-markdown/parsing#definition-lists).
+
 ## Layout
 
 Align a group's child blocks and their text together. Use logical directions so

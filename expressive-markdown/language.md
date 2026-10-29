@@ -1271,6 +1271,114 @@ The syntax is the one PHP Markdown Extra introduced and GFM, Pandoc,
 MultiMarkdown and Djot share. `^[text]` is ordinary text: write the note as a
 definition. See the [footnote parser and writer rules](/expressive-markdown/parsing#footnotes).
 
+## Definition lists
+
+Pair terms with their descriptions, as in a glossary. Write each term on its
+own line, and start each description on the next line with `: `:
+
+```md
+Container
+: A block between colon fences, such as a callout.
+
+Fence
+: A line of three or more colons around a container.
+: A line of backticks or tildes around code.
+```
+
+:::: {.render title="Glossary" height="210"}
+```html
+<dl>
+  <dt>Container</dt>
+  <dd>A block between colon fences, such as a callout.</dd>
+  <dt>Fence</dt>
+  <dd>A line of three or more colons around a container.</dd>
+  <dd>A line of backticks or tildes around code.</dd>
+</dl>
+```
+
+::: {.details #definition-list-ast summary="AST"}
+```json
+{
+  "type": "definitionList",
+  "children": [
+    { "type": "definitionTerm", "value": "Container" },
+    {
+      "type": "definitionDescription",
+      "body": [{ "type": "paragraph", "value": "A block between colon fences, such as a callout." }]
+    },
+    { "type": "definitionTerm", "value": "Fence" },
+    {
+      "type": "definitionDescription",
+      "body": [{ "type": "paragraph", "value": "A line of three or more colons around a container." }]
+    },
+    {
+      "type": "definitionDescription",
+      "body": [{ "type": "paragraph", "value": "A line of backticks or tildes around code." }]
+    }
+  ]
+}
+```
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
+| `definitionList` | `children`: one or more groups, each a `definitionTerm` followed by one or more `definitionDescription` nodes. | Block. Starts with a term and ends with a description. |
+| `definitionTerm` | Inline content. | One source line: its content holds no `break` or `softBreak`. |
+| `definitionDescription` | Blocks. | `tight: false` when blank lines separate its blocks, which then render with `<p>`. An empty `body` is an empty description. |
+:::
+::::
+
+A term is one line of inline Markdown. A description holds blocks, as a list
+item does: indent its later lines under the `:`, and separate its paragraphs
+with a blank line:
+
+```md
+Fence
+: A line of colons around a container.
+
+  Nested containers use a longer outer fence.
+```
+
+**HTML representation**
+
+```html
+<dl><dt>Fence</dt><dd><p>A line of colons around a container.</p><p>Nested containers use a longer outer fence.</p></dd></dl>
+```
+
+Its description has `tight: false`, so each paragraph renders with `<p>`. A
+description holding one paragraph renders that paragraph's content directly in
+`<dd>`.
+
+| Situation | Result |
+| --- | --- |
+| Term | The first line of a paragraph, directly followed by a line starting `:`. |
+| Marker | One `:` followed by a space, a tab or the line end. `:` alone gives an empty description. |
+| Several descriptions | One `:` line each, under the same term. |
+| Next term | A term line after the last description, usually after a blank line. The list continues. |
+| Continuation | Lines indented more than the `:`, by any amount. An unindented line ends the description. |
+| A paragraph's later line starting `: ` | Paragraph text. Only a paragraph's first line becomes a term. |
+| `:kw[must]`, `::page-break`, `:::` | An inline directive, a leaf directive and a container fence, as elsewhere. |
+
+The syntax is the one PHP Markdown Extra introduced, as Pandoc, kramdown,
+MultiMarkdown and markdown-it-deflist read it. See the
+[definition list parser and writer rules](/expressive-markdown/parsing#definition-lists).
+
+### Spellings from other tools
+
+Each of those tools reads the form above as a definition list. Some also read
+other forms, which Expressive Markdown reads as follows:
+
+| Source | Reading |
+| --- | --- |
+| `:   Description`, a tab after `:`, or an indented `:` | A description. Writers keep the authored spacing. |
+| Continuation lines indented four spaces | The same description: any deeper indentation continues it. |
+| `~ Description` (Pandoc, markdown-it-deflist) | Paragraph text. |
+| A blank line between the term and its first `:` | Two paragraphs. |
+| Two term lines above one `:` (PHP Markdown Extra, kramdown, MultiMarkdown) | One paragraph. |
+| An unindented line after a description | The end of the description; the line starts a new block. |
+
+Convert these forms to the `:` form once, on import. Tools recommend a
+diagnostic for each `:` or `~` line that reads as paragraph text.
+
 ## Code blocks and presentation metadata
 
 Keep code literal while adding a caption, line highlights or line numbers:
@@ -3262,6 +3370,7 @@ CSS display. JavaScript execution, MDX/JSX and framework APIs are outside the co
 | [Pandoc](https://pandoc.org/MANUAL.html#pandocs-markdown) | IDs and leading-pipe lines. | Defined line boundaries without visual source indentation. |
 | [GitHub alerts](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts) / [Obsidian callouts](https://help.obsidian.md/callouts) | `> [!type]` quotations, with titles and custom types in Obsidian. | A second spelling of the callout container, written back as authored. |
 | [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#footnotes) | Footnote references and indented definitions, also in [GFM](https://github.blog/changelog/2021-09-30-footnotes-now-supported-in-markdown-fields/) and [Pandoc](https://pandoc.org/MANUAL.html#footnotes). | Definitions stay in place; labels are identifiers matched exactly. |
+| [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#def-list) | Definition lists, also in [Pandoc](https://pandoc.org/MANUAL.html#definition-lists), [kramdown](https://kramdown.gettalong.org/syntax.html#definition-lists), [MultiMarkdown](https://fletcher.github.io/MultiMarkdown-6/syntax/#definitionlists) and [markdown-it-deflist](https://github.com/markdown-it/markdown-it-deflist). | One-line terms and `:` descriptions, indented as list items are. |
 | [UMD](https://docs.rs/crate/umd/0.2.0/source/README.md) | Cell merge markers. | Rectangular grid, numeric spans and loss-preserving recovery. |
 | [MyST](https://mystmd.org/guide/figures) / [Quarto](https://quarto.org/docs/authoring/figures-and-layout.html#figure-divs) | Structured figures and captions. | Shared container family with explicit subtype meanings. |
 | [mdast](https://github.com/syntax-tree/mdast) / [unist](https://github.com/syntax-tree/unist) | Documented trees. | Independent title/body/children/value fields and traversal. |

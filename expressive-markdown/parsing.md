@@ -1112,13 +1112,13 @@ Next term
 **Terms.** A **marker line** is a line that starts, after any block-relative
 indentation, with one `:` followed by a space, a tab or the line end. A
 **term line** is the first line of a paragraph whose next line is a marker
-line, and is not a marker line itself: a marker line always opens a
-description, so `: x` followed by `: d` is paragraph text rather than a term.
+line, and is not a marker line itself. A marker line opens a description
+only after a term or a description, so `: x` followed by `: d` is one
+paragraph.
 A term line opens a `definitionList`; trimmed, it is a `definitionTerm`
 holding inline Markdown. A term is one source line, so its content holds no
-`break` or `softBreak`: a `<br>` in a term is an inline `br` element. Read as
-a break, it would have no spelling on a term line, where a trailing `\` is
-text; read as an element, it writes back as written. Definition lists are recognized in every block
+`break` or `softBreak`: a trailing `\` on a term line is text, and a `<br>`
+is an inline `br` element, as everywhere, which writes back as written. Definition lists are recognized in every block
 context: the document, containers, quotes, list items, footnote definitions,
 cell bodies and other descriptions.
 
@@ -1637,8 +1637,8 @@ constructs, character escapes and overwritten duplicate attributes are
 normalized. An unedited block directly after a canonically written one is
 written from its range only when it reads back as itself there; otherwise it
 is written canonically too. Its source can read as part of the block before
-it: indented lines continue a new list, and a `: ` line adds a description to
-a new definition list. Source the safe profile filters is never written from
+it: indented lines continue an edited or new list, and a marker line adds a
+description to an edited or new definition list. Source the safe profile filters is never written from
 the record.
 
 Two blocks are written in parts, because an edit to one entry would otherwise
@@ -1658,8 +1658,8 @@ depends on its own lines and on what follows them: a paragraph ends at the
 line after it, a list item or description continues past blank lines onto
 indented lines, and a definition list continues past blank lines onto a marker
 line or a later term. Re-reading starts at the **first changed block**, the
-first top-level block that holds an edited line, continues onto one, or ends
-at one; when a definition list directly precedes it, re-reading starts at that
+first top-level block that, in the source before or after the edit, holds
+an edited line, continues onto one, or ends at one; when a definition list directly precedes it, re-reading starts at that
 list, which the first changed block may join as its next term. Re-reading
 stops at a block that starts where a block started before, once the re-read
 blocks have ended there: no re-read list or definition list continues onto

@@ -1350,12 +1350,12 @@ description holding one paragraph renders that paragraph's content directly in
 
 | Situation | Result |
 | --- | --- |
-| Term | The first line of a paragraph, directly followed by a line starting `:`. |
+| Term | The first line of a paragraph, when it is not itself a marker line, directly followed by a marker line: one `:` and then a space, a tab or the line end. |
 | Marker | One `:` followed by a space, a tab or the line end. `:` alone gives an empty description. |
 | Several descriptions | One `:` line each, under the same term. |
 | Next term | A term line after the last description, usually after a blank line. The list continues. |
 | Continuation | Lines indented more than the `:`, by any amount. An unindented line ends the description. |
-| A paragraph's later line starting `: ` | Paragraph text. Only a paragraph's first line becomes a term. |
+| A paragraph's later line starting `: ` | Paragraph text. Only a paragraph's first line, when it is not a marker line, becomes a term. |
 | `:kw[must]`, `::page-break`, `:::` | An inline directive, a leaf directive and a container fence, as elsewhere. |
 
 The syntax is the one PHP Markdown Extra introduced, as Pandoc, kramdown,

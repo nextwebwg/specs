@@ -1112,8 +1112,13 @@ Next term
 **Terms.** A **marker line** is a line that starts, after any block-relative
 indentation, with one `:` followed by a space, a tab or the line end. A
 **term line** is the first line of a paragraph whose next line is a marker
-line. A term line opens a `definitionList`; trimmed, it is a `definitionTerm`
-holding inline Markdown. Definition lists are recognized in every block
+line, and is not a marker line itself. A marker line opens a description
+only after a term or a description, so `: x` followed by `: d` is one
+paragraph.
+A term line opens a `definitionList`; trimmed, it is a `definitionTerm`
+holding inline Markdown. A term is one source line, so its content holds no
+`break` or `softBreak`: a trailing `\` on a term line is text, and a `<br>`
+is an inline `br` element, as everywhere, which writes back as written. Definition lists are recognized in every block
 context: the document, containers, quotes, list items, footnote definitions,
 cell bodies and other descriptions.
 
@@ -1144,6 +1149,7 @@ definition list, so every other line keeps its reading:
 | `Term`<br>`:kw[must] apply` | One paragraph holding an inline directive. |
 | `Term`<br>`::page-break` / `:::` | The leaf directive or colon fence reads by its own rules. |
 | `Term`<br>`\: Description` | One paragraph: the escaped colon is literal. |
+| `: x`<br>`: d` | One paragraph: a marker line is never a term. |
 | `Term`<br>`~ Description` | One paragraph. |
 | `First line`<br>`Term`<br>`: Description` | One paragraph: its later lines continue it. |
 | `Term`, a blank line, `: Description` | Two paragraphs. |
@@ -1169,14 +1175,18 @@ stay empty. Separate a `tight: false` description's blocks with a blank line.
 An empty description writes `:` alone. Put one blank line before each term
 after the first, and no blank line between a term and its descriptions.
 
-- In a paragraph, protect a `:` that would start a marker line directly after
-  the paragraph's first line: write `\:`.
+- Protect a `:` that would start a marker line, by writing `\:`: at the start
+  of a term, of a paragraph's second line, and of a paragraph directly after a
+  definition list. Each of those lines would otherwise open a description.
 - Protect a term whose text would start another block, as for
   [literal block markers](#literal-block-markers).
 - Definition list nodes have no attribute attachment; report an ID or
   attributes on one as unsupported conversion.
 - Report unsupported conversion for a term holding a `break` or `softBreak`,
-  and for two adjacent `definitionList` siblings, which read back as one list.
+  or whose text is empty, spans lines, or starts or ends with a space or a
+  tab: a term is one line, read trimmed, so such a term cannot read back.
+  Report it too for two adjacent `definitionList` siblings, which read back
+  as one list.
 
 **Recommended HTML.** A `definitionList` renders as `<dl>`, each term as
 `<dt>` and each description as `<dd>`, in source order. A description renders
@@ -1188,8 +1198,7 @@ renders as `<dd></dd>`.
 
 | Input | Result |
 | --- | --- |
-| A paragraph whose later line starts with `:` or `~` followed by a space, a tab or the line end | Paragraph text. Recommend an `unattached-definition-marker` warning. |
-| A paragraph starting with such a `:` or `~`, after a one-line paragraph and a blank line | Paragraph text. Recommend an `unattached-definition-marker` warning. |
+| A paragraph line that starts with `:` or `~` followed by a space, a tab or the line end | Paragraph text. Recommend an `unattached-definition-marker` warning for each such line: its author may have meant a description, as after a heading, a blank line or a list item. |
 | Mixed tabs and spaces in description indentation | Read as for [list nesting](#lists); recommend a warning. |
 | A supplied list that starts with a description, ends with a term or is empty | Invalid structure; report it. |
 
@@ -1625,7 +1634,12 @@ edited. A file's ending belongs to the file rather than to its last block, so
 editing that block leaves the ending, and a diff's end-of-file marker, alone.
 An edited or new block is written canonically: whitespace inside
 constructs, character escapes and overwritten duplicate attributes are
-normalized. Source the safe profile filters is never written from the record.
+normalized. An unedited block directly after a canonically written one is
+written from its range only when it reads back as itself there; otherwise it
+is written canonically too. Its source can read as part of the block before
+it: indented lines continue an edited or new list, and a marker line adds a
+description to an edited or new definition list. Source the safe profile filters is never written from
+the record.
 
 Two blocks are written in parts, because an edit to one entry would otherwise
 rewrite every sibling, and the change a reviewer sees would cover the whole
@@ -1640,11 +1654,18 @@ canonically.
 
 A tool that re-reads only the part of a document an edit touches produces the
 same document as reading the edited text in full. A top-level block's reading
-depends on its own lines and the line after them, so re-reading from the
-top-level block before the edit, until a block after the edit starts where a
-block started before, meets this. Frontmatter, link and footnote definitions,
-and in `standard` syntax HTML elements, which read through to their end tags,
-affect blocks beyond their own, so an edit touching them is re-read in full.
+depends on its own lines and on what follows them: a paragraph ends at the
+line after it, a list item or description continues past blank lines onto
+indented lines, and a definition list continues past blank lines onto a marker
+line or a later term. Re-reading starts at the **first changed block**, the
+first top-level block that, in the source before or after the edit, holds
+an edited line, continues onto one, or ends at one; when a definition list directly precedes it, re-reading starts at that
+list, which the first changed block may join as its next term. Re-reading
+stops at a block that starts where a block started before, once the re-read
+blocks have ended there: no re-read list or definition list continues onto
+it. Frontmatter, link and footnote definitions, and HTML elements, which read
+through to their end tags, affect blocks beyond their own, so an edit
+touching them is re-read in full.
 
 The table lists the preferred forms, which writers use for content without a
 recorded authored form, such as content a tool inserts.
@@ -1710,7 +1731,7 @@ the preferred form, so a document written in preferred forms carries none.
 | Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `.class`, `#id`, double quotes, spaces | `attributes` |
 | Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
 | Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |
-| Definition list | Marker spacing and indentation, continuation indentation, blank lines between terms | `: `, two-space continuation, one blank line before each later term | `markdown` |
+| Definition list | Marker spacing and indentation, term indentation, continuation indentation, blank lines before later terms and between descriptions | `: `, two-space continuation, one blank line before each later term | `markdown` |
 | Frontmatter | YAML as authored | Generated YAML | `frontmatter` on the document |
 
 `referenceType`, `spelling` and `titleSpelling` are node fields because the

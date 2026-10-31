@@ -329,7 +329,15 @@ For snapshot selection, the plaintext is exactly configuration3’s five-member 
 
 The target authenticates the response and every part under its original retained request and current unchanged source authority before decryption/staging. Require complete manifest, exact part references/indices/count/length, final authentication, total digest, strict full configuration and matching selection/coverage. No accepted live prefix, oversized partial success or guessed missing record. Parts may arrive out of order and remain bounded encrypted/private staging until complete; a receipt never acknowledges a partial subset as staged.
 
-Commit the complete private staged configuration, original request/response/part provenance and immutable staged receipt before retiring the transfer-only age secret. Then apply configuration3's current per-record conflict/authority/dependency reconciliation and atomically retain each resulting fact/hold with its provenance. Source/target revocation, changed local generations or cancellation still stop new effects. Installed means all returned selected facts have been reconciled, including explicit blocked/unavailable outcomes; it does not mean all requested roots are usable, another source has no newer facts or a destination is send-ready. Missing/malformed or unreconciled returned data prevents installed. A target may continue another independently authorized source request for still-missing facts without undoing accepted safety state.
+Commit the complete private staged configuration, original request/response/part provenance and immutable staged receipt before retiring the transfer-only age secret. Then apply configuration3's current per-record conflict/authority/dependency reconciliation and atomically retain each resulting fact/hold with its provenance. Source/target revocation, changed local generations or cancellation still stop new effects.
+
+Installed requires successful reconciliation of every returned selected contact and conversation record, and any defaults carried by the selected configuration, under their existing rules.
+
+Every returned selected scope fact must also complete reconciliation; a scope may complete with explicit blocked constraints as defined above. An authenticated source unavailable-root result remains a disclosure outcome, not evidence that the requested root is usable.
+
+A still-held contact, conversation or default record, missing validation dependency, malformed or unsupported data, or unreconciled returned fact prevents installed.
+
+Unavailable current routes, live peers or required native group admission remain separate per-destination work and do not by themselves make reconciled metadata incomplete. The receipt does not establish that another source has no newer facts or that a destination is send-ready. A target may continue another independently authorized source request for still-missing facts without undoing accepted safety state.
 
 :::
 

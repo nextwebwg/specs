@@ -270,7 +270,11 @@ A client may first learn about someone after several key changes. Its contact pi
 
 The authenticated own-device transfer supplies the pin. Validate the original public proof records, including the pin, selected head and their required ancestry, under the [identity lifecycle](identity-state.md). Apply its repair and known-negative-evidence rules. Deriving a genesis state from those records does not replace the selected pin or allow the bundle to choose a different one.
 
-Historical validation grants no current receiving or sending permission. Contact reconciliation and current setup still perform their own checks.
+On a newly authorized device, this transfer can establish the account's accepted mailbox/principal pin and inherited verification without old messages or a local record of every past key change. Retain its origin as an authorized own-device transfer. Do not describe it as a new peer discovery result or a human comparison performed on this device.
+
+The transfer does not provide trusted observation times for those past changes. Do not substitute the import time or a state's claimed issuance time for a missing historical observation. Past bindings need not remain unexpired when the configuration is imported. Their historical signatures and relationships must still validate completely.
+
+Historical validation grants no current receiving or sending permission. Check subsequent newly observed identity changes at their actual observation interval. Contact reconciliation and current setup still check the selected current identity, exact device/key roles, validity intervals, known conflicts, verification policy and usable receiving evidence before use. An expired cached advertisement remains historical evidence; it cannot become a fresh receiving route merely because its contact pin was transferred.
 
 :::
 

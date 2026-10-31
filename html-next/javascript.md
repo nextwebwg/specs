@@ -334,11 +334,11 @@ Where a controller does query, outward with `root.closest` or to resolve an even
 > A component lowers into **one tree with no shadow boundary**, so a query rooted at `host.root` cannot tell an element a consumer projected from one the component's own template rendered: both are ordinary descendants, and both match the same selector. Shadow DOM gets that distinction free from keeping two trees, and a controller there asks `assignedElements()`[^9] rather than querying. Here the slot restores it. A controller [must]{.kw} enumerate projected content through <code>host.slots.<var>name</var></code>, and [must not]{.kw} discover it by searching its own subtree.
 
 > [!norm] Never select by runtime markers
-> The markers the runtime writes for styling (`data-component`, `data-<tag>-state`, `data-slotted`; see [Styling](/declarative-components/styling)) are implementation details. They exist so scoped CSS can find a root, they differ by target, and a framework target that scopes styles its own way need not emit them. A controller that selects by them couples its behavior to one target's output and breaks on another.
+> The rendered identity attribute (`component`, with `data-component` as the polyfill fallback) and the styling markers (`data-<tag>-state`, `data-slotted`; see [Styling](/declarative-components/styling)) describe rendered output. The [identity and compatibility rules](/declarative-components/components#component-identity) define how to read provenance. The styling markers are implementation details. They exist so scoped CSS can find a root, they differ by target, and a framework target that scopes styles its own way need not emit them. A controller that selects by them couples its behavior to one target's output and breaks on another.
 
 ```js
 // Wrong: selects by markers the runtime writes for styling.
-root.querySelectorAll('[data-component~="x-option"]');
+root.querySelectorAll('[component~="x-option"]');
 root.closest('[data-x-select-state~="open"]');
 
 // Right: selects by the public contract those elements already carry.

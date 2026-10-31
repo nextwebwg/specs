@@ -15,7 +15,7 @@ Text inserts values with `{$name}` and full expressions with `{expression}`; see
 
 ## A minimal component
 
-One prop, one native root, a scoped style. It lowers to a real `<button>` in the light DOM, with a `data-component` provenance stamp.
+One prop, one native root, a scoped style. It lowers to a real `<button>` in the light DOM, with a `component` provenance stamp.
 
 ```html title="button.html"
 <!-- button.html — a minimal component: one prop, one native root, scoped style. -->
@@ -33,7 +33,7 @@ One prop, one native root, a scoped style. It lowers to a real `<button>` in the
 <!-- use -->
 <x-button variant="solid">Save</x-button>
 <!-- lowers to -->
-<button data-component="x-button">Save</button>
+<button component="x-button">Save</button>
 ```
 
 ## Control flow, as attributes

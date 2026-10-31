@@ -10,6 +10,8 @@ status: Level 1 · experimental in the reference implementation
 
 Lowering replaces an invocation with its native root, so after a server round trip only the lowered markup remains. The **rendered form** is that markup. It must let server output plus the definition rebuild **the same component instance** the authored markup would. Slot boundaries are specified below; the format for recovering explicit props is still open.
 
+The root's `component` attribute identifies the components being hydrated. Polyfills also accept `data-component` under the [identity and compatibility rules](/declarative-components/components#component-identity): a present `component` takes precedence, even when empty, and adoption leaves the authored spelling in place. New serialized roots use `component` by default.
+
 ## Two forms of one instance
 
 A component instance can be written two ways. The **authored form** is the invocation a consumer writes. The **rendered form** is the lowered native DOM: the runtime leaves it in the document, and a server sends it to the browser.
@@ -24,7 +26,7 @@ A component instance can be written two ways. The **authored form** is the invoc
 
 ```html
 <!-- rendered form: visible slot structure; prop hydration data is not shown -->
-<article data-component="x-card">
+<article component="x-card">
   <header><?start slot="title"?><b slot="title">Quarterly report</b><?end?></header>
   <div><?start slot=""?>Body text<?end?></div>
 </article>
@@ -73,7 +75,7 @@ A definition may write an outlet as [`<template $slot>`](/declarative-components
 </template>
 
 <!-- rendered form, as serialized: no consumer content, so each outlet shows its fallback -->
-<table data-component="x-table">
+<table component="x-table">
   <thead><tr><?start slot="" fallback=""?><th>Name</th><?end?></tr></thead>
   <tbody><?start slot="row" fallback="" scoped=""?><tr><td>Ada</td></tr><?end?><?start slot="row" fallback="" scoped=""?><tr><td>Bea</td></tr><?end?></tbody>
 </table>
@@ -107,7 +109,7 @@ Serialization appends an inert `<template carrier>` to the component root for ea
 
 ```html
 <!-- rendered form, as serialized: the carrier holds what no slot renders yet -->
-<div data-component="x-disclosure">
+<div component="x-disclosure">
   <button type="button">More</button>
   <?start slot=""?>Summary<?end?>
   <template carrier="x-disclosure"><p slot="details">Shown after the click.</p></template>
@@ -122,7 +124,7 @@ Each projected node appears in exactly one carrier: that of the component whose 
 
 ### Components that share a root {#shared-root-carriers}
 
-A component whose markup root is another component's invocation lowers to that component's root, so the two share one element, listed outer to inner in its `data-component` value. Each holds its own projected content. Serialization appends one carrier for each of them that has content no slot renders, in the same outer-to-inner order, and hydration gives each carrier's nodes to the component it names:
+A component whose markup root is another component's invocation lowers to that component's root, so the two share one element, listed outer to inner in its `component` value. Each holds its own projected content. Serialization appends one carrier for each of them that has content no slot renders, in the same outer-to-inner order, and hydration gives each carrier's nodes to the component it names:
 
 ```html
 <!-- definition: x-relay forwards its scoped row slot to x-list's -->
@@ -134,7 +136,7 @@ A component whose markup root is another component's invocation lowers to that c
 <x-relay><template slot="row"><b>{$item}</b></template></x-relay>
 
 <!-- rendered form: x-list renders x-relay's template, which renders the consumer's -->
-<ul data-component="x-relay x-list">
+<ul component="x-relay x-list">
   <li><?start slot="row" scoped=""?><?start slot="row" scoped=""?><b>Ada</b><?end?><?end?></li>
   <template carrier="x-relay"><template slot="row">…</template></template>
   <template carrier="x-list"><template slot="row">…</template></template>
@@ -172,7 +174,7 @@ A root that a framework rendered is owned by that framework, which hydrates from
 
 ## Open questions
 
-- **Context through a server-rendered portal.** A deterministic record must connect each relocated reader to its logical component owner. DOM ancestry and `data-component` tag lineage cannot identify the providing instance when several instances share a tag.
+- **Context through a server-rendered portal.** A deterministic record must connect each relocated reader to its logical component owner. DOM ancestry and `component` tag lineage cannot identify the providing instance when several instances share a tag.
 - **Explicit prop recovery.** The rendered form needs the values and explicitness of props supplied to the invocation, including structured values. The hydration data format and how it is associated with the root remain open; ordinary visible attributes cannot be assumed to carry it.
 - **Structural anchors.** `$if`, `$each`, and `$match` regions should use the same range grammar.
 - **Consumer attributes.** Merge rules for `class` and `style` between template and consumer are unspecified, so their origin cannot be recovered.

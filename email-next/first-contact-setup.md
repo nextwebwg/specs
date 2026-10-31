@@ -19,7 +19,7 @@ The first transmission to a new person can be a setup request rather than their 
 
 ## Use the available setup carrier
 
-With an enabled provider service, use the account/device-authorized exchange described below. Without one, compatible clients can use [ordinary-mail setup](mailbox-setup.md): one content-free, directly addressed request and an encrypted response, under explicit request/disclosure policies. That path can leave a setup notice in a legacy inbox and requires trustworthy receive authentication evidence; it cannot satisfy required address masking. Neither path requires a human-authored introduction, and neither proves independent personal identity.
+With an enabled provider service, use the account/device-authorized exchange described below. Without one, compatible clients can use [ordinary-mail setup](mailbox-setup.md): one content-free, directly addressed request and an encrypted response, under explicit request/disclosure policies. Current setup3 can authenticate the request from an authorized ordinary mailbox under the [client-mailbox rules](mailbox-setup.md#client-mailbox-authorization-for-setup3), while the trusted-delivery path uses its separately configured receiving evidence. This can leave a setup notice in a legacy inbox; it cannot satisfy required address masking. Neither path requires a human-authored introduction, and neither proves independent personal identity.
 
 ## Keep the message private during setup
 

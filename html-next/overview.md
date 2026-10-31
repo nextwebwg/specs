@@ -20,10 +20,10 @@ Take the good parts of modern component frameworks, components, reactive data, s
 <x-button variant="solid">Save</x-button>
 
 <!-- It becomes a real native button, in the light DOM -->
-<button data-component="x-button">Save</button>
+<button component="x-button">Save</button>
 ```
 
-A component is a **piece of markup, treated as data**. The browser (or the polyfill) reads it and produces real elements, so what ships is a plain `<button>` with native focus, forms, and accessibility intact, plus a `data-component` stamp saying where it came from.
+A component is a **piece of markup, treated as data**. The browser (or the polyfill) reads it and produces real elements, so what ships is a plain `<button>` with native focus, forms, and accessibility intact, plus a `component` stamp saying where it came from.
 
 ## The pieces, at a glance
 

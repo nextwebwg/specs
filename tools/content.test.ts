@@ -265,3 +265,18 @@ test("text reaches v-html props escaped, never as markup", () => {
   assert.match(data, /"value":"<code>&lt;slot&gt;<\/code> &lt;i&gt;"/);
   assert.doesNotMatch(data, /<b>|<i>|<slot/);
 });
+
+test("rendered roots use component with a polyfill-only data-component fallback", () => {
+  const components = chapter("components");
+  assert.match(components, /Every lowered root carries one provenance attribute, `component`/);
+  assert.match(components, /`component` is a proposed HTML extension/);
+  assert.match(components, /when `component` is absent/);
+  assert.match(components, /including `component=""`/);
+  assert.match(components, /must not[^\n]*merge/);
+  assert.match(components, /must not[^\n]*synchroniz/);
+  assert.match(components, /does not instantiate a component/);
+  for (const name of ["index", "overview", "examples", "rendered-form"]) {
+    assert.match(chapter(name), /component="x-/);
+    assert.doesNotMatch(chapter(name), /data-component=/);
+  }
+});

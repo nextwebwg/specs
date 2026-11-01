@@ -14,6 +14,8 @@ Email/2 initially travels as ordinary MIME mail through existing submission, rel
 
 The [client outcome contract](client-behavior.md#what-a-status-can-tell-you) defines evidence-bound delivery labels, absence of read/presence claims and the distinct boundaries of local deletion, cancellation and revocation.
 
+The optional proposed [provider outcome service](provider-outcomes.md) binds later service observations to the original SMTP attempt and its scoped recipient obligations. Its configured authority and additional server requirements are separate from ordinary DSN correlation; it is not part of the current protected-client baseline.
+
 ## Contribution, delivery and attempt
 
 A local [send intent](first-contact-setup.md#finish-setup-for-one-intended-send) freezes the person’s authorized draft revision before secure setup. It is not a contribution or transport identifier; setup completion binds it to the retained planned contributions and delivery sets. Separate private copies retain their own identities and outcomes.

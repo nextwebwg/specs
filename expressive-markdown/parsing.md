@@ -1269,7 +1269,7 @@ Recommended HTML escapes literal code. Per-line decoration must preserve the cod
 
 `src` is a string URL reference, resolved as the document's link and image destinations are. A renderer that reads files renders the referenced file's text, decoded as UTF-8, as the code; `code.value` stays the fence's own content. The rules:
 
-- A fence with `src` and no content is the authored form. A fence with both keeps both, recommends a diagnostic and renders its own content.
+- A fence with `src` and no content is the authored form. A fence with both keeps both, recommends a diagnostic and renders its own content. A publisher may instead fail its build.
 - A file the renderer cannot read recommends a diagnostic, naming the reference, and renders the fence's own content. A publisher may instead fail its build.
 - A flag `src` or an empty string is an invalid feature value: it remains in the AST, recommends a diagnostic, and the fence's content is the code.
 - A renderer without file access preserves `src` and reports the unsupported presentation.

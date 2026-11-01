@@ -29,7 +29,9 @@ It does not upload her address book, crawl other directories or send an encrypti
 
 A realm is not the authority for Bob's mailbox domain or personal identity. Its index orders publications; the original registrar and device proofs establish their own narrower claims. Mailbox control remains distinct from [independent correspondent verification](mailbox-association.md#independent-verification-remains-separate).
 
-[Independent mailbox registration](mailbox-registration.md) defines the proposed registrar descriptor and registration records used below. Its native-module metadata, reset wire selection and independently eligible home-authorization prerequisites remain incomplete. The rendezvous, offline-allocation and live-locator records referenced below also require their complete owning bindings. Existing [provider discovery](provider-discovery.md) does not supply them. Until those bindings and the joined Store acceptance path are complete, these chapters cannot establish interoperable or native-ready discovery. The exact record names below identify those prerequisites; they are not permission to invent a generic descriptor or reuse an old parser.
+[Independent mailbox registration](mailbox-registration.md) defines the registrar descriptor and registration records used below. Its [native-module selection](provider-discovery.md#independent-registrar-and-home-connections), account-link and reset records have separate authority from [home-service rendezvous](rendezvous.md). A realm implementation must validate the complete original records under each owning contract, including any referenced offline allocation or live locator. Existing provider discovery cannot substitute for those checks.
+
+Defined records alone do not establish interoperable or native-ready discovery. Missing bindings, unsupported dependencies or an incomplete joined acceptance path hold the dependent operation. A generic descriptor, an old parser or a decrypted directory cell cannot supply the missing authority.
 
 :::: {.details summary="Configure the realm before lookup"}
 

@@ -28,19 +28,19 @@ This capability cooperates with private discovery, offline setup and live connec
 
 If delivery, retrieval or completion is uncertain, the app retains the original attempt. It can inspect or retry within the original deadline. It cannot report an encryption-ready contact merely because registration began or an email server accepted the verification message.
 
-## What still needs a complete binding
+## Required service bindings {#what-still-needs-a-complete-binding}
 
-This chapter specifies the registrar descriptor and registration records. It does not yet establish an interoperable end-to-end service. In particular:
+Registration uses the following distinct service bindings. An implementation must validate each required dependency under its owning contract; defining or parsing the records does not establish an interoperable end-to-end service.
 
 | Dependency | Owning contract and boundary |
 | --- | --- |
 | Native sign-in | The [shared native connection mechanics](provider-discovery.md#reuse-sign-in-mechanics-without-sharing-permissions) supply issuer checks, authorization-code/S256 PKCE, public-client authentication, exact callbacks and isolated attempts. The [independent-module selection](provider-discovery.md#independent-registrar-and-home-connections) fixes this module's exact scopes, descriptor, metadata and registration binding. Implement and test that selection explicitly; an earlier native-flow implementation does not acquire it automatically. |
 | Account reset and inspection | The [shared account-link/reset owner](provider-grants.md#shared-account-links-separate-module-authority) supplies transaction, continuing-owner and uncertainty semantics. Its retained provider-specific profile, purposes and integer timestamps are not automatically renamed. The association-link and reset/inspection records below select this module's exact wire format. Implement the continuing-owner, atomic reset and uncertain-outcome rules explicitly; defining the records does not establish runtime support. |
-| Independent home authorization | [Service federation](service-federation.md#connect-through-the-services-first) owns the architecture. The proposed [rendezvous owner](rendezvous.md#bind-the-home-account-once) defines an independent descriptor and device-signed home authorization, while its native-module/reset and management-route prerequisites remain incomplete; domain-delegated bootstrap evidence cannot be substituted for them. |
+| Independent home authorization | [Service federation](service-federation.md#connect-through-the-services-first) owns the architecture. The [rendezvous owner](rendezvous.md#bind-the-home-account-once) defines its independent descriptor, device-signed home authorization and account-link, reset and management routes. Its native-module selection and actual owning service validation remain distinct from domain-delegated bootstrap evidence. |
 | Identity and setup | [Identity state](identity-state.md), [mailbox associations](mailbox-association.md) and the selected setup owner retain their current authority. This registration cannot manufacture a current receive role, native assertion/control descriptor, one-use package allocation or live answer. |
 | Realm acceptance | [Discovery realms](discovery-realms.md) admit registrar evidence. A runtime accepting an opaque descriptor or decrypted snapshot cell has not validated this descriptor, complete publication or the joined Store decision. |
 
-These gaps hold dependent operations. They do not permit generic proof objects, parser fallbacks or a claimed encryption-ready result.
+Missing or unsupported dependencies hold dependent operations. They do not permit generic proof objects, parser fallbacks or a claimed encryption-ready result.
 
 :::: {.details summary="Service selection, account linking and registrar authority"}
 

@@ -122,6 +122,32 @@ Persist a validated request before preparing a response. Under a serialized curr
 
 Several authorized devices at Bob’s mailbox may each respond once. No unimplemented cross-client lock promises exactly one account-wide response. Each response names its actual device; Alice validates every intended recipient independently and selects a complete permitted device audience under the suite. Different initial principals remain ambiguous under the association rules. Devices cannot borrow each other’s response authorization, receipt state or admission package.
 
+### Retain request authentication for its later Initial
+
+The request's live authentication permits allocating and releasing its response.
+The later Initial uses that same retained allocation. It does not request another
+response or turn the original domain check into a new DNS lookup.
+
+Retain the successful request-authentication receipt under the actual response
+allocation before response release can occur. Bind it to the exact original
+request and verification observation, original credible acceptance time, selected
+account/source generations, initiating device and responding device. Verify the
+receipt's original authentication bounds at that accepted time. A support flag,
+SMTP acknowledgment or missing historical record cannot supply this receipt.
+
+For Initial admission through that same allocation, validate the retained receipt
+at its original accepted time rather than requiring its DNS cache TTL to remain
+live. Preserve the original request deadline and the exact request, response,
+package and device bindings. Current identity, source/account authorization,
+verification policy, known revocation/conflict, local holds, custody and native
+admission still apply. Missing, altered or inconsistent provenance holds admission.
+
+This historical use applies only to the owning allocation's Initial. It cannot
+authorize a new response, extend a request or publication deadline, clear an
+uncertain submission, or bypass the live checks before response release. Retain
+the actual observed verification and acceptance times; do not refresh them on
+fetch, retry, reopen or Initial arrival.
+
 :::
 
 ## Encrypt the response, then establish the conversation

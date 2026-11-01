@@ -9,6 +9,13 @@ sectionNav: true
 
 A provider can help two clients exchange fresh key information without sending extra messages into either inbox. The provider carries the exchange; each client still decides whether the other device is authorized.
 
+The [cooperating-service architecture](service-federation.md) describes the broader
+path: each client can use its own chosen home service, those services can negotiate
+a live exchange, and an optional direct connection can carry the same encrypted
+packet. These are independently negotiated capabilities in this specification.
+Their exact new bindings remain unfinished; they do not widen the configured
+challenge queue defined in this chapter.
+
 > [!ex] Both clients are available
 > Alice's client already recognizes Bob's device, but needs fresh discovery evidence. It places a signed challenge in Bob's authorized control service. Bob's client retrieves it and returns a signed advertisement tied to that challenge. Alice validates the response, then uses the normal encryption protocol to establish the conversation.
 >
@@ -25,7 +32,14 @@ A successful exchange supplies **fresh evidence from one device**. It does not p
 
 ## Authorize the service and the devices separately
 
-Before contacting a service, the client needs an authenticated account configuration binding the exact HTTPS service location to the intended service account. An email address, MX record, message link or provider brand is insufficient. The retained configured experiment installs this binding through trusted test-account configuration. The current public path uses the independently validated [descriptor2](provider-discovery.md#discover-the-asynchronous-agreement), account/device link and [grant2](provider-grants.md#authorize-asynchronous-pair-exchanges); a discovered location alone is not an account configuration or grant.
+Before contacting a service, the client needs an authenticated account configuration binding the exact HTTPS service location to the intended service account. An email address, MX record, message link or provider brand is insufficient. The retained configured experiment installs this binding through trusted test-account configuration.
+
+Select the path for the format being exchanged:
+
+- The retained asynchronous native-evidence path uses the independently validated [descriptor2](provider-discovery.md#discover-the-asynchronous-agreement), eligible account/device link and [grant2](provider-grants.md#authorize-asynchronous-pair-exchanges) under their original contracts.
+- The current opaque application carrier uses [descriptor3](provider-discovery.md#discover-complete-mail-receiving-support), the eligible account/device link and [grant3](provider-grants.md#authorize-complete-receiving-exchanges) with the [complete provider-control3 receiving exchange](provider-control.md#obtain-complete-mail-receiving-evidence).
+
+A discovered location alone is not an account configuration or grant.
 
 Access also requires a service grant naming the account, initiating device, target device, permitted operations and expiry. Each participant authenticates with its own credential restricted to its role. Permission to place a challenge does not include permission to answer it. Mailbox passwords and credentials issued for another service are not accepted as substitutes.
 
@@ -45,10 +59,12 @@ The [first-contact flow](first-contact-setup.md) additionally permits a content-
 | Create | The initiating device records a fresh exchange identifier and nonce, exact participants, service and grant, intended identity states, purpose and expiry, then signs the request. |
 | Admit | The service validates the credential, role, account scope, request limits and lifetime before storing the immutable request. |
 | Answer | The target independently verifies the request and current device authority, then signs one response bound to the exact request and nonce. It durably saves that response before submitting it. |
-| Validate | The initiator matches its outstanding request, verifies the target signature and current authority, and validates the enclosed passive advertisement and any admission material. |
+| Validate | The initiator matches its outstanding request, verifies the target signature and current authority, and validates the selected original evidence and any admission material. Retained control0/1/2 use passive advertisements; control3 requires the complete receiving bundle. |
 | Finish | A response closes the exchange. An unanswered exchange expires. Neither outcome automatically creates another exchange. |
 
-A response contains the existing signed passive advertisement for the exact target device, with optional single-use MLS admission material. Its validity cannot outlive the challenge or the evidence it carries. The response must identify the exact requested identity state and device binding. If the target has moved to another state, it does not sign a claim that the old state is current. Independent identity evidence must resolve that change before a new challenge can succeed.
+Retained control0/1/2 responses carry their selected original signed passive advertisement for the exact target device, with optional single-use MLS admission material. A current [control3 response](provider-control.md#obtain-complete-mail-receiving-evidence) instead carries the complete original receiving bundle under its exact binding; a bare advertisement cannot establish that carrier support.
+
+The response’s validity cannot outlive the challenge or the evidence it carries. The response must identify the exact requested identity state and device binding. If the target has moved to another state, it does not sign a claim that the old state is current. Independent identity evidence must resolve that change before a new challenge can succeed.
 
 The signature covers the original encoded record, including its record kind, participants, service, grant and request binding. A service status response authenticates only what the service reports; it cannot replace this device signature. The [wire profile](provider-control.md) defines exact encodings, signature context and validation order for configured experiments.
 

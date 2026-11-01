@@ -3,7 +3,6 @@ title: Rendering and existing email
 order: 13
 blurb: HTML · CSS · conversation reconstruction
 sectionNav: true
-navGroup: guide
 ---
 
 # Rendering and existing email
@@ -52,6 +51,8 @@ The proposed client contract is:
 - Prefer visible ambiguity over silently losing text or assigning it to the wrong person.
 
 Subject equality alone is insufficient to merge conversations. Forwarded text does not make its quoted author a participant. A signature-like passage might contain substantive content and must remain recoverable.
+
+These receiving rules preserve the original for reading. Outgoing composition separately follows [legacy history minimization](messages.md#replying-to-a-legacy-chain-without-carrying-its-history): omitting earlier history from a new delivery is different from deleting or visually hiding received content.
 
 If an implementation uses remote processing to interpret messages, that changes who receives their contents. It cannot claim endpoint-only confidentiality while sending decrypted messages to another service without an explicit disclosure policy. AI processing is not required by this proposal.
 

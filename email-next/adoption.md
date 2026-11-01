@@ -3,7 +3,6 @@ title: Client and server adoption
 order: 16
 blurb: implementation stages · acceptance tools · interoperability
 sectionNav: true
-navGroup: guide
 ---
 
 # Client and server adoption
@@ -15,17 +14,29 @@ Email/2 should become useful before every provider upgrades. A client can improv
 
 This chapter describes proposed implementation paths and the evidence needed to advance along them. Implementations advertise specific supported profiles, not a single “Email/2 compatible” flag. This chapter announces no vendor commitments or available certification.
 
+::: {.details summary="Existing demonstrations and their coverage"}
+
 | Implementer | Practical starting point | What is available now |
 | --- | --- | --- |
 | Client | Open the conversation demos, then reproduce one exchange in your client | A source-preserving reader, joined interactions and signed protected rich-message fixtures; no complete client acceptance harness |
-| Mail provider | Submit and retrieve representative messages through a test account, comparing preserved content with the source | Example messages and local checks; no completed provider deployment adapter |
+| Mail provider | Add the small setup-discovery service, or test protected-message carriage through the existing mail system | A defined discovery-only contract, example messages and local checks; no completed provider deployment adapter |
 | Interoperability contributor | Reproduce a published case and record the observed result against its requirement | Button and configured provider/admission report manifests; independent client/server results remain needed |
 
 The [available starting material](#available-starting-material) distinguishes these development inputs from the proposed acceptance kit.
 
 The [joined conversation demonstration](evidence/README.md#joined-question-and-ordinary-reply) supplies a concrete local integration target: a protected question, a browser answer button, actual encrypted reply delivery, and an ordinary email reply in one readable conversation. Its contact-name conversation list separates known contacts from other participants, orders threads by recent activity and keeps rich messages in an open layout. Ordinary replies retain their original email and collapse only uniquely matched fixed-line quotations. Its accounts and application agreement are explicitly configured; it is a development fixture, not a complete client acceptance harness.
 
+:::
+
 New clients claiming Encryption target the [current asynchronous baseline](suite-profile.md#current-client-baseline). Provider carriage remains independently adoptable, and optional provider/setup or managed-group roles keep their declared bindings. Earlier experiments demonstrate only their exact compatibility or component scope.
+
+The [cooperating-service architecture](service-federation.md) also lets a client
+choose an independent home service while its existing mailbox provider stays
+unchanged. A provider can contribute domain delegation or discovery alone before
+adding rendezvous or fast delivery. Each capability needs its own complete wire
+binding and acceptance evidence; the federation and fast-path bindings remain
+unfinished. A directory result is not presence, a device enrollment or permission
+to send content.
 
 ## No-cost participation
 
@@ -35,11 +46,17 @@ This is a proposed ecosystem adoption strategy, not a wire-protocol condition or
 
 Price is only one barrier. Installation, mailbox connection, first contact, adding a device and recovery must also be understandable. The [encryption journey](encryption-journey.md) provides the scenarios to test. An ordinary or hosted alternative remains a disclosed compatibility choice, not a substitute for making protected participation accessible.
 
-## Email client adoption
+## For email client developers {#email-client-adoption}
+
+Start with the existing mailbox connection and retained originals. Protected clients obtain and validate actual setup through enabled ordinary-mail exchange or separately supported provider services. The optional [Setup discovery hint](encryption-discovery.md) can help choose a path; it never replaces keys, current authority or the sender’s protection policy. Show missing protection and mixed-recipient choices before human content is released.
+
+**Use discovery before sending.** A provider may offer only this small service while keeping its existing mail server. A positive answer means the account advertises setup support; the client must still obtain and validate the setup before calling the message encrypted. An unadvertised result does not reveal whether the account exists. A timeout or unavailable service means the result is unknown, not that encryption is unsupported; independently usable setup already held by the client remains usable.
 
 The [client behavior contract](client-behavior.md) defines the target of these implementation stages, including people and thread lists, explicit composition targets, reactions, restart behavior and protection outcomes.
 
 A client can deliver the first benefit alone: make existing mail easier to follow. It can then add predictable rich presentation, protected exchanges and structured answers over the same email account. None of these steps requires a provider control service. Each advertised capability still needs its complete profile and dependencies. These are development stages, not separate conformance levels: an Email/2 reading client must implement the [required HTML/CSS presentation](presentation-profile.md#required-presentation). A useful legacy-mail reader or text-only prototype does not yet meet that requirement.
+
+::: {.details summary="Client integration sequence and acceptance checks"}
 
 | Release step | What the user gets | Starting point and acceptance check |
 | --- | --- | --- |
@@ -73,15 +90,34 @@ For evolving conversations, use the existing [initial roster](mls-invitations.md
 
 These sources are implemented local fixtures and reference components, not a finished client toolkit. Use the [acceptance reports](#available-starting-material) to see which cases actually ran, then add an adapter for your client. A local pass cannot stand in for real-provider carriage, independent peers or manual accessibility checks. Test the intended benefits too: whether people can find each person's answer, avoid repeated quoting and understand the actual protection state. No measured usability improvement is claimed yet.
 
-## Email server adoption
+:::
+
+## For email server and service developers {#email-server-adoption}
+
+### Start with discovery alone
+
+The smallest active upgrade is [Setup discovery](encryption-discovery.md): put a small HTTPS sidecar beside the existing mail service, backed by operator/account opt-in records. It answers whether support is advertised for the selected recipient. Existing SMTP, IMAP and message storage can remain in place. The service holds no decryption keys and needs no provider-control OAuth flow or setup queue. A positive answer is intentionally discoverable; a negative answer combines unsupported, nonexistent and unadvertised accounts.
+
+| What the service answers | What the client does |
+| --- | --- |
+| Setup is advertised | Tries an enabled setup path and validates the actual keys and authority before sending encrypted content |
+| Setup is not advertised | Makes no assumption about whether the mailbox exists; uses independently available setup or shows protection as unestablished |
+| No usable response | Treats discovery as unavailable; preserves existing usable setup and the sender's protection choices |
+
+Clients still complete actual setup and validate keys. Later, a provider can independently add setup distribution, authorized control exchanges or private routing under those complete contracts. A possible direct-provider delivery upgrade remains separate design work; this discovery role does not define or imply that transport.
+
+### Choose the next capability independently
 
 Providers can add support in stages while keeping existing addresses, SMTP delivery and IMAP or JMAP access. The first useful upgrade is dependable carriage: compatible clients can already exchange protected contributions through ordinary email. A provider does not need to hold decryption keys, render message HTML or run a key directory to preserve those packages.
 
 Each later stage advertises a specific capability. Upgrading a server can improve discovery or delivery, but it cannot make an older client understand a new message format. A successful transport negotiation describes that hop; protection still depends on the intended receiving devices and the sender's delivery policy.
 
+::: {.details summary="Server integration stages and rollout checks"}
+
 | Stage | What it unlocks | Evidence before advertising support |
 | --- | --- | --- |
 | Preserve submission, storage and retrieval | Structured and protected packages survive the account's normal mail path | A report from actual submission, filtering, relay and retrieval paths, with protected-payload comparisons and recipient-specific outcomes |
+| Add only a setup-support hint | Clients can learn that an account publicly advertises setup, before obtaining actual setup | Exact [Setup discovery](encryption-discovery.md) request/response, domain authentication, opt-in/uniform-negative behavior, network bounds and no effect on accepted identity or fallback authority |
 | Add authorized discovery and control | Compatible clients obtain scoped device evidence without sending negotiation mail into inboxes | Authorization, expiry, replay, device scope, resource limits and service-withdrawal checks against the selected control profile |
 | Add a completed synchronization or relay capability | The particular continuity or delivery benefit defined by that capability | Its own contract, client integration and interoperability report; these extensions are not unlocked merely by implementing discovery |
 
@@ -115,9 +151,13 @@ After staging checks, an operator can choose an opt-in cohort and measure the be
 
 The intended gains are fewer damaged protected deliveries, less negotiation clutter and a documented client integration surface. These are benefits to measure, not established results or vendor commitments. Synchronization and upgraded relay features need completed contracts and independent evidence before advertisement. Existing transport remains useful throughout the rollout.
 
+:::
+
 ## Acceptance tools and interoperability program
 
 Start with one implemented profile and reproduce its report before writing an adapter for your client or server. The [implementation-claim rules](conformance.md) define what the result supports. Passing local checks establishes only the cases named by that manifest; it does not certify a client, establish mailbox ownership or demonstrate independent interoperability.
+
+::: {.details summary="Run acceptance reports and inspect the available manifests"}
 
 1. Choose a manifest below and follow its linked setup instructions. Preserve the selected profile and manifest revision rather than silently replacing an older wire version with a newer one.
 2. Run the [offline acceptance runner](evidence/README.md#offline-acceptance-report) with `--manifest` and retain its JSON report, source hashes and scenario results. The default manifest is the button example. For example, from the Email/2 directory after configuring the documented test dependencies:
@@ -163,6 +203,8 @@ Security cases include stripped capability advertisements, altered MIME alternat
 
 The service-answer adapter must also reorder acknowledgements: deliver pending after confirmed, duplicate a terminal receipt, return “not found” after a receipt has been retained, and supply incompatible authenticated terminal results. The client must preserve the confirmed outcome in the first three cases and show conflict in the last. An unauthenticated conflicting response must not alter the valid submission. These are required scenarios for the proposed cross-implementation service adapter. The joined service-answer manifest covers local lost-response and status reconciliation, but does not cover this complete reordering matrix or independent implementations. Local service experiments do not substitute for that external adapter.
 
+:::
+
 ## Making participation practical
 
 Publish a short entry point, downloadable fixtures and machine-readable results for each stage. Keep the first run local; offer optional adapters for real test accounts. An implementer can contribute one scenario by publishing the versions, topology and observed result, with a minimized reproduction and requirement link for any mismatch. Resolve disagreements in the specification and add a shared regression case. Independent client implementers, mail operators, accessibility specialists and security reviewers are prospective participants; no partnership or commitment is assumed.
@@ -176,6 +218,8 @@ Implementers can reproduce the [configured Unicode17 provider checks](evidence/I
 ## Available starting material
 
 The [local experiments](evidence/README.md) supply runnable components and synthetic messages. The [validation record](validation.md) identifies what ran and its limits. These are development inputs, not a complete client toolkit, provider deployment or certification program.
+
+::: {.details summary="Available fixtures, integration targets and remaining work"}
 
 | Start with | Available local evidence | Next integration step |
 | --- | --- | --- |
@@ -192,3 +236,5 @@ The [acceptance manifests above](#acceptance-tools-and-interoperability-program)
 HTML parsing and image decoding run in limited worker processes. The [resource-enforcement evidence](evidence/README.md#isolated-html-parsing) distinguishes tested CPU, output and time enforcement from the sampled memory watchdog on macOS. It does not claim a hard allocation ceiling, a security sandbox or complete decoder fidelity. Treat platform enforcement and rendering quality as separate checks.
 
 The next tooling work is to package the remaining profile cases and add actual client/server adapters. Independent implementations must then publish the versions, topology, outcomes and limitations of shared runs. The [open decisions](interoperability.md) identify boundaries still needing a complete contract or implementation.
+
+:::

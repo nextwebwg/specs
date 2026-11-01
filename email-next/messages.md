@@ -3,7 +3,6 @@ title: Messages and interactions
 order: 1
 blurb: conversations · answer buttons · fallback
 sectionNav: true
-navGroup: guide
 ---
 
 # Messages and interactions
@@ -476,6 +475,20 @@ Adding a recipient does not automatically disclose previous history. Forwarding 
 > [!norm] A conversation is assembled from individual messages
 > Each delivery carries the current contribution and the context needed to understand it. Relationship metadata identifies earlier contributions; it does not carry a hidden transcript. An upgraded client builds the conversation view from messages available to that account.
 
+The ordinary readable reply body SHOULD show these two contributions, in order:
+
+1. The new response.
+2. The message it answers, with that message's inherited quoted or forwarded chain omitted.
+
+> [!ex] A rolling two-contribution window
+> Bob's reply carries Bob's response followed by a preview of Alice's message. Carol replies to Bob: her new email carries Carol's response followed by Bob's contribution, without the previous preview of Alice's message. A subsequent reply repeats the same rule; previews do not accumulate into a transcript.
+
+The copied parent is its contribution, not its entire previously delivered body. Exclude that parent's own appended reply-context preview when constructing the next reply. This changes the new outgoing projection only; it does not delete earlier received messages or erase deliberately authored quotations and interleaved answers. Where the selected format supplies explicit boundaries, use them. A legacy heuristic must not treat every blockquote as a disposable preview or silently remove authored text. If a previous preview cannot be separated reliably, omit the automatic preview or let the sender select a passage instead of recursively copying the whole body.
+
+The second contribution is the selected reply target, even when the author answers an older message rather than the latest arrival. It is context for this reply, not a recursively copied transcript. A question's wording or selected passage may supply sufficient context; an interleaved answer keeps the authored order needed to understand it. Missing context, uncertain legacy boundaries or disclosure restrictions can require a new-content-only reply.
+
+Choose and encode that context during composition under the selected content/carrier contract, before freezing, signing or encrypting the new contribution. Do not append unindexed or unauthenticated context after preparation, widen a retained profile or claim that a reference alone carries its source.
+
 Generating a readable fallback does not append the conversation transcript, place it in custom headers, hide it in HTML, or include it as an undisplayed MIME part. Quoted context is still disclosed content: it must be appropriate for the delivery's audience and visible in the readable representation. An answer may need its question or selected option label, but not every preceding message.
 
 An upgraded client's **Forward this message** action shares the selected contribution and its displayed context. Sharing additional history is a separate selection, with the included messages and destination audience visible before sending. Conversation membership, private recipient lists, access credentials and unrelated event metadata are not copied merely because they are present in the client's local conversation state. Forwarded content retains its distinction from a newly authored contribution and does not imply the original author's authorization of the new audience.
@@ -495,6 +508,21 @@ Existing forwarding has no universal metadata-removal contract. A new inline for
 Keeping the transcript outside the individual delivery prevents that delivery from accidentally carrying it onward. It does not prevent a recipient from deliberately copying other messages they can access. A raw-message export or forward-as-attachment also requires its own complete-content disclosure; the selected-contribution action must not silently substitute either operation.
 
 :::
+
+### Replying to a legacy chain without carrying its history
+
+> [!ex] Adding Carol without copying Alice and Bob's earlier discussion
+> Bob replies to Alice and adds Carol. His app sends his new writing to the selected audience. It does not automatically append the earlier chain that happened to be inside Alice's message. Bob can deliberately include a relevant passage, with its audience and protection checked separately.
+
+A client SHOULD compose replies to legacy mail using the two-contribution layout above: its new response followed by the immediate parent contribution. Remove the parent's older quoted or forwarded history from that outgoing copy by default; do not recursively copy the complete received body or the conversation view. Older material may appear above, below or between the parent's own words, so position alone is not a reliable boundary. The sender may omit, reduce or deliberately extend the selected context, subject to the same disclosure rules. [Legacy reconstruction](rendering.md#old-messages-remain-original-evidence) may help locate passages, but its uncertain classifications are not authority to discard inline answers or rewrite the received original.
+
+Adding a recipient, expanding a list or alias, moving a private reply into a discussion, forwarding to another audience or changing to a less protected delivery requires a fresh disclosure check for every included source passage and resource. The client MUST NOT automatically carry earlier history into that changed audience or weaker delivery merely because it was present in the reply draft. Keep the sender's new writing. Reassess the immediate parent as well as older quotations: omit copied material not authorized for the changed audience or weaker delivery, and make deliberate inclusion inspectable against the final recipients and per-copy protection. Permission to send new unencrypted writing does not itself authorize copying earlier protected or private content into it.
+
+Omission must apply to the actual outgoing representations: plain text, HTML including hidden/collapsed regions, copied MIME parts and inline resources. A visually collapsed quotation is still disclosed if its bytes are sent. Do not carry a raw original or an attached transcript as an invisible substitute. A deliberate forward-as-attachment or raw export remains a separate complete-content disclosure under the complete-content rules above.
+
+When a legacy boundary is uncertain, keep the received source intact and offer deliberate passage selection or a new-content-only reply. Do not claim that a heuristic extraction is a verified or complete account of the latest author's contribution. The composer must let the sender inspect exactly what copied context and resources will leave; presentation cleanup alone does not establish safe disclosure. This minimizes new copies; it cannot withdraw history already received by earlier participants or their services.
+
+Acceptance cases must cover the normal response-then-parent layout, omission of the parent's older chain, three or more successive replies whose context window remains two contributions, preservation of deliberately authored quotations, an explicitly selected earlier reply target, adding a recipient after drafting, switching a copied passage to ordinary delivery, top-posted and interleaved history, changed quoted passages, hidden HTML and alternative MIME copies, ambiguous source boundaries, and deliberate forwarding of a complete original. Check the bytes actually sent as well as the composer preview; source preservation and reduced outgoing disclosure are separate outcomes.
 
 ## Failure behavior
 

@@ -28,7 +28,7 @@ Before reporting recovery setup complete, decrypt and verify a test snapshot usi
 
 The kit is strict UTF-8 JSON with exactly `version`, `purpose`, `archive`, `ageIdentity` and `verificationKey`. Version is `"0"`; purpose is `"archive-recovery-kit"`; archive uses the nonzero ObjectId grammar. `ageIdentity` is a valid native age X25519 secret identity. `verificationKey` is the 32-byte Ed25519 public key encoded as 64 lowercase hexadecimal characters. Unknown members, duplicate decoded names, nulls and malformed encodings are rejected. A kit is secret material, never a discovery advertisement, email notification, support log or billing record.
 
-The encrypted file selects the binary age v1 format and native X25519 recipient from the pinned [C2SP age v1.1.0 specification](https://c2sp.org/age@v1.1.0). Generate one recipient stanza, for this archive's recovery identity. Additional recipient types, armor, password recipients and service-held decryption recipients are outside this profile. Use an age implementation; do not replace its encryption or final-authentication rules. This selection is not post-quantum protection.
+The encrypted file selects the binary age v1 format and native X25519 recipient from the pinned [C2SP age v1.1.0 specification](https://c2sp.org/age@v1.1.0). Generate exactly one native X25519 recipient stanza, for this archive's recovery identity. Inert extension stanzas whose type ends in `-grease`, as emitted by maintained age implementations, may accompany it. Readers ignore those extension stanzas when selecting the native identity. Additional X25519 recipient stanzas and other recipient types fail this profile. Armor, password recipients and service-held decryption recipients are outside this profile. Use an age implementation and its parsed stanza interface; do not replace its header parsing, encryption or final-authentication rules. This selection is not post-quantum protection.
 
 Structured recipient and identity fields use age's original Bech32 checksum, not Bech32m. Require the canonical public spelling `age1…` and secret spelling `AGE-SECRET-KEY-1…`, containing exactly 32 decoded octets: 52 data symbols and six checksum symbols, with zero padding in the last symbol. Reject mixed case, incorrect checksum, excess or nonzero padding, and wrong decoded lengths. A human-entry adapter may accept a uniformly cased checksum-valid spelling and canonicalize it before freezing a new object; it must not rewrite an already signed object. The public and secret strings are respectively 62 and 74 ASCII characters. A checksum detects some entry errors; it does not prove ownership or trust.
 
@@ -197,6 +197,14 @@ Restored history can help you write a new message. It does not reactivate old bu
 A new identity cannot answer an old question or edit an old author's message merely because the person recognizes it. Any supported structured action still needs its own exact target and current actor authorization. Reopening history or clicking an unsupported old control sends nothing. A client may guide the person into an independently authorized new composition; it must not report the old action as completed.
 
 ::::
+
+## Preserve honored deletion during restoration
+
+An archive may contain a message that the recipient's system later removed.
+Restoring that archive does not override a retained deletion disposition or turn
+its target into a new message. Apply the [suppression and restoration rules](delivery-policy.md#retain-suppression-for-as-long-as-the-original-can-return)
+before promoting historical material into ordinary conversation presentation.
+Historical inspection does not establish that every exported copy was erased.
 
 ## Rotation, compromise and rollback
 

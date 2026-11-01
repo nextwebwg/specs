@@ -19,7 +19,7 @@ The structured message contains a **chunk index**. Each entry points to one HTML
 
 ## What a sender includes
 
-A normal reply can contain just its new content and an exact reply reference. Quoted history is not required. When the author includes context, the composer identifies the selected passages separately from new writing and retains their authored order, including interleaved answers.
+A normal reply can contain just its new content and an exact reply reference. Quoted history is not required. A readable reply intended for an older client normally shows the new response followed by its immediate parent, under the [two-contribution layout and disclosure rules](messages.md#conversation-history-and-forwarding). That context must be encoded during composition under the selected contract; it is not an automatic transcript or an unsigned addition after signing. When the author includes context, the composer identifies the selected passages separately from new writing and retains their authored order, including interleaved answers.
 
 | Piece | Purpose |
 | --- | --- |
@@ -32,7 +32,7 @@ A normal reply can contain just its new content and an exact reply reference. Qu
 
 The index and annotated HTML belong to the same event and, when protected, the same authentication boundary. For protected delivery, both and the readable alternatives belong inside encryption. Ordinary delivery keeps its actual unprotected status. Recognizing Microdata never authenticates a sender.
 
-The sender does not attach an invisible transcript to make the reply self-contained. Only deliberately included context is copied. Copying source passages and their identifiers follows the existing [history and forwarding rules](messages.md#conversation-history-and-forwarding) and [disclosure policy](delivery-policy.md). A reference cannot authorize fetching or sharing its source.
+The sender does not attach an invisible transcript to make the reply self-contained. Only context selected for this reply is copied, including eligible immediate-parent context under that layout. Copying source passages and their identifiers follows the existing [history and forwarding rules](messages.md#conversation-history-and-forwarding) and [disclosure policy](delivery-policy.md). A reference cannot authorize fetching or sharing its source.
 
 ## Stable chunks, explicit roles
 
@@ -221,10 +221,50 @@ The output is a **reply-content map**, retaining the contribution identity, each
 3. Require the sole root and its complete part list. The [ordered acceptance boundaries](rich-messages.md#accept-the-event-check-its-presentation-separately) distinguish an invalid/incomplete index from an accepted map with unavailable source or later display failure. Locate every indexed element by literal ID in this parsed message only. Require exactly one match and exact agreement on role, text, source fields and index/DOM order. Reject partial maps: unindexed content and malformed metadata remain visible in fallback.
 4. After the complete map is established, build a fresh allowed content tree for each chunk and retain its source mapping. If this later filtering/layout stage fails, preserve the accepted roles, text and source claims in the simpler diagnostic view; do not erase the map or stop its independent relationship checks merely because rich display is unavailable. Failure of the required inert source parsing in steps2–3 remains an incomplete/invalid map instead. Apply the rich-message resource inventory independently; an ID or Microdata property never authorizes a resource fetch, action, navigation or wider audience.
 5. Resolve the primary reply through the existing exact reference rules. Missing/conflicted parents remain explicitly unresolved; do not guess another parent or merge by subject. Keep this message's content visible independently of the target.
-6. Resolve each quotation only against independently validated source events the receiver is authorized to access. Compare the exact principal/event/conversation, source kind, authored part and scalar-value range, then compare the quoted text. A signature on the current reply authenticates its author's quotation claim, not the earlier author's words.
-7. Assign quotation status: `matched-text` for an independently authenticated exact match; `source-unavailable` when the source is absent or inaccessible; `source-conflict` for a conflicted source identity or event namespace; `source-mismatch` for a resolved invalid selector or different text; `claimed-only` when protection is insufficient; and `unattributed` for the explicit unattributed role. Failure of a source claim never deletes surrounding authored content or silently converts the quotation to newly authored text.
-8. Show all authored chunks in their specified order, retaining the included quotation context or an immediate expansion affordance. Only a `matched-text` quotation with the lossless text-only content structure defined above may be collapsed automatically, and only when its source passage is already visible or immediately accessible in the view. Mismatches and uncertain quotations remain visible with client-owned explanation. Matching text does not certify original HTML formatting or the truth of the passage.
-9. Recompute affected relationships when source messages arrive or evidence becomes conflicted, preserving expansion choices and reader position where possible. Reconstruction must not fetch remote content, send receipts, submit answers, mutate source messages or create new authorizations.
+6. Select the actual current reader and view. Resolve a quotation only through an independently authorized projection that allows access to the exact independently accepted original and disclosure of the comparison result in this view. Check that boundary before exposing source existence, conflict, selector or text diagnostics. Absent and inaccessible sources both yield `source-unavailable`, including when private global storage contains their bytes or conflict evidence. The permission details below apply to cross-scope originals too.
+7. Within that authorized projection, check the exact principal/event/conversation, source kind, authored part and scalar-value range, with current source/root namespace-conflict evidence. Assign `source-conflict` for accessible conflict, `source-mismatch` for an accessible invalid selector or different text, `matched-text` for an independently authenticated exact text match, `claimed-only` for otherwise accessible evidence with insufficient protection, and `unattributed` for the explicit unattributed role without source lookup. These outcomes cannot override global invalidation of this contribution's own namespace/root, erase surrounding writing or silently relabel a quotation as newly authored text.
+8. Show authored chunks in order and retain included quotation context or an immediate expansion affordance. Collapse automatically only a `matched-text` quotation with the lossless text-only structure above whose source passage is visible or immediately accessible under this view's authorization. Equality alone cannot hide it, certify formatting or truth, or add source participants, hidden audiences, account/scope identifiers, unquoted text or resources. Shared/exported output needs independent permission for each included result and field.
+9. Recompute affected results when accepted sources, conflicts or reader/view authority change, preserving reader position and expansion choices where possible. Cached matches retain their exact policy/snapshot dependencies; revoked or inaccessible sources become unavailable without stale private diagnostics. Comparison must not fetch history/resources, send receipts, submit answers, activate controls, alter reply parents or group admission, mutate sources or create sending/disclosure authority. A later copy/export/forward requires its own composition and release permission.
+
+::: {.details summary="Permission to send and permission to compare"}
+
+Alice writes privately to Bob. Bob quotes a sentence to Carol. Bob's app needs
+permission to share that sentence with Carol. If Carol already has an authentic
+copy of Alice's original that she is allowed to read in this view, her app can
+check whether the words match. That check cannot establish whether Bob had
+permission to send them or whether Alice endorsed his reply.
+
+A private owner-local view may use the owner's independent authority for both
+messages, including authorized different scopes, without a new per-correspondent
+approval. A shared, exported or restricted view must satisfy its own policy; it
+cannot inherit another private account's context or a cached private comparison.
+A reference, received metadata, equal email address or raw retained source grants
+no access. Do not enrich the current reply's included source claim with private
+stored names, audiences, account/scope identifiers or other context.
+
+| Decision | Exact authority and limit |
+| --- | --- |
+| Copy, prepare or release source-derived material | Composing account's local user/policy, exact content/metadata and intended audience, independent account/protection/intent revision and current release checks |
+| Compare included text locally | Independent current reader/view access to the exact accepted original and permission to show the source-derived result; absence and inaccessibility remain indistinguishable |
+| Show extra source context or export a result | Separate authority for that view/output and each included field; private local access is not a shared/exported grant |
+
+`matched-text` establishes only exact text equality against that independently
+accepted original. It certifies neither the remote sender's local copy/release
+permission nor the source author's endorsement, rich formatting or truth. The
+current sender's signature authenticates its quotation claim, not the source
+author's approval. No transferable proof of the remote sender's local UI/policy
+decision is defined or required for local comparison.
+
+Historical comparison does not require a new live sending certificate from the
+source author. Independently accepted historical authenticity and the source's
+own authority/retirement and current namespace-conflict rules still apply; raw
+imports are not promoted by this rule. Existing global invalidation of the current
+contribution's own namespace/root remains separate and unchanged. Local matching
+cannot repair that contribution, authorize another release or activate any copied
+control.
+
+:::
+
 
 ### Assemble the conversation from contributions
 
@@ -284,7 +324,9 @@ Current indexed replies use [authored0/envelope6/context10 with `mime-suite-v2`]
 
 An older client can display the text or HTML, but may remove annotations, copy a whole transcript or change markup when replying or forwarding. The next receiver treats that new mail as legacy input unless a valid supported structured carrier establishes otherwise. Preserved-looking markers alone do not establish a contract, and stripping metadata cannot authorize hiding text. The [legacy reconstruction procedure](rendering.md#reconstruction-procedure) remains the reversible heuristic fallback.
 
-Forwarding selected content creates a new contribution under its own author and audience. Raw forwarding can disclose the complete original, including quoted-source identifiers; Microdata is not a non-forwarding field. An automatic quotation projection follows the selected agreement's [source-audience comparison](event-encoding.md#asynchronous-authored-records-and-deliveries): within one current scope, compare complete intended slot sets; across scopes, require the independently accepted bindings and disclosure permission. Earlier agreements compare their authenticated principal audiences. A smaller ready delivery does not enlarge the permitted intended audience. Broader sharing requires separately authorized disclosure covering the content and metadata. A missing source must not trigger automatic history retrieval or copying.
+Forwarding selected content creates a new contribution under its own author and audience. Raw forwarding can disclose the complete original, including quoted-source identifiers; Microdata is not a non-forwarding field. When composing, preparing or releasing an automatic quotation projection, the sender follows the selected agreement's [source-audience comparison](event-encoding.md#asynchronous-authored-records-and-deliveries): within one current scope, compare complete intended slot sets; across scopes, require the independently accepted principal bindings and the composing account's explicit local disclosure permission. Earlier agreements compare their authenticated principal audiences. A smaller ready delivery does not enlarge the permitted intended audience. Broader sharing requires separately authorized disclosure covering the exact content and metadata.
+
+The receiver's local quotation comparison instead follows the [reader/view access boundary](#receiver-procedure). An actually accessible independently accepted cross-scope original can support `matched-text` without a new portable grant or proof of the remote sender's local sharing choice. That result grants neither access to a stored private original nor permission to share it. It does not imply original-author endorsement. A source absent from or inaccessible to the current authorized view stays unavailable; no history fetch, hidden context export or control activation follows from its reference.
 
 ## Reply in a conversation with an older agreement
 
@@ -309,3 +351,19 @@ The version0 operation and `html-css-reply-v0` presentation require an exact sel
 Acceptance cases must cover: authored-only replies; alternating quotations and answers; exact source ranges including supplementary Unicode, CR and LF; duplicate IDs/attributes/properties; missing and extra chunks; contradictory role, text, source and order; malformed HTML that relocates wrappers; stripped metadata; changed quotations; unavailable/conflicted sources and later arrival; self/cyclic reply links; duplicate deliveries and event collisions; resource isolation; unauthorized broader quoting; plain-text projection; and preservation of all new writing in every failure state. Native keyboard/accessibility and actual legacy-client display remain separate observations, not inferred from HTML inspection. Current-agreement acceptance additionally distinguishes complete intended slots from actual delivery membership: a valid partial ready delivery retains its edge, while omitted/added discussion slots, a different scope and a missing author binding do not produce a falsely authorized edge. Preserve distinct addressed alias slots and deduplicate identical authored bytes across later deliveries.
 
 The [selected Microdata source review](audits/reply-microdata.md) records the inherited attribute/value rules and the narrower vocabulary boundaries. No production parser, renderer, provider carriage or independent interoperability claim follows from publishing this contract.
+
+### Quotation access and disclosure cases
+
+These cases exercise the separation between permission to send and permission to
+compare. They supplement the carrier, namespace and complete-map cases above.
+
+| Case | Required result |
+| --- | --- |
+| Exact accepted original in an independently authorized private view, including another scope | Compare the included text; an exact match can be `matched-text` without a portable certificate of the sender's local sharing decision |
+| Source absent, retained only by another private account, or excluded by the current view | The same `source-unavailable` outcome; no existence, conflict, mismatch or private metadata disclosure |
+| Accessible source has a namespace/root conflict, invalid range or different text | Preserve the corresponding conflict or mismatch result; matching words cannot override a conflict |
+| Reader changes from a private view to a shared, exported or restricted view | Recheck that output's independent access and field permissions; do not reuse a private match or surrounding context |
+| Source access is revoked after comparison but before display or export | Invalidate the cached result and return unavailable without leaking its old private diagnostics |
+| Historical source remains independently accepted after ordinary sending-certificate expiry | Do not require a new live source sending certificate merely to compare its words; preserve owning historical-authority and conflict checks |
+| Quotation matches, but a new copy lacks the composing account's permission | The match supplies no sending authority; hold preparation/release under the owning disclosure checks |
+| Quotation lookup fails or succeeds | No history/resource fetch, receipt, control activation, discussion admission or reply-parent change follows from the comparison |

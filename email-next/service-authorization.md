@@ -58,6 +58,20 @@ Each attempt uses independent cryptographically random 32-byte state and PKCE ve
 
 The authorization request supplies `response_type=code`, `client_id`, `redirect_uri`, the exact space-delimited scopes, `state`, `code_challenge` and `code_challenge_method=S256`. Failure does not permit a downgrade to plain PKCE. The authorization server binds the issued code to the authenticated account, client, redirect, challenge, scopes and expiry.
 
+The external browser navigates with GET to the exact registered authorization
+endpoint. This browser request is not required to include `Cache-Control:
+no-store`: the native client cannot depend on injecting headers into system-browser
+navigation. The authorization server MUST include `Cache-Control: no-store` on
+authorization responses, including redirects and errors.
+
+This request-header exception applies only to GET at that exact authorization
+endpoint. Programmatic token exchange, refresh, link requests, service submissions
+and status requests retain their owning request and response no-store rules.
+The exception grants no endpoint, credential or redirect permission and changes
+none of the issuer, state, PKCE, registered-callback, scope, account-authorization
+or code-consumption checks. Invalid browser requests do not become authorized
+merely because this cache header is absent.
+
 A callback contains one matching `state` and one exact expected `iss`. Success contains one nonempty `code` and no error; denial contains one `error` and no code. Duplicate selected parameters or ambiguous branches fail. Unknown extensions cannot change endpoint or grant selection. Check attempt expiry and registration before token exchange. The fixed callback response must not echo credentials or load external content.
 
 ### Token exchange and renewal

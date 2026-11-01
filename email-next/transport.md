@@ -7,12 +7,14 @@ sectionNav: true
 
 # Transport and delivery
 
-Email/2 initially travels as ordinary MIME mail through existing submission, relay and delivery services. An upgraded client does not require a new SMTP command to send a structured contribution. Provider upgrades can add discovery, control-message routing and faster delivery through separately negotiated contracts.
+Email/2 initially travels as ordinary MIME mail through existing submission, relay and delivery services. The [encrypted application carrier](application-carriage.md) defines the exact current application attachment and its receiving boundary. An upgraded client does not require a new SMTP command to send a structured contribution. Provider upgrades can add discovery, control-message routing and faster delivery through separately negotiated contracts.
 
 > [!note] Proposed application contract
 > The requirements below define how an Email/2 client interprets transport outcomes. They do not replace SMTP. The selected suite owns MIME/security-profile binding; complete implementation and submission integration remain required. The [SMTP audit](audits/smtp.md) records source coverage and unresolved dependencies.
 
 The [client outcome contract](client-behavior.md#what-a-status-can-tell-you) defines evidence-bound delivery labels, absence of read/presence claims and the distinct boundaries of local deletion, cancellation and revocation.
+
+The optional proposed [provider outcome service](provider-outcomes.md) binds later service observations to the original SMTP attempt and its scoped recipient obligations. Its configured authority and additional server requirements are separate from ordinary DSN correlation; it is not part of the current protected-client baseline.
 
 ## Contribution, delivery and attempt
 
@@ -29,6 +31,8 @@ A client may group recipients into one SMTP transaction only when they receive t
 For the selected asynchronous agreement, the [pending-delivery lifecycle](delivery-policy.md#complete-a-pending-delivery) defines how frozen slot/mailbox obligations relate to original authored bytes, late preparations and exact retries. It preserves this chapter’s current authorization, transport uncertainty and crash boundaries.
 
 ## Local authorization and release
+
+The optional [mailbox-return controls](mailbox-return.md#formats-and-mail-delivery) use these same durable ownership, final-release, cancellation and uncertainty rules. Their purpose permits only the exact pending candidate/key and address destinations defined there, never a generic application send. The locally selected null or exact-source reverse-path is frozen in each outbox item. Failure cannot silently switch its envelope, redirect a private challenge to an unproved relay or allocate another handshake response. No local queue result proves remote receipt.
 
 A queued message is not permission to send forever. The client checks its current permissions, recipients and protection policy when it claims the work, then checks again immediately before handing over the message body. A change learned while the network is waiting can still stop content that has not been released.
 
@@ -121,6 +125,18 @@ RFC 5321 §§4.1.1.4 and 4.2.5 distinguish successful handoff from rejected data
 
 Sections 4.5.3.2, 4.5.4 and 6.1 require appropriate per-command timing and delayed retry, and explain how final-reply loss can duplicate delivery. The application does not shorten the SMTP timeout to produce an instant-chat appearance. A pending message can remain visible locally while delivery continues.
 :::
+
+### Interpret machine-readable delivery reports
+
+Use existing SMTP transaction outcomes and machine-readable delivery-status notifications (DSNs), rather than extracting commands from a human-written error paragraph. [RFC3464](https://www.rfc-editor.org/rfc/rfc3464.html#section-2) defines per-message and per-recipient report fields; [RFC3461](https://www.rfc-editor.org/rfc/rfc3461.html#section-4.4) supplies optional envelope correlation. These formats do not authenticate the report's author.
+
+Retain the original report bytes and parse the declared report format, including applicable internationalized report encodings. Validate the report source and correlate its actual account, submission, delivery, attempt and recipient scope against retained outgoing work before changing an authoritative outcome. An ENVID, Message-ID, matching subject, claimed recipient, DKIM signature or successful delivery to the sender's mailbox alone is insufficient: the reporter must also be authorized to report that attempt's outcome. A trusted submission provider may supply authenticated submission/status evidence under its own selected contract. An unsupported remote reporter remains an unverified diagnostic, not a definitive failure.
+
+Interpret the report's Action and Status together. A delayed report does not establish final failure. A failed report says that the reporting system has abandoned its delivery, even when the diagnostic cause is temporary; a status code beginning with 4 cannot alone promise further automatic retries. Keep earlier accepted handoff, later recipient failure and any authenticated contradictory result as separate observations. A delivery report establishes neither decryption nor reading, and cannot change a confirmed service-button effect.
+
+Deduplicate validated reports durably with their scoped status projection. Duplicate or replayed reports cannot create another failure activity or erase successful recipients. Unverified or unrelated reports remain available for inspection without changing the original send. The [client contract](client-behavior.md#delivery-problems-stay-with-the-message) presents validated problems beside the affected message and defines its one-time activity promotion and recovery actions.
+
+A local setup failure can produce a local send status without generating or awaiting a network bounce. No new Email/2 failure message is defined here. Any future remote setup-specific failure record needs its own exact authenticated source, original-operation correlation, privacy, replay and no-loop binding before it can drive authoritative state. Diagnostic prose never authorizes disabling encryption, changing a recipient or sending again.
 
 ### Explicit no-service failures
 
@@ -564,7 +580,7 @@ Report success MUST NOT establish recipient decryption, endpoint encryption, mes
 
 ## MLS transport experiment
 
-The [MIME round-trip experiment](evidence/README.md#mls-bytes-through-mime) carries actual serialized MLS admission and encrypted-message objects through ordinary base64 attachment encoding before cryptographic processing. The experiment also traverses a bounded loopback SMTP transaction, supplying local network-framing and byte-preservation evidence. The versioned invitation, contribution and group-control experiments define their own bounded MIME shapes. Quorum carrier1 uses a readable text part and an application/json attachment containing the exact encrypted Commit and public certificate evidence. These experiments do not establish real-provider delivery or independent-client interoperability. They do not claim to implement an application binding of the registered message/mls type, and no media type makes a control message invisible to legacy clients.
+The [MIME round-trip experiment](evidence/README.md#mls-bytes-through-mime) carries actual serialized MLS admission and encrypted-message objects through ordinary base64 attachment encoding before cryptographic processing. The experiment also traverses a bounded loopback SMTP transaction, supplying local network-framing and byte-preservation evidence. The versioned invitation, contribution and group-control experiments define their own bounded MIME shapes. Quorum carrier1 uses a readable text part and an application/json attachment containing the exact encrypted Commit and public certificate evidence. These experiments do not establish real-provider delivery or independent-client interoperability. Their recorded MIME shapes remain experiment-specific. The [selected ordinary-mail application binding](application-carriage.md) uses the existing opaque base64 application/octet-stream layout and defines its complete native/application handoff; those earlier experiments do not establish its acceptance. It makes no claim that base64 message/mls is permitted by that registration, and no media type makes a control message invisible to legacy clients.
 
 
 ## Provider transport policy and endpoint protection
@@ -576,6 +592,8 @@ MTA-STS and DANE belong to provider-to-provider transport policy. Keep their res
 
 MTA-STS policy identifiers are change tokens, not ordered revisions. A missing usable DNS advertisement does not by itself erase a cached policy. Its policy parser also has its own extension and duplicate-field rules; the event JSON parser's stricter rules must not be substituted for them.
 
+A relay can advertise more than one transport-security mechanism. Email/2 selects one for each attempt: DANE when authenticated DNS binds both the destination route and a usable relay key; otherwise applicable MTA-STS protects the route. A failed selected DANE check cannot be retried as MTA-STS on the same candidate. This choice never changes the message's endpoint encryption or recipients.
+
 ::: {.details summary="Inherited MTA-STS discovery, enforcement and rollout behavior"}
 
 ### Fetching and selecting a policy
@@ -584,11 +602,33 @@ A sending MTA fetches the policy from the fixed HTTPS endpoint with a certificat
 
 For a configured smart host, the policy domain is that relay's domain. A mailbox at a subdomain does not inherit its parent domain's MTA-STS policy. Delegating policy hosting does not change the certificate name that the original policy endpoint must authenticate.
 
-### Applying a policy
+### Selecting authentication when policies overlap
 
-Enforcement checks both the permitted MX hostname and the receiving server's STARTTLS support and certificate. An MX wildcard matches exactly one leftmost label: `*.example.com` matches `mail.example.com`, but neither `example.com` nor `a.mail.example.com`. A testing policy may report failures while allowing delivery; it MUST NOT be shown as enforced transport protection.
+The sender MUST select authentication separately for each eligible MX candidate, without changing MX preference or loop prevention:
 
-An enforcing sender must not deliver to a candidate that fails validation. It preserves ordinary MX traversal, treating an invalid candidate as unreachable rather than prefiltering the list in a way that changes loop prevention. Before permanently failing delivery under an enforcing policy, it checks for a policy update; transient failure and retry remain the recommended handling. None of these outcomes changes the conversation's authorized plaintext, hosted-access or endpoint-encrypted delivery choice.
+| Candidate and policy | Selection |
+| --- | --- |
+| Authenticated destination route and usable secure TLSA association | DANE; send the TLSA base as SNI and apply that association's usage-specific certificate rules |
+| Unauthenticated MX route and an applicable enforcing MTA-STS policy | MTA-STS; send the MX hostname as SNI and validate its policy authorization and PKIX certificate |
+| No usable DANE association on an authenticated route | Apply other configured transport requirements and any applicable MTA-STS policy; a secure, nonempty all-unusable TLSA set still requires TLS |
+
+For the first row, the sender MUST NOT also require MTA-STS MX-list, PKIX or policy-expiry validation for that attempt. It MUST record MTA-STS as **not applied because DANE was selected**, rather than passed or failed. A retained policy can apply to a later candidate. A DANE handshake or association failure makes this candidate unreachable; it MUST NOT trigger a retry of that candidate using MTA-STS or unauthenticated TLS. Other eligible MX candidates retain their own independently selected requirements.
+
+For the second row, selection MUST occur before optional TLSA discovery. RFC7672 section2.2.1 permits a sender to elect DANE for an insecure MX route; this profile does not elect it when enforcing MTA-STS protects that route. The sender MUST NOT first perform that optional lookup and then ignore its failure or an association mismatch. Relevant address and alias lookup errors still make the candidate unreachable. A configured requirement for DANE-authenticated destination delivery MUST instead hold an unauthenticated MX route; MTA-STS cannot satisfy that requirement.
+
+Record usability MUST be determined using the supported TLSA usages, selectors, matching algorithms and association encodings of the maintained DANE verifier. A nonempty set alone is insufficient. All-unusable records do not establish DANE authentication, so they do not suppress applicable MTA-STS. No selection can convert a required DNS error, bogus result or indeterminate result into authenticated absence.
+
+A testing MTA-STS policy does not enforce delivery refusal. Without an enforcing policy, optional DANE on an unauthenticated MX route may authenticate the relay but MUST NOT be reported as authenticated delivery to the intended destination domain. Its observed result and any testing-policy diagnostics remain distinct from destination authentication and enforced MTA-STS. An independent PKIX/name diagnostic on a session that did not send the MX hostname as SNI MUST NOT be reported as a complete MTA-STS pass or satisfy a configured authenticated-destination requirement.
+
+The sender MUST preserve the selected mechanism's current evidence through the final release check. A DANE-selected attempt checks its routing and TLSA evidence, without acquiring a new dependency on an unused MTA-STS policy's lifetime. An MTA-STS-selected attempt checks the applicable policy and its authenticated session. An expired or changed required input holds release; it cannot silently switch mechanisms after the owner authorized that release. Earlier delivery records without a mechanism disposition retain an unknown disposition; they MUST NOT acquire a retrospective MTA-STS pass.
+
+This selection is an explicit Email/2 profile rule. [RFC8461 section2](https://www.rfc-editor.org/rfc/rfc8461.html#section-2) prohibits MTA-STS from rescuing failed DANE; it does not universally require the precedence chosen here. Applying [RFC7672 section8.1](https://www.rfc-editor.org/rfc/rfc7672.html#section-8.1) to a selected DANE attempt and [RFC8461 section7.1](https://www.rfc-editor.org/rfc/rfc8461.html#section-7.1) to a selected MTA-STS attempt avoids requiring two different SNI hostnames in one ClientHello. The optional insecure-MX selection follows [RFC7672 section2.2.1](https://www.rfc-editor.org/rfc/rfc7672.html#section-2.2.1).
+
+### Applying a selected MTA-STS policy
+
+For an attempt selecting MTA-STS, enforcement checks both the permitted MX hostname and the receiving server's STARTTLS support and certificate. An MX wildcard matches exactly one leftmost label: `*.example.com` matches `mail.example.com`, but neither `example.com` nor `a.mail.example.com`. A testing policy may report failures while allowing delivery; it MUST NOT be shown as enforced transport protection.
+
+A sender applying an enforcing MTA-STS policy must not deliver to a candidate that fails that validation. It preserves ordinary MX traversal, treating an invalid candidate as unreachable rather than prefiltering the list in a way that changes loop prevention. Before permanently failing delivery under an enforcing policy, it checks for a policy update; transient failure and retry remain the recommended handling. None of these outcomes changes the conversation's authorized plaintext, hosted-access or endpoint-encrypted delivery choice.
 
 ### Limits of the protection
 
@@ -650,3 +690,11 @@ These rules follow [RFC7672 §§3–4](https://www.rfc-editor.org/rfc/rfc7672.ht
 Mailbox record identifiers, folders and provider-generated threads are storage views. They do not identify authors, establish conversation membership or authorize a repeated action. A copied message can have a new provider identifier while remaining the same authenticated contribution.
 
 The [mailbox integration chapter](mailbox-integration.md) specifies account scoping, synchronization, original-byte preservation, permissions and submission behavior for JMAP adapters. Clients using other access protocols retain the same separation between mailbox state and conversation authority.
+
+## Carry the selected receiving contract
+
+Before preparing the opaque encrypted application representation, the owning client selects [complete authenticated support](application-carriage.md#select-one-actual-delivery) for every actual device in that delivery. Setup success and outer parser success do not authorize release. The original native/key, current account/route and per-copy disclosure checks still apply.
+
+Retain the carrier selection and original receiving bundle with the immutable mail version. Receiving deadlines are checked independently from active publication and final-release eligibility. Retried prepared versions retain their original complete bytes/Message-ID and prior exposure, including versions using a historical carrier. A changed local codec cannot silently rewrap uncertain work or identify a new profile from context10 alone.
+
+Required masking keeps all real-address-bearing support material in the [private acquisition or protected attachment](application-carriage.md#acquire-support-without-exposing-the-private-address). No clear support sibling is permitted on the strict opaque application frame. Ordinary mailbox setup remains a separately enabled, disclosure-sensitive path; inability to use it supplies no permission to relax masking or send clear content.

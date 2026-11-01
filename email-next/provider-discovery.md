@@ -17,7 +17,18 @@ A client can learn where a mail domain offers an Email/2 control service without
 > [!note] Retained version0 discovery profile
 > `email2-provider-discovery-v0` selects account-domain delegation and native public-client registration. The well-known suffix and profile identifier are draft allocations, not registered names. The [configured queue contract](provider-control.md) remains unchanged. The [public grant profile](provider-grants.md) separately defines account/device links and pair-specific queue credentials. The [unknown-peer bootstrap contract](bootstrap.md) separately defines first-contact authority. Joined implementations remain unfinished; discovery alone does not make a service publicly interoperable.
 
-The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [provider descriptor2](#discover-the-asynchronous-agreement) when this capability is offered. Retained descriptor0/1 definitions remain exact for earlier exchanges. Version2 selects the asynchronous application while preserving shared account authority; a descriptor is not evidence that the complete service is implemented.
+The selected opaque application carrier uses [provider descriptor3](#discover-complete-mail-receiving-support) when this capability is offered. It selects exchanges that carry both original native setup and signed device support for the mail format. Descriptor2 retains its exact asynchronous inner-agreement meaning; it does not prove the newer outer carrier. A descriptor is not evidence that the complete service is implemented.
+
+The [cooperating-service architecture](service-federation.md) additionally calls
+for separately scoped directory, rendezvous and ciphertext-delivery roles. Those
+roles need an exact new discovery binding. They are not extra fields in the
+retained strict descriptors below, and a domain delegation still does not prove a
+mailbox-to-device identity. Clients using independent services need an accepted
+locator or configured common federation when their email domain supplies none.
+
+## A smaller discovery-only service
+
+The account/control-service discovery below is not the minimum provider upgrade. A provider may instead implement only [Setup discovery](encryption-discovery.md), a small HTTPS recipient-support hint beside its existing mail server. It does not expose control or management prefixes, require OAuth, distribute keys or establish usable encryption. It has its own exact binding and claims; it cannot advertise the full control-service profile by returning a hint.
 
 ## Discover for an explicit setup purpose
 
@@ -100,6 +111,26 @@ Reuse a registration only under that complete unchanged binding. A different mod
 These rules define native authorization reuse only. Queue, relay and bootstrap account-link records, device proofs, role checks and operation lifecycles remain owned by their respective contracts. A native token is not a queue-role credential, route permission, recipient key or content-release authorization.
 
 ::::
+
+### Independent registrar and home connections
+
+An independent registrar, home or package service uses the native sign-in procedure above under the following explicit candidate module selection. This connects the person's own selected service account. It does not prove control of a mailbox or authorize another person's account.
+
+| Module | Selected descriptor | Exact requested scope set |
+| --- | --- | --- |
+| `mailbox-association` | [Association descriptor](mailbox-registration.md#exact-service-descriptor), profile `mail-association-service-v0` | `mail.association.link mail.association.manage` |
+| `rendezvous` | [Home-service descriptor](rendezvous.md), profile `mail-rendezvous-v0` and purpose `rendezvous-service` | `mail.rendezvous.link mail.rendezvous.manage` |
+| `packages` | [Package-service descriptor](package-allocation.md#service-descriptor), profile `mail-package-allocation-v0` and purpose `package-service` | `mail.packages.link mail.packages.manage` |
+
+For each candidate, the selected descriptor comes from explicit own-account service configuration or an already accepted delegation under its owning contract. Preserve that original selection and its trust provenance; do not manufacture a mailbox-domain delegation for an independent service. Incoming recipient evidence cannot select this login or install a new service origin. Rendezvous currently selects explicit own-account configuration; its still-undefined domain-discovery binding cannot be inferred from this shared sign-in procedure.
+
+The selected origin supplies the required RFC8414 metadata at the same well-known location defined below. Its `scopes_supported` must include both exact scopes for the selected row. The other metadata, public-client registration, issuer, endpoints, external-browser, S256 PKCE, token, refresh and revocation requirements remain unchanged. These bindings introduce no new OAuth metadata member or discovery URL. The same two registered loopback callback forms apply; do not derive an association or rendezvous callback path from the module name.
+
+Register each module separately with exactly its selected scope set. Retain the selected module, descriptor bytes/digest, own-account configuration or delegation provenance, metadata bytes/digest, issuer, client ID, callback forms, scope set and local setup generation in the attempt and credential binding. A shared origin, client ID or callback does not merge grants. A descriptor or metadata change invalidates pending attempts; it does not forward an old credential to the replacement service. Refresh cannot add another module's scopes.
+
+A successful native login supplies only the selected account-management grant. The association, rendezvous and package owners define their own device-link records, signature purposes, string timestamps, reset/inspection and later operation permissions. Existing provider/relay/setup links, proofs and credentials cannot be relabeled for these candidates. A client implementing only the earlier provider, relay and setup modules does not gain these capabilities merely because a server advertises these scope strings.
+
+Acceptance evidence must include the selected modules at a shared origin with equal callback/client identifiers, wrong or missing advertised scopes, changed descriptor/metadata during an attempt, a callback from another module's pending attempt, an incorrectly scoped token or refresh, and revocation restricted to its original grant family. Successful native authorization must still leave mailbox verification and device/home authority unestablished until their actual owning checks complete. The new candidate bindings require their own implementation evidence; earlier native-flow tests do not establish their support.
 
 ## Register and sign in through the selected service
 
@@ -190,7 +221,7 @@ Required public-deployment evidence additionally includes domain delegation thro
 
 ## Independent relay capability
 
-The [relay module](relay-routes.md#discover-a-relay-service) reuses the transport, publication, native authorization and credential-isolation mechanics here under its own descriptor, scopes and namespace. Relay-only providers need not advertise or implement the queue. An existing queue registration or token does not silently gain relay administration/submission rights.
+The [relay module](relay-routes.md#discover-the-selected-service) reuses the transport, publication, native authorization and credential-isolation mechanics here under its own descriptor, scopes and namespace. Relay-only providers need not advertise or implement the queue. An existing queue registration or token does not silently gain relay administration/submission rights.
 
 
 ## Reply-aware queue discovery
@@ -223,5 +254,19 @@ All versions share the same domain/purpose/publication high-water and account/mo
 Use the existing native registration/login, issuer-bound authorization-code/S256 PKCE, exact mail.provider.link/mail.provider.manage scopes, account/device linking and origin-bound credentials. Descriptor2 introduces no scope, callback or sign-in permission. Origin changes require the existing reconnection decision. A recipient lookup never signs the sender into that recipient's service. New grants and role credentials bind the exact accepted descriptor2/configuration bytes; old tokens are not migrated.
 
 The [synthetic queue descriptor](examples/async-provider-descriptor.json) illustrates only discovery fields. It is not an active delegation, account login or device advertisement.
+
+:::
+
+## Discover complete mail receiving support
+
+Descriptor3 locates a service that can carry complete device-signed receiving bundles. It does not announce that every client on an account can read encrypted mail. The actual selected devices must supply their own proof.
+
+::: {.details summary="Exact descriptor3 and shared account authority"}
+
+Descriptor3 has exactly descriptor2's members and types, with version `"3"` and agreement `"mail-conversation-v2"`. Its controlPrefix selects [mail-provider-control-v3](provider-control.md#obtain-complete-mail-receiving-evidence); managementPrefix selects [mail-provider-grants-v3](provider-grants.md#authorize-complete-receiving-exchanges). All original selected-domain, publication/generation/high-water, prefix separation, TLS identity, no-redirect, no-store, parsing and interval rules apply. Active prefixes across versions cannot overlap by segment containment.
+
+Select and freeze this exact original descriptor before configuration/grant preparation. Its bytes and current delegation bind those operations. A failed3 response cannot fall through to2; unsupported discovery leaves this path unknown/unavailable for the selected carrier without downgrading an existing required agreement.
+
+Existing native public-client registration/login, issuer-bound authorization-code/S256 PKCE, account/device links and mail.provider.link/mail.provider.manage scopes remain unchanged. No recipient login, forwarded credential, mailbox in the well-known URL or new OAuth scope is introduced. A changed origin requires the existing reconnection decision. Same-origin eligible current links can support fresh exact grants under their original authority; historical proof bytes and revoked/held state are not edited.
 
 :::

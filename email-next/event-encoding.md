@@ -164,6 +164,75 @@ Version `1` requires the [version `2` authenticated application context](securit
 :::
 
 
+## Ordinary authored carriage
+
+An ordinary email can include the same structured reaction that an upgraded client
+would receive through a protected delivery. It carries the original writing, not
+an invented encryption envelope. The receiving client can inspect its exact reply
+target while keeping the email's actual unprotected status visible.
+
+The ordinary representation uses the unregistered candidate
+`application/vnd.threadlabs.mail-authored+json`. The
+[registration contract](media-type-registration.md#ordinary-authored-candidate)
+owns its media-type rules. This representation does not change the secured
+`mail-event` carrier or supply encryption support for a recipient.
+
+::: {.details summary="Exact ordinary representation and trust boundary"}
+
+The decoded payload MUST be the complete original authored0 octets, with
+`version` equal to `0` and `purpose` equal to `authored-contribution`. Apply the
+[authored-record schema](#asynchronous-authored-records-and-deliveries), strict JSON,
+Unicode, duplicate/unknown-member, byte and depth rules. Do not reserialize or
+strip scope, addresses or disclosure members. No delivery event, native audience,
+slot mapping, package or protection context is added. The first ordinary binding
+admits only the selected `reaction` and `reaction-withdraw` operations; it carries
+no resources. Other operations remain unsupported in this binding.
+
+The generated ordinary layout is `multipart/alternative` with exactly three
+children in order: UTF-8 `text/plain`, inert UTF-8 `text/html`, and the ordinary
+authored representation. The structured child has no media parameters and uses
+base64 transfer encoding. The readable children preserve the operation's meaning
+and exact references without quoting target content. The optional first RFC9078
+part and its enclosing mixed wrapper follow the
+[reaction projection](reactions.md#readable-ordinary-email-projection). It is not
+an extra part in a secured mime-suite-v2 carrier. Ambiguous, duplicate, nested or
+wrong-order candidates leave this generated-layout selector inactive with the
+original source available.
+
+Every parsed result MUST remain an ordinary unprotected, unverified candidate.
+Syntax, From, DKIM, transport TLS, a Message-ID and a matching emoji MUST NOT admit
+a native contribution, reserve an authenticated namespace, change a trusted
+reaction count, withdraw an accepted reaction, execute a service action or supply
+missing target history. Failed or unsupported structured parsing MUST NOT promote
+a neighboring legacy reaction to trusted status. Reading this representation
+MUST NOT trigger setup, remote resource retrieval or another response.
+
+A receiver MAY relate the ordinary representation to an independently accepted
+protected event only after comparing the complete original authored bytes and
+rechecking the owning current presentation permission. That comparison adds
+ordinary delivery provenance; it does not authenticate this carrier or create a
+second trusted effect. Different authenticated bytes retain the existing
+conflict rules. Unauthenticated variants cannot reserve or poison a protected
+namespace. A gateway that removes or changes the structured record leaves no
+proof of equivalence from emoji, subject or sender spelling alone.
+
+Before generation or release, the sender MUST retain the deliberate ordinary
+permission for the actual destination and the complete exposed authored record,
+including its scope, personal addresses, identifiers and references, plus the
+readable alternatives and outer routing metadata. Authorization for visible text
+alone is insufficient. Private/Bcc copies use their own independently authored
+records; a visible record MUST NOT be substituted or edited into a private copy.
+A reference alone authorizes neither disclosure of its target nor resource access.
+
+The ordinary sender retains immutable prepared bytes, original deadlines,
+per-destination outcomes and possible-release uncertainty under the existing
+outbox contract. Separate ordinary permission does not mutate an earlier
+protected preparation or claim atomic network delivery. Earlier media types and
+negotiated carriers keep their original parsers; receivers MUST NOT try this
+ordinary parser as recovery for a failed secured carrier.
+
+:::
+
 ## Asynchronous authored records and deliveries
 
 One person’s writing can travel through several separately encrypted deliveries. Keep the writing as one immutable record. Put the actual recipients and delivery identity around it, so a later copy for a newly ready recipient does not become a second message or change what the author originally said.
@@ -268,7 +337,9 @@ Inside the authored record, each operation uses its existing exact field invento
 
 The recipient-resolution operation is the exact additional control body defined by the scope chapter. It belongs to the same scope it names, authenticates as its creator and has not-applicable reply intent. Its required operation selection and inert carrier projection are defined by the [asynchronous agreement](suite-profile.md#asynchronous-protected-agreement).
 
-Apply the owning operation’s same-author, same-conversation, target-kind, replacement, source-policy and deliberate-action checks to independently accepted logical records. Discussion equality uses complete intended slots as above. Actual release still requires a native audience exactly accounted for by the selected delivery map. For source-derived content within one scope, an automatic audience-subset check compares the explicitly selected intended slot sets; actual release still requires each delivered slot’s accepted creator binding and current eligibility. Across different scopes, require independently accepted principal bindings for every slot needed by that comparison and the owning explicit disclosure permission. Unknown bindings leave that cross-scope comparison unavailable; matching mailbox text or an arbitrary discovered principal cannot satisfy it. This does not authorize forwarding the complete original or activating its controls in a new scope. No current per-copy operation graph may be reused by substituting the delivery event as a logical reference.
+Apply the owning operation’s same-author, same-conversation, target-kind, replacement, source-policy and deliberate-action checks to independently accepted logical records. Discussion equality uses complete intended slots as above. Actual release still requires a native audience exactly accounted for by the selected delivery map. When a sender automatically copies, prepares or releases source-derived content, the within-scope audience-subset check compares the complete explicitly selected intended slot sets; actual release still requires each delivered slot's accepted creator binding and current eligibility. Across scopes, that composing/releasing sender requires independently accepted principal bindings for every slot needed by the comparison and the owning explicit local disclosure permission. Unknown bindings leave that automatic cross-scope comparison unavailable; matching mailbox text or an arbitrary discovered principal cannot satisfy it.
+
+Receiver-local comparison of already included quotation text is a separate operation under the [quotation procedure](reply-content.md#receiver-procedure). It requires an independently accepted exact original and independent current-reader/current-view access before source-specific results are disclosed. It does not require a transferable proof of the remote sender's local composition decision, compare audiences to authorize another copy, or authorize another release. Absent and inaccessible sources produce the same unavailable result even if globally retained storage contains their bytes or conflict evidence. A separately authorized local view may make an actual cross-scope source accessible; a shared, exported or restricted view cannot inherit another private account's authority. Merely retaining a source, sharing an email address or receiving a reference grants no access. Preserve the global namespace and source/root conflict checks; source comparison cannot repair an invalid current contribution or create a discussion edge, control effect, group admission, history retrieval or forwarding permission. No current per-copy operation graph may be reused by substituting the delivery event as a logical reference.
 
 A question’s and service descriptor’s self-reference names the logical question. Every delivery therefore refers to the same question, not one question per ready cohort. Service submission identifiers, credentials, replacement/status rules and uncertainty remain separate. Replaying the question through a new delivery cannot authorize a new HTTP submission. A hosted observation remains authored by its actual observer and attributed to a grant holder under its owning contract.
 

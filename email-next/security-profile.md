@@ -54,6 +54,8 @@ The difference is the selected wire protocol and its device-group model. A manag
 
 This framing does not implement RFC9788 header protection by itself. [RFC9787 §§5.1 and 9.3](https://www.rfc-editor.org/rfc/rfc9787.html#section-9.3) require that protection for its encrypted-email composition model. The managed profile instead authenticates the event's principal, audience and conversation through its selected application binding; an outer From, Subject or threading field does not acquire that protection. This difference keeps transport routing separate from conversation authority. The current [authored0 presentation](event-encoding.md#asynchronous-authored-records-and-deliveries) is mandatory: it encrypts the subject, author-stated date, personal addresses and intended To/Cc slots, while envelope6 separately binds actual deliveries. The retained [protected presentation profile](managed-presentation.md) added subject/date/principal roles under its own earlier agreement. It is a semantic MLS binding, not RFC9788 wire compatibility; older profiles still leave their outer subject unprotected. The [legacy composition path](transport.md#default-header-confidentiality-for-protected-legacy-mail) retains RFC9788's rules.
 
+The [ordinary-mail application binding](application-carriage.md) carries the complete MLS application object as one opaque attachment. Its fixed outer notice is untrusted transport explanation, not another protected body. Application reception authenticates the selected native context before interpreting inner MIME or enabling effects; the attachment type cannot substitute for those checks.
+
 ### Differences to account for
 
 RFC9787 remains the implementation guidance for the legacy encrypted-email formats it describes. The managed profile makes the following choices explicit:
@@ -137,7 +139,9 @@ At publication expiry, unused material stops serving new setup. Older encodings 
 
 The maximum is a positive unsigned-64 duration in seconds supplied by trusted local configuration; zero, overflow, missing configuration after an explicit policy selection, or a malformed configured value holds use. Omission selects the documented seven-day default. Compare `not_after - not_before` only after checking the interval is ordered, using arithmetic that cannot wrap. A more permissive configured maximum never extends the authenticated end time or overrides revocation, consumption or another required credential's expiry.
 
-The [lifetime experiment](evidence/README.md#admission-lifetime-decisions) checks unsigned bounds, configurable policy and uncertain clocks. The separate real-MLS validator exercises actual signed packages. Neither supplies trusted time or complete admission. The pinned OpenMLS implementation additionally imposes its own maximum range and system-clock check; configuring a longer local policy does not bypass those library limitations. Unavailable support holds admission instead of weakening validation.
+The [lifetime experiment](evidence/README.md#admission-lifetime-decisions) checks unsigned bounds, configurable policy and uncertain clocks. The separate real-MLS validator checks the configured maximum explicitly; native signature validation alone does not enforce it. Neither experiment supplies trusted time or complete admission.
+
+The pinned OpenMLS implementation also checks the system clock. A supplied uncertainty interval cannot bypass that additional check. Receiving-time exceptions still need an adapter that preserves all cryptographic validation; unavailable support holds admission instead of weakening it. The [native validation evidence](evidence/README.md#passive-mls-admission-package-checks) records the library boundary.
 
 ### Renewal without manual key exchange
 
@@ -456,3 +460,19 @@ The [control container](suite-profile.md#confidential-setup-and-control) separat
 ## Administrative repair and terminal authority
 
 The [selected state1 lifecycle](identity-state.md#concurrent-administration-and-retirement) adds deterministic revocation-preserving repair, same-key restrictive replacement, complete shared-administrator proofs, branch-only cleanup and explicit retirement. Binding0 and MLS credential bytes remain their existing formats. The repair is a fresh-authorization boundary: single-parent continuity cannot carry earlier grants or setup permissions across it. Administrative proof circulation has its narrowly scoped sealed-control purpose; it cannot authorize human content or group membership. Current component codecs/stores do not implement the complete state1 lifecycle, which remains required before a full current-suite claim.
+
+## Bind software support to the actual receiving device
+
+A valid MLS key says nothing about the email attachment formats its software understands. The selected application carrier therefore requires a [separately signed device promise](application-carriage.md#device-receiving-promise) and exact original receiving bundle. The service transports evidence; it cannot assert support for someone else's device.
+
+::: {.details summary="Authority, custody and separate publication/receiving checks"}
+
+Resolve the offer signer and actual package-bearing assertion signer to the same independently authenticated device/binding and current Receive authority. Preserve distinct original records and accepted identity ancestry. The [offline join](application-carriage.md#join-an-offline-package-with-its-support-proof) additionally requires original static installation, publication, allocation request/result and actual package references; matching fields or valid signatures in isolation cannot join them.
+
+New preparation and each final release require eligible publication intervals, credible time and current identity/account/association/route/disclosure checks. A retained receiving promise through receiveUntil is a different obligation: it preserves a decoder and applicable custody for already prepared data under its own lifecycle. It does not keep a retired identity, expired native package, revoked role or withdrawn key alive. Apply each independent native/control-key bound and preserve failures without inventing historical creation time.
+
+The optional sealed3 promise applies only to the exact original assertion10 controlKey and [mailbox3 response profile](suite-profile.md#complete-application-carrier-selection). Its offer publication fits that key's publication, and receiveUntil does not exceed the original key's receiveUntil. Old sealed2 support is not sealed3 support; native application support is neither. Published promises must be durably issued with real custody before exposure.
+
+Personal-address-bearing proof stays inside the chosen private/protected payload when masking is required. No public address hash, plaintext support registry or extra outer attachment is selected. Existing authoritative directory enrollment knowledge and private-snapshot compromise limits remain explicit; the new signature does not strengthen them.
+
+:::

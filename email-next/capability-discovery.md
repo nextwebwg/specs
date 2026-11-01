@@ -20,10 +20,22 @@ Before using a rich interaction or encryption, a client needs to know what the r
 | Upgraded provider | An authorized discovery or control service supports exchanges outside normal inbox delivery | Device enrollment or support by every client using the account |
 | Both endpoints available | A fresh authenticated exchange can confirm a session | Peer identity merely because someone is online |
 
+The [cooperating-service architecture](service-federation.md) adds a proposed path
+for clients using different services, including independent services beside
+unchanged mailboxes. It separates private discovery, offline setup, live connection
+negotiation and fast encrypted delivery. Finding setup does not mean a device is
+online. Finding an independent operator requires domain delegation, a previously
+accepted locator or a configured common discovery federation; clients do not ask
+every known service. Its complete wire bindings remain to be specified.
+
 Support is checked feature by feature and for the actual destination. A client may support answer buttons while lacking current encryption material. A provider may offer a control service while a legacy client still reads the same mailbox.
 
 > [!note] Proposed decision contract
 > This chapter defines how discovery evidence affects sending. The [experimental passive binding](passive-discovery.md) selects ordinary-email carriage, signed records and expiry rules for implementation work. Its media type is unregistered. The [optional provider extension](provider-negotiation.md) selects a separate control queue and device-challenge lifecycle. Its [configured wire profile](provider-control.md) defines the exchange; [domain discovery](provider-discovery.md), [public account/grant authority](provider-grants.md) and [unknown-peer bootstrap](bootstrap.md) are defined separately; their complete joined implementations remain unfinished. These requirements alone do not establish interoperable discovery.
+
+## Start with a small provider hint
+
+A provider can implement only [Setup discovery](encryption-discovery.md): one small HTTPS service advertises whether setup support is publicly offered for a selected account. It needs neither a replacement mail server nor the full provider-control service. A negative response can deliberately combine unsupported and nonexistent accounts. A positive response still requires actual validated setup before protected content is sent. Independently usable accepted setup survives negative hints and service outages.
 
 ## Bootstrap through ordinary email
 
@@ -274,3 +286,21 @@ Current assertion10 and retained assertion9/assertion8 each bind the required [c
 
 
 For the selected [asynchronous agreement](suite-profile.md#asynchronous-protected-agreement), acquire original assertion10 through the [exact per-delivery setup paths](first-contact-setup.md#acquisition-for-independently-ready-deliveries). Validate every actual selected device, retain its independent interactions and keep pending slots separate from native membership. Assertion10 is the current baseline; assertion9 and earlier advertisements retain their exact compatibility scope. An older advertisement, provider response or MIME label cannot supply the current agreement by relabeling it.
+
+## Negotiate the mail carrier as well as encryption
+
+Knowing that a device understands MLS and mime-suite-v2 does not tell the sender which email attachment it can receive. The selected opaque carrier needs that device's [complete signed receiving bundle](application-carriage.md#obtain-authenticated-carrier-support). This is checked separately from native admission, mailbox identity and the person's permission to disclose content.
+
+::: {.details summary="Per-device support, automatic setup and safe unknown outcomes"}
+
+Use the [complete acquisition paths](first-contact-setup.md#finish-acquisition-for-the-opaque-carrier), including provider3/bootstrap3, private realm1/snapshot1 plus actual allocator0, separately enabled mailbox3, and permitted original human-message publication. Provider-first/offline paths can encrypt the first human message without a previous mail exchange; success still requires real eligible evidence and admission. There is no universal promise that every first message can be encrypted.
+
+For every actual selected recipient and participating sender device, validate current identity/Receive authority, association, original carrier offer, actual native application/ordering and package/control custody. One device's proof is not an account-wide promise, server claim or another alias's permission. Pending intended slots remain explicit while a ready actual cohort progresses under its frozen plan.
+
+Assertion10/context10 and old carrier evidence retain their exact meaning. Missing current support means unknown/held, not unsupported, unassigned or permanently offline. Failure never selects a weaker decoder, sends an allegedly hidden probe, silently drops a frozen target or permits a clear first message. Ordinary/hosted fallback needs its separately retained disclosure policy and visible protection status.
+
+A fresh device response can refresh capability evidence only for its original request, target/current state and deadlines. Offline bundles remain cached evidence. A new software install does not sign for another device, renew an earlier receiving promise or alter old prepared mail. Use the [historical-version boundary](application-carriage.md#historical-prepared-versions-and-explicit-reader-selection) for restart and migration; keep exact Message-ID/bytes/ciphertext/attempts/uncertainty.
+
+Required masking keeps all real-address-bearing proofs inside private acquisition/protected attachments. No clear sibling or personal-address digest belongs to the opaque application wrapper. Retain original proof provenance, conflicts, publication eligibility and receiveUntil independently; no stale promise revives retired native keys or account authority.
+
+:::

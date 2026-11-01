@@ -241,6 +241,14 @@ Maintain a separate scope-setup ledger. Its metadata does not reserve an accepte
 4. Merge expected/bound principal constraints and known conflict flags. Different unconflicted incoming knowledge versus retained knowledge marks that slot conflicted; it never selects an arrival-order or newer-source winner. Root conflict and slot-conflict knowledge survive a new source device, observation ID or transfer. Missing facts and false flags cannot clear them.
 5. Commit the scope facts, provenance and resulting blocked constraints atomically. Slot conflicts hold only work requiring those slots; unaffected recipients can still progress. Root/provenance conflict holds this scope’s use without stopping unrelated contacts/scopes. Recheck dependency generations before publishing a view or preparing content from them.
 
+### Compare creator history without changing pins {#scope-creator-history-comparison}
+
+Keep the transferred creator `anchor`, selected `head` and original public proofs. The anchor can be an accepted successor state, as described in [contact pin preservation](identity-lifecycle.md#accept-reconcile-and-report-readiness); it need not be genesis.
+
+When comparing that evidence with the target’s retained identity, validate the complete original history from the exact source pin and head. Derive genesis only to compare identity namespaces. Unequal source and target pins alone do not establish different genesis states. A genuinely different genesis under the same claimed principal holds the affected scope.
+
+Preserve both accepted pins, known negative facts and separate contact-policy holds. This comparison grants no current creator authority and does not merge histories or refresh proof intervals. Independently attributed scope observations still retain their exact creator-anchor constraints and existing provenance-conflict rules.
+
 A successfully retained conflicted fact is not usable permission. A scope’s reconciliation can complete with explicit blocked constraints; the installed receipt only reports that selected setup facts were reconciled, not that those destinations are ready. Missing/malformed or still-unreconciled records prevent the complete installed receipt. Existing contact/conversation/default rules remain unchanged, and per-destination progress never waits merely for a global receipt label.
 
 An existing scope selection in a new authored record may resolve through this accepted own-device setup ledger even without the original human root. Provenance remains source-attested own-device setup. Validate the new native author, actual slot map and operation independently. Metadata cannot supply the old root’s text, reply policy, quoted range, answer/control target, native sender receipt or service outcome. A missing primary parent remains pending; it is not materialized from the scope reference. A deliberately composed fresh message with empty replyTo may use eligible transferred scope knowledge.
@@ -329,7 +337,15 @@ For snapshot selection, the plaintext is exactly configuration3’s five-member 
 
 The target authenticates the response and every part under its original retained request and current unchanged source authority before decryption/staging. Require complete manifest, exact part references/indices/count/length, final authentication, total digest, strict full configuration and matching selection/coverage. No accepted live prefix, oversized partial success or guessed missing record. Parts may arrive out of order and remain bounded encrypted/private staging until complete; a receipt never acknowledges a partial subset as staged.
 
-Commit the complete private staged configuration, original request/response/part provenance and immutable staged receipt before retiring the transfer-only age secret. Then apply configuration3's current per-record conflict/authority/dependency reconciliation and atomically retain each resulting fact/hold with its provenance. Source/target revocation, changed local generations or cancellation still stop new effects. Installed means all returned selected facts have been reconciled, including explicit blocked/unavailable outcomes; it does not mean all requested roots are usable, another source has no newer facts or a destination is send-ready. Missing/malformed or unreconciled returned data prevents installed. A target may continue another independently authorized source request for still-missing facts without undoing accepted safety state.
+Commit the complete private staged configuration, original request/response/part provenance and immutable staged receipt before retiring the transfer-only age secret. Then apply configuration3's current per-record conflict/authority/dependency reconciliation and atomically retain each resulting fact/hold with its provenance. Source/target revocation, changed local generations or cancellation still stop new effects.
+
+Installed requires successful reconciliation of every returned selected contact and conversation record, and any defaults carried by the selected configuration, under their existing rules.
+
+Every returned selected scope fact must also complete reconciliation; a scope may complete with explicit blocked constraints as defined above. An authenticated source unavailable-root result remains a disclosure outcome, not evidence that the requested root is usable.
+
+A still-held contact, conversation or default record, missing validation dependency, malformed or unsupported data, or unreconciled returned fact prevents installed.
+
+Unavailable current routes, live peers or required native group admission remain separate per-destination work and do not by themselves make reconciled metadata incomplete. The receipt does not establish that another source has no newer facts or that a destination is send-ready. A target may continue another independently authorized source request for still-missing facts without undoing accepted safety state.
 
 :::
 

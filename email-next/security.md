@@ -144,7 +144,7 @@ Unknown MIME dispositions fall back to attachment handling under RFC 2183 §2.8.
 
 Sources: [RFC 5228 §4.4](https://www.rfc-editor.org/rfc/rfc5228.html#section-4.4), [RFC 2183 §2.8](https://www.rfc-editor.org/rfc/rfc2183.html#section-2.8).
 
-The [ordinary-mail setup contract](mailbox-setup.md) defines authenticated request/response correlation, durable allocation, exact retries, fixed deadlines and terminal handling. A response cannot initiate another automatic setup response. [Provider setup](bootstrap.md#failure-retention-and-budgets) has its own bounded journals, disclosure gates and HTTP outcomes. Deployments enforce finite work, rate and capacity budgets; those local settings do not replace the specified wire-size and lifetime bounds or guarantee inbox invisibility. Filtering remains subordinate to complete validation and durable processing.
+The [ordinary-mail setup contract](mailbox-setup.md) defines authenticated request/response correlation, durable allocation, exact retries, fixed deadlines and terminal handling. A direct-profile response cannot initiate another automatic setup response. The separately selected [address-return profile](mailbox-return.md) permits only its exact offer→confirm→finish transitions; its terminal finish cannot elicit another response. [Provider setup](bootstrap.md#failure-retention-and-budgets) has its own bounded journals, disclosure gates and HTTP outcomes. Deployments enforce finite work, rate and capacity budgets; those local settings do not replace the specified wire-size and lifetime bounds or guarantee inbox invisibility. Filtering remains subordinate to complete validation and durable processing.
 
 :::
 
@@ -254,9 +254,18 @@ The disclosures below define the inherited checks and their limits. They remain 
 
 ### Domain signatures and algorithm policy
 
+The optional [address-return procedure](mailbox-return.md) retains current full-body, no-`l`, sole-From and exact signing-domain requirements on every leg, including client-side verification where selected. Those checks do not prove a mailbox local part. Its private challenge round trips supply separately scoped route-access observations; a chosen-message signing oracle or intact signed replay cannot be treated as proof that the claimed mailbox received a challenge. The [required adversarial cases](mailbox-return.md#acceptance-boundary) include RFC4686 §4.1.4 and §4.1.5.
+
 DKIM evidence records the signing domain, verified coverage and algorithm-policy result. A domain signature is not a correspondent's device credential. It does not authorize replacing an established encryption key or changing group membership.
 
 Apply the [algorithm requirements update](audits/dkim-algorithms.md) and [Ed25519 update](audits/dkim-ed25519.md) when evaluating DKIM. RSA-SHA1 and undersized RSA signatures cannot count as valid under the updated rules. A valid signature must still cover the fields required by the operation relying on it. Ed25519-SHA256 uses Ed25519 over the DKIM SHA-256 digest; a different prehash variant or direct signature of canonicalized headers is not interchangeable.
+
+For RSA DKIM keys, verifiers MUST support both a DER `RSAPublicKey` and a DER `SubjectPublicKeyInfo` carrying that key. The SPKI form uses `rsaEncryption` (`1.2.840.113549.1.1.1`), ASN.1 NULL algorithm parameters and a BIT STRING containing the DER `RSAPublicKey`, as defined in [RFC3279 section 2.3.1](https://www.rfc-editor.org/rfc/rfc3279.html#section-2.3.1). Reject malformed DER, trailing data, another algorithm identifier, absent or non-NULL parameters, and an invalid embedded key.
+
+Both representations remain subject to the same algorithm, key-strength, service-restriction and coverage checks. Ed25519 DNS keys retain RFC8463’s raw 32-octet format; an ASN.1 wrapper is not that format.
+
+> [!note] Why accept two RSA key encodings?
+> RFC6376 names `RSAPublicKey`, while the published RSA example in [RFC8463 Appendix A.2](https://www.rfc-editor.org/rfc/rfc8463.html#appendix-A.2) uses `SubjectPublicKeyInfo`. Supporting both preserves interoperability without changing the RSA signature algorithm, key-strength policy or coverage checks. This profile makes that compatibility choice explicitly; it does not change the status of the [related errata](audits/dkim-errata.md).
 
 These domain-signature algorithms do not select the Email/2 end-to-end encryption suite.
 
@@ -528,7 +537,7 @@ An accepted MLS commit is also not proof that every member can process it. A mal
 
 ### Provider assistance and encryption proxies
 
-An upgraded provider may distribute public key material, queue encrypted delivery objects and report transport outcomes. Possession of those capabilities MUST NOT be represented as possession of the user's endpoint identity or as permission to decrypt content. A provider-operated service that holds usable message decryption keys is within the confidentiality boundary and MUST be identified as such.
+An upgraded provider may distribute public key material, queue encrypted delivery objects and report transport outcomes. The recipient’s normal inbox provider may also assign and renew temporary delivery addresses under finite account/service trust while devices are offline, using the [provider-issued route contract](relay-routes.md). No device approves individual aliases. This routing role neither replaces endpoint identity verification nor grants content keys, enrollment or history authority; the provider still sees its private account mapping and transport metadata. Possession of those capabilities MUST NOT be represented as possession of the user's endpoint identity or as permission to decrypt content. A provider-operated service that holds usable message decryption keys is within the confidentiality boundary and MUST be identified as such.
 
 A client delegating cryptographic operations MUST convey the authorized recipient set, delivery policy, inherited confidentiality requirements and operation context through an authenticated interface. Ordinary SMTP submission alone does not express this contract. A proxy MUST NOT infer permission to disclose protected quoted content from the absence of an encryption header or from a transport retry.
 

@@ -17,6 +17,8 @@ This is the current selection within one unpublished Email/2 specification, not 
 
 An Encryption claim requires the complete asynchronous agreement below, not a parser, tuple name or older experiment. It uses the same MLS protocol and cipher suite as the earlier agreements; this selection defines the conversation behavior, not another encryption-strength level or edition of Email/2.
 
+The selected ordinary-mail carrier additionally requires each actual device's [authenticated receiving bundle](application-carriage.md#obtain-authenticated-carrier-support). Assertion10 and context10 still define the unchanged inner application; neither alone proves support for its outer attachment. New acquisition uses the [complete carrier selection](#complete-application-carrier-selection) below. Earlier records keep their exact native meaning and historical carriage scope.
+
 ::: {.details summary="Exact current versions and dependencies"}
 
 | Boundary | Current selection | Authoritative definition |
@@ -25,6 +27,7 @@ An Encryption claim requires the complete asynchronous agreement below, not a pa
 | Authored message, recipient scope and reply policy | Authored0; intended-recipients0 and creator resolution; slot reply-intent1 | [Exact records](event-encoding.md#asynchronous-authored-records-and-deliveries), [scope](delivery-policy.md#an-invitation-is-not-yet-an-encryption-identity) |
 | Actual secured delivery | Envelope6, independently authenticated actual native audience/slot map | [Delivery binding](event-encoding.md#asynchronous-authored-records-and-deliveries) |
 | Context and receiving advertisement | Context10 and original signed assertion10 | [Exact selection](#asynchronous-protected-agreement) |
+| Ordinary-mail carrier support | opaque-mls-application-v0; original device-signed carriage-offer0 and receiving-bundle0 | [Carrier selection](#complete-application-carrier-selection) |
 | Payload and rendering | mime-suite-v2; html-css-v0 and html-css-reply-v0 | [Carrier](#asynchronous-protected-agreement), [presentation](presentation-profile.md) |
 | Readable application | Fixed twelve-kind vocabulary; per-device implemented interactions separately declared | [Reading and interaction](#asynchronous-protected-agreement) |
 | Device administration and enrollment | State1/bundle1; pairing0 with existing binding0 and current authority | [Identity lifecycle](identity-state.md#concurrent-administration-and-retirement), [pairing](identity-lifecycle.md#pairing-another-device) |
@@ -32,8 +35,8 @@ An Encryption claim requires the complete asynchronous agreement below, not a pa
 | Ordinary conversation control | Required owner streams; source/update2 and sealed2 | [Native binding](#asynchronous-protected-agreement) |
 | Managed control, when offered | Exchange4/final5 and sealed2; separately supported quorum mode | [Native binding](#asynchronous-protected-agreement) |
 | Administration and optional history carriage | Their separately selected sealed-control-v0 records; no blanket control-version upgrade | [Control scope](#asynchronous-protected-agreement), [history](history-transfer.md#carriage-and-file-retrieval) |
-| Automatic mailbox setup, when offered | mailbox-setup-v2 with original assertion10 | [Mailbox setup](mailbox-setup.md#set-up-an-asynchronous-delivery) |
-| Public provider setup, when offered | Descriptor/control/grant/bootstrap2 under shared account authority | [Acquisition](first-contact-setup.md#acquisition-for-independently-ready-deliveries) |
+| Automatic mailbox setup, when offered | mailbox-setup-v3 with complete receiving-bundle0; sealed3 response | [Mailbox setup](mailbox-setup.md#set-up-the-opaque-application-carrier) |
+| Public provider setup, when offered | Descriptor/control/grant/bootstrap3 under shared account authority | [Acquisition](first-contact-setup.md#finish-acquisition-for-the-opaque-carrier) |
 | Paired configuration, when offered | Configuration3; current-authority own-setup0 for ongoing transfer | [Snapshot](paired-configuration.md#transfer-asynchronous-scope-metadata), [ongoing setup](paired-configuration.md#keep-setup-current-between-your-own-devices) |
 | Pending delivery | Retained original bytes, slot/mailbox obligations and current per-delivery release | [Lifecycle](delivery-policy.md#complete-a-pending-delivery) |
 | Historical recovery, when offered | Existing archive/set formats with exact authored0 mapping; inert import | [History mapping](encrypted-archives.md#preserve-messages-that-have-several-deliveries) |
@@ -131,17 +134,29 @@ Conversation controls use sealed-control-v2 with the same HPKE suite, framing le
 
 Its eleven selected kinds are initial-invitation, established-invitation, stream-control, stream-recipient-update, quorum-exchange, quorum-control, mailbox-setup-response, own-setup-request, own-setup-response, own-setup-part and own-setup-receipt. The first six use exactly the new bodies above. Mailbox-setup-response uses the exact [mailbox setup2 response](mailbox-setup.md#set-up-an-asynchronous-delivery) and its original pending attempt; recognizing sealed2 does not admit an older response or create acquisition authority. The four own-setup kinds use the [fresh same-account administrative transfer](paired-configuration.md#keep-setup-current-between-your-own-devices), with target send/source enroll roles and complete current authority checks. They cannot transport a human application operation or import membership/live keys. Identity-admin and all history kinds retain their explicitly selected sealed0 records. Recipient-resolution is an authenticated MLS application operation under mime-suite-v2, not a new sealed setup kind or a public discovery endpoint.
 
-Use the existing proposed parameter-free application/vnd.threadlabs.mail-control outer type, canonical MIME base64, generic notice and exact two-part placement. An authorized opaque relay commits the exact selected sealed binary through its existing octet-stream layout. No readable address-bearing duplicate, body-kind downgrade or clear fallback is authorized. Sender/recipient masking still requires the actual eligible route and final outer origination, independently of encryption.
+Use the existing proposed parameter-free application/vnd.threadlabs.mail-control outer type, canonical MIME base64, generic notice and exact two-part placement. An authorized opaque relay commits the exact selected sealed binary through its existing octet-stream layout. No readable address-bearing duplicate, body-kind downgrade or clear fallback is authorized. Sender/recipient masking still requires the actual eligible route and final outer origination, independently of encryption. The current [provider-issued route1](relay-routes.md) establishes finite service trust during normal inbox connection and issues/renews aliases without per-alias device approval. It may use original offline bootstrap2 setup; route readiness never manufactures missing device setup or freshness.
 
 :::
 
 ::: {.details summary="mime-suite-v2 and ordered acceptance"}
+
+The [ordinary-mail application binding](application-carriage.md) carries one complete MLS PrivateMessage/application object in the selected opaque attachment layout. Direct account delivery and an authorized relay keep separate routing authority; identical MIME framing does not grant address masking.
 
 The native application data is one complete MIME entity using the existing direct alternative/related/mixed structure, bounded header/part parsing and transfer encodings. MLS authenticated_data remains empty. The plain projection is first, required HTML projection second (with its declared related resources when needed), and exact envelope6 JSON third. Independent attachments occur only in the owning outer mixed structure. The event alternative is application/vnd.threadlabs.mail-event+json with no parameters. This is inside MLS, not readable plaintext beside ciphertext. The required html-css-v0 and html-css-reply-v0 presentation contracts remain unchanged; a plain alternative is compatibility/diagnostic material, not a replacement for required HTML support.
 
 Carrier projections come from the complete original authored operation, not envelope6’s delivery event or an outer header. Use the existing operation-owned text/HTML generation, serialization, source and attribution rules. Known optional contributions retain faithful readable content even when a local interaction is unavailable. The recipient-resolution plain projection is exactly `Conversation setup update.`; its HTML is a fresh allowed UTF-8 document with that single text paragraph. It has no resources. After complete authentication/acceptance it is handled as protocol state, not a human conversation message or an automatic reply invitation.
 
 For rich/indexed/attachment operations, the manifest and roles belong to the authored record. Content-ID is exactly `<resource-id.authored-event-id@resources.mail.invalid>`; a matching embedded HTML source uses the corresponding cid value without angle brackets. Both IDs use their existing lowercase ObjectId grammar. The exact selected compound contains one delivery envelope and one original authored record, so no cross-author/global Content-ID lookup is needed. This is the mime-suite-v2 resource namespace; earlier carriers retain their original literal domains and event scope. No delivery ID, prepared Message-ID, cached file digest or another copy’s resource can substitute.
+
+### Attachment names on receipt
+
+An independent attachment still requires exactly one syntactically valid `Content-Disposition` header with disposition `attachment`. Generators include exactly one logical filename, using the [filename projection and MIME parameter encoding](messages.md#mime-filename-projection). A valid RFC2231 continuation supplies that one value through several numbered parameters; it is not several filenames.
+
+For mime-suite-v2 receiving only, an absent or unusable filename is a metadata diagnostic, not by itself a carrier-selection failure. Preserve the original header and report the filename as unavailable when its continuations have a missing, repeated or leading-zero index, its encoding cannot be decoded, or plain, extended or continued forms compete. Repeated physical filename parameter names are included in this diagnostic rule, even if their values agree. Parameter names are compared without case sensitivity, and continuation indices by numeric value; no first-wins or last-wins choice repairs ambiguity. Each physical parameter must still have valid MIME token/quoted-string syntax. After independent application acceptance, use the authenticated attachment name for display; without an accepted name, use a neutral label.
+
+Only the ASCII-case-insensitive names `filename`, `filename*`, and `filename*` followed by one or more ASCII decimal digits and an optional final `*` belong to this exception. A leading-zero index remains unusable filename metadata. Other names, including `filenamefoo`, `filename*evil` and `filename**`, are non-filename parameters. Process indices within the existing header/parser bounds without allocating by their numeric value; an index that cannot be processed safely leaves filename metadata unavailable.
+
+This exception covers only filename metadata. A missing or repeated Content-Disposition header, malformed header/parameter syntax, a disposition other than `attachment`, or a non-filename disposition parameter still fails this carrier’s selection. Embedded resources still require `inline` without disposition parameters. Resource placement, identifier uniqueness, protected scope, transfer decoding, byte lengths, digests and operation acceptance retain their separate checks and failure outcomes. An unavailable filename cannot repair any of them or authorize a filesystem path, inline rendering or automatic write. Earlier carriers keep their exact receiving rules.
 
 Apply the wrapper’s eight-mebibyte and authored record’s one-mebibyte bounds independently before allocation/decoding, in addition to local bounded MIME/resource/renderer budgets. Base64 inside authored is not recursively interpreted as another record. Complete decoded resource bytes, roles, length and digest checks remain required. Missing/bad resources and well-decoded projection discrepancies retain their owning distinct outcomes; they do not replace authenticated common content, grant access to an unlisted file or authorize a partial structured effect.
 
@@ -431,9 +446,16 @@ A historical copy preserves its source provenance and original event references.
 
 ## Confidential setup and control
 
+The optional [mailbox-return profile](mailbox-return.md#formats-and-mail-delivery) reuses the construction below with its own closed magics, domains, intent purpose and three kinds. It does not add kinds to sealed-control-v2 or change assertion10. Its signed request/offer explicitly authorize only the narrow pending-attempt key purpose and candidate-recipient exception. Its confirm supplies a separate original ordinary assertion and single-use package, bound by digest through finish; that ordinary key retains only its existing ordinary receiving purpose. Request/offer evidence cannot enter operational association selection before the local private challenge proof completes.
+
 Invitations and key updates can themselves contain personal addresses. Email/2 encrypts those protocol objects for the intended device before putting them in mail. A relay therefore receives an opaque carrier, not a readable copy of the setup proofs. The original signatures remain inside and are still checked after decryption.
 
 Each device publishes a separate, expiring control-encryption key with its signed setup. It is not an account password, an MLS group key or a backup key. Remembered setup policy can manage it automatically. A missing or expired key holds the affected control delivery; it does not permit a readable replacement or a misleading address-masking indicator.
+
+The optional [deletion-control module](deletion-controls.md) uses a separate signed
+receiving offer and dedicated HPKE key. Its MAILDEL0 profile is not another
+sealed-control-v2 kind and cannot use an assertion control key. The baseline
+application, receiving assertion and control grammars below remain unchanged.
 
 :::: {.details summary="Exact sealed-control format, recipient keys and lifecycle"}
 
@@ -483,7 +505,7 @@ A control key can decrypt several separately encapsulated controls until its ori
 
 Prepare a separate capsule for every intended device/control key. Devices sharing a mailbox can receive separate opaque copies; their clients classify foreign-key controls without presenting them as human messages or sending automatic errors. Deduplicate and handle retired own IDs through the retained key inventory. This does not give legacy clients a sender-controlled discard instruction. A provider transport may carry these immutable bytes only through an explicitly negotiated byte-carriage operation and grant for that exact purpose; the existing known-pair/bootstrap APIs are not implicitly generic queues. No new HTTP carriage operation is selected here. Use the defined mail carrier or hold unsupported transport; providers do not become decryption endpoints.
 
-The initial [mailbox setup request](mailbox-setup.md) is the explicit exception for public initiating metadata before a recipient control key is known. It uses only its own strict request carrier, permission and deadline rules. It contains no human draft, does not carry readable substitutes for the sealed kinds above, and is unavailable when required identity masking forbids its exposure. Never try that parser or clear carrier as recovery from a failed sealed control.
+The initial [mailbox setup request](mailbox-setup.md) and separately selected [mailbox-return request](mailbox-return.md) are explicit exceptions for their own public initiating metadata before a recipient control key is known. Each uses only its own strict request carrier, permission and deadline rules. Neither contains a human draft or readable substitute for the sealed kinds above. Both are unavailable when required identity masking forbids their exposure. Never try that parser or clear carrier as recovery from a failed sealed control.
 
 First-contact services still learn the addresses needed for their separately authorized content-free setup role. Obtain control keys through valid cached setup, an already protected exchange, the authenticated bootstrap service or the explicitly permitted initial [mailbox setup request](mailbox-setup.md); never reflect mailbox-bearing advertisements into clear masked mail to bootstrap this container. Public advertisements use only channels permitted by the selected disclosure policy. Required sender/recipient masking holds when either route projection or confidential control carriage is unavailable. The format does not promise provider anonymity, invisible account existence, size hiding or unlinkability of a key ID during its lifetime.
 
@@ -615,3 +637,29 @@ For ordinary streams, additionally demonstrate independent laptop/phone/peer sou
 A complete-bundle positive run must send a rich message, indexed reply, predefined answer, reaction/withdrawal and plain-message correction between retained independent endpoint stores; then add and remove a device and repeat delivery after restart. It must demonstrate actual encryption and decryption through the mail path, not just parse the new descriptors. Also run core-only and every optional-module combination, including endpoints with different maximal support, no-common optional modules and attempted unsupported operations. Independent implementations and security review remain external evidence. No current reference experiment is claimed to pass the joined suite. The [module-selection component](evidence/README.md#protected-module-selection) covers only the bounded operation/offer algorithm.
 
 :::::
+
+## Complete application carrier selection
+
+One complete receiving bundle lets Alice check both Bob's native setup and the format his device can receive. The native agreement remains mail-conversation-v2. The following are technical acquisition/carriage versions, not a new edition of Email/2 or encryption-strength level.
+
+::: {.details summary="Selected records, control promise and compatibility boundary"}
+
+| Boundary | Exact selection |
+| --- | --- |
+| Protected application mail | opaque-mls-application-v0; [exact MIME and native object](application-carriage.md#encrypt-the-complete-message). |
+| Device transport support | [Carriage-offer0 and receiving-bundle0](application-carriage.md#obtain-authenticated-carrier-support), independently authenticated per actual selected device. |
+| Inner and native admission | Unchanged assertion10/context10, authored0/envelope6/mime-suite-v2, initial10/roster7/established10, stream controls2 or managed exchange4/final5. |
+| Known provider pair, when offered | Descriptor3, mail-provider-grants-v3 and mail-provider-control-v3. |
+| First contact through providers | Bootstrap descriptor/source/response/publication3 and complete original receiving bundle. |
+| Private offline acquisition | mail-realm-v1 and mail-private-snapshot-v1, then the unchanged actual package-allocation-v0 join. |
+| Enabled ordinary-mail setup | mailbox-setup-v3; response inside the narrowly selected sealed-control-v3 below. |
+
+The selected carriage-offer0 controls array independently declares whether the exact original assertion10 controlKey receives sealed-control-v3. Assertion10's existing sealed2 promise is insufficient. This adds no control-key bytes to assertion10 and changes no older key promise. All actual publication/receiving custody and current authority must pass separately.
+
+Sealed-control-v3 admits only kind mailbox-setup-response with the exact setup3 response body. Reuse sealed2's HPKE suite, key descriptor, intent member inventory, body/identity bounds and custody/release/receipt transactions. Outer magic is `MAILCTL3`; inner magic is `MAILCIN3`; intent version is `"3"`, purpose sealed-control-intent. HPKE info domain is `mail/sealed-control/v3`; signature domain is `mail/sealed-control-intent/v3`. Apply the unchanged NUL/raw-key-ID/public-key suffix, lengths, AAD construction and original Ed25519 framing to these selected values. No new crypto, trial decryption or inferred control support is defined.
+
+All other selected conversation and own-setup kinds keep their original sealed2 bodies/carriage; identity/history keep their separately selected sealed0. Recognizing3 never authorizes those bodies or rewrites their retained preparations. Setup3 validates the original initiating bundle/offer, pending attempt, exact control key and both device/transport permissions before releasing any response.
+
+The common native application projection is unchanged; companion support never changes membership, votes, author identity, reply scope or disclosure. An old provider2/setup2 result, context10, local software update or original advertisement cannot replace the new proof. Acquisition failure remains unknown/held under the frozen delivery policy. New profile labels do not reset shared allocation, account, request/conflict or uncertainty namespaces.
+
+:::

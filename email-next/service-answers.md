@@ -335,7 +335,13 @@ Neither submission nor status requests follow redirects, even to the same origin
 
 ### HTTP results and polling
 
-All profile requests and responses include `Cache-Control: no-store`; local deliberate evidence retention is separate. Success responses use `application/json` and the same byte/depth bounds. Version 0 sends no compressed payload; unsupported Content-Encoding is not decoded optimistically.
+All service-submission and status requests and responses include
+`Cache-Control: no-store`; local deliberate evidence retention is separate.
+The separate [native authorization contract](service-authorization.md#authorization-and-callback)
+owns browser navigation and sign-in responses. Its browser GET exception does
+not apply to these programmatic submission or status requests. Success responses
+use `application/json` and the same byte/depth bounds. Version 0 sends no
+compressed payload; unsupported Content-Encoding is not decoded optimistically.
 
 POST or GET returns 200 with a terminal receipt, or 202 with a pending receipt. Another status or a missing/malformed/mismatched receipt is not application confirmation. Preserve the per-attempt meanings of 401, 408 and 421 without inferring what happened on earlier attempts. A 401 may permit independently configured credential renewal; a retry retains the exact request and submission. Redirects are never followed, including same-origin 307/308. An origin move needs a new authenticated migration profile; v0 holds the existing submission.
 
@@ -406,7 +412,9 @@ Public interoperability still requires deployed implementation of the [selected 
 
 ## From an accepted question to a service action
 
-The selected joined binding is assertion5, context6, envelope3 and payload `mime-rich-v0`, with `service-question` explicitly present in every admitted device’s exact operation tuple. Ordinary `question` support does not imply it. Previously signed operation lists are unchanged, and a partial intersection cannot supply this capability. Older contexts and the separate context7 ordering experiment do not acquire it implicitly.
+The retained [joined service control experiment](evidence/README.md#joined-service-question-control) uses assertion5, context6, envelope3 and payload `mime-rich-v0`, with `service-question` explicitly present in every admitted device’s exact operation tuple. In that experiment, ordinary `question` support does not imply `service-question` support. Previously signed operation lists are unchanged, and a partial intersection cannot supply this capability. Older contexts and the separate context7 ordering experiment do not acquire it implicitly.
+
+The [current protected service agreement](#current-protected-service-agreement) above selects assertion10/context10, authored0/envelope6 and `mime-suite-v2`. Its fixed readable vocabulary and independently implemented `service-actions` interaction do not change the earlier experiment’s exact selection.
 
 The client derives the control from one accepted event and its exact retained carrier in the active membership instance. It displays the question, choices and destination service. A deliberate click supplies a choice and a snapshot token to the trusted client; the browser does not supply the endpoint, principal, action or credential. Viewing the message and replying by ordinary email do not execute the service action.
 

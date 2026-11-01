@@ -67,3 +67,12 @@ The [transport chapter](../transport.md#provider-transport-policy-and-endpoint-p
 Appendix B is illustrative pseudocode, not a complete implementation: it declares but does not call the expiry helper; supplies a policy where its certificate helper describes a hostname argument; derives the policy domain from the recipient without the smart-host exception; and does not explicitly handle the none-mode reporting exclusions or update check before permanent failure. Implementations must follow the governing prose rather than copy this example unchanged.
 
 This base review does not complete certificate-validation, TLS guidance, DNSSEC/DANE, IDNA, HTTP caching or well-known URI dependency review. No MTA-STS adapter or deployed-provider interoperability has been validated here.
+
+
+## Relay-authentication composition
+
+The [transport profile](../transport.md#selecting-authentication-when-policies-overlap) selects DANE when authenticated DNS binds the destination route and a usable TLSA association. MTA-STS is then not applied, rather than counted as passed. A DANE failure cannot be rescued by retrying that candidate with MTA-STS.
+
+For an unauthenticated MX route with enforcing MTA-STS, the profile selects MTA-STS before optional TLSA discovery. RFC7672 section2.2.1 permits, but does not require, electing DANE on that route. Selecting MTA-STS does not authorize ignoring an already-required failing lookup, relabeling relay-only authentication as destination authentication, or satisfying mandatory DANE with PKIX. Secure all-unusable TLSA records retain their TLS requirement and do not suppress applicable MTA-STS.
+
+This is an explicit profile selection, not a claim that either RFC universally mandates this precedence. It preserves the selected mechanism's SNI rule, certificate rules and current release evidence. Implementation and independent interoperability evidence must identify the source revision tested; this audit supplies no runtime acceptance credit.

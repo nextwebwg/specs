@@ -19,7 +19,7 @@ This is the provider binding for [encrypting the first message](first-contact-se
 > [!note] Proposed contract; joined implementation remains required
 > The [bootstrap component](evidence/README.md#automatic-first-contact-authorization) checks account/device proof scope, uniform pending admission and signed-response correlation using configured service facts. It does not implement public provider login, network discovery, complete assertion8/package validation or the full first-message journey. Those remain acceptance obligations.
 
-The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [bootstrap2](#automatic-setup-for-independently-ready-recipients) when this capability is offered. Retained version0/1 records remain exact for earlier acquisition. Version2 preserves shared account/family, source permission and package-allocation authority; it does not relabel old results or establish a complete implementation.
+The selected opaque application carrier uses [bootstrap3](#first-message-setup-with-carrier-support) when this capability is offered. It acquires complete signed receiving support before the first human message. Bootstrap0/1/2 retain their exact earlier evidence and carriage scope. Shared account/family, source permission and allocation authority span versions; no old result is relabeled and complete joined implementation remains required.
 
 ## Account proof, device proof and verification
 
@@ -38,7 +38,7 @@ Authentication establishes which account, device or service is acting. Authoriza
 | Client managing its own account | Issuer-bound account login, limited OAuth scope and current account/device link | Prepare or withdraw its own source permission; manage its own receiving policy | Another account's management access |
 | Sending device requesting first contact | Domain-delegated source service, live source-account approval and exact signed device permission | Request setup for the named recipient/service and conversation, within the original deadline | A mailbox directory, presence, message history or content |
 | Initiating device retrieving the result | Original admitted permission, current source authority and a fresh signature proving initiating-key possession | Retrieve eligible setup for that exact exchange | Other exchanges, other recipients or account management |
-| Recipient device answering | Its own linked receiving account, current device authority and enabled automatic-response policy | Publish or answer with its own signed setup; approve permitted route follow-up | Enroll another device, widen the sender's audience or release human content |
+| Recipient device answering | Its own linked receiving account, current device authority and enabled automatic-response policy | Publish or answer with its own signed setup; establish finite inbox-service trust during account connection | Enroll another device, widen the sender's audience or release human content |
 | Source or destination service | Delegation from its selected mailbox domain and validated peer evidence | Perform the bounded control operation under account and recipient policy | Substitute provider identity for independent correspondent verification |
 
 The baseline is open to independently operated and self-hosted providers. It does not require membership in a central provider registry. A destination applies its own admission, abuse and recipient policies to authenticated requests; authenticating a new domain does not oblige it to disclose material. No operator may claim authority over unrelated mailbox domains. A dishonest provider can attest falsely about accounts it controls, so this authentication remains separate from independent verification of the first correspondent identity.
@@ -100,11 +100,11 @@ No response causes another response. An exchange cannot become a subscription, a
 
 ## Finish private routing in the same handshake
 
-A recipient response or publication includes `relayDomain`: empty when no recipient-masking service is offered, otherwise the domain of that device's already connected receiving-relay account. This is a signed routing proposal, not ownership proof, an OAuth issuer to install or permission to contact an arbitrary URL. The sender validates that domain's relay descriptor under network/selection rules and later requires actual recipient route approval and live activation. The recipient device accepts follow-up only for its own configured relay account.
+A recipient response or publication includes `relayDomain`: empty when no recipient-masking service is offered, otherwise the domain of its already connected receiving service. The normal service is the account’s Email/2 inbox provider; an independent receiving relay is explicitly selected. This signed service selection does not supply an alias, verify mailbox ownership, install an OAuth issuer or authorize an arbitrary URL. The sender validates descriptor1 under the discovery/network rules and independently validates the intended recipient’s encryption identity.
 
-The initial request cannot name the recipient's principal before learning it. Therefore private routing has an explicit second stage, before human content: the sender validates returned setup, obtains its own [relay source permission](relay-routes.md) for that selected principal/conversation and sends a signed route request through this same bootstrap exchange. The recipient device automatically prepares/approves the alias with its connected relay under its enabled policy, then returns the route invitation. The sender independently validates the invitation and proves route-key possession to inspect its activation.
+The initial request cannot name the recipient’s principal before learning it. After validating setup, the sender obtains its own accountable [relay source permission](relay-routes.md) for that selected principal/conversation and requests provider-issued route1 directly from the selected receiving service. Its finite service association was established during normal account connection; the provider allocates the alias under private account policy without a recipient device or per-alias approval. The sender validates the original provider-issued invitation and performs route-key inspection of actual activation. Published setup and eligible service authority therefore permit the entire routing stage while recipient devices are offline.
 
-If setup is interrupted, resume the [same retained route operation](#resume-the-same-relay-operation) instead of requesting another alias. The sender still checks actual activation before sending.
+If setup is interrupted, resume the [same current source/issuance operation](relay-routes.md#exact-route-issuance-inspection-and-immutable-retries) instead of inventing another alias. Retain exact parent setup, local intent revision, source permission/key, issued request/handle, invitation and outcomes before each dependent mutation. Duplicate completion joins retained work; loss of a result is not proof of nonexecution. Recheck current authority before disclosure/release, preserve original deadlines and uncertainty, and perform actual route activation inspection. No current route operation is queued for device approval.
 
 No source permission is fabricated with a guessed recipient principal, and no alias is silently installed merely because it was returned. If masking is required, content waits for this stage. If remembered policy permits content encryption with public addresses, the client can use that permitted combination with an accurate indicator. A later route upgrade does not recall the earlier exposure.
 
@@ -112,7 +112,7 @@ No source permission is fabricated with a guessed recipient principal, and no al
 
 ### Common encoding and authorization
 
-For bootstrap-specific records, use the [relay common wire restrictions](relay-routes.md#exact-records-signatures-and-http-behavior): strict string-valued UTF-8 JSON, original-byte retention, bounds, TLS 1.3, no redirects/0-RTT/ambient cookies, no-store, canonical same-origin paths and finite deployment budgets. Apply these processing bounds before creating authority:
+For bootstrap-specific records, use the [relay common wire restrictions](relay-routes.md#common-wire-and-signature-rules): strict string-valued UTF-8 JSON, original-byte retention, bounds, TLS 1.3, no redirects/0-RTT/ambient cookies, no-store, canonical same-origin paths and finite deployment budgets. Apply these processing bounds before creating authority:
 
 | Input | Bound |
 | --- | --- |
@@ -321,7 +321,10 @@ Once committed for disclosure, retain the reservation even on cancellation, with
 
 This index prevents reuse within that provider's allocation service. It cannot guarantee exclusive distribution if the same package was also published in ordinary email or at another service. Clients should generate dedicated packages for this pool. The recipient's independent cryptographic validation and atomic MLS single-use admission remain mandatory, and a failed competing admission waits for new eligible material. Providers never acquire a package's private admission key merely by storing its signed public publication.
 
-### Optional route stage after setup
+### Retained device-directed route experiment
+
+> [!note] Not selected for current route issuance
+> The route-request/response0, 1 and 2 records and device-directed child journal below preserve the retained experiment’s exact bytes and evidence. Current bootstrap2 setup still has its unchanged response/publication inventories, but selects [descriptor1 and direct provider-issued route1](relay-routes.md) after setup. It does not select this device-approval substage, offer it as another current protection tier or try it after a current failure. The provider’s service association is established during normal connection, not for each alias.
 
 `POST /exchanges/{exchange}/routes/{device-suffix}` body is exactly `{request,sourcePermission}`. Request is a source-device proof under `route-request` over exactly:
 
@@ -380,6 +383,8 @@ Inspect returns eligible original route-response wrappers in routes. The sender 
 
 ### Resume the same relay operation
 
+This subsection belongs only to the retained device-directed experiment immediately above. Current routing retains its direct source/issuance journal under [provider-issued route1](relay-routes.md#exact-route-issuance-inspection-and-immutable-retries), with no per-alias recipient-device work.
+
 A bootstrap route request and each relay management operation have different identities. Retain their exact relationship before any remote mutation; replaying the parent must not invent another child request.
 
 | Before this boundary | Required retained work |
@@ -406,7 +411,7 @@ The sender validates the exact route invitation and performs its own current rou
 
 | Member | Required value or meaning |
 | --- | --- |
-| `version` | String `"0"`, `"1"` or `"2"`, exactly matching the bootstrap descriptor-bound route selected before parsing. |
+| `version` | String `"0"`, `"1"`, `"2"` or `"3"`, exactly matching the bootstrap descriptor-bound route selected before parsing. |
 | `purpose` | String `"bootstrap-block-source"`. |
 | `request` | A nonzero ObjectId, retained for retries of these exact request bytes. |
 | `exchange` | The 64 lowercase hexadecimal exchange handle from this account’s retained authenticated exchange. |
@@ -448,7 +453,7 @@ The sender rechecks the original target domain/service and source permission, si
 
 Record the provider observation as a distinct `provider-bootstrap` observation: retain exact descriptors, source proof, authorized result bytes, original assertion and transport provenance. The [association eligibility procedure](mailbox-association.md) replaces the ordinary sole-outer-From match only for this explicit observation type with exact requested-mailbox/authorized-provider-result correspondence. Never manufacture an ordinary email From match or reuse an incoming `verified:true` field. Apply the same ambiguity, policy, continuity, generation and serialized release rules. A sole candidate under allow-unverified can be selected without a human email; strict or conflicting policy remains held.
 
-After complete setup validation, perform the owning MLS initial admission and any requested relay-route approval. No human subject/content enters control traffic. Release the first contribution only after all current identity, package, context, recipient, policy and required secret-retirement gates pass. Setting up encryption, material returned, admitted, submitted, accepted and read remain different states.
+After complete setup validation, perform the owning MLS initial admission and any required provider-issued route acquisition; no recipient-device approval of an alias is involved. No human subject/content enters control traffic. Release the first contribution only after all current identity, package, context, recipient, policy and required secret-retirement gates pass. Setting up encryption, material returned, admitted, submitted, accepted and read remain different states.
 
 ## Complete setup locally
 
@@ -456,11 +461,11 @@ A valid response or publication supplies setup evidence, not a ready-to-send mes
 
 ## Acceptance obligations
 
-The full positive case starts with no recipient association or pair grant, authenticates a real source account, runs the private recipient control inbox without a human reply, validates actual signed assertion/package evidence, selects a common application, establishes MLS and sends the first human message through the real mail path. Repeat with offline publication allocation, the optional private-route follow-up stage and no available material. Inspect all requests, queues, drafts and mailboxes for body/subject/attachment or content-hash leakage.
+The full positive case starts with no recipient association or pair grant, authenticates a real source account, runs the private recipient control inbox without a human reply, validates actual signed assertion/package evidence, selects a common application, establishes MLS and sends the first human message through the real mail path. Repeat with offline publication allocation and direct provider-issued route1 while the recipient device process is stopped, and separately with no available material. Retained device-directed route evidence cannot satisfy current offline route issuance. Inspect all requests, queues, drafts and mailboxes for body/subject/attachment or content-hash leakage.
 
 Negative cases include mailbox spoofing, copied source permission without possession, copied complete inspect/cancel proofs under their exact bounded scope, retry versus new poll and no added package allocation/deadline or freshness, wrong target/service/nonce, revoked/changed source or recipient, new-identity conflict, invalid package/signature, stale publication called fresh, account enumeration/status differences, invalid-proof collision poisoning, competing package allocation, terminal cancellation, expiry/restart/clock uncertainty, offline allocation through concurrent service connections, fresh/publication package collisions, withdrawal without reallocation, lost replies and crashes at each journal boundary. No ready response alone counts as complete acceptance. Production service, complete assertion8/admission, independent-client and independent security evidence remain unproven until actually exercised.
 
-Source-block acceptance must exercise each selected route version, reject a mismatched body version before effects, and prove that an unauthorized request cannot reserve another account’s request identity. Retry the exact request across restart, then submit changed authenticated bytes under the same identity and require conflict without changing the block. A block must suppress disclosure through every supported bootstrap version while public admission remains uniformly pending. Also block a retained authenticated exchange after its peer permission expires, remove that block deliberately, and retry the original creation: the historical result must not reactivate it. Missing exchange attribution cannot create a caller-named block.
+Source-block acceptance must exercise each selected route version, including version3 at its descriptor3 managementPrefix, reject a mismatched body version before effects, and prove that an unauthorized request cannot reserve another account’s request identity. Retry the exact request across restart, then submit changed authenticated bytes under the same identity and require conflict without changing the block. A block must suppress disclosure through every supported bootstrap version while public admission remains uniformly pending. Also block a retained authenticated exchange after its peer permission expires, remove that block deliberately, and retry the original creation: the historical result must not reactivate it. Missing exchange attribution cannot create a caller-named block.
 
 An assertion8 response may allocate a package with the [separate receiving-only deadline](suite-profile.md#creating-a-delivery-and-receiving-it-later). That role must be recorded before publishing the response. The bootstrap request and source creation authorization still expire at their original deadlines; a later Welcome cannot reactivate either. The allocation stays single-use and cannot be republished or moved to another attempt.
 
@@ -538,7 +543,7 @@ Native login uses the existing selected subset of mail.setup.link, mail.setup.re
 
 The unsigned bootstrap-source-request and prepared signed source have exactly their bootstrap1 inventories, including agreement and targetDelegation. Version is `"2"`; agreement is mail-conversation-v2. TargetDelegation is SHA256 of the complete original accepted target descriptor2 bytes, as 64 lowercase hexadecimal characters. Delegation remains the digest of the source's own accepted descriptor2. The source service independently validates both exact domain delegations, current mailbox/account membership, request-source/respond-target roles and original credible intervals. A changed selection needs a separately authorized preparation; it cannot edit retained source bytes or refresh their deadline.
 
-Every signed source, inspect, cancel, response, publication, route-request and route-response payload keeps its exact bootstrap1 inventory, with version2 and the same required agreement. All advertisements are complete original assertion10 wrappers under their independent signatures and owning identity/package/control-key checks. Other purpose/member/type, canonical encoding, byte/depth, time and original commitment rules are unchanged. Wrappers remain exactly payload/signature; unsigned HTTP proof/source bodies keep their existing route-specific shapes.
+Every selected signed source, inspect, cancel, response and publication payload keeps its exact bootstrap1 inventory, with version2 and the same required agreement. The historical route-request/route-response2 inventories remain retained experiment records only; current routing uses direct provider-issued route1 as stated below. All advertisements are complete original assertion10 wrappers under their independent signatures and owning identity/package/control-key checks. Other purpose/member/type, canonical encoding, byte/depth, time and original commitment rules are unchanged. Wrappers remain exactly payload/signature; unsigned HTTP proof/source bodies keep their existing route-specific shapes.
 
 | Signed record | Signature domain |
 | --- | --- |
@@ -562,8 +567,52 @@ Fresh responses and offline publications carry their own original assertion10 an
 
 The actual issuing device's package custody, allocation realm and consumed/terminal state remain shared across acquisition versions and eligible mailbox aliases. Wrapping one native KeyPackageRef in different assertion/publication versions cannot allocate it twice. Scope/account/source blocks, account incarnation, recipient opt-in, original intervals, withdrawal, response identities and serialized current-authority checks remain in force. Different aliases do not transfer an allocation or credential between account namespaces. A published package must be valid for the exact actual acquisition and admission that use it.
 
-Route-request2/response2 preserve the source/agreement and original parent/request commitments. The retained parent/child retry procedure applies to the exact version2 bytes. Existing relay-source permission and route invitation formats retain their own independent authorization, identity and actual conversation scope. Opaque relay layout carries the exact selected sealed2 or protected application bytes without parsing/relabeling them. Source/recipient masking still waits for the required active route; setup success cannot downgrade it. No service follows an arbitrary callback or forwards another origin's credentials.
+Current routing selects [provider-issued route1](relay-routes.md) directly from the already selected receiving service after setup, without changing these bootstrap2 setup/publication bytes. Under this current selection, the inherited inspection `routes` array and recipient-inbox `routeRequests` arrays are always empty; no route-request2/response2 submission operation is selected at descriptor2 prefixes. Those unselected operations return generic404 without creating work. Retained device-directed experiment traffic needs its explicitly configured experimental selection, never the current descriptor2 path or a trial parser. The earlier route-request2/response2 and device-directed parent/child journal are retained experimental compatibility only; they are not a current optional branch or a fallback. Current source permission0 and provider-issued invitation1 retain their explicitly selected authorization, identity and actual conversation scope. Opaque relay layout carries the exact selected sealed2 or protected application bytes without parsing/relabeling them. Source/recipient masking still waits for the required active route; setup success cannot downgrade it. No service follows an arbitrary callback or forwards another origin's credentials.
 
 Each result enters the [per-delivery handoff](first-contact-setup.md#acquisition-for-independently-ready-deliveries) for its exact local intent revision and selected mailbox/account. It does not resolve someone else's unknown scope slot, authorize automatic historical disclosure or make another device ready. Ready eligible deliveries may progress under the frozen send plan while the remaining intended slots retain explicit pending states. Cancellation, supersession and expiry stop their owning pending operations; neither a new acquisition path nor a fresh result revives the old intent. Native admission and final content release remain separate current checks.
+
+:::
+
+## First-message setup with carrier support
+
+Alice can obtain Bob's complete receiving setup before sending any human mail. His authorized service returns original device proof, or a previously issued offline result with a real allocated package. Her client checks support for the selected mail format as well as encryption. A timeout or missing result leaves Bob pending; it is not permission to send the writing unencrypted.
+
+::: {.details summary="Exact bootstrap3 delegation, source and response records"}
+
+Select descriptor3 and bootstrap3 for the [complete application carrier](application-carriage.md#obtain-authenticated-carrier-support). Agreement remains mail-conversation-v2. Descriptor3 has exactly descriptor2's inventory with version3; purpose, selected domain, well-known path, service/roles/three prefixes, publication/generation, current interval and strict network/parsing rules remain. Its prefixes select only3 operations and cannot overlap active earlier-version prefixes by segment containment.
+
+Every unsigned source-preparation and signed source, inspect, cancel, response and publication record keeps its exact bootstrap2 inventory/types with version3 and unchanged agreement. Wherever that inventory has **advertisement**, replace that member by **receiving**, canonical padded base64 of the complete original receiving-bundle0. Other records gain no receiving or extension field. TargetDelegation/delegation commit the original accepted target/source descriptor3 bytes, respectively. Wrappers remain exactly payload/signature.
+
+Own-account [source blocking](#own-account-source-blocking) uses `POST /blocks` under the selected bootstrap descriptor3 managementPrefix. Its strict body has exactly `version`, `purpose`, `request` and `exchange`, with version `"3"` and purpose `"bootstrap-block-source"`. The existing member types, `mail.setup.respond` authority, retained-exchange attribution, responses and deliberate removal rules apply unchanged. Add no agreement, receiving bundle or device signature. Block state and the management request/conflict namespace remain shared across versions0/1/2/3; selecting3 cannot clear a block, reset a request or fall back to another version.
+
+The route-request3 and route-response3 inventory and signature rows below retain only the earlier device-directed child-exchange construction, with its unchanged parent commitments and retry/cancellation rules. They are not current provider-issued routing operations, a security tier or a fallback. Current bootstrap3 creates no such route child, queues no alias approval for a recipient device and leaves the inherited route-request/response collections empty. After setup, the sender uses the direct [provider-issued route1 procedure](relay-routes.md#exact-route-issuance-inspection-and-immutable-retries). Retained route-specific unsigned proof wrappers keep their original inventories.
+
+| Record | Signature domain |
+| --- | --- |
+| Source | `mail/bootstrap/source/v3` |
+| Inspect | `mail/bootstrap/inspect/v3` |
+| Cancel | `mail/bootstrap/cancel/v3` |
+| Response | `mail/bootstrap/response/v3` |
+| Publication | `mail/bootstrap/publication/v3` |
+| Route request | `mail/bootstrap/route-request/v3` |
+| Route response | `mail/bootstrap/route-response/v3` |
+
+Use unchanged NUL/U32BE/original-byte framing. Exchange-ID domain is `mail/bootstrap/exchange/v3`, with the existing issuer-length/issuer/source-ID construction. No earlier source/result/descriptor activates3. Current identity, own mailbox/account membership, request-source/respond-target roles, shared link/family authority, domain delegation and exact original credible intervals remain mandatory; profile changes never reset a block or conflict namespace.
+
+Before private lookup/allocation, the target validates fresh origin-selected inspection of the original source permission, both descriptor commitments and exact service/agreement/device scope. Original sourceDigest, issuer/exchange, nonce, request commitments and fixed deadline correlate all owning result types. Unknown/unsupported/unavailable recipients remain uniformly pending without existence, device-count or online disclosure.
+
+:::
+
+::: {.details summary="Fresh and offline first-message acquisition"}
+
+A fresh response3 and offline publication3 each commit their complete original receiving bundle. Independently verify both device-signed dependencies, exact current identity/Receive authority and canonical account association. The actual advertisement and carrier offer resolve to the same authenticated device/binding, preserving their distinct state ancestry. Validate actual package/publication/allocation and control-key custody rather than create a package from a static record or service result.
+
+The receiving proof is inside the existing authenticated private source/result/publication payload and confidential transport. Where [private realm acquisition](private-snapshot.md#private-acquisition-with-carrier-support) supplies static setup, its complete bundle remains in encrypted snapshot cells and requires the exact actual allocator join. Add no public clear address-to-support registration table or address hash. Existing providers/index authorities retain only their stated original metadata knowledge; signatures do not erase it.
+
+The actual device durably issues support and package receiving promises before exposure. A service can allocate only under its already authorized immutable realm; wrapping a KeyPackageRef in another version/bundle/alias cannot allocate it twice. Cancellation, consumed/uncertain outcomes, source/account blocks and original deadlines remain shared. Fresh response is live evidence only for its exact retained attempt under current freshness rules; cached publication is not.
+
+Current routing uses the receiving service's independent issuance and activation checks, including its original service trust, account policy and route-key permission. The retained route-request3/response3 child exchange cannot activate a current route or make recipient-device approval part of bootstrap3. No setup result authorizes exposing personal addresses to bootstrap a masked copy; incompatible disclosure holds that path.
+
+After complete evidence for every actual selected device, perform the [per-delivery carrier handoff](first-contact-setup.md#finish-acquisition-for-the-opaque-carrier). Include actual creator receiving evidence; preserve intended slots and each pending operation. Result acceptance alone creates no native membership, reply target, human verification or release. An independently ready delivery may proceed while other slots remain pending under the frozen policy.
 
 :::

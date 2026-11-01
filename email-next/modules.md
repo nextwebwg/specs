@@ -16,6 +16,33 @@ The **Conversations** base covers the [client conversation behavior](client-beha
 
 Optional modules have complete dependencies. A client implementing encryption must implement its identity, device, storage, cryptographic and protected-message rules; a provider carrying ciphertext need not hold decryption keys. Optionality is permission to omit a module, not to implement half its safety boundary and claim it.
 
+## Existing standards and experimental designs
+
+Email/2 is an experimental protocol suite. It reuses existing standards, but the new rules connecting them are not established Internet standards. Read a module's origin separately from its implementation status.
+
+| Origin | Meaning |
+| --- | --- |
+| Existing standard | Behavior taken from a named published standard. Cite the exact version and sections used, including any restrictions. |
+| Email/2 extension | A new format, exchange or binding defined here, including a new combination of existing protocols. It remains experimental even when its cryptographic components are standardized. |
+| Research | A proposed mechanism whose interoperable contract is not yet settled. It cannot serve as an implemented module's required mechanism until that contract is defined. |
+
+The [protocol baseline](baseline.md#protocol-suite) identifies the incorporated standards. The distinction applies within modules as well as between them:
+
+| Area | Existing foundations | What Email/2 adds |
+| --- | --- | --- |
+| Mail carriage | SMTP, Internet message format and MIME | Protected packet carriage, setup carriers and their processing rules. Ordinary mail delivery retains its existing contract. |
+| Conversations and presentation | Existing message identifiers, reply headers, HTML, CSS and HTML Microdata | Exact contribution and reply relationships, authored/quoted chunk bindings, the finite rendering profile and conversation behavior. |
+| Encryption and setup | MLS and the cryptographic standards selected by the protected profile | Mailbox/device authority, setup acquisition, application bindings, asynchronous delivery and lifecycle rules. Standard MLS does not by itself define these exchanges. |
+| Private addressing | Existing email addressing and the selected authentication and cryptographic mechanisms | Relay authorization, temporary route lifetimes, protected personal addresses and address swapping. |
+| Interactions and deletion | Existing MIME, HTTPS and selected signature/encryption mechanisms | Structured answers, service-action authorization and retry semantics, reactions, corrections and silent deletion requests. |
+| Backup and recovery | Selected cryptographic and serialization standards | Archive formats, completeness checks and the separation of historical recovery from live device authority. |
+
+These Email/2 additions are **Email/2 extensions**, not existing standards merely because they use standard components. Unsettled choices in [cooperating services and live connections](service-federation.md) and the [design inventory](design-resolution.md) remain **Research** where their exact bindings are still open. Classify the specific mechanism; a module can contain both a defined extension and an unresolved research path.
+
+Implementation evidence is a separate record: **planned**, **implemented**, **tested**, or **externally reviewed**, with the actor role, source revision, scope and limits stated. These descriptions can coexist; external review is not a substitute for tests, and one component test does not establish complete module support. A claim of testing links to the actual evidence. A claim of external review identifies what was reviewed and by whom. Neither changes the protocol's origin or implies standards adoption.
+
+These are documentation labels, not additional wire capabilities or message-security indicators. Use them in architecture references, SDK module documentation and implementation reports; ordinary conversation views retain the concise protection indicators below.
+
 ## Modules and responsibilities
 
 These are short human-facing names. The owning contracts define machine encodings and requirements; these labels are not newly registered protocol tokens.
@@ -24,15 +51,17 @@ These are short human-facing names. The owning contracts define machine encoding
 | --- | --- | --- |
 | Conversations | The base conversation view, reply targeting and defined presentation | Client; source-preserving mailbox carriage. Protected effects require the relevant protection module. |
 | Encryption | End-to-end protected contributions to authorized recipient devices | Sending and receiving clients implement the [protected conversation core](suite-profile.md); ordinary providers can carry the opaque messages. Setup material and current authority must be usable before release. |
+| Setup discovery | A provider advertises whether setup support is publicly offered for a selected recipient | Optional provider/client roles under the [small discovery binding](encryption-discovery.md). A tiny HTTPS sidecar can serve it without changing SMTP/IMAP or holding keys. A hint is not usable setup, identity proof or downgrade permission. |
 | Auto setup | Content-free automatic acquisition of recipient setup before sending the first human message | Enabled clients use a declared supported [ordinary-mail carrier](mailbox-setup.md) or authenticated [provider bootstrap](bootstrap.md), under the same [first-contact policy and handoff](first-contact-setup.md). Identify the available carrier and its limits; provider-only support does not imply ordinary-mail setup. Complete joined implementation remains required. Cached/passive evidence is separately usable under its own rules. |
 | Sender masking | Shared authorized outer From and opaque failure routing | Originating provider or selected relay and sending client, under [private routing](private-routing.md) and [route authorization](relay-routes.md); Encryption is required for the protected personal-author display. |
-| Recipient masking | Opaque SMTP destination without a personal-address forwarding hop | Recipient provider or selected receiving relay, sending client and recipient authorization, under private routing and route authorization; Encryption and exact route-use permission are required. |
+| Recipient masking | Opaque SMTP destination without a personal-address forwarding hop | Recipient’s authorized inbox provider, or explicitly selected receiving relay, and sending client under private routing and provider-issued routes. Finite service trust is established during account connection; no device approves individual aliases. Encryption and exact active route-use permission are required. |
 | Verification | Independent confirmation of the selected correspondent identity | Client and the explicitly selected [verification mechanism](mailbox-association.md#independent-verification-remains-separate). Encryption, a certificate or alias possession alone does not establish this assurance. |
 | Answers | Questions with predefined answers that produce structured conversation replies | An interacting client implements complete question/answer targeting, submission and state rules. Current protected readers retain safe question/answer projections even without answer controls. [Service actions](service-answers.md) additionally need their own explicit agreement and endpoint authorization. |
 | Service actions | Predefined choices submitted to a named HTTPS service | Clients support service-question in the signed current application and the [complete service binding](service-answers.md#current-protected-service-agreement). Encryption and independent native service-account/action authorization are required; ordinary Answers support is independent. |
 | Hosted replies | Bring a link holder’s reply into a protected conversation without claiming a verified holder identity | Clients support hosted-holder-observation in the signed application and the [complete observation binding](hosted-access.md#protected-observations-of-hosted-replies). Hosting/account management is a separate actor role. |
 | Reactions | Add or withdraw a reaction on an exact contribution | An interacting client implements reaction and withdrawal together under [reaction state](interaction-state.md); simpler current readers retain attributed readable contributions without claiming the aggregate effect. |
 | Corrections | Authenticated correction of a person's own plain-text contribution | An interacting client implements [edit state](interaction-state.md); simpler current readers retain attributed correction text without installing an unvalidated replacement. No arbitrary rich edit is implied. |
+| Deletion requests | Ask an original recipient system to remove one exact contribution silently | Sending and receiving clients implement the complete [deletion-control binding](deletion-controls.md), independently signed receiving offers, dedicated HPKE key custody and durable target/suppression checks. Encryption alone does not advertise this module; no automatic decision receipt is sent. |
 | Encrypted backup | Portable encrypted historical correspondence and recovery | Archive writer/reader and independent recovery kit under [archives](encrypted-archives.md), with [collections](archive-sets.md) where used. Managed storage is optional. Backup never restores live identity authority. |
 
 A provider can implement carriage, automatic setup, sender masking or recipient masking without implementing all client modules. An Encryption client need not implement a provider control service or every interaction. A module claim states its actor role and tested dependencies. “Email/2” with a module list is meaningful; an unqualified claim that every feature works is not.

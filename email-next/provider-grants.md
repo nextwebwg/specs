@@ -15,7 +15,7 @@ A provider account can authorize a queue without becoming the authority for a pe
 > [!note] Retained version0 grant profile
 > `email2-provider-grants-v0` defines account/device linking and issuance for the existing `en-provider-control-0` pair queue. The identifiers and scope strings are draft names. The [discovery profile](provider-discovery.md) supplies domain delegation, native registration and browser authorization. This contract assumes the peer devices are already identified; the [first-contact flow](first-contact-setup.md) uses its own [bootstrap authority](bootstrap.md) before a known-pair permission can be selected. That binding is defined; its complete joined implementation remains unproven. Local approval/credential validation is not a deployed OAuth or grant service.
 
-The [current Encryption baseline](suite-profile.md#current-client-baseline) uses [provider grants2](#authorize-asynchronous-pair-exchanges) when this capability is offered. Retained version0/1 records remain exact. Changing profile does not reset account/family blocks, revocation, replay, budgets or package allocation; these bindings do not establish a complete implementation.
+The selected opaque application carrier uses [provider grants3](#authorize-complete-receiving-exchanges) when this capability is offered. Retained grant0/1/2 records remain exact. Changing profile does not reset account/family blocks, revocation, replay, budgets or package allocation; these bindings do not establish a complete implementation.
 
 ## Connect the account and its device
 
@@ -68,13 +68,13 @@ The module is trusted local/API authorization context, not another unsigned body
 
 For provider control and automatic setup, the selected `mailbox` domain must have its own accepted delegation to the selected service. An alias in another domain needs that domain's delegation too. Account membership, exact address spelling and module policy remain separate mandatory checks.
 
-For an independent relay, the selected discovery domain identifies the relay account/service. The inherited `mailbox` field is private account-contact metadata, in the same canonical address grammar; the service must derive its allowed value from the authenticated account rather than an arbitrary request claim. It may be in another domain. Do not discover that contact domain automatically, treat the relay as its delegate, install a correspondent association from this link, or use it as authenticated personal From/To. Actual source mailbox authority, protected address evidence and recipient route approval retain their own rules. The internal account/incarnation is still the account key; the contact address cannot select another account.
+For an independent relay, the selected discovery domain identifies the relay account/service. The inherited `mailbox` field is private account-contact metadata, in the same canonical address grammar; the service must derive its allowed value from the authenticated account rather than an arbitrary request claim. It may be in another domain. Do not discover that contact domain automatically, treat the relay as its delegate, install a correspondent association from this link, or use it as authenticated personal From/To. Actual source mailbox authority, protected address evidence and inbox-provider route issuance retain their own rules. Receiving-service association during normal account connection is distinct from per-alias approval; current routes require no such device approval. The internal account/incarnation is still the account key; the contact address cannot select another account.
 
 ### Complete, retry or reset the selected link
 
 Compare the original challenge bytes and every module/account/family/descriptor dependency before signing or accepting completion. Validate the device's own current receive authority and required policy; further sending, enrollment and historical disclosure need their separately required roles. Changing the signature or claimed module cannot replace a missing account grant. Consume the challenge and install the scoped link atomically with the owning current-authority checks. An exact retained retry returns only its original result and cannot reactivate withdrawn authority.
 
-A link deletion or reset affects that module's own account incarnation, families, links and derived permissions. Provider control revokes its queue grants/credentials; relay resets revoke its source permissions/routes/queued unreleased intents; setup resets revoke its source permissions, publications and pending disclosure work. Keep original reservations, abuse handles, uncertain deliveries and history under their owning retention rules. Revocation cannot recall already disclosed material.
+A link deletion or reset affects that module's own account incarnation, families, links and derived permissions. Provider control revokes its queue grants/credentials; relay resets revoke its receiving-service authorizations/source permissions/routes/queued unreleased intents; setup resets revoke its source permissions, publications and pending disclosure work. Keep original reservations, abuse handles, uncertain deliveries and history under their owning retention rules. Revocation cannot recall already disclosed material.
 
 The selected module's reset cannot reset another module, replace an endpoint principal or erase correspondence. A service-wide account security action or actual account reassignment may invalidate several modules through the operator's separately authorized account policy; an ordinary module-link proof does not authorize that wider action. Correspondents retain their pins, and reconnecting must obtain fresh appropriately scoped account/device proof.
 
@@ -214,7 +214,7 @@ The current-account response and retained reset result are separate observations
 
 `POST` requests carry caller-generated nonzero ObjectId `request` for exact retry. Namespace is account/family/route/request for authenticated management calls and grant/role/device/request for credential challenges. Persist exact request bytes, challenge and original result before reply. Same namespace with different authenticated content returns409; invalid signatures or unauthenticated submissions cannot create an authoritative conflict. Replaying a challenge request never extends its interval or allocates a second grant/token. No supplied URL is contacted.
 
-Only the two listed inspection routes support GET. They require no request body or query and return application/json with no-store; all other GETs and unsupported methods return405 with Allow. POST/PUT JSON bodies require application/json, DELETE and reset-completion PUT have no body. Error bodies are exactly `{error}`:400 invalid,401 unauthorized,403 unauthorized for insufficient scope,404 notFound,409 conflict,413 tooLarge,415 unsupportedRepresentation,429 rateLimited,503 unavailable. Bearer challenges follow the configured queue's RFC6750 rules. Missing/expired/unknown grant or invalid public credential proof has the same404 result, after bounded signature checks; there is no public account or grant listing. A public challenge may still reveal possession of a valid invitation ID; it reveals no new grant data beyond that invitation and no device online status.
+Only the two listed inspection routes support GET. They require no request body or query and return application/json with no-store; all other GETs and unsupported methods return405 with Allow. POST/PUT JSON bodies require application/json, DELETE and reset-completion PUT have no body. Error bodies are exactly `{error}`:400 invalid,401 unauthorized,403 unauthorized for insufficient scope,404 notFound,405 invalid (with Allow),409 conflict,413 tooLarge,415 unsupportedRepresentation,429 rateLimited,503 unavailable. Bearer challenges follow the configured queue's RFC6750 rules. Missing/expired/unknown grant or invalid public credential proof has the same404 result, after bounded signature checks; there is no public account or grant listing. A public challenge may still reveal possession of a valid invitation ID; it reveals no new grant data beyond that invitation and no device online status.
 
 Services configure finite authentication, signature-work, body/header, active link/preparation/challenge, new-token, per-account, per-device, per-source and deployment budgets, plus positive maximum challenge/token/grant/family lifetimes and retry retention. These are explicit deployment policy, not invented user quotas. A prepared challenge states the selected interval before approval. Exhaustion yields429 and positive Retry-After seconds, never token scope expansion, early replay-record eviction or another account's data. Clients use bounded backoff and no automatic replacement of uncertain operations.
 
@@ -340,7 +340,7 @@ Public acceptance must join native discovery/registration/sign-in, account linki
 
 ## Relay account links remain separately scoped
 
-The [relay module](relay-routes.md#discover-a-relay-service) reuses account-link possession/challenge mechanics under its own delegated namespace and OAuth scopes. Its source permissions and recipient routes are defined there, not by queue approval. Queue link/grant credentials cannot allocate aliases, change From or originate mail.
+The [relay module](relay-routes.md#discover-the-selected-service) reuses account-link possession/challenge mechanics under its own delegated namespace and OAuth scopes. Its source permissions and recipient routes are defined there, not by queue approval. Queue link/grant credentials cannot allocate aliases, change From or originate mail.
 
 
 ## Reply-aware account and pair permissions
@@ -386,5 +386,28 @@ An already accepted active queue account/family/device link may support a new gr
 Grant0/1/2 share the queue module's authoritative account, family/incarnation, reset/link, request/conflict and revocation state. Reset/unlink/family retirement serialize against old and new queue operations together. They do not acquire new namespaces or fresh budgets from a protocol label. A consumed or uncertain request remains so, including after restore. A freshly authorized grant can follow an independently eligible remembered approval policy, but no service can invent consent or replace the exact approved configuration.
 
 Relay and automatic-setup account links keep their separately selected shared-link subset and module-local lookup/reset authority. A bootstrap descriptor2 digest fits that existing generic digest field without changing the subset's literal profile or proof domains. Grant2 neither migrates those modules nor adds scopes. The [connection table](#shared-account-links-separate-module-authority) distinguishes the selected queue profile from those shared subsets.
+
+:::
+
+## Authorize complete receiving exchanges
+
+Grant3 authorizes the exact provider pair/configuration that carries the new receiving bundle. It preserves the account's existing device and revocation authority. Upgrading a protocol does not require disconnecting a healthy account or restore a revoked one.
+
+::: {.details summary="Exact grant3 records and shared conflict namespaces"}
+
+Select `mail-provider-grants-v3` through [descriptor3](provider-discovery.md#discover-complete-mail-receiving-support). Every grant2 request, challenge, completion, result, reset, pair-preparation/approval/invitation and role-credential record keeps its exact member inventory/types, substituting profile3 wherever its owning schema has profile. Embedded configurations must be complete [control3](provider-control.md#obtain-complete-mail-receiving-evidence) with agreement mail-conversation-v2.
+
+| Signed purpose | Domain |
+| --- | --- |
+| Account-link proof | `mail/provider-account-link/v3` |
+| Pair approval | `mail/provider-pair-approval/v3` |
+| Role request | `mail/provider-role-request/v3` |
+| Role-credential proof | `mail/provider-role-credential/v3` |
+
+Use unchanged NUL/U32BE/original-byte framing and complete purpose/account/family/link/device/key/nonce/time checks. Link proof commits exact descriptor3 bytes; approval commits the complete original control3 configuration and independently current participant evidence. A string change cannot turn old approval/token into this authority. Fresh request/role IDs and operation separation remain required.
+
+Account/family/incarnation, reset/link, source blocks, request/conflict, revocation and uncertainty state are shared across grant0/1/2/3. A currently eligible accepted same-service/account/device link may authorize a fresh grant3 preparation under the owning remembered-approval policy. Its original historical proof stays unchanged. Missing/replaced origin, account, family, key or authority follows the original reconnect/reset/enrollment rules. Descriptor/configuration refresh still requires current delegation and exact role/device checks.
+
+Relay/bootstrap shared-link subsets keep their original profiles, proofs, role lookup/reset authority and scopes. Their generic descriptor-digest field can bind original bootstrap descriptor3 without relabeling the link. No new capability proof enrolls a device, transfers another module's credential or grants permission to publish address-bearing information.
 
 :::

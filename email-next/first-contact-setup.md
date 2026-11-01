@@ -15,11 +15,13 @@ The first transmission to a new person can be a setup request rather than their 
 > Bob sees Alice's message, not an exchange of protocol emails. If the setup cannot complete, Alice's writing stays queued under its selected delivery policy.
 
 > [!note] Defined contract; complete journey not yet implemented
-> The [automatic first-contact exchange](bootstrap.md) specifies domain discovery, source-account authorization, device possession, the private control inbox, signed replies, offline publication and optional relay follow-up. Known-pair [queue grants](provider-grants.md) remain separate authority. The local bootstrap component tests part of this contract; it does not establish a working public service or complete first-message encryption journey.
+> The [automatic first-contact exchange](bootstrap.md) specifies domain discovery, source-account authorization, device possession, the private control inbox, signed replies, offline publication and direct inbox-provider route issuance. Known-pair [queue grants](provider-grants.md) remain separate authority. The local bootstrap component tests part of this contract; it does not establish a working public service or complete first-message encryption journey.
 
 ## Use the available setup carrier
 
-With an enabled provider service, use the account/device-authorized exchange described below. Without one, compatible clients can use [ordinary-mail setup](mailbox-setup.md): one content-free, directly addressed request and an encrypted response, under explicit request/disclosure policies. That path can leave a setup notice in a legacy inbox and requires trustworthy receive authentication evidence; it cannot satisfy required address masking. Neither path requires a human-authored introduction, and neither proves independent personal identity.
+Prefer an encrypted first human message whenever usable setup permits it. If support is unknown and the sender separately authorizes ordinary delivery, the [automatic-upgrade path](automatic-upgrade.md) lets that real message invite automatic setup for future protected writing. It sends no blind capability probe to an unknown legacy recipient, does not retroactively protect the original and does not weaken this chapter’s held-send policy.
+
+With an enabled provider service, use the account/device-authorized exchange described below. Without one, compatible clients can use [ordinary-mail setup](mailbox-setup.md): one content-free, directly addressed request and an encrypted response, under explicit request/disclosure policies. Current setup3 can authenticate the request from an authorized ordinary mailbox under the [client-mailbox rules](mailbox-setup.md#client-mailbox-authorization-for-setup3), while the trusted-delivery path uses its separately configured receiving evidence. This can leave a setup notice in a legacy inbox; it cannot satisfy required address masking. Current setup3 also [authenticates the answer](mailbox-setup.md#authenticate-the-setup3-answer) using an existing selected recipient key or exact-domain authentication before a new identity can supply encryption keys. Neither path requires a human-authored introduction, and neither proves independent personal identity.
 
 ## Keep the message private during setup
 
@@ -54,7 +56,7 @@ Apply the [freshness contract](freshness.md) to the selected delivery. Published
 
 The recipient client durably saves a signed response and any allocated package before upload. Retrying returns the same result. The response does not elicit another setup response, and opening a received message never starts this state machine. Providers must not represent control records as ordinary mailbox messages requiring a legacy client to hide or discard them.
 
-Private-addressing setup additionally returns an independently provider-authorized recipient alias, bound by the recipient device to this peer and routing scope. The [private-addressing contract](private-routing.md) requires personal From/To/Cc inside encryption, transport substitution before submission and separate route-use authorization. The [route authorization contract](relay-routes.md) supplies source-account permission and recipient route approval after the peer identities/setup scope are available. The [bootstrap relay follow-up](bootstrap.md#finish-private-routing-in-the-same-handshake) obtains those routes after learning the intended recipient identity and before content release when masking is required. A key package or queue credential never becomes routing permission.
+Private-addressing setup identifies the recipient’s already configured receiving service. After independently validating the intended identity/setup, the sender obtains accountable source permission and requests a route directly from that service under [provider-issued route1](relay-routes.md). The normal inbox provider can allocate or renew an alias while all recipient devices are offline. It needs no recipient-device approval of individual addresses. The [private-addressing contract](private-routing.md) keeps personal From/To/Cc inside encryption and performs the transport substitution before submission. Service association, active routing policy and exact route-use permission remain independent of native encryption admission. A key package or queue credential is never routing authority. Required masking holds if the current route is unavailable; routine renewal does not change the personal contact or a frozen uncertain retry.
 
 ## Validate, establish encryption, then send
 
@@ -65,6 +67,8 @@ For a previously unknown identity, apply the selected [first-contact association
 Once discovery is valid, use the suite's existing MLS invitation, context, membership, package single-use and admission rules. No provider-specific encryption protocol or generic setup acknowledgment substitutes for them. Invitations and other setup controls contain no human message content. A fully validated ordinary-mail response can satisfy [live device confirmation](freshness.md#live-confirmation-through-existing-mailboxes) under its original retained attempt and age window; a provider service is not mandatory for that evidence. The sender releases content only when the suite's protected-send preconditions are satisfied and its final authority/audience checks still pass. Asynchronous admission does not require inventing an additional online acknowledgment; readiness has the exact scope defined by the selected MLS carrier and application contract.
 
 ## Finish setup for one intended send
+
+For the optional [mailbox-return profile](mailbox-return.md), the initiator completes its local proof only at leg four; the responder completes its proof at leg three. The third leg’s independently valid ordinary receiving assertion/package supplies the initiator’s receiving evidence for a return stream. Both directions still resolve current authority and exact single-use allocations, then perform their own admission, retirement and outbox transaction below. A temporary request assertion is never substituted, and an incoming stream does not confer sending authority on its recipient.
 
 Receiving encryption details does not mean your message is ready to send. The app still has to prepare the conversation, finish the required key cleanup and queue the message and its planned copies. If you edit or cancel a waiting message, a late setup response must not send its old version.
 
@@ -102,6 +106,7 @@ For mail-conversation-v2, the same setup-to-outbox transaction applies to each a
 | Known pair | [Provider descriptor2](provider-discovery.md#discover-the-asynchronous-agreement), grant2 and immutable control2 configuration | Original control2 response and assertion10 |
 | First contact through providers | [Bootstrap descriptor2/source2](bootstrap.md#automatic-setup-for-independently-ready-recipients), independently authorized source/recipient operations | Original fresh response2 or allocated publication2 and assertion10 |
 | Existing mailboxes | [Mailbox setup2](mailbox-setup.md#set-up-an-asynchronous-delivery), enabled direct-authenticated request/response policy | Original setup2 response, assertion10 and exact pending attempt, through sealed2 |
+| Address round trip | [Mailbox return0](mailbox-return.md), enabled bounded account policy, original selected target | Exact four-leg transcript and completed local observation, original assertion10 receiving material in both directions, exact branch/package restrictions |
 
 These branches supply candidates, not current membership or release permission. Use the [exact v2 binding](suite-profile.md#asynchronous-protected-agreement): context10/initial10/roster7/established10, ordinary controls2 or managed exchange4/final5, sealed2 and mime-suite-v2. Keep every original proof and independently validate current identity, selected mailbox/account association, verification/freshness, allocation and route authority. The acquisition/receiving table's role and custody distinctions apply using original assertion10, including the separate creator receiving assertion; an attempt-only mailbox key is not promoted.
 
@@ -185,3 +190,27 @@ Package races, revocation or an unsupported suite may require fresh setup. Keep 
 The complete positive journey must start with no recipient association or pair grant at the sender, deliver only content-free setup traffic, automatically produce device evidence without a human reply, validate it under explicit first-contact policy, admit the selected suite and exchange the first encrypted human message. Repeat with offline published material and with no material, checking that the latter sends no content.
 
 Negative cases include unsolicited probes, self-signed mailbox impersonation, provider-origin substitution, unsupported legacy accounts, address enumeration, forged or cached-as-fresh responses, replay, package races, changed identity, loss/restart at every durable handoff, cancellation and unknown delivery results. Inspect actual outgoing requests and mailbox contents, including subject, quoted text, attachments and draft synchronization—not just a mocked `ready` flag. Existing configured-pair evidence is not this first-contact test.
+
+## Finish acquisition for the opaque carrier
+
+For the selected application carrier, obtain a complete receiving bundle for each actual selected device before preparing the encrypted human message. Alice can do this before any human mail reaches Bob. A private directory or authorized first-contact provider exchange supplies his original setup and signed software-support promise; an actual allocation supplies any needed one-use package.
+
+::: {.details summary="Complete first-message and refresh path selection"}
+
+| Path | Exact evidence and next step |
+| --- | --- |
+| Known authorized provider pair | [Descriptor/grant/control3](provider-control.md#obtain-complete-mail-receiving-evidence), original response/request and complete receiving-bundle0. |
+| Unknown peer through providers | [Bootstrap3](bootstrap.md#first-message-setup-with-carrier-support), current source inspection and exact fresh response3 or allocated offline publication3, with receiving-bundle0. |
+| Independent companion/private directory | [Realm1/private snapshot1](private-snapshot.md#private-acquisition-with-carrier-support), complete private static bundle and unchanged actual allocator0; perform the [exact offline join](application-carriage.md#join-an-offline-package-with-its-support-proof). |
+| Existing mailboxes, separately enabled | [Mailbox setup3](mailbox-setup.md#set-up-the-opaque-application-carrier), exact authenticated request and sealed3 response tied to the retained attempt and initiating offer/key. |
+| Earlier human correspondence or protected refresh | [Original published bundle](passive-discovery.md#publish-complete-mail-receiving-support), independently current under its actual provenance; no automatic reply or fresh-response inference. |
+
+Freeze the original local intent/revision, selected acquisition/account/service, each actual target device and required disclosure/masking policy. Source and target services gain no human writing, authored digest, group roster or permission to answer for another device. Keep original source/request/response/publication and package-allocation identities, intervals, cancellation and uncertainty. Lookup failure does not start unsolicited setup email or relax protection.
+
+Validate every original carriage offer, actual native advertisement and independent identity/association. Include participating sender devices; an attempt-only mailbox request key is not ordinary ongoing creator receiving evidence. Current context10/admission still use the unchanged actual original assertion10, while the owner retains carrier proof as an additional mandatory release dependency. Other intended slots can remain pending outside an independently ready actual delivery.
+
+No result alone installs membership, resolves someone else's scope slot, grants verification or releases the editor's current text. Perform real admission, atomically retain native successor/ciphertext/non-releasable mail, allocate its immutable Message-ID and repeat final current authority/route/disclosure checks. Unknown, conflicted, expired, wrong-device or historical-only carrier evidence holds that delivery under the frozen fallback policy.
+
+Use these same paths to refresh support for an existing group or a newly authorized device. Refresh changes no native membership by itself. Earlier paired configuration records may preserve their original advertisements but do not transfer new carrier support; reacquire it before future release. A new software install or successful setup2 response cannot supply a missing receiving-bundle0.
+
+:::

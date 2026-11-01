@@ -17,13 +17,277 @@ HTML conversion recommendations are informative.
 ## Parsing order
 
 1. Normalize CRLF/CR to LF; retained positions refer to original input.
-2. Recognize optional opening frontmatter, then CommonMark blocks, containers, leaf directives, footnote definitions, tables and line blocks in their enclosing block context.
+2. Recognize optional opening frontmatter, then Markdown blocks by the [Markdown rules](#markdown-rules), [HTML elements](#html-elements), containers, leaf directives, footnote definitions, definition lists, tables and line blocks in their enclosing block context.
 3. Parse inline content and titles after block boundaries, once every footnote label is known.
 
-Code spans, fenced/indented code and HTML blocks retain their lexical boundaries;
+Code spans, fenced code and raw-text HTML retain their lexical boundaries;
 their contents do not open directives or line blocks. GFM tables take precedence
 over leading-pipe line blocks. Escaped structural punctuation stays literal.
 Apply the [safe HTML policy](#safe-html) when importing HTML and before writing it.
+
+## Markdown rules
+
+Expressive Markdown reads CommonMark 0.31.2 and GFM's blocks and inline content
+with these rules, so that each line reads as it looks. Where a rule differs from
+CommonMark or GFM, a callout shows their reading of the same example and why
+Expressive Markdown reads it this way.
+
+### Indentation and code
+
+Code is fenced, with ```` ``` ```` or `~~~`. Indentation never makes code: an
+indented line reads as it would unindented, at the top level and in list
+items, containers and HTML elements.
+
+```md
+    const x = 1;
+
+    # Title
+```
+
+```html
+<p>const x = 1;</p>
+<h1>Title</h1>
+```
+
+> [!note] CommonMark
+> **CommonMark:** four columns of indentation make indented code, so the
+> example renders as `<pre><code>const x = 1;</code></pre>` followed by a
+> second code block. Indentation then changes meaning by accident, inside
+> lists, containers and HTML. Fenced code says explicitly that it is code, and
+> it is what authors use today.
+
+### Headings
+
+A heading starts with one to six `#`. A `---` line under a paragraph is a
+thematic break, and a `===` line is paragraph text:
+
+```md
+Title
+---
+
+Title
+===
+```
+
+```html
+<p>Title</p><hr>
+<p>Title
+===</p>
+```
+
+> [!note] CommonMark
+> **CommonMark:** a `---` line under a paragraph makes it a level-2 heading,
+> `<h2>Title</h2>`, and a `===` line a level-1 heading. A `---` meant as a
+> divider then silently turns the paragraph above it into a heading. With `#`
+> as the only way to write a heading, `---` is always a divider.
+
+### Hard breaks
+
+A trailing `\` or a `<br>` breaks a line. Trailing spaces are insignificant:
+
+```md
+one␠␠
+two
+
+one\
+two
+```
+
+```html
+<p>one
+two</p>
+<p>one<br>
+two</p>
+```
+
+(`␠` marks a space.)
+
+> [!note] CommonMark
+> **CommonMark:** two or more trailing spaces also make a hard break, so the
+> first example renders as `<p>one<br>two</p>`. Invisible whitespace then
+> changes the output, and editors strip it. `\` and `<br>` are visible.
+
+### Code spans in table cells
+
+A code span inside a table cell is literal, its pipes included. Outside code,
+`\|` writes a pipe:
+
+```md
+| Expression | Reads |
+| --- | --- |
+| `a || b` | or |
+| x \| y | either |
+```
+
+```html
+<table>
+<tr><th>Expression</th><th>Reads</th></tr>
+<tr><td><code>a || b</code></td><td>or</td></tr>
+<tr><td>x | y</td><td>either</td></tr>
+</table>
+```
+
+> [!note] GFM
+> **GFM:** a `|` splits the cell inside a code span too, so `` `a || b` `` fills
+> three cells unless each pipe is written `\|`. A code span is literal
+> everywhere else, so a `|` inside one splitting the cell is inconsistent.
+
+### Quotes and continuation lines
+
+Every line of a block quote carries its own `>`, so a line without one ends the
+quote. A list item's continuation lines are indented under it, so an unindented
+line ends the list:
+
+```md
+> quoted
+not quoted
+
+- item
+not item
+```
+
+```html
+<blockquote><p>quoted</p></blockquote><p>not quoted</p>
+<ul><li>item</li></ul><p>not item</p>
+```
+
+> [!note] CommonMark
+> **CommonMark:** a paragraph continues lazily onto a line without the quote
+> marker or the list indentation, so `not quoted` joins the quote's paragraph
+> and `not item` the item's. The source then reads differently from how it
+> renders. A line without `>` does not look quoted, so it is not quoted.
+
+### Lists
+
+**Markers.** A list continues when its bullet changes among `-`, `*` and `+`,
+or its delimiter between `.` and `)`:
+
+```md
+- a
+* b
++ c
+
+1. one
+2) two
+```
+
+```html
+<ul><li>a</li><li>b</li><li>c</li></ul>
+<ol><li>one</li><li>two</li></ol>
+```
+
+> [!note] CommonMark
+> **CommonMark:** changing the bullet character or delimiter starts a new list,
+> giving three lists and two. A different bullet looks like the same list to a
+> reader, so it stays one list.
+
+**Nesting** is relative. A line indented more than the list item above it
+belongs to that item, by any amount: one space, two spaces or a tab. Equal
+indentation makes a sibling, and less indentation closes items back to the
+matching level:
+
+```md
+- a
+ - b
+- c
+```
+
+```html
+<ul><li>a<ul><li>b</li></ul></li><li>c</li></ul>
+```
+
+A line is deeper when its leading whitespace starts with the item's and has
+more after it. When neither starts with the other, as when tabs and spaces mix,
+a tab advances to the next multiple of four columns; recommend a warning.
+
+> [!note] CommonMark
+> **CommonMark:** a line belongs to an item when it is indented to the item's
+> content column, two columns for `- `, so ` - b` is a sibling item. The
+> author's intent is "deeper than the item above", and aligning content to a
+> column is invisible bookkeeping.
+
+**Blank lines.** A blank line between two items at the same level ends the
+list, and the next item starts a new one; an ordered list carries its
+numbering into the new list's `start`. A blank line followed by indented
+content continues the current item, and an item holding blank-line-separated
+blocks gives them `<p>`, as an HTML element's blank lines do. Its siblings keep
+theirs:
+
+```md
+- a
+- b
+
+- c
+
+- a
+
+  more
+- b
+
+1. one
+2. two
+
+3. three
+```
+
+```html
+<ul><li>a</li><li>b</li></ul><ul><li>c</li></ul>
+<ul><li><p>a</p><p>more</p></li><li>b</li></ul>
+<ol><li>one</li><li>two</li></ol><ol start="3"><li>three</li></ol>
+```
+
+A list's `tight` is `true`; an item holding blank-line-separated blocks has
+`tight: false`.
+
+> [!note] CommonMark
+> **CommonMark:** a blank line between items keeps one list and makes it
+> loose, giving every item `<p>`: `<ul><li><p>a</p></li><li><p>b</p></li><li><p>c</p></li></ul>`.
+> A single blank line then changes the spacing of every item in the list.
+> Here, blank lines separate things, the same as inside HTML elements.
+
+### Link targets
+
+A link or image target may hold spaces. It runs to the `)` that balances the
+opening `(` on the same line, and a final quoted title, after a space, is the
+title. A target without spaces, or in `<…>`, reads as CommonMark reads it:
+
+```md
+[Notes](my notes.md)
+[Draft](notes (draft).md "Draft") and [Next](next.md)
+![Chart](my chart.png)
+```
+
+```html
+<p><a href="my%20notes.md">Notes</a>
+<a href="notes%20(draft).md" title="Draft">Draft</a> and <a href="next.md">Next</a>
+<img src="my%20chart.png" alt="Chart"></p>
+```
+
+> [!note] CommonMark
+> **CommonMark:** a destination with spaces needs `<…>`, so `[Notes](my notes.md)`
+> stays text. File names contain spaces, and the target is unambiguous within
+> the parentheses.
+
+### Duplicate link definitions
+
+When a link reference label is defined more than once, the last definition is
+its target. Recommend a diagnostic:
+
+```md
+[x]
+
+[x]: /one
+[x]: /two
+```
+
+```html
+<p><a href="/two">x</a></p>
+```
+
+> [!note] CommonMark
+> **CommonMark:** the first definition wins, so the link goes to `/one`. Last
+> wins matches how duplicate keys and attributes resolve everywhere else in
+> Expressive Markdown.
 
 ## YAML frontmatter
 
@@ -70,15 +334,43 @@ Both open the same container. The type comes first; optional title and attribute
 | Trailing attributes | Whitespace-separated attribute lists that end the line attach to the container, as on a heading: `::: details Show the output {open}`. A final `{…}` that is not a valid attribute list is title text. |
 | `[`, `]`, `{`, `}` in the text | Literal title text. A title that starts with `[` uses the bracket form, so `\[` or `\{` starts an unbracketed title with a literal bracket or brace. |
 | Whitespace | Trimmed from both ends; inner spacing is kept. |
-| With a bracket form | One title per header. `[Title]` followed by more words leaves the line as ordinary text. |
+| With a bracket form | One title per header. `[Title]` followed by more words is an unreadable header; see below. |
 | `::: tabs Install` | The group's title, by the same rule as every type. A group's shared selection name is `{group=name}`; converters that know a tool's own `tabs name` convention map it once. |
 
 The AST records `titleSpelling: "unbracketed"`; absent or `"bracketed"` means the bracket form. Writers write the recorded spelling, and the bracket form for new titles. An unbracketed writer protects an opening bracket or brace, and a final list that would read as attributes. Leaf directives keep bracketed labels.
 
+**Every colon fence opens a container.** A line of three or more colons, at
+any block-relative indentation, opens a container whatever its header holds,
+and it may interrupt a paragraph.
+
+| Header | Container |
+| --- | --- |
+| `::: note [Title] {attributes}` | `subType: "note"`, with its title and attributes. |
+| `::: {.render title="x"}`, `::: [Title]`, bare `:::` | A **generic container**: no `subType`, with any title and attributes. |
+| An unreadable header, such as `::: note [unclosed` or `::: [Title] more` | A container with the type the header names, `note` here, or a generic container when it names none. `source.rest` keeps the remainder after the type, and writers write the type and that remainder back as authored. Recommend an `invalid-container-header` warning. |
+
+A generic container groups blocks without a semantic type; its
+[recommended HTML](/expressive-markdown/presentation#generic-containers-and-spans)
+is a `<div>` carrying its attributes. Closing and nesting work as for every
+container: the closing line holds only the opening's colon run, and a direct
+child uses fewer colons than its parent. Inside a container, a bare colon line
+of the parent's length closes it; a shorter one opens or closes a nested
+container.
+
+| Fence situation | Reading |
+| --- | --- |
+| Bare `:::` whose closing line follows before any other opening fence of its length or longer | A generic container. |
+| Bare `:::` with no such closing line | A **stray fence**: a `strayFence` node whose `value` is the fence line's colon run. Its rendering is empty; it writes back as authored and recommends a `stray-fence` warning. The lines after it read as they would without it. |
+| Typed, titled or attributed opener with no closing line | A container running to the end of its enclosing block, or to the line before a longer closing fence, which it leaves to its parent. Recommend an `unclosed-container` warning. Writers add the closing line. |
+
+**Enclosing block.** A container ends with its enclosing block: in a list item
+or quote, its last line comes before the first nonblank line indented less than
+that block, and a typed opener without a closing line runs to that point.
+
 | Rule | Accepted form |
 | --- | --- |
 | Identifier | ASCII letter, then ASCII letters, digits, `_` or `-`. Types become lowercase; attribute names use the mapping below. Text, values and IDs retain Unicode. |
-| Container spacing | Zero–three spaces of block-relative indentation; optional spaces/tabs after colons and between header parts. |
+| Container spacing | Any block-relative indentation; optional spaces/tabs after colons and between header parts. |
 | Wrappers | No padding inside the outer `[…]` or `{…}`; internal word/attribute separation remains meaningful. |
 | Label/title | Inline Markdown. Balanced brackets and matched code spans do not close the label early. Escape a literal bracket where it would close or unbalance the label. |
 | Inline/leaf scope | `:type[label]{attributes}` / `::type[label]{attributes}`. Inline needs a label or attributes, so bare `:word` stays text. Leaf occupies its own line. |
@@ -132,7 +424,7 @@ is a `container` with `spelling: "alert"`.
 **Writing.** Write a container with `spelling: "alert"` as an alert:
 `> [!type]`, then ` Title` when present, then the body on following `> `
 lines. Start the body after a `>` line when its first block is not a
-paragraph or begins with a setext underline. An alert has no attribute syntax:
+paragraph. An alert has no attribute syntax:
 write an alert with an ID, attributes or a structural type in the colon form
 and recommend a diagnostic. Without a recorded spelling, write the colon form.
 In an ordinary block quote, protect literal text that would open an alert.
@@ -149,7 +441,16 @@ In an ordinary block quote, protect literal text that would open an alert.
 | `open=foo` | String `"foo"`. |
 | `open=false` / `open="false"` | String `"false"`, never boolean. |
 | `#check` / `id=check` | Node `id: "check"`. |
+| `.render` | Adds `render` to string `attributes.class`. |
 
+- `#id` and `id=…` set the ID; `.name` adds a class. Class shorthands
+  accumulate in source order, space-separated, so `{.render .wide}` gives
+  `class: "render wide"`. An assigned `class=…` replaces the value gathered so
+  far, by last occurrence wins, and later shorthands add to it. The longhand
+  `{class="render wide" id="intro"}` works the same as `{.render .wide #intro}`. A class
+  shorthand is an ASCII letter, `_` or `-`, then letters, digits, `_` or `-`.
+  A class stays a class: `::: {.render}` is a generic container
+  with `class: "render"`.
 - Separate entries with spaces/tabs, `&`, or both. Tight `{a=1&b=2}` is valid.
 - Outside quotes, `&` is a separator. Unquoted values are nonempty and end at
   whitespace, `&` or `}`.
@@ -169,10 +470,10 @@ Source names are case-insensitive; AST attribute keys use camelCase. Lowercase t
 ```md
 ## Deployment {#deployment}
 ![Service diagram](services.svg){width=640 responsive}
-[Release notes](release.md){class="release-link"}
+[Release notes](release.md){.release-link}
 ```
 
-A heading's final whitespace-separated list attaches to the heading. An immediately adjacent list attaches to a completed image/link. Attachments stay on the target's source line; code-span whitespace is not attachment syntax. Multiple lists resolve in source order; malformed lists stay literal. Escape `{` to prevent attachment. Code-fence attributes are described in the [language guide](/expressive-markdown/language#code-blocks-and-presentation-metadata); other block styling uses supported safe HTML.
+A heading's final whitespace-separated list attaches to the heading. An immediately adjacent list attaches to a completed image/link, and to a bracket that forms no link as a [bracketed span](#bracketed-spans). Attachments stay on the target's source line; code-span whitespace is not attachment syntax. Multiple lists resolve in source order; malformed lists stay literal. Escape `{` to prevent attachment. Code-fence attributes are described in the [language guide](/expressive-markdown/language#code-blocks-and-presentation-metadata); other block styling uses supported safe HTML.
 
 | Recommended HTML mapping | Behavior |
 | --- | --- |
@@ -183,6 +484,35 @@ A heading's final whitespace-separated list attaches to the heading. An immediat
 | Conversion-owned `data-type` (AST `dataType`) | Identifies the construct. Preserve a colliding authored value in the AST and diagnose instead of replacing output identity. |
 
 Unknown attributes remain data. An arbitrary flag does not acquire native HTML behavior.
+
+## Bracketed spans
+
+```md
+[word]{.kw}
+[word]{.kw #w key="v"}
+```
+
+A bracket followed immediately by one or more attribute lists is a bracketed
+span: an `inline` node without a `subType`, holding the bracket's inline
+Markdown and the lists' ID and attributes. An empty list `{}` also forms a span.
+
+| Source | Reading |
+| --- | --- |
+| `[w](url){…}`, `[w][ref]{…}`, or `[w]{…}` when `w` resolves | The link or reference; the list attaches to it. |
+| `[w]{…}` with no matching definition | A span. |
+| `![a]{…}` | Image syntax: the image when it forms, otherwise text. |
+| `@[a]{…}` | Mention syntax: the mention when it forms, otherwise text. |
+| `:name[a]{…}` | Inline-type syntax: the typed inline when it forms, otherwise text. |
+| `[^n]{…}` | Footnote syntax: the reference and literal `{…}` when `n` is defined, otherwise text. |
+| `[w][]{…}`, `[w][label]{…}` | Reference syntax: the reference when it resolves, otherwise text. |
+| `\![a]{…}`, `\@[a]{…}`, `\:name[a]{…}` | An escaped marker is text, and the bracket that follows is a span. |
+| A span inside link text, `[a [b]{.x}](/u)` | The link, holding the span. |
+| `` `[a]{…}` ``, `\[a]{…}` | Code and escaped text. |
+| `[a] {…}` | Text: the list must follow the bracket immediately. |
+
+Classes stay classes: `[w]{.kw}` is a span with the class `kw`. Writers write a typeless `inline` as
+`[content]{attributes}`, writing `{}` when it has no attributes, and protect
+literal text that would read as a span.
 
 ## Automatic tab grouping
 
@@ -242,7 +572,7 @@ or broadening mention recognition. For example,
 | Fourth line
 ```
 
-Each `| ` or pipe-plus-tab starts a represented line; a bare `|` requests an empty line. `|Text` stays ordinary text. Allow zero–three spaces of block-relative indentation; strip marker separation and additional leading whitespace. Indentation is not visual indentation.
+Each `| ` or pipe-plus-tab starts a represented line; a bare `|` requests an empty line. `|Text` stays ordinary text. Allow any block-relative indentation; strip marker separation and additional leading whitespace. Indentation is not visual indentation.
 
 | Source situation | Meaning |
 | --- | --- |
@@ -278,14 +608,14 @@ The AST uses `lineBlock.children` with `break` nodes; consecutive/leading/traili
 
 **Recommended HTML:** `<p>` with `<br>` boundaries and preserved inline wrappers. Append one layout `<br>` for a terminal empty line, or for an entirely empty one-line block, so HTML does not absorb it. This extra layout break is not an AST break. Explicit empty lines add to normal paragraph spacing.
 
-### CommonMark compatibility
+### Hard breaks in paragraphs
 
-Accept CommonMark's trailing-backslash and two-or-more-trailing-spaces hard
-breaks as `break` nodes within a paragraph. Their lexical boundaries follow
+A trailing backslash is a `break` node within a paragraph, as the
+[Markdown rules](#hard-breaks) state; its lexical boundaries follow
 [CommonMark hard line breaks](https://spec.commonmark.org/0.31.2/#hard-line-breaks).
-The [Language compatibility examples](/expressive-markdown/language#commonmark-compatibility)
+The [language examples](/expressive-markdown/language#hard-breaks-in-paragraphs)
 show the source, HTML and AST. Leading pipes are the preferred authoring form
-for line blocks; compatibility hard breaks do not change a paragraph into a
+for line blocks; a hard break does not change a paragraph into a
 `lineBlock`. Writers preserve that distinction under the [writer contract](#writing-and-preservation).
 
 ## Tables
@@ -666,13 +996,22 @@ A label uses the bare-handle token from [mentions](#mentions): a Unicode
 letter, number or `_`, then Unicode letters, combining marks, numbers, `_` and
 `-`. Labels match exactly, including case.
 
-**Definitions.** A line starting `[^label]:`, after zero–three spaces of
-block-relative indentation, opens a `footnoteDefinition`. Its content starts
-after the colon and optional spaces or tabs, and continues on lines indented at
-least four columns past the marker's block indentation. Read that content as
-blocks, as a list item's content is read: paragraph continuation lines may be
-lazy, and a blank line followed by a less indented nonblank line ends the
-definition. A definition may interrupt a paragraph. It is recognized in every
+**Definitions.** A line starting `[^label]:`, after any block-relative
+indentation, opens a `footnoteDefinition`. Its content starts
+after the colon and optional spaces or tabs, and continues on lines indented
+more than the marker, by any amount, as [list nesting](#lists) is relative.
+Read that content as blocks, as a list item's content is read: a nonblank line
+indented no more than the marker ends the definition. A definition may
+interrupt a paragraph.
+
+```md
+[^a]: First.
+
+  Second.
+After.
+```
+
+The note holds two paragraphs, and `After.` follows it in the document. It is recognized in every
 block context: the document, containers, quotes, list items, cell bodies and
 other definitions. `[^text]:` whose text is not a label follows CommonMark,
 which reads a valid line as a link reference definition.
@@ -734,6 +1073,134 @@ of the document; definitions render nothing in place:
   which contain letters, numbers, marks and hyphens.
 - `aria-label="Footnotes"` names the notes region without imposing a heading rank.
 - An unresolved supplied reference renders as its literal text.
+
+## Definition lists
+
+```md
+Term
+: First description,
+  continued.
+: Second description.
+
+Next term
+: Its description.
+```
+
+```html
+<dl>
+<dt>Term</dt>
+<dd>First description, continued.</dd>
+<dd>Second description.</dd>
+<dt>Next term</dt>
+<dd>Its description.</dd>
+</dl>
+```
+
+> [!note] CommonMark
+> **CommonMark:**
+>
+> ```html
+> <p>Term
+> : First description,
+> continued.
+> : Second description.</p>
+> <p>Next term
+> : Its description.</p>
+> ```
+
+**Terms.** A **marker line** is a line that starts, after any block-relative
+indentation, with one `:` followed by a space, a tab or the line end. A
+**term line** is the first line of a paragraph whose next line is a marker
+line, and is not a marker line itself. A marker line opens a description
+only after a term or a description, so `: x` followed by `: d` is one
+paragraph.
+A term line opens a `definitionList`; trimmed, it is a `definitionTerm`
+holding inline Markdown. A term is one source line, so its content holds no
+`break` or `softBreak`: a trailing `\` on a term line is text, and a `<br>`
+is an inline `br` element, as everywhere, which writes back as written. Definition lists are recognized in every block
+context: the document, containers, quotes, list items, footnote definitions,
+cell bodies and other descriptions.
+
+**Descriptions.** A marker line opens a `definitionDescription`. Its content
+starts after the colon and optional spaces or tabs, and continues on lines
+indented more than the marker, by any amount, as [list nesting](#lists) is
+relative. Read that content as blocks, as a list item's content is read: a
+nonblank line indented no more than the marker ends the description. A
+description holding blank-line-separated blocks has `tight: false`. A marker
+followed only by whitespace, with no indented content, gives `body: []`.
+
+**Continuing the list.** After a description, the list continues, after any
+blank lines, with:
+
+- a marker line, which adds a description to the same term;
+- a term line, which starts the next term.
+
+Any other nonblank line ends the list, and so does the end of its enclosing
+block.
+
+**Where a definition starts.** Only the term-line shape above starts a
+definition list, so every other line keeps its reading:
+
+| Source | Reading |
+| --- | --- |
+| `Term`<br>`: Description` | A definition list. |
+| `Term`<br>`:Description` | One paragraph: the marker needs a space, a tab or the line end after it. |
+| `Term`<br>`:kw[must] apply` | One paragraph holding an inline directive. |
+| `Term`<br>`::page-break` / `:::` | The leaf directive or colon fence reads by its own rules. |
+| `Term`<br>`\: Description` | One paragraph: the escaped colon is literal. |
+| `: x`<br>`: d` | One paragraph: a marker line is never a term. |
+| `Term`<br>`~ Description` | One paragraph. |
+| `First line`<br>`Term`<br>`: Description` | One paragraph: its later lines continue it. |
+| `Term`, a blank line, `: Description` | Two paragraphs. |
+| `## Term`<br>`: Description` | A heading, then a paragraph. |
+| `- Term`<br>`: Description` | A list, then a paragraph: the unindented line ends the item. |
+| `- Term`, then `: Description` indented under it | A list item holding a definition list. |
+| `> Term`<br>`> : Description` | A quote holding a definition list. |
+| `> [!note] Term`<br>`> : Description` | A callout titled “Term”, whose body is a paragraph. |
+| `::: note [Term]`<br>`: Description` | A container whose body starts with a paragraph. |
+| `\| Term`<br>`: Description` | A line block, then a paragraph. |
+| `Term`<br>`: Description`, then `: More` indented under it | A description whose content is itself a definition list, with the term `Description`. |
+| `Term`<br>`: Description`<br>`continued` | A definition list, then the paragraph `continued`. |
+
+Code spans, fenced code and raw-text HTML keep their lexical boundaries, and
+block boundaries come first: a code span cannot join a term line to its marker
+line. In a [named table record](#named-fields-and-column-identity), a line at
+label indentation starts a field; a definition list sits inside a field body.
+
+**Writing.** Write a definition list where it sits in the tree. Write each
+term on its own line, then each of its descriptions: `:`, a space, then the
+first block, with every later nonblank line indented two spaces; blank lines
+stay empty. Separate a `tight: false` description's blocks with a blank line.
+An empty description writes `:` alone. Put one blank line before each term
+after the first, and no blank line between a term and its descriptions.
+
+- Protect a `:` that would start a marker line, by writing `\:`: at the start
+  of a term, of a paragraph's second line, and of a paragraph directly after a
+  definition list. Each of those lines would otherwise open a description.
+- Protect a term whose text would start another block, as for
+  [literal block markers](#literal-block-markers).
+- Definition list nodes have no attribute attachment; report an ID or
+  attributes on one as unsupported conversion.
+- Report unsupported conversion for a term holding a `break` or `softBreak`,
+  or whose text is empty, spans lines, or starts or ends with a space or a
+  tab: a term is one line, read trimmed, so such a term cannot read back.
+  Report it too for two adjacent `definitionList` siblings, which read back
+  as one list.
+
+**Recommended HTML.** A `definitionList` renders as `<dl>`, each term as
+`<dt>` and each description as `<dd>`, in source order. A description renders
+its blocks as a list item does: with `tight: false`, each paragraph is a `<p>`;
+otherwise paragraph content sits directly in the `<dd>`. An empty description
+renders as `<dd></dd>`.
+
+**Diagnostics.**
+
+| Input | Result |
+| --- | --- |
+| A paragraph line that starts with `:` or `~` followed by a space, a tab or the line end | Paragraph text. Recommend an `unattached-definition-marker` warning for each such line: its author may have meant a description, as after a heading, a blank line or a list item. |
+| Mixed tabs and spaces in description indentation | Read as for [list nesting](#lists); recommend a warning. |
+| A supplied list that starts with a description, ends with a term or is empty | Invalid structure; report it. |
+
 ## Link references
 
 ```md
@@ -756,8 +1223,9 @@ for links and images. Expressive Markdown keeps both in their authored form.
 
 - Labels match as CommonMark matches them: after trimming, collapsing
   whitespace and Unicode case folding. `label` keeps the authored spelling.
-- A label's target is its first definition in document order. Later
-  definitions of that label are kept in place and resolve nothing.
+- A label's target is its last definition in document order, as the
+  [Markdown rules](#duplicate-link-definitions) state. Every definition stays in
+  place.
 - A reference whose label has no definition remains text, using CommonMark's
   literal fallback.
 - Definitions are recognized in every block context and stay in their
@@ -796,16 +1264,282 @@ Code attributes share the ordinary string/flag grammar and camelCase key mapping
 
 Recommended HTML escapes literal code. Per-line decoration must preserve the code's text and line divisions; copied code excludes generated line-number labels. A profile that cannot display a setting preserves it and reports the unsupported presentation.
 
+## HTML elements
+
+Expressive Markdown reads HTML elements as HTML matches tags, and reads
+Markdown inside them:
+
+```md
+<div class="entry">
+Some **bold** text.
+</div>
+```
+
+```html
+<div class="entry">Some <strong>bold</strong> text.</div>
+```
+
+> [!note] CommonMark
+> **CommonMark:** an HTML block starts at a line that meets one of seven
+> conditions: `<script`, `<pre`, `<style` or `<textarea`; a comment; a
+> processing instruction; a declaration; CDATA; one of a list of block-level tag
+> names; or any complete tag alone on its line. The first five run to their end
+> marker and the last two to a blank line, and the HTML inside stays raw text,
+> so the example above renders as written, with `**bold**` unread. CommonMark
+> decides from a block's first line without matching closing tags, so a
+> tag-name list and blank lines stand in for real element boundaries. Matching
+> tags as HTML does gives every element the same behavior, and Markdown works
+> inside elements. Line breaks inside an element carry no meaning, as in HTML.
+
+### Content
+
+A start tag at the start of a line opens a block element. It runs to its
+matching end tag, counting nested elements of the same name, or to where HTML
+closes it otherwise. Its content is Markdown, read as a block context of its
+own. Code is opaque: a tag inside a code span or a fenced code block never
+counts when finding where an element ends.
+
+```md
+<details>
+Use `</details>` to close it.
+</details>
+```
+
+```html
+<details>Use <code>&lt;/details&gt;</code> to close it.</details>
+```
+
+Line breaks and indentation inside an element carry no meaning: the element's
+common indentation is removed, and indentation never makes code. These three
+read alike:
+
+```md
+<div>Some **bold**</div>
+
+<div>
+Some **bold**
+</div>
+
+<div>
+  Some **bold**
+</div>
+```
+
+```html
+<div>Some <strong>bold</strong></div>
+```
+
+Blank lines between an element's blocks give its paragraphs `<p>`, as in a
+list item. Without them, its paragraphs take none:
+
+```md
+<div>
+
+A
+
+B
+
+</div>
+```
+
+```html
+<div><p>A</p><p>B</p></div>
+```
+
+Every element's content is read the same way, whatever the element:
+
+```md
+<span># tag</span>
+```
+
+```html
+<span><h1>tag</h1></span>
+```
+
+### Elements and lines
+
+An element followed by text on its line is inline content of a paragraph,
+matched by the same tag rules within the paragraph:
+
+```md
+<kbd>Ctrl</kbd>+<kbd>C</kbd> copies **x**
+```
+
+```html
+<p><kbd>Ctrl</kbd>+<kbd>C</kbd> copies <strong>x</strong></p>
+```
+
+Elements separated only by whitespace on a line are each a block:
+
+```md
+<details><summary>Notes</summary><div>
+
+Body
+
+</div></details>
+```
+
+```html
+<details><summary>Notes</summary><div><p>Body</p></div></details>
+```
+
+An element interrupts a paragraph when it runs past its first line or its
+start tag ends the line. A one-line element and a void element continue the
+paragraph's text:
+
+```md
+Text
+<a href="/x">link</a>
+
+Text
+<div>
+Block
+</div>
+```
+
+```html
+<p>Text
+<a href="/x">link</a></p>
+<p>Text</p><div>Block</div>
+```
+
+An element without its end tag ends at its first blank line outside code, or
+with its enclosing block, such as a list item, if that ends first; inline, it
+ends with its paragraph. Recommend a diagnostic.
+
+```md
+<div>
+open
+
+After
+```
+
+```html
+<div>open</div><p>After</p>
+```
+
+### Raw text
+
+`script`, `style`, `textarea`, `title` and `pre` hold their content as written
+through their end tag, at block level and inside a paragraph alike. A comment (`<!-- … -->`), processing instruction,
+declaration or CDATA section runs to its terminator and takes the rest of that
+line:
+
+```md
+<pre>
+**raw**
+
+text
+</pre>
+```
+
+```html
+<pre>
+**raw**
+
+text
+</pre>
+```
+
+```md
+Run <script>if (a **b** c) `x`</script> now.
+```
+
+```html
+<p>Run <script>if (a **b** c) `x`</script> now.</p>
+```
+
+### Tags
+
+**Void elements** are HTML's: `area`, `base`, `br`, `col`, `embed`, `hr`, `img`,
+`input`, `link`, `meta`, `source`, `track` and `wbr`. They take no end tag, and
+`<img src="a.png">` and `<img src="a.png" />` are the same element.
+
+**`/>` closes every element.** `<x-embed video="1" />` is a complete, empty
+element, at block level and inline, and HTML output writes it as
+`<x-embed video="1"></x-embed>`. Writers keep the authored `/>`.
+
+```md
+<div><x-a /><p>b</p></div>
+```
+
+```html
+<div><x-a></x-a><p>b</p></div>
+```
+
+> [!note] HTML
+> **HTML:** `/>` on a non-void element is ignored, so `<x-embed />` stays open
+> until `</x-embed>` or its parent closes it. Markdown favors convenient
+> authoring, and Expressive Markdown produces HTML, so it writes the complete
+> element. The [Self-Closing HTML proposal](https://nextwebwg.org/self-closing-html/)
+> is related work.
+
+A tag is self-closing only as HTML's tokenizer reads it: `/` right before `>`,
+outside an attribute value. `<a href=/docs/>Docs</a>` is an ordinary start tag
+whose `href` is `/docs/`.
+
+**Optional end tags** close as HTML defines them: `li`, `dt`, `dd`, `p`, `rt`,
+`rp`, `optgroup`, `option`, `thead`, `tbody`, `tfoot`, `tr`, `td` and `th` close
+before the start tags HTML's
+[optional tags](https://html.spec.whatwg.org/multipage/syntax.html#optional-tags)
+rules list for them, or at the end of their parent's content, and a heading's
+start tag closes an open heading.
+
+```md
+<ul><li>a<li>b</ul>
+
+<table>
+<tr><td>a<td>b
+<tr><td>c
+</table>
+```
+
+```html
+<ul><li>a</li><li>b</li></ul>
+<table><tr><td>a</td><td>b</td></tr><tr><td>c</td></tr></table>
+```
+
+**A stray end tag**, one that closes no open element, is ignored. Recommend a
+diagnostic. `</br>` is a `<br>`; recommend a warning that suggests `<br>`.
+
+```md
+a </span> b
+
+line one</br>
+line two
+```
+
+```html
+<p>a  b</p>
+<p>line one<br>
+line two</p>
+```
+
+> [!note] HTML
+> **HTML:** `</p>` with no open `p` creates an empty `p` element. A closing tag
+> never creates an element. `</br>` keeps HTML's reading because authors write
+> `</br>` to mean a line break.
+
+### AST
+
+An element is an `htmlElement` node with `display`, its `tag` name, `open`,
+its start tag as written, and `close`, its end tag as written, absent when the
+element closes otherwise. A block element holds `body` blocks, with
+`tight: false` when blank lines separate them; an inline element holds inline
+content; a raw-text element holds its content as `value`; a void or
+self-closing element holds none. Comments and declarations are `html` nodes, as
+is a stray end tag, kept for writing and rendering nothing.
+
 ## Safe HTML
 
 HTML import and output use a maintained sanitizer allowlist for elements,
 attributes and URLs, rather than a hand-written blacklist. The exact preset
 remains to be selected.
 
-- Discard `script` elements **and their contents** during parsing. They never
-  appear in the semantic document or subsequent Markdown output.
-- Map supported safe HTML to structured nodes where possible. Other supported
-  safe markup may remain an `html` node with its inline/block display context.
+- Show an authored element the policy disallows as text, its raw-text content
+  included, as GitHub's tag filter shows it, and report it:
+  `<input type="checkbox">` renders as `&lt;input type="checkbox"&gt;`.
+- Filter the attributes and URLs of each element the policy allows.
 - Apply the policy to supplied AST HTML and presentation attributes when writing;
   do not trust them merely because they arrived as document data.
 - Report filtering and unsupported conversion. Never replay discarded unsafe
@@ -821,9 +1555,8 @@ The safe profile is the default. A host whose content only its own authors
 write, such as a documentation site's pages, may choose a trusted host profile
 explicitly, so components and page styles written in Markdown reach its output.
 
-- Parsing keeps each raw HTML block and each inline HTML tag as an opaque
-  `html` node with its source verbatim: no filtering, no mapping to structured
-  nodes. Markdown between inline tags stays Markdown.
+- Parsing keeps each element's tags as written, unfiltered, in its
+  `htmlElement` node, and comments and declarations in `html` nodes.
 - Writers write those nodes back verbatim.
 - Rendering still applies the safe profile, extended by the host's allowlist of
   elements, attributes, style properties and URL schemes, to all output: raw
@@ -861,14 +1594,17 @@ without writing them back as authored document IDs.
 | --- | --- |
 | Unknown type/key | Valid; preserve it. |
 | Duplicate attributes | Valid; final occurrence wins. Recommend a warning. |
-| Invalid directive opener/attachment | Local literal text; do not consume unrelated following content. |
-| Unclosed container or mismatched nesting | `literal` node preserving the region through its enclosing block context; code retains lexical precedence when locating boundaries. |
+| Invalid inline or leaf directive opener, or attachment | Local literal text; do not consume unrelated following content. |
+| Unreadable container header | Container with the type it names, keeping the remainder in `source.rest`. Recommend a warning. |
+| Unclosed container | Container running to the end of its enclosing block, or to a longer closing fence; code retains lexical precedence when locating boundaries. Recommend a warning. |
+| Bare fence without a closing line | `strayFence` node. Recommend a warning. |
 | Opening `---` without a close | Ordinary Markdown. |
 | Delimited but invalid/unsupported frontmatter | Entire block as `literal`; no guessed metadata. |
 | Invalid merged table | Whole table as block `literal`. |
 | Footnote reference without a definition | Text. Recommend a warning. |
 | Unused or repeated footnote definition | Kept in place; renders nothing. Recommend a warning. |
 | Link reference without a definition | Text, using CommonMark's literal fallback. |
+| Definition marker without a term line | Paragraph text. Recommend a warning. |
 
 Recovery nodes keep original source in `value` and a `display` context. Recommend escaped inline text or block text with visible source-line breaks. Recovery is not an executable-content mechanism.
 
@@ -881,10 +1617,57 @@ Quoting suppresses this advisory. Assigned values remain strings either way.
 
 Round-tripping preserves meaning, order, explicit lines, authored IDs, unknown
 types, supported metadata and presentation. Discarded unsafe HTML is excluded
-and must never be restored from source records. Byte-identical output is
-optional; it needs original whitespace, quotes, overwritten attributes and
-delimiters. Content stays where it was written: writers keep each block,
-including footnote and link reference definitions, at its place in the tree.
+and must never be restored from source records. Content stays where it was
+written: writers keep each block, including footnote and link reference
+definitions, at its place in the tree, and write each construct in its
+[authored form](#authored-forms).
+
+**Exact writing.** An unedited document is written back byte for byte, spacing
+between blocks and line endings included. A parser records the source text and
+each top-level block's range in the document's `source`, with a way to
+recognize the block unedited, such as a hash of its data. A writer writes each
+unedited block from its range, and the source's spacing between two unedited
+neighbours, and ends the document as its source ended: the whitespace after the
+last recorded block, a final line ending or none, even when the last block is
+edited. A file's ending belongs to the file rather than to its last block, so
+editing that block leaves the ending, and a diff's end-of-file marker, alone.
+An edited or new block is written canonically: whitespace inside
+constructs, character escapes and overwritten duplicate attributes are
+normalized. An unedited block directly after a canonically written one is
+written from its range only when it reads back as itself there; otherwise it
+is written canonically too. Its source can read as part of the block before
+it: indented lines continue an edited or new list, and a marker line adds a
+description to an edited or new definition list. Source the safe profile filters is never written from
+the record.
+
+Two blocks are written in parts, because an edit to one entry would otherwise
+rewrite every sibling, and the change a reviewer sees would cover the whole
+block. A top-level list records each item's range and recognition beside its
+own: an edited list writes each unedited item from its range, the source's
+spacing between unedited neighbours, and edited or new items canonically with
+the list's markers. A pipe table written from its authored source keeps every
+unedited cell's text and rewrites only the edited cells, when its rows,
+columns, header cells and alignment are unchanged. Either result is kept only
+when it reads back as the edited block; otherwise the block is written
+canonically.
+
+A tool that re-reads only the part of a document an edit touches produces the
+same document as reading the edited text in full. A top-level block's reading
+depends on its own lines and on what follows them: a paragraph ends at the
+line after it, a list item or description continues past blank lines onto
+indented lines, and a definition list continues past blank lines onto a marker
+line or a later term. Re-reading starts at the **first changed block**, the
+first top-level block that, in the source before or after the edit, holds
+an edited line, continues onto one, or ends at one; when a definition list directly precedes it, re-reading starts at that
+list, which the first changed block may join as its next term. Re-reading
+stops at a block that starts where a block started before, once the re-read
+blocks have ended there: no re-read list or definition list continues onto
+it. Frontmatter, link and footnote definitions, and HTML elements, which read
+through to their end tags, affect blocks beyond their own, so an edit
+touching them is re-read in full.
+
+The table lists the preferred forms, which writers use for content without a
+recorded authored form, such as content a tool inserts.
 
 | Writers use | Preserve |
 | --- | --- |
@@ -897,6 +1680,77 @@ including footnote and link reference definitions, at its place in the tree.
 | YAML strings for title/ID; string lists for tags | Custom metadata, quoting strings YAML would otherwise type differently. |
 | `[^label]` and `[^label]:` with four-space continuation | Each footnote definition at its place in the tree. |
 | Reference links in their authored form; `[label]: destination "title"` | Each definition at its place in the tree. |
+| A term line, then `: ` descriptions with two-space continuation; one blank line before each later term | Each term's descriptions and each description's `tight`. |
+
+### Authored forms
+
+Where the language accepts more than one spelling for the same thing, the AST
+records which one the author used and writers write it back. The record lives
+in the node's `source` provenance: it never changes the node's meaning, and
+generic traversal ignores it. Parsers record only spellings that differ from
+the preferred form, so a document written in preferred forms carries none.
+
+```md
+* Use _care_.
+```
+
+```json
+{
+  "type": "list", "ordered": false, "tight": true,
+  "source": { "marker": "*" },
+  "children": [{ "type": "listItem", "body": [{ "type": "paragraph", "children": [
+    { "type": "text", "value": "Use " },
+    { "type": "emphasis", "source": { "marker": "_" }, "value": "care" },
+    { "type": "text", "value": "." }
+  ] }] }]
+}
+```
+
+| Construct | Spellings | Preferred | Recorded |
+| --- | --- | --- | --- |
+| Emphasis, strong | `*a*` / `_a_`, `**a**` / `__a__` | `*`, `**` | `marker: "_"` |
+| Bullet list | `-`, `*`, `+`, each item its own | `-` | `marker`; `bullet` on an item whose bullet differs from its list's |
+| Ordered list | `1.` / `1)`, each item its own; incrementing or repeated numbers | `.`, incrementing | `marker: ")"`, `numbering: "same"`; `bullet` on an item whose delimiter differs |
+| Task marker | `[x]` / `[X]` | `[x]` | `marker: "X"` |
+| Heading | ATX, ATX with closing hashes | ATX | `closing` |
+| Code block | Backtick or tilde fence of any length | Shortest backtick fence | `fence` |
+| Code span | Backtick runs of any length | Shortest run | `fence` |
+| Thematic break | `---`, `***`, `___`, spaced or longer | `---` | `marker` |
+| Autolink | `<url>`, bare URL, `[url](url)` | `[text](url)` | `form: "angle"` or `"bare"` |
+| Link target | Destination with or without `<…>`, or holding spaces; `"`, `'` or `(…)` title | Canonical destination, `"` title | `target` |
+| Link reference definition | As authored | `[label]: destination "title"` | `markdown` |
+| Link reference | Full, collapsed, shortcut | As authored | `referenceType` |
+| Callout | Colon container; alert, with the type in any case | Colon container, lowercase type | `spelling: "alert"`; `type` for an alert type not written in lowercase |
+| Container title | `[Title]`; unbracketed | `[Title]` | `titleSpelling: "unbracketed"` |
+| Container header | Type case, spacing, part order, attribute spelling | `type [Title] {attributes}` | `header` |
+| Container fence | Any length longer than its contents' | 3 plus nesting depth | `fence` |
+| Tab group | Adjacent tabs; explicit `tabs` container | Adjacent tabs | `form: "explicit"` |
+| Table | Named list fields; positional list rows; GFM pipes | Named fields | `form: "positional"`; `form: "pipe"` with `markdown` |
+| Mention | `@[label]`; bare `@handle` | `@[label]` | `form: "bare"` |
+| Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `.class`, `#id`, double quotes, spaces | `attributes` |
+| Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
+| Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |
+| Definition list | Marker spacing and indentation, term indentation, continuation indentation, blank lines before later terms and between descriptions | `: `, two-space continuation, one blank line before each later term | `markdown` |
+| Frontmatter | YAML as authored | Generated YAML | `frontmatter` on the document |
+
+`referenceType`, `spelling` and `titleSpelling` are node fields because the
+choice also shapes how the node is read: a reference names its label through
+its form. All other spellings use `source`.
+
+**Writing.** Write each recorded spelling while it still applies to the node,
+and the preferred form otherwise:
+
+- An enum spelling applies while the construct can carry it: `_` emphasis at
+  word boundaries, a bare URL or mention the reader links again.
+- A raw spelling (`header`, `attributes`, `info`, `target`, `markdown`,
+  `frontmatter`) applies while reading it gives the node's current data.
+  Editing the data writes the preferred form.
+- A fence keeps its recorded length while it exceeds its contents' fences, and
+  lengthens otherwise.
+
+**Exceptions.** Conflict and safety rules are not spellings and stay as
+defined: duplicate attributes and YAML keys resolve by last occurrence and are
+written resolved, and unsafe URLs and `script` elements are removed.
 
 ### Text and formatting boundaries
 
@@ -1094,13 +1948,13 @@ The point format follows [unist positions](https://github.com/syntax-tree/unist#
 shared fields above. Each feature disclosure defines its required content and additional fields.
 
 Block content admits paragraph, heading, quote, list, code, line block, table,
-container, leaf, horizontal rule, footnote definition, link reference
-definition and block-display group/HTML/literal. Inline content admits text,
+container, leaf, horizontal rule, footnote definition, definition list, link
+reference definition, stray fence and block-display group/HTML element/HTML/literal. Inline content admits text,
 inline formatting, inline code, link, image, link and image reference, footnote
 reference, break/soft break, inline directive and
-inline-display group/HTML/literal.
+inline-display group/HTML element/HTML/literal.
 `title` is a designated title-field node, not an ordinary paragraph body child.
-Lists contain list items; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
+Lists contain list items; definition lists contain terms and descriptions; tables contain rows; rows contain cells. Tabs and their content share the container family. Consecutive `tab` siblings normalize into a `tabs` container, as described in the language draft. These constraints supplement the generic field exclusion.
 
 
 ### Serialization, extensions and diagnostics
@@ -1117,8 +1971,8 @@ a document together with diagnostics and optional source records; this reference
 does not prescribe their API. See [expressmark](https://github.com/nextwebwg/expressmark)
 for the JavaScript tooling project.
 
-Round-tripping preserves supported semantic data, not necessarily byte-identical
-Markdown. Application-only IDs without a source attachment cannot always be
+Round-tripping preserves supported semantic data, and an unedited document's
+Markdown byte for byte. Application-only IDs without a source attachment cannot always be
 written; report that limitation. Discarded unsafe HTML is never restored.
 See [writer rules](/expressive-markdown/parsing#writing-and-preservation) for
 canonical output and preservation boundaries.

@@ -302,13 +302,18 @@ A page and the layout around it may both set a title. Two cards on one page may 
 | Kind | Declarations | What the head holds |
 | --- | --- | --- |
 | Competing | `<title>`, `<link rel="canonical">`, and each `<meta>` by its `name` or `property` | The entries of one component: the one with the highest precedence. When it disconnects, the next contributor's entries apply, and with none left, the application's own element returns. |
-| Shared | Every other `<link>`, keyed by `rel` and `href` | One element per key, kept while any connected instance contributes it. The element is reference-counted: it is removed when the count reaches zero. |
+| Shared | Every other `<link>`, keyed by `rel` and `href`; `alternate` links also include `hreflang` | One element per key, kept while any connected instance contributes it. The element is reference-counted: it is removed when the count reaches zero. |
 | Owned | Each JSON-LD block | One element for each declaration of each connected instance, never shared: two products on a page are two blocks, even with identical text. |
 | Script | `<script src>`, keyed by its resolved URL and type | One element per key, for the document's lifetime. See [Declared scripts](#declared-scripts). |
 
 **Precedence: the deepest component wins.** Among the contributors to a competing key, the instance deepest in the [logical component tree](#component-ancestry-for-shared-state) has the highest precedence. A page renders inside its layout, so it is deeper, and its title replaces the layout's. Between instances at the same depth, the one that connected later wins.
 
-**A key's value can be a list.** A `<meta>` key competes by its name or property, because two values for one name conflict: a document has one description. A component may still repeat an entry, such as two `<meta property="og:image">` elements; its entries for a key, in declared order, are that key's value. Lists from different components never mix: the winner's list replaces the previous one whole. A definition [must not]{.kw} declare two `<title>` elements, two canonical links, or two links with the same `rel` and `href`.
+**A key's value can be a list.** A `<meta>` key competes by its name or property, because two values for one name conflict: a document has one description. A component may still repeat an entry, such as two `<meta property="og:image">` elements; its entries for a key, in declared order, are that key's value. Lists from different components never mix: the winner's list replaces the previous one whole. A definition [must not]{.kw} declare two `<title>` elements, two canonical links, or two links with the same shared key. For `alternate` links, the `hreflang` value is part of that key, so a language and `x-default` may point to the same URL:
+
+```html
+<link rel="alternate" hreflang="en" href="https://docs.example/">
+<link rel="alternate" hreflang="x-default" href="https://docs.example/">
+```
 
 **Sub-properties follow their parent.** A `<meta>` name or property with three or more colon-separated parts, such as `og:image:width`, is a sub-property of the key without its last part, `og:image`. It does not compete on its own. It applies only while the same component wins its parent key, and it stays beside the parent entries it was declared with. So a page's `og:image:width` can never describe a layout's `og:image`. The rule is about the shape of the name, so it covers `og:image:*`, `og:video:*`, and conventions not yet written.
 
@@ -328,7 +333,7 @@ Authored elements are never changed: while a contribution overrides one, it is s
 **Terms.**
 
 - A **contribution** is one head declaration of one connected instance, with its bindings evaluated. A page-wide head entry from an [imported component](#page-wide-head-entries) is not a contribution; the implementation [must]{.kw} report a diagnostic for it. A JSON-LD declaration whose bound value is `null` is not a contribution while its value is `null`.
-- Each contribution has a **key**: `title` for `<title>`; `canonical` for `<link rel="canonical">`; `name` and the ASCII-lowercased `name` for `<meta name>`; `property` and the `property` value for `<meta property>`; the ASCII-lowercased `rel` and the resolved `href` for any other `<link>`; and the resolved URL with `classic` or `module` for a declared script. The first four are **competing** keys, the next is a **shared** key, and the last is a **script** key. A JSON-LD contribution has no key: it is **owned**, identified by its instance and its declaration, and never shared with another contribution.
+- Each contribution has a **key**: `title` for `<title>`; `canonical` for `<link rel="canonical">`; `name` and the ASCII-lowercased `name` for `<meta name>`; `property` and the `property` value for `<meta property>`; the ASCII-lowercased `rel`, the resolved `href`, and, for `alternate` links, the trimmed ASCII-lowercased `hreflang` value, with an absent or empty `hreflang` treated as the empty string, for any other `<link>`; and the resolved URL with `classic` or `module` for a declared script. The first four are **competing** keys, the next is a **shared** key, and the last is a **script** key. A JSON-LD contribution has no key: it is **owned**, identified by its instance and its declaration, and never shared with another contribution.
 - A `<meta>` key whose name or property has three or more colon-separated parts is a **sub-property** of the key formed by removing its last part and colon, with the same attribute. A key that is not a sub-property is a **top-level** key. A top-level competing key's **family** is the key and every key that is, directly or through another, its sub-property.
 - Instance A has higher **precedence** than instance B when A is deeper in the logical component tree, or at equal depth when A connected after B.
 - An **update** is one set of connections, disconnections, and binding changes that an implementation processes together: one batch of mutation records for the polyfill, one commit for a framework adapter, one navigation for an application router.
@@ -549,19 +554,29 @@ Lowering is **destructive and directional**. The `<template component>` is the d
 <x-button variant="solid">Save</x-button>
 
 <!-- output: identical whether lowered on the server or in the browser -->
-<button data-component="x-button">Save</button>
+<button component="x-button">Save</button>
 ```
 
 > [!norm] Determinism: one DOM, either path
 > Lowering [must]{.kw} be a deterministic function of the invocation and the definition alone: no timestamps, generated ids, or client-only state. The converter running on the server and the polyfill running in the browser therefore produce **byte-identical** native DOM for the same source, so an SSR'd root and an in-browser-lowered root are indistinguishable. This is the equivalence contract applied to a single node.
 
-Every lowered root carries one provenance attribute, `data-component`, injected by the implementation. Its value is a **space-separated token list**, outermost invocation first, exactly like `class` or `rel`: a component that lowers straight to a native element carries a single token (`data-component="x-button"`), and one whose root is another component carries the whole lineage (`data-component="x-primary x-button"`). Each token is a component tag, so it resolves through the ordinary component registry, the loaded `<template component>` definitions keyed by tag, exactly the way `customElements` resolves a custom-element tag to its definition. Because it is deterministic, the stamp is identical under SSR and in-browser, and it composes across nested components and imported partials. How server output records slot boundaries and content no slot renders yet, so hydration rebuilds the same instance, is defined in [Rendered form & hydration](/declarative-components/rendered-form). Content projected through a `<slot>` is the consumer's, so it keeps the provenance it already had.
+Every lowered root carries one provenance attribute, `component`, injected by the implementation. Its value is a **space-separated token list**, outermost invocation first, exactly like `class` or `rel`: a component that lowers straight to a native element carries a single token (`component="x-button"`), and one whose root is another component carries the whole lineage (`component="x-primary x-button"`). Each token is a component tag, so it resolves through the ordinary component registry, the loaded `<template component>` definitions keyed by tag, exactly the way `customElements` resolves a custom-element tag to its definition. Because it is deterministic, the stamp is identical under SSR and in-browser, and it composes across nested components and imported partials. How server output records slot boundaries and content no slot renders yet, so hydration rebuilds the same instance, is defined in [Rendered form & hydration](/declarative-components/rendered-form). Content projected through a `<slot>` is the consumer's, so it keeps the provenance it already had.
+
+### Component identity and compatibility {#component-identity}
+
+`component` is a proposed HTML extension, not a currently standardized attribute. On a lowered native root it records the component identities that produced that element. The `component` attribute on a definition's `<template>` names the definition; on its rendered root it records provenance. A root's token list does not instantiate a component or attach independent behaviors: invocations remain component tags, and multiple tokens record [delegation](#roots-native-or-delegated).
+
+New serialized output [must]{.kw} use `component` by default. A JavaScript polyfill or server renderer [may]{.kw} offer an explicit legacy output mode that writes `data-component` instead. This fallback is a library convention for existing browsers and older tool output; it is not a second proposed native HTML attribute.
+
+Polyfills [must]{.kw} accept `data-component` when `component` is absent. When both attributes are present, `component` [must]{.kw} supply the effective identity, including `component=""`, which supplies an empty token list. Readers [must not]{.kw} merge the two values. Removing `component` makes a remaining `data-component` value effective again. The same resolution applies to root discovery, styling and hydration, so an ignored fallback cannot introduce an extra owner or scope boundary.
+
+Implementations [must not]{.kw} synchronize the attributes automatically. Hydration adopts the existing root using its effective identity without rewriting its identity attribute. Serialization writes only the selected spelling with that effective token list. The fallback carries the same ordered tokens as the canonical spelling. Native implementations use `component`; the compatibility read rule is for polyfills.
 
 The root's visible attributes come from the template, its bindings, and invocation attributes that pass through. A prop is input to that rendering; it reaches the root's attributes only through a binding the template writes. The reference runtime may carry prop data for hydration, in a storage format internal to the runtime. Recovering explicit prop values after server rendering remains a [rendered-form question](/declarative-components/rendered-form). See [Types](/declarative-components/types) for how authored values are parsed.
 
 A literal attribute on the invocation supplies the prop's **initial configuration**. Afterwards a prop changes through a parent template's `from:name` binding or the props a framework passes. Such a change updates bindings and state derived from that prop.
 
-The stamp is also what makes hydration an **adopt-in-place**. An implementation lowers where it finds an `<x-button>` invocation, and *adopts* where it finds an already-lowered `[data-component]` root: it binds reactivity and events onto the existing node. An SSR'd tree therefore hydrates in place, without flicker, and a client-only page lowers to the same result. The only difference is a pre-lowering moment that exists only client-side, where the unknown `<x-button>` shows its children inline; SSR skips it.
+The stamp is also what makes hydration an **adopt-in-place**. An implementation lowers where it finds an `<x-button>` invocation, and *adopts* where it finds an already-lowered root carrying `component` (or the [polyfill fallback](#component-identity)): it binds reactivity and events onto the existing node. An SSR'd tree therefore hydrates in place, without flicker, and a client-only page lowers to the same result. The only difference is a pre-lowering moment that exists only client-side, where the unknown `<x-button>` shows its children inline; SSR skips it.
 
 ## Slots
 
@@ -894,7 +909,7 @@ A component has **exactly one significant root**. That single root is what gives
 2. another **component invocation** (*delegation*): the component lowers to whatever the delegated component lowers to, so a preset such as `x-primary` is built as an `x-button` with a fixed variant.
 {.algo}
 
-Delegation still resolves to a single native element, transitively through the chain and with a cycle a conformance error, and it loses no provenance because `data-component` is a token list, outermost first:
+Delegation still resolves to a single native element, transitively through the chain and with a cycle a conformance error, and it loses no provenance because `component` is a token list, outermost first:
 
 ```html
 <!-- delegation: a preset built from another component -->
@@ -905,7 +920,7 @@ Delegation still resolves to a single native element, transitively through the c
 <x-primary>Save</x-primary>
 
 <!-- lowers to a single native button, with the lineage preserved -->
-<button data-component="x-primary x-button">Save</button>
+<button component="x-primary x-button">Save</button>
 ```
 
 A delegating component forwards like any other lowering: its own declared props are applied through the bindings in its markup, template-owned attributes (here `variant="solid"`) take precedence, and any undeclared invocation attributes pass through to the delegated root and continue down the chain. Its `nativeElement` and native attribute surface are whatever the chain ultimately resolves to, so its generated types inherit that surface.
@@ -1010,12 +1025,12 @@ Level
 : [L1]{.pill .l1}
 :::
 
-::: {.entry name="data-component" role="provenance stamp (output)"}
+::: {.entry name="component" role="provenance stamp (output)"}
 Value
 : space-separated token list, outermost invocation first (`x-primary x-button`); a single token for a native-root component
 
 Emitted by
-: the implementation, on every lowered native root
+: the implementation, on every lowered native root; `component` by default, with an explicit `data-component` legacy output mode for polyfills
 
 Resolves via
 : the component registry, the loaded `<template component>` definitions keyed by tag (like `customElements`)

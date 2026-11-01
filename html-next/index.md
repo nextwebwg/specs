@@ -43,7 +43,7 @@ This document specifies the component-authoring proposal in the [HTML Next colle
 <x-button variant="solid">Save</x-button>
 
 <!-- It becomes a real native button, in the light DOM -->
-<button data-component="x-button">Save</button>
+<button component="x-button">Save</button>
 ```
 
 You author a component once, as literal browser-parseable HTML with an inert typed contract. A conforming implementation lowers it into idiomatic Vanilla&nbsp;DOM, React, Vue, and Svelte, or interprets the same source directly in Chromium, Firefox, and WebKit. One semantics, many backends.

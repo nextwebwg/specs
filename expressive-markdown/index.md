@@ -140,8 +140,8 @@ The format is independent of a component framework or site generator.
 ::: targets
 Readable Markdown
 : Familiar CommonMark/GFM, extended with named blocks and inline content,
-  shared attributes, YAML frontmatter, footnotes, explicit lines and merged
-  table cells.
+  shared attributes, YAML frontmatter, footnotes, definition lists, explicit
+  lines and merged table cells.
 
 Shared meanings
 : Standard documentation features with suggested HTML conversions. Custom

@@ -289,3 +289,18 @@ test("bootstrap3 selects the shared source-block contract", () => {
   const rendered = compileChapter(source, { proposalSnapshot: false, proposalImports: "" }).sfc;
   assert.match(rendered, /id="own-account-source-blocking"/);
 });
+
+test("rendered roots use component with a polyfill-only data-component fallback", () => {
+  const components = chapter("components");
+  assert.match(components, /Every lowered root carries one provenance attribute, `component`/);
+  assert.match(components, /`component` is a proposed HTML extension/);
+  assert.match(components, /when `component` is absent/);
+  assert.match(components, /including `component=""`/);
+  assert.match(components, /must not[^\n]*merge/);
+  assert.match(components, /must not[^\n]*synchroniz/);
+  assert.match(components, /does not instantiate a component/);
+  for (const name of ["index", "overview", "examples", "rendered-form"]) {
+    assert.match(chapter(name), /component="x-/);
+    assert.doesNotMatch(chapter(name), /data-component=/);
+  }
+});

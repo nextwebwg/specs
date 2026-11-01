@@ -408,7 +408,8 @@ Writers use `3 + maximum descendant container depth` colons, recalculating withi
 
 A block quote is an alert when its first line starts with `[!type]` followed
 by a space, a tab or the line end. `type` is an identifier, matched
-case-insensitively and stored lowercase as `subType`. The rest of that line,
+case-insensitively and stored lowercase as `subType`; writers keep its authored
+case, so `> [!NOTE]` stays `> [!NOTE]`. The rest of that line,
 trimmed, is the inline-Markdown title; when it is empty the alert has no title.
 The quote's remaining content is the body, read as ordinary blocks. The result
 is a `container` with `spelling: "alert"`.
@@ -1853,7 +1854,7 @@ These shared rules apply to every node.
 | `value` | String | Literal content. Never reparse it as Markdown. |
 | `attributes` | Object of string or boolean values | Authored properties/presentation. Keys use camelCase mapped from case-insensitive, dash-separated source names; `show-line-numbers` becomes `showLineNumbers`. Assigned values are strings; flags are booleans. Generic ID lives in `id`, not here. |
 | `position` | `Position` | Optional original-source range, defined below. |
-| `source` | JSON object | Optional lexical provenance for source preservation. It is not another semantic value or a traversable subtree. |
+| `source` | JSON object | Optional lexical provenance for source preservation, including each [authored form](#authored-forms). It is not another semantic value or a traversable subtree. |
 | `data` | JSON object | Optional application/tool annotations. Not interpreted as content by generic traversal. |
 
 `body`, `children` and `value` are mutually exclusive. A node can have none,

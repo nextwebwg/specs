@@ -30,6 +30,8 @@ For the selected asynchronous agreement, the [pending-delivery lifecycle](delive
 
 ## Local authorization and release
 
+The optional [mailbox-return controls](mailbox-return.md#formats-and-mail-delivery) use these same durable ownership, final-release, cancellation and uncertainty rules. Their purpose permits only the exact pending candidate/key and address destinations defined there, never a generic application send. The locally selected null or exact-source reverse-path is frozen in each outbox item. Failure cannot silently switch its envelope, redirect a private challenge to an unproved relay or allocate another handshake response. No local queue result proves remote receipt.
+
 A queued message is not permission to send forever. The client checks its current permissions, recipients and protection policy when it claims the work, then checks again immediately before handing over the message body. A change learned while the network is waiting can still stop content that has not been released.
 
 Once content may have crossed that boundary, keep the real outcome: accepted, rejected or uncertain. Canceling a job, losing permission or reconnecting cannot recall the earlier bytes or turn uncertainty into a fresh unsent message.

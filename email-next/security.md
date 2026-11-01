@@ -144,7 +144,7 @@ Unknown MIME dispositions fall back to attachment handling under RFC 2183 §2.8.
 
 Sources: [RFC 5228 §4.4](https://www.rfc-editor.org/rfc/rfc5228.html#section-4.4), [RFC 2183 §2.8](https://www.rfc-editor.org/rfc/rfc2183.html#section-2.8).
 
-The [ordinary-mail setup contract](mailbox-setup.md) defines authenticated request/response correlation, durable allocation, exact retries, fixed deadlines and terminal handling. A response cannot initiate another automatic setup response. [Provider setup](bootstrap.md#failure-retention-and-budgets) has its own bounded journals, disclosure gates and HTTP outcomes. Deployments enforce finite work, rate and capacity budgets; those local settings do not replace the specified wire-size and lifetime bounds or guarantee inbox invisibility. Filtering remains subordinate to complete validation and durable processing.
+The [ordinary-mail setup contract](mailbox-setup.md) defines authenticated request/response correlation, durable allocation, exact retries, fixed deadlines and terminal handling. A direct-profile response cannot initiate another automatic setup response. The separately selected [address-return profile](mailbox-return.md) permits only its exact offer→confirm→finish transitions; its terminal finish cannot elicit another response. [Provider setup](bootstrap.md#failure-retention-and-budgets) has its own bounded journals, disclosure gates and HTTP outcomes. Deployments enforce finite work, rate and capacity budgets; those local settings do not replace the specified wire-size and lifetime bounds or guarantee inbox invisibility. Filtering remains subordinate to complete validation and durable processing.
 
 :::
 
@@ -253,6 +253,8 @@ The disclosures below define the inherited checks and their limits. They remain 
 ::: {.details summary="DKIM: algorithms, parsing and exact signature coverage"}
 
 ### Domain signatures and algorithm policy
+
+The optional [address-return procedure](mailbox-return.md) retains current full-body, no-`l`, sole-From and exact signing-domain requirements on every leg, including client-side verification where selected. Those checks do not prove a mailbox local part. Its private challenge round trips supply separately scoped route-access observations; a chosen-message signing oracle or intact signed replay cannot be treated as proof that the claimed mailbox received a challenge. The [required adversarial cases](mailbox-return.md#acceptance-boundary) include RFC4686 §4.1.4 and §4.1.5.
 
 DKIM evidence records the signing domain, verified coverage and algorithm-policy result. A domain signature is not a correspondent's device credential. It does not authorize replacing an established encryption key or changing group membership.
 

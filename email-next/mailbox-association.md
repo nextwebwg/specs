@@ -42,6 +42,8 @@ Keep earlier correspondence attributed to its original identity and evidence. A 
 
 ## Address and observation inputs
 
+The optional [mailbox-return profile](mailbox-return.md#local-proof-and-eligibility) adds a distinct completed-observation provenance. Retain its exact request, branch, actor/mailbox, original assertion commitments, private-challenge transition, checked time and issuer. Request/offer advertisements and the reciprocal receiving assertion remain in a typed attempt store before the local proof completes; embedding a valid assertion cannot promote it through passive ingestion. A completed observation permits only the existing current selection policy, including ambiguity and `associated-unverified`; it does not establish independent human verification or replace a pin. The temporary assertion and separate same-device ordinary receiving assertion keep their distinct roles.
+
 For the current agreement, the association key uses the [canonical mailbox-address contract](mailbox-addresses.md): exact preserved local Unicode/case with minimal SMTP quoting and a validated lowercase A-label domain. Header syntax is parsed separately. Equivalent quoted forms enter the same key; visually similar, normalization-different or case-different local parts do not. Earlier ordinary-mail experiments retain their ASCII-only parser and do not implement the full current address/association path.
 
 For an ordinary-mail observation, a trusted mailbox parser, not a received string comparison alone, supplies the outer From result. Exactly one mailbox must be present. Construct the parsed mailbox under the canonical address rules, including equivalent SMTP quoting and domain conversion, then compare it to the already canonical signed assertion mailbox. Never normalize the local Unicode sequence or case. Preserve original header bytes and the parser/profile version as evidence. Reply-To, Sender, Return-Path, a forwarded From, SMTP forwarding information, plus-tag equivalence and local-part case folding cannot substitute for this check.
@@ -86,7 +88,7 @@ Association history belongs to the exact mailbox and principal, not to a protoco
 
 | Independently selected agreement | Required current assertion | Setup provenance |
 | --- | --- | --- |
-| `mail-conversation-v2` | Original signed assertion10 | Mailbox setup2, bootstrap descriptor2/records2, or independently validated ordinary passive mail under its owning carrier |
+| `mail-conversation-v2` | Original signed assertion10 | Mailbox setup2, completed mailbox-return0 observation, bootstrap descriptor2/records2, or independently validated ordinary passive mail under its owning carrier |
 | `email2-conversation-v0` | Original signed assertion8 | Mailbox setup0, bootstrap descriptor0/records0, or independently validated ordinary passive mail under its owning carrier |
 | `mail-conversation-v1` | Original signed assertion9 | Mailbox setup1, bootstrap descriptor1/records1, or independently validated ordinary passive mail under its owning carrier |
 

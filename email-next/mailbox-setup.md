@@ -22,6 +22,8 @@ The selected opaque application carrier uses [mailbox-setup-v3](#set-up-the-opaq
 
 When ordinary disclosure is actually authorized, a real message can instead carry the separate [automatic-upgrade invitation](automatic-upgrade.md). Its durable invitation, receiving offer and terminal confirmation all travel as email attachments. They do not widen this chapter’s content-free carrier, extend its 600-second active request or authorize fallback from a protected send.
 
+When authoritative direct-envelope evidence is unavailable, an implementation may instead select the optional [four-step mailbox-return profile](mailbox-return.md) before allocating its attempt. It checks private round trips through both addresses under an explicitly enabled account policy. The direct-envelope requirements below still govern `mailbox-setup-v0`, `mailbox-setup-v1` and `mailbox-setup-v2`; missing envelope evidence does not relax those formats or activate a fallback parser.
+
 A local send intent to a selected recipient authorizes the client to consider setup. It does not authorize address-book scanning, an email’s requested callback, or disclosure of the draft. Use valid cached evidence first, then an authorized provider path or this enabled carrier. An implementation chooses one active acquisition path per send attempt; switching paths closes or records the earlier attempt, keeps its uncertainty and starts separately authorized work rather than racing two package allocations or sending duplicate content.
 
 The initial request exposes its addressing and the initiating device’s public identity/capabilities to mail infrastructure. It contains no human subject, body, attachment, quotation or digest of that writing. It cannot satisfy a policy requiring concealed personal addresses during setup. Such a policy uses a suitable existing private path or holds the send; it is never silently weakened to try this carrier.
@@ -29,6 +31,8 @@ The initial request exposes its addressing and the initiating device’s public 
 A recipient may allow compatible setup from domain-authenticated senders, restrict it to remembered contacts, or require local approval. That disclosure policy is separate from the sender’s `allow-unverified` or `require-verification` identity-association policy. No message can enable either policy. An unsolicited request naming another principal cannot replace an existing association or suspend it merely by arriving.
 
 ## Send one content-free request
+
+This section specifies the direct-envelope request formats. The [mailbox-return request](mailbox-return.md#signed-records) has a separate closed inventory and shared durable attempt identity; selecting another profile cannot allocate a second response or reset an existing deadline.
 
 The client sends one setup request and keeps your writing private. Retrying that request does not create another handshake or restart its timer.
 
@@ -79,6 +83,8 @@ Request identity is `(initiating principal, initiating device, request)`. Respon
 
 ## Decide whether to answer
 
+The direct-delivery gate in this section belongs to the original setup formats. [Mailbox return](mailbox-return.md#choose-when-the-round-trip-is-allowed) separately permits a bounded unknown-ingress trigger. Its request and offer remain non-operational candidates until the locally issued private challenge is answered; neither path grants verified-person status.
+
 An enabled client answers a valid request addressed to its selected mailbox after checking authentication and the person’s disclosure policy. Current setup3 supports a client reading an ordinary mailbox, as well as a trusted receiving-service adapter. Neither path independently verifies the sender’s personal identity.
 
 ::: {.details summary="Receive authentication, response reservation and multiple devices"}
@@ -119,6 +125,8 @@ Several authorized devices at Bob’s mailbox may each respond once. No unimplem
 :::
 
 ## Encrypt the response, then establish the conversation
+
+These original responses remain terminal. The separately selected [return procedure](mailbox-return.md) uses three new sealed kinds and two private challenges; it does not reinterpret a setup response as another request. Its third leg also supplies the initiator’s ordinary receiving package so both devices can prepare their own streams without another setup round trip.
 
 The response is encrypted to the device that made the request. After validating it, the sender’s client establishes the normal protected conversation. Setup success alone never means the human message has been sent.
 
@@ -202,6 +210,8 @@ A compatible client can classify accepted controls in its protocol activity view
 
 ## Why the automatic-response exception is narrow
 
+The [return profile’s finite three-transition exception](mailbox-return.md#formats-and-mail-delivery) is separate from this one-response rule. It defines its own explicit draft null/exact-source submission tradeoff, preserving RFC3834’s distinction between null and a specially chosen nonresponding return address. An ordinary source address is not asserted to be such a nonresponder. Bounce, receipt, old setup response and terminal finish never activate another leg.
+
 [RFC3834 §2](https://www.rfc-editor.org/rfc/rfc3834.html#section-2) discourages answering automatic messages to avoid loops and abuse. This carrier deliberately permits one response identity per valid, enabled, independently authorized setup request and responding device. Terminal responses have a distinct sealed kind and cannot trigger another response. The request is `auto-generated`; the response is `auto-replied` under [§5.2](https://www.rfc-editor.org/rfc/rfc3834.html#section-5.2). Trusted delivery retains the original nonnull request reverse-path check. The current client-mailbox path is an explicitly requested setup service: [RFC3834 §4](https://www.rfc-editor.org/rfc/rfc3834.html#section-4) permits a precisely specified service responder to use a request-payload destination. That destination is exactly the signed source, never Reply-To or an arbitrary callback. Every response uses a null reverse-path. These choices limit reflection and loops without claiming to eliminate spam or prove personal identity.
 
 [RFC3834 §2](https://www.rfc-editor.org/rfc/rfc3834.html#section-2) also recommends avoiding large service responses without assurance that the destination account holder authorized them. A client-mailbox request supplies a signed protocol request and domain accountability, but not that source-account assurance. A complete identity/package/carrier response can exceed a few kilobytes, so this path intentionally permits a larger response only within the receiver’s finite configured carrier-size and actual outbound-byte budgets. This avoids adding a prerequisite challenge round trip or provider extension. Clients SHOULD choose conservative limits for unknown correspondents. Domain-signed source impersonation and bounded reflection remain risks; do not label those limits as proof of account ownership or absence of amplification.
@@ -209,6 +219,8 @@ A compatible client can classify accepted controls in its protocol activity view
 The stronger DKIM coverage requirement is this protocol’s automatic-disclosure gate. It builds on [RFC6376](https://www.rfc-editor.org/rfc/rfc6376.html) and the [trusted-result boundary](security.md#provider-configuration-and-boundary-processing), not a new use of DKIM as a mailbox-ownership certificate. Provider-assisted setup retains its separate domain/source authorization and avoids this ordinary-mail exception.
 
 ## Acceptance boundary
+
+Implementations claiming the return profile additionally need its [four-leg and reciprocal-stream cases](mailbox-return.md#acceptance-boundary), including actual legacy SMTP/IMAP, unknown-ingress/APPEND, signing-oracle, omitted-confirmation, package reservation and bidirectional human-reply demonstrations. Direct-envelope tests and local simulations alone cannot establish that claim.
 
 A complete positive test starts with no peer association or provider bootstrap service. Two enabled compatible clients use actual authenticated mailbox submission/retrieval, carry only setup metadata, automatically respond, validate the current suite, admit the intended devices and exchange the first encrypted human message. Repeat with multiple receiving devices and a strict verification hold. Inspect original outgoing MIME and server drafts for human content leakage; exercise legacy display separately.
 
@@ -218,6 +230,8 @@ Negative/restart tests cover copied authentication results; truncated DKIM cover
 
 
 ## Set up an asynchronous delivery
+
+The optional [mailbox-return profile](mailbox-return.md#several-devices-and-recipients) can supply the same selected protected agreement through four control legs. Readiness stays per device and recipient: one completed branch does not wait for every invitee, and cannot substitute its proof or package for another branch. Select this distinct acquisition profile before allocation; the setup2 schema below is unchanged.
 
 A content-free ordinary email can obtain setup for an independently ready delivery. Bob's compatible client answers automatically; Alice can then prepare Bob's delivery while Carol remains pending. The human writing stays local until the delivery's own encryption, identity and disclosure checks pass.
 

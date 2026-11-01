@@ -225,6 +225,11 @@ Keep rich cell content, alignment and supported styling. Image size and responsi
 settings preserve asset intent; layout containers express grouping and placement.
 Loading and rendition selection remain renderer choices.
 
+A fence with `src` renders as any code block, with the file's text as its code.
+An `example` renders as a `<figure>`: its caption in `<figcaption>`, the live
+HTML, then the code block. Keep the live part's styles and the page's styles
+from overriding each other, for example with scoped styles or a shadow root.
+
 A table of contents renders its saved links inside `<nav>`. An optional refresh
 updates the actual entries in the document and source. Rendering alone does not
 replace those entries with an empty generated placeholder.

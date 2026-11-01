@@ -1445,6 +1445,75 @@ See [validation and writing rules](/expressive-markdown/parsing#code-presentatio
 optionally captioned and decorated. Keep generated line numbers out of copied
 code. Colors and copy controls belong to the renderer.
 
+### Code from a file
+
+Show a file's code by naming it with `src`, and leave the fence empty:
+
+````md
+```html {title="button.html" & src="examples/button.html" & highlight=2}
+```
+````
+
+The code is the text of the file `src` names, so the page and the file can
+never disagree. The fence keeps its language and settings, and `highlight`
+counts the file's lines.
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "code",
+  "language": "html",
+  "title": "button.html",
+  "attributes": {
+    "src": "examples/button.html",
+    "highlight": "2"
+  },
+  "value": ""
+}
+```
+:::
+
+| Setting | Stored data / default |
+| --- | --- |
+| `src="examples/button.html"` | String `attributes.src`: a URL reference to the code's file, resolved as the document's links and images are. Default: none, and the fence's content is the code. |
+
+See the [file rules](/expressive-markdown/parsing#code-from-a-file).
+
+### Live examples
+
+Show an HTML example working, followed by its source:
+
+```md
+::example[Button tones]{src="examples/button.html"}
+```
+
+The file's HTML renders in place, as HTML written in the document would, and
+its text follows as an `html` code block. The label is the example's caption,
+and code settings such as `highlight` and `show-line-numbers` apply to the code
+block. Put examples in tabs beside fences that name other files with `src`, so
+readers can choose between sources of the same example.
+
+:::: {.render title="Live example" height="150"}
+```html
+<figure data-type="example"><figcaption>Button tones</figcaption><div><button>Save</button> <button>Cancel</button></div><pre><code class="language-html">&lt;button&gt;Save&lt;/button&gt;
+&lt;button&gt;Cancel&lt;/button&gt;
+</code></pre></figure>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "leaf",
+  "subType": "example",
+  "title": { "type": "title", "value": "Button tones" },
+  "attributes": { "src": "examples/button.html" }
+}
+```
+:::
+::::
+
+See the [example rules](/expressive-markdown/parsing#live-examples).
+
 
 ## Tables
 
@@ -3354,6 +3423,7 @@ blocks. See [parser order](/expressive-markdown/parsing#parsing-order).
 | Family | Standard types |
 | --- | --- |
 | `container` | `note`, `tip`, `warning`, `danger`, `details`, `figure`, `layout`, `tabs`, `tab`, `toc`. |
+| `leaf` | `example`. |
 | `inline` | `chip`, `mention`. |
 
 AST subtypes use lowercase. Unknown types retain their name, attributes and
@@ -3372,6 +3442,7 @@ CSS display. JavaScript execution, MDX/JSX and framework APIs are outside the co
 | [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#footnotes) | Footnote references and indented definitions, also in [GFM](https://github.blog/changelog/2021-09-30-footnotes-now-supported-in-markdown-fields/) and [Pandoc](https://pandoc.org/MANUAL.html#footnotes). | Definitions stay in place; labels are identifiers matched exactly. |
 | [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#def-list) | Definition lists, also in [Pandoc](https://pandoc.org/MANUAL.html#definition-lists), [kramdown](https://kramdown.gettalong.org/syntax.html#definition-lists), [MultiMarkdown](https://fletcher.github.io/MultiMarkdown-6/syntax/#definitionlists) and [markdown-it-deflist](https://github.com/markdown-it/markdown-it-deflist). | One-line terms and `:` descriptions, indented as list items are. |
 | [UMD](https://docs.rs/crate/umd/0.2.0/source/README.md) | Cell merge markers. | Rectangular grid, numeric spans and loss-preserving recovery. |
+| [VitePress code snippets](https://vitepress.dev/guide/markdown#import-code-snippets) / [Docusaurus code imports](https://docusaurus.io/docs/markdown-features/react#importing-code-snippets) | Code read from files. | A `src` code setting and an `example` leaf, independent of build tools and frameworks. |
 | [MyST](https://mystmd.org/guide/figures) / [Quarto](https://quarto.org/docs/authoring/figures-and-layout.html#figure-divs) | Structured figures and captions. | Shared container family with explicit subtype meanings. |
 | [mdast](https://github.com/syntax-tree/mdast) / [unist](https://github.com/syntax-tree/unist) | Documented trees. | Independent title/body/children/value fields and traversal. |
 

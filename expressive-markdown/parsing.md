@@ -1257,13 +1257,32 @@ unsupported conversion.
 
 Code attributes share the ordinary string/flag grammar and camelCase key mapping. `title` maps once to `code.title`; other attributes remain in `attributes`.
 
-- `highlight` is a comma-separated string of positive line numbers or ascending inclusive `start-end` ranges. Repeated/overlapping selections form a union. Numbers refer to original `code.value` lines, starting at 1.
+- `highlight` is a comma-separated string of positive line numbers or ascending inclusive `start-end` ranges. Repeated/overlapping selections form a union. Numbers refer to the lines of the rendered code, `code.value` or the text of its [file](#code-from-a-file), starting at 1.
 - `showLineNumbers` is a boolean setting; `true` shows numbering from 1 and `false` hides it. A string assignment stays a string, not a boolean.
 - Invalid feature values or out-of-bounds ranges remain in the AST, recommend a diagnostic and use the baseline default: no line emphasis or numbering. They do not make the attribute list malformed.
 - Unrecognized info tokens remain uninterpreted `meta`; optional provenance retains the full original info string. Canonical writers regenerate known metadata and append unknown tokens.
 - Annotation comments are literal source. Profiles may explicitly map imported conventions, but the core does not interpret Docusaurus, VitePress or Shiki spellings automatically.
 
 Recommended HTML escapes literal code. Per-line decoration must preserve the code's text and line divisions; copied code excludes generated line-number labels. A profile that cannot display a setting preserves it and reports the unsupported presentation.
+
+### Code from a file
+
+`src` is a string URL reference, resolved as the document's link and image destinations are. A renderer that reads files renders the referenced file's text, decoded as UTF-8, as the code; `code.value` stays the fence's own content. The rules:
+
+- A fence with `src` and no content is the authored form. A fence with both keeps both, recommends a diagnostic and renders its own content.
+- A file the renderer cannot read recommends a diagnostic, naming the reference, and renders the fence's own content. A publisher may instead fail its build.
+- A flag `src` or an empty string is an invalid feature value: it remains in the AST, recommends a diagnostic, and the fence's content is the code.
+- A renderer without file access preserves `src` and reports the unsupported presentation.
+- Writers write the fence and its `src` as authored and never write the file's text into the document.
+
+### Live examples
+
+An `example` leaf names an HTML file with a string `src`, resolved as for [code from a file](#code-from-a-file). A renderer that reads files renders two parts, in order:
+
+1. The file's text parsed as an HTML fragment, under the [HTML element rules](#html-elements) and the document's HTML profile, as HTML written in the document is, so Markdown syntax in it stays text.
+2. The file's text as a `code` block with language `html`. The leaf's code settings, such as `highlight` and `showLineNumbers`, apply to it.
+
+The leaf's `title` is the example's caption. A missing, flag or empty `src`, or a file the renderer cannot read, recommends a diagnostic and renders nothing; a publisher may instead fail its build. A renderer without file access preserves the leaf and reports the unsupported presentation. Writers write the leaf as authored.
 
 ## HTML elements
 

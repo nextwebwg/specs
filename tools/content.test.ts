@@ -290,6 +290,18 @@ test("bootstrap3 selects the shared source-block contract", () => {
   assert.match(rendered, /id="own-account-source-blocking"/);
 });
 
+// This guards the selected acquisition wire contract, not runtime support.
+test("ordinary upgrade commits complete receiving bundles in both directions", () => {
+  const source = readFileSync("email-next/automatic-upgrade.md", "utf8");
+  const wrappers = [...source.matchAll(/(?:offer|confirmation) wrapper is exactly `\{([^}]+)\}`/g)].map((row) => row[1]);
+  assert.deepEqual(wrappers, ["payload,signature,identity,receiving", "payload,signature,identity,receiving"]);
+  const commitments = [...source.matchAll(/^\| `receiving` \| ([^\n]+) \|$/gm)].map((row) => row[1]);
+  assert.equal(commitments.length, 2);
+  for (const commitment of commitments) assert.match(commitment, /Hash of the complete original .*receiving-bundle0 bytes/);
+  assert.match(source, /complete decoded receiving-bundle0 is at most 1,048,576 octets/);
+  assert.doesNotMatch(source, /wrapper is exactly `\{payload,signature,identity,advertisement\}`/);
+});
+
 test("rendered roots use component with a polyfill-only data-component fallback", () => {
   const components = chapter("components");
   assert.match(components, /Every lowered root carries one provenance attribute, `component`/);

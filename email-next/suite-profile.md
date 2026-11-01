@@ -653,6 +653,7 @@ One complete receiving bundle lets Alice check both Bob's native setup and the f
 | First contact through providers | Bootstrap descriptor/source/response/publication3 and complete original receiving bundle. |
 | Private offline acquisition | mail-realm-v1 and mail-private-snapshot-v1, then the unchanged actual package-allocation-v0 join. |
 | Enabled ordinary-mail setup | mailbox-setup-v3; response inside the narrowly selected sealed-control-v3 below. |
+| Optional ordinary-message upgrade | [Exact invitation/offer/confirmation binding](automatic-upgrade.md#precise-protocol-contract), with complete receiving-bundle0 in both encrypted directions; its dedicated HPKE frames do not select sealed3 or infer its control-key promise. |
 
 The selected carriage-offer0 controls array independently declares whether the exact original assertion10 controlKey receives sealed-control-v3. Assertion10's existing sealed2 promise is insufficient. This adds no control-key bytes to assertion10 and changes no older key promise. All actual publication/receiving custody and current authority must pass separately.
 

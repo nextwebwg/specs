@@ -783,7 +783,7 @@ The **definition** registers declaratively, by being a parsed `<template compone
 
 An application may insert an inline `<template component>` definition or a new component instance after the runtime starts. The in-browser runtime uses `MutationObserver` to discover additions, validate and register new definitions, lower new instances, and connect their controllers. If an instance arrives before its definition, it lowers when that definition becomes available. The definition still binds behavior through `controller="…"` and a callable default export.
 
-Later discovery follows the same duplicate-definition, custom-element precedence, dependency, and trust rules as startup. A registered definition stays in the document registry after its carrier is consumed; inserting a second definition for that tag is an error. Inline definitions are inert data whose markup is validated before lowering. Their downstream live/imported dependencies still require application-owned resolution and import-map trust; a newly inserted definition cannot install policy. Sanitized `$html` and CMS content remain excluded from definition discovery.
+Later discovery follows the same custom-element precedence, dependency, and trust rules as startup. A registered definition stays in the document registry after its carrier is consumed. A definition discovered for a tag that is already registered is defined as [`define`](#component-registry-define) defines it: the same definition changes nothing, and a different one [replaces](#component-registry-replace) the registered definition and re-renders its instances. Two definitions of one tag discovered together are an error (HR001). Inline definitions are inert data whose markup is validated before lowering. Their downstream live/imported dependencies still require application-owned resolution and import-map trust; a newly inserted definition cannot install policy. Sanitized `$html` and CMS content remain excluded from definition discovery.
 
 The observer batches additions and removals, ignores its own completed lowering, and connects each instance once. Removal disconnects the instance and disposes its owned work; later reinsertion reconnects it. A move that stays within the same document during one mutation batch preserves the connection. Compiled/AOT builds discover the graph ahead of time and use target lifecycle hooks; `MutationObserver` discovery belongs to the in-browser runtime alone.
 
@@ -913,13 +913,50 @@ The runtime defines every definition it [discovers](#definitions-and-instances-a
 1. If <var>carrier</var> is not a `<template>` element with a `component` attribute, throw a `TypeError`.
 2. Validate it as a discovered definition is validated. If it is invalid, throw a `SyntaxError` `DOMException` that names the first error's code.
 3. Let <var>tag</var> be its `component` attribute's value. If `customElements.get(tag)` is defined, throw a `NotSupportedError` `DOMException`: [a registered custom element wins](#binding-the-definition-owns-the-controller-edge).
-4. If a definition for <var>tag</var> is already registered, return when it is the same definition, and otherwise throw a `NotSupportedError` `DOMException` (HR001).
-5. Register it, resolve every pending `whenDefined(tag)` with it, and lower the authored invocations of <var>tag</var> already in the document.
+4. If the definition registered for <var>tag</var> is the same definition, return.
+5. If a definition for <var>tag</var> is already registered, [replace it](#component-registry-replace) with this one and return.
+6. Register it, resolve every pending `whenDefined(tag)` with it, and lower the authored invocations of <var>tag</var> already in the document.
 {.algo}
 
 `get(tag)` returns the registered `ComponentDefinition` or `undefined`. This proposal specifies only the definition's `tag`; exposing more of its contract is open. `whenDefined(tag)` rejects with a `SyntaxError` `DOMException` when <var>tag</var> is not a valid custom element name, resolves at once when the tag is registered, and otherwise resolves when it is. A controller whose code creates a component that its template does not use declares the edge with `<link rel="component">`, like any composed component, so the definition loads before the controller asks for it.
 
 `upgrade(root)` lowers every authored invocation in <var>root</var>'s inclusive subtree whose definition is registered, in tree order and synchronously, as discovery would. It skips invocations already lowered and leaves invocations of unregistered tags alone. It lets code that has just inserted markup use the resulting instances without waiting for the runtime's next discovery batch.
+
+### Replacing a definition {#component-registry-replace}
+
+A definition can change while the page runs. A development server, for example, gives the browser the new definition when its author saves the file. The new definition replaces the registered one, and every connected instance re-renders from it in place, without a page load:
+
+```html
+<!-- Registered when the page loaded. -->
+<template component="ui-panel"><defs><state name="count" type="number" value="0"></state></defs>
+  <section><h2>Panel</h2><x-count></x-count><slot></slot></section></template>
+
+<!-- Inserted later, or passed to define(): each connected <ui-panel> re-renders as an <article>,
+     keeps its count and its <x-count>'s count, and keeps the nodes it was given for its slot. -->
+<template component="ui-panel"><defs><state name="count" type="number" value="0"></state></defs>
+  <article><h3>Panel {$count}</h3><x-count></x-count><slot></slot></article></template>
+```
+
+To **replace** the definition registered for <var>tag</var> with <var>definition</var>, the runtime [must]{.kw} run these steps:
+
+1. Register <var>definition</var> for <var>tag</var>, in place of the registered definition. Its styles replace the registered definition's styles.
+2. For each connected instance whose root <var>tag</var> renders, in tree order:
+   1. If its root is no longer connected, because an instance replaced earlier in these steps rendered it, continue.
+   2. Disconnect the instance, as removing it does: its controller's cleanup runs and its effects stop.
+   3. Create a new instance from <var>definition</var>, as lowering an invocation creates one. Each prop input is the instance's own, in the form it was given: an attribute's text, or a value. Its root takes the attributes the old root received from outside its template, such as the invocation's `id` and `class` tokens, and none of the old template's. The instance's projected nodes are its child nodes, each assigned to the slot it was assigned to.
+   4. Put the new instance's root in the old root's place. What the instance's parent bound on its invocation, such as a bound prop or a listener, now acts on the new instance.
+   5. Connect the new instance. As with any instance, its controller runs, and the component instances its template renders lower and connect.
+   6. Carry the state of the old instance to the new one, as defined below. Then, for each tag, carry the state of the old template's component instances of that tag, at any depth and in tree order, to the new template's: the first to the first, the second to the second, and so on.
+{.algo}
+
+To **carry the state** of one instance to another, for each state the second instance's definition declares, when the first instance has a state of the same name whose value conforms to the declared type, set the second instance's state to that value.
+
+State follows its name, at every depth. A state the new definition still declares keeps its value when the value has the declared type; a state it adds, or one whose value does not conform, starts from its declared value; and a state it no longer declares is dropped. Computed values are computed again. The replaced instance's props keep their inputs, so a prop the new definition declares with a different type checks the same input against that type. The props of the instances its template renders are the ones the new template gives them.
+
+The projected nodes move to the new root without disconnecting, as any move within one mutation batch does, so the component instances among them keep their state as they are. The component instances the old template rendered leave with its root; each one the new template renders in the same place, the nth of its tag, takes its state, and one with no counterpart starts from its declared state. When <var>tag</var> is the root of another component, which delegates its root to <var>tag</var>, that component's instance is the one rebuilt, from its own definition. An instance that is not connected keeps the definition it was created with. From then on `get(tag)` returns <var>definition</var> and `create(tag)` creates from it.
+
+> [!note] Replacement, where custom elements throw
+> `customElements.define` throws for a name that is already defined, because a custom element's definition is a class whose constructor has already run for every upgraded element. A component definition is data and runs no code when it registers, so a second definition can take the first one's place. Replacing it is how an author sees an edit without losing what the page holds: the scroll position, the open disclosure, the state of every other component.
 
 ### Creating an instance {#component-registry-create}
 

@@ -19,7 +19,7 @@ This chapter describes proposed implementation paths and the evidence needed to 
 | Implementer | Practical starting point | What is available now |
 | --- | --- | --- |
 | Client | Open the conversation demos, then reproduce one exchange in your client | A source-preserving reader, joined interactions and signed protected rich-message fixtures; no complete client acceptance harness |
-| Mail provider | Submit and retrieve representative messages through a test account, comparing preserved content with the source | Example messages and local checks; no completed provider deployment adapter |
+| Mail provider | Add the small setup-discovery service, or test protected-message carriage through the existing mail system | A defined discovery-only contract, example messages and local checks; no completed provider deployment adapter |
 | Interoperability contributor | Reproduce a published case and record the observed result against its requirement | Button and configured provider/admission report manifests; independent client/server results remain needed |
 
 The [available starting material](#available-starting-material) distinguishes these development inputs from the proposed acceptance kit.
@@ -46,7 +46,11 @@ This is a proposed ecosystem adoption strategy, not a wire-protocol condition or
 
 Price is only one barrier. Installation, mailbox connection, first contact, adding a device and recovery must also be understandable. The [encryption journey](encryption-journey.md) provides the scenarios to test. An ordinary or hosted alternative remains a disclosed compatibility choice, not a substitute for making protected participation accessible.
 
-## Email client adoption
+## For email client developers {#email-client-adoption}
+
+Start with the existing mailbox connection and retained originals. Protected clients obtain and validate actual setup through enabled ordinary-mail exchange or separately supported provider services. The optional [Setup discovery hint](encryption-discovery.md) can help choose a path; it never replaces keys, current authority or the sender’s protection policy. Show missing protection and mixed-recipient choices before human content is released.
+
+**Use discovery before sending.** A provider may offer only this small service while keeping its existing mail server. A positive answer means the account advertises setup support; the client must still obtain and validate the setup before calling the message encrypted. An unadvertised result does not reveal whether the account exists. A timeout or unavailable service means the result is unknown, not that encryption is unsupported; independently usable setup already held by the client remains usable.
 
 The [client behavior contract](client-behavior.md) defines the target of these implementation stages, including people and thread lists, explicit composition targets, reactions, restart behavior and protection outcomes.
 
@@ -88,7 +92,21 @@ These sources are implemented local fixtures and reference components, not a fin
 
 :::
 
-## Email server adoption
+## For email server and service developers {#email-server-adoption}
+
+### Start with discovery alone
+
+The smallest active upgrade is [Setup discovery](encryption-discovery.md): put a small HTTPS sidecar beside the existing mail service, backed by operator/account opt-in records. It answers whether support is advertised for the selected recipient. Existing SMTP, IMAP and message storage can remain in place. The service holds no decryption keys and needs no provider-control OAuth flow or setup queue. A positive answer is intentionally discoverable; a negative answer combines unsupported, nonexistent and unadvertised accounts.
+
+| What the service answers | What the client does |
+| --- | --- |
+| Setup is advertised | Tries an enabled setup path and validates the actual keys and authority before sending encrypted content |
+| Setup is not advertised | Makes no assumption about whether the mailbox exists; uses independently available setup or shows protection as unestablished |
+| No usable response | Treats discovery as unavailable; preserves existing usable setup and the sender's protection choices |
+
+Clients still complete actual setup and validate keys. Later, a provider can independently add setup distribution, authorized control exchanges or private routing under those complete contracts. A possible direct-provider delivery upgrade remains separate design work; this discovery role does not define or imply that transport.
+
+### Choose the next capability independently
 
 Providers can add support in stages while keeping existing addresses, SMTP delivery and IMAP or JMAP access. The first useful upgrade is dependable carriage: compatible clients can already exchange protected contributions through ordinary email. A provider does not need to hold decryption keys, render message HTML or run a key directory to preserve those packages.
 
@@ -99,6 +117,7 @@ Each later stage advertises a specific capability. Upgrading a server can improv
 | Stage | What it unlocks | Evidence before advertising support |
 | --- | --- | --- |
 | Preserve submission, storage and retrieval | Structured and protected packages survive the account's normal mail path | A report from actual submission, filtering, relay and retrieval paths, with protected-payload comparisons and recipient-specific outcomes |
+| Add only a setup-support hint | Clients can learn that an account publicly advertises setup, before obtaining actual setup | Exact [Setup discovery](encryption-discovery.md) request/response, domain authentication, opt-in/uniform-negative behavior, network bounds and no effect on accepted identity or fallback authority |
 | Add authorized discovery and control | Compatible clients obtain scoped device evidence without sending negotiation mail into inboxes | Authorization, expiry, replay, device scope, resource limits and service-withdrawal checks against the selected control profile |
 | Add a completed synchronization or relay capability | The particular continuity or delivery benefit defined by that capability | Its own contract, client integration and interoperability report; these extensions are not unlocked merely by implementing discovery |
 

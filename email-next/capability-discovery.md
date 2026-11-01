@@ -33,6 +33,10 @@ Support is checked feature by feature and for the actual destination. A client m
 > [!note] Proposed decision contract
 > This chapter defines how discovery evidence affects sending. The [experimental passive binding](passive-discovery.md) selects ordinary-email carriage, signed records and expiry rules for implementation work. Its media type is unregistered. The [optional provider extension](provider-negotiation.md) selects a separate control queue and device-challenge lifecycle. Its [configured wire profile](provider-control.md) defines the exchange; [domain discovery](provider-discovery.md), [public account/grant authority](provider-grants.md) and [unknown-peer bootstrap](bootstrap.md) are defined separately; their complete joined implementations remain unfinished. These requirements alone do not establish interoperable discovery.
 
+## Start with a small provider hint
+
+A provider can implement only [Setup discovery](encryption-discovery.md): one small HTTPS service advertises whether setup support is publicly offered for a selected account. It needs neither a replacement mail server nor the full provider-control service. A negative response can deliberately combine unsupported and nonexistent accounts. A positive response still requires actual validated setup before protected content is sent. Independently usable accepted setup survives negative hints and service outages.
+
 ## Bootstrap through ordinary email
 
 The [ordinary-mail setup carrier](mailbox-setup.md) defines a separate, explicitly enabled request and encrypted response for first-message encryption without a provider upgrade. Its strict authentication, disclosure, lifetime and loop rules apply; a passive advertisement alone cannot activate it.

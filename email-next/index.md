@@ -14,6 +14,8 @@ Email that feels like a conversation, across the addresses and providers people 
 - [See a conversation](#how-the-conversation-works)
 - [Follow the everyday encryption journey](encryption-journey.md)
 - [When a recipient is not ready](delivery-policy.md#per-recipient-outcomes)
+- [For email client developers](adoption.md#email-client-adoption): use existing mailboxes and discover protection before sending.
+- [For email server and service developers](adoption.md#email-server-adoption): start with a small discovery service alongside the existing mail server.
 
 ## Status of this document {.sotd}
 

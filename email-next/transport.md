@@ -7,7 +7,7 @@ sectionNav: true
 
 # Transport and delivery
 
-Email/2 initially travels as ordinary MIME mail through existing submission, relay and delivery services. An upgraded client does not require a new SMTP command to send a structured contribution. Provider upgrades can add discovery, control-message routing and faster delivery through separately negotiated contracts.
+Email/2 initially travels as ordinary MIME mail through existing submission, relay and delivery services. The [encrypted application carrier](application-carriage.md) defines the exact current application attachment and its receiving boundary. An upgraded client does not require a new SMTP command to send a structured contribution. Provider upgrades can add discovery, control-message routing and faster delivery through separately negotiated contracts.
 
 > [!note] Proposed application contract
 > The requirements below define how an Email/2 client interprets transport outcomes. They do not replace SMTP. The selected suite owns MIME/security-profile binding; complete implementation and submission integration remain required. The [SMTP audit](audits/smtp.md) records source coverage and unresolved dependencies.
@@ -121,6 +121,18 @@ RFC 5321 §§4.1.1.4 and 4.2.5 distinguish successful handoff from rejected data
 
 Sections 4.5.3.2, 4.5.4 and 6.1 require appropriate per-command timing and delayed retry, and explain how final-reply loss can duplicate delivery. The application does not shorten the SMTP timeout to produce an instant-chat appearance. A pending message can remain visible locally while delivery continues.
 :::
+
+### Interpret machine-readable delivery reports
+
+Use existing SMTP transaction outcomes and machine-readable delivery-status notifications (DSNs), rather than extracting commands from a human-written error paragraph. [RFC3464](https://www.rfc-editor.org/rfc/rfc3464.html#section-2) defines per-message and per-recipient report fields; [RFC3461](https://www.rfc-editor.org/rfc/rfc3461.html#section-4.4) supplies optional envelope correlation. These formats do not authenticate the report's author.
+
+Retain the original report bytes and parse the declared report format, including applicable internationalized report encodings. Validate the report source and correlate its actual account, submission, delivery, attempt and recipient scope against retained outgoing work before changing an authoritative outcome. An ENVID, Message-ID, matching subject, claimed recipient, DKIM signature or successful delivery to the sender's mailbox alone is insufficient: the reporter must also be authorized to report that attempt's outcome. A trusted submission provider may supply authenticated submission/status evidence under its own selected contract. An unsupported remote reporter remains an unverified diagnostic, not a definitive failure.
+
+Interpret the report's Action and Status together. A delayed report does not establish final failure. A failed report says that the reporting system has abandoned its delivery, even when the diagnostic cause is temporary; a status code beginning with 4 cannot alone promise further automatic retries. Keep earlier accepted handoff, later recipient failure and any authenticated contradictory result as separate observations. A delivery report establishes neither decryption nor reading, and cannot change a confirmed service-button effect.
+
+Deduplicate validated reports durably with their scoped status projection. Duplicate or replayed reports cannot create another failure activity or erase successful recipients. Unverified or unrelated reports remain available for inspection without changing the original send. The [client contract](client-behavior.md#delivery-problems-stay-with-the-message) presents validated problems beside the affected message and defines its one-time activity promotion and recovery actions.
+
+A local setup failure can produce a local send status without generating or awaiting a network bounce. No new Email/2 failure message is defined here. Any future remote setup-specific failure record needs its own exact authenticated source, original-operation correlation, privacy, replay and no-loop binding before it can drive authoritative state. Diagnostic prose never authorizes disabling encryption, changing a recipient or sending again.
 
 ### Explicit no-service failures
 

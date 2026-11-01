@@ -19,6 +19,8 @@ The first transmission to a new person can be a setup request rather than their 
 
 ## Use the available setup carrier
 
+Prefer an encrypted first human message whenever usable setup permits it. If support is unknown and the sender separately authorizes ordinary delivery, the [automatic-upgrade path](automatic-upgrade.md) lets that real message invite automatic setup for future protected writing. It sends no blind capability probe to an unknown legacy recipient, does not retroactively protect the original and does not weaken this chapter’s held-send policy.
+
 With an enabled provider service, use the account/device-authorized exchange described below. Without one, compatible clients can use [ordinary-mail setup](mailbox-setup.md): one content-free, directly addressed request and an encrypted response, under explicit request/disclosure policies. Current setup3 can authenticate the request from an authorized ordinary mailbox under the [client-mailbox rules](mailbox-setup.md#client-mailbox-authorization-for-setup3), while the trusted-delivery path uses its separately configured receiving evidence. This can leave a setup notice in a legacy inbox; it cannot satisfy required address masking. Current setup3 also [authenticates the answer](mailbox-setup.md#authenticate-the-setup3-answer) using an existing selected recipient key or exact-domain authentication before a new identity can supply encryption keys. Neither path requires a human-authored introduction, and neither proves independent personal identity.
 
 ## Keep the message private during setup

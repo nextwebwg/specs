@@ -932,7 +932,7 @@ A definition can change while the page runs. A development server, for example, 
   <section><h2>Panel</h2><x-count></x-count><slot></slot></section></template>
 
 <!-- Inserted later, or passed to define(): each connected <ui-panel> re-renders as an <article>,
-     keeps its count, and keeps the nodes it was given for its slot. -->
+     keeps its count and its <x-count>'s count, and keeps the nodes it was given for its slot. -->
 <template component="ui-panel"><defs><state name="count" type="number" value="0"></state></defs>
   <article><h3>Panel {$count}</h3><x-count></x-count><slot></slot></article></template>
 ```
@@ -944,14 +944,16 @@ To **replace** the definition registered for <var>tag</var> with <var>definition
    1. If its root is no longer connected, because an instance replaced earlier in these steps rendered it, continue.
    2. Disconnect the instance, as removing it does: its controller's cleanup runs and its effects stop.
    3. Create a new instance from <var>definition</var>, as lowering an invocation creates one. Each prop input is the instance's own, in the form it was given: an attribute's text, or a value. Its root takes the attributes the old root received from outside its template, such as the invocation's `id` and `class` tokens, and none of the old template's. The instance's projected nodes are its child nodes, each assigned to the slot it was assigned to.
-   4. For each state <var>definition</var> declares, when the old instance has a state of the same name whose value conforms to the new declaration's type, give the new instance that value.
-   5. Put the new instance's root in the old root's place. What the instance's parent bound on its invocation, such as a bound prop or a listener, now acts on the new instance.
-   6. Connect the new instance. As with any instance, its controller runs, and the component instances its template renders lower and connect.
+   4. Put the new instance's root in the old root's place. What the instance's parent bound on its invocation, such as a bound prop or a listener, now acts on the new instance.
+   5. Connect the new instance. As with any instance, its controller runs, and the component instances its template renders lower and connect.
+   6. Carry the state of the old instance to the new one, as defined below. Then, for each tag, carry the state of the old template's component instances of that tag, at any depth and in tree order, to the new template's: the first to the first, the second to the second, and so on.
 {.algo}
 
-State follows its name. A state the new definition still declares keeps its value when the value has the declared type; a state it adds, or one whose value does not conform, starts from its declared value; and a state it no longer declares is dropped. Computed values are computed again. Props keep their inputs, so a prop the new definition declares with a different type checks the same input against that type.
+To **carry the state** of one instance to another, for each state the second instance's definition declares, when the first instance has a state of the same name whose value conforms to the declared type, set the second instance's state to that value.
 
-The projected nodes move to the new root without disconnecting, as any move within one mutation batch does, so the component instances among them keep their state. The component instances the old template rendered are discarded with it, and those the new template renders start from their declared state. When <var>tag</var> is the root of another component, which delegates its root to <var>tag</var>, that component's instance is the one rebuilt, from its own definition. An instance that is not connected keeps the definition it was created with. From then on `get(tag)` returns <var>definition</var> and `create(tag)` creates from it.
+State follows its name, at every depth. A state the new definition still declares keeps its value when the value has the declared type; a state it adds, or one whose value does not conform, starts from its declared value; and a state it no longer declares is dropped. Computed values are computed again. The replaced instance's props keep their inputs, so a prop the new definition declares with a different type checks the same input against that type. The props of the instances its template renders are the ones the new template gives them.
+
+The projected nodes move to the new root without disconnecting, as any move within one mutation batch does, so the component instances among them keep their state as they are. The component instances the old template rendered leave with its root; each one the new template renders in the same place, the nth of its tag, takes its state, and one with no counterpart starts from its declared state. When <var>tag</var> is the root of another component, which delegates its root to <var>tag</var>, that component's instance is the one rebuilt, from its own definition. An instance that is not connected keeps the definition it was created with. From then on `get(tag)` returns <var>definition</var> and `create(tag)` creates from it.
 
 > [!note] Replacement, where custom elements throw
 > `customElements.define` throws for a name that is already defined, because a custom element's definition is a class whose constructor has already run for every upgraded element. A component definition is data and runs no code when it registers, so a second definition can take the first one's place. Replacing it is how an author sees an edit without losing what the page holds: the scroll position, the open disclosure, the state of every other component.

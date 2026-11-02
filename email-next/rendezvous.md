@@ -555,7 +555,13 @@ Alice submits that object at her own `POST /offers` with her rendezvous manageme
 | `notBefore` | Inclusive canonical uint64 Unix-seconds string. |
 | `notAfter` | Exclusive canonical uint64 Unix-seconds string. |
 
-Purpose is `rendezvous-dispatch`. Service/account/link match the source authorization. Its interval is contained in the offer and source authorization intervals. Source dispatch and account reset serialize in one transaction. Equal request ID and equal original submission recover the same dispatch; unequal bytes conflict. An invalid signature cannot occupy the collision key.
+Purpose is `rendezvous-dispatch`. Its `id` equals the original offer's `id`,
+reusing that offer's randomly generated ObjectId. A different dispatch `id` is
+invalid even when its other fields and signature are valid. `offerDigest` binds
+the exact original offer payload; the later inspection's `dispatchDigest`
+separately binds the exact original dispatch payload. Service/account/link match
+the source authorization. Its interval is contained in the offer and source
+authorization intervals. Source dispatch and account reset serialize in one transaction. Equal request ID and equal original submission recover the same dispatch; unequal bytes conflict. An invalid signature cannot occupy the collision key.
 
 The destination checks its own blocks and admitted source-origin policy before doing source inspection or allocating peer work. A device-signed home record cannot add an origin to that operator admission policy or override its network egress restrictions.
 
@@ -578,7 +584,37 @@ Before admitting a new request, activating an answer, resuming a grant or disclo
 | `notBefore` | Inclusive canonical uint64 Unix-seconds string. |
 | `notAfter` | Exclusive canonical uint64 Unix-seconds string. |
 
- The target home signs with the serviceKey in the exact target authorization. `POST /dispatches/{id}/inspect` body is `{proof}`. The source validates the frozen target key, exact dispatch and interval, then under its own account authority returns TLS-authenticated `{profile,id,state}` with state `active` or `closed`. Unknown or retired releases return closed after valid scoped authorization; an invalid proof has no account-specific result. There is no public GET or account query. Unreachable inspection leaves the attempted new effect held; it does not mean unsupported encryption.
+The target home signs with the serviceKey in the exact target authorization.
+`POST /dispatches/{id}/inspect` body is exactly `{proof}`. The path and proof `id`
+name the original offer. The source authenticates the proof under the retained
+frozen target key and exact `(id, dispatchDigest, sourceHome, targetHome)` binding.
+No incoming key, home locator or public identifier can replace that retained scope.
+
+The fresh inspection interval authorizes this bounded metadata check. It contains
+the complete credible current clock interval and is checked independently of an
+expired original offer or dispatch interval. It need not fit those expired
+positive intervals. An expired, not-yet-valid or uncertain inspection proof gives
+no account-specific result. The proof cannot renew an original deadline or
+restore any account, link, home, identity or connection permission.
+
+Under the actual source account authority, the source returns TLS-authenticated
+JSON exactly `{profile,id,state}`, with the original offer `id` and state `active`
+or `closed`. `active` additionally requires the original offer/dispatch intervals
+and all current source-release dependencies. Known expiry, revocation or terminal
+closure yields `closed` after valid scoped authentication. Unknown or retired
+releases can yield `closed` only while sufficient exact target-key and
+home/dispatch binding evidence remains to authenticate that scope. Missing retained
+authentication evidence, unavailable current authority or an invalid proof gives
+no account-specific result; the caller preserves uncertainty. It cannot infer
+nonexistence, unsupported encryption or a failed original operation.
+
+Recheck this authority and the fresh proof interval at each bounded response
+release and final flush. A retained `active` response cannot be released after
+its positive dependencies expire or are known revoked; hold it or prepare a new
+scoped result under the current authority. The receiving service binds the result
+to the exact fresh authenticated HTTP exchange, rather than reusing an earlier
+`active` response for another inspection or effect. There is no public GET or
+account query. Unreachable inspection leaves the attempted new effect held.
 
 Inspection is an observation, not a cross-provider distributed transaction. If source revocation committed first, inspection must return closed. If revocation happens after a successful inspection, it cannot retract bytes already disclosed. The destination rechecks at each new effect; no lease may extend the offer interval. The sender independently checks current own authority before further content release. A service must not promise instantaneous global revocation or use an earlier active result as permanent account authority.
 
@@ -715,9 +751,13 @@ immutable. Do not reuse a cached positive page after current authority is lost.
 ### Recover without consuming requests
 
 The client retains received original entries and its next continuation durably
-before moving to that continuation. On a lost response or interrupted save, it
-reads the previous cursor again. Deduplicate by the qualified offer/dispatch
-binding, not the public identifier. Reading or saving a page does not acknowledge,
+before moving to that continuation. On a lost response or interrupted save of a
+request with a nonempty cursor, it reads that same cursor again. An empty request
+cursor always starts a new scan. If the initial response is lost before any issued
+cursor is retained, another empty-cursor request starts a new current cut; it does
+not recover an unidentified earlier scan and may include newer admitted offers.
+No offer is consumed by either read. Deduplicate retained entries by the qualified
+offer/dispatch binding, not the public identifier. Reading or saving a page does not acknowledge,
 answer, cancel, consume or extend an offer; those effects use their existing
 separately authorized operations.
 
@@ -899,6 +939,17 @@ than treating absence as proof that preparation never occurred.
 
 Bob signs those exact prepared bytes. `PUT /offers/{id}/answer` with `{proof}` atomically checks the same linked account/family, retained preparation, exact signature, all current authorities and intervals, then activates the request-bound grant and records the immutable answer. Creation returns 201, identical retry 200, different valid bytes 409. Invalid answers leave the slot and preparation available. A signed answer is evidence of a device response, not MLS key confirmation.
 
+A successful activation response has `Content-Type: application/json` and
+`Cache-Control: no-store`. Its complete body is the exact original signed answer
+wrapper retained for that offer, preserving the signed payload bytes and proof.
+The first committed activation returns 201; an eligible identical retry returns
+200 with that same retained wrapper. The service does not re-sign the answer or
+wrap it in a new receipt record. Recheck the original linked owner, incarnation,
+family and current disclosure authority before releasing either response.
+Returning the retained proof does not extend its interval or establish a usable
+connection after cancellation, withdrawal, expiry or another current hold.
+
+
 Activation resolves the offer by the signed answer's original offer and dispatch
 digests as well as the path identifier. It consumes only its exact retained
 preparation. Concurrent preparations do not create multiple answer slots: the
@@ -937,6 +988,13 @@ Alice signs a command exactly:
 
 Purpose is `rendezvous-command`; action is `status`, `resume` or `cancel`. For `status` and `cancel`, answerDigest is exactly the empty string; for `resume`, it is the original answer payload digest and the active grant must exist. Each command has its own immutable ID and bounded interval within the original offer. Resume does not produce a new grant or answer and does not claim that an endpoint remains connected.
 
+The source command namespace is the existing qualified source offer key plus
+the immutable command identifier; the destination command namespace is its
+existing qualified destination offer key plus that identifier. Validate the
+original signature and original pair before reserving either namespace. Equal
+original command proof bytes recover the same retained service forward and its
+original interval. Different valid bytes conflict. Invalid proofs reserve nothing.
+
 The client sends `{proof}` to its own `POST /offers/{id}/commands`. The source service verifies current own authority and exact device signature, then signs:
 
 | Member | Type and binding |
@@ -959,6 +1017,13 @@ Purpose is `rendezvous-forward`; forward is a fresh ID. It forwards exactly `{co
 
 A successful command returns exactly `{profile,id,state,answer}`. `state` is `pending`, `answered` or `closed`; answer is an empty object for pending/closed and the original signed wrapper for answered. An answered response remains historical after answer expiry, but cannot activate/resume a path outside the original validity. On revocation, subsequent disclosure closes even if the response had previously been answered. Retain the internal cause and previously returned evidence; do not rewrite history. The same response shape does not assert that a device is online.
 
+A successful own-service or destination command response uses HTTP 200,
+`Content-Type: application/json` and `Cache-Control: no-store`, with exactly the
+command-result representation above. First processing and eligible retries use
+the same success status. HTTP 200 does not assert an active connection when the
+state is closed or the answer is historical. Current authorization and original
+intervals still govern every disclosure.
+
 Valid signatures prove the recorded signing act, not continuous possession at every retransmission. A copied valid command/forward pair may replay the **same** authorized status request within its original interval. It cannot select a new action, recipient, interval or destination. Keep these proofs private under HTTPS and private storage; this profile must not claim session-bound proof or confidentiality against the authorized home services. A stronger sender-constrained HTTP binding is a separate choice, not silently supplied by Ed25519.
 
 Use existing provider-control HTTPS, no-redirect, no-0-RTT, content-coding, no-store and error rules, under this new prefix and profile. Both own and destination routes use strict JSON. Invalid proofs return 400; absent own credentials 401; insufficient own scope 403; a valid altered collision 409; size/media/admission exhaustion use 413/415/429/503. Invalid destination authorization does not expose account-specific state. Public GET, account listing, peer-device enumeration and arbitrary polling-by-address do not exist. The exact selected descriptor limits apply; inherited queue numeric limits are not implicit defaults. A server may impose stricter transient work limits with429/503 without changing retained record identity or deadline.
@@ -976,6 +1041,13 @@ The destination namespace is `(rendezvous module, target account incarnation, or
 Use this same qualified destination key for offer admission, negative replay receipts, answer preparations/activation, commands, cancellation and inspection linkage. Every route carrying `{id}` must additionally match its authenticated original proof/digest bindings; the path ID alone cannot select or authorize another source's retained state. Pending-offer retrieval must preserve the qualifying original source/offer/dispatch bindings rather than collapsing records by ID.
 
 Each target account serializes offer admission, answer activation, cancellation, device/link revocation and block updates against the same authoritative account incarnation and request namespace. Concurrent valid answers from the **same exact device** cannot replace each other. The first valid commit wins; equality means original bytes, not equivalent JSON. A cancel or revocation committed before answer activation prevents it. If answer activation commits first, cancellation stops future use/disclosure but cannot erase an already disclosed answer.
+
+The source durably records its authenticated local cancellation before releasing
+the retained cancel forward. Subsequent source inspection reports the scoped
+release closed; later status or resume cannot reopen it. Keep this local closure
+separate from forwarding ownership, so a cancel retry can complete under current
+permission without renewing the offer. An uncertain forwarding outcome does not
+establish destination cancellation success or erase previously disclosed evidence.
 
 Identity receive-binding continuity permits a home authorization to remain eligible across unrelated accepted head advances under provider-grants' existing continuity rules. A live offer requests the exact target state named in its endpoint: a different target head requires a newly authorized offer after independently accepting that head. Repair, binding replacement, role removal, account reset or family retirement invalidate new use. No unsigned high revision or incoming record may overwrite a pin.
 

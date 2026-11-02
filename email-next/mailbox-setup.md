@@ -142,6 +142,21 @@ package and device bindings. Current identity, source/account authorization,
 verification policy, known revocation/conflict, local holds, custody and native
 admission still apply. Missing, altered or inconsistent provenance holds admission.
 
+The request deadline bounds request processing and response creation/release.
+Check the original request assertion and its signatures/history at the retained
+successful observation; do not require that bootstrap assertion to remain
+publishable when the Initial arrives. The Initial has its own original signed
+validity and ordinary package/control receiving promises. An elapsed acquisition
+deadline alone MUST NOT shorten those independently authorized receiving windows.
+This does not permit creating or releasing a response after its request deadline,
+creating an Initial from expired publication material, or receiving an Initial
+outside its own original receiving window.
+
+Historical authentication supplies no current device authority. Recheck the
+current identity, mailbox/account selection, verification policy and known
+revocation/conflict independently before admission. A missing or altered receipt
+cannot be replaced with an incoming timestamp or a newly asserted acceptance time.
+
 This historical use applies only to the owning allocation's Initial. It cannot
 authorize a new response, extend a request or publication deadline, clear an
 uncertain submission, or bypass the live checks before response release. Retain

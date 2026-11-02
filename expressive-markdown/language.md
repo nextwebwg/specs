@@ -840,6 +840,17 @@ responsive setting. See [layout](#layout) for grouping and positioning content.
 
 Heading attributes are final and whitespace-separated. Image/link attributes
 are immediately adjacent. All attachments stay on the same source line.
+
+A link or image may instead carry its list as its quoted title. Renderers
+without attributes then show an ordinary link or image, with the list only in
+its tooltip:
+
+```md
+[Release notes](release.md "{.release-link}")
+```
+
+The two spellings give the same node. See the
+[title rules](/expressive-markdown/parsing#attributes-in-a-title).
 Escape `{` to write literal text. Other block styling uses supported safe HTML.
 
 **Rendering semantics:** use native attributes where supported; map custom
@@ -1444,6 +1455,64 @@ See [validation and writing rules](/expressive-markdown/parsing#code-presentatio
 **Rendering semantics:** escaped `<pre><code class="language-ts">…</code></pre>`,
 optionally captioned and decorated. Keep generated line numbers out of copied
 code. Colors and copy controls belong to the renderer.
+
+### Embedded files
+
+Embed a file's code with a link that carries the `embed` flag, alone in its
+paragraph:
+
+```md
+[button.html](examples/button.html "{embed highlight=2}")
+```
+
+The code is the text of the linked file, so the page and the file can never
+disagree. The link text is the code block's title, the file's extension names
+its language, and code settings such as `highlight` count the file's lines. A
+renderer that does not embed files renders an ordinary link to the file.
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "paragraph",
+  "children": [
+    {
+      "type": "link",
+      "url": "examples/button.html",
+      "value": "button.html",
+      "attributes": { "embed": true, "highlight": "2" },
+      "source": { "attachment": "title" }
+    }
+  ]
+}
+```
+:::
+
+`embed=example` shows an HTML file working, followed by its source:
+
+```md
+[Button tones](examples/button.html "{embed=example}")
+```
+
+The file's HTML renders in place, as HTML written in the document would, and
+its text follows as an `html` code block. The link text is the example's
+caption, and code settings apply to the code block. Put embeds in tabs to let
+readers choose between sources of the same example.
+
+:::: {.render title="Embedded example" height="150"}
+```html
+<figure data-type="example"><figcaption>Button tones</figcaption><div><button>Save</button> <button>Cancel</button></div><pre><code class="language-html">&lt;button&gt;Save&lt;/button&gt;
+&lt;button&gt;Cancel&lt;/button&gt;
+</code></pre></figure>
+```
+::::
+
+| Setting | Stored data / default |
+| --- | --- |
+| `embed` / `embed=code` | Boolean `true` or string `"code"`: the file's text as a code block. |
+| `embed=example` | String `"example"`: the file's HTML, then its text as an `html` code block. |
+| `language=ts` | String `attributes.language`: the code's language. Default: the file's extension. |
+
+See the [embedding rules](/expressive-markdown/parsing#embedded-files).
 
 
 ## Tables
@@ -3372,6 +3441,7 @@ CSS display. JavaScript execution, MDX/JSX and framework APIs are outside the co
 | [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#footnotes) | Footnote references and indented definitions, also in [GFM](https://github.blog/changelog/2021-09-30-footnotes-now-supported-in-markdown-fields/) and [Pandoc](https://pandoc.org/MANUAL.html#footnotes). | Definitions stay in place; labels are identifiers matched exactly. |
 | [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#def-list) | Definition lists, also in [Pandoc](https://pandoc.org/MANUAL.html#definition-lists), [kramdown](https://kramdown.gettalong.org/syntax.html#definition-lists), [MultiMarkdown](https://fletcher.github.io/MultiMarkdown-6/syntax/#definitionlists) and [markdown-it-deflist](https://github.com/markdown-it/markdown-it-deflist). | One-line terms and `:` descriptions, indented as list items are. |
 | [UMD](https://docs.rs/crate/umd/0.2.0/source/README.md) | Cell merge markers. | Rectangular grid, numeric spans and loss-preserving recovery. |
+| [VitePress code snippets](https://vitepress.dev/guide/markdown#import-code-snippets) / [Docusaurus code imports](https://docusaurus.io/docs/markdown-features/react#importing-code-snippets) | Code read from files. | An `embed` setting on a link, which other renderers show as a link to the file. |
 | [MyST](https://mystmd.org/guide/figures) / [Quarto](https://quarto.org/docs/authoring/figures-and-layout.html#figure-divs) | Structured figures and captions. | Shared container family with explicit subtype meanings. |
 | [mdast](https://github.com/syntax-tree/mdast) / [unist](https://github.com/syntax-tree/unist) | Documented trees. | Independent title/body/children/value fields and traversal. |
 

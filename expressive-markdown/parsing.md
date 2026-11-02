@@ -453,6 +453,8 @@ In an ordinary block quote, protect literal text that would open an alert.
   A class stays a class: `::: {.render}` is a generic container
   with `class: "render"`.
 - Separate entries with spaces/tabs, `&`, or both. Tight `{a=1&b=2}` is valid.
+- Spaces or tabs may pad the list inside its braces, so `{ .note #intro }`
+  is the same list as `{.note #intro}`. A list ending in `&` is malformed.
 - Outside quotes, `&` is a separator. Unquoted values are nonempty and end at
   whitespace, `&` or `}`.
 - Assigned values stay strings, whether unquoted or single/double-quoted. Quote
@@ -1769,7 +1771,7 @@ the preferred form, so a document written in preferred forms carries none.
 | Tab group | Adjacent tabs; explicit `tabs` container | Adjacent tabs | `form: "explicit"` |
 | Table | Named list fields; positional list rows; GFM pipes | Named fields | `form: "positional"`; `form: "pipe"` with `markdown` |
 | Mention | `@[label]`; bare `@handle` | `@[label]` | `form: "bare"` |
-| Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `.class`, `#id`, double quotes, spaces | `attributes` |
+| Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, padding, order | `.class`, `#id`, double quotes, spaces | `attributes` |
 | Link and image attributes | Adjacent list; list as the quoted title | Adjacent list | `attachment: "title"` |
 | Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
 | Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |

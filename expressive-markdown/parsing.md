@@ -486,6 +486,21 @@ A heading's final whitespace-separated list attaches to the heading. An immediat
 
 Unknown attributes remain data. An arbitrary flag does not acquire native HTML behavior.
 
+### Attributes in a title
+
+```md
+[Release notes](release.md "{.release-link}")
+```
+
+An inline link or image whose quoted title is exactly one attribute list,
+opening with `{` and closing with `}`, has no `title`; the list attaches to it
+as an adjacent list would. The title's source text decides: a title that only
+partly holds a list, such as `"{beta} build"`, a malformed list, or a title
+starting with an escaped `\{` stays a title. Values inside the list quote with
+the quote character the title does not use, or escape it as CommonMark title
+escapes do. A link with both a title list and an adjacent list resolves them in
+source order. Link reference definitions keep their titles as titles.
+
 ## Bracketed spans
 
 ```md
@@ -1257,7 +1272,7 @@ unsupported conversion.
 
 Code attributes share the ordinary string/flag grammar and camelCase key mapping. `title` maps once to `code.title`; other attributes remain in `attributes`.
 
-- `highlight` is a comma-separated string of positive line numbers or ascending inclusive `start-end` ranges. Repeated/overlapping selections form a union. Numbers refer to the lines of the rendered code, `code.value` or the text of its [file](#code-from-a-file), starting at 1.
+- `highlight` is a comma-separated string of positive line numbers or ascending inclusive `start-end` ranges. Repeated/overlapping selections form a union. Numbers refer to the lines of the rendered code, `code.value` or the text of an [embedded file](#embedded-files), starting at 1.
 - `showLineNumbers` is a boolean setting; `true` shows numbering from 1 and `false` hides it. A string assignment stays a string, not a boolean.
 - Invalid feature values or out-of-bounds ranges remain in the AST, recommend a diagnostic and use the baseline default: no line emphasis or numbering. They do not make the attribute list malformed.
 - Unrecognized info tokens remain uninterpreted `meta`; optional provenance retains the full original info string. Canonical writers regenerate known metadata and append unknown tokens.
@@ -1265,24 +1280,31 @@ Code attributes share the ordinary string/flag grammar and camelCase key mapping
 
 Recommended HTML escapes literal code. Per-line decoration must preserve the code's text and line divisions; copied code excludes generated line-number labels. A profile that cannot display a setting preserves it and reports the unsupported presentation.
 
-### Code from a file
+### Embedded files
 
-`src` is a string URL reference, resolved as the document's link and image destinations are. A renderer that reads files renders the referenced file's text, decoded as UTF-8, as the code; `code.value` stays the fence's own content. The rules:
+A link with an `embed` setting that is the only content of its paragraph
+embeds the file its `url` names, resolved as the document's link destinations
+are. A renderer that reads files decodes the file's text as UTF-8 and renders,
+in place of the paragraph:
 
-- A fence with `src` and no content is the authored form. A fence with both keeps both, recommends a diagnostic and renders its own content. A publisher may instead fail its build.
-- A file the renderer cannot read recommends a diagnostic, naming the reference, and renders the fence's own content. A publisher may instead fail its build.
-- A flag `src` or an empty string is an invalid feature value: it remains in the AST, recommends a diagnostic, and the fence's content is the code.
-- A renderer without file access preserves `src` and reports the unsupported presentation.
-- Writers write the fence and its `src` as authored and never write the file's text into the document.
+| `embed` | Rendering |
+| --- | --- |
+| `true`, `"code"` | The text as a `code` block. Its title is the link's text, its language is `attributes.language` or else the file's extension, and the link's code settings, such as `highlight` and `showLineNumbers`, apply. |
+| `"example"` | The text parsed as an HTML fragment, under the [HTML element rules](#html-elements) and the document's HTML profile, as HTML written in the document is, so Markdown syntax in it stays text. The same text then follows as a `code` block with language `html`. The link's text is the caption. |
 
-### Live examples
-
-An `example` leaf names an HTML file with a string `src`, resolved as for [code from a file](#code-from-a-file). A renderer that reads files renders two parts, in order:
-
-1. The file's text parsed as an HTML fragment, under the [HTML element rules](#html-elements) and the document's HTML profile, as HTML written in the document is, so Markdown syntax in it stays text.
-2. The file's text as a `code` block with language `html`. The leaf's code settings, such as `highlight` and `showLineNumbers`, apply to it.
-
-The leaf's `title` is the example's caption. A missing, flag or empty `src`, or a file the renderer cannot read, recommends a diagnostic and renders nothing; a publisher may instead fail its build. A renderer without file access preserves the leaf and reports the unsupported presentation. Writers write the leaf as authored.
+- The link node keeps its `url`, content and attributes; embedding is a
+  rendering of the link, and the file's text never enters the AST.
+- A file the renderer cannot read, or another `embed` value, recommends a
+  diagnostic, naming the reference, and the link renders as a link. A
+  publisher may instead fail its build.
+- An `embed` link that shares its paragraph with other content renders as a
+  link and recommends a diagnostic.
+- A renderer without file access renders the link as a link and reports the
+  unsupported presentation.
+- Settings the embed consumes, `embed`, `language` and the code settings, are
+  not rendered as attributes.
+- Writers write the link as authored and never write the file's text into the
+  document.
 
 ## HTML elements
 
@@ -1748,6 +1770,7 @@ the preferred form, so a document written in preferred forms carries none.
 | Table | Named list fields; positional list rows; GFM pipes | Named fields | `form: "positional"`; `form: "pipe"` with `markdown` |
 | Mention | `@[label]`; bare `@handle` | `@[label]` | `form: "bare"` |
 | Attribute list | `#id` / `id=…`, `.class` / `class=…`, quoting, `&` separators, order | `.class`, `#id`, double quotes, spaces | `attributes` |
+| Link and image attributes | Adjacent list; list as the quoted title | Adjacent list | `attachment: "title"` |
 | Fence info | Setting order, separators, quoting | Language, attributes, meta | `info` |
 | Line block | Marker spacing, indentation, continuation lines | `\| ` lines | `markdown` |
 | Definition list | Marker spacing and indentation, term indentation, continuation indentation, blank lines before later terms and between descriptions | `: `, two-space continuation, one blank line before each later term | `markdown` |

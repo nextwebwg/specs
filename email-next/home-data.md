@@ -31,7 +31,10 @@ an independent companion implicit mailbox access.
 These are proposed protocol allocations, not an implementation or interoperability
 claim. A [rendezvous answer](rendezvous.md#the-answer-is-the-new-exact-grant) still
 permits only connection-resume and status-read. Existing provider queue grants and
-rendezvous credentials do not authorize this module.
+rendezvous credentials do not authorize this module. Independently admitted data
+homes and their current account, route and Device permissions authorize content
+carriage. Rendezvous can assist connection establishment; no rendezvous exchange,
+answer or current control record is a prerequisite for data upload or admission.
 
 ## Prepare and release one packet
 
@@ -136,11 +139,24 @@ Role setup can occur in the background as part of ordinary selected account setu
 It is not repeated for every route, correspondent or packet. The receiving account
 still applies its enabled correspondent/source policy.
 
-Install returns the bare [home-installed record](rendezvous.md#install-the-home-authorization)
-with profile `mail-home-data-v0` and purpose `home-data-installed`; inspection uses
-the same complete inventory with purpose `home-data-state`. Their original IDs,
-account binding, digest, active-state grammar and error rules are unchanged.
-Delete returns 204 and disables new use, retaining negative/factual state.
+Installation returns the complete bare [installation-receipt inventory](rendezvous.md#installation-receipt)
+with profile `mail-home-data-v0` and purpose `home-data-installed`. No family or
+account is selected from that receipt; they remain the original installed role's
+actual owner dependencies. Inspection has exactly these required members:
+
+| Member | Type | Rule |
+| --- | --- | --- |
+| `profile` | String | Exactly `mail-home-data-v0`. |
+| `purpose` | String | Exactly `home-data-state`. |
+| `authorization` | ObjectId | Original role identifier. |
+| `authorizationDigest` | Digest | SHA256 of its original signed payload. |
+| `state` | String | Exactly `active` or `inactive` under current owning checks. |
+
+Current account/original family must match; foreign/reset/unknown records have
+uniform 404. An eligible historical installation retry can return its original
+receipt after role expiry/withdrawal under the original current owner/family;
+that fact does not reactivate the role. Delete returns 204 and disables new use,
+retaining negative/factual state.
 :::
 
 ::: {.details summary="Data service descriptor"}
@@ -207,7 +223,7 @@ All listed members are required. No member has an implicit default.
 | `link` | ObjectId | That actual current accepted delivery link. |
 | `device` | Endpoint | Exact principal/device/state/binding/key object; never a bare ObjectId. |
 | `operations` | String array | Nonempty filtered fixed order `["packet-submit","packet-read"]`; no additions, duplicates or permutation. |
-| `receipts` | String array | Exactly `[]` by default; `["endpoint-accepted"]` only after explicit recipient account/privacy enablement. |
+| `receipts` | String array | Required explicit array: `[]` unless recipient account/privacy policy explicitly enables `["endpoint-accepted"]`. Omission is invalid; default-off is client policy, not an omitted-field wire default. |
 | `notBefore` | Uint string | Inclusive original interval start. |
 | `notAfter` | Uint string | Exclusive original interval end. |
 
@@ -233,7 +249,6 @@ All listed members are required. No member has an implicit default.
 | `targetDescriptor` | Original bytes | Encoded complete target data descriptor. |
 | `sourceHome` | Original bytes | Encoded complete source installation, including proof and identity. |
 | `targetHome` | Original bytes | Encoded complete target installation. |
-| `rendezvous` | Object | Exact context members below. |
 | `carriage` | String | Exactly `opaque-mls-application-v0`. |
 | `packetLength` | Positive uint string | Exact complete original mail byte count. |
 | `packetDigest` | Digest | SHA256 of all complete original mail bytes, before SMTP framing. |
@@ -243,22 +258,8 @@ All listed members are required. No member has an implicit default.
 | `retainUntil` | Uint string | Original exclusive custody-retention deadline. |
 | `packet` | Original bytes | Encoded complete original prepared RFC5322 mail; no reserialization or native fragment. |
 
-Rendezvous context has exactly these required members:
-
-| Member | Type | Rule |
-| --- | --- | --- |
-| `submission` | Original bytes | Complete original rendezvous Submission. |
-| `dispatch` | Original bytes | Complete original signed Dispatch wrapper. |
-| `answer` | Original bytes | Complete original signed Answer wrapper. |
-
-Validate every carried signature and exact endpoint/home/descriptor binding under
-its own original profile. Those old domains and records remain unchanged. The
-source's private local coordinator binds the actual delivery-session owner/Device
-to its actual original local control record. It must not pass a data token as a
-rendezvous token or treat the carried answer alone as current source authority.
-
 The credible release/admission clock fits the entire original packet interval.
-That interval is contained in original answer/data-home/descriptor bounds.
+That interval is contained in original source and target data-home/descriptor bounds.
 `retainUntil` is at least `notAfter` and fits both data-home/descriptor ends and
 published retention policy. An unsuitable request is rejected, not silently changed.
 Storage does not promise that a native receiving/epoch window remains usable.
@@ -285,7 +286,6 @@ All listed members are required. No member has an implicit default.
 | `uploadDigest` | Digest | SHA256 of the complete original upload bytes. |
 | `sourceHomeDigest` | Digest | Original source data-home payload digest. |
 | `targetHomeDigest` | Digest | Original target data-home payload digest. |
-| `answerDigest` | Digest | Original carried answer payload digest. |
 | `carriage` | String | Exactly `opaque-mls-application-v0`. |
 | `packetLength` | Positive uint string | Exact complete original mail byte count. |
 | `packetDigest` | Digest | SHA256 of all complete original mail bytes, before SMTP framing. |
@@ -296,7 +296,8 @@ All listed members are required. No member has an implicit default.
 | `notAfter` | Uint string | Exclusive original interval end. |
 
 Source-service signature domain is `mail/home-data-release/v0`. Both clock bounds
-fit the original upload window and actual source dependencies. The source retains
+fit the original upload window and actual source dependencies. `notBefore` and
+`notAfter` are byte-identical to the upload strings, not new intervals. The source retains
 this proof privately; its own custody receipt cannot be replayed as peer release.
 The destination verifies this signature with the exact source data-descriptor key
 independently admitted for that origin and delegated by sourceHome. It checks all
@@ -408,8 +409,24 @@ original namespace. It returns only the matching retained receipt. A retired or
 unavailable namespace can refuse uniformly; never substitute another account.
 No packet is returned. An expired/withdrawn home is not revived by a metadata query.
 No new key, origin, account, role or interval is inferred from retained history.
-When current issuer evidence is unavailable/expired, do not query using a historic
-signature as a live grant. Preserve local facts and unresolved outcome instead.
+An original expired data home may name historical metadata; it cannot authorize
+new payload effects. The original source key must nevertheless have current,
+independently admitted data-origin authority for a fresh query. A later accepted
+delegation for that same origin/key can supply that current issuer evidence;
+carried old records cannot install it. A new key/origin cannot query old history
+without an independently selected compatible migration permission. The query's
+whole credible clock interval fits its original bounds and that current issuer
+admission. No query extends receipt or payload retention.
+
+When an already admitted issuer has unavailable/expired current evidence, return
+503 before account lookup, uniformly for every queried id. An unknown/unadmitted
+issuer or disallowed historical namespace returns uniform 404; malformed/signature-
+invalid proof is 400. Neither refusal proves non-commit. A retired target home can
+name retained facts only where the current metadata-disclosure owner still permits
+that original namespace. It cannot address a replacement account or expose its
+state. Historical receipt validation uses its past commit interval; a fresh query
+always uses current query authority. Keep local facts/uncertainty when that new
+authority is unavailable.
 
 :::
 
@@ -424,12 +441,35 @@ All listed members are required. No member has an implicit default.
 | `profile` | String | Exactly `mail-home-data-v0`. |
 | `state` | String | Exactly `custodied` or `unknown`. |
 | `receipt` | Original bytes or empty string | Original signed destination receipt for custodied; exactly empty for unknown. |
+| `endpointReceipt` | Original bytes or empty string | Original enabled Device acceptance wrapper, or exactly empty under the disclosure rules below. |
 
 The response is authenticated by the actual configured peer TLS exchange and
 bound to the exact original query/connection, not a generic 200/body. The signed
-receipt is independently verified as above. Unknown is not proof that no earlier
+custody receipt is independently verified as above. A nonempty endpointReceipt
+requires state `custodied` and that matching original custody receipt. Unknown
+requires both receipt fields to be exactly empty. Unknown is not proof that no earlier
 effect occurred. Restore/unavailable state produces 503 rather than fabricated
 unknown. Query results cannot overwrite a previously retained positive receipt.
+
+Return endpointReceipt only when the original target data-home authorization
+enables `endpoint-accepted` and the recipient's current receipt-sharing policy
+still permits disclosure to this original source and namespace. Recheck that policy
+before each bounded physical output. Otherwise return exactly empty, including
+when the service has a retained acceptance. Enabling sharing later does not widen
+an original role that omitted this permission. Empty carries no acceptance,
+absence, reading or presence inference. Withdrawal stops fresh disclosure; it
+cannot recall already disclosed originals.
+
+Before first retention the source verifies the Device signature, independently
+accepted Device identity and original protected audience, and exact selected
+query/upload/id/custody/packet/native/target-home bindings. The returned custody
+identifier must equal the endpoint receipt's custody. Validate its credible
+acceptance interval under the actual original receiving authority, not the query
+clock. Publish the first verified original only in the same durable transaction
+that compares retained results; changed originals conflict, and later empty
+observations or closed errors never erase it. The source may report that retained
+historical fact through its own authorized observation after future sharing is
+disabled. No new delivery or reading claim follows from recovering that history.
 
 :::
 
@@ -444,7 +484,7 @@ All listed members are required. No member has an implicit default.
 | `profile` | String | Exactly `mail-home-data-v0`. |
 | `id` | ObjectId | The original packet identifier in its qualified namespace. |
 | `state` | String | One of source-custody, uncertain, destination-custody, endpoint-accepted, stopped, retention-expired. |
-| `sourceReceipt` | Original bytes or empty string | Retained original source receipt; empty only before one exists. |
+| `sourceReceipt` | Original bytes or empty string | Required nonempty original source receipt for this committed server resource. A local prepared Client operation is not this HTTP resource. |
 | `destinationReceipt` | Original bytes or empty string | Retained original destination receipt, or exactly empty. |
 | `endpointReceipt` | Original bytes or empty string | Retained enabled Device acceptance, or exactly empty. |
 
@@ -455,6 +495,26 @@ Fresh network reconciliation separately needs the exact current query authority.
 Retain first-success original bytes under the final Client Vault writer; compare
 again there against concurrent in-flight observations. Different valid receipts
 for the same immutable slot conflict. Later errors/uncertainty cannot erase facts.
+
+`state` summarizes current local work, not historical receipt truth. Derive it in
+this exact first-matching order under the same snapshot:
+
+1. If credible current time is unavailable or straddles a boundary needed below,
+   return 503 rather than inventing a state.
+2. At or after `retainUntil`, use `retention-expired`.
+3. If the source work is explicitly stopped, its release window definitely ended,
+   or an original dependency is definitively retired/disabled, use `stopped`.
+4. With a verified retained endpoint receipt, use `endpoint-accepted`.
+5. Otherwise with a verified retained destination receipt, use `destination-custody`.
+6. Otherwise with unresolved possible peer output, use `uncertain`.
+7. Otherwise use `source-custody`.
+
+The source receipt is always present for a returned committed resource; unknown
+or merely staged input is 404 or its actual unavailable 503, not a fabricated
+source-custody record. Receipts remain present even when a higher-priority stopped
+or expired state applies. Temporary local authority unavailability is 503, not a
+permanent stop. Clients report past accepted/custody facts from independently
+verified receipts rather than interpreting state as a global delivered/read flag.
 
 :::
 
@@ -546,6 +606,9 @@ and native equality bind the protected preparation including its audience; no
 plaintext subject/content/roster digest is exposed separately. A later native-
 pending/rejected observation cannot be relabeled accepted. Service signatures
 cannot manufacture this receipt. The default is no endpoint acceptance sharing.
+The recipient uploads it through its current own acceptance route; the service
+returns the exact original only through the sharing-gated peer custody observation.
+The upload acknowledgment alone does not assert that the source received it.
 
 :::
 
@@ -623,6 +686,11 @@ no body. Other errors are exactly one `error` member:
 | 429 | rateLimited, with positive permitted Retry-After seconds. |
 | 503 | unavailable: current time/authority/storage/source evidence unavailable. |
 
+An actually expired own native credential is 401. Expired/unavailable current
+issuer/delegation evidence for an otherwise known trusted actor is 503 before
+resource lookup. Definite expired/withdrawn content admission is uniform 404,
+while a metadata query naming old facts follows its separate current query rules.
+A historical receipt is not rejected merely because its past commit interval ended.
 A local inner hold is not automatically an actual native 401. Authentication,
 namespace, body mutation and physical response release retain distinct owners.
 After commit or possible output, failure withholds bytes and preserves uncertainty;
@@ -635,7 +703,7 @@ it cannot turn an uncertain effect into a fresh negative or synthetic success.
 
 Freeze the upload and exact prepared delivery before I/O. Existing canonical
 Store/witness/native state and worker ownership govern client content release.
-The source service separately checks actual family/role/control/resource state,
+The source service separately checks actual data family/role/resource state,
 accepted peer/origin/route/key policy and current original bounds under its own
 serialized owner before each bounded physical action. Do not put permission or
 state mutations in clock callbacks. Waits/connect/handshake/reads/session cleanup
@@ -664,7 +732,9 @@ eligible. Fetch requires current own read authority; original expired ingress is
 not a fresh upload grant. Already retrieved/accepted messages follow the existing
 application/history owner. Retention expiry, an explicit recipient-owned deletion,
 or current read-policy loss can stop future retrieval without disclosing its cause
-to the sender. Source/control cancellation is not deletion of recipient mail.
+to the sender. Stopping a data upload does not delete recipient mail. Rendezvous
+cancellation changes its own connection work, not independently authorized data
+work; data-role withdrawal and packet stop have their separate owning effects.
 
 Keep payloads until retainUntil subject to that explicit recipient deletion/read
 policy. Retain compact original receipt/digest/conflict tombstones for the actual

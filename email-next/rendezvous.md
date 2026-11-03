@@ -1022,6 +1022,48 @@ Returning the retained proof does not extend its interval or establish a usable
 connection after cancellation, withdrawal, expiry or another current hold.
 
 
+### Return a precise activation result
+
+At the authenticated receiving-account route, an activation refusal distinguishes
+a request that is known to be ineligible from one whose current authority cannot
+be established. This distinction applies to
+both first activation and an identical retry. It never changes the retained answer.
+
+| Result | Meaning |
+| --- | --- |
+| 201 | The first valid signed answer committed; return its exact original wrapper. |
+| 200 | An identical answer remains eligible for disclosure; return the same original wrapper. |
+| 400 `invalid` | The body, path binding, signed record or target signature is invalid. Invalid input cannot reserve an answer slot or consume a preparation. |
+| 404 `notFound` | No exact preparation/qualified offer is available to this authenticated original account and family, or the selected activation is positively known to be ineligible under current local state. Unknown and foreign records have this same result. |
+| 409 `conflict` | A different valid answer has already committed under the same qualified offer. It cannot replace that answer. |
+| 503 `unavailable` | Current authority, credible time, protected state or the required fresh source observation cannot be established. Missing evidence must not be classified as known closure. |
+
+Known local ineligibility includes a recorded cancellation, a definitely expired
+original interval, a withdrawn or inactive required home/link, or an explicit
+current policy that no longer permits this offer. Check those facts through the
+owning account and exact selected preparation; a closed preparation for another
+offer cannot determine this request's result. A prior committed answer is not
+itself a closure: an eligible identical retry still returns 200.
+
+A failed or unreachable source inspection gives 503. A fresh valid source
+inspection that reports the exact dispatch closed prevents activation and gives
+404. Recheck the same current local and source authority before commitment and
+response release. If it is lost after selecting a successful response, withhold
+further success bytes rather than substituting a new receipt or claiming that
+nothing committed.
+
+The route is `PUT` only; unsupported methods return 405 with `Allow: PUT` and no
+body. Inherit the shared management authentication, media, bounds, admission and
+no-store rules: 401 for unusable native credentials, 403 for insufficient scope,
+415 for unsupported media, 413 for excessive representation, and 429 with positive
+`Retry-After` for admission exhaustion. Other errors use the exact `{error}` body
+above and never echo a proof or credential.
+
+A 404 or 503 is not evidence that an earlier uncertain activation never committed.
+The client retains the original attempt and any previously validated receipt.
+Neither result by itself authorizes a replacement preparation, deadline renewal,
+presence claim or automatic plaintext downgrade.
+
 Activation resolves the offer by the signed answer's original offer and dispatch
 digests as well as the path identifier. It consumes only its exact retained
 preparation. Concurrent preparations do not create multiple answer slots: the

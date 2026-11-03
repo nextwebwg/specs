@@ -491,6 +491,44 @@ A signed wrapper is exactly `{payload,signature}`: canonical padded base64 origi
 
 These are new purpose-separated uses of existing Ed25519 and byte framing, not a new cryptographic algorithm. Existing retained domains remain exact.
 
+### Select the HTTP role once
+
+An app authenticates to its own service. Services exchange signed protocol
+records without carrying that app's account credentials. A provider can serve
+both roles under one descriptor prefix, including the same offer and command
+paths. Its actual HTTP request owner selects one role before admission:
+
+| Shared `POST` path | Own-account request body | Service-to-service request body |
+| --- | --- | --- |
+| `offers` | The complete bare submission defined below | Exactly `{submission,dispatch}` |
+| `offers/{id}/commands` | Exactly `{proof}` | Exactly `{command,forward}` |
+
+On these shared paths, the presence of an `Authorization` header selects the
+own-account role, even when its value is empty, malformed or invalid. Apply the
+native credential and scope checks for that role. Failed authentication, an
+invalid proof or a malformed own-account body MUST NOT retry the request through
+the service-to-service handler. Valid own credentials with an invalid body return
+400; missing or unusable own credentials return 401 under the existing rules.
+
+Without `Authorization`, an exact service-to-service outer member inventory
+selects that role; an exact own-account inventory requires authentication and
+returns 401. A mixed or unknown inventory returns 400. This selection checks
+bounded request shape only. It grants no source admission, account ownership or
+proof validity; the selected owner still performs all of its current signature,
+identity, interval and disclosure checks. It does not fetch a descriptor or try
+another role after validation fails.
+
+Federation-only routes, including `dispatches/{id}/inspect`, reject native
+credentials with 400 rather than invoking a management login. Other management
+routes retain their required own-account authentication. The selected
+service-to-service role also rejects cookies and other native account
+credentials. Common framing, method,
+media, size and finite processing checks remain in force before admission; this
+role rule does not require parsing an excessive body or repairing invalid HTTP.
+Duplicate headers and other framing failures retain their existing rejection
+rules. Select once within the actual request owner, rather than replaying a
+consumed request through a second TLS or HTTP parser.
+
 ::::
 
 :::: {.details summary="Offer, dispatch and admission"}

@@ -563,6 +563,27 @@ separately binds the exact original dispatch payload. Service/account/link match
 the source authorization. Its interval is contained in the offer and source
 authorization intervals. Source dispatch and account reset serialize in one transaction. Equal request ID and equal original submission recover the same dispatch; unequal bytes conflict. An invalid signature cannot occupy the collision key.
 
+### Receive the source dispatch receipt
+
+The own-service `POST /offers` returns `201 Created` when it first retains the
+original submission and its signed dispatch. An equal-original retry returns
+`200 OK` with the same dispatch bytes. Both responses have
+`Content-Type: application/json`, `Cache-Control: no-store`, and the bare original
+signed dispatch wrapper as their body. The response does not wrap the dispatch in
+another object or include native credentials.
+
+This receipt acknowledges local source custody. It does not acknowledge delivery
+to the destination, an online recipient or an active connection. If the response
+is lost, the client retains uncertainty and retries the exact original submission;
+it does not create a new offer ID to recover the old result.
+
+Historical recovery still requires the same account incarnation and original
+native family under current native/account permission. An equal-original retry
+may return its retained dispatch after the offer expires or the home is withdrawn.
+It must not change the signed bytes, extend their interval or reactivate authority.
+The service must separately recheck current source permission before forwarding;
+receiving a dispatch receipt does not authorize forwarding it.
+
 The destination checks its own blocks and admitted source-origin policy before doing source inspection or allocating peer work. A device-signed home record cannot add an origin to that operator admission policy or override its network egress restrictions.
 
 The source forwards exactly `{submission,dispatch}` to target-prefix `POST /offers`; no OAuth, mailbox password, refresh token, queue bearer or installation credential crosses services. The destination validates both home authorizations and exact source dispatch signature using the delegated source serviceKey. It independently applies current own-account/link status, endpoint authority, admitted source-origin policy, intervals and destination disclosure/admission policy. TLS authenticates the endpoint; it does not supply these permissions.

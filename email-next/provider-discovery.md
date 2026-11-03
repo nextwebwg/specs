@@ -20,8 +20,8 @@ A client can learn where a mail domain offers an Email/2 control service without
 The selected opaque application carrier uses [provider descriptor3](#discover-complete-mail-receiving-support) when this capability is offered. It selects exchanges that carry both original native setup and signed device support for the mail format. Descriptor2 retains its exact asynchronous inner-agreement meaning; it does not prove the newer outer carrier. A descriptor is not evidence that the complete service is implemented.
 
 The [cooperating-service architecture](service-federation.md) additionally calls
-for separately scoped directory, rendezvous and ciphertext-delivery roles. Those
-roles need an exact new discovery binding. They are not extra fields in the
+for separately scoped directory, rendezvous and ciphertext-delivery roles. The [configured home data binding](home-data.md) selects its delivery role separately.
+Automatic publication/retrieval of those roles still needs its exact discovery binding. They are not extra fields in the
 retained strict descriptors below, and a domain delegation still does not prove a
 mailbox-to-device identity. Clients using independent services need an accepted
 locator or configured common federation when their email domain supplies none.
@@ -120,6 +120,7 @@ An independent registrar, home or package service uses the native sign-in proced
 | --- | --- | --- |
 | `mailbox-association` | [Association descriptor](mailbox-registration.md#exact-service-descriptor), profile `mail-association-service-v0` | `mail.association.link mail.association.manage` |
 | `rendezvous` | [Home-service descriptor](rendezvous.md), profile `mail-rendezvous-v0` and purpose `rendezvous-service` | `mail.rendezvous.link mail.rendezvous.manage` |
+| `delivery` | [Home data descriptor](home-data.md#data-service-descriptor), profile `mail-home-data-v0` and purpose `home-data-service` | `mail.delivery.link mail.delivery.manage` |
 | `packages` | [Package-service descriptor](package-allocation.md#service-descriptor), profile `mail-package-allocation-v0` and purpose `package-service` | `mail.packages.link mail.packages.manage` |
 
 For each candidate, the selected descriptor comes from explicit own-account service configuration or an already accepted delegation under its owning contract. Preserve that original selection and its trust provenance; do not manufacture a mailbox-domain delegation for an independent service. Incoming recipient evidence cannot select this login or install a new service origin. Rendezvous currently selects explicit own-account configuration; its still-undefined domain-discovery binding cannot be inferred from this shared sign-in procedure.
@@ -128,7 +129,7 @@ The selected origin supplies the required RFC8414 metadata at the same well-know
 
 Register each module separately with exactly its selected scope set. Retain the selected module, descriptor bytes/digest, own-account configuration or delegation provenance, metadata bytes/digest, issuer, client ID, callback forms, scope set and local setup generation in the attempt and credential binding. A shared origin, client ID or callback does not merge grants. A descriptor or metadata change invalidates pending attempts; it does not forward an old credential to the replacement service. Refresh cannot add another module's scopes.
 
-A successful native login supplies only the selected account-management grant. The association, rendezvous and package owners define their own device-link records, signature purposes, string timestamps, reset/inspection and later operation permissions. Existing provider/relay/setup links, proofs and credentials cannot be relabeled for these candidates. A client implementing only the earlier provider, relay and setup modules does not gain these capabilities merely because a server advertises these scope strings.
+A successful native login supplies only the selected account-management grant. The association, rendezvous, delivery and package owners define their own device-link records, signature purposes, string timestamps, reset/inspection and later operation permissions. Existing provider/relay/setup links, proofs and credentials cannot be relabeled for these candidates. A client implementing only the earlier provider, relay and setup modules does not gain these capabilities merely because a server advertises these scope strings.
 
 Acceptance evidence must include the selected modules at a shared origin with equal callback/client identifiers, wrong or missing advertised scopes, changed descriptor/metadata during an attempt, a callback from another module's pending attempt, an incorrectly scoped token or refresh, and revocation restricted to its original grant family. Successful native authorization must still leave mailbox verification and device/home authority unestablished until their actual owning checks complete. The new candidate bindings require their own implementation evidence; earlier native-flow tests do not establish their support.
 

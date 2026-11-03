@@ -123,7 +123,7 @@ Both apps use connections they opened themselves. That works with ordinary firew
 
 Alice's own service is her connection point, not an authority to disclose her recipient to arbitrary operators. The client performs the selected private lookup, or uses an independently specified privacy-preserving broker. An ordinary cleartext “look up Bob for me” request has a different disclosure contract.
 
-The proposed [home-service rendezvous binding](rendezvous.md) defines device-signed homes, source dispatch and exact request-bound answers. Its native-module/reset, pending retrieval and preparation-route prerequisites remain explicit; it does not define content upload or advertise direct WebRTC.
+The proposed [home-service rendezvous binding](rendezvous.md) defines device-signed homes, source dispatch and exact request-bound answers. Its native-module/reset, pending retrieval and preparation-route prerequisites remain explicit; it does not define content upload or advertise direct WebRTC. The separate proposed [home data binding](home-data.md) selects sealed packet custody and optional provider-owned mailbox stitching within Email/2; implementation and acceptance remain required.
 
 When a live exchange is needed, Alice's app makes one authorized **rendezvous offer**. Bob's service can pass it to his permitted devices without publishing an online roster. One device may return a short-lived answer automatically under the account's existing policy. The clients validate the answer and their common capabilities before using the selected path.
 
@@ -219,7 +219,7 @@ The architecture fixes service roles, authority separation, progressive adoption
 - Registrar admission, federation bootstrap/update authority, reassignment/migration and witness/consistency assumptions. Unconfigured realms are not universally discoverable.
 - Exact descriptor role extensions, service-to-service authentication and known-pair/first-contact grant acquisition; no implicit reuse of old challenge-queue permissions.
 - Offer/answer codecs, multi-device selection and exact transcript binding.
-- Full fast-packet carriage, custody/endpoint receipt schemas, replay/status retention and atomic mailbox duplicate suppression.
+- Actual joined implementation and acceptance of the [selected home data carriage, custody/receipt/status and optional mailbox stitching](home-data.md). Its configured known-peer binding does not establish automatic discovery or first-contact data admission.
 - A complete optional WebRTC binding and declared IP-disclosure modes.
 
 No profile can advertise complete support while these mandatory bindings are unspecified. Existing retained wire agreements keep their original meanings. Private lookup, combined-operator compromise resistance, independent implementation interoperability and security review must be qualified separately.

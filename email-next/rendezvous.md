@@ -922,7 +922,7 @@ His service returns retained original bytes for:
 | `notBefore` | Inclusive canonical uint64 Unix-seconds string. |
 | `notAfter` | Exclusive canonical uint64 Unix-seconds string. |
 
-Purpose is `rendezvous-answer`; preparation/request/grant are fresh IDs. `path` is exactly `home-ciphertext`. `operations` is exactly `["connection-resume","status-read"]`. These permit connection rendezvous only, not ciphertext upload, archive access or mailbox-copy suppression. The interval fits all original offer/dispatch/home/account/device intervals. The server may reject an unsuitable requested interval; it cannot silently change approved bytes.
+Purpose is `rendezvous-answer`; preparation/request/grant are fresh IDs. `path` is exactly `home-ciphertext`. `operations` is exactly `["connection-resume","status-read"]`. These permit connection rendezvous only, not ciphertext upload, archive access or mailbox-copy suppression. The separate [home data module](home-data.md) owns sealed-packet authority and optional mailbox stitching; it does not widen this answer. The interval fits all original offer/dispatch/home/account/device intervals. The server may reject an unsuitable requested interval; it cannot silently change approved bytes.
 
 ### Prepare the exact answer
 

@@ -196,7 +196,7 @@ Limits has exactly these required positive uint-string members:
 | `maxDepth` | JSON structural depth bound. |
 | `pageSize` | Maximum inbox entries in one page. |
 | `cursorLifetimeSeconds` | Maximum original inbox-scan interval. |
-| `retentionSeconds` | Maximum requested custody interval. |
+| `retentionSeconds` | Maximum original interval from upload `notBefore` through `retainUntil`, checked separately against each selected descriptor. |
 
 There are no numeric defaults. Hosts may enforce stricter transient work limits
 with 429/503, never change retained bytes or shorten an issued obligation silently.
@@ -261,7 +261,11 @@ All listed members are required. No member has an implicit default.
 The credible release/admission clock fits the entire original packet interval.
 That interval is contained in original source and target data-home/descriptor bounds.
 `retainUntil` is at least `notAfter` and fits both data-home/descriptor ends and
-published retention policy. An unsuitable request is rejected, not silently changed.
+published retention policy: after validating `notBefore < notAfter <= retainUntil`,
+checked subtraction must give `retainUntil - notBefore` no greater than each
+selected descriptor's `retentionSeconds`. Retry, custody commit and query time do
+not replace that original start or renew the interval. There is no numeric default.
+An unsuitable request is rejected, not silently changed.
 Storage does not promise that a native receiving/epoch window remains usable.
 
 The Source namespace is delivery module, authenticated account incarnation, actual

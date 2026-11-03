@@ -505,16 +505,29 @@ paths. Its actual HTTP request owner selects one role before admission:
 
 On these shared paths, the presence of an `Authorization` header selects the
 own-account role, even when its value is empty, malformed or invalid. Apply the
-native credential and scope checks for that role. Failed authentication, an
+native credential and scope checks before validating the complete own-account
+body, including its nested records. Failed authentication, an
 invalid proof or a malformed own-account body MUST NOT retry the request through
 the service-to-service handler. Valid own credentials with an invalid body return
 400; missing or unusable own credentials return 401 under the existing rules.
 
-Without `Authorization`, an exact service-to-service outer member inventory
-selects that role; an exact own-account inventory requires authentication and
-returns 401. A mixed or unknown inventory returns 400. This selection checks
-bounded request shape only. It grants no source admission, account ownership or
-proof validity; the selected owner still performs all of its current signature,
+Without `Authorization`, first require a syntactically valid UTF-8 JSON object
+with unique decoded top-level member names. Select the role from those names
+only: an exact service-to-service inventory selects that role; an exact
+own-account inventory requires authentication and returns 401. Malformed JSON,
+non-object roots, duplicate outer member names and mixed or unknown inventories
+return 400.
+
+Member values do not choose the role. For example, `{"proof":null}`,
+`{"proof":0}` and `{"proof":false}` all require own-account authentication.
+Duplicate names inside a member value also remain for the selected record
+owner to validate; they do not change the role. After own-account
+authentication, the complete record validator still rejects forbidden scalar
+forms, nested duplicate members and other invalid proof content under the
+binding's strict record rules. This ordering does not relax those rules.
+
+This selection checks bounded outer shape only. It grants no source admission,
+account ownership or proof validity; the selected owner still performs all of its current signature,
 identity, interval and disclosure checks. It does not fetch a descriptor or try
 another role after validation fails.
 

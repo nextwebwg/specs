@@ -1,6 +1,6 @@
 {
   "artifacts": {
-    ".github/workflows/ci.yml": "0cc1702cea6bb4d695d547a47cef1e0ad9426ae4ee33e5f896ade44abf5758e1",
+    ".github/workflows/ci.yml": "ede09af815004ce22b09d69ee2feaf0d2900f851787f77fab5e4647c1d87508c",
     ".gitignore": "51e0142fd08c85a2da9e468606de67498092c6eea092b34bde9acfc81b61e5ad",
     "AGENTS.md": "d784165814a67ed61cb4097a8a4a95abb1f97e8cf2fbe582cdfa38eb6cdc9fe6",
     "CLAUDE.md": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",

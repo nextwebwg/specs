@@ -326,8 +326,8 @@ this original packet, not new content, another destination or a changed deadline
 This is not sender-constrained HTTP or proof against the authorized homes.
 
 The source retains one original signed release for an upload before any peer
-output. Later eligible local attempts reuse that release and the frozen forward;
-they do not mint a new release-time statement. Current local permission is checked
+output. Later eligible local attempts reuse that release and the upload's original
+bytes; they do not mint a new release-time statement. Current local permission is checked
 again for each attempt. The retained statement describes its original
 release-authorization time, while the upload's original `notAfter` remains the
 admission deadline.

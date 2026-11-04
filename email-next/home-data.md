@@ -513,6 +513,27 @@ Current own native module/account/linked-Device authority selects the namespace;
 the id alone cannot select a foreign account or Device. Current manage authority
 can inspect its historical local facts without reviving an expired submit role.
 Fresh network reconciliation separately needs the exact current query authority.
+
+The own-account client verifies the source receipt against its original Upload.
+It can also verify a destination receipt without obtaining the source service's
+private Release. In that case it checks the complete destination receipt schema,
+original upload/id, packet/native/home/account/descriptor and retention bindings,
+the past credible custody interval, and the signature under the independently
+admitted original destination service key. It preserves `releaseDigest` as the
+canonical 32-byte digest asserted by that destination. This establishes the
+signed historical custody claim for that Upload, not that the client has checked
+the private Release's signature or current source output permission. Do not expose
+the private Release merely to make this observation readable.
+
+An actor that owns the exact Release, including the source handling its peer
+response or query result, still compares `releaseDigest` with that original
+Release payload digest. A client without it must not manufacture an exact-Release
+binding from the receipt, the state label or an HTTP success. Keep these two
+validation scopes distinct. An optional endpoint receipt still requires the
+matching destination custody id and all original packet/native/target bindings,
+plus the separate Device identity, protected audience and original receiving-
+authority checks; destination signature verification cannot replace them.
+
 Retain first-success original bytes under the final Client Vault writer; compare
 again there against concurrent in-flight observations. Different valid receipts
 for the same immutable slot conflict. Later errors/uncertainty cannot erase facts.

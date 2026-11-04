@@ -786,13 +786,13 @@ A column's root is the header cell it renders. It declares a `cell` slot, which 
 
 ```html title="x-column.html"
 <template component="x-column" summary="One column of x-datatable.">
+  <th scope="col"><slot name="header">{$header}</slot></th>
   <defs>
     <prop name="field" type="string">The row field a cell shows when no cell content is given.</prop>
     <prop name="header" type="string">The header text.</prop>
     <slot name="header"></slot>
-    <slot name="cell"><prop name="row" type="object" required>The row this cell shows.</prop></slot>
+    <slot name="cell"><prop name="row" type="object({ ... })" required>The row this cell shows.</prop></slot>
   </defs>
-  <th scope="col"><slot name="header">{$header}</slot></th>
 </template>
 ```
 
@@ -802,7 +802,7 @@ The table places its columns in the header row, then renders one row per item an
 <link rel="component" href="./x-column.html">
 <template component="x-datatable" summary="A table whose columns are its x-column children.">
   <defs>
-    <prop name="rows" type="list(object)" required>One entry per table row.</prop>
+    <prop name="rows" type="list(object({ ... }))" required>One entry per table row.</prop>
     <slot accepts="x-column" as="columns"></slot>
   </defs>
   <table>
@@ -826,7 +826,7 @@ A page writes the columns as the table's children:
 
 <template component="page-products">
   <defs>
-    <state name="products" type="list(object)"
+    <state name="products" type="list(object({ id: number, name: string, price: number }))"
            value="[{ id: 1, name: 'Desk lamp', price: 49 }, { id: 2, name: 'Notebook', price: 6.5 }]"></state>
   </defs>
   <main>
@@ -1097,7 +1097,7 @@ The definition's `<style>` may also declare CSS `@import` edges. A static graph 
 
 `<link rel="import">` (HTML Imports)[^7] defined an imported `Document` graph together with its own parser-blocking, script-ordering, style-ordering, deduplication, `currentScript`, and custom-element processing rules. The later [HTML Modules proposal](https://github.com/WICG/webcomponents/blob/gh-pages/proposals/html-modules-proposal.md) explicitly identified global-object pollution and parse blocking among the problems and attempted to move the graph into ES modules. HTML Next keeps component definitions declarative and gives their one optional imperative edge to the existing ES-module loader.
 
-A component definition **contains no executable code: code is referenced, never embedded**. Its only children are an optional `<defs>` region, one markup root, and an optional `<style>`. It [must not]{.kw} contain an inline executable `<script>`, inline event handlers, or anything requiring `eval()`, and bindings use a restricted pure expression language. Code reaches a component only through references the definition makes visible: the carrier's `controller` module and the `src` of each [declared script](#declared-scripts). The platform loads both under the page's CSP, and only when an instance connects. So importing a definition is a pure fetch, parse, and register: no code executes, no globals are shared, nothing changes in the document, and there is no lifecycle to order. Registration is deduplicated by tag: registering the same definition again changes nothing, and a different definition [replaces](/declarative-components/javascript#component-registry-replace) the registered one. Neither runs a script, because a definition has no script side effects to run twice.
+A component definition **contains no executable code: code is referenced, never embedded**. Its only children are an optional `<defs>` region, one markup root, and an optional `<style>`, in any order. A root that is a table part, such as `<tr>` or `<th>`, comes first, because the `<template>` parses its content in the context of its first element and keeps a table part only there. It [must not]{.kw} contain an inline executable `<script>`, inline event handlers, or anything requiring `eval()`, and bindings use a restricted pure expression language. Code reaches a component only through references the definition makes visible: the carrier's `controller` module and the `src` of each [declared script](#declared-scripts). The platform loads both under the page's CSP, and only when an instance connects. So importing a definition is a pure fetch, parse, and register: no code executes, no globals are shared, nothing changes in the document, and there is no lifecycle to order. Registration is deduplicated by tag: registering the same definition again changes nothing, and a different definition [replaces](/declarative-components/javascript#component-registry-replace) the registered one. Neither runs a script, because a definition has no script side effects to run twice.
 
 > [!norm] Definitions stay declarative
 > The definition contains no executable code, and its reactivity lowers and compiles. Imperative behavior lives in code the definition references by URL: its controller in the **ES module system**, and any declared scripts. Both are the only parts with a real lifecycle, and both start when an instance connects. Code lives in referenced files while the component definition remains data.

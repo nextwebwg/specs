@@ -15,7 +15,7 @@ concurrency:
 jobs:
   verify:
     name: Node ${{ matrix.node }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.CI_RUNNER_LABELS || '["ubuntu-latest"]') }}
     strategy:
       fail-fast: false
       matrix:
@@ -27,7 +27,7 @@ jobs:
           node-version: ${{ matrix.node }}
           package-manager-cache: false
       # Corepack owns the pnpm/Yarn shims; --force replaces runner-provided shims in this ephemeral job.
-      - run: npm install --global --ignore-scripts --force corepack@0.34.0
+      - run: npm install --global --ignore-scripts --force corepack@0.34.7
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify:pr
@@ -36,6 +36,6 @@ jobs:
     name: Required
     if: always()
     needs: [verify]
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.CI_RUNNER_LABELS || '["ubuntu-latest"]') }}
     steps:
       - run: test "${{ needs.verify.result }}" = success

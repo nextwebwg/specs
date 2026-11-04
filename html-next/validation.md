@@ -2,8 +2,8 @@
 title: Validation
 order: 8
 blurb: the type is the constraint
-eyebrow: Declarative HTML Components Level 2 · proposed direction
-status: Proposed direction · Level 2
+eyebrow: Declarative HTML Components Level 1 · proposed direction
+status: Proposed direction · Level 1
 ---
 
 # Validation
@@ -12,7 +12,7 @@ A declared type is a constraint. [HTML Forms](/html-forms) extends constraint va
 
 ## At a glance
 
-The same validation that already works on a form `<input>` works on any typed value, a component prop or a data response, with no forms library:
+The same validation that already works on a form `<input>` works on any typed value, a component prop or a data response, directly:
 
 ```html
 <!-- a form control validates against its constraints, exactly as today -->
@@ -31,7 +31,7 @@ The same validation that already works on a form `<input>` works on any typed va
 
 ## Built on HTML Forms
 
-This chapter does not define a validity model of its own. [HTML Forms Level&nbsp;1](/html-forms#constraint-validation-on-any-element) defines one for any element with a value:
+Props use the validity model that [HTML Forms Level&nbsp;1](/html-forms#constraint-validation-on-any-element) defines for any element with a value:
 
 - `el.validity` with named flags such as `valueMissing`, `rangeOverflow`, and `tooShort`, plus a list of errors with messages and optional paths;
 - `el.validate()` and `el.setValidity(errors)`;
@@ -93,7 +93,7 @@ el.validity            // { valid: false, rangeOverflow: true, errors: [{ reason
 // a failure the type cannot know about, such as a server's answer
 el.setValidity([{ reason: "taken", message: "That email is in use." }])
 
-// a pure helper: validate any value against a type or schema, no element involved
+// a pure helper: validate any value against a type or schema directly
 validate(value, type | schema)   // → { valid, errors }
 ```
 
@@ -106,7 +106,7 @@ For an asynchronous rule, such as whether a name is taken, a `<data>` lookup kee
 ## How it runs today
 
 > [!norm] Authors write the platform syntax
-> Authors set validity through `setValidity()` and style `:valid`, `:invalid`, and `:user-invalid`. They do not target polyfill attributes. Until browsers implement HTML Forms' validity for every element, the reference implementation provides it:
+> Authors set validity through `setValidity()` and style `:valid`, `:invalid`, and `:user-invalid`. Polyfill attributes are internal to the reference implementation. Until browsers implement HTML Forms' validity for every element, the reference implementation provides it:
 >
 > - native form controls use their real `setCustomValidity()`, so the real `:invalid` and form submission still work;
 > - form-associated custom elements use the real `ElementInternals.setValidity()`;

@@ -1,0 +1,58 @@
+{
+  "version": "0",
+  "purpose": "authored-contribution",
+  "event": "23cd2a555ee1f8ca98834f2965b1363a",
+  "conversation": "3d2bc51eaee23561bd8924f6379fd07e",
+  "principal": "enp0:bd1f83220d795b11750b4e841df816a3c24b901dbb4b638bd896023aed8c4826",
+  "scope": {
+    "kind": "existing",
+    "root": {
+      "principal": "enp0:bd1f83220d795b11750b4e841df816a3c24b901dbb4b638bd896023aed8c4826",
+      "conversation": "3d2bc51eaee23561bd8924f6379fd07e",
+      "event": "f8cad17835d3e3959e7b6ebcc7639edf"
+    }
+  },
+  "operation": {
+    "kind": "message",
+    "text": "Thanks — I will use your work address.",
+    "replyTo": [
+      {
+        "principal": "enp0:7bd1f6cf105f608b5465b5ddbfa486fd190814935bebd56a061defbc0bb3bfc7",
+        "conversation": "3d2bc51eaee23561bd8924f6379fd07e",
+        "event": "7fcbfa2593bf3137091d5ba3b83fd43b"
+      }
+    ]
+  },
+  "disclosures": [],
+  "presentation": {
+    "subject": "Choosing a day",
+    "authoredAt": "",
+    "authorSlot": "40a1e1efb9125919601e7f18437fba44",
+    "from": "alice@sender.example",
+    "to": [
+      "5e165c7b239315e571a345fb6433b450",
+      "7796b662f9b40c81a9900beebfe84c45"
+    ],
+    "cc": [],
+    "addresses": [
+      {
+        "slot": "5e165c7b239315e571a345fb6433b450",
+        "mailbox": "bob@work.example"
+      },
+      {
+        "slot": "7796b662f9b40c81a9900beebfe84c45",
+        "mailbox": "carol@recipient.example"
+      }
+    ]
+  },
+  "replyIntent": {
+    "version": "1",
+    "kind": "discussion",
+    "participants": [
+      "40a1e1efb9125919601e7f18437fba44",
+      "5e165c7b239315e571a345fb6433b450",
+      "7796b662f9b40c81a9900beebfe84c45"
+    ],
+    "privateReplies": true
+  }
+}

@@ -38,9 +38,17 @@ class TreeTests(unittest.TestCase):
         self.assertEqual(outer['attributes'],{'dir':'auto'})
         self.assertEqual(outer['children'][0]['attributes'],{'dir':'rtl'})
         self.assertNotIn('Latin',str(result['tree']))
-    def test_unsupported_direction_wrapper_is_diagnosed(self):
-        result=project('<section dir="rtl">שלום</section>')
-        self.assertIn('unpreserved-direction-boundary:section',result['diagnostics'])
+    def test_unpreserved_direction_refuses_projection_without_partial_tree(self):
+        from html_tree import _project_tree_local
+        from parser_process import ParserFailure
+        for source in ('<p>before</p><section dir="rtl">שלום</section><p>after</p>',
+                       '<p><unknown dir="auto">123 שלום</unknown>tail</p>'):
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError,'unpreserved-direction-boundary'):
+                    _project_tree_local(source.encode(),mime_charset='utf-8',max_bytes=4096,max_nodes=100,max_depth=20)
+                with self.assertRaisesRegex(ParserFailure,'unpreserved-direction-boundary'):project(source)
+        # An invalid dir value establishes no direction boundary to preserve.
+        self.assertEqual(project('<section dir="invalid">x</section>')['tree'],['x'])
     def test_title_inheritance_survives_unwrapped_and_document_boundaries(self):
         result=project('<html title="document"><body title="body"><section title="section">A<b>B</b><span title="">C<em>D</em></span></section><p>E</p></body></html>')
         tree=result['tree']

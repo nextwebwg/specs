@@ -16,6 +16,33 @@ The **Conversations** base covers the [client conversation behavior](client-beha
 
 Optional modules have complete dependencies. A client implementing encryption must implement its identity, device, storage, cryptographic and protected-message rules; a provider carrying ciphertext need not hold decryption keys. Optionality is permission to omit a module, not to implement half its safety boundary and claim it.
 
+## Existing standards and experimental designs
+
+Email/2 is an experimental protocol suite. It reuses existing standards, but the new rules connecting them are not established Internet standards. Read a module's origin separately from its implementation status.
+
+| Origin | Meaning |
+| --- | --- |
+| Existing standard | Behavior taken from a named published standard. Cite the exact version and sections used, including any restrictions. |
+| Email/2 extension | A new format, exchange or binding defined here, including a new combination of existing protocols. It remains experimental even when its cryptographic components are standardized. |
+| Research | A proposed mechanism whose interoperable contract is not yet settled. It cannot serve as an implemented module's required mechanism until that contract is defined. |
+
+The [protocol baseline](baseline.md#protocol-suite) identifies the incorporated standards. The distinction applies within modules as well as between them:
+
+| Area | Existing foundations | What Email/2 adds |
+| --- | --- | --- |
+| Mail carriage | SMTP, Internet message format and MIME | Protected packet carriage, setup carriers and their processing rules. Ordinary mail delivery retains its existing contract. |
+| Conversations and presentation | Existing message identifiers, reply headers, HTML, CSS and HTML Microdata | Exact contribution and reply relationships, authored/quoted chunk bindings, the finite rendering profile and conversation behavior. |
+| Encryption and setup | MLS and the cryptographic standards selected by the protected profile | Mailbox/device authority, setup acquisition, application bindings, asynchronous delivery and lifecycle rules. Standard MLS does not by itself define these exchanges. |
+| Private addressing | Existing email addressing and the selected authentication and cryptographic mechanisms | Relay authorization, temporary route lifetimes, protected personal addresses and address swapping. |
+| Interactions and deletion | Existing MIME, HTTPS and selected signature/encryption mechanisms | Structured answers, service-action authorization and retry semantics, reactions, corrections and silent deletion requests. |
+| Backup and recovery | Selected cryptographic and serialization standards | Archive formats, completeness checks and the separation of historical recovery from live device authority. |
+
+These Email/2 additions are **Email/2 extensions**, not existing standards merely because they use standard components. Unsettled choices in [cooperating services and live connections](service-federation.md) and the [design inventory](design-resolution.md) remain **Research** where their exact bindings are still open. Classify the specific mechanism; a module can contain both a defined extension and an unresolved research path.
+
+Implementation evidence is a separate record: **planned**, **implemented**, **tested**, or **externally reviewed**, with the actor role, source revision, scope and limits stated. These descriptions can coexist; external review is not a substitute for tests, and one component test does not establish complete module support. A claim of testing links to the actual evidence. A claim of external review identifies what was reviewed and by whom. Neither changes the protocol's origin or implies standards adoption.
+
+These are documentation labels, not additional wire capabilities or message-security indicators. Use them in architecture references, SDK module documentation and implementation reports; ordinary conversation views retain the concise protection indicators below.
+
 ## Modules and responsibilities
 
 These are short human-facing names. The owning contracts define machine encodings and requirements; these labels are not newly registered protocol tokens.
@@ -24,32 +51,40 @@ These are short human-facing names. The owning contracts define machine encoding
 | --- | --- | --- |
 | Conversations | The base conversation view, reply targeting and defined presentation | Client; source-preserving mailbox carriage. Protected effects require the relevant protection module. |
 | Encryption | End-to-end protected contributions to authorized recipient devices | Sending and receiving clients implement the [protected conversation core](suite-profile.md); ordinary providers can carry the opaque messages. Setup material and current authority must be usable before release. |
-| Auto setup | Content-free automatic acquisition of recipient setup before sending the first human message | Enabled clients and authenticated provider control under [first-contact setup](first-contact-setup.md) and the exact [bootstrap contract](bootstrap.md); complete joined implementation remains required. Cached or passive evidence remains a separate available path. |
+| Setup discovery | A provider advertises whether setup support is publicly offered for a selected recipient | Optional provider/client roles under the [small discovery binding](encryption-discovery.md). A tiny HTTPS sidecar can serve it without changing SMTP/IMAP or holding keys. A hint is not usable setup, identity proof or downgrade permission. |
+| Auto setup | Content-free automatic acquisition of recipient setup before sending the first human message | Enabled clients use a declared supported [ordinary-mail carrier](mailbox-setup.md) or authenticated [provider bootstrap](bootstrap.md), under the same [first-contact policy and handoff](first-contact-setup.md). Identify the available carrier and its limits; provider-only support does not imply ordinary-mail setup. Complete joined implementation remains required. Cached/passive evidence is separately usable under its own rules. |
 | Sender masking | Shared authorized outer From and opaque failure routing | Originating provider or selected relay and sending client, under [private routing](private-routing.md) and [route authorization](relay-routes.md); Encryption is required for the protected personal-author display. |
-| Recipient masking | Opaque SMTP destination without a personal-address forwarding hop | Recipient provider or selected receiving relay, sending client and recipient authorization, under private routing and route authorization; Encryption and exact route-use permission are required. |
+| Recipient masking | Opaque SMTP destination without a personal-address forwarding hop | Recipient’s authorized inbox provider, or explicitly selected receiving relay, and sending client under private routing and provider-issued routes. Finite service trust is established during account connection; no device approves individual aliases. Encryption and exact active route-use permission are required. |
 | Verification | Independent confirmation of the selected correspondent identity | Client and the explicitly selected [verification mechanism](mailbox-association.md#independent-verification-remains-separate). Encryption, a certificate or alias possession alone does not establish this assurance. |
-| Answers | Questions with predefined answers that produce structured conversation replies | Both clients support `question` and `answer` together in the selected protected application. [Service actions](service-answers.md) additionally need their own explicit agreement and endpoint authorization. |
-| Reactions | Add or withdraw a reaction on an exact contribution | Both clients support `reaction` and `reaction-withdraw` together under [reaction state](interaction-state.md). |
-| Corrections | Authenticated correction of a person's own plain-text contribution | Both clients support `edit` under [edit state](interaction-state.md); no arbitrary rich edit is implied. |
+| Answers | Questions with predefined answers that produce structured conversation replies | An interacting client implements complete question/answer targeting, submission and state rules. Current protected readers retain safe question/answer projections even without answer controls. [Service actions](service-answers.md) additionally need their own explicit agreement and endpoint authorization. |
+| Service actions | Predefined choices submitted to a named HTTPS service | Clients support service-question in the signed current application and the [complete service binding](service-answers.md#current-protected-service-agreement). Encryption and independent native service-account/action authorization are required; ordinary Answers support is independent. |
+| Hosted replies | Bring a link holder’s reply into a protected conversation without claiming a verified holder identity | Clients support hosted-holder-observation in the signed application and the [complete observation binding](hosted-access.md#protected-observations-of-hosted-replies). Hosting/account management is a separate actor role. |
+| Reactions | Add or withdraw a reaction on an exact contribution | An interacting client implements reaction and withdrawal together under [reaction state](interaction-state.md); simpler current readers retain attributed readable contributions without claiming the aggregate effect. |
+| Corrections | Authenticated correction of a person's own plain-text contribution | An interacting client implements [edit state](interaction-state.md); simpler current readers retain attributed correction text without installing an unvalidated replacement. No arbitrary rich edit is implied. |
+| Deletion requests | Ask an original recipient system to remove one exact contribution silently | Sending and receiving clients implement the complete [deletion-control binding](deletion-controls.md), independently signed receiving offers, dedicated HPKE key custody and durable target/suppression checks. Encryption alone does not advertise this module; no automatic decision receipt is sent. |
 | Encrypted backup | Portable encrypted historical correspondence and recovery | Archive writer/reader and independent recovery kit under [archives](encrypted-archives.md), with [collections](archive-sets.md) where used. Managed storage is optional. Backup never restores live identity authority. |
 
 A provider can implement carriage, automatic setup, sender masking or recipient masking without implementing all client modules. An Encryption client need not implement a provider control service or every interaction. A module claim states its actor role and tested dependencies. “Email/2” with a module list is meaningful; an unqualified claim that every feature works is not.
 
-The [complete protected conversation bundle](suite-profile.md) is the combination with all three optional interaction modules. It is an interoperability target, not the admission price for every Email/2 implementation. The base client still requires the defined HTML/CSS presentation; modularity does not introduce a text-only conversation client class.
+The [complete protected conversation bundle](suite-profile.md) combines the three conversation interaction modules Answers, Reactions and Corrections. Service actions and Hosted replies are additional independent optional capabilities. It is an interoperability target, not the admission price for every Email/2 implementation. The base client still requires the defined HTML/CSS presentation; modularity does not introduce a text-only conversation client class.
+
+Clients SHOULD offer the [simpler-client procedure](suite-profile.md#joining-with-a-simpler-client): current clients read the same fixed contribution vocabulary despite different implemented interactions. Fewer interactions alone require neither a rewritten contribution nor a fresh stream. Actual audience or agreement changes still require their owning admission or migration procedure. Optional interaction support is recommended, and remains explicit. Neither this transition nor readable presentation removes a claimed module’s safety requirements.
 
 ## Independent guarantees, not one security score
 
-Content encryption, routing privacy and correspondent verification answer different questions. They are not one sequence of increasingly strong encryption. In this draft the Encryption module selects one exact MLS version and cipher suite. There is no invented second encryption-strength level. A future cryptographic choice must define its actual guarantee, dependencies and authenticated negotiation before receiving another label.
+Content encryption, routing privacy and correspondent verification answer different questions. They are not one sequence of increasingly strong encryption. In this draft the Encryption module selects one exact MLS version and cipher suite. Ordinary owner-bound streams are required; managed quorum support is separately advertised within the same agreement. These ordering modes do not rank encryption strength. There is no invented second encryption-strength level. A future cryptographic choice must define its actual guarantee, dependencies and authenticated negotiation before receiving another label.
 
 Sender and recipient masking are independent: either can be available without the other. Independent identity verification can be absent even when content and both personal addresses are protected. Providers still know account/routing mappings; masking does not promise provider anonymity or defeat timing/size correlation.
 
 Use numbered levels only if a future capability defines strict cumulative requirements. Do not call unrelated combinations “Level 1” and “Level 2”. This specification uses named capabilities instead.
 
+Current Encryption claims select the [asynchronous client baseline](suite-profile.md#current-client-baseline). Earlier agreement support can coexist as an explicit compatibility capability, but cannot advertise the current module by itself or drop required reply intent during negotiation. This is one specification with independent optional modules, not separate product editions.
+
 ## Capability negotiation and automatic step-ups
 
 Discover support at the actor that owns it. Device-signed evidence determines a receiving device's protected application support; provider-authorized evidence determines relay/control support. A provider's promise cannot upgrade every client on an account, and a client cannot authorize an arbitrary provider alias.
 
-For a new protected conversation, the [suite selection algorithm](suite-profile.md#module-agreement-and-common-operation-selection) selects the shared protected core and optional interactions from current signed device agreements. Provider service capabilities are checked separately. A conversation's chosen application remains exact; receiving a new feature claim cannot silently change established group authority or interpretation.
+For each actual protected delivery, the [suite selection algorithm](suite-profile.md#module-agreement-and-common-operation-selection) requires the fixed readable application from every selected device and retains their independently implemented interaction lists. Other intended recipients may remain pending; interactions are not intersected into a smaller application. Provider service capabilities are checked separately. A conversation's chosen application remains exact; receiving a new feature claim cannot silently change established group authority or interpretation.
 
 For each prepared delivery:
 
@@ -57,7 +92,7 @@ For each prepared delivery:
 2. Resolve the sender's effective content/fallback policy, address-privacy requirements and verification requirements independently. No capability advertisement changes those permissions.
 3. Prefer end-to-end delivery when usable under that policy. Within an encrypted delivery, independently select supported and authorized sender masking and recipient masking. Where the effective policy permits routine automatic upgrade, use newly available protection without another alias-selection prompt.
 4. Hold a delivery if any required capability or evidence is unavailable. A remembered policy may permit a less private envelope, ordinary email or a particular hosted model; if so the plan and sent record must reflect that actual exposure. A timeout or failed signature never supplies fallback permission.
-5. Freeze the contribution, encrypted personal addresses, exact application, selected routes, supporting evidence and disclosure plan. Apply the [address-swap sequence](private-routing.md#when-the-addresses-change) and current serialized release checks. A changed or revoked dependency requires reevaluation before release.
+5. Freeze the authored contribution, intended slots/personal addresses and disclosure plan, then each delivery's actual slot map, native application, selected routes and supporting evidence. Apply the [address-swap sequence](private-routing.md#when-the-addresses-change) and current serialized release checks. A changed or revoked dependency requires reevaluation before release.
 
 An automatic upgrade applies to the next unsubmitted delivery. It does not rewrite already sent copies, recall a leaked address or turn old plaintext into ciphertext. An exact retry preserves its prepared bytes and route identity; changing route/mode follows the owning replacement/conflict rules. Upgrading one recipient cannot conceal ordinary or hosted exposure elsewhere in a mixed contribution.
 
@@ -67,13 +102,16 @@ A support page can list module capabilities. A composer shows the planned delive
 
 | Short term | Suggested icon description | Meaning when shown as an achieved message state |
 | --- | --- | --- |
-| Encrypted | Closed padlock | The displayed contribution was accepted under the end-to-end protection contract. It does not mean every other copy was encrypted. |
+| Encrypted | Closed padlock | The displayed copy passed the selected endpoint-protection contract. It does not mean every other copy was encrypted or that endpoint operators are excluded; expose the actual trust boundary on inspection. |
 | Sender masked | Person silhouette with a cut-out outgoing arrow at the chest and a cut-out lock overlay | The recorded originating projection used the authorized sender-masking route. State the tested boundary; the provider still knows the account. |
 | Recipient masked | Person silhouette with a cut-out incoming arrow at the chest and a cut-out lock overlay | The recorded destination route used the authorized opaque recipient path, without claiming privacy on uninspected later hops. |
 | Verified identity | Person with a check mark | The selected independent verification evidence applies to this identity and stated scope; expose its source and limits on inspection. |
-| Answers | A small choice/button symbol | The current shared application supports predefined structured answers. This is an interaction capability, not a security guarantee. |
-| Reactions | A reaction face or small reaction symbol | The current shared application supports reaction and withdrawal. |
+| Answers | A small choice/button symbol | This client implements predefined structured-answer interaction under the current agreement. Availability and confirmation still require the exact target and action rules; this is not a security guarantee. |
+| Service action | Choice button with an outgoing arrow toward a small service square | The declared destination is a separately authorized service; this is not proof that submission executed. Inspect the actual origin/account and retain pending or confirmed result scope separately from message encryption. |
+| Reactions | A reaction face or small reaction symbol | This client implements reaction and withdrawal; the actual target and confirmed state remain separately checked. |
 | Encrypted backup | Archive box with a padlock | In a capability view, encrypted backup is supported; a completed-backup state requires an actual authenticated complete selected archive/collection result. |
+
+The [endpoint trust rules](security.md#show-the-protection-actually-established) govern operator-access claims. Known service-side decryption or readable hosting needs an inspectable service-access indication; it cannot borrow a provider-blind meaning from the lock. An ordinary HTTPS bearer page does not gain the Email/2 Encryption state. Unknown remote key/code custody is unknown, not a successful operator-exclusion check. Preserve this distinction without changing the independent identity-verification or masking icons.
 
 These descriptions define meaning, not mandatory artwork. Icons need accessible names and an inspectable explanation; color alone is insufficient. Routine composition need not repeat long security prose. Pending, unavailable and conflicted evidence must not look like an achieved guarantee. Verification and routing details remain available without flooding the message with boilerplate.
 
@@ -82,3 +120,12 @@ These descriptions define meaning, not mandatory artwork. Icons need accessible 
 [JMAP RFC8620 §2](https://www.rfc-editor.org/rfc/rfc8620.html#section-2) defines a required core capability and a discoverable capability map; [§3.3](https://www.rfc-editor.org/rfc/rfc8620.html#section-3.3) lets a request state the capabilities it uses. This is a close precedent for one protocol framework with explicit supported components.
 
 [SMTP RFC5321 §2.2](https://www.rfc-editor.org/rfc/rfc5321.html#section-2.2) and [§4.1.1.1](https://www.rfc-editor.org/rfc/rfc5321.html#section-4.1.1.1) provide another precedent: service extensions are advertised through EHLO. [XMPP service discovery](https://xmpp.org/extensions/xep-0030.html#info) similarly identifies features supported by a server or client entity. These are architectural precedents, not imported Email/2 wire formats or evidence that a capability advertisement itself grants security authority.
+
+
+## Reading a contribution and using its interaction
+
+The selected [asynchronous protected agreement](suite-profile.md#asynchronous-protected-agreement) separates a common readable vocabulary from each device’s interactive capabilities. A simpler reader can show the same question and write a permitted ordinary reply without providing answer buttons. Reactions, corrections, service invitations and hosted observations likewise retain safe readable meaning without granting their effects or contacting a service.
+
+In that agreement, signed per-device interaction names describe implemented features. They are not identity assurance, membership, disclosure consent, current online status or a stronger encryption level. The fixed native application permits known data while local interaction processing still requires its full owning authorization and implementation. An empty interaction list is a valid simpler reader; missing/unknown/malformed capability data is not an empty list.
+
+This is the current v2 contract, with defined acquisition and lifecycle boundaries. Earlier v1 and older records retain their exact operation-block negotiation; they cannot acquire passive reading support by relabeling an old assertion. Basic non-Encryption roles remain governed by their own explicit claims rather than being forced to implement every protected endpoint or optional server service.

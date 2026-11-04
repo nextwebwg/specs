@@ -25,6 +25,12 @@ Captured errata include verified9040 (obsolete-version negotiation example), rep
 
 RFC9963's full review resolves the support-versus-use distinction. Its optional legacy client CertificateVerify algorithms do not remove general RSA-PSS implementation support in§9.1, and9963§4 explicitly retains PSS for TLS1.3 RSA servers. The broad§1.2 summary must not be interpreted as removing all PSS requirements. This is a limited client-key exception, not a defect finding or an accepted erratum. The configured bearer service does not select this client-certificate feature.
 
+## Selected application bindings
+
+The [common capability table](../service-answers.md#tls-1-3-implementation-capabilities) retains §§9.1–9.2's required cipher, group, signature and extension support. Capabilities and per-connection use are separate: cookie and certificate-signature extension support remain required even when a particular handshake does not use them. The mail adapter shares that baseline while defining its own service references and restricted older-version compatibility.
+
+Selected SNI and status-request dependencies are mapped in the [negotiation review](tls-service-negotiation.md) and [certificate-status review](certificate-status.md). Certificate algorithms, corrected module imports and distinguished-name preparation have their own owners. These source mappings do not establish that a particular backend enforces every requirement; runtime claims require its actual configuration and handshake evidence. Recommended additional cipher branches and the mail adapter's TLS1.2 dependencies retain separately identified source-review obligations.
+
 ## Coverage and remaining scope
 
 All7397 source lines/137pages, every structure, diagram, example, table, reference, appendix and end matter read in15 bounded chunks. Official metadata lists no later updates and obsoletes8446/5246/5077/6961/7627/8422, updating5705/6066. Dependencies, live registry reconciliation and deployed TLS acceptance evidence remain open. No TLS implementation or deployment tests were performed.

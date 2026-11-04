@@ -19,7 +19,7 @@ The SHA-256 certificate-signature identifier is `1.2.840.113549.1.1.11`. Verifie
 
 PSS verification also checks the encoded size, trailer, unused high bits, padding, salt and recomputed hash. MGF1 produces its mask from the seed and four-byte counters. These parameters belong to the selected signature scheme; generic library defaults cannot replace them. [RFC 8017 §§8.1.2, 9.1 and B.2.1](https://www.rfc-editor.org/rfc/rfc8017.html#section-8.1.2)
 
-TLS 1.3 requires MGF1 to use the selected digest and the salt length to equal that digest’s output length. Its RSAE and PSS variants have different certificate public-key identifiers; PSS certificate parameters have additional matching constraints. A PKCS #1 v1.5 certificate signature therefore does not describe the handshake signature. [RFC 8446 §4.2.3](https://www.rfc-editor.org/rfc/rfc8446.html#section-4.2.3)
+TLS 1.3 requires MGF1 to use the selected digest and the salt length to equal that digest’s output length. Its RSAE and PSS variants have different certificate public-key identifiers; PSS certificate parameters have additional matching constraints. A PKCS #1 v1.5 certificate signature therefore does not describe the handshake signature. [RFC 9846 §4.3.3](https://www.rfc-editor.org/rfc/rfc9846.html#section-4.3.3)
 
 ## Certificate parameters have their own rules
 
@@ -41,7 +41,7 @@ These selected encoding and type rules do not complete the ASN.1 schema, legacy 
 
 Size constraints count the units of the declared type: characters, octets, bits or component values. A character limit is not an encoded-byte limit, and a collection bound differs from a bound on each element. [X.680 §§49–51.8](https://www.itu.int/rec/T-REC-X.680-202102-I/en)
 
-Legacy character repertoire dependencies and the concrete certificate module imports remain separate work.
+The selected certificate-module imports and ASN.1 information-object rules are mapped in the sections below. Optional legacy character repertoires and backend enforcement remain separately scoped; the [distinguished-name profile](certificate-name-comparison.md#what-the-certificate-validator-must-compare) defines mandatory UTF8String/PrintableString comparison.
 
 ## Read the module with its corrections
 
@@ -57,7 +57,7 @@ The captured corrections also restore `anyPolicy`, use the named CRLNumber type,
 
 This review covers public-key representation, the verification primitive, PKCS #1 v1.5 verification and encoding, RSA-PSS verification and encoding, MGF1, their selected ASN.1 declarations, and the selected certificate parameter rules in RFC 4055 as updated by RFC 5756. Earlier integer/octet conversion coverage remains applicable. It does not cover all certificate algorithms, full ASN.1/DER validation, key generation or implementation resistance to attacks. The errata disposition remains scoped to the reviewed algorithms. Current metadata confirms RFC5756 updates RFC4055; RFC8017 and RFC5756 list no further updates or replacements.
 
-The [service contract](../service-answers.md) still needs a deployment algorithm policy and revocation binding. Local certificate success does not close those requirements or prove a complete certificate validator.
+The [service algorithm policy](../service-answers.md#certificate-algorithms-and-validation-backend) and [certificate-status modes](../service-answers.md#select-a-certificate-status-mode) define the selected requirements. Their complete enforcement by an actual backend still needs implementation evidence; a successful local certificate check does not prove a complete validator.
 
 ## Algorithm tables and open types
 

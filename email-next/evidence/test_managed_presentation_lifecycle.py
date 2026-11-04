@@ -1,4 +1,5 @@
 import base64,hashlib,json,unittest
+from unittest.mock import patch
 from email import policy
 from email.parser import BytesParser
 from event_encoding import encode_event
@@ -15,6 +16,11 @@ import test_private_copy_lifecycle as fixture
 class ManagedPresentation(unittest.TestCase):
     endpoint=fixture.PrivateCopyLifecycle.endpoint;prepare=fixture.PrivateCopyLifecycle.prepare;tearDown=fixture.PrivateCopyLifecycle.tearDown
     def setUp(self):
+        # These historical presentation/service fixtures supply a fixed credible
+        # time. Keep their elapsed clock fixed too; advancing-clock release
+        # behavior is tested separately by the sender-association cases.
+        clock=patch('sender_worker.elapsed_time.monotonic_ns',return_value=0)
+        clock.start();self.addCleanup(clock.stop)
         fixture.PrivateCopyLifecycle.setUp(self)
         self.f.context.update(version='6',application=dict(self.f.context['application'],envelopeVersion='3'))
         proofs=[]

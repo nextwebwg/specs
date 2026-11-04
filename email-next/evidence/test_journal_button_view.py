@@ -24,6 +24,24 @@ class JournalButtonViewTests(unittest.TestCase):
             self.assertEqual(len(store.snapshot(question['conversation'])),2)
             store.close()
 
+    def test_foreign_conversation_reuse_holds_dependent_answer_without_foreign_body(self):
+        question,answer=fixtures.ButtonMimeTests().fixtures()
+        ref=lambda e:{k:e[k] for k in ('principal','conversation','event')}
+        with tempfile.TemporaryDirectory() as folder:
+            store=ContributionJournal(Path(folder)/'journal.db')
+            for event in (question,answer):store.append_validated(encode_event(event),ref(event))
+            old=derive_button_view(store,ref(question))
+            self.assertEqual(old['heads'],[ref(answer)])
+            foreign=dict(question,conversation='9'*32)
+            foreign['operation']=dict(question['operation'],text='PRIVATE FOREIGN BODY')
+            store.append_validated(encode_event(foreign),ref(foreign))
+            view=derive_button_view(store,ref(question))
+            self.assertEqual(view['heads'],[])
+            self.assertNotEqual(view['sourceToken'],old['sourceToken'])
+            self.assertNotIn(b'PRIVATE FOREIGN BODY',repr(store.snapshot(question['conversation'])).encode())
+            self.assertNotIn('PRIVATE FOREIGN BODY',str(view))
+            store.close()
+
     def test_recorded_malformed_envelope_is_not_application_authority(self):
         question,answer=fixtures.ButtonMimeTests().fixtures()
         ref=lambda e:{k:e[k] for k in ('principal','conversation','event')}

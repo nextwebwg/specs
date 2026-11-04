@@ -65,3 +65,12 @@ The live all-status errata listing and RFC metadata were reconciled on 20 Octobe
 The [transport chapter](../transport.md#dane-discovery-and-delivery-outcomes) distinguishes discovery outcomes, authentication usages, key rotation and enforcement exceptions. No DNS resolver or SMTP DANE adapter is validated by this review.
 
 RFC7671 sections8,9,10.1 and13 are explicit operational dependencies. DNSSEC, the base TLSA specification, current TLS guidance, certificate identity, DNS aliasing and SRV service discovery also require applicability and successor review. The historical rationale predates MTA-STS; claims about the absence of alternative discovery mechanisms must not be repeated as current universal facts. Base-text coverage is not dependency closure or security assurance.
+
+
+## Relay-authentication composition
+
+The [transport profile](../transport.md#selecting-authentication-when-policies-overlap) selects DANE when authenticated DNS binds the destination route and a usable TLSA association. MTA-STS is then not applied, rather than counted as passed. A DANE failure cannot be rescued by retrying that candidate with MTA-STS.
+
+For an unauthenticated MX route with enforcing MTA-STS, the profile selects MTA-STS before optional TLSA discovery. RFC7672 section2.2.1 permits, but does not require, electing DANE on that route. Selecting MTA-STS does not authorize ignoring an already-required failing lookup, relabeling relay-only authentication as destination authentication, or satisfying mandatory DANE with PKIX. Secure all-unusable TLSA records retain their TLS requirement and do not suppress applicable MTA-STS.
+
+This is an explicit profile selection, not a claim that either RFC universally mandates this precedence. It preserves the selected mechanism's SNI rule, certificate rules and current release evidence. Implementation and independent interoperability evidence must identify the source revision tested; this audit supplies no runtime acceptance credit.

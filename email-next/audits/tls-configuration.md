@@ -5,15 +5,15 @@ sectionNav: true
 
 # TLS configuration audit
 
-RFC9325 shows why a TLS1.2 minimum alone does not establish a secure HTTPS service. Its current metadata lists two later updates, RFC9852 and RFC10015. The first updates new-protocol requirements to support and default to TLS1.3, while allowing TLS1.2 as an additional nondefault deployment option. Both updates need full review before this audit closes current configuration guidance.
+RFC9325 shows why a TLS1.2 minimum alone does not establish a secure HTTPS service. Its current metadata lists two later updates, RFC9852 and RFC10015. The first updates new-protocol requirements to support and default to TLS1.3, while allowing TLS1.2 as an additional nondefault deployment option. Both updates have completed base reviews, as does the current [TLS 1.3 specification](tls13.md). Applicable source dependencies and implementation evidence remain separately scoped.
 
 ## Service consequences
 
 Use authenticated HTTPS without cleartext fallback. Verify the intended action-service hostname and full certificate chain; SNI or a valid certificate for another endpoint is insufficient. Support ALPN/SNI and enforce protocol/name boundaries across the service fleet. Reusing HTTP requires the selected HTTP protocol's ALPN behavior, not a new Email/2 ALPN identifier. A proxy or alternate backend must not weaken the service's security.
 
-TLS1.2 compatibility requires additional controls: renegotiation_info and extended_master_secret support, safe cipher/key selection, no TLS record compression, secure AESGCM nonces and session-ticket lifecycle. The source recommends ECDHE_RSA/ECDHE_ECDSA with AES128/256GCM and forward secrecy; its older allowances must be reconciled with RFC10015. TLS1.3 removes renegotiation and record compression, but resumption, certificate validation, key usage and early-data replay remain relevant. Certificate compression is a different mechanism and is not prohibited merely because record compression is unsafe.
+TLS1.2 compatibility requires additional controls: renegotiation_info and extended_master_secret support, safe cipher/key selection, no TLS record compression, secure AESGCM nonces and session-ticket lifecycle. The source recommends ECDHE_RSA/ECDHE_ECDSA with AES128/256GCM and forward secrecy; the [RFC10015 review](tls-legacy-key-exchange.md) records the strengthened key-exchange prohibitions. TLS1.3 removes renegotiation and record compression, but resumption, certificate validation, key usage and early-data replay remain relevant. Certificate compression is a different mechanism and is not prohibited merely because record compression is unsafe.
 
-For the proposed service profile, disable0RTT pending an explicitly reviewed HTTP early-data contract. This is a recommended profile choice, not a claim that9325 bans allHTTP earlydata: §3.10 refers HTTP to8470. Business deduplication alone is not evidence that early bearer disclosure/replay is safe. A failed early attempt cannot silently produce a fresh submission identity.
+The [selected HTTPS service profile](../service-answers.md#establish-the-protected-connection) requires TLS1.3, defines no TLS1.2 mode and disables early data. The [mail submission/access adapter](../transport.md#connection-confidentiality-indications) separately defines restricted TLS1.2 compatibility and also disables early data. These are profile selections, not a claim that9325 bans allHTTP earlydata: §3.10 refers HTTP to8470. Business deduplication alone is not evidence that early bearer disclosure/replay is safe. A failed early attempt cannot silently produce a fresh submission identity.
 
 Tickets require encryption/authentication, sufficiently strong protection, regular keyrotation and old-key destruction, bounded validity andcare with long-lived1.2 sessions. Example durations in the source are not user constraints or universal fixedlimits.1.3 ECDHE resumption is recommended to retain forward secrecy. TLS implementations must have a revoked-certificate distrust strategy; the source does not establish perfect/immediate global revocation. TLS forwardsecrecy is separate from MLS lifecycle and retained server plaintext.
 
@@ -28,7 +28,7 @@ All1994 lines/34pages of base text, including full references and AppendixA, rea
 | 2 | Security terminology and BCP14 reviewed. |
 | 3 | General recommendations introduction read. |
 | 3.1 | Version hierarchy reviewed. |
-| 3.1.1 | SSL2/3 andTLS1.0/1.1 prohibited; baseTLS1.2 MUST/TLS1.3 SHOULD and newer-preference reviewed. New-protocol rules must be reconciled with9852 update, not repeated as current unchanged policy. |
+| 3.1.1 | SSL2/3 andTLS1.0/1.1 prohibited; baseTLS1.2 MUST/TLS1.3 SHOULD and newer-preference reviewed. The completed9852 review supplies the updated new-protocol rule. |
 | 3.1.2 | DTLS versions reviewed; no DTLS transport selected for service. |
 | 3.1.3 | No fallback below1.2; obsolete SCSV distinct from1.3 negotiation protection. |
 | 3.2 | Strict protected channel, implicitTLS preference and HTTP HSTS support/use requirements read; no bearer cleartext fallback. |
@@ -40,7 +40,7 @@ All1994 lines/34pages of base text, including full references and AppendixA, rea
 | 3.7 | HTTPS SNI support; unknown-name refusal and mismatch handling; historical ECH note does not establish present deployment status. |
 | 3.8 | ALPN support required; no-common-protocol fatal outcome and client-selection check; HTTP endpoint reuses HTTP ALPN, no new application token inferred. |
 | 3.9 | Both cross-protocol and inconsistent same-service backend threats reviewed; equivalent fleet security and ALPN. |
-| 3.10 | Early-data risks andHTTP8470/QUIC9001 guidance reviewed; disabling service early data is proposed profile choice pending selected replay-safe binding. |
+| 3.10 | Early-data risks andHTTP8470/QUIC9001 guidance reviewed; the selected service disables early data and defines no replay-safe early-data binding. |
 | 4 | Cipher selection context read. |
 | 4.1 | All cipher prohibitions/preferences reviewed; forward secrecy, noNULL/RC4/sub112, avoidstaticRSA/staticDH/DHE; see the RFC10015 review for strengthened prohibitions. |
 | 4.2 | Four ECDHE RSA/ECDSA AESGCM suites, CBC encrypt_then_mac caveat, ECDSA determinism/fault concerns reviewed. |
@@ -71,6 +71,6 @@ All1994 lines/34pages of base text, including full references and AppendixA, rea
 
 The base's new-application dual-version requirement is superseded by RFC9852 §§4–5: TLS1.3 support/default required; TLS1.2 optional as an additional nondefault option for deployment considerations. The complete [RFC9852 review](tls-new-protocols.md) records that update. The complete [RFC10015 review](tls-legacy-key-exchange.md) records strengthened restrictions on older TLS1.2/DTLS1.2 key-exchange methods; these are not a general prohibition on RSA signatures or TLS1.3 finite-field groups. RFC9852 references RFC9846 as the currentTLS1.3 specification; its [complete review](tls13.md) distinguishes current implementation requirements from the earlier8446 text.
 
-The selected deployment still needs full updatedTLS guidance, extension/cipher/certificate dependencies, library configuration and acceptance evidence. QUIC/HTTP3 transport review is separate. Historical source remarks about ECH, postquantum work, CRLite or browser deployment are not adopted as present-day factual claims.
+Remaining work distinguishes applicable extension/cipher/certificate source dependencies from actual library configuration and acceptance evidence. The current owners select the service and mail-adapter profiles; a completed source review does not prove their implementation. QUIC/HTTP3 transport review is separate. Historical source remarks about ECH, postquantum work, CRLite or browser deployment are not adopted as present-day factual claims.
 
 Sources: https://www.rfc-editor.org/rfc/rfc9325.html ; https://www.rfc-editor.org/rfc/rfc9325.json ; https://www.rfc-editor.org/info/rfc9852/ .

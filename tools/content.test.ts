@@ -70,7 +70,7 @@ test("reactivity defines the Signals boundary and lifecycle-owned JavaScript API
   const reactivity = chapter("reactivity");
   const javascript = chapter("javascript");
 
-  assert.match(reactivity, /integrates with, but does not depend on/);
+  assert.match(reactivity, /treats the TC39 Signals proposal as an optional integration/);
   assert.match(reactivity, /\*\*Connection owns observation\.\*\*/);
   assert.match(reactivity, /`State`[^\n]*`Computed`[^\n]*`Watcher`/);
   assert.match(javascript, /interface ComponentHost/);
@@ -90,8 +90,8 @@ test("proposal callouts name their contract and review requests demand attention
 });
 
 test("expressions read declarations only through $ references; bind: takes a path", () => {
-  assert.match(chapter("expressions"), /A bare word inside an expression is never a reference: it is a keyword literal/);
-  assert.match(chapter("bindings"), /its value is a \*\*path field, not an expression field\*\*: write the path without `\$`/);
+  assert.match(chapter("expressions"), /A bare word inside an expression is always a keyword literal/);
+  assert.match(chapter("bindings"), /its value is a \*\*path field\*\*, which names that location itself: write the path without `\$`/);
 });
 
 test("polymorphic roots use explicit native branches", () => {
@@ -101,14 +101,14 @@ test("polymorphic roots use explicit native branches", () => {
   assert.match(components, /<a \$when="\$as = 'a'">/);
   assert.match(components, /<button \$else>/);
   assert.doesNotMatch(components, /<button as="button \| a">/);
-  assert.match(components, /The prop does not retag an element/);
+  assert.match(components, /The prop selects a branch: the definition contains the actual `<button>` and `<a>` branches/);
 });
 
 test("props are initial configuration without required data-* reflection", () => {
   const components = chapter("components");
   const reactivity = chapter("reactivity");
 
-  assert.match(components, /A prop is input to that rendering; it is not automatically exposed as `data-<name>`/);
+  assert.match(components, /A prop is input to that rendering; it reaches the root's attributes only through a binding the template writes/);
   assert.match(components, /A literal attribute on the invocation supplies the prop's \*\*initial configuration\*\*/);
   assert.doesNotMatch(components, /effective value \(passed or default\)/);
   assert.doesNotMatch(reactivity, /This is `attributeChangedCallback`/);
@@ -151,7 +151,7 @@ test("writes are reactive data effects and commands remain author-owned", () => 
     /Level&nbsp;1 keywords are `get`, `query`, `post`, `put`, `patch`, and `delete`/,
     /Initial connection samples .* baseline and does not send a write/, /last acknowledged body/,
     /immutable resolved resource identity and body snapshot/, /preserves its dirty latest snapshot/, /old-key completion/,
-    /For a read, a param change cancels/, /does not own controls or create a rendered `<form>`/,
+    /For a read, a param change cancels/, /A writable data resource is a declaration in `<defs>`; controls and any `<form>` belong to the rendered markup/,
     /validation contract\]\(\/declarative-components\/validation\) applies the result to the field's validity/,
     /native form submission, an imperative controller call, or a component event/]) {
     assert.match(reactivity, phrase);
@@ -248,7 +248,7 @@ test("browser discovery covers later definitions without changing controller bin
 
   for (const phrase of [/Definitions and instances added after boot/, /MutationObserver/, /instance arrives before its definition/,
     /application-owned resolution and import-map trust/, /Sanitized `\$html` and CMS content remain excluded/,
-    /Removal disconnects the instance and disposes its owned work/, /Compiled\/AOT builds[\s\S]*do not use `MutationObserver/]) {
+    /Removal disconnects the instance and disposes its owned work/, /Compiled\/AOT builds[\s\S]*`MutationObserver` discovery belongs to the in-browser runtime alone/]) {
     assert.match(javascript, phrase);
   }
 });
@@ -264,4 +264,55 @@ test("text reaches v-html props escaped, never as markup", () => {
   assert.match(data, /"lede":"A lede with <code>&lt;code&gt;<\/code> and &lt;b&gt;\."/);
   assert.match(data, /"value":"<code>&lt;slot&gt;<\/code> &lt;i&gt;"/);
   assert.doesNotMatch(data, /<b>|<i>|<slot/);
+});
+
+// A current descriptor must select a usable strict block body without opening a new
+// conflict namespace. This is a source-contract check, not a provider runtime test.
+test("bootstrap3 selects the shared source-block contract", () => {
+  const source = readFileSync("email-next/bootstrap.md", "utf8");
+  const block = source.split("### Own-account source blocking\n")[1].split("### Failure, retention and budgets")[0];
+  const fields = [...block.matchAll(/^\| `([^`]+)` \|/gm)].map((row) => row[1]);
+  assert.deepEqual(fields, ["version", "purpose", "request", "exchange"]);
+  const versionRow = block.split("\n").find((line) => line.startsWith("| `version` |"))!;
+  assert.deepEqual([...versionRow.matchAll(/`"(\d+)"`/g)].map((value) => value[1]), ["0", "1", "2", "3"]);
+  assert.match(block, /exactly matching the bootstrap descriptor-bound route selected before parsing/);
+  assert.match(block, /same own-account bootstrap management namespace across supported route versions/);
+  assert.match(block, /including a changed version or exchange/);
+
+  const current = source.split("## First-message setup with carrier support\n")[1];
+  assert.match(current, /`POST \/blocks` under the selected bootstrap descriptor3 managementPrefix/);
+  assert.match(current, /exactly `version`, `purpose`, `request` and `exchange`, with version `"3"`/);
+  assert.match(current, /`mail.setup.respond` authority, retained-exchange attribution/);
+  assert.match(current, /Add no agreement, receiving bundle or device signature/);
+  assert.match(current, /Block state and the management request\/conflict namespace remain shared across versions0\/1\/2\/3/);
+  assert.match(current, /selecting3 cannot clear a block, reset a request or fall back to another version/);
+  const rendered = compileChapter(source, { proposalSnapshot: false, proposalImports: "" }).sfc;
+  assert.match(rendered, /id="own-account-source-blocking"/);
+});
+
+// This guards the selected acquisition wire contract, not runtime support.
+test("ordinary upgrade commits complete receiving bundles in both directions", () => {
+  const source = readFileSync("email-next/automatic-upgrade.md", "utf8");
+  const wrappers = [...source.matchAll(/(?:offer|confirmation) wrapper is exactly `\{([^}]+)\}`/g)].map((row) => row[1]);
+  assert.deepEqual(wrappers, ["payload,signature,identity,receiving", "payload,signature,identity,receiving"]);
+  const commitments = [...source.matchAll(/^\| `receiving` \| ([^\n]+) \|$/gm)].map((row) => row[1]);
+  assert.equal(commitments.length, 2);
+  for (const commitment of commitments) assert.match(commitment, /Hash of the complete original .*receiving-bundle0 bytes/);
+  assert.match(source, /complete decoded receiving-bundle0 is at most 1,048,576 octets/);
+  assert.doesNotMatch(source, /wrapper is exactly `\{payload,signature,identity,advertisement\}`/);
+});
+
+test("rendered roots use component with a polyfill-only data-component fallback", () => {
+  const components = chapter("components");
+  assert.match(components, /Every lowered root carries one provenance attribute, `component`/);
+  assert.match(components, /`component` is a proposed HTML extension/);
+  assert.match(components, /when `component` is absent/);
+  assert.match(components, /including `component=""`/);
+  assert.match(components, /must not[^\n]*merge/);
+  assert.match(components, /must not[^\n]*synchroniz/);
+  assert.match(components, /does not instantiate a component/);
+  for (const name of ["index", "overview", "examples", "rendered-form"]) {
+    assert.match(chapter(name), /component="x-/);
+    assert.doesNotMatch(chapter(name), /data-component=/);
+  }
 });

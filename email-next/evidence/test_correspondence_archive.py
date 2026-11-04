@@ -87,6 +87,70 @@ class ArchiveTests(unittest.TestCase):
         self.assertEqual(set(p.name for p in (self.root / 'history').iterdir()),
                          set(self.objects) | {'manifest.json'})
 
+    def archive_with_event(self, event):
+        value=copy.deepcopy(self.manifest);objects=dict(self.objects)
+        old=value['entries'][0]['object'];del objects[old]
+        raw=json.dumps(event).encode();h=hashlib.sha256(raw).hexdigest()
+        objects[h]=raw;value['entries'][0]['object']=h
+        value['objects']=[dict(sha256=digest,size=str(len(data))) for digest,data in sorted(objects.items())]
+        return value,objects,raw
+
+    def test_unknown_operation_manifest_is_preserved_without_interpretation(self):
+        original=json.loads(self.objects[self.manifest['entries'][0]['object']])
+        original['operation']=dict(kind='future-operation',manifest=dict(format='future-specific-index'),payload='Opaque original')
+        value,objects,raw=self.archive_with_event(original)
+        accepted=self.import_plain(self.plain(value,objects))
+        self.assertEqual(accepted,value)
+        self.assertEqual((self.root/'history'/value['entries'][0]['object']).read_bytes(),raw)
+        self.assertEqual(set(p.name for p in (self.root/'history').iterdir()),set(objects)|{'manifest.json'})
+
+    def test_unknown_envelope_cannot_select_known_manifest_rules(self):
+        original=json.loads(self.objects[self.manifest['entries'][0]['object']])
+        original['version']='99';original['operation']['manifest']=dict(format='different-future-envelope')
+        value,objects,raw=self.archive_with_event(original)
+        self.assertEqual(self.import_plain(self.plain(value,objects)),value)
+        self.assertEqual((self.root/'history'/value['entries'][0]['object']).read_bytes(),raw)
+
+    def test_unknown_reply_version_remains_opaque(self):
+        original=json.loads(self.objects[self.manifest['entries'][0]['object']])
+        original['operation']=dict(kind='reply-message',version='99',manifest=dict(format='future-reply'))
+        value,objects,raw=self.archive_with_event(original)
+        self.assertEqual(self.import_plain(self.plain(value,objects)),value)
+        self.assertEqual((self.root/'history'/value['entries'][0]['object']).read_bytes(),raw)
+
+    def test_export_preflight_rejects_before_writing_any_bytes(self):
+        for problem in ('object-bytes', 'reference', 'resource-binding'):
+            with self.subTest(problem=problem):
+                value = copy.deepcopy(self.manifest)
+                objects = dict(self.objects)
+                if problem == 'object-bytes':
+                    objects[value['objects'][-1]['sha256']] = b'Changed retained bytes'
+                elif problem == 'reference':
+                    value['entries'][0]['reference']['event'] = 'f' * 32
+                else:
+                    value['entries'][0]['resources'][0]['object'] = value['entries'][1]['object']
+                    original = self.manifest['entries'][0]['resources'][0]['object']
+                    value['entries'].append(dict(id='5' * 32, account=self.account,
+                                                kind='evidence', object=original))
+                output = io.BytesIO()
+                with self.assertRaises(ValueError):
+                    write_plain(value, objects, self.signer, output)
+                self.assertEqual(output.getvalue(), b'')
+
+    def test_export_uses_frozen_objects_after_output_callback(self):
+        value = copy.deepcopy(self.manifest)
+        objects = dict(self.objects)
+        expected = self.plain(value, objects)
+        class MutatingOutput(io.BytesIO):
+            def write(output, data):
+                if output.tell() == 0:
+                    objects.clear()
+                    value['objects'].clear()
+                return super().write(data)
+        output = MutatingOutput()
+        write_plain(value, objects, self.signer, output)
+        self.assertEqual(output.getvalue(), expected)
+
     def test_no_live_state_installed(self):
         live = self.root / 'live.sqlite'
         live.write_bytes(b'live authority and queues unchanged')
@@ -145,7 +209,7 @@ class ArchiveTests(unittest.TestCase):
     def test_reference_mismatch(self):
         value = copy.deepcopy(self.manifest)
         value['entries'][0]['reference']['event'] = 'f' * 32
-        self.assert_rejected(self.plain(value))
+        self.assert_rejected(self.forged_manifest(value))
 
     def test_resource_binding_mismatch(self):
         value = copy.deepcopy(self.manifest)
@@ -153,7 +217,7 @@ class ArchiveTests(unittest.TestCase):
         # Retain closure through a separate historical evidence entry.
         original_resource = self.manifest['entries'][0]['resources'][0]['object']
         value['entries'].append(dict(id='5' * 32, account=self.account, kind='evidence', object=original_resource))
-        self.assert_rejected(self.plain(value))
+        self.assert_rejected(self.forged_manifest(value))
 
     def test_false_complete_and_valid_incomplete_snapshot(self):
         value = copy.deepcopy(self.manifest)

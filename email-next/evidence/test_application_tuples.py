@@ -49,6 +49,19 @@ class ApplicationTuples(unittest.TestCase):
         self.assertEqual(decode_assertion(encode_event(v))['value']['applications'],[])
         self.assertEqual(intersect([[],[item()]]),[])
         with self.assertRaises(ValueError):intersect([])
+    def test_indexed_reply_does_not_extend_historical_tuple_versions(self):
+        for version in ('2','3','4','5','6','7'):
+            descriptor = dict(envelopeVersion='3' if version in ('5','6','7') else '2' if version=='4' else '1',
+                              payload='mime-rich-v0' if version!='2' else 'mime-contribution-v0',
+                              ordering='endpoint-quorum-v0' if version in ('6','7') else 'fixed-roster-v0',
+                              operations=['message'])
+            with self.subTest(version=version):
+                self.assertEqual(validate_tuples([descriptor],version=version),[descriptor])
+                original=copy.deepcopy(descriptor)
+                expanded=dict(descriptor,operations=['message','reply-message'])
+                with self.assertRaises(ValueError):validate_tuples([expanded],version=version)
+                self.assertEqual(descriptor,original)
+
     def test_context3_exact_payload_agreement_old_context_unchanged(self):
         context=dict(version='3',purpose='conversation-context',conversation='1'*32,profile='mls-1-0001',administrators=['enp0:'+'a'*64],application=dict(envelopeVersion='1',payload='mime-contribution-v0',operations=['attachment-message','message']),ordering={'kind':'fixed-roster-v0'})
         script="import {validateConversationContext as v} from './conversation-context.mjs';let s='';for await(const c of process.stdin)s+=c;const a=JSON.parse(s);process.stdout.write(JSON.stringify(v(a.context,{configuredApplication:a.agreement})));"

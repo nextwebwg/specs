@@ -26,12 +26,12 @@ All 355 lines and 7 source pages read, including all tables/examples, references
 | 6 | All renegotiation, key exchange, RC4/CBC, attack and handshake privacy discussion read. Do not substitute narrative for complete 1.2 extension controls or claim all TLS1.3 privacy risks resolved. |
 | 7 | No IANA actions. |
 | 8 | Full references read. |
-| 8.1 | All six normative references read; 9846 and9851 require separate full review, not assumed equivalent to older TLS specs. |
+| 8.1 | All six normative references read; 9846 has a completed [base review](tls13.md);9851 remains a separately scoped feature-freeze dependency, not assumed equivalent to older TLS specs. |
 | 8.2 | Every informative citation read, including10015 and attack/PQC references; cited research not independently audited. |
 | Authors | All author details and end of document read. |
 
 ## Remaining scope
 
-RFC9846 is the current TLS1.3 reference in these documents and still requires its own full review. RFC9851 feature freeze and RFC9847 registry semantics remain separate dependencies where applicable. Cipher-definition documents and DTLS are not selected for implementation by this audit. Live registry state, library settings, negotiated protocol behavior, certificate checks, backend consistency and replay protection require separate evidence.
+The current TLS1.3 reference, RFC9846, has a completed [base review](tls13.md); applicable algorithm and extension dependencies remain separately scoped. The selected review of [RFC9851 §§1–4](https://www.rfc-editor.org/rfc/rfc9851.html#section-1) applies its feature freeze to retained TLS1.2 compatibility; this profile defines no new TLS1.2 extension, cipher or group. Its stated exceptions do not grant application authorization or post-quantum protection. The selected [RFC9847 §§3–6](https://www.rfc-editor.org/rfc/rfc9847.html#section-3) registry rules distinguish recommended, unevaluated and discouraged entries. A marking does not replace its cited algorithm requirements or turn every discouraged entry into the same prohibition. These are bounded applicability reviews, not full reviews of both documents. The common TLS capability and mail-adapter owners identify selected cipher dependencies; DTLS remains outside this profile. Live registry state, library settings, negotiated protocol behavior, certificate checks, backend consistency and replay protection require separate evidence.
 
 Sources: https://www.rfc-editor.org/rfc/rfc9852.txt ; https://www.rfc-editor.org/rfc/rfc9852.json ; https://www.rfc-editor.org/errata/rfc9852

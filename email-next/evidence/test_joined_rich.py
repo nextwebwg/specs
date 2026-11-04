@@ -1,5 +1,6 @@
 import base64,hashlib,io,json,unittest
 from email import policy
+from unittest.mock import patch
 from email.parser import BytesParser
 from PIL import Image
 import test_joined_carrier as fixture
@@ -9,7 +10,13 @@ from test_sender_release import LocalSMTP
 from mls_mime import unpack
 class JoinedRich(unittest.TestCase):
     context_version='4';selected_payload='mime-rich-v0';selected_operations=['message','rich-message']
-    setUp=fixture.JoinedCarrier.setUp;tearDown=fixture.JoinedCarrier.tearDown
+    tearDown=fixture.JoinedCarrier.tearDown
+    def setUp(self):
+        fixture.JoinedCarrier.setUp(self)
+        # These historical carrier/resource fixtures use a declared fixed time.
+        # Advancing release clocks are covered by sender-association tests.
+        clock=patch('sender_worker.elapsed_time.monotonic_ns',return_value=0)
+        clock.start();self.addCleanup(clock.stop)
     event=fixture.JoinedCarrier.event;receive=fixture.JoinedCarrier.receive;inject=fixture.JoinedCarrier.inject;ref=fixture.JoinedCarrier.ref
     def rich(self):
         self.resource='c'*32;stream=io.BytesIO();Image.new('RGB',(2,2),'blue').save(stream,format='PNG');self.data=stream.getvalue()
@@ -21,6 +28,40 @@ class JoinedRich(unittest.TestCase):
         smtp.done();self.assertIn('accepted',self.receive(1,smtp.wire)[1]['states'].values())
         result=render(self.senders[1].receiver,self.ref(event),carrier=hashlib.sha256(unpack(wire)).hexdigest())
         self.assertEqual(result['state'],'rich');self.assertEqual(next(iter(result['images'].values()))['rgba'],[0,0,255,255]*4)
+    def test_well_decoded_mime_mismatch_keeps_authenticated_html_authoritative(self):
+        event=self.rich();self.prepare(event)
+        payload=self.identities[0].db.execute('SELECT payload FROM sender_payloads').fetchone()[0]
+        root=BytesParser(policy=policy.SMTP).parsebytes(payload)
+        decoy=b'<!doctype html><html><head><meta charset="utf-8"></head><body><p>MIME DECOY</p></body></html>'
+        root.get_payload()[1].get_payload()[0].set_payload(base64.b64encode(decoy).decode('ascii'))
+        wire=self.inject(0,root.as_bytes());result=self.receive(1,wire)
+        self.assertIn('accepted',result[1]['states'].values())
+        self.assertEqual(result[0]['projection'],'mismatch')
+        receiver=self.senders[1].receiver
+        local=receiver.journal.snapshot(event['conversation'])
+        self.assertEqual(json.loads(local[0]['octets'][0]),event)
+        rich=render(receiver,self.ref(event),carrier=hashlib.sha256(unpack(wire)).hexdigest())
+        self.assertEqual(rich['state'],'rich')
+        self.assertIn('Update',json.dumps(rich))
+        self.assertNotIn('MIME DECOY',json.dumps(rich))
+        self.assertEqual(next(iter(rich['images'].values()))['rgba'],[0,0,255,255]*4)
+        self.assertEqual(self.receive(1,wire)[0]['projection'],'mismatch')
+        self.assertEqual(len(receiver.journal.snapshot(event['conversation'])),1)
+
+    def test_invalid_utf8_projection_cannot_reserve_event_and_retry_uses_new_native_state(self):
+        event=self.rich();self.prepare(event)
+        payload=self.identities[0].db.execute('SELECT payload FROM sender_payloads').fetchone()[0]
+        root=BytesParser(policy=policy.SMTP).parsebytes(payload)
+        root.get_payload()[1].get_payload()[0].set_payload(base64.b64encode(b'\xff').decode('ascii'))
+        invalid=self.inject(0,root.as_bytes());result=self.receive(1,invalid)
+        self.assertEqual(result[0]['status'],'invalid-application-encoding')
+        self.assertEqual(self.senders[1].receiver.journal.snapshot(event['conversation']),[])
+        # A new native message carries the original valid payload. No raw fallback
+        # or repeated decryption with the invalid carrier's consumed state.
+        valid=self.inject(0,payload)
+        self.assertIn('accepted',self.receive(1,valid)[1]['states'].values())
+        self.assertEqual(len(self.senders[1].receiver.journal.snapshot(event['conversation'])),1)
+
     def test_corrupt_image_keeps_alt_and_cross_carrier_cannot_render(self):
         event=self.rich();self.prepare(event);payload=self.identities[0].db.execute('SELECT payload FROM sender_payloads').fetchone()[0]
         root=BytesParser(policy=policy.SMTP).parsebytes(payload);root.get_payload()[1].get_payload()[1].set_payload(base64.b64encode(b'x'*len(self.data)).decode())

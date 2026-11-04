@@ -62,6 +62,8 @@ For each account, take its selected entry objects from the frozen source. Entrie
 
 Compute SHA-256 over ASCII `email2/archive-set-index/v0`, one zero octet, then, for each encoded entry, its eight-octet unsigned big-endian byte length followed by those bytes. Store that digest and the exact entry count in the account scope. A receiver recomputes them over the union of validated parts. The empty account digest is the hash of the prefix and zero octet alone.
 
+For the [asynchronous authored-history mapping](encrypted-archives.md#preserve-messages-that-have-several-deliveries), contribution references name logical authored events; delivery envelopes remain separately selected provenance. Repeated observations still count as distinct selected entries even when a historical view displays one message.
+
 This binds exact event and resource object digests, references and provenance relations through the entry records. It does not collapse two distinct records sharing an event identity, or require resource bytes to be globally deduplicated. Duplicate entry IDs anywhere in the set are invalid even when their bytes match. Bounded disk-backed sorting is permitted; silently dropping records to fit memory is not.
 
 ## Publish a single completion result

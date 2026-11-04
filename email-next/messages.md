@@ -3,7 +3,6 @@ title: Messages and interactions
 order: 1
 blurb: conversations · answer buttons · fallback
 sectionNav: true
-navGroup: guide
 ---
 
 # Messages and interactions
@@ -54,7 +53,7 @@ The contribution envelope accepts an ordinary text message with exactly three re
 
 Text is preserved without trimming, Unicode normalization or markup interpretation. An empty string is valid data; clients may show an accessible empty-message label without inventing sender content. HTML-looking text is displayed as text. Rich HTML uses the separate [rich-message operation](rich-messages.md), which binds its readable text, HTML and resources; it cannot appear as an unrecognized extra member here.
 
-An empty replyTo array means this contribution has no specific reply target. It does not create a new conversation or reset existing history. One reference identifies the exact contribution being answered, which may be a message or a question. A text reply to a question does not become a structured answer, consent or selected choice.
+An empty replyTo array means this contribution has no specific reply target. It does not create a new conversation or reset existing history. One reference identifies the exact contribution being answered, which may be an accepted `message`, `attachment-message`, `rich-message`, `reply-message` or `question`, including an independently accepted service-question under the [current service binding](service-answers.md#current-protected-service-agreement). It may also target an independently accepted hosted-holder-observation under its [owning binding](hosted-access.md#protected-observations-of-hosted-replies), without verifying the holder. A text reply to a question does not become a structured answer, consent or selected choice.
 
 The target must be in the enclosing event's conversation. Resolve its complete authenticated principal/event/conversation identity; neither subject matching nor repeated words can substitute. Missing or conflicted targets leave the relationship pending or conflicted. The authenticated message text remains visible as its own contribution with an unresolved-reply indication; it MUST NOT be attached to an alternative guessed parent. A resolved wrong identity or cross-conversation target invalidates the relationship and prevents presenting it as a verified reply. This does not license discarding the original received material.
 
@@ -72,7 +71,7 @@ The first version supports a question with predefined answer buttons. Pressing a
 
 Each question and option has an identifier. The answer refers to the exact question revision and selected option, so the client can show it beside the question. Button labels are readable text, and the client makes clear that pressing a button sends the displayed answer to the conversation's specified audience. Opening, previewing or scanning a message never sends an answer.
 
-The client shows whether the answer is queued, sent or failed. A retry retains the same answer event identity. If two devices send different answers, retain both events; only an explicit replacement by the same authenticated author supersedes an earlier answer. Arrival order does not decide which answer the person intended.
+The selected button visibly changes on activation and keeps a compact queued/pending, sent or failure indication under the [shared interaction status contract](client-behavior.md#a-pressed-button-keeps-its-sending-status). Save the authorized answer durably even while offline; reconnect and restart resume eligible delivery without another press. A pending choice does not count as a confirmed conversation answer. A retry retains the same answer event identity. If two devices send different answers, retain both events; only an explicit replacement by the same authenticated author supersedes an earlier answer. Arrival order does not decide which answer the person intended.
 
 Older clients receive the question and readable choices, with instructions to reply normally. Their text replies are not silently converted into authenticated button presses. A forwarded question does not automatically authorize its new recipient to submit into the original conversation.
 
@@ -109,7 +108,9 @@ The answer and question belong to the same conversation. Every replacement refer
 
 An unknown question or replacement target leaves the answer pending. A conflicted target leaves its relationship conflicted. A resolved target with a mismatched author, event identity or conversation is invalid. An option absent from the exact question is invalid even if another question offers that option identifier. Neither label matching nor an ordinary text reply can substitute for these references.
 
-The readable question lists every choice and invites an ordinary email reply. The readable answer includes the selected label and exact question reference, without the conversation transcript. Automatic copying of question text and labels into an answer requires its audience to remain within the question's authenticated audience. Sharing that context more widely requires a separately authorized sharing operation, outside this projection algorithm.
+The readable question lists every choice and invites an ordinary email reply. The readable answer includes the selected label and exact question reference, without the conversation transcript. Automatic copying of question text and labels into an answer follows the [selected agreement's source-audience comparison](event-encoding.md#asynchronous-authored-records-and-deliveries). Within one current scope, compare complete intended slot sets; across scopes require independently accepted bindings and the owning disclosure permission. A smaller ready delivery is not the question's entire intended audience. Earlier agreements compare their authenticated principal audiences. Sharing that context more widely requires a separately authorized sharing operation, outside this projection algorithm.
+
+A current answer keeps the question's logical authored reference across all its deliveries. If Carol's answer arrives before her copy of the question, retain it with a pending exact target and apply no guessed choice label or supersession. Once the source and every replacement dependency independently validate, derive its one logical effect. Later copies of the same authored answer do not add another submission. A narrower answer does not claim that excluded participants saw it; a service submission remains a separate endpoint operation.
 
 These objects do not select a delivery endpoint, authorize a recipient or authenticate an author. Those checks belong to the enclosing contribution and delivery profile. The standalone [button experiment](evidence/README.md#answer-button-objects) checks object shape and exact references. The experimental contribution envelope accepts these kinds and generates readable text/HTML projections. This does not establish complete delivery or durable-state handling; clients must not advertise interoperable support on the strength of this experiment.
 
@@ -119,7 +120,7 @@ These objects do not select a delivery endpoint, authorize a recipient or authen
 
 A button can propose either a conversation reply or submission to an HTTPS service. Both use the same simple question-and-choice interface. Endpoint submission is an optional capability; supporting answer buttons does not require a general-purpose form engine or sender-supplied scripts.
 
-For a conversation reply, the client sends the selected answer to the displayed message audience under the selected protection policy. For a service submission, the client identifies the receiving service and sends only the declared answer data. A service receiving plaintext is a recipient of that data; encryption of the surrounding conversation does not conceal the answer from the service.
+For a conversation answer, show the actual intended destination before activation. The default is the question's complete intended audience under the selected protection policy, including pending slots in the current agreement; one ready encrypted delivery does not silently narrow it. A deliberately selected narrower audience follows its own composition, disclosure and native-delivery checks and remains visibly distinct. Written-reply intent does not choose or authorize this structured answer destination. For a service submission, the client identifies the receiving service and sends only the declared answer data. A service receiving plaintext is a recipient of that data; encryption of the surrounding conversation does not conceal the answer from the service.
 
 > [!ex] Answering a scheduling service
 > An invitation offers **Tuesday** and **Thursday**. An upgraded client can submit Thursday directly to the scheduling service and show its acknowledgement. An older client can send an ordinary reply to a service mailbox, which the service processes separately, or follow a link to answer on its website.
@@ -128,7 +129,7 @@ The ordinary `Reply-To` header contains email addresses, not web endpoints. An e
 
 Opening or scanning a message must not perform an action. A readable fallback link opens an answer page; fetching that link must not itself submit the answer. Forwarding a question does not establish the forward recipient's authority to act as the original recipient.
 
-The [service-answer profile](service-answers.md) defines experimental request and receipt schemas, destination binding, retry identities and failure handling for configured deployments. The service-question operation carries its authenticated descriptor; common credential acquisition and complete service integration remain required before clients advertise interoperable support. A client must distinguish a pending or uncertain service result from a confirmed answer. Sending both an email and a service request is not an atomic operation; any combined mode must specify how it avoids duplicate effects and reconciles partial success. The button-operation experiment currently covers conversation answers only.
+The [service-answer contract](service-answers.md) owns request and receipt schemas, destination binding, original retry identities and failure handling. The service-question operation carries its authenticated descriptor; [native service authorization](service-authorization.md) defines public acquisition and signed principal linking. Those selected protocols still require complete implementation and acceptance before a client advertises support. A client must distinguish a pending or uncertain service result from a confirmed answer. Sending both an email and a service request is not an atomic operation; any combined mode must specify how it avoids duplicate effects and reconciles partial success. The button-operation experiment currently covers conversation answers only.
 
 
 :::: {.details summary="Service responses, retries and acknowledgements"}
@@ -137,7 +138,7 @@ The [service-answer profile](service-answers.md) defines experimental request an
 
 The proposed service-response profile binds the question, available choices, exact HTTPS destination and requested answer data in authenticated action metadata. A mutable page, unsigned message header or redirect cannot replace that destination. The client identifies the service before the user presses a button. An answer sent to a service does not include conversation history, attachments, mailbox credentials or unrelated message headers.
 
-The service verifies the answering principal and that principal's authority for this action. Possession of a forwarded message or a question identifier is insufficient. The configured-deployment profile uses a separately provisioned service-specific bearer credential and direct HTTPS-origin-authenticated responses. It does not define common credential acquisition or portable receipt proofs; a provider-specific identity token cannot be assumed to work across providers. The client must not send its mailbox password, ambient browser cookies or unrelated bearer tokens to an action endpoint.
+The service verifies the answering principal and that principal's authority for this action. Possession of a forwarded message or a question identifier is insufficient. The current contract uses the separately authorized [native account/link acquisition](service-authorization.md), service-specific bearer credentials and direct HTTPS-origin-authenticated responses. Earlier configured experiments use provisioned credentials and do not prove that public acquisition. Neither path makes copied receipt JSON a portable proof or an unrelated provider token valid at this service. The client must not send its mailbox password, ambient browser cookies or unrelated bearer tokens to an action endpoint.
 
 ### Submission and status requests
 
@@ -202,7 +203,7 @@ The client retains the submitted answer and any verified acknowledgement as dist
 
 A mailbox gateway may accept legacy replies, but free-text interpretation is separate from authenticated button submission. Deduplication across email and HTTPS requires a common authenticated submission identity understood by both paths. Without it, the two paths are alternatives, not an automatic failover pair.
 
-The [configured-deployment contract](service-answers.md) selects application/json requests and receipts, service-specific bearer authorization, direct HTTPS response authentication and a bound status-URI prefix. The service-question operation defines descriptor carriage; common credential acquisition and principal mapping remain unresolved. Copied receipt JSON is not independently verifiable evidence for another participant.
+The [configured-deployment contract](service-answers.md) selects application/json requests and receipts, service-specific bearer authorization, direct HTTPS response authentication and a bound status-URI prefix. The service-question operation defines descriptor carriage; the [native service authorization contract](service-authorization.md) now defines acquisition and signed principal linking, with account-safe reconnect and retained-link authority. Full production login/current-suite execution integration remains unproven. Copied receipt JSON is not independently verifiable evidence for another participant.
 
 ::::
 
@@ -341,7 +342,7 @@ The digest and length cover resource plaintext after transfer decoding and succe
 
 The manifest MUST be carried within the authenticated event content that references it. A resource's identity is the containing event's complete authenticated reference plus its manifest-local `id`; the ID alone is not a cross-message lookup key. The same bytes may have different resource IDs. Receivers MUST NOT use a matching digest to disclose another event's content or bypass its access policy. For encrypted delivery the manifest remains inside the encrypted content, avoiding publication of plaintext fingerprints in outer MIME headers.
 
-Location, media type, display name and embedded-versus-attachment role are not encoded by this integrity manifest. The attachment-description and attachment-message sections below define these fields for independent attachments; embedded-body roles remain required work. This manifest does not itself extend the current seven-member contribution envelope or authorize adding an unrecognized member to it. Implementations MUST NOT advertise complete structured-resource support on the strength of manifest validation alone.
+Location, media type, display name and embedded-versus-attachment role are not encoded by this integrity manifest. Independent attachments use their owning descriptions; [rich messages](rich-messages.md) and [indexed replies](reply-content.md) define their separate embedded/download role inventories. The manifest does not select a carrier, extend an envelope or authorize unknown members. Complete resource support requires the current owning envelope, operation, role, carrier and safe-resource acceptance rules; manifest validation alone is insufficient.
 
 A receiver MUST compare the wire length against its local limits before allocation or conversion to a narrower numeric representation. A valid length larger than local processing capacity yields an unavailable-resource diagnostic, not a rounded length. The [manifest experiment](evidence/README.md#resource-manifest-boundary) validates this representation and feeds bounded expectations to the assembly model; it does not authenticate the enclosing event.
 
@@ -359,7 +360,7 @@ This rule applies to the text-and-independent-attachments operation. It does not
 
 ### Embedded resources and attachments
 
-For the baseline HTML representation, replace the `text/html` alternative with a `multipart/related` entity when it uses embedded resources. The related entity has `type="text/html"` and an explicit `start` parameter naming the HTML root's Content-ID. Put that root first, followed by its bundled resources. The structured representation remains the final alternative.
+In the retained general MIME generation example, embedded HTML uses `multipart/related; type="text/html"` with an explicit `start` naming the first HTML root's Content-ID, followed by its resources. The structured representation remains the final alternative. This is not the exact current protected carrier: [mime-suite-v2](suite-profile.md#asynchronous-protected-agreement) uses the strict direct rich structure, whose related entity has its HTML root first and **no `start` parameter**. Select the complete owning carrier before generating or accepting its headers.
 
 Independent attachments wrap the complete alternative entity in `multipart/mixed`: the contribution is first and its attachments follow. An attachment is not an alternative rendition. This arrangement is a proposed generation profile; receivers still need to interpret other valid legacy arrangements.
 
@@ -387,7 +388,9 @@ Sources: [related-parts audit](audits/related-parts.md), [content-identifier aud
 
 ### Bundled resource binding
 
-For the experimental structured-resource profile, each manifest entry maps to one MIME body part within the same selected compound object. Its generated Content-ID is `<resource.event@resources.email-next.invalid>`, with `resource` replaced by the entry's ObjectId and `event` by the enclosing contribution's ObjectId. The angle brackets are MIME header syntax; they are not part of the identifier returned by a MIME parser. This is a proposed local identifier convention, not a resolvable host or a service discovery address.
+For the retained experimental structured-resource profile described here, each manifest entry maps to one MIME body part within the same selected compound object. Its generated Content-ID is `<resource.event@resources.email-next.invalid>`, with `resource` replaced by the entry's ObjectId and `event` by the enclosing contribution's ObjectId. The angle brackets are MIME header syntax; they are not part of the identifier returned by a MIME parser. This is a proposed local identifier convention, not a resolvable host or a service discovery address.
+
+Current mime-suite-v2 instead uses `<resource-id.authored-event-id@resources.mail.invalid>`, with the resource ID and logical authored event ID from its original authored operation. A delivery event or outer Message-ID cannot replace that identity. Earlier carriers retain their literal resource namespace; similar text or matching resource bytes cannot authorize a cross-carrier substitution. The [current suite](suite-profile.md#asynchronous-protected-agreement) owns this exact adaptation.
 
 An adapter MUST parse MIME header syntax and transfer encoding before binding. Within this profile it compares the resulting identifier exactly to the canonical lowercase generated form. It MUST require exactly one matching eligible body part within that compound's resource scope. Identical duplicate matches are still ambiguous. A matching part outside the scope, including an attachment's nested message, MUST NOT satisfy the reference. No lookup may fall back to Content-Location, filename, a remote URL, another message, or an unscoped cache.
 
@@ -452,12 +455,12 @@ A resource receiver MUST bound both output size and work spent on incoming fragm
 
 ## Threading and mixed participants
 
-Preserve ordinary `Message-ID`, `In-Reply-To`, and `References` relationships for legacy interoperability.[^2] Mapping transport messages to events must permit retransmission without requiring the same transport identifier for every recipient-specific delivery.
+Preserve ordinary `Message-ID`, `In-Reply-To`, and `References` relationships for legacy interoperability.[^2] The [mail identity and one-parent projection contract](event-identifiers.md#map-contributions-to-ordinary-mail) maps actual per-copy mail versions to contributions and retains their identifiers across exact retries; independent recipient-specific versions need not share an outer identifier.
 
 ::: {.details summary="Inherited: message identity and replies — RFC 5322 §3.6.4"}
-A message identifier denotes a particular message version. Adding ordinary trace headers does not require a new identity. Replies may have multiple parent identifiers in `In-Reply-To`, but the source does not define a general multi-parent construction of `References`. The proposed structured graph therefore needs a specified legacy projection, not an assumption that existing threading represents every relationship.
+A message identifier denotes a particular message version. Adding ordinary trace headers does not require a new identity. Replies may have multiple parent identifiers in `In-Reply-To`, but the source does not define a general multi-parent construction of `References`. The structured graph uses its selected single primary parent for the legacy projection; quotations and replacement dependencies do not become additional legacy parents.
 
-Any additional event identity must explain its relationship to these rules and why existing identifiers are insufficient. The mapping remains unresolved; it must not redefine `Message-ID` as a mere delivery-attempt identifier.
+The authenticated event identity remains necessary because one accepted contribution can have several independently prepared mail representations and an outer identifier does not authenticate authorship. The [exact mapping](event-identifiers.md#map-contributions-to-ordinary-mail) preserves Message-ID as a mail-version identity, not a delivery-attempt identifier. Private-copy and masked-delivery rules suppress public links where required.
 :::
 
 An ordinary inline reply remains an ordinary message. A client may infer its relationship to a question, but must not manufacture an authenticated structured answer from that inference. The [rendering chapter](rendering.md) defines this distinction.
@@ -472,13 +475,29 @@ Adding a recipient does not automatically disclose previous history. Forwarding 
 > [!norm] A conversation is assembled from individual messages
 > Each delivery carries the current contribution and the context needed to understand it. Relationship metadata identifies earlier contributions; it does not carry a hidden transcript. An upgraded client builds the conversation view from messages available to that account.
 
+The ordinary readable reply body SHOULD show these two contributions, in order:
+
+1. The new response.
+2. The message it answers, with that message's inherited quoted or forwarded chain omitted.
+
+> [!ex] A rolling two-contribution window
+> Bob's reply carries Bob's response followed by a preview of Alice's message. Carol replies to Bob: her new email carries Carol's response followed by Bob's contribution, without the previous preview of Alice's message. A subsequent reply repeats the same rule; previews do not accumulate into a transcript.
+
+The copied parent is its contribution, not its entire previously delivered body. Exclude that parent's own appended reply-context preview when constructing the next reply. This changes the new outgoing projection only; it does not delete earlier received messages or erase deliberately authored quotations and interleaved answers. Where the selected format supplies explicit boundaries, use them. A legacy heuristic must not treat every blockquote as a disposable preview or silently remove authored text. If a previous preview cannot be separated reliably, omit the automatic preview or let the sender select a passage instead of recursively copying the whole body.
+
+The second contribution is the selected reply target, even when the author answers an older message rather than the latest arrival. It is context for this reply, not a recursively copied transcript. A question's wording or selected passage may supply sufficient context; an interleaved answer keeps the authored order needed to understand it. Missing context, uncertain legacy boundaries or disclosure restrictions can require a new-content-only reply.
+
+Choose and encode that context during composition under the selected content/carrier contract, before freezing, signing or encrypting the new contribution. Do not append unindexed or unauthenticated context after preparation, widen a retained profile or claim that a reference alone carries its source.
+
 Generating a readable fallback does not append the conversation transcript, place it in custom headers, hide it in HTML, or include it as an undisplayed MIME part. Quoted context is still disclosed content: it must be appropriate for the delivery's audience and visible in the readable representation. An answer may need its question or selected option label, but not every preceding message.
 
 An upgraded client's **Forward this message** action shares the selected contribution and its displayed context. Sharing additional history is a separate selection, with the included messages and destination audience visible before sending. Conversation membership, private recipient lists, access credentials and unrelated event metadata are not copied merely because they are present in the client's local conversation state. Forwarded content retains its distinction from a newly authored contribution and does not imply the original author's authorization of the new audience.
 
+A selected file or embedded resource is disclosed as the exact bytes included in the new delivery. Those bytes can contain metadata that is not visible in the message preview. A client must not describe an unchanged original file as a metadata-free or pixels-only share. A deliberately generated replacement is a new resource with its own bytes, identifiers and integrity commitments; it cannot retain the original resource's identity while changing its contents. Original controls, credentials and source-event references do not become active in the new audience merely because their visible labels were copied.
+
 A missing predecessor MUST NOT prevent the client from displaying an independently authenticated, self-contained contribution. Show that its referenced context is unavailable rather than inventing quoted text or treating arrival order as conversation order. Operations that depend on the missing event—such as applying an edit or resolving a button answer—remain pending until their own validation requirements are satisfied. Reading a message and applying its effects are separate decisions.
 
-Missing history remains missing unless it is already available locally or obtained through a separately authorized retrieval mechanism. A message identifier or relationship reference is not an access credential. A client must not automatically fetch a sender-supplied history URL or transmit account credentials to it. A future retrieval profile needs to specify authorization, unavailable or deleted history, and offline behavior.
+Missing history remains missing unless it is already available locally or obtained through a separately authorized retrieval mechanism. A message identifier or relationship reference is not an access credential. A client must not automatically fetch a sender-supplied history URL or transmit account credentials to it. The [authorized history-transfer contract](history-transfer.md) supplies one explicit request, approval and historical-import path, including unavailable content and interrupted delivery. It is not automatic relationship retrieval; any additional retrieval mechanism needs its own authorization, unavailable/deleted-history and offline rules.
 
 ::: {.details summary="What existing email can and cannot preserve"}
 
@@ -489,6 +508,21 @@ Existing forwarding has no universal metadata-removal contract. A new inline for
 Keeping the transcript outside the individual delivery prevents that delivery from accidentally carrying it onward. It does not prevent a recipient from deliberately copying other messages they can access. A raw-message export or forward-as-attachment also requires its own complete-content disclosure; the selected-contribution action must not silently substitute either operation.
 
 :::
+
+### Replying to a legacy chain without carrying its history
+
+> [!ex] Adding Carol without copying Alice and Bob's earlier discussion
+> Bob replies to Alice and adds Carol. His app sends his new writing to the selected audience. It does not automatically append the earlier chain that happened to be inside Alice's message. Bob can deliberately include a relevant passage, with its audience and protection checked separately.
+
+A client SHOULD compose replies to legacy mail using the two-contribution layout above: its new response followed by the immediate parent contribution. Remove the parent's older quoted or forwarded history from that outgoing copy by default; do not recursively copy the complete received body or the conversation view. Older material may appear above, below or between the parent's own words, so position alone is not a reliable boundary. The sender may omit, reduce or deliberately extend the selected context, subject to the same disclosure rules. [Legacy reconstruction](rendering.md#old-messages-remain-original-evidence) may help locate passages, but its uncertain classifications are not authority to discard inline answers or rewrite the received original.
+
+Adding a recipient, expanding a list or alias, moving a private reply into a discussion, forwarding to another audience or changing to a less protected delivery requires a fresh disclosure check for every included source passage and resource. The client MUST NOT automatically carry earlier history into that changed audience or weaker delivery merely because it was present in the reply draft. Keep the sender's new writing. Reassess the immediate parent as well as older quotations: omit copied material not authorized for the changed audience or weaker delivery, and make deliberate inclusion inspectable against the final recipients and per-copy protection. Permission to send new unencrypted writing does not itself authorize copying earlier protected or private content into it.
+
+Omission must apply to the actual outgoing representations: plain text, HTML including hidden/collapsed regions, copied MIME parts and inline resources. A visually collapsed quotation is still disclosed if its bytes are sent. Do not carry a raw original or an attached transcript as an invisible substitute. A deliberate forward-as-attachment or raw export remains a separate complete-content disclosure under the complete-content rules above.
+
+When a legacy boundary is uncertain, keep the received source intact and offer deliberate passage selection or a new-content-only reply. Do not claim that a heuristic extraction is a verified or complete account of the latest author's contribution. The composer must let the sender inspect exactly what copied context and resources will leave; presentation cleanup alone does not establish safe disclosure. This minimizes new copies; it cannot withdraw history already received by earlier participants or their services.
+
+Acceptance cases must cover the normal response-then-parent layout, omission of the parent's older chain, three or more successive replies whose context window remains two contributions, preservation of deliberately authored quotations, an explicitly selected earlier reply target, adding a recipient after drafting, switching a copied passage to ordinary delivery, top-posted and interleaved history, changed quoted passages, hidden HTML and alternative MIME copies, ambiguous source boundaries, and deliberate forwarding of a complete original. Check the bytes actually sent as well as the composer preview; source preservation and reduced outgoing disclosure are separate outcomes.
 
 ## Failure behavior
 
@@ -573,7 +607,7 @@ When identifying a main body within multipart/related, a receiver MUST follow th
 
 This receiver behavior deliberately differs from [RFC9787 Section 7.1](https://www.rfc-editor.org/rfc/rfc9787.html#section-7.1), which traverses the first child of a multipart other than multipart/alternative. The reason is interoperability with existing multipart/related messages: a valid explicit root can occur later in the child list. Ignoring it can select a resource instead of the intended body. The tradeoff is an additional root-resolution step, with ambiguous or invalid selections reported rather than guessed.
 
-Newly composed Email/2 messages place the related root first and include an explicit `start`, so this arrangement also satisfies the simplified first-child traversal described in RFC9787 Section 7.1 and RFC9788 Section 5.2.4. Any reordering during new composition occurs before signing or encryption. Receivers MUST NOT reorder preserved signed input to make it fit that generation profile.
+New messages use their selected carrier's exact generation rule. Current mime-suite-v2 puts the related HTML root first without `start`; the retained general generation example above puts it first with explicit `start`. Both put the root first for the simplified traversal described in RFC9787 Section 7.1 and RFC9788 Section 5.2.4. The current strict carrier does not accept `start` merely because a legacy receiver can interpret it. Any reordering during new composition occurs before signing or encryption. Receivers MUST NOT reorder preserved signed input to make it fit that generation profile.
 
 For receiving and replying to legacy mail, eligible main-body traversal follows the selected related root while preserving attachment and cryptographic boundaries. Header-protection decoration handling must never modify an independent attachment or treat a resource as user-authored body content. This is an explicit reconciliation of the related-root standard with the later simplified guidance, not a claim that the guidance already describes every valid MIME layout.
 

@@ -40,6 +40,6 @@ All 1082 lines and 21 source pages read, including all tables/examples, referenc
 
 ## Remaining scope
 
-RFC9846 is the current TLS1.3 reference in these documents and still requires its own full review. RFC9851 feature freeze and RFC9847 registry semantics remain separate dependencies where applicable. Cipher-definition documents and DTLS are not selected for implementation by this audit. Live registry state, library settings, negotiated protocol behavior, certificate checks, backend consistency and replay protection require separate evidence.
+The current TLS1.3 reference, RFC9846, has a completed [base review](tls13.md); applicable algorithm and extension dependencies remain separately scoped. The [new-protocol review](tls-new-protocols.md#remaining-scope) records the limited RFC9851 feature-freeze and RFC9847 registry-marking applicability. The mail adapter selects its exact legacy-compatible cipher dependencies separately; DTLS is not selected. Live registry state, library settings, negotiated protocol behavior, certificate checks, backend consistency and replay protection require separate evidence.
 
 Sources: https://www.rfc-editor.org/rfc/rfc10015.txt ; https://www.rfc-editor.org/rfc/rfc10015.json ; https://www.rfc-editor.org/errata/rfc10015

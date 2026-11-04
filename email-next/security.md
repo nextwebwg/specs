@@ -34,6 +34,38 @@ The [managed-conversation profile](security-profile.md) proposes MLS 1.0 for bot
 
 Define the endpoint by where usable keys and plaintext are processed. A remote agent that decrypts or signs belongs inside the disclosed trust boundary. Ciphertext storage and public-key publication do not by themselves require that authority. For browser cryptography, identify both key custody and who can replace the executing code; browser-local keys alone do not establish protection from that operator. Provider-blind claims require a deployment-specific runtime-integrity model and evidence.
 
+### Show the protection actually established
+
+A lock describes a particular protected copy, not every system that may see its contents. Keep the endpoint trust boundary available alongside the cryptographic result. If a service decrypts the message or receives readable content, identify its access. If operator access has not been established, say it is unknown rather than treating missing evidence as proof of privacy.
+
+| Deployment | What the client may establish |
+| --- | --- |
+| Mail or relay service carries ciphertext without endpoint authority | Transport, directory or routing participation alone does not grant content access. Actual endpoint custody and code trust still need their own evidence. |
+| A service operates the decrypting/signing endpoint | The service is inside the content/identity trust boundary. A valid protected event does not conceal its content from that endpoint operator. |
+| A browser performs cryptography with locally held keys | Identify the executing origin and who can supply or change its code. Local key storage alone does not establish exclusion of that code supplier. |
+| A bearer-link host serves readable content | The host and its entry code are trusted with that content. HTTPS and the secret link do not make this an Email/2 encrypted endpoint delivery. |
+
+These are deployment properties, not new protocol modules or levels of correspondent verification. A client can use a compact **Service access** indication when access is known, with the service named on inspection. Do not add a repeated paragraph to every message. Unknown remote runtime properties remain inspectable limits; they are not a new account identity or evidence that the peer disabled encryption.
+
+::: {.details summary="Derive claims from evidence, not capability names"}
+
+For each displayed or planned copy, distinguish these facts:
+
+1. **Cryptographic acceptance:** exact selected carrier, authenticated author/device, intended audience/context and owning application checks. Before receiving acceptance, a planned or submitted copy is not a received guarantee. TLS, an opaque attachment, a mailbox login or a support advertisement is insufficient.
+2. **Content access:** which independently known endpoints, hosted services, managed decryption/signing agents, draft-sync or archive recipients can obtain readable content for this scope. Keep earlier authorized disclosures and possible release separate from current availability. Do not infer that a revoked link or later key deletion erased prior copies.
+3. **Runtime authority:** which operators can supply or replace the executing code, invoke usable keys or observe plaintext at each relevant endpoint. Record the evidence's actual deployment/version/scope and limits. A native application, platform keystore, protected key API or browser origin name is not by itself proof that all such operators are excluded.
+4. **Identity and routing assurance:** retain the separate correspondent-verification and address-masking results. Domain authentication, an authorized relay or a code supplier's identity does not verify a person or conceal endpoints from their own operators.
+
+A claim that a named operator cannot read content needs independently applicable evidence for that deployment and threat model, including code delivery/update authority as well as key custody. If it is missing or no longer applicable, do not make that claim. Do not change the selected peer or send control probes to obtain runtime evidence merely because a message advertises a security label. The current discovery assertion has no runtime-attestation or operator-exclusion field; its signed application support cannot supply one. A sender-provided trust flag or rendered badge is not evidence.
+
+A local policy may require exclusion of particular services or approved endpoint deployment evidence. Resolve that requirement before content release, alongside the existing protection/disclosure gates. If it cannot be established, hold the affected work rather than equating ordinary Encryption support with the stronger requirement. This defines local policy behavior, not an interoperable remote-attestation mechanism or an assumption that every correspondent's runtime can be inspected.
+
+When an endpoint's known deployment, key custody, code authority or applicable policy changes, reevaluate new effects and releases under the existing serialized boundaries. Preserve previously accepted cryptographic attribution and historical disclosure facts; a later change cannot rewrite who received the original or establish that an operator never had access. Stored historical trust observations keep their original scope rather than being presented as proof of the current deployment.
+
+The [Web Cryptography security considerations](https://www.w3.org/TR/WebCryptoAPI/#security-developers) explain why script access and key storage need separate analysis: restricting key export does not establish that executing code cannot use the key or expose data. That API also does not itself guarantee protected persistence or physical key erasure. These limits are not a substitute for the selected MLS protocol or the platform-credential requirements below.
+
+:::
+
 ::: {.details summary="Responsibilities of devices, providers and witnesses"}
 
 ### Distribute responsibilities
@@ -43,10 +75,10 @@ Define the endpoint by where usable keys and plaintext are processed. A remote a
 | Device | Generate secrets, establish sessions, encrypt and decrypt | Private endpoint keys do not become provider directory data |
 | Existing trusted device | Authorize another device and transfer protected state | Account login alone is not automatically equivalent to device authorization |
 | Email provider | Carry messages and optionally publish key material or relay exchanges | Discovery authority does not grant plaintext access |
-| Independent witness | Check consistency of key publication | Candidate extension; independence and privacy need definition |
+| Independent witness | Check consistency of key publication | Not selected by the current suite; no independence or consistency guarantee is advertised |
 | Conversation participant | Introduce another participant | Introduction evidence identifies its source and is scoped; it does not imply universal trust |
 
-No single global directory is required by this proposed architecture. The [configured provider-control profile](provider-control.md) supports an explicitly authorized service, including a target service operated by another provider. Public service discovery and automatic credential acquisition remain unselected; configured access does not supply those interfaces.
+No single global directory is required by this proposed architecture. The [configured provider-control profile](provider-control.md) supports an explicitly authorized service, including a target service operated by another provider. The separate [public discovery](provider-discovery.md) and [grant authorization](provider-grants.md) contracts select those interfaces; their complete public implementation remains absent. Configured access does not establish them.
 
 :::
 
@@ -112,7 +144,7 @@ Unknown MIME dispositions fall back to attachment handling under RFC 2183 §2.8.
 
 Sources: [RFC 5228 §4.4](https://www.rfc-editor.org/rfc/rfc5228.html#section-4.4), [RFC 2183 §2.8](https://www.rfc-editor.org/rfc/rfc2183.html#section-2.8).
 
-An extension must authenticate, correlate, deduplicate and rate-limit exchanges before hiding or discarding their mail. Replies must not trigger equivalent replies indefinitely. Numeric limits and the complete exchange remain open.
+The [ordinary-mail setup contract](mailbox-setup.md) defines authenticated request/response correlation, durable allocation, exact retries, fixed deadlines and terminal handling. A direct-profile response cannot initiate another automatic setup response. The separately selected [address-return profile](mailbox-return.md) permits only its exact offer→confirm→finish transitions; its terminal finish cannot elicit another response. [Provider setup](bootstrap.md#failure-retention-and-budgets) has its own bounded journals, disclosure gates and HTTP outcomes. Deployments enforce finite work, rate and capacity budgets; those local settings do not replace the specified wire-size and lifetime bounds or guarantee inbox invisibility. Filtering remains subordinate to complete validation and durable processing.
 
 :::
 
@@ -135,12 +167,12 @@ Missing capability advertisements do not establish that a known correspondent de
 
 ## Adding and removing devices
 
-An account can have several authorized devices. Mailbox login alone must not add another one to an established encrypted identity. Existing authorized devices or an explicitly configured recovery mechanism establish that continuity.
+An account can have several authorized devices. Mailbox login alone must not add another one to an established encrypted identity. The current suite requires an existing device with the applicable enrollment and role-delegation authority. Mailbox passwords, synchronized credentials and readable-history backups cannot supply missing authority; the [loss-of-administration procedure](identity-lifecycle.md#when-administrative-devices-are-unavailable) distinguishes waiting for an authorized device from deliberately starting a new identity.
 
 > [!ex] Bob replaces his laptop
 > A new key arrives from Bob's address. Alice's client keeps the identity history it already knows and checks how the new device was authorized. It does not replace Bob's known key just because the address matches.
 
-Removing a device stops future protected delivery once senders learn and apply the change. It cannot erase messages the device already received. Recovery must distinguish continuing an existing identity from starting a new one, and explain whether old history can be recovered and by whom.
+Once a client accepts a device revocation, it holds new affected content release while the required membership changes complete. Offline senders may not yet know, and earlier submitted or uncertain copies may still arrive. It cannot erase messages the device already received or claim the device was removed everywhere. Recovery must distinguish continuing an existing identity from starting a new one, and explain whether old history can be recovered and by whom.
 
 The [identity lifecycle](identity-lifecycle.md) and [group rules](group-conversations.md) define those changes. Keeping a readable archive or recoverable backup is a separate decision from keeping old transport keys.
 
@@ -222,9 +254,18 @@ The disclosures below define the inherited checks and their limits. They remain 
 
 ### Domain signatures and algorithm policy
 
+The optional [address-return procedure](mailbox-return.md) retains current full-body, no-`l`, sole-From and exact signing-domain requirements on every leg, including client-side verification where selected. Those checks do not prove a mailbox local part. Its private challenge round trips supply separately scoped route-access observations; a chosen-message signing oracle or intact signed replay cannot be treated as proof that the claimed mailbox received a challenge. The [required adversarial cases](mailbox-return.md#acceptance-boundary) include RFC4686 §4.1.4 and §4.1.5.
+
 DKIM evidence records the signing domain, verified coverage and algorithm-policy result. A domain signature is not a correspondent's device credential. It does not authorize replacing an established encryption key or changing group membership.
 
 Apply the [algorithm requirements update](audits/dkim-algorithms.md) and [Ed25519 update](audits/dkim-ed25519.md) when evaluating DKIM. RSA-SHA1 and undersized RSA signatures cannot count as valid under the updated rules. A valid signature must still cover the fields required by the operation relying on it. Ed25519-SHA256 uses Ed25519 over the DKIM SHA-256 digest; a different prehash variant or direct signature of canonicalized headers is not interchangeable.
+
+For RSA DKIM keys, verifiers MUST support both a DER `RSAPublicKey` and a DER `SubjectPublicKeyInfo` carrying that key. The SPKI form uses `rsaEncryption` (`1.2.840.113549.1.1.1`), ASN.1 NULL algorithm parameters and a BIT STRING containing the DER `RSAPublicKey`, as defined in [RFC3279 section 2.3.1](https://www.rfc-editor.org/rfc/rfc3279.html#section-2.3.1). Reject malformed DER, trailing data, another algorithm identifier, absent or non-NULL parameters, and an invalid embedded key.
+
+Both representations remain subject to the same algorithm, key-strength, service-restriction and coverage checks. Ed25519 DNS keys retain RFC8463’s raw 32-octet format; an ASN.1 wrapper is not that format.
+
+> [!note] Why accept two RSA key encodings?
+> RFC6376 names `RSAPublicKey`, while the published RSA example in [RFC8463 Appendix A.2](https://www.rfc-editor.org/rfc/rfc8463.html#appendix-A.2) uses `SubjectPublicKeyInfo`. Supporting both preserves interoperability without changing the RSA signature algorithm, key-strength policy or coverage checks. This profile makes that compatibility choice explicitly; it does not change the status of the [related errata](audits/dkim-errata.md).
 
 These domain-signature algorithms do not select the Email/2 end-to-end encryption suite.
 
@@ -418,6 +459,8 @@ Successful decryption alone must not authorize an interaction. Required sender s
 
 A sender must durably coordinate cryptographic generation state with its outgoing message record. Retrying transport delivery should retransmit the already constructed protected object. It must not roll back ratchet state or regenerate a different object using a previously consumed key generation. A random reuse guard supplements persistent state; it does not make restoring an old device snapshot safe. Recovery from uncertain or rolled-back state requires the selected security profile's recovery procedure before further encryption.
 
+Known restoration follows the [durable recovery hold](identity-lifecycle.md#a-restored-device-is-not-an-ordinary-restart), not normal queue resumption. Fresh setup does not make a rolled-back MLS checkpoint safe to reuse or prove that an earlier action never executed. Unknown whole-machine rollback has an explicit detection limit; encryption, signatures and local transaction durability do not remove it.
+
 The [durable sender](evidence/README.md#durable-sender-release) coordinates the selected MLS checkpoint with the exact queued message and reuses that object on retry. Its local transaction and failure checks cover this sending boundary. Restoration of a historical device snapshot needs separate reconciliation; successful queue recovery does not make a rolled-back snapshot safe. These constraints follow RFC9420 Section 6.
 
 ### Insider replay and application effects
@@ -435,6 +478,10 @@ A notification provider must not receive decrypted message content or form answe
 ### Drafts are private working state
 
 Remote draft synchronization MUST encrypt the draft for the author's authorized devices before upload. Intended recipients MUST NOT receive draft decryption access merely because their addresses have been entered in the composer. This applies while the final delivery policy is undecided and while a draft contains quoted protected material. Selecting ordinary delivery for the eventual message does not retroactively authorize exposing earlier draft revisions.
+
+The draft's storage audience is independent of its currently selected sending account. An account switch cannot by itself authorize uploading the existing draft, protected source context or earlier revisions to a different account/provider, or encrypting it for additional devices. Keep the draft locally under its existing protected scope until an independently applicable storage/disclosure policy authorizes that exact transfer. Ordinary final delivery, current login and ownership of both accounts are not substitutes for that policy. An already released draft copy cannot be recalled by changing the picker or deleting the local draft.
+
+A separately implemented synchronization profile must bind each draft revision to its actual authorized storage/device audience and keep earlier revisions under their original scope. If no such eligible profile or key material is available, local-only retention satisfies this boundary; do not fall back to an ordinary server draft or the recipient conversation's encryption group. This specification defines no interoperable draft-sync wire profile. Supporting message transport or history archives alone must not advertise one.
 
 A draft MUST NOT carry a normal outbound contribution signature that could be replayed as the author's sent message or form submission. If authenticated device synchronization is used, its keys or signed context must distinguish draft synchronization from sending; the exact synchronization profile remains separately specified. Sending creates the immutable contribution and recipient-specific delivery objects only after the sender invokes Send under the selected delivery policy.
 
@@ -490,7 +537,7 @@ An accepted MLS commit is also not proof that every member can process it. A mal
 
 ### Provider assistance and encryption proxies
 
-An upgraded provider may distribute public key material, queue encrypted delivery objects and report transport outcomes. Possession of those capabilities MUST NOT be represented as possession of the user's endpoint identity or as permission to decrypt content. A provider-operated service that holds usable message decryption keys is within the confidentiality boundary and MUST be identified as such.
+An upgraded provider may distribute public key material, queue encrypted delivery objects and report transport outcomes. The recipient’s normal inbox provider may also assign and renew temporary delivery addresses under finite account/service trust while devices are offline, using the [provider-issued route contract](relay-routes.md). No device approves individual aliases. This routing role neither replaces endpoint identity verification nor grants content keys, enrollment or history authority; the provider still sees its private account mapping and transport metadata. Possession of those capabilities MUST NOT be represented as possession of the user's endpoint identity or as permission to decrypt content. A provider-operated service that holds usable message decryption keys is within the confidentiality boundary and MUST be identified as such.
 
 A client delegating cryptographic operations MUST convey the authorized recipient set, delivery policy, inherited confidentiality requirements and operation context through an authenticated interface. Ordinary SMTP submission alone does not express this contract. A proxy MUST NOT infer permission to disclose protected quoted content from the absence of an encryption header or from a transport retry.
 

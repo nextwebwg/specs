@@ -18,12 +18,23 @@ class HumanComparison(unittest.TestCase):
         plan=self.client.targets(session['comparison']['mailbox'],target_policy='evidenced-devices',time=self.f.time,mode='verification-required')
         self.assertEqual(plan['status'],'ready-verified');self.assertEqual(plan['verification']['evidence'],result['evidence'])
         self.verifier.withdraw(result['evidence'],expected_revision=1)
+        # Exact decision replay is historical output, never renewed authority.
+        self.assertEqual(self.confirm(session),result)
         self.assertEqual(self.client.targets(session['comparison']['mailbox'],target_policy='evidenced-devices',time=self.f.time,mode='verification-required')['status'],'verification-required')
     def test_comparison_mismatch_and_same_channel_cannot_pin(self):
-        session=self.session();bad=dict(session,comparison=dict(session['comparison'],stateDigest='0'*64))
-        with self.assertRaisesRegex(ValueError,'mismatch'):self.confirm(bad)
+        session=self.session()
+        changes=dict(stateDigest='0'*64,purpose='device-enrollment',
+                     principal=self.f.devices[1]['principal'],mailbox='alias@example.invalid',
+                     version='1',stateRevision='999')
+        for field,value in changes.items():
+            with self.subTest(field=field):
+                bad=dict(session,comparison=dict(session['comparison'],**{field:value}))
+                with self.assertRaisesRegex(ValueError,'mismatch'):self.confirm(bad)
+        with self.assertRaisesRegex(ValueError,'session required'):
+            self.confirm(dict(session,session='other-account-session'))
         with self.assertRaisesRegex(ValueError,'Independent'):self.confirm(session,channel='same-email')
-        self.assertEqual(self.identity.db.execute('SELECT count(*) FROM pins').fetchone()[0],0)
+        for table in ('pins','mailbox_associations','human_verification_evidence'):
+            self.assertEqual(self.identity.db.execute('SELECT count(*) FROM '+table).fetchone()[0],0)
     def test_expired_session_and_crash_roll_back(self):
         session=self.session();later={k:str(int(v)+61) for k,v in self.f.time.items()}
         with self.assertRaisesRegex(ValueError,'expired'):self.confirm(session,time=later)

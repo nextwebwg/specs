@@ -1,6 +1,9 @@
 """Actual accepted identity and assertion/bootstrap signatures, local journal only."""
 from dataclasses import replace
 import hashlib
+import base64
+import copy
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -10,7 +13,7 @@ from event_encoding import encode_event
 from identity_store import IdentityStore
 from freshness_gate import FreshnessGate,Policy
 from bootstrap_exchange import signed,handle
-from test_history_transfer import identity_material
+from test_history_transfer import identity_material,proof
 from test_bootstrap_exchange import ad
 
 
@@ -43,6 +46,39 @@ class FreshnessTests(unittest.TestCase):
     def evaluate(self,policy=None,**kwargs):
         return self.gate.evaluate(policy or self.cached,self.peer,self.address,self.ad,clock=kwargs.pop('clock',(22,23)),**kwargs)
     def confirmed(self,**kwargs):return self.evaluate(self.live,operation=self.operation,response=kwargs.pop('response',self.response),**kwargs)
+
+    def advance(self,material,*,issued='22'):
+        bundle=copy.deepcopy(material['bundle'])
+        value=json.loads(base64.b64decode(bundle['states'][-1]['payload']))
+        value.update(record='f'*32,revision='2',previous=[material['head']],issuedAt=issued)
+        raw=encode_event(value);head=hashlib.sha256(raw).hexdigest()
+        bundle['states'].append(dict(payload=base64.b64encode(raw).decode(),signature=proof(material['source'],'email-next/identity-state/v0',raw)))
+        self.assertEqual(self.ids.accept_successor(encode_event(bundle),candidate_digest=head,time=dict(earliest=issued,latest=issued))['status'],'accepted-unverified')
+        return head
+
+    def test_unchanged_anchor_survives_but_recent_age_uses_current_head(self):
+        old=self.ad;head=self.advance(self.b)
+        self.assertEqual(self.evaluate(clock=(23,24))['head'],head)
+        recent=self.evaluate(replace(self.recent,maximum_age=2),clock=(23,24))
+        self.assertEqual(recent['evidence'],head);self.assertEqual(recent['head'],head)
+        self.assertEqual(self.ad,old)
+        with self.assertRaisesRegex(ValueError,'age window'):self.evaluate(replace(self.recent,maximum_age=1),clock=(23,24))
+
+    def test_live_target_response_cannot_survive_an_accepted_head_advance(self):
+        self.prepare();self.advance(self.b)
+        self.assertEqual(self.evaluate(clock=(23,24))['mode'],'cached-continuity')
+        with self.assertRaisesRegex(ValueError,'exact current head'):self.confirmed(clock=(23,24))
+
+    def test_own_unchanged_head_preserves_original_challenge_without_refreshing_it(self):
+        self.prepare();self.advance(self.a)
+        self.assertEqual(self.confirmed(clock=(23,24))['evidence'],hashlib.sha256(encode_event(self.r)).hexdigest())
+        with self.assertRaisesRegex(ValueError,'age window'):self.confirmed(clock=(40,41))
+
+    def test_missing_accepted_anchor_cannot_be_repaired_by_supplemental_bundle(self):
+        self.advance(self.b)
+        self.ids.db.execute('DELETE FROM identity_transitions WHERE principal=? AND digest=?',(self.peer['principal'],self.peer['state']))
+        self.ids.db.commit()
+        with self.assertRaisesRegex(ValueError,'accepted ancestor'):self.evaluate(clock=(23,24))
 
     def test_cached_mode_requires_current_signed_device_evidence_without_network(self):
         result=self.evaluate();self.assertEqual(result['mode'],'cached-continuity');self.assertEqual(result['evidence'],'')

@@ -10,7 +10,7 @@ from event_encoding import encode_event,decode_event
 from service_tls import wrap_http11_socket
 from http_framing import read_fixed_response
 
-def bind_loopback(path='/email-next/oauth/callback'):
+def bind_loopback(path='/mail/oauth/callback'):
     """Try both literal loopback families, selecting one actual bound listener."""
     failures=[]
     for family,address,host in [(socket.AF_INET6,('::1',0),'[::1]'),(socket.AF_INET,('127.0.0.1',0),'127.0.0.1')]:

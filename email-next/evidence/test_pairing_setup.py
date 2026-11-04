@@ -125,6 +125,25 @@ class PairingSetupTests(unittest.TestCase):
         self.assertEqual(json.loads(self.row(self.target)[2])['contacts'][0]['verification'],c['verification'])
         self.assertEqual(self.stores[1].db.execute("SELECT count(*) FROM sqlite_master WHERE name='human_verification_evidence'").fetchone()[0],0)
 
+    def test_signed_encrypted_unknown_verification_does_not_stage_a_supported_prefix(self):
+        selected=copy.deepcopy(self.selected)
+        other=copy.deepcopy(selected['contacts'][0]);other['mailbox']='other@example.invalid'
+        other['verification']=[dict(id='b'*32,originDevice=self.a['device'],
+            mechanism='unrecognized-comparison',anchor=other['anchor'],
+            notBefore=self.time['earliest'],notAfter=self.time['latest'],
+            continuity='anchor-only',status='accepted',revision='1')]
+        selected['contacts'].append(other)
+        # Model an authorized source emitting unsupported plaintext. The real
+        # target parser still checks the signed, fully age-authenticated data.
+        with patch('pairing_setup.configuration',return_value=selected):
+            response=self.source.release(self.wire,selected,time=self.time)
+        with self.assertRaisesRegex(ValueError,'Verification scope'):
+            self.target.stage(response,self.key,time=self.time)
+        self.assertIsNone(self.row(self.target)[2])
+        self.assertIsNone(self.row(self.target)[3])
+        self.assertEqual(self.stores[1].db.execute('SELECT count(*) FROM pins').fetchone()[0],1)
+        self.assertEqual(list(self.root.glob('.pairing-setup-*')),[])
+
     def test_time_spent_encrypting_or_decrypting_cannot_extend_the_original_deadline(self):
         with patch('pairing_setup.monotonic_ns',side_effect=[0,31000000000]):
             with self.assertRaises(ValueError):self.release()

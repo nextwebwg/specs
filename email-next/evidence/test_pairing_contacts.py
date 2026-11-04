@@ -60,6 +60,27 @@ class PairedContactTests(unittest.TestCase):
         self.assertEqual(unpack(receipt,'receipt')[1]['result'],'installed')
         self.assertEqual(self.new_contacts.finish(self.transfer,time=self.time),receipt)
 
+    def test_live_trust_requires_durable_staging_and_resumes_after_failed_stage_commit(self):
+        response=self.release()
+        for operation in [lambda:self.install(),lambda:self.new_contacts.finish(self.transfer,time=self.time)]:
+            with self.assertRaisesRegex(ValueError,'stage'):operation()
+        def crash(_):raise RuntimeError('simulated precommit stop')
+        with self.assertRaises(RuntimeError):self.target.stage(response,self.key,time=self.time,crash=crash)
+        self.assertIsNone(self.row(self.target)[2])
+        with self.assertRaisesRegex(ValueError,'stage'):self.install()
+        self.assertIsNone(self.stores[1].current_state(self.friend['principal'])['head'])
+        self.assertIsNone(self.new_contacts.associations._current(self.address))
+        staged=self.target.stage(response,self.key,time=self.time)
+        self.assertEqual(unpack(staged,'receipt')[1]['result'],'staged')
+        self.assertIsNone(self.stores[1].current_state(self.friend['principal'])['head'])
+        self.key.unlink()
+        self.assertEqual(self.target.stage(response,self.key,time=self.time),staged)
+        self.assertEqual(self.install()['status'],'installed')
+        self.assertEqual(self.resolve()['status'],'verified-for-use')
+        result=self.new_contacts.finish(self.transfer,time=self.time)
+        self.assertEqual(unpack(result,'receipt')[1]['result'],'installed')
+        self.assertEqual(self.new_contacts.finish(self.transfer,time=self.time),result)
+
     def test_onward_export_preserves_original_comparison_identity(self):
         self.staged();self.install();self.new_contacts.finish(self.transfer,time=self.time)
         exported=self.new_contacts.snapshot([self.address]);original=self.selected['contacts'][0]['verification'][0]

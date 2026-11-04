@@ -7,7 +7,7 @@ sectionNav: true
 
 # Capability discovery and exchange decisions
 
-Before using a rich interaction or encryption, a client needs to know what the recipient can receive. **Discovery** supplies that information. It can begin with ordinary email or an authorized automatic setup exchange; provider upgrades can obtain setup before the first human message.
+Before using a rich interaction or encryption, a client needs to know what the recipient can receive. **Discovery** supplies that information. It can begin with ordinary email or an authorized automatic setup exchange; an enabled [ordinary-mail setup exchange](mailbox-setup.md) or provider service can obtain setup before the first human message.
 
 > [!ex] Learn through a normal conversation
 > Alice emails Bob. Her upgraded client includes information about its supported features. Bob's next human-written reply can include his client's information. Once their clients have sufficient valid identity and key evidence, they can establish encryption automatically under their first-contact policies.
@@ -20,12 +20,26 @@ Before using a rich interaction or encryption, a client needs to know what the r
 | Upgraded provider | An authorized discovery or control service supports exchanges outside normal inbox delivery | Device enrollment or support by every client using the account |
 | Both endpoints available | A fresh authenticated exchange can confirm a session | Peer identity merely because someone is online |
 
+The [cooperating-service architecture](service-federation.md) adds a proposed path
+for clients using different services, including independent services beside
+unchanged mailboxes. It separates private discovery, offline setup, live connection
+negotiation and fast encrypted delivery. Finding setup does not mean a device is
+online. Finding an independent operator requires domain delegation, a previously
+accepted locator or a configured common discovery federation; clients do not ask
+every known service. Its complete wire bindings remain to be specified.
+
 Support is checked feature by feature and for the actual destination. A client may support answer buttons while lacking current encryption material. A provider may offer a control service while a legacy client still reads the same mailbox.
 
 > [!note] Proposed decision contract
 > This chapter defines how discovery evidence affects sending. The [experimental passive binding](passive-discovery.md) selects ordinary-email carriage, signed records and expiry rules for implementation work. Its media type is unregistered. The [optional provider extension](provider-negotiation.md) selects a separate control queue and device-challenge lifecycle. Its [configured wire profile](provider-control.md) defines the exchange; [domain discovery](provider-discovery.md), [public account/grant authority](provider-grants.md) and [unknown-peer bootstrap](bootstrap.md) are defined separately; their complete joined implementations remain unfinished. These requirements alone do not establish interoperable discovery.
 
+## Start with a small provider hint
+
+A provider can implement only [Setup discovery](encryption-discovery.md): one small HTTPS service advertises whether setup support is publicly offered for a selected account. It needs neither a replacement mail server nor the full provider-control service. A negative response can deliberately combine unsupported and nonexistent accounts. A positive response still requires actual validated setup before protected content is sent. Independently usable accepted setup survives negative hints and service outages.
+
 ## Bootstrap through ordinary email
+
+The [ordinary-mail setup carrier](mailbox-setup.md) defines a separate, explicitly enabled request and encrypted response for first-message encryption without a provider upgrade. Its strict authentication, disclosure, lifetime and loop rules apply; a passive advertisement alone cannot activate it.
 
 An outgoing human-authored message may include a passive advertisement. Receiving it does not create a requirement to send a machine response. A subsequent human reply can carry the recipient's own advertisement, allowing compatible clients to establish protection under their first-contact policies.
 
@@ -154,7 +168,7 @@ An SPF result can describe a host's authorization to use an SMTP identity. It mu
 
 ### DNS namespace boundaries
 
-A DNS discovery profile must specify its resource-record type, globally scoped underscored label, subordinate naming rules and registration requirements. Underscored labels are coordinated namespaces, not automatically private extension space. Registration does not authenticate a mailbox, device or advertised capability. Existing DKIM key records retain their DKIM meaning and must not be reinterpreted as Email/2 endpoint-key advertisements. See the [registry audit](audits/underscored-registry.md) and [companion amendments](audits/underscored-dns.md). The registry audit checks the relevant current entries. The exact discovery binding remains unselected, so no new name-availability or registration claim follows.
+A DNS discovery profile must specify its resource-record type, globally scoped underscored label, subordinate naming rules and registration requirements. Underscored labels are coordinated namespaces, not automatically private extension space. Registration does not authenticate a mailbox, device or advertised capability. Existing DKIM key records retain their DKIM meaning and must not be reinterpreted as Email/2 endpoint-key advertisements. See the [registry audit](audits/underscored-registry.md) and [companion amendments](audits/underscored-dns.md). The registry audit checks the relevant current entries. No DNS endpoint-key discovery profile or underscored label is selected by this suite. Passive mail evidence and the separately defined HTTPS provider/bootstrap/relay discovery contracts remain the selected paths; this DNS discussion supplies no additional capability or registration claim.
 
 A wildcard DNS answer can synthesize a record at an underscored name without the intended service meaning. Record presence alone MUST NOT establish Email/2 support or authorize key use. The discovery binding must validate its record syntax, intended scope and authentication. Registry expert review establishes entry clarity and uniqueness; it does not approve the protocol’s security or establish recipient identity.
 
@@ -174,14 +188,16 @@ Every discovery binding must state which identifiers leave the client or provide
 
 Cache entries must retain the inputs, authority and validity conditions on which the result depends. A result for one mailbox, device or feature must not become a domain-wide capability by dropping a distinguishing input from the cache key. When evidence depends on multiple records, the effective validity must not exceed the earliest relevant expiration. Expiration triggers re-evaluation or an unknown/stale state; it does not authorize a security downgrade.
 
-A discovery profile must also bound recursive delegation and network work across the whole resolution attempt. Resetting those bounds at each delegation defeats them. Exact profile limits and failure behavior remain to be specified and tested; SPF's own numeric limits are not automatically Email/2 limits.
+A selected discovery operation must bound total lookup/fetch work, elapsed time and retries across the whole attempt, including name resolution and delegated service requests. Budget exhaustion leaves that path unavailable or held under its owning policy; it cannot restart an unbounded traversal or grant another route’s authority. SPF’s numeric limits do not become Email/2 limits.
+
+The current suite selects the exact HTTPS well-known bindings in [provider discovery](provider-discovery.md), [bootstrap](bootstrap.md) and [relay discovery](relay-routes.md), with their stated no-redirect, endpoint, response-size and finite network/retry policies. It selects no separate DNS-record key-directory or recursive DNS-delegation protocol. Such an extension needs its own record names, authority, complete algorithm/bounds and safe failure contract before use. Ordinary SMTP, TLS and DKIM name lookups retain their own applicable standards and budgets; they are not implicit correspondent-key discovery.
 
 
 ### Purpose-bound delegation
 
 A third party's willingness to receive one protocol's traffic does not authorize it to act for a correspondent in another protocol. In particular, DMARC external-report authorization and wildcard report acceptance MUST NOT be treated as permission to publish encryption keys, approve devices, receive private conversation state or negotiate capabilities.
 
-For any Email/2 delegated discovery service, the authenticated delegation must identify its purpose, subject and destination. An override or redirect must remain within that authority; a changed destination requires its own authorization. Cached authorization remains subject to its validity period, and a failed refresh must not expand its scope. The exact discovery binding and redirect rules remain to be finalized with the wire profile.
+For any Email/2 delegated discovery service, the authenticated delegation must identify its purpose, subject and destination. An override or redirect must remain within that authority; a changed destination requires its own authorization. Cached authorization remains subject to its validity period, and a failed refresh must not expand its scope. The selected HTTPS bindings in provider, bootstrap and relay discovery define their exact endpoint authority and no-redirect rules. A different delegation or redirect mechanism remains unavailable until its own complete binding is specified; this general requirement does not create one.
 
 RFC9990 Section 4 provides relevant prior art for scoped external-destination authorization and loop prevention. Its reporting-specific DNS records and organizational-domain tests are not adopted as Email/2 identity rules.
 
@@ -198,7 +214,7 @@ Discovery is an input to admission, not permanent permission to skip validation.
 
 Unknown optional capability values may be ignored where the underlying protocol requires it. An unknown required feature must not be treated as supported, silently removed from the group requirements or converted into plaintext fallback. Protocol-defined implicit defaults must be interpreted under that protocol's rules rather than requiring every default feature to appear explicitly in an advertisement.
 
-The selected [MLS admission lifetime](security-profile.md#experimental-admission-lifetime) checks each package’s signed expiry and the receiver’s configured maximum total lifetime at sender admission and receiver Welcome acceptance. Seven days is the recommended configurable default, not a fixed profile limit. A package that was valid when observed cannot be reused indefinitely. Delayed arrival alone is not evidence that the sender originally selected expired material; the receiving attempt can still require fresh material. Implementations must apply that authoritative profile rather than a separate discovery-cache lifetime.
+The selected [MLS admission lifetime](security-profile.md#experimental-admission-lifetime) checks each package’s signed creation expiry and configured maximum total lifetime. The selected current suite separately validates its [declared receiving window](suite-profile.md#creating-a-delivery-and-receiving-it-later) at Welcome acceptance; older encodings retain the stricter publication-lifetime check. Seven days is the recommended configurable default, not a fixed profile limit. A package that was valid when observed cannot be reused indefinitely. Delayed arrival alone is not evidence that the sender originally selected expired material; the receiving attempt can still require fresh material. Implementations must apply that authoritative profile rather than a separate discovery-cache lifetime.
 
 
 ### Cached group state and admission material
@@ -207,7 +223,7 @@ An untrusted cache may distribute a group's public cryptographic tree when the j
 
 A client must validate the complete admission object before installing group state, including its own authorized membership, required credentials, tree integrity and confirmation. A cache response or successful decryption is insufficient on its own. GroupInfo used for an external join is epoch-specific; an accepted join changes the epoch, so another attempted join may need refreshed state and must not silently reuse a stale admission decision.
 
-A resynchronization operation that replaces a device must satisfy the identity-lifecycle recovery rules. Possession of its signing key alone must not bypass a recovery policy that requires additional continuity evidence. The exact admission and recovery binding remains under review with RFC9420 Section 12.4.3 and its errata.
+A resynchronization operation that replaces a device must satisfy the identity-lifecycle recovery rules. Possession of its signing key alone must not bypass a recovery policy that requires additional continuity evidence. The current suite does not select external join or signing-key-only resynchronization. Use the [defined device lifecycle](identity-lifecycle.md) and [selected conversation admission and recovery rules](group-conversations.md), with fresh device authority, exact native membership and retained-history boundaries. The general MLS external-join mechanism does not authorize a new Email/2 recovery path.
 
 ::::
 ## Existing encrypted-email mechanisms
@@ -261,6 +277,30 @@ Device coverage is also an explicit local policy:
 | Evidenced devices | The intended individually evidenced devices satisfy the exact selected profile. The client shows which authorized devices were not included. |
 | All authorized devices | Every current receive-role device has suitable evidence. A missing device leaves delivery pending. |
 
-An identity roster authorizes devices; it does not advertise their applications or supply their admission packages. One passive assertion still describes one device. Evidence gathered from later human messages can support further authorized membership changes, but the client must not claim that an unevidenced device can read the conversation. The exact profile intersection and invitation checks apply to every intended target under either policy.
+An identity roster authorizes devices; it does not advertise their applications or supply their admission packages. One passive assertion still describes one device. Evidence gathered from later human messages can support further authorized membership changes, but the client must not claim that an unevidenced device can read the conversation. For the current agreement, every device actually selected in a delivery must supply the same complete readable application, its own interaction declarations and valid admission evidence. Do not intersect those interaction lists into a smaller application. Other intended recipient slots can remain pending; a frozen device-target policy cannot be weakened by silently dropping a selected device. Earlier agreements retain their exact operation-block intersection and invitation checks.
 
 The [client-only onboarding experiment](evidence/README.md#client-only-ordinary-mail-onboarding) begins without preinstalled peer identities or mailbox associations. It joins ordinary SMTP messages to atomic selection, signed invitation delivery and an actual protected message/reply. These are local unverified-continuity checks, not an independent ownership-verification mechanism, complete account synchronization or provider deployment. Verification-required mode holds unless a separately accepted verifier supplies evidence. The optional [human comparison](mailbox-association.md#optional-human-comparison) can establish human-confirmed correspondent identity through an independent trusted channel; it does not establish provider-certified mailbox ownership.
+
+
+Current assertion10 and retained assertion9/assertion8 each bind the required [control-key descriptor](suite-profile.md#confidential-setup-and-control). An MLS package without a usable sealed-control key is insufficient for current initial delivery. Signed public setup must be acquired through a channel permitted by the selected privacy policy; masking cannot be bootstrapped by exposing its personal mailbox claims in clear mail. The existing authenticated first-contact service retains its separate content-free setup-metadata role and gains no generic ciphertext-carriage permission.
+
+
+For the selected [asynchronous agreement](suite-profile.md#asynchronous-protected-agreement), acquire original assertion10 through the [exact per-delivery setup paths](first-contact-setup.md#acquisition-for-independently-ready-deliveries). Validate every actual selected device, retain its independent interactions and keep pending slots separate from native membership. Assertion10 is the current baseline; assertion9 and earlier advertisements retain their exact compatibility scope. An older advertisement, provider response or MIME label cannot supply the current agreement by relabeling it.
+
+## Negotiate the mail carrier as well as encryption
+
+Knowing that a device understands MLS and mime-suite-v2 does not tell the sender which email attachment it can receive. The selected opaque carrier needs that device's [complete signed receiving bundle](application-carriage.md#obtain-authenticated-carrier-support). This is checked separately from native admission, mailbox identity and the person's permission to disclose content.
+
+::: {.details summary="Per-device support, automatic setup and safe unknown outcomes"}
+
+Use the [complete acquisition paths](first-contact-setup.md#finish-acquisition-for-the-opaque-carrier), including provider3/bootstrap3, private realm1/snapshot1 plus actual allocator0, separately enabled mailbox3, and permitted original human-message publication. Provider-first/offline paths can encrypt the first human message without a previous mail exchange; success still requires real eligible evidence and admission. There is no universal promise that every first message can be encrypted.
+
+For every actual selected recipient and participating sender device, validate current identity/Receive authority, association, original carrier offer, actual native application/ordering and package/control custody. One device's proof is not an account-wide promise, server claim or another alias's permission. Pending intended slots remain explicit while a ready actual cohort progresses under its frozen plan.
+
+Assertion10/context10 and old carrier evidence retain their exact meaning. Missing current support means unknown/held, not unsupported, unassigned or permanently offline. Failure never selects a weaker decoder, sends an allegedly hidden probe, silently drops a frozen target or permits a clear first message. Ordinary/hosted fallback needs its separately retained disclosure policy and visible protection status.
+
+A fresh device response can refresh capability evidence only for its original request, target/current state and deadlines. Offline bundles remain cached evidence. A new software install does not sign for another device, renew an earlier receiving promise or alter old prepared mail. Use the [historical-version boundary](application-carriage.md#historical-prepared-versions-and-explicit-reader-selection) for restart and migration; keep exact Message-ID/bytes/ciphertext/attempts/uncertainty.
+
+Required masking keeps all real-address-bearing proofs inside private acquisition/protected attachments. No clear sibling or personal-address digest belongs to the opaque application wrapper. Retain original proof provenance, conflicts, publication eligibility and receiveUntil independently; no stale promise revives retired native keys or account authority.
+
+:::

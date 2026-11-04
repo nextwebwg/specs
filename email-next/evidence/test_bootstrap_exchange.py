@@ -4,6 +4,7 @@ Fixture KeyPackages are deliberately not MLS objects: this suite cannot establis
 admission or release human content. HTTP/TLS/account facts are configured inputs.
 """
 import base64
+import copy
 from dataclasses import replace
 import hashlib
 import json
@@ -20,16 +21,16 @@ from bootstrap_exchange import (SourceAccount,SourceObservation,RecipientSlot,Bo
                                 authorize_source,signed,parse,handle)
 from event_encoding import encode_event
 from identity_store import IdentityStore
-from suite_modules import offers
-from test_history_transfer import identity_material
+from suite_modules import offers,exchanges
+from test_history_transfer import identity_material,proof
 
 
 def ad(material,actor,address,*,package=b'',modules=('answers',)):
     v=dict(version='8',purpose='passive-discovery',record='1'*32,
         **{k:actor[k] for k in ['principal','device','state','binding']},mailbox=address,
         notBefore='10',notAfter='100',features=['mls-1-0001'],keyPackage=[base64.b64encode(package).decode()] if package else [],
-        applications=offers(modules),orderingExchanges=[dict(format='quorum-exchange-experiment',version='2')])
-    raw=encode_event(v);key=material['target']
+        applications=offers(modules),orderingExchanges=exchanges(offers(modules)),keyPackageReceiveUntil='110' if package else None,controlKey=dict(id=hashlib.sha256(actor['device'].encode()).hexdigest()[:32],publicKey='4'*64,notBefore='10',notAfter='100',receiveUntil='110'))
+    raw=encode_event(v,nullable_members=('keyPackageReceiveUntil','controlKey'));key=material['target']
     wrapper=dict(payload=base64.b64encode(raw).decode(),signature=key.sign(b'email-next/passive-discovery/v8\0'+struct.pack('>I',len(raw))+raw).hex(),identity=material['bundle'])
     return base64.b64encode(encode_event(wrapper)).decode()
 
@@ -85,6 +86,29 @@ class BootstrapTests(unittest.TestCase):
 
     def respond(self,proof=None,**kwargs):
         return self.server.respond(proof or self.response,slot=kwargs.pop('slot',self.slot),fetch=kwargs.pop('fetch',self.fetch),**kwargs)
+
+    def advance(self,store,material):
+        bundle=copy.deepcopy(material['bundle']);value=json.loads(base64.b64decode(bundle['states'][-1]['payload']))
+        value.update(record='f'*32,revision='2',previous=[material['head']],issuedAt='22')
+        raw=encode_event(value);head=hashlib.sha256(raw).hexdigest()
+        bundle['states'].append(dict(payload=base64.b64encode(raw).decode(),signature=proof(material['source'],'email-next/identity-state/v0',raw)))
+        self.assertEqual(store.accept_successor(encode_event(bundle),candidate_digest=head,time=dict(earliest='22',latest='22'))['status'],'accepted-unverified')
+        return head
+
+    def test_unchanged_source_head_preserves_original_permission_and_attempt(self):
+        self.respond();old=self.prepared;self.advance(self.source_ids,self.a)
+        self.assertEqual(self.inspect(time=(23,24))['state'],'ready');self.assertEqual(self.prepared,old)
+        with self.assertRaises(ValueError):self.inspect(time=(91,92))
+
+    def test_offline_publication_survives_new_slot_head_but_live_response_does_not(self):
+        publication=self.publication();self.server.publish(publication,slot=self.slot)
+        head=self.advance(self.target_ids,self.b)
+        self.slot=replace(self.slot,device=dict(self.slot.device,state=head))
+        result=self.inspect(time=(23,24))
+        self.assertEqual(result['state'],'ready');self.assertEqual(result['responses'],[]);self.assertEqual(result['publications'],[publication])
+        with self.assertRaises(ValueError):self.respond(time=(23,24))
+        self.server.withdraw('a'*32,slot=self.slot)
+        self.assertEqual(self.inspect(time=(23,24))['state'],'pending')
 
     def test_unknown_peer_flow_returns_signed_candidate_without_pinning_or_content_release(self):
         self.assertIsNone(self.target_ids.db.execute('SELECT digest FROM pins WHERE principal=?',(self.sender['principal'],)).fetchone())
@@ -145,6 +169,25 @@ class BootstrapTests(unittest.TestCase):
         p=signed('inspect',raw,Ed25519PrivateKey.generate())
         with self.assertRaises(ValueError):self.inspect(p)
         with self.assertRaises(ValueError):self.inspect(self.source)
+
+    def test_copied_full_inspect_proof_replays_only_bounded_scope_without_new_allocation(self):
+        original=self.possession()
+        copied=json.loads(json.dumps(original))
+        self.assertEqual(self.inspect(copied)['state'],'pending')
+        published=self.publication();self.server.publish(published,slot=self.slot)
+        first=self.inspect(copied)
+        self.assertEqual(first['publications'],[published])
+        self.assertEqual(first['responses'],[])
+        # Reading accepts the copied signed object, not a live private-key challenge.
+        self.assertEqual(self.inspect(copied,time=(22,23)),first)
+        self.assertEqual(self.inspect(self.possession(nonce='9'*64)),first)
+        self.assertEqual(self.target_ids.db.execute('SELECT count(*) FROM bootstrap_allocation').fetchone()[0],1)
+        self.assertEqual(self.target_ids.db.execute('SELECT count(*) FROM bootstrap_package').fetchone()[0],1)
+        with self.assertRaises(ValueError):self.inspect(copied,time=(70,71))
+        self.account=replace(self.account,active=False)
+        with self.assertRaises(ValueError):self.inspect(copied)
+        self.assertEqual(self.target_ids.db.execute('SELECT count(*) FROM bootstrap_allocation').fetchone()[0],1)
+        self.assertEqual(self.target_ids.db.execute('SELECT count(*) FROM bootstrap_package').fetchone()[0],1)
 
     def test_wrong_target_mailbox_or_service_rejected_before_exchange(self):
         for patch in [dict(targetMailbox='bob@other.example'),dict(targetService='https://attacker.example')]:
@@ -272,6 +315,18 @@ class BootstrapTests(unittest.TestCase):
         self.source=self.source_proof(self.source_value);self.prepared=encode_event(self.source_value)
         self.exchange=self.post()['exchange']
         self.assertTrue(self.server.dispatch(self.exchange,fetch=self.fetch,lookup=self.lookup))
+
+    def test_empty_pending_poll_can_allocate_once_after_replenishment_without_replacing_it(self):
+        self.assertEqual(self.inspect()['state'],'pending')
+        self.assertEqual(self.target_ids.db.execute('SELECT count(*) FROM bootstrap_allocation').fetchone()[0],0)
+        original_source=self.prepared
+        first=self.publication(identifier='b'*32);self.server.publish(first,slot=self.slot)
+        self.assertEqual(self.inspect()['publications'],[first])
+        self.server.publish(self.publication(identifier='a'*32,package=b'ANOTHER-UNALLOCATED-PACKAGE'),slot=self.slot)
+        self.assertEqual(self.inspect()['publications'],[first])
+        self.assertEqual(self.prepared,original_source)
+        self.assertEqual(self.target_ids.db.execute('SELECT count(*) FROM bootstrap_allocation').fetchone()[0],1)
+        self.assertEqual(self.target_ids.db.execute('SELECT count(*) FROM bootstrap_package').fetchone()[0],1)
 
     def test_offline_publication_is_not_fabricated_as_a_fresh_response(self):
         publication=self.publication();self.assertEqual(self.server.publish(publication,slot=self.slot),'stored-publication-candidate')

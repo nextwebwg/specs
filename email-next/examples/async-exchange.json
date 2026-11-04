@@ -1,0 +1,53 @@
+{
+  "format": "asynchronous-wire-examples-0",
+  "scope": "Synthetic selected authored0\/envelope6 components only; no signatures, native admission, current negotiation or network evidence. Catalog is not a wire record.",
+  "authored": [
+    "async-root-authored.json",
+    "async-reply-authored.json",
+    "async-followup-authored.json",
+    "async-resolution-authored.json"
+  ],
+  "deliveries": [
+    {
+      "file": "async-root-first-delivery.json",
+      "authored": "async-root-authored.json"
+    },
+    {
+      "file": "async-root-late-delivery.json",
+      "authored": "async-root-authored.json"
+    },
+    {
+      "file": "async-reply-first-delivery.json",
+      "authored": "async-reply-authored.json"
+    },
+    {
+      "file": "async-reply-late-delivery.json",
+      "authored": "async-reply-authored.json"
+    },
+    {
+      "file": "async-followup-first-delivery.json",
+      "authored": "async-followup-authored.json"
+    },
+    {
+      "file": "async-followup-late-delivery.json",
+      "authored": "async-followup-authored.json"
+    },
+    {
+      "file": "async-resolution-delivery.json",
+      "authored": "async-resolution-authored.json"
+    }
+  ],
+  "pendingRecipient": "7796b662f9b40c81a9900beebfe84c45",
+  "creatorResolutionAtBob": "async-resolution-delivery.json",
+  "carolArrivalOrder": [
+    "async-reply-late-delivery.json",
+    "async-root-late-delivery.json",
+    "async-followup-late-delivery.json"
+  ],
+  "visibleMessages": [
+    "async-root-authored.json",
+    "async-reply-authored.json",
+    "async-followup-authored.json"
+  ],
+  "controlNotVisible": "async-resolution-authored.json"
+}

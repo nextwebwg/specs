@@ -24,7 +24,7 @@ from event_encoding import decode_event, encode_event
 from identity_bundle import decode_identity_bundle
 
 FIELDS = {
-    'request': 'version purpose transfer source target recipient accounts receipt notBefore notAfter',
+    'request': 'version purpose transfer source target recipient accounts deliveries receipt notBefore notAfter',
     'grant': 'version purpose transfer request source target scope archive set verificationKey catalog complete notBefore notAfter',
     'receipt': 'version purpose transfer grant source target catalog result notBefore notAfter',
     'cancel': 'version purpose transfer request grant source target by notBefore notAfter',
@@ -40,6 +40,52 @@ def endpoint(ref):
         raise ValueError('History device identifier')
     for key in ('state', 'binding', 'key'):
         digest(ref[key])
+
+
+def delivery_descriptors(values):
+    """Validate selectors only; ciphertext possession supplies no authority."""
+    if type(values) is not list:
+        raise ValueError('History delivery descriptor array')
+    keys = []
+    for value in values:
+        exact(value, 'sha256 size')
+        digest(value['sha256'])
+        size = uint(value['size'])
+        if size == 0:
+            raise ValueError('Nonempty sealed delivery required')
+        keys.append((value['sha256'], size))
+    if keys != sorted(set(keys)):
+        raise ValueError('Sorted unique delivery descriptors required')
+    return tuple(keys)
+
+
+def select_delivery_entries(request, trusted_index):
+    """Pure proposal from an independently trusted source-owned outbox index.
+
+    Index maps (binary SHA256, byte count) to exact principal/account/entry rows.
+    This does not authenticate the index, check current authority, approve an
+    export, validate retained plaintext/resources or perform any external effect.
+    """
+    validate(request, 'request')
+    selectors = delivery_descriptors(request['deliveries'])
+    if not selectors:
+        raise ValueError('No targeted delivery selection')
+    selected = set()
+    for selector in selectors:
+        rows = trusted_index.get(selector)
+        if type(rows) not in (list, tuple) or not rows:
+            raise ValueError('Original delivery mapping unavailable')
+        for row in rows:
+            exact(row, 'principal account entry')
+            principal(row['principal'])
+            oid(row['account'])
+            oid(row['entry'])
+            if row['principal'] != request['target']['principal']:
+                raise ValueError('Original recipient principal mismatch')
+            if request['accounts'] and row['account'] not in request['accounts']:
+                raise ValueError('Recovery would exceed requested accounts')
+            selected.add((row['account'], row['entry']))
+    return tuple(sorted(selected))
 
 
 def validate(value, kind):
@@ -63,6 +109,7 @@ def validate(value, kind):
                 oid(account)
             if value['accounts'] != sorted(set(value['accounts'])):
                 raise ValueError('Sorted unique requested accounts')
+            delivery_descriptors(value['deliveries'])
         elif kind == 'grant':
             digest(value['request'])
             validate_scopes(value['scope'])
@@ -132,18 +179,21 @@ def authority_snapshot(store):
         raise
 
 
-def authorize(store, ref, role, time, trust_policy):
+def authorize(store, ref, role, time, trust_policy, *, allow_binding_renewal=False):
     """Retained endpoint authorization, not a new head/context or freshness proof.
 
     Caller holds authority_snapshot through its state mutation. Walk only locally
     accepted history, checking the same binding at every step, including anchor.
+    Only delayed-control receipt explicitly selects continuous same-key renewal;
+    grants and history-transfer authorization retain the unchanged-binding rule.
     """
     checked = store._check_device_locked(ref['principal'], ref['device'], bytes.fromhex(ref['key']),
                                          role, time, trust_policy)
-    if checked['status'] != 'authorized-unverified' or checked['binding'] != ref['binding']:
+    if checked['status'] != 'authorized-unverified' or (not allow_binding_renewal and checked['binding'] != ref['binding']):
         raise ValueError('History endpoint not currently authorized: ' + checked['status'])
     current = checked['head']
     seen = set()
+    newer_interval = None
     for _ in range(1024):
         if current in seen:
             raise ValueError('Retained authority ancestry cycle')
@@ -168,12 +218,17 @@ def authorize(store, ref, role, time, trust_policy):
             raw = base64.b64decode(record['binding'], validate=True)
             bindings = {hashlib.sha256(raw).hexdigest(): decode_event(raw)['value']}
         selected = next((item for item in state['bindings'] if item['device'] == ref['device']), None)
-        binding = bindings.get(ref['binding'])
-        if (ref['device'] in state['revoked'] or selected is None or selected['digest'] != ref['binding']
+        binding = bindings.get(selected['digest']) if selected else None
+        if (ref['device'] in state['revoked'] or selected is None
+                or ((not allow_binding_renewal or current == ref['state']) and selected['digest'] != ref['binding'])
                 or binding is None or binding['signingKey'] != ref['key'] or role not in binding['roles']):
             raise ValueError('Retained authority binding changed along accepted ancestry')
+        original_interval = (uint(binding['notBefore']), uint(binding['notAfter']))
+        if newer_interval is not None and max(original_interval[0],newer_interval[0])>min(original_interval[1],newer_interval[1]):
+            raise ValueError('Retained authority renewal interval gap')
+        newer_interval = original_interval
         if current == ref['state']:
-            return dict(head=checked['head'], before=uint(binding['notBefore']), after=uint(binding['notAfter']))
+            return dict(head=checked['head'], before=original_interval[0], after=original_interval[1])
         if transition is None:
             break
         current = transition[0]
@@ -205,6 +260,8 @@ def verify_record(wrapper, kind, store, *, time, trust_policy):
 
 def correlate(request, grant):
     r, g = request['value'], grant['value']
+    if r['deliveries']:
+        raise ValueError('Targeted export mapping is not integrated in this experiment')
     if g['request'] != request['reference'] or any(r[key] != g[key] for key in ('transfer', 'source', 'target')):
         raise ValueError('Grant does not match retained request')
     if uint(g['notBefore']) < uint(r['notBefore']) or uint(g['notAfter']) > uint(r['notAfter']):

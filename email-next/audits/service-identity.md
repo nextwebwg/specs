@@ -21,7 +21,7 @@ Do not use Common Name or any other subject RDN as a fallback. On mismatch, keep
 
 ## Mail and identity boundaries
 
-RFC7817 addresses mail submission/access certificate identity and its earlier6125-based rules; it is not the HTTPS action-service profile. Its SRV-aware account-domain/host relationships do not authorize accepting those alternative names for this HTTPS service. Its historical optional CN fallback must not be carried into a new9525-based profile. A future mail-provider adapter must reconcile its actual discovery and reference-name policy separately. Neither9525 nor7817 proves correspondent mailbox ownership, device authority, MLS membership or token-to-principal association.
+RFC7817 addresses mail submission/access certificate identity and its earlier6125-based rules; it is not the HTTPS action-service profile. Its SRV-aware account-domain/host relationships do not authorize accepting those alternative names for this HTTPS service. Its historical optional CN fallback must not be carried into a new9525-based profile. The [mail submission/access contract](../transport.md#connection-confidentiality-indications) separately selects its discovery and reference-name policy, including the applicable SRV-aware rules. This audit’s HTTPS conclusions do not replace that mail-specific contract. Neither9525 nor7817 proves correspondent mailbox ownership, device authority, MLS membership or token-to-principal association.
 
 RFC9525 explicitly leaves complete PKIX path validation, expiry, revocation, extended key usage and name constraints to5280 and applicable policy. That work remains open. ALPN/SNI and fleet deployment also remain separate dependencies; a shared certificate can expand the impact of a weaker sibling service.
 

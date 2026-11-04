@@ -1,0 +1,18 @@
+{
+  "envelopeVersion": "6",
+  "payload": "mime-suite-v2",
+  "operations": [
+    "answer",
+    "attachment-message",
+    "edit",
+    "hosted-holder-observation",
+    "message",
+    "question",
+    "reaction",
+    "reaction-withdraw",
+    "recipient-resolution",
+    "reply-message",
+    "rich-message",
+    "service-question"
+  ]
+}

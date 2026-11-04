@@ -128,8 +128,14 @@ class HostedStore:
     def lookup(self,operation,token):
         auth=self.management(token,'inspect')
         if auth!=200:return auth,b''
-        with self.db() as db:row=db.execute('SELECT receipt FROM decisions WHERE operation=?',(operation,)).fetchone()
-        return (200,row[0]) if row else (404,b'')
+        with self.db() as db:
+            # The preflight may precede connection/lock waits. Authorize the
+            # immutable response snapshot only after entering its transaction.
+            db.execute('BEGIN IMMEDIATE')
+            auth=self.management(token,'inspect')
+            if auth!=200:return auth,b''
+            row=db.execute('SELECT receipt FROM decisions WHERE operation=?',(operation,)).fetchone()
+            return (200,row[0]) if row else (404,b'')
     def authorize_grant(self,db,grant,token):
         if not valid_credential(token):return None
         row=db.execute('SELECT operation,digest,revoked FROM grants WHERE id=?',(grant,)).fetchone()
@@ -173,6 +179,9 @@ class HostedStore:
         auth=self.management(token,'read-management')
         if auth!=200:return auth,b''
         with self.db() as db:
+            db.execute('BEGIN IMMEDIATE')
+            auth=self.management(token,'read-management')
+            if auth!=200:return auth,b''
             row=db.execute('SELECT receipt FROM replies WHERE grant_id=? AND operation=?',(grant,operation)).fetchone()
             return (200,row[0]) if row else (404,b'')
 

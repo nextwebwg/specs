@@ -11,7 +11,7 @@ from cryptography.exceptions import InvalidSignature
 from event_encoding import decode_event,encode_event
 from identity_bundle import decode_identity_bundle
 from identity_store import IdentityStore
-SCOPES=['email-next.link','email-next.status','email-next.submit']
+SCOPES=['mail.service.link','mail.service.status','mail.service.submit']
 DOMAIN=b'email-next/service-account-link/v0\0'
 def digest(raw):return hashlib.sha256(raw).hexdigest()
 def b64url(raw):return base64.urlsafe_b64encode(raw).decode().rstrip('=')
@@ -34,7 +34,7 @@ def redirect_ok(uri,path):
 
 def registration(raw):
     v=decode_event(raw)['value'];exact(v,'version purpose registration generation service issuer clientId authorization token linkChallenge linkComplete redirectPath scopes')
-    if v['version']!='0' or v['purpose']!='service-authorization-registration' or not hexvalue(v['registration'],32) or v['registration']=='0'*32 or not u64(v['generation']) or v['generation']=='0' or v['issuer']!=v['service'] or v['redirectPath']!='/email-next/oauth/callback' or v['scopes']!=SCOPES or not isinstance(v['clientId'],str) or not re.fullmatch('[\x21-\x7e]{1,256}',v['clientId']):raise ValueError('Registration shape')
+    if v['version']!='0' or v['purpose']!='service-authorization-registration' or not hexvalue(v['registration'],32) or v['registration']=='0'*32 or not u64(v['generation']) or v['generation']=='0' or v['issuer']!=v['service'] or v['redirectPath']!='/mail/oauth/callback' or v['scopes']!=SCOPES or not isinstance(v['clientId'],str) or not re.fullmatch('[\x21-\x7e]{1,256}',v['clientId']):raise ValueError('Registration shape')
     # Reuse the selected canonical origin/path contract, not URL normalization.
     import subprocess
     from pathlib import Path
@@ -71,6 +71,7 @@ class AuthorizationStore:
         CREATE TABLE IF NOT EXISTS sa_tokens(hash TEXT PRIMARY KEY,family TEXT,kind TEXT,expiry INTEGER,used INTEGER NOT NULL);
         CREATE TABLE IF NOT EXISTS sa_challenges(id TEXT PRIMARY KEY,family TEXT,payload BLOB,signature TEXT,receipt BLOB);
         CREATE TABLE IF NOT EXISTS sa_links(family TEXT PRIMARY KEY,principal TEXT,device TEXT,state TEXT,binding TEXT,link TEXT,generation TEXT);
+        CREATE TABLE IF NOT EXISTS sa_action_accounts(service TEXT,action TEXT,principal TEXT,account TEXT NOT NULL,PRIMARY KEY(service,action,principal));
         CREATE TABLE IF NOT EXISTS sa_configuration(id INTEGER PRIMARY KEY CHECK(id=1),raw BLOB);''')
         old=self.db.execute('SELECT raw FROM sa_configuration WHERE id=1').fetchone()
         if old and old[0]!=registration_bytes:
@@ -143,7 +144,7 @@ class AuthorizationStore:
         v=decode_event(raw)['value'];exact(v,'version purpose registrationDigest principal device state binding')
         if v['version']!='0' or v['purpose']!='service-account-link-request' or v['registrationDigest']!=digest(self.registration_bytes) or not re.fullmatch('enp0:[0-9a-f]{64}',v['principal']) or not re.fullmatch('end0:[0-9a-f]{64}',v['device']) or any(not hexvalue(v[k],64) for k in ('state','binding')):raise ValueError('Challenge fields')
         with self.transaction():
-            family,_=self.grant(token,'email-next.link');now=self.now();r=self.registration
+            family,_=self.grant(token,'mail.service.link');now=self.now();r=self.registration
             value=dict(v,purpose='service-account-link',challenge=secrets.token_hex(16),nonce=secrets.token_hex(32),issuer=r['issuer'],service=r['service'],clientId=r['clientId'],grantBinding=family,notBefore=str(now),notAfter=str(now+self.limits[1]));payload=encode_event(value)
             self.db.execute('INSERT INTO sa_challenges VALUES(?,?,?,NULL,NULL)',(value['challenge'],family,payload))
         return payload
@@ -176,7 +177,7 @@ class AuthorizationStore:
         except (TypeError,ValueError) as e:raise ValueError('Link proof encoding') from e
         b=decode_identity_bundle(encode_event(w['identity']))
         with self.transaction():
-            family,_=self.grant(token,'email-next.link');row=self.db.execute('SELECT family,payload,signature,receipt FROM sa_challenges WHERE id=?',(c.get('challenge'),)).fetchone()
+            family,_=self.grant(token,'mail.service.link');row=self.db.execute('SELECT family,payload,signature,receipt FROM sa_challenges WHERE id=?',(c.get('challenge'),)).fetchone()
             if not row or row[0]!=family or row[1]!=payload:raise ValueError('Challenge binding')
             if row[3] is not None:
                 if row[2]!=w['signature']:raise ValueError('Changed link proof')
@@ -200,12 +201,27 @@ class AuthorizationStore:
             link=secrets.token_hex(16);receipt=encode_event(dict(version='0',purpose='service-account-link-result',challenge=c['challenge'],requestDigest=digest(payload),service=c['service'],principal=c['principal'],link=link,generation='1',outcome='linked'))
             self.db.execute('INSERT INTO sa_links VALUES(?,?,?,?,?,?,?)',(family,c['principal'],c['device'],c['state'],c['binding'],link,'1'));self.db.execute('UPDATE sa_challenges SET signature=?,receipt=? WHERE id=?',(w['signature'],receipt,c['challenge']))
             return receipt
+    def provision_action_account(self,action,principal,account):
+        """Trusted operator fixture seam; never called by HTTP/link/submission input.
+
+        Account is an internal non-reassigned incarnation handle. A service action
+        cannot silently move its principal's effects/history to another account.
+        """
+        if action.get('service')!=self.registration['service'] or principal not in action.get('principals',[]) or not isinstance(account,str) or not account:raise ValueError('Action account provisioning')
+        key=(action['service'],action['action'],principal)
+        with self.transaction():
+            old=self.db.execute('SELECT account FROM sa_action_accounts WHERE service=? AND action=? AND principal=?',key).fetchone()
+            if old and old!=(account,):raise ValueError('Immutable action account')
+            self.db.execute('INSERT OR IGNORE INTO sa_action_accounts VALUES(?,?,?,?)',(*key,account))
+
     def authorize_service(self,token,action,scope):
         with self.transaction():return self._authorize_service_locked(token,action,scope)
     def _authorize_service_locked(self,token,action,scope):
         try:
-            family,_=self.grant(token,'email-next.'+scope);row=self.db.execute('SELECT principal,device FROM sa_links WHERE family=?',(family,)).fetchone()
+            family,grant=self.grant(token,'mail.service.'+scope);row=self.db.execute('SELECT principal,device,state,binding FROM sa_links WHERE family=?',(family,)).fetchone()
             if not row or row[0] not in action['principals'] or action['service']!=self.registration['service']:return None,403
+            account=self.db.execute('SELECT account FROM sa_action_accounts WHERE service=? AND action=? AND principal=?',(action['service'],action['action'],row[0])).fetchone()
+            if account!=(grant['account'],):return None,403
             current=self.identity.current_state(row[0])
             if current['conflicted']:return None,403
             entry=self.db.execute('SELECT bundle FROM identity_transitions WHERE principal=? AND digest=? AND accepted=1',(row[0],current['head'])).fetchone()
@@ -215,8 +231,15 @@ class AuthorizationStore:
                 entry=self.db.execute('SELECT record FROM claims WHERE principal=? AND digest=?',(row[0],current['head'])).fetchone();binding=decode_event(base64.b64decode(json.loads(entry[0])['binding']))['value'] if entry else None
             if not binding:return None,403
             now=str(self.now());auth=self.identity._check_device_locked(row[0],row[1],bytes.fromhex(binding['signingKey']),'send',dict(earliest=now,latest=now),'allow-unverified')
-            return (row[0],200) if auth['status']=='authorized-unverified' else (None,403)
+            if auth['status']!='authorized-unverified':return None,403
+            # A fresh current binding is not authority to reuse a link signed
+            # under the old binding. Preserve unchanged ancestry only.
+            from history_transfer import authorize
+            try:authorize(self.identity,dict(principal=row[0],device=row[1],state=row[2],binding=row[3],key=binding['signingKey']),'send',dict(earliest=now,latest=now),'allow-unverified')
+            except ValueError:return None,403
+            return row[0],200
+        except GrantError as error:return None,error.status
         except ValueError:return None,401
     def unlink(self,token):
         with self.transaction():
-            family,_=self.grant(token,'email-next.link');self.db.execute('UPDATE sa_families SET active=0 WHERE id=?',(family,))
+            family,_=self.grant(token,'mail.service.link');self.db.execute('UPDATE sa_families SET active=0 WHERE id=?',(family,))

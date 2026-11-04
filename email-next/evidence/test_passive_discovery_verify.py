@@ -1,6 +1,8 @@
 import base64
 import copy
 import json
+import os
+from unittest.mock import patch
 from pathlib import Path
 import subprocess
 import tempfile
@@ -42,7 +44,9 @@ class PassiveDiscoveryVerificationTests(unittest.TestCase):
         self.assertEqual(self.verify('oldHead')['status'],'stale')
         self.assertEqual(self.verify('wrongKey')['reason'],'signing-key')
     def test_alabel_holds_even_with_signature(self):
-        self.seed();self.assertEqual(self.verify('alabel'),{'status':'pending','reason':'a-label-validation'})
+        self.seed()
+        with patch.dict(os.environ, {'EMAIL_NEXT_IDNA17_CONFIG': ''}):
+            self.assertEqual(self.verify('alabel'),{'status':'pending','reason':'a-label-validation'})
     def test_real_signed_assertion_through_the_mime_carrier(self):
         from email import policy
         from discovery_mime import extract_discovery

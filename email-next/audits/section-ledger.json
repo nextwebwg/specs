@@ -44604,6 +44604,986 @@
       "title": "Key Word Index",
       "audit": "The keyword index is navigation, not a separate command definition. Resolve each entry through the corresponding command, response and grammar rules.",
       "evidence": "imap-rev1.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "front",
+      "title": "Front matter",
+      "audit": "Complete abstract, status, copyright and contents read. Current obsolescence and selected TLS1.2 compatibility boundary recorded.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "1",
+      "title": "Introduction",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "1.1",
+      "title": "Requirements Terminology",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "1.2",
+      "title": "Major Differences from TLS 1.1",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "2",
+      "title": "Goals",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "3",
+      "title": "Goals of This Document",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4",
+      "title": "Presentation Language",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4.1",
+      "title": "Basic Block Size",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4.2",
+      "title": "Miscellaneous",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4.3",
+      "title": "Vectors",
+      "audit": "Selected vector byte lengths and length prefixes; Verified4750 clarifies whole multiples, not even element counts. Rejected4382 and5036 must not change byte-count semantics.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4.4",
+      "title": "Numbers",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4.5",
+      "title": "Enumerateds",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4.6",
+      "title": "Constructed Types",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4.6.1",
+      "title": "Variants",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4.7",
+      "title": "Cryptographic Attributes",
+      "audit": "Selected signed-structure/PKCS#1v1.5/DSS encoding context; current RSA/ECDSA SHA256/384/512 mapped owners supersede legacy defaults. DSA, MD5/SHA1 and RSA-encrypted key exchange unselected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "4.8",
+      "title": "Constants",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "5",
+      "title": "HMAC and the Pseudorandom Function",
+      "audit": "Selected TLS1.2 P_hash/PRF labels and concatenation; SHA256/SHA384 selected per5289 suite, distinct from handshake signature hash. Not TLS1.3 HKDF.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6",
+      "title": "The TLS Record Protocol",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6.1",
+      "title": "Connection States",
+      "audit": "Selected independent current/pending read/write state, secret and key material, sequence numbers. Activate initialized pending state only on correct CCS; reset per newly activated state; never wrap.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6.2",
+      "title": "Record Layer",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6.2.1",
+      "title": "Fragmentation",
+      "audit": "Selected 2^14-byte plaintext bound, ordered byte stream, fragmentation/coalescing, including fragmented handshake. TLS records are not application message boundaries.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6.2.2",
+      "title": "Record Compression and Decompression",
+      "audit": "Only null compression selected; no record compression negotiation. Certificate compression is a different feature.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6.2.3",
+      "title": "Record Payload Protection",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6.2.3.1",
+      "title": "Null or Standard Stream Cipher",
+      "audit": "NULL initial protection state contextual only, never negotiated application protection. Stream ciphers unselected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6.2.3.2",
+      "title": "CBC Block Cipher",
+      "audit": "CBC branch unselected by exact four-suite adapter. Held2165/6244 remain recorded, not silently adopted.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6.2.3.3",
+      "title": "AEAD Ciphers",
+      "audit": "Selected AEAD input, 13-byte sequence/type/version/plaintext-length AAD, output/authentication failure and expansion bounds.5288 GCM fixes actual nonce/tag contract. Held2390 not adopted as published correction; Rejected5352 not applied.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "6.3",
+      "title": "Key Calculation",
+      "audit": "Selected per-direction key_block expansion and ordering, zero MAC-key length for AEAD, suite-specific write keys/fixed IVs. Do not import CBC IV generation.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7",
+      "title": "The TLS Handshaking Protocols",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.1",
+      "title": "Change Cipher Spec Protocol",
+      "audit": "Selected one-byte CCS, directional state transition, Finished under new state; CCS is separate content type, not an asynchronous permission to activate keys.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.2",
+      "title": "Alert Protocol",
+      "audit": "Selected alert levels and fatal termination; forget failed connection secrets/session identifiers; do not resume failed session or erase application delivery uncertainty.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.2.1",
+      "title": "Closure Alerts",
+      "audit": "Selected TLS1.2 bidirectional close_notify/reply/discard-pending-write behavior; unlike1.3 half-close. Close not SMTP final acceptance; bare transport EOF not authenticated completion.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.2.2",
+      "title": "Error Alerts",
+      "audit": "Selected applicable fatal errors/record authentication, parse and handshake failures. Historical user acceptance of expired certificates is not selected; current no-clickthrough policy prevails.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.3",
+      "title": "Handshake Protocol Overview",
+      "audit": "Selected Figure1 full/ Figure2 resumed state/order flows; optional messages conditional. Appdata only after local Finished sent and peer Finished received/validated. Secure renegotiation5746 and EMS7627 modify inherited flow.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4",
+      "title": "Handshake Protocol",
+      "audit": "Selected handshake message framing/type/length/transcript and legal ordering; application must not assume TLS records coincide with handshake messages.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.1",
+      "title": "Hello Messages",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.1.1",
+      "title": "Hello Request",
+      "audit": "HelloRequest is excluded from transcript; renegotiation optional and may be declined. Initial secure-renegotiation acknowledgement still required under selected5746 profile.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.1.2",
+      "title": "Client Hello",
+      "audit": "Selected ClientHello version/random/sessionID/suite/compression/extensions. SessionID is public and contains no confidential account data. Verified4507 permits expected ServerHello. Current9846 version negotiation/sentinels supersede obsolete fallback paths.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.1.3",
+      "title": "Server Hello",
+      "audit": "Selected legal ServerHello values, same sessionID iff valid selected resumption; same suite/compression and resumption constraints. Peer identity/status/account policy remain valid.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.1.4",
+      "title": "Hello Extensions",
+      "audit": "Selected general extension framing, duplicate/unsolicited-extension rules and specific selected extensions; unknown client extensions ignored as specified, not authority to negotiate unknown features.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.1.4.1",
+      "title": "Signature Algorithms",
+      "audit": "Selected required signature_algorithms;9155 removes MD5/SHA1 defaults. Actual selected handshake scheme checked under per-version encoding and certificate key constraints.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.2",
+      "title": "Server Certificate",
+      "audit": "Selected ordered DER certificate list, nonempty individual ASN.1Cert, certificate/key/signature compatibility. Current path/name/status/algorithm owners replace old3280 and historical PSS statement.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.3",
+      "title": "Server Key Exchange Message",
+      "audit": "Selected ECDHE server key exchange via8422/5289: authenticate parameters plus client/server random under offered signature algorithm. Finite DH/staticRSA structures contextual, not selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.4",
+      "title": "Certificate Request",
+      "audit": "ClientCertificateRequest parsing conditional if server requests. Verified2865 gives supported_signature_algorithms<2..2^16-2>; no forced client credential disclosure. No mandatory client-cert feature introduced.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.5",
+      "title": "Server Hello Done",
+      "audit": "Selected empty ServerHelloDone and legal sequencing; client verifies server certificate/parameters before proceeding.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.6",
+      "title": "Client Certificate",
+      "audit": "If client auth is requested, send empty Certificate when no suitable authorized certificate; do not silently disclose another account certificate. Actual client cert authorization remains account-scoped.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.7",
+      "title": "Client Key Exchange Message",
+      "audit": "Selected ECDHE ClientKeyExchange binding supplied by8422, not staticRSA/finiteDH alternatives.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.7.1",
+      "title": "RSA-Encrypted Premaster Secret Message",
+      "audit": "RSA encrypted premaster/Bleichenbacher/version construction unselected because staticRSA suites forbidden10015 and profile.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.7.2",
+      "title": "Client Diffie-Hellman Public Value",
+      "audit": "Finite-fieldDH encoding unselected. In particular stripping leading zeros here must not replace fixed-width ECDHE x-coordinate encoding8422.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.8",
+      "title": "Certificate Verify",
+      "audit": "Conditional CertificateVerify if separately authorized signing client certificate used; do not make client auth mandatory or accept legacy MD5/SHA1. Optional client-cert mapping needs evidence if enabled.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "7.4.9",
+      "title": "Finished",
+      "audit": "Selected transcript-exact Finished PRF labels/client-vs-server, verify_data length and verification before account bytes. CCS not included in handshake transcript.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "8",
+      "title": "Cryptographic Computations",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "8.1",
+      "title": "Computing the Master Secret",
+      "audit": "Original master-secret derivation contextual; selected7627 EMS uses session_hash and extended master secret label. Do not compute ordinary master secret as fallback.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "8.1.1",
+      "title": "RSA",
+      "audit": "StaticRSA secret branch unselected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "8.1.2",
+      "title": "Diffie-Hellman",
+      "audit": "FiniteDH branch unselected; selected ECDHE shared secret uses8422. Erase premaster after derivation remains applicable.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "9",
+      "title": "Mandatory Cipher Suites",
+      "audit": "Application profile explicitly overrides obsolete base staticRSA/CBC MTI. Rejected6572 is not a published GCM MTI replacement. Exact four ECDHE/GCM suites remain selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "10",
+      "title": "Application Data Protocol",
+      "audit": "Selected TLS byte-stream ApplicationData under negotiated protection; not Email/2 contribution framing or SMTP acceptance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "11",
+      "title": "Security Considerations",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "12",
+      "title": "IANA Considerations",
+      "audit": "Registry context read;8447/current9847 update registry procedures. This profile reuses assigned values and defines no new TLS suite/extension.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A",
+      "title": "Protocol Data Structures and Constant Values",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.1",
+      "title": "Record Layer",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.2",
+      "title": "Change Cipher Specs Message",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.3",
+      "title": "Alert Messages",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.4",
+      "title": "Handshake Protocol",
+      "audit": "Repeated structure has Verified3122 missing comma; primary body and verified correction retain coherent syntax.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.4.1",
+      "title": "Hello Messages",
+      "audit": "Verified4912 fixes signature vector upperbound to2^16-2; length whole multiple rules apply.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.4.2",
+      "title": "Server Authentication and Key Exchange Messages",
+      "audit": "Verified1585/2864 restore CertificateRequest signature field and legal bounds;3123 closes select block;4109 nonempty ASN.1Cert lowerbound. ECDHE grammar from8422.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.4.3",
+      "title": "Client Authentication and Key Exchange Messages",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.4.4",
+      "title": "Handshake Finalization Message",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.5",
+      "title": "The Cipher Suite",
+      "audit": "Historic suite catalog read; no listed legacy suite selected; NULL only initial state. Rejected5409 adds no selected registration.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.6",
+      "title": "The Security Parameters",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "A.7",
+      "title": "Changes to RFC 4492",
+      "audit": "Selected TLS1.2 signature field and certificate-signature independence;8422 replaces4492 ECDHE binding.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "B",
+      "title": "Glossary",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "C",
+      "title": "Cipher Suite Definitions",
+      "audit": "All two cipher/MAC tables read; legacy suite/key/IV sizes contextual; selected AESGCM parameters from5288/5289, not CBC table.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "D",
+      "title": "Implementation Notes",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "D.1",
+      "title": "Random Number Generation and Seeding",
+      "audit": "Secure unpredictable RNG selected; historical SHA1 PRNG example not a new approved backend policy.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "D.2",
+      "title": "Certificates and Authentication",
+      "audit": "Applicable certificate authentication/revocation responsibilities resolved by common certificate owners.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "D.3",
+      "title": "Cipher Suites",
+      "audit": "Applicable restrictive suites/key strength; historical512-bitRSA caution is not acceptable modern baseline.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "D.4",
+      "title": "Implementation Pitfalls",
+      "audit": "Selected fragmentation/record versions/extensions/empty-client-cert/signature checks/RNG; optional renegotiation recommendation does not require it. RSA-decryption/CBC/finiteDH pitfalls unselected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "E",
+      "title": "Backward Compatibility",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "E.1",
+      "title": "Compatibility with TLS 1.0/1.1 and SSL 3.0",
+      "audit": "Only current1.2/1.3 negotiation compatibility remains; legacy record-layer ClientHello version tolerance does not permit selecting oldSSL/TLS.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "E.2",
+      "title": "Compatibility with SSL 2.0",
+      "audit": "SSL2 ClientHello sending forbidden6176; optional server parsing unselected and cannot satisfy required EMS/signature extensions.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "E.3",
+      "title": "Avoiding Man-in-the-Middle Version Rollback",
+      "audit": "SSL2 rollback branch unselected; Verified2643 reverses obsolete condition, recorded without enablingSSL2.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F",
+      "title": "Security Analysis",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.1",
+      "title": "Handshake Protocol",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.1.1",
+      "title": "Authentication and Key Exchange",
+      "audit": "Read in full. Applicable framing/security context inherited where consistent with selected current profile; adds no extra optional adapter feature or runtime assurance.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.1.1.1",
+      "title": "Anonymous Key Exchange",
+      "audit": "Anonymous branch unselected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.1.1.2",
+      "title": "RSA Key Exchange and Authentication",
+      "audit": "RSA key-exchange branch unselected; RSA signature authentication remains selected separately.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.1.1.3",
+      "title": "Diffie-Hellman Key Exchange with Authentication",
+      "audit": "FiniteDH/staticDH branch unselected; fresh ECDHE/point validation from8422/current9325 selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.1.2",
+      "title": "Version Rollback Attacks",
+      "audit": "SSL2 downgrade branch unselected; current9846 sentinels apply independently.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.1.3",
+      "title": "Detecting Attacks Against the Handshake Protocol",
+      "audit": "Selected transcript/Finished detects handshake tampering only when correctly checked; not application identity authorization.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.1.4",
+      "title": "Resuming Sessions",
+      "audit": "Selected resumed connection new random/key material, both-party consent and force-full-handshake on stale authentication/status. Historical24h suggested session-ID upper limit not user-mandated rotation cadence.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.2",
+      "title": "Protecting Application Data",
+      "audit": "Conceptual connection-key separation/replay integrity applies; selected AEAD replaces historical MAC-then-encrypt narration.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.3",
+      "title": "Explicit IVs",
+      "audit": "CBC explicitIV rationale unselected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.4",
+      "title": "Security of Composite Cipher Modes",
+      "audit": "Historical composition discussion read, not selected AEAD construction or current proof/certification.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.5",
+      "title": "Denial of Service",
+      "audit": "DoS limits applicable; no blanketIPsec requirement inherited from mitigation advice.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "F.6",
+      "title": "Final Notes",
+      "audit": "Implementation/system/CA trust limitations applicable; no audit or conformance result inferred.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "Normative References",
+      "title": "Normative References",
+      "audit": "Complete section read through next section/EOF. Reference/end matter does not automatically select every historical cited protocol. Selected crypto/PKIX/ASN.1 dependencies reuse current source owners; legacy algorithms/SSL/IPsec examples are not selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "Informative References",
+      "title": "Informative References",
+      "audit": "Complete section read through next section/EOF. Reference/end matter does not automatically select every historical cited protocol. Selected crypto/PKIX/ASN.1 dependencies reuse current source owners; legacy algorithms/SSL/IPsec examples are not selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "Working Group Information",
+      "title": "Working Group Information",
+      "audit": "Complete section read through next section/EOF. Reference/end matter does not automatically select every historical cited protocol. Selected crypto/PKIX/ASN.1 dependencies reuse current source owners; legacy algorithms/SSL/IPsec examples are not selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "Contributors",
+      "title": "Contributors",
+      "audit": "Complete section read through next section/EOF. Reference/end matter does not automatically select every historical cited protocol. Selected crypto/PKIX/ASN.1 dependencies reuse current source owners; legacy algorithms/SSL/IPsec examples are not selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "Editors' Addresses",
+      "title": "Editors' Addresses",
+      "audit": "Complete section read through next section/EOF. Reference/end matter does not automatically select every historical cited protocol. Selected crypto/PKIX/ASN.1 dependencies reuse current source owners; legacy algorithms/SSL/IPsec examples are not selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "Full Copyright Statement",
+      "title": "Full Copyright Statement",
+      "audit": "Complete section read through next section/EOF. Reference/end matter does not automatically select every historical cited protocol. Selected crypto/PKIX/ASN.1 dependencies reuse current source owners; legacy algorithms/SSL/IPsec examples are not selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5246,
+      "section": "Intellectual Property",
+      "title": "Intellectual Property",
+      "audit": "Complete section read through next section/EOF. Reference/end matter does not automatically select every historical cited protocol. Selected crypto/PKIX/ASN.1 dependencies reuse current source owners; legacy algorithms/SSL/IPsec examples are not selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "1",
+      "title": "Introduction",
+      "audit": "Selected stateless ticket mechanism for retainedTLS1.2compatibility, not permission to negotiate oldTLS1.0/1.1.5077obsoletes4507encoding.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "2",
+      "title": "Terminology",
+      "audit": "Opaque server-created protected state, not message key or endpoint identity.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "3",
+      "title": "Protocol",
+      "audit": "Ticket distribution/presentation/resumption protocol selected when configured; alternative distribution not selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "3.1",
+      "title": "Overview",
+      "audit": "All4full/resumed/rejectedticket flows/figures read. Failed ticket may leadfullhandshake; renewaloptional; acceptance may occurwithoutnewticket. Full issuanceafter verifiedclientFinished; abbreviatedrenewalafterServerHello.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "3.2",
+      "title": "SessionTicket TLS Extension",
+      "audit": "SessionTicket extension35; ClientHello extension_data is exactopaque ticket with noinnerlength. Emptyoffer requestsinitialticket. Serveremptyextension onlyifclientoffered andissuingnewticket. Invalidticket fullhandshake. Failedacceptedtickethandshake clientSHOULDdelete ticket.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "3.3",
+      "title": "NewSessionTicket Handshake Message",
+      "audit": "NewSessionTicket handshake4 beforeCCS, includedFinishedtranscript. ServermustsendiffServerHelloannounced. Fullhandshake serververifiesclientFinishedbeforeissue; clientmustverifyserverFinishedbeforeticketvalid; servermustnotassumenewticketreceiveduntilclientFinishedverified. uint32 lifetimehintsecondsfromreceipt;zero meansunspecified, notinfiniteauthority; opaque ticket0..65535bytes; zero-lengthticket allowedifissuanceabandoned.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "3.4",
+      "title": "Interaction with TLS Session ID",
+      "audit": "Whenpresentingticket servermustnottrySessionIDstatefulresumption. ClientnonemptyIDecho indicatesacceptance; emptyIDneeds subsequentflowinference. ReceiptofticketdiscardsServerHelloSessionID. TicketrejectioncanreturnfullhandshakewithstatefulID.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "4",
+      "title": "Recommended Ticket Construction",
+      "audit": "Server-private recommended AES128CBC+HMACSHA256 encrypt-then-MAC format, not interoperable/clientparsedmandatoryformat. ClientMUSTNOTassumestructure. NotselectedCBCrecordcipher. Contemporary maintainedbackend mayuseanotherstrongprotectedprivateformat; actualselectedserverformatmustbeidentified/audited ifserverimplemented. RecommendedStatePlaintext includesmastersecret/protocol/suite/compression/clientidentity/timestamp; selectedEMSflag andpolicycontextalsopreserved. Reported4800illustratesnestedmaximumsizeinconsistency: outer65535wirelimitgoverns, do notsilentlyfixnormativegrammar/assumeeveryinnermaxfits.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "5",
+      "title": "Security Considerations",
+      "audit": "Ticketstrongconfidentiality+integritymandatory; retainedclientmastersecret protectedindependently. Statelessticketdoesnotremovesensitiveclientstate.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "5.1",
+      "title": "Invalidating Sessions",
+      "audit": "Validateintegritybeforeusingticketcontentsforinvalidation. Discussionoflackofserverinvalidationriskdoesnotoverrideourfailedsessioninvalidation/localdiscardpolicy.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "5.2",
+      "title": "Stolen Tickets",
+      "audit": "Capturedticketalone insufficientwithoutassociatedmastersecret; encryptedticketmustbestrongagainstbruteforce. Clientticketplussecret theftremainsdangerous.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "5.3",
+      "title": "Forged Tickets",
+      "audit": "Strongintegritypreventsforge/alter/lifetimeextension/privilegeinjection.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "5.4",
+      "title": "Denial of Service Attacks",
+      "audit": "Lightweightsymmetricverification andearlyreject aidDoS; unauthenticatedticketdata nottrusted.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "5.5",
+      "title": "Ticket Protection Key Management",
+      "audit": "Recommendedsecurefreshkeys >=128bitstrength orhigherasrequired; dedicatedticketpurpose; regularrotationandrotateonformat/algorithmchange. Needmatchedconfiguredcurrentprofile, nofixedinventedduration.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "5.6",
+      "title": "Ticket Lifetime",
+      "audit": "Servercontrolsvalidity; clientindependentboundedpolicy. Hintnotauthoritativelifetime; localpolicycanbeshorter; zero-hintnotunbounded. Historical24h isnotuniversalmaximum.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "5.7",
+      "title": "Alternate Ticket Formats and Distribution Schemes",
+      "audit": "Alternativeformats/distributionrequiresecurityanalysis/strongconfidentiality+integrity; no newdistributionselectedhere.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "5.8",
+      "title": "Identity Privacy, Anonymity, and Unlinkability",
+      "audit": "Ticketsmaylinkconnectionsandinitialclientidentitymayalreadybeexposed. Encryptedcontentsnotunlinkability; noEmail2identity-protectionbadgefromtickets.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "6",
+      "title": "Acknowledgements",
+      "audit": "Acknowledgementsandhistoricalpapers read; no newKerberos/EAPdependencyselected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "7",
+      "title": "IANA Considerations",
+      "audit": "Reuseextension35/handshake4;8447updatesregistryadministration; noEmail2TLSregistration.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "8",
+      "title": "References",
+      "audit": "Allreferencesread; modernselectedTLS/cert/cryptoownerssupersedehistoricalbaseversions. Citing38AforrecommendedprivateformatdoesnotmakeCBCrecordsupportmandatory.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "8.1",
+      "title": "Normative References",
+      "audit": "Normative references lists read; no automatic implementation of every obsolete cited version.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "8.2",
+      "title": "Informative References",
+      "audit": "Informativerefslistsread; actualselectedticketprotectionbackend mayreachalgorithmdependency; noautomaticKerberos/EAPimplementation.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "A",
+      "title": "Discussion of Changes to RFC 4507",
+      "audit": "Both256byte/emptyextensionexamplesandall4507changesread: discard4507redundantticketinnerlength. Do nottransplantcurrentTLS1.3ticketformat/nonce/age_add/extensions or7daylimit into1.2.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "front",
+      "title": "Front matter",
+      "audit": "Complete abstract/status and contents read; retained TLS1.2 ticket protocol distinguished from current TLS1.3 successor.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5077,
+      "section": "end",
+      "title": "Authors, copyright and intellectual property",
+      "audit": "Complete author addresses, legal and end matter read; no additional protocol feature selected.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "front",
+      "title": "Front matter",
+      "audit": "Complete title, abstract, status/copyright and contents read; full6-page source.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "1",
+      "title": "Introduction",
+      "audit": "Scope and all16 added suites read; original publication category and current status distinct.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "2",
+      "title": "Conventions Used in This Document",
+      "audit": "Complete BCP14 conventions read.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "3",
+      "title": "Cipher Suites",
+      "audit": "Complete cipher definitions read; application selection is narrower than available definitions.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "3.1",
+      "title": "HMAC-Based Cipher Suites",
+      "audit": "All8 HMAC/CBC suite definitions read as unselected context; SHA256 PRF and SHA384 PRF conventions do not authorize CBC in restricted profile.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "3.2",
+      "title": "Galois Counter Mode-Based Cipher Suites",
+      "audit": "All8 GCM definitions read; selected4 ECDHE codes C02B/C02C/C02F/C030. Adjacent staticECDH suites unselected. Inherits5288 GCM binding; suffix selects PRF, not handshake signature hash.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "4",
+      "title": "Security Considerations",
+      "audit": "Complete security analysis read; inherited ECC/AES/SHA/TLS security dependencies explicit; no independent cryptanalysis or backend claim.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "5",
+      "title": "IANA Considerations",
+      "audit": "Complete codepoint registration read; reuse values, no new Email/2 TLS assignment.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "6",
+      "title": "Acknowledgements",
+      "audit": "Complete acknowledgements read; no extra protocol requirements.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "7",
+      "title": "References",
+      "audit": "Complete normative/informative references read; citation does not automatically select every optional branch.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "7.1",
+      "title": "Normative References",
+      "audit": "All normative reference entries read; selected current ECC/GCM/AEAD/TLS/AES/SHA owners retained separately.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "7.2",
+      "title": "Informative References",
+      "audit": "Complete references read; historical TLS version citation does not permit obsolete negotiation.",
+      "evidence": "selected-crypto.md"
+    },
+    {
+      "rfc": 5289,
+      "section": "end",
+      "title": "Author, copyright and intellectual property",
+      "audit": "Complete author/legal/end matter read.",
+      "evidence": "selected-crypto.md"
     }
   ]
 }

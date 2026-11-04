@@ -1,0 +1,46 @@
+{
+  "version": "0",
+  "purpose": "authored-contribution",
+  "event": "29044e7bbdb25c0fb8e64ce9e5385097",
+  "conversation": "3d2bc51eaee23561bd8924f6379fd07e",
+  "principal": "enp0:bd1f83220d795b11750b4e841df816a3c24b901dbb4b638bd896023aed8c4826",
+  "scope": {
+    "kind": "existing",
+    "root": {
+      "principal": "enp0:bd1f83220d795b11750b4e841df816a3c24b901dbb4b638bd896023aed8c4826",
+      "conversation": "3d2bc51eaee23561bd8924f6379fd07e",
+      "event": "f8cad17835d3e3959e7b6ebcc7639edf"
+    }
+  },
+  "operation": {
+    "kind": "recipient-resolution",
+    "scope": {
+      "principal": "enp0:bd1f83220d795b11750b4e841df816a3c24b901dbb4b638bd896023aed8c4826",
+      "conversation": "3d2bc51eaee23561bd8924f6379fd07e",
+      "event": "f8cad17835d3e3959e7b6ebcc7639edf"
+    },
+    "slot": "7796b662f9b40c81a9900beebfe84c45",
+    "principal": "enp0:67e2e3361cf1db533cc1459389c76aa5ac15079e7a49f1ea8eaa1636b837a206"
+  },
+  "disclosures": [],
+  "presentation": {
+    "subject": "Choosing a day",
+    "authoredAt": "",
+    "authorSlot": "40a1e1efb9125919601e7f18437fba44",
+    "from": "alice@sender.example",
+    "to": [
+      "5e165c7b239315e571a345fb6433b450"
+    ],
+    "cc": [],
+    "addresses": [
+      {
+        "slot": "5e165c7b239315e571a345fb6433b450",
+        "mailbox": "bob@recipient.example"
+      }
+    ]
+  },
+  "replyIntent": {
+    "version": "1",
+    "kind": "not-applicable"
+  }
+}

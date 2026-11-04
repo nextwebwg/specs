@@ -8,13 +8,26 @@ import json
 from pathlib import Path
 import subprocess
 from passive_discovery import decode_passive_discovery, assertion_time_status, hexadecimal
+from history_transfer import authority_snapshot, authorize
 
 
 def verify_passive_discovery(octets, store, *, time, trust_policy):
     return _verify(octets,store,time=time,trust_policy=trust_policy,locked=False)
 
+def _authority(store):
+    # These adapters retain policy (including independent human verification);
+    # unwrapping them for authorization would silently bypass that policy. Only
+    # their underlying connection owns the snapshot/ancestry transaction.
+    from mls_receive import LockedIdentity
+    from human_verification import HumanVerifiedIdentity
+    if isinstance(store,(LockedIdentity,HumanVerifiedIdentity)):
+        if not store.identity.db.in_transaction:raise ValueError('Policy adapter requires caller transaction')
+        return store.identity,store
+    return store,LockedIdentity(store)
+
 def verify_passive_discovery_locked(octets,store,*,time,trust_policy):
-    if not store.db.in_transaction:raise ValueError('Transaction required')
+    identity,_=_authority(store)
+    if not identity.db.in_transaction:raise ValueError('Transaction required')
     return _verify(octets,store,time=time,trust_policy=trust_policy,locked=True)
 
 def _verify(octets, store, *, time, trust_policy,locked):
@@ -41,12 +54,27 @@ def _verify(octets, store, *, time, trust_policy,locked):
     timing = assertion_time_status(assertion,earliest=interval.get('earliest'),latest=interval.get('latest'))
     if timing != 'within-asserted-interval':
         return {'status':'pending' if timing=='pending' else 'not-current','reason':'assertion-validity'}
-    credential = b'email-next/device/v0\0'+bytes.fromhex(value['principal'][5:])+bytes.fromhex(value['device'][5:])
-    decision = (store._check_device_locked(value['principal'],value['device'],bytes.fromhex(candidate['signingKey']),'receive',time,trust_policy) if locked else store.check_device(credential,bytes.fromhex(candidate['signingKey']),role='receive',time=time,trust_policy=trust_policy))
-    if decision['status'] != 'authorized-unverified':
-        return decision
-    if decision['head'] != value['state'] or decision['binding'] != value['binding']:
-        return {'status':'stale','reason':'asserted-state-or-binding','head':decision['head']}
-    return {'status':'snapshot-authorized-unverified','head':decision['head'],'binding':decision['binding'],
-            'assertion':assertion['digest'],'principal':value['principal'],'device':value['device'],
-            'mailbox_verified':False,'mls_validated':False}
+    # Serialize accepted-head lookup and ancestry checks. Signature verification
+    # above grants no authority and can finish before this local transaction.
+    identity,authority=_authority(store)
+    with authority_snapshot(identity):
+        credential=b'email-next/device/v0\0'+bytes.fromhex(value['principal'][5:])+bytes.fromhex(value['device'][5:])
+        decision=authority.check_device(credential,bytes.fromhex(candidate['signingKey']),role='receive',time=time,trust_policy=trust_policy)
+        if decision['status'] != 'authorized-unverified':
+            return decision
+        if decision['binding'] != value['binding']:
+            return {'status':'stale','reason':'asserted-state-or-binding','head':decision['head']}
+        if value['version'] in ('8','9'):
+            if not int(candidate['notBefore'])<=int(value['notBefore'])<=int(value['notAfter'])<=int(candidate['notAfter']):
+                return {'status':'invalid','reason':'asserted-binding-interval'}
+            ref={k:value[k] for k in ('principal','device','state','binding')}
+            ref['key']=candidate['signingKey']
+            # Current trust policy has already passed through the selected adapter.
+            # This raw-store pass checks retained cryptographic ancestry only.
+            try:authorize(identity,ref,'receive',time,'allow-unverified')
+            except ValueError:return {'status':'stale','reason':'asserted-state-or-binding','head':decision['head']}
+        elif decision['head'] != value['state']:
+            return {'status':'stale','reason':'asserted-state-or-binding','head':decision['head']}
+        return {'status':'snapshot-authorized-unverified','head':decision['head'],'binding':decision['binding'],
+                'assertion':assertion['digest'],'principal':value['principal'],'device':value['device'],
+                'mailbox_verified':False,'mls_validated':False}

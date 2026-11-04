@@ -48,6 +48,31 @@ class SignedAdmissionTests(unittest.TestCase):
     def accept(self,**overrides):
         args=dict(selected=self.selected,expected_group=self.group['group'],expected_context=self.context_raw,creator=self.devices[0]['identity'],time=self.time,trust_policy='allow-unverified');args.update(overrides)
         return self.admission.accept_signed(self.devices[1]['reference'],self.invitation,**args)
+    def test_discovery_policy_adapters_keep_outer_transaction_and_verification(self):
+        from mls_receive import LockedIdentity
+        from human_verification import HumanVerifiedIdentity,HumanVerification
+        from passive_discovery_verify import verify_passive_discovery_locked
+        raw=self.selected[0]['wrapper']
+        HumanVerification(self.identity,account='adapter-fixture',local_principal=self.devices[1]['principal'])
+        for adapter in (LockedIdentity(self.identity),HumanVerifiedIdentity(self.identity)):
+            with self.assertRaisesRegex(ValueError,'caller transaction'):
+                verify_passive_discovery(raw,adapter,time=self.time,trust_policy='allow-unverified')
+        self.identity.db.execute('CREATE TEMP TABLE adapter_transaction_marker(value TEXT)')
+        self.identity.db.execute('BEGIN IMMEDIATE')
+        try:
+            self.identity.db.execute("INSERT INTO adapter_transaction_marker VALUES('uncommitted')")
+            result=verify_passive_discovery_locked(raw,LockedIdentity(self.identity),time=self.time,trust_policy='allow-unverified')
+            self.assertEqual(result['status'],'snapshot-authorized-unverified')
+            # A valid signature and accepted key must not bypass a deliberately
+            # selected independent-verification policy when using an adapter.
+            result=verify_passive_discovery(raw,HumanVerifiedIdentity(self.identity),time=self.time,trust_policy='require-verification')
+            self.assertEqual(result['status'],'verification-required')
+            own=verify_passive_discovery(self.selected[1]['wrapper'],HumanVerifiedIdentity(self.identity),time=self.time,trust_policy='require-verification')
+            self.assertEqual(own['status'],'snapshot-authorized-unverified')
+            self.assertTrue(self.identity.db.in_transaction)
+        finally:self.identity.db.execute('ROLLBACK')
+        self.assertEqual(self.identity.db.execute('SELECT count(*) FROM adapter_transaction_marker').fetchone()[0],0)
+
     def test_real_signed_admission_and_application_without_configured_flags(self):
         joined=self.accept();self.assertEqual(joined['group'],self.group['group'])
         self.assertEqual(self.identity.db.execute('SELECT count(*) FROM application_admission_devices').fetchone()[0],2)

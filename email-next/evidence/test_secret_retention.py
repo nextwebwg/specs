@@ -49,6 +49,27 @@ class SecretRetentionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'clock rollback'):SecretRetention(self.ga.receiver).maintain(time=self.time)
         result=self.ga.receiver.receive(bytes.fromhex(target['wire']),time=later,trust_policy='allow-unverified')
         self.assertEqual(result['status'],'crypto-not-accepted')
+    def test_unread_retained_content_survives_cleanup_but_unprocessed_ciphertext_does_not(self):
+        # Human-read state is deliberately absent from protocol admission. No
+        # view/receipt API is invoked before aging the actual native state.
+        from mls_receive import MlsReceive
+        self.enable();ref,first,_=self.messages()
+        self.assertEqual(self.ga.receiver.receive(bytes.fromhex(first['wire']),time=self.time,trust_policy='allow-unverified')['status'],'projected-context-matched')
+        retained=list(self.ga.db.execute('SELECT principal,event,octets FROM contributions'))
+        self.assertEqual(len(retained),1)
+        event=dict(version='1',purpose='contribution',event='7'*32,conversation='2'*32,principal=self.b['principal'],audience=sorted([self.a['principal'],self.b['principal'],self.c['principal']]),disclosures=[],operation=dict(kind='message',text='Never processed before expiry.',replyTo=[]))
+        pending=call(self.provider,op='send',checkpoint=first['checkpoint'],group=self.gb.live()['snapshot']['group'],key=self.b['key'],application=encode_event(event).hex())
+        self.remove()
+        later=dict.fromkeys(('earliest','latest'),str(int(self.time['latest'])+4000))
+        SecretRetention(self.ga.receiver).maintain(time=later)
+        self.ga.receiver=MlsReceive(self.ga.identity,self.provider.with_name('receive-staged'))
+        self.assertEqual(list(self.ga.db.execute('SELECT principal,event,octets FROM contributions')),retained)
+        self.assertIn(b'Delayed original.',retained[0][2])
+        outcome=self.ga.receiver.receive(bytes.fromhex(pending['wire']),time=later,trust_policy='allow-unverified')
+        self.assertEqual(outcome['status'],'crypto-not-accepted')
+        self.assertEqual(self.ga.db.execute('SELECT wire FROM mls_retention_held').fetchone()[0],bytes.fromhex(pending['wire']))
+        self.assertEqual(list(self.ga.db.execute('SELECT principal,event,octets FROM contributions')),retained)
+
     def test_storage_budget_retires_group_and_prunes_candidate_copy(self):
         self.enable();identifier=self.ga.prepare_removal([dict(identity=self.c['identity'],key=self.c['key'])],time=self.time)
         policy=dict(POLICY,maxCheckpointBytes=1)

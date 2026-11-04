@@ -54,6 +54,21 @@ class RemovalTests(unittest.TestCase):
         from mls_receive import worker_call,FORMAT
         cp=self.gc.db.execute('SELECT group_id,snapshot FROM mls_checkpoint').fetchone()
         self.assertNotEqual(worker_call(self.provider.with_name('receive-staged'),dict(format=FORMAT,group=cp[0],checkpoint=json.loads(cp[1]),wire=sent['wire']))['status'],'authenticated-application')
+    def test_stale_sender_can_still_encrypt_to_removed_endpoint(self):
+        # Only Alice installs the removal. Bob and Carol still hold the old
+        # epoch; this deliberately demonstrates the limit, not a release rule.
+        self.remove(self.c)
+        stale=self.gb.live();payload=b'Content from an unaware stale sender'
+        sent=call(self.provider,op='send',checkpoint=stale['checkpoint'],group=stale['snapshot']['group'],
+                  key=self.b['key'],application=payload.hex())
+        from mls_receive import worker_call,FORMAT
+        cp=self.gc.db.execute('SELECT group_id,snapshot FROM mls_checkpoint').fetchone()
+        opened=worker_call(self.provider.with_name('receive-staged'),dict(format=FORMAT,group=cp[0],
+                           checkpoint=json.loads(cp[1]),wire=sent['wire']))
+        self.assertEqual(opened['status'],'authenticated-application')
+        self.assertEqual(bytes.fromhex(opened['application']),payload)
+        self.assertNotEqual(self.ga.live()['snapshot']['epoch'],stale['snapshot']['epoch'])
+
     def test_exact_targets_and_writer_cannot_be_removed(self):
         for target in [dict(identity=self.a['identity'],key=self.a['key']),dict(identity=self.b['identity'],key=self.c['key'])]:
             with self.assertRaises(ValueError):self.ga.prepare_removal([target])

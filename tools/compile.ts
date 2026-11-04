@@ -249,6 +249,7 @@ class Compiler {
   md = createParser();
   codes: string[] = [];
   data: unknown[] = [];
+  resolveHref: (href: string) => string = href => href;
 
   inline(token: Token | undefined, mode: Mode): string {
     if (!token?.children) return "";
@@ -271,9 +272,11 @@ class Compiler {
         case "inline_element": out += t.content; break;
         case "footnote_ref": out += `<sup class="ref"><a href="#r${t.info}">${t.info}</a></sup>`; break;
         case "link_open": {
-          const href = t.attrGet("href")!;
-          // Site-internal links navigate client-side, as NuxtLink; v-html strings cannot hold components.
-          const internal = mode === "template" && href.startsWith("/");
+          const href = this.resolveHref(t.attrGet("href")!);
+          // Chapter routes navigate client-side; file assets need browser
+          // navigation rather than a router lookup for a nonexistent page.
+          const fileLink = /\.[a-z0-9]+$/i.test(href.split(/[?#]/, 1)[0]);
+          const internal = mode === "template" && href.startsWith("/") && !fileLink;
           links.push(internal ? "</NuxtLink>" : "</a>");
           out += internal ? `<NuxtLink to="${escapeText(href)}">` : `<a href="${escapeText(href)}">`;
           break;
@@ -546,6 +549,9 @@ class Compiler {
 }
 
 export interface CompileOptions {
+  // Resolve actual link tokens before escaping/template or JSON-backed HTML rendering.
+  // Postprocessing the SFC cannot safely reach ledes without touching code samples.
+  resolveHref?: (href: string) => string;
   // The publishing site owns its guide layout. Native slots separate header and body
   // while the compiler remains the only renderer of the authored Markdown.
   chapterFrame?: string;
@@ -566,6 +572,7 @@ export interface ChapterHeading {
 export function compileChapter(source: string, options: CompileOptions = {}): { meta: ChapterMeta; outline: ChapterHeading[]; sfc: string } {
   const { meta, body } = readFrontmatter(source);
   const compiler = new Compiler();
+  if (options.resolveHref) compiler.resolveHref = options.resolveHref;
   const nodes = toTree(compiler.md.parse(body, {}));
   resolveAttrs(nodes);
   assignHeadingIds(nodes);

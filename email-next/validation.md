@@ -8,6 +8,8 @@ sectionNav: true
 
 Email/2 has executable local evidence for selected message, identity, transport and rendering behavior. It does not yet have two independently implemented clients exchanging the complete protocol through deployed email providers. Passing component tests does not establish security assurance or complete conformance.
 
+The [current Encryption claim](suite-profile.md#current-client-baseline) requires the asynchronous agreement. Historical results for assertion8/context8/envelope4 or assertion9/context9/envelope5 remain their exact component evidence. They are not repinned by this selection; complete current implementation and independent interoperability remain unproven.
+
 ## Recorded checks
 
 These results describe local feature branches, not a published release. The [experiment notes](evidence/README.md) give setup instructions, individual scopes and limitations. Delivery gates must run against the delivered revision.
@@ -38,7 +40,7 @@ These results describe local feature branches, not a published release. The [exp
 | Optional human verification | 68 focused tests and the trusted confirmation-screen browser checks pass | Exact comparison evidence, strict roster delivery, protected reply and expiry/withdrawal checks; not provider-certified mailbox ownership |
 | Browser isolation | 21 Chromium check groups plus 3 nonce tests pass | Message-channel bootstrap, isolated rendering and lifecycle checks; not a security sandbox certification |
 | Inline and bidirectional geometry | 4 Chromium cases pass at two widths and both parent directions | Fragment edges, isolation, opposite-direction spans and combining-pair line placement; not painted-glyph or full Unicode conformance |
-| Static site generation | 227 Email/2 chapters and 1,210 section links checked | Generated routes, local links and source downloads, including eight acceptance manifests and their reports; draft excluded from homepage proposal navigation |
+| Historical static site generation | 227 Email/2 chapters and 1,210 section links checked at that recorded run | Generated routes, local links and source downloads, including eight acceptance manifests and their reports; draft excluded from homepage proposal navigation |
 
 The complete integration run executed 1,038 tests in 1,395.448 seconds using configured parse5 and shared Rust workers, with resource warnings treated as errors. Four repeated retry cases failed because their test stub prohibited every crypto-worker call, including the newly required read-only current-state inspection. The corrected test permits only inspection and still verifies exact ciphertext, unchanged checkpoint and no transport. All 37 sender/association tests then passed in 10.230 seconds. Only that test file changed after the full run; no implementation input changed. These are separate recorded results, not a clean full-command rerun.
 
@@ -50,7 +52,9 @@ Specification checks use Node24.20.0 and pnpm11.25.0. Site generation uses Node2
 
 ## Reusable acceptance reports
 
-The linked reports cover the current source inputs, including populated conversations, image interpretation and the validated-proposal send boundary. Manifest, implementation and declared mail-fixture hashes were checked after all eight reports completed. Each report retains those fingerprints; later implementation changes require a new report. These are development results, not release certification.
+The [current acceptance inventory](acceptance-inventory.md) identifies the scope a new whole-client report must cover. The records below remain historical version-specific evidence, not a complete current-suite clause ledger or a pass for today’s agreement.
+
+The linked reports retain their recorded source inputs, including populated conversations, image interpretation and the validated-proposal send boundary. Manifest, implementation and declared mail-fixture hashes were checked when those reports completed. Each report retains those fingerprints; later implementation changes require comparison and a new report before a current-source acceptance claim. These older reports do not cover the newer ordinary-stream wire selection merely because they remain downloadable. These are development results, not release certification.
 
 | Manifest | Local result | Explicitly missing coverage |
 | --- | --- | --- |
@@ -91,8 +95,8 @@ No deployed mail provider or ordinary email client participated in these local c
 ## Outstanding acceptance evidence
 
 - Close the applicable standards, updates, errata, normative-reference and registry audit with explicit section dispositions.
-- Complete the enclosing wire/MIME contracts and registration proposals, with validated examples.
-- Complete the selected security lifecycle, downgrade handling, device changes, group ordering/recovery and interoperable vectors.
+- Implement and exercise the selected enclosing wire/MIME contracts, reconcile any remaining contract contradictions and validate their examples. Keep unfiled registration templates and external registry approval distinct.
+- Implement and exercise the selected security lifecycle, downgrade handling, device changes, group ordering/recovery and interoperable vectors.
 - Exercise discovery under first contact, offline delivery, replay, key change and mixed-client mailbox access.
 - Validate the defined HTML/CSS profile, resource isolation, accessibility and broader legacy reconstruction in a usable client.
 - Complete authorized service effects and hosted-access tests covering credentials, scanners, expiry, revocation and reply attribution.
@@ -158,3 +162,15 @@ Inject a message header that resembles a provider verification result and confir
 ### Joined question, button answer and ordinary reply
 
 The [joined local conversation experiment](evidence/README.md#joined-question-and-ordinary-reply) connects browser authoring, durable actions, actual MLS applications, loopback SMTP, authenticated receive and conversation rendering. Its focused cases include delayed history at a third observer, restart, exact retries and a real signed removal of a device's send authority. A separate authorized question copy and ordinary reply preserve their actual protection status. These results cover one configured implementation; independent clients and provider accounts must still repeat the scenario.
+
+## Ordinary-stream selection evidence
+
+The earlier assertion8/context8 [ordinary-stream agreement](suite-profile.md#ordinary-protected-conversations) has focused schema, signed-discovery, bootstrap, freshness and address-metadata evidence. A combined run passes 106 tests with no skips. It checks required ordinary support, independent optional managed closure, exact context8 ownership/delivery grammar and complete control capability matching. The bootstrap decoder also uses the required receiving-deadline schema. Configured source/admission/mail experiments separately exercise actual native cryptography and SMTP under historical formats.
+
+This is not a complete current-suite stream implementation or a rerun of every earlier acceptance manifest. Signed source/update processing, complete multi-stream runtime and the complete sealed-control/owning-protocol integration required for masking remains absent. Static generation checks the generated Email/2 chapter routes and their links/downloads, reporting current totals in its run log; the older chapter/link totals above belong to their historical run. External implementations and independent review remain outstanding.
+
+The [sealed-control component](evidence/README.md#sealed-control-container) adds actual fixed-suite HPKE and accepted Ed25519 intent checks with original body/recipient binding. This is newer component evidence, not a refreshed claim for historical source-mail fixtures or full independent current-suite acceptance.
+
+## Public hosting authorization evidence
+
+The [public hosting contract](hosted-access.md#connect-a-hosting-account) specifies credential acquisition, owner/account isolation, current signed linking, historical read/revoke after device loss and paged reply discovery. The [wire examples and decoder](evidence/README.md#public-hosted-management-wire-examples) exercise exact create-v2 and collection shapes, original-byte retention, cross-owner/principal/service/grant correlation, receipt digests, pagination sentinels and malformed/bounded JSON. This is wire-only evidence. Configured hosting and service-button OAuth components do not establish a public hosted-management implementation. Account authentication, full state1 linking, transactional authorization/cursors/import, protected observation release, browser trust and independent interoperability still require joined acceptance.

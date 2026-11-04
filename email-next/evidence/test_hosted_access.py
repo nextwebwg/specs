@@ -1,5 +1,7 @@
 from vault_fixture import fresh_key
 import json
+from contextlib import contextmanager
+from unittest.mock import patch
 import os
 from pathlib import Path
 import tempfile
@@ -37,6 +39,29 @@ class HostedTests(unittest.TestCase):
         self.now=101;self.assertEqual(self.store.reply_status('7'*32,'9'*32,self.secret)[0],403)
         for p in self.root.iterdir():
             data=p.read_bytes();self.assertNotIn(self.secret.encode(),data);self.assertNotIn(b'PRIVATE_REPLY_MARKER',data);self.assertNotIn(b'CONFIDENTIAL_CONTENT_MARKER',data)
+    def test_forwarded_bearer_has_same_access_without_holder_identity(self):
+        self.create()
+        # Independent holder requests carry the copied bearer, not a mailbox
+        # identity. Different operation IDs are two deliberate submissions.
+        copied_credential=self.secret.encode().decode()
+        self.assertEqual(self.store.retrieve('7'*32,self.secret),
+                         self.store.retrieve('7'*32,copied_credential))
+        for ident,credential in [('a'*32,self.secret),('b'*32,copied_credential)]:
+            raw=encode_event(dict(version='0',purpose='hosted-holder-reply',
+                                  operation=ident,text='A holder reply'))
+            status,receipt=self.store.reply('7'*32,raw,credential)
+            self.assertEqual(status,200)
+            self.assertEqual(json.loads(receipt)['attribution'],'grant-holder')
+            self.assertEqual(self.store.manage(self.raw,credential,'hosted-grant-create')[0],401)
+        retained=self.store.retrieve('7'*32,copied_credential)
+        revoke=encode_event(dict(version='0',purpose='hosted-grant-revoke',
+                                operation='c'*32,grant='7'*32))
+        self.assertEqual(self.store.manage(revoke,'management','hosted-grant-revoke')[0],200)
+        for credential in [self.secret,copied_credential]:
+            self.assertEqual(self.store.retrieve('7'*32,credential)[0],403)
+        # Revocation did not erase the response already returned to a holder.
+        self.assertEqual(retained[0],200)
+
     def test_sender_restart_and_encrypted_storage(self):
         sender=HostedSender(self.root/'sender.db',key=self.keys[2],service='https://host.example',owner='enp0:'+'a'*64)
         sender.retain(self.raw);self.assertEqual(sender.load('6'*32),self.raw)
@@ -97,6 +122,89 @@ else:
         self.assertNotIn(b'CONFIDENTIAL_CONTENT_MARKER',wire)
         self.assertEqual(submit(sender,'6'*32,confirmed_creation=receipt,transport=roundtrip),wire)
         with self.assertRaises(ValueError):submit(sender,'6'*32,confirmed_creation=receipt,transport=roundtrip)
+
+    def test_management_reads_recheck_expiry_after_database_entry(self):
+        original_create=self.create()
+        raw=encode_event(dict(version='0',purpose='hosted-holder-reply',operation='9'*32,text='Reply'))
+        original_reply=self.store.reply('7'*32,raw,self.secret)
+        for read in (lambda:self.store.lookup('6'*32,'management'),
+                     lambda:self.store.management_reply('7'*32,'9'*32,'management')):
+            self.now=100
+            real_db=self.store.db
+            @contextmanager
+            def expired_on_entry():
+                with real_db() as db:
+                    self.now=1001
+                    yield db
+            with self.subTest(read=read):
+                try:
+                    with patch.object(self.store,'db',expired_on_entry):
+                        self.assertEqual(read(),(401,b''))
+                finally:self.now=100
+        self.assertEqual(self.store.lookup('6'*32,'management'),original_create)
+        self.assertEqual(self.store.management_reply('7'*32,'9'*32,'management'),original_reply)
+
+    def test_management_reads_recheck_owner_and_scope_after_database_entry(self):
+        self.create()
+        raw=encode_event(dict(version='0',purpose='hosted-holder-reply',operation='9'*32,text='Reply'))
+        self.store.reply('7'*32,raw,self.secret)
+        for method in ('lookup','reply'):
+            for change,expected in [('owner',401),('scope',403)]:
+                with self.subTest(method=method,change=change):
+                    real_db=self.store.db
+                    original=dict(self.store.management_grant)
+                    @contextmanager
+                    def changed_on_entry():
+                        with real_db() as db:
+                            if change=='owner':self.store.management_grant['owner']='enp0:'+'b'*64
+                            else:self.store.management_grant['scopes']=[]
+                            yield db
+                    try:
+                        with patch.object(self.store,'db',changed_on_entry):
+                            result=(self.store.lookup('6'*32,'management') if method=='lookup'
+                                    else self.store.management_reply('7'*32,'9'*32,'management'))
+                            self.assertEqual(result,(expected,b''))
+                    finally:self.store.management_grant=original
+
+    def test_management_reads_expire_while_waiting_for_actual_database_lock(self):
+        import sqlite3
+        import threading
+        self.create()
+        raw=encode_event(dict(version='0',purpose='hosted-holder-reply',operation='9'*32,text='Reply'))
+        self.store.reply('7'*32,raw,self.secret)
+        for method in ('lookup','reply'):
+            with self.subTest(method=method):
+                self.now=100
+                blocker=sqlite3.connect(self.path)
+                blocker.execute('BEGIN IMMEDIATE')
+                began=threading.Event();finished=threading.Event();result=[]
+                real_db=self.store.db
+                @contextmanager
+                def traced_db():
+                    with real_db() as db:
+                        db.set_trace_callback(lambda sql:began.set() if sql=='BEGIN IMMEDIATE' else None)
+                        yield db
+                def read():
+                    try:
+                        result.append(self.store.lookup('6'*32,'management') if method=='lookup'
+                                      else self.store.management_reply('7'*32,'9'*32,'management'))
+                    except Exception as error:result.append(error)
+                    finally:finished.set()
+                worker=threading.Thread(target=read)
+                try:
+                    with patch.object(self.store,'db',traced_db):
+                        worker.start()
+                        self.assertTrue(began.wait(2),'read did not request its serialized snapshot')
+                        self.assertFalse(finished.wait(0.05),'read bypassed the held write lock')
+                        self.now=1001
+                        blocker.commit()
+                        worker.join(2)
+                        self.assertFalse(worker.is_alive())
+                        self.assertEqual(result,[(401,b'')])
+                finally:
+                    blocker.rollback();blocker.close()
+                    worker.join(2)
+                    self.now=100
 
     def test_management_reply_history_after_revocation(self):
         self.create();raw=encode_event(dict(version='0',purpose='hosted-holder-reply',operation='9'*32,text='Reply'))

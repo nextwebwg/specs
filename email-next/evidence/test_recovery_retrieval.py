@@ -24,6 +24,39 @@ class Retrieval(unittest.TestCase):
         r.collect();result=r.run('job',time=self.time)
         self.assertEqual(result['status'],'accepted-remediation');self.assertEqual(self.gb.live()['snapshot'],self.ga.live()['snapshot'])
         self.assertEqual(r.run('job',time=self.time),result)
+    def test_replaced_source_cannot_reuse_cursor_and_restart_retains_binding(self):
+        _,carriers=self.chain();r=self.setup_retrieval(carriers)
+        before=tuple(self.gb.db.iterdump());old=self.gb.live()
+        other=MailSpool(self.root/'different-mail.sqlite');self.addCleanup(other.close)
+        other.append(b'new source bytes at position one')
+        r.sources={'mail':other}
+        with self.assertRaisesRegex(ValueError,'Source namespace changed'):r.collect()
+        self.assertEqual(tuple(self.gb.db.iterdump()),before);self.assertEqual(self.gb.live(),old)
+        reopened=MailSpool(self.root/'mail.sqlite');self.addCleanup(reopened.close)
+        self.assertEqual(reopened.binding,self.spool.binding)
+        r.sources={'mail':reopened}
+        self.assertEqual(r.collect()['mail'],{'status':'collected','messages':0})
+        self.assertEqual(r.run('job',time=self.time)['status'],'accepted-remediation')
+
+    def test_source_change_during_scan_cannot_commit_bytes_or_cursor(self):
+        r=self.setup_retrieval([])
+        class Changing:
+            binding='initial-trusted-fixture'
+            def scan(self,*args,**kwargs):
+                self.binding='replaced-trusted-fixture'
+                return [(1,b'ordinary fixture bytes')]
+        r.sources={'new-source':Changing()}
+        before=tuple(self.gb.db.iterdump())
+        with self.assertRaisesRegex(ValueError,'Source binding changed during scan'):r.collect()
+        self.assertEqual(tuple(self.gb.db.iterdump()),before)
+
+    def test_legacy_nonempty_cursor_cannot_invent_missing_source_provenance(self):
+        _,carriers=self.chain();r=self.setup_retrieval(carriers)
+        self.gb.db.execute('DELETE FROM recovery_source_binding')
+        before=tuple(self.gb.db.iterdump())
+        with self.assertRaisesRegex(ValueError,'Legacy source provenance unavailable'):r.collect()
+        self.assertEqual(tuple(self.gb.db.iterdump()),before)
+
     def test_policy_permission_and_source_failover(self):
         start,carriers=self.chain();r=self.setup_retrieval(carriers)
         r.schedule('nopolicy',allowed=self.allowed)

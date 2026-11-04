@@ -17,12 +17,15 @@ def project_tree(octets,*,mime_charset,max_bytes,max_nodes,max_depth,parser_adap
     import json,sys
     from pathlib import Path
     from dataclasses import asdict
-    from parser_process import ParserLimits,run_parser
+    from parser_process import ParserLimits,ParserFailure,run_parser
     limits=ParserLimits() if process_limits is None else process_limits
     if not isinstance(limits,ParserLimits):raise ValueError('ParserLimits required')
     request=json.dumps(dict(text=text,max_bytes=max_bytes,max_nodes=max_nodes,max_depth=max_depth)).encode()
     raw=run_parser([sys.executable,str(Path(__file__).with_name('html_projection_worker.py')),json.dumps(asdict(limits))],request,limits)
-    return json.loads(raw)
+    result=json.loads(raw)
+    if result=={'failure':'unpreserved-direction-boundary'}:
+        raise ParserFailure('unpreserved-direction-boundary')
+    return result
 
 def _project_tree_local(octets,*,mime_charset,max_bytes,max_nodes,max_depth,parser_adapter=None):
     if not isinstance(octets,bytes) or any(type(n) is not int or n<0 for n in [max_bytes,max_nodes,max_depth]):
@@ -115,7 +118,11 @@ def _project_tree_local(octets,*,mime_charset,max_bytes,max_nodes,max_depth,pars
                         'children':children(child,language,child.attrib.get('lang',output_language),title,child.attrib.get('title',title))})
                     diagnostics.append('inert-direction-wrapper:form')
                 else:
-                    if own_direction(child):diagnostics.append('unpreserved-direction-boundary:'+name)
+                    if own_direction(child):
+                        # Unwrapping can change inherited/auto direction and
+                        # isolation. No context-safe replacement is selected for
+                        # this source wrapper; never return a partial rich view.
+                        raise ValueError('unpreserved-direction-boundary:'+name)
                     diagnostics.append('unwrapped:'+name);result.extend(children(child,language,output_language,title,output_title))
             if child.tail:result.append(text_node(child.tail))
         return result

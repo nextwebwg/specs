@@ -32,8 +32,9 @@ and the [shared AST contract](/expressive-markdown/parsing#shared-ast-contract).
 
 ## Text, headings and lists
 
-These forms follow CommonMark and GFM. Each is explained below, including its
-source syntax, HTML, AST and rendering.
+These forms are CommonMark and GFM's, read with the
+[Markdown rules](/expressive-markdown/parsing#markdown-rules). Each is explained
+below, including its source syntax, HTML, AST and rendering.
 
 ### Paragraphs and headings
 
@@ -179,11 +180,10 @@ continues the same paragraph.
 Use [leading-pipe line blocks](#leading-pipe-line-blocks) when line divisions
 are part of the content.
 
-Use `---` on its own, separated from surrounding paragraphs by blank lines,
-for a thematic break. Its **HTML representation** is `<hr>` and its **AST** is
+Use `---` on its own line for a thematic break, directly under a paragraph
+too. Its **HTML representation** is `<hr>` and its **AST** is
 [`horizontalRule`](/expressive-markdown/language#container-ast); it normally renders as a
-horizontal separator. It is distinct from opening YAML frontmatter or a
-Setext heading underline in the CommonMark contexts that recognize those forms.
+horizontal separator. It is distinct from opening YAML frontmatter.
 
 ### Quotations
 
@@ -269,9 +269,62 @@ Both keep `url` and optional tooltip `title`; a link holds inline content,
 while an image holds string `alt`. The result is a labelled link and the supplied
 image; no separate asset preview is needed here.
 
-Reference-style and inline links produce the same nodes. Unresolved references
-use CommonMark's literal fallback. An isolated image stays in its paragraph;
-only an explicit figure supplies a caption, separate from image alternative text.
+An isolated image stays in its paragraph; only an explicit figure supplies a
+caption, separate from image alternative text.
+
+### Reference-style links
+
+Name a link's target once and refer to it by label. The definition can sit
+anywhere in the document, often under the section that uses it:
+
+```md
+Read the [setup guide][guide], then the [FAQ][] and the [changelog].
+
+[guide]: /docs/setup "Setup guide"
+[FAQ]: /faq
+[changelog]: /changes
+```
+
+**HTML representation**
+
+```html
+<p>Read the <a href="/docs/setup" title="Setup guide">setup guide</a>, then the <a href="/faq">FAQ</a> and the <a href="/changes">changelog</a>.</p>
+```
+
+::: {.details #link-reference-ast summary="AST"}
+```json
+[
+  {
+    "type": "paragraph",
+    "children": [
+      { "type": "text", "value": "Read the " },
+      { "type": "linkReference", "label": "guide", "referenceType": "full", "value": "setup guide" },
+      { "type": "text", "value": ", then the " },
+      { "type": "linkReference", "label": "FAQ", "referenceType": "collapsed", "value": "FAQ" },
+      { "type": "text", "value": " and the " },
+      { "type": "linkReference", "label": "changelog", "referenceType": "shortcut", "value": "changelog" },
+      { "type": "text", "value": "." }
+    ]
+  },
+  { "type": "definition", "label": "guide", "url": "/docs/setup", "title": "Setup guide" },
+  { "type": "definition", "label": "FAQ", "url": "/faq" },
+  { "type": "definition", "label": "changelog", "url": "/changes" }
+]
+```
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
+| `definition` | String `label`, string `url`. | Block. Optional string tooltip `title`. Stays where it was written. |
+| `linkReference` | String `label`, `referenceType`; inline content. | `referenceType` is `full` (`[text][label]`), `collapsed` (`[text][]`) or `shortcut` (`[text]`). No `url` field: the definition holds the target. |
+| `imageReference` | String `label`, `referenceType`, string `alt`. | The image form, such as `![Logo][logo]`. No content field. |
+:::
+
+The reference keeps its form and its label; the definition keeps its place.
+That keeps the source readable after an edit: changing a target or tooltip
+changes the definition, and every reference to it follows. Renderers resolve
+each reference to its definition. A reference with no matching definition is
+ordinary text, following CommonMark. See the
+[link reference rules](/expressive-markdown/parsing#link-references).
 
 ### Lists and literal markers
 
@@ -404,7 +457,7 @@ control that writes the change back to the document.
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
 | `list` | Boolean `ordered`; `children: ListItem[]`. | Optional integer `start` (default 1 when ordered), boolean `tight` (default false). `start` is nonnegative. |
-| `listItem` | Blocks. | Optional boolean `checked`; absent means ordinary item. |
+| `listItem` | Blocks. | Optional boolean `checked`; absent means ordinary item. `tight: false` when blank lines separate its blocks, which then render with `<p>`. |
 :::
 ::::
 
@@ -449,16 +502,16 @@ matching form:
   "type": "paragraph",
   "children": [
     {
-      "type": "underline",
-      "value": "Underlined"
+      "type": "htmlElement", "display": "inline", "tag": "u",
+      "open": "<u>", "close": "</u>", "value": "Underlined"
     },
     {
       "type": "text",
       "value": " and "
     },
     {
-      "type": "highlight",
-      "value": "highlighted"
+      "type": "htmlElement", "display": "inline", "tag": "mark",
+      "open": "<mark>", "close": "</mark>", "value": "highlighted"
     },
     {
       "type": "text",
@@ -471,19 +524,19 @@ matching form:
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
 | `group` | `children: Node[]`; `display: "inline"\|"block"`. | Generic structural wrapper; optional native wrapper `tag` is `span` or `div`, consistent with display. |
-| `html` | String `value`; `display: "inline"\|"block"`. | Supported safe HTML after allowlist filtering; never includes discarded unsafe content. |
+| `htmlElement` | `tag`; `open`; `display: "inline"\|"block"`; `body` (block), inline content, or raw `value`. | An [HTML element](/expressive-markdown/parsing#html-elements): `open` and `close` hold its tags as written; `close` is absent when the element closes otherwise; `tight: false` when blank lines separate its blocks. |
+| `html` | String `value`; `display: "inline"\|"block"`. | A comment, declaration or stray end tag, after allowlist filtering. |
 | `literal` | String `value`; `display: "inline"\|"block"`. | Preserved invalid/uninterpreted source for recovery, escaped for display. |
 
 HTML is filtered using a maintained sanitizer allowlist for elements, attributes
-and URLs. Parsing discards `script` elements and their contents; writers never
-replay discarded unsafe content. The exact sanitizer preset is still to be
-selected. Report filtering losses, and exclude discarded unsafe content from
-round-trip guarantees.
+and URLs. An element the allowlist disallows is shown as text, as GitHub's tag
+filter shows it; writers never replay filtered unsafe content. The exact
+sanitizer preset is still to be selected. Report filtering, and exclude
+filtered content from round-trip guarantees.
 
-Map supported safe HTML to its structured nodes: paragraphs, headings, lists,
-quotes, images, links, tables, details and figures. Use a `group` for a safe
-`span`/`div` that supplies grouping or styling without a stronger meaning. Other
-supported safe HTML may remain an `html` node.
+Each HTML element is an `htmlElement` node whose content is Markdown, read by
+the [HTML element rules](/expressive-markdown/parsing#html-elements). A `group`
+is a structural wrapper that tools create without authored tags.
 
 An integration documents which safe HTML it maps and which it retains as a
 string. Keeping an HTML string does not establish editable support. Preserve
@@ -494,9 +547,11 @@ supported safe HTML or report the unsupported conversion.
 
 HTML uses a maintained sanitizer allowlist for elements, attributes and URLs.
 `script` elements **and their contents** are discarded during parsing and never
-serialized again. Supported safe HTML can become structured nodes, including
-`underline`/`highlight` for `<u>`/`<mark>`. Other safe markup can remain an `html`
-node. Report filtering losses; unsafe discarded content is outside preservation.
+serialized again. A host that publishes only its own authors' content may
+choose the [trusted host profile](/expressive-markdown/parsing#trusted-host-profile)
+instead, which keeps HTML tags as written and renders them through the host's allowlist.
+Each element is an `htmlElement` node, and an element the policy disallows is
+shown as text. Report filtering; filtered content is outside preservation.
 The exact sanitizer preset remains to be selected.
 
 
@@ -539,7 +594,8 @@ Back up the database first.
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `container` | String `subType`; blocks. | Optional structured `title`. All colon containers share this family, including nested/custom types. |
+| `strayFence` | String `value`, a colon run of three or more. | A bare fence with no closing line; its rendering is empty. |
+| `container` | Blocks. | Optional string `subType`; absent for a [generic container](/expressive-markdown/parsing#named-constructs). Optional structured `title`. All colon containers share this family, including nested/custom types. Optional `spelling`: `"alert"` for a callout written as an [alert](#alert-spelling); absent or `"container"` means the colon form. Optional `titleSpelling`: `"unbracketed"` for a title written without brackets; absent or `"bracketed"` means `[Title]`. |
 | `leaf` | String `subType`; no main content field. | Optional structured `title` for a directive label; “leaf” denotes bodyless authoring scope, not an assertion about title descendants. |
 
 | Type | Required fields/content | Additional fields and constraints |
@@ -554,6 +610,10 @@ Back up the database first.
 - Keep the opening header on one source line. Spaces between parts are optional;
   brackets and braces have no padding immediately inside them.
 - Titles and inline labels support inline Markdown.
+- An unbracketed title is also supported, as other documentation tools write
+  it: `::: warning Before you upgrade`. The text up to any trailing
+  attributes is the title, and writers keep that spelling. See the
+  [header rules](/expressive-markdown/parsing#named-constructs).
 - Inline constructs use `:type[label]{attributes}`; bodyless blocks use
   `::type[label]{attributes}` on their own line. An inline construct needs a label
   or attributes, so bare `:word` is ordinary text.
@@ -637,6 +697,25 @@ ordinary blocks, lists, quotes and code.
 > Blank lines just inside the fences do not add visible empty lines. Use a
 > [line block](#leading-pipe-line-blocks) when the extra line is intentional.
 
+### Alert spelling
+
+Callouts also accept the alert spelling used by GitHub and Obsidian. It is
+supported for compatibility; the colon container above is the preferred form:
+
+```md
+> [!warning] Before deploying
+> Back up the database first.
+```
+
+This is the same warning callout as `::: warning [Before deploying]`, with
+the same HTML. Its AST is the same `container` node plus
+`"spelling": "alert"`, so writers write it back as an alert. The type matches
+case-insensitively and keeps its own name: GitHub's `note`, `tip` and
+`warning` are core callouts, and `important`, `caution` or any other
+identifier is a custom type. The title is optional. Structural types such as
+`details`, `tabs` and `table` use the colon form. See the
+[alert rules](/expressive-markdown/parsing#alerts).
+
 ## Attributes and identity
 
 Use attributes for identity and settings without changing a node's content.
@@ -656,6 +735,11 @@ The general attribute notation is:
 | `open=foo` | String `"foo"`. |
 | `open=false` / `open="false"` | String `"false"`, not a boolean. |
 | `#check` / `id=check` | Exact node ID `"check"`. |
+| `.wide` / `class="wide"` | Class `"wide"`; several shorthands accumulate. |
+
+Examples use `.class` and `#id`: `{.render .wide #intro}` gives the ID `intro`
+and the class `"render wide"`. The longhand `{class="render wide" id="intro"}`
+works the same. A class stays a class: `::: {.render}` is a generic container.
 
 Whitespace and an optional `&` separate entries. These are equivalent:
 
@@ -701,7 +785,7 @@ Attach identity or presentation to the content it describes:
 ## Deployment {#deployment}
 ![Service diagram](services.svg){width=640 responsive}
 
-[Release notes](release.md){class="release-link"}
+[Release notes](release.md){.release-link}
 ```
 
 **HTML representation**
@@ -756,12 +840,59 @@ responsive setting. See [layout](#layout) for grouping and positioning content.
 
 Heading attributes are final and whitespace-separated. Image/link attributes
 are immediately adjacent. All attachments stay on the same source line.
+
+A link or image may instead carry its list as its quoted title. Renderers
+without attributes then show an ordinary link or image, with the list only in
+its tooltip:
+
+```md
+[Release notes](release.md "{.release-link}")
+```
+
+The two spellings give the same node. See the
+[title rules](/expressive-markdown/parsing#attributes-in-a-title).
 Escape `{` to write literal text. Other block styling uses supported safe HTML.
 
 **Rendering semantics:** use native attributes where supported; map custom
 attributes to `data-*`. Custom true flags are present/empty; false flags are
 omitted. Native boolean attributes follow HTML presence: an assigned string
 `"false"` still enables them. See the [attribute conversion rules](/expressive-markdown/parsing#attributes-and-identity).
+
+### Bracketed spans
+
+Give a run of text attributes without a semantic type:
+
+```md
+Use the [`--force`]{.flag} option with care.
+```
+
+:::: {.render title="Bracketed span" height="105"}
+```html
+<p>Use the <span class="flag"><code>--force</code></span> option with care.</p>
+```
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "paragraph",
+  "children": [
+    { "type": "text", "value": "Use the " },
+    { "type": "inline", "attributes": { "class": "flag" }, "children": [{ "type": "inlineCode", "value": "--force" }] },
+    { "type": "text", "value": " option with care." }
+  ]
+}
+```
+
+A bracketed span is an `inline` node without a `subType`.
+:::
+::::
+
+The bracket holds inline Markdown, and an attribute list follows it
+immediately. The longhand `[--force]{class="flag"}` works the same as
+`[--force]{.flag}`. A class stays a class: `:flag[…]` gives an inline with a type.
+When the bracket is also a link, such as `[word](url)` or a reference that
+resolves, it stays a link and the list attaches to the link. See the
+[span rules](/expressive-markdown/parsing#bracketed-spans).
 
 ## YAML frontmatter
 
@@ -1008,11 +1139,10 @@ formatting. See [terminal empty-line handling](/expressive-markdown/parsing#lead
 > The marker is visible and sits at the start of the affected line. It makes
 > intentional line divisions easy to distinguish from ordinary source wrapping.
 
-### CommonMark compatibility
+### Hard breaks in paragraphs
 
-Existing CommonMark text can use a trailing backslash before a newline to
-request a hard break within a paragraph. Expressive Markdown accepts this
-form for compatibility; use leading pipes when authoring line blocks.
+A trailing backslash before a newline requests a hard break within a
+paragraph. Use leading pipes when authoring line blocks.
 
 A trailing backslash commonly means **explicit continuation** in programming
 languages: the next source line continues the same logical line, as in
@@ -1026,7 +1156,7 @@ continues the same paragraph.\
 This starts a new displayed line.
 ```
 
-:::: {.render title="CommonMark hard-break compatibility" height="130"}
+:::: {.render title="Hard break" height="130"}
 ```html
 <p>An ordinary source wrap continues the same paragraph.<br>This starts a new displayed line.</p>
 ```
@@ -1064,14 +1194,201 @@ This starts a new displayed line.
 :::
 ::::
 
-Two or more trailing spaces before a newline have the same hard-break meaning.
-Neither form adds a break at the end of a block, nor inside a code span or HTML
-tag. These rules follow [CommonMark hard line breaks](https://spec.commonmark.org/0.31.2/#hard-line-breaks).
+Trailing spaces are insignificant, as the
+[Markdown rules](/expressive-markdown/parsing#hard-breaks) state. A trailing
+backslash adds no break at the end of a block, nor inside a code span or HTML
+tag, following [CommonMark hard line breaks](https://spec.commonmark.org/0.31.2/#hard-line-breaks).
 
-Both forms produce a `break` inside a `paragraph`, not a `lineBlock`. They can
+A hard break is a `break` inside a `paragraph`, not a `lineBlock`. They can
 render alike, but writers must preserve the node type: keeping a paragraph's
 hard break must not silently turn it into a line block. See the
 [writer rules](/expressive-markdown/parsing#writing-and-preservation).
+
+## Footnotes
+
+Put `[^label]` where a note applies. Write the note on its own line, starting
+with `[^label]:`, anywhere in the document:
+
+```md
+The build writes a log[^log], kept for a week[^log].
+
+[^log]: The log holds every step.
+
+    Indented lines continue the note,
+    so it can hold paragraphs, lists and code.
+```
+
+:::: {.render title="Footnote with two references" height="220"}
+```html
+<p>The build writes a log<sup><a href="#fn:log" id="fnref:log" data-footnote-ref>1</a></sup>, kept for a week<sup><a href="#fn:log" id="fnref:log:2" data-footnote-ref>1</a></sup>.</p>
+<section data-footnotes aria-label="Footnotes"><ol><li id="fn:log"><p>The log holds every step.</p><p>Indented lines continue the note, so it can hold paragraphs, lists and code. <a href="#fnref:log" data-footnote-backref aria-label="Back to reference 1">↩</a> <a href="#fnref:log:2" data-footnote-backref aria-label="Back to reference 1-2">↩<sup>2</sup></a></p></li></ol></section>
+```
+
+::: {.details #footnote-ast summary="AST"}
+```json
+[
+  {
+    "type": "paragraph",
+    "children": [
+      { "type": "text", "value": "The build writes a log" },
+      { "type": "footnoteReference", "label": "log" },
+      { "type": "text", "value": ", kept for a week" },
+      { "type": "footnoteReference", "label": "log" },
+      { "type": "text", "value": "." }
+    ]
+  },
+  {
+    "type": "footnoteDefinition",
+    "label": "log",
+    "body": [
+      { "type": "paragraph", "value": "The log holds every step." },
+      {
+        "type": "paragraph",
+        "children": [
+          { "type": "text", "value": "Indented lines continue the note," },
+          { "type": "softBreak" },
+          { "type": "text", "value": "so it can hold paragraphs, lists and code." }
+        ]
+      }
+    ]
+  }
+]
+```
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
+| `footnoteReference` | String `label`; no content field. | Inline. Its number comes from document order when rendering; the AST stores no number. |
+| `footnoteDefinition` | String `label`; blocks. | Block. Stays where it was written, in any block body. |
+:::
+::::
+
+The definition stays where the author put it: beside the paragraph it explains,
+or after the text. Renderers gather the notes into one numbered list at the end
+of the document, so placement affects the source only. Editing tools save the
+document with each note where it was. A tool that adds a new footnote appends
+its definition to the end of the document body.
+
+| Situation | Result |
+| --- | --- |
+| Label characters | Unicode letters, numbers, `_` and `-`, starting with a letter, number or `_`. `[^1]`, `[^log]` and `[^über-note]` are labels. |
+| Label case | Exact match: `[^Log]` and `[^log]` are different notes. |
+| Numbering | Order of first reference in the text. A note first cited inside another note follows the text's own references. |
+| Repeated reference | One note and one number; the note links back to every reference. |
+| Reference with no definition | Ordinary text, as for an unresolved link reference. |
+| Definition with no reference | Kept in the document; renders nothing. |
+| Two definitions of one label | The first is the note. Later ones are kept in the document and render nothing. |
+
+The syntax is the one PHP Markdown Extra introduced and GFM, Pandoc,
+MultiMarkdown and Djot share. `^[text]` is ordinary text: write the note as a
+definition. See the [footnote parser and writer rules](/expressive-markdown/parsing#footnotes).
+
+## Definition lists
+
+Pair terms with their descriptions, as in a glossary. Write each term on its
+own line, and start each description on the next line with `: `:
+
+```md
+Container
+: A block between colon fences, such as a callout.
+
+Fence
+: A line of three or more colons around a container.
+: A line of backticks or tildes around code.
+```
+
+:::: {.render title="Glossary" height="210"}
+```html
+<dl>
+  <dt>Container</dt>
+  <dd>A block between colon fences, such as a callout.</dd>
+  <dt>Fence</dt>
+  <dd>A line of three or more colons around a container.</dd>
+  <dd>A line of backticks or tildes around code.</dd>
+</dl>
+```
+
+::: {.details #definition-list-ast summary="AST"}
+```json
+{
+  "type": "definitionList",
+  "children": [
+    { "type": "definitionTerm", "value": "Container" },
+    {
+      "type": "definitionDescription",
+      "body": [{ "type": "paragraph", "value": "A block between colon fences, such as a callout." }]
+    },
+    { "type": "definitionTerm", "value": "Fence" },
+    {
+      "type": "definitionDescription",
+      "body": [{ "type": "paragraph", "value": "A line of three or more colons around a container." }]
+    },
+    {
+      "type": "definitionDescription",
+      "body": [{ "type": "paragraph", "value": "A line of backticks or tildes around code." }]
+    }
+  ]
+}
+```
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
+| `definitionList` | `children`: one or more groups, each a `definitionTerm` followed by one or more `definitionDescription` nodes. | Block. Starts with a term and ends with a description. |
+| `definitionTerm` | Inline content. | One source line: its content holds no `break` or `softBreak`. |
+| `definitionDescription` | Blocks. | `tight: false` when blank lines separate its blocks, which then render with `<p>`. An empty `body` is an empty description. |
+:::
+::::
+
+A term is one line of inline Markdown. A description holds blocks, as a list
+item does: indent its later lines under the `:`, and separate its paragraphs
+with a blank line:
+
+```md
+Fence
+: A line of colons around a container.
+
+  Nested containers use a longer outer fence.
+```
+
+**HTML representation**
+
+```html
+<dl><dt>Fence</dt><dd><p>A line of colons around a container.</p><p>Nested containers use a longer outer fence.</p></dd></dl>
+```
+
+Its description has `tight: false`, so each paragraph renders with `<p>`. A
+description holding one paragraph renders that paragraph's content directly in
+`<dd>`.
+
+| Situation | Result |
+| --- | --- |
+| Term | The first line of a paragraph, when it is not itself a marker line, directly followed by a marker line: one `:` and then a space, a tab or the line end. |
+| Marker | One `:` followed by a space, a tab or the line end. `:` alone gives an empty description. |
+| Several descriptions | One `:` line each, under the same term. |
+| Next term | A term line after the last description, usually after a blank line. The list continues. |
+| Continuation | Lines indented more than the `:`, by any amount. An unindented line ends the description. |
+| A paragraph's later line starting `: ` | Paragraph text. Only a paragraph's first line, when it is not a marker line, becomes a term. |
+| `:kw[must]`, `::page-break`, `:::` | An inline directive, a leaf directive and a container fence, as elsewhere. |
+
+The syntax is the one PHP Markdown Extra introduced, as Pandoc, kramdown,
+MultiMarkdown and markdown-it-deflist read it. See the
+[definition list parser and writer rules](/expressive-markdown/parsing#definition-lists).
+
+### Spellings from other tools
+
+Each of those tools reads the form above as a definition list. Some also read
+other forms, which Expressive Markdown reads as follows:
+
+| Source | Reading |
+| --- | --- |
+| `:   Description`, a tab after `:`, or an indented `:` | A description. Writers keep the authored spacing. |
+| Continuation lines indented four spaces | The same description: any deeper indentation continues it. |
+| `~ Description` (Pandoc, markdown-it-deflist) | Paragraph text. |
+| A blank line between the term and its first `:` | Two paragraphs. |
+| Two term lines above one `:` (PHP Markdown Extra, kramdown, MultiMarkdown) | One paragraph. |
+| An unindented line after a description | The end of the description; the line starts a new block. |
+
+Convert these forms to the `:` form once, on import. Tools recommend a
+diagnostic for each `:` or `~` line that reads as paragraph text.
 
 ## Code blocks and presentation metadata
 
@@ -1138,6 +1455,64 @@ See [validation and writing rules](/expressive-markdown/parsing#code-presentatio
 **Rendering semantics:** escaped `<pre><code class="language-ts">…</code></pre>`,
 optionally captioned and decorated. Keep generated line numbers out of copied
 code. Colors and copy controls belong to the renderer.
+
+### Embedded files
+
+Embed a file's code with a link that carries the `embed` flag, alone in its
+paragraph:
+
+```md
+[button.html](examples/button.html "{embed highlight=2}")
+```
+
+The code is the text of the linked file, so the page and the file can never
+disagree. The link text is the code block's title, the file's extension names
+its language, and code settings such as `highlight` count the file's lines. A
+renderer that does not embed files renders an ordinary link to the file.
+
+::: {.details summary="AST"}
+```json
+{
+  "type": "paragraph",
+  "children": [
+    {
+      "type": "link",
+      "url": "examples/button.html",
+      "value": "button.html",
+      "attributes": { "embed": true, "highlight": "2" },
+      "source": { "attachment": "title" }
+    }
+  ]
+}
+```
+:::
+
+`embed=example` shows an HTML file working, followed by its source:
+
+```md
+[Button tones](examples/button.html "{embed=example}")
+```
+
+The file's HTML renders in place, as HTML written in the document would, and
+its text follows as an `html` code block. The link text is the example's
+caption, and code settings apply to the code block. Put embeds in tabs to let
+readers choose between sources of the same example.
+
+:::: {.render title="Embedded example" height="150"}
+```html
+<figure data-type="example"><figcaption>Button tones</figcaption><div><button>Save</button> <button>Cancel</button></div><pre><code class="language-html">&lt;button&gt;Save&lt;/button&gt;
+&lt;button&gt;Cancel&lt;/button&gt;
+</code></pre></figure>
+```
+::::
+
+| Setting | Stored data / default |
+| --- | --- |
+| `embed` / `embed=code` | Boolean `true` or string `"code"`: the file's text as a code block. |
+| `embed=example` | String `"example"`: the file's HTML, then its text as an `html` code block. |
+| `language=ts` | String `attributes.language`: the code's language. Default: the file's extension. |
+
+See the [embedding rules](/expressive-markdown/parsing#embedded-files).
 
 
 ## Tables
@@ -2868,7 +3243,7 @@ interactive presentation.
 
 | Type | Required fields/content | Additional fields and constraints |
 | --- | --- | --- |
-| `inline` | String `subType`; optional inline content. | Attribute-only atomic directives may omit content. |
+| `inline` | Optional string `subType`; optional inline content. | Attribute-only atomic directives may omit content. Without a `subType`, a [bracketed span](#bracketed-spans). |
 :::
 ::::
 
@@ -3021,14 +3396,19 @@ See [recovery rules](/expressive-markdown/parsing#recovery-and-diagnostics).
 ## Writing and preservation
 
 Writers preserve meaning, order, IDs, metadata, supported presentation and
-explicit lines. Byte-identical output is optional. Discarded unsafe HTML is
-outside preservation. See [canonical writing](/expressive-markdown/parsing#writing-and-preservation).
+explicit lines, and write each construct in the spelling its author chose, such
+as `_` emphasis, `*` bullets or a tilde fence. An unedited document is
+written back byte for byte. Discarded unsafe HTML is outside preservation. See
+[authored forms](/expressive-markdown/parsing#authored-forms) and
+[canonical writing](/expressive-markdown/parsing#writing-and-preservation).
 
 ## Conformance and scope
 
 The base is [CommonMark 0.31.2](https://spec.commonmark.org/0.31.2/) with
 [GFM](https://github.github.com/gfm/) tables, tasks, strikethrough and extended
-autolinks. Expressive rules override that base where specified. “Must” is
+autolinks. Expressive Markdown's rules override that base where specified,
+including its [Markdown rules](/expressive-markdown/parsing#markdown-rules) and
+[HTML element rules](/expressive-markdown/parsing#html-elements). “Must” is
 required, “should” recommended and “may” optional. Parsing, meanings, AST data
 and preservation form the contract; HTML output is informative.
 
@@ -3057,7 +3437,11 @@ CSS display. JavaScript execution, MDX/JSX and framework APIs are outside the co
 | [Docusaurus](https://docusaurus.io/docs/markdown-features/admonitions) | Callouts and nested colon fences. | Independent of MDX, components and themes. |
 | [remark directives](https://github.com/remarkjs/remark-directive) | Inline, leaf and container forms. | Shared meanings, fields and string/flag rules. |
 | [Pandoc](https://pandoc.org/MANUAL.html#pandocs-markdown) | IDs and leading-pipe lines. | Defined line boundaries without visual source indentation. |
+| [GitHub alerts](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts) / [Obsidian callouts](https://help.obsidian.md/callouts) | `> [!type]` quotations, with titles and custom types in Obsidian. | A second spelling of the callout container, written back as authored. |
+| [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#footnotes) | Footnote references and indented definitions, also in [GFM](https://github.blog/changelog/2021-09-30-footnotes-now-supported-in-markdown-fields/) and [Pandoc](https://pandoc.org/MANUAL.html#footnotes). | Definitions stay in place; labels are identifiers matched exactly. |
+| [PHP Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#def-list) | Definition lists, also in [Pandoc](https://pandoc.org/MANUAL.html#definition-lists), [kramdown](https://kramdown.gettalong.org/syntax.html#definition-lists), [MultiMarkdown](https://fletcher.github.io/MultiMarkdown-6/syntax/#definitionlists) and [markdown-it-deflist](https://github.com/markdown-it/markdown-it-deflist). | One-line terms and `:` descriptions, indented as list items are. |
 | [UMD](https://docs.rs/crate/umd/0.2.0/source/README.md) | Cell merge markers. | Rectangular grid, numeric spans and loss-preserving recovery. |
+| [VitePress code snippets](https://vitepress.dev/guide/markdown#import-code-snippets) / [Docusaurus code imports](https://docusaurus.io/docs/markdown-features/react#importing-code-snippets) | Code read from files. | An `embed` setting on a link, which other renderers show as a link to the file. |
 | [MyST](https://mystmd.org/guide/figures) / [Quarto](https://quarto.org/docs/authoring/figures-and-layout.html#figure-divs) | Structured figures and captions. | Shared container family with explicit subtype meanings. |
 | [mdast](https://github.com/syntax-tree/mdast) / [unist](https://github.com/syntax-tree/unist) | Documented trees. | Independent title/body/children/value fields and traversal. |
 

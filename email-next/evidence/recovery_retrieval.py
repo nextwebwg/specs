@@ -8,6 +8,7 @@ import hashlib
 import math
 import json
 import sqlite3
+import uuid
 import time as clock
 from pathlib import Path
 from remediation_chain import RemediationChain,POLICY,members
@@ -25,12 +26,15 @@ def digest(raw):return hashlib.sha256(raw).hexdigest()
 class MailSpool:
     """Configured local mailbox stand-in; append actual received MIME octets.
 
-    Sequence numbers, not message names or arrival headers, provide stable scan
-    cursors. This is not a deployed IMAP/JMAP adapter.
+    Durable local append positions, not IMAP sequence numbers, message names or
+    arrival headers, provide scan cursors within the retained spool identity. This is not a deployed IMAP/JMAP adapter.
     """
     def __init__(self,path):
         self.db=sqlite3.connect(Path(path),isolation_level=None)
         self.db.execute('CREATE TABLE IF NOT EXISTS mail(id INTEGER PRIMARY KEY AUTOINCREMENT,wire BLOB NOT NULL)')
+        self.db.execute('CREATE TABLE IF NOT EXISTS spool_identity(id INTEGER PRIMARY KEY CHECK(id=1),binding TEXT NOT NULL)')
+        self.db.execute('INSERT OR IGNORE INTO spool_identity VALUES(1,?)',(uuid.uuid4().hex,))
+        self.binding=self.db.execute('SELECT binding FROM spool_identity WHERE id=1').fetchone()[0]
     def append(self,wire):
         if not isinstance(wire,bytes):raise ValueError('MIME octets')
         return self.db.execute('INSERT INTO mail(wire) VALUES(?)',(wire,)).lastrowid
@@ -54,6 +58,7 @@ class RecoveryRetrieval:
         self.recovery=RemediationChain(coordinator,max_steps=max_steps,max_bytes=max_bytes)
         self.db.executescript('''
           CREATE TABLE IF NOT EXISTS recovery_source(id TEXT PRIMARY KEY,cursor INTEGER NOT NULL);
+          CREATE TABLE IF NOT EXISTS recovery_source_binding(id TEXT PRIMARY KEY,binding TEXT NOT NULL);
           CREATE TABLE IF NOT EXISTS recovery_mail(digest TEXT PRIMARY KEY,wire BLOB NOT NULL,carrier BLOB);
           CREATE TABLE IF NOT EXISTS recovery_origin(source TEXT NOT NULL,position INTEGER NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(source,position));
           CREATE TABLE IF NOT EXISTS recovery_support(digest TEXT PRIMARY KEY,wrapper BLOB NOT NULL);
@@ -81,11 +86,23 @@ class RecoveryRetrieval:
             self.db.execute('COMMIT');return identifier
         except BaseException:
             self.db.execute('ROLLBACK');raise
+    def _check_source_binding(self,name,binding,cursor):
+        retained=self.db.execute('SELECT binding FROM recovery_source_binding WHERE id=?',(name,)).fetchone()
+        if retained and retained!=(binding,):raise ValueError('Source namespace changed; use explicit fresh source scope')
+        if not retained and (cursor or self.db.execute('SELECT 1 FROM recovery_origin WHERE source=? LIMIT 1',(name,)).fetchone()):
+            raise ValueError('Legacy source provenance unavailable; explicit fresh scan required')
+
     def collect(self,*,crash=None):
         """No source I/O while holding the account's write transaction."""
         reports={};count_limit,byte_limit,_,_=self.limits
         for name,source in self.sources.items():
             row=self.db.execute('SELECT cursor FROM recovery_source WHERE id=?',(name,)).fetchone();cursor=row[0] if row else 0
+            # A configured name/position is not a source namespace. This fixture
+            # fingerprint is trusted local adapter metadata, not peer authority.
+            binding=getattr(source,'binding',None)
+            if not isinstance(binding,str) or not binding:
+                reports[name]={'status':'unavailable','reason':'source-binding-unavailable'};continue
+            self._check_source_binding(name,binding,cursor)
             try:batch=source.scan(cursor,max_messages=count_limit,max_bytes=byte_limit)
             except Exception as exc:
                 reports[name]={'status':'unavailable','reason':type(exc).__name__};continue
@@ -104,6 +121,9 @@ class RecoveryRetrieval:
             try:
                 fresh=self.db.execute('SELECT cursor FROM recovery_source WHERE id=?',(name,)).fetchone()
                 if (fresh[0] if fresh else 0)!=cursor:raise ValueError('Source cursor changed')
+                if getattr(source,'binding',None)!=binding:raise ValueError('Source binding changed during scan')
+                self._check_source_binding(name,binding,cursor)
+                self.db.execute('INSERT OR IGNORE INTO recovery_source_binding VALUES(?,?)',(name,binding))
                 count,size=self.db.execute('SELECT count(*),coalesce(sum(length(wire)),0) FROM recovery_mail').fetchone()
                 unique={digest(w):w for _,w,_,_ in parsed if not self.db.execute('SELECT 1 FROM recovery_mail WHERE digest=?',(digest(w),)).fetchone()}
                 if count+len(unique)>count_limit or size+sum(map(len,unique.values()))>byte_limit:raise ValueError('Retained mailbox budget')

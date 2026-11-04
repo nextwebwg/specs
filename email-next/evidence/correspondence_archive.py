@@ -180,16 +180,27 @@ def manifest_bytes(value):
 
 
 def write_plain(manifest, objects, signing_key, output):
-    """Fixture exporter; real mailbox acquisition is intentionally not implied."""
+    """Preflight frozen fixture bytes; this does not approve mailbox disclosure."""
     raw = manifest_bytes(manifest)
+    frozen_manifest = decode_event(raw, max_octets=MAX_MANIFEST)['value']
+    frozen_objects = {}
+    for item in frozen_manifest['objects']:
+        try:
+            data = objects[item['sha256']]
+        except KeyError as error:
+            raise ValueError('Export object unavailable') from error
+        if (type(data) is not bytes or len(data) != uint(item['size'])
+                or hashlib.sha256(data).hexdigest() != item['sha256']):
+            raise ValueError('Export object integrity')
+        frozen_objects[item['sha256']] = data
+    # Recipient rejection cannot undo disclosure. Check supported historical
+    # inventories before handing a single byte to an encryption/output adapter.
+    _check_contributions(frozen_manifest, frozen_objects.__getitem__)
     header = MAGIC + struct.pack('>I', len(raw)) + raw
     h = hashlib.sha256()
     output.write(header)
     h.update(header)
-    for item in manifest['objects']:
-        data = objects[item['sha256']]
-        if len(data) != uint(item['size']) or hashlib.sha256(data).hexdigest() != item['sha256']:
-            raise ValueError('Export object integrity')
+    for data in frozen_objects.values():
         output.write(data)
         h.update(data)
     output.write(signing_key.sign(DOMAIN + h.digest()))
@@ -266,19 +277,33 @@ def stage_plain(stream, destination, *, archive, verification_key, max_total=671
 
 
 def check_contributions(manifest, objects):
+    _check_contributions(manifest, lambda digest: (objects / digest).read_bytes())
+
+
+def _check_contributions(manifest, read_object):
     sizes = {item['sha256']: uint(item['size']) for item in manifest['objects']}
     for entry in manifest['entries']:
         if entry['kind'] != 'contribution':
             continue
-        path = objects / entry['object']
         if sizes[entry['object']] > 1048576:
             raise ValueError('Archived event limit')
-        event = decode_event(path.read_bytes())['value']
+        event = decode_event(read_object(entry['object']))['value']
         if any(event.get(key) != val for key, val in entry['reference'].items()):
             raise ValueError('Historical contribution reference')
+        # Preserve unsupported content as opaque history. A future format's
+        # field named 'manifest' cannot select this version's resource rules.
+        if event.get('version') not in ('0','1','2','3','4') or event.get('purpose') != 'contribution':
+            continue
         operation = event.get('operation', {})
         if type(operation) is not dict:
             raise ValueError('Historical operation shape')
+        kind = operation.get('kind')
+        manifest_kinds = ('attachment-message','rich-message','reply-message')
+        resource_free_kinds = ('message','question','answer','reaction','reaction-withdraw','edit','service-question','hosted-holder-observation')
+        if kind not in manifest_kinds or (kind == 'reply-message' and operation.get('version') != '0'):
+            if kind in resource_free_kinds and (entry['resources'] or operation.get('manifest') is not None):
+                raise ValueError('Resource-free historical operation has resources')
+            continue
         inventory = operation.get('manifest')
         if inventory is None:
             if entry['resources']:

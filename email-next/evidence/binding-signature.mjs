@@ -51,3 +51,7 @@ export const verifyPrivateCopyDiscovery=(payload,signature,key)=>verifyPayload(p
 export const verifyQuorumDiscovery=(payload,signature,key)=>verifyPayload(payload,signature,key,Buffer.from('email-next/passive-discovery/v6\0'));
 
 export const verifyQuorumExchangeDiscovery=(payload,signature,key)=>verifyPayload(payload,signature,key,Buffer.from('email-next/passive-discovery/v7\0'));
+
+export const verifySuiteDiscovery=(payload,signature,key)=>verifyPayload(payload,signature,key,Buffer.from('email-next/passive-discovery/v8\0'));
+
+export const verifyReplyDiscovery=(payload,signature,key)=>verifyPayload(payload,signature,key,Buffer.from('mail/passive-discovery/v9\0'));

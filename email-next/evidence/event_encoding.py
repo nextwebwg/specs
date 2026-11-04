@@ -34,7 +34,7 @@ def check_limits(data, *, max_octets=MAX_EVENT_OCTETS):
             if depth < 0:
                 raise ValueError('Unmatched closing container')
 
-def decode_event(data, *, max_octets=MAX_EVENT_OCTETS):
+def decode_event(data, *, max_octets=MAX_EVENT_OCTETS, nullable_members=()):
     if not isinstance(data, bytes):
         raise TypeError('Expected exact bytes')
     check_limits(data, max_octets=max_octets)
@@ -53,7 +53,11 @@ def decode_event(data, *, max_octets=MAX_EVENT_OCTETS):
     parsed = json.loads(text, object_pairs_hook=object_pairs,
                         parse_int=reject_number, parse_float=reject_number,
                         parse_constant=reject_number)
-    def validate(value):
+    def validate(value, path=()):
+        # Opt-in applies only to explicitly named root fields of an owning schema.
+        # Historical event callers retain their null rejection.
+        if value is None and len(path) == 1 and path[0] in nullable_members:
+            return
         if isinstance(value, str):
             if any(0xD800 <= ord(c) <= 0xDFFF for c in value):
                 raise ValueError('Lone surrogate')
@@ -62,10 +66,10 @@ def decode_event(data, *, max_octets=MAX_EVENT_OCTETS):
         elif isinstance(value, dict):
             for key, item in value.items():
                 validate(key)
-                validate(item)
+                validate(item, path + (key,))
         elif isinstance(value, list):
-            for item in value:
-                validate(item)
+            for index, item in enumerate(value):
+                validate(item, path + (index,))
         else:
             raise ValueError('Unsupported value')
     if not isinstance(parsed, dict):
@@ -79,8 +83,8 @@ def serialize_json(value):
                       separators=(',', ':')).replace('/', '\\/')
     return text.encode('utf-8', errors='strict')
 
-def encode_event(value):
+def encode_event(value, *, nullable_members=()):
     """Serialize once; callers retain returned bytes for retries."""
     data = serialize_json(value)
-    decode_event(data)
+    decode_event(data, nullable_members=nullable_members)
     return data

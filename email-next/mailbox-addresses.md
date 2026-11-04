@@ -14,7 +14,7 @@ Email/2 supports internationalized mailbox names and quoted local parts. It uses
 >
 > `"alice"@EXAMPLE.ORG` becomes `alice@example.org` when the client constructs a new record. Those redundant quotes and domain case do not identify another mailbox. Received signed records already need the canonical spelling; clients do not rewrite their signed bytes.
 
-The [protected conversation agreement](suite-profile.md) selects this contract for assertion8 and its dependent invitation/roster, contribution and provider records. It is part of the same unpublished Email/2 specification, not an optional internationalization module. Earlier experiment encodings retain their narrower input rules and do not establish support for the current agreement.
+The [protected conversation agreement](suite-profile.md) selects this contract for current assertion10 and its dependent initial10/roster7, authored0/envelope6 and provider2 records. Explicitly retained assertion9/assertion8 agreements use the same address contract under its own original versions. It is part of the same unpublished Email/2 specification, not an optional internationalization module. Earlier experiment encodings retain their narrower input rules and do not establish support for the current agreement.
 
 ## Keep local identity separate from domain lookup
 
@@ -67,4 +67,4 @@ If the selected actual SMTP path cannot carry the required representation, hold 
 
 The [address component](evidence/README.md#mailbox-address-spelling) tests exact Unicode/quoted spelling, octet limits and configured Unicode17 IDNA conversion and validation. Metadata and bootstrap components use this address parser, including quoted `@` routing. These are not complete header parsing, internationalized account login, SMTPUTF8 submission or mailbox-ownership evidence.
 
-A complete client must additionally exercise internationalized and quoted addresses through assertion8 signatures, ordinary-header extraction, account and association selection, initial8/roster5 admission, private-copy checks, encrypted MIME, actual direct SMTPUTF8 and ASCII relay delivery, retry/restart and safe accessible display. Invalid/noncanonical input must leave accepted identities and prepared sends intact. No earlier ASCII-only fixture establishes this coverage.
+A complete current client must additionally exercise internationalized and quoted addresses through assertion10 signatures, ordinary-header extraction, account and association selection, initial10/roster7 admission, per-message slot/mailbox and private-copy checks, authored0/envelope6 encrypted MIME, actual direct SMTPUTF8 and ASCII relay delivery, retry/restart and safe accessible display. Explicit earlier-agreement tests retain their own assertion8/initial8/roster5 scope; they do not satisfy this current claim. Invalid/noncanonical input must leave accepted identities and prepared sends intact. No earlier ASCII-only fixture establishes this coverage.

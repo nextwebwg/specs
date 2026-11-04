@@ -8,7 +8,7 @@ status: Level 1 · normative
 
 # Security
 
-HTML Next defines a **secure execution model**, not a collection of optional precautions. Expressions cannot execute JavaScript; executable attributes and raw DOM sinks are rejected; text, markup, URLs, properties, imports, and controllers each pass through a sink-specific policy. A conforming implementation must fail closed when it cannot enforce one.
+HTML Next defines a **secure execution model**. Expressions cannot execute JavaScript; executable attributes and raw DOM sinks are rejected; text, markup, URLs, properties, imports, and controllers each pass through a sink-specific policy. A conforming implementation must fail closed when it cannot enforce one.
 
 What that looks like in practice: expressions never run as code, dangerous sinks are unreachable by an ordinary binding, and dynamic content enters the DOM only through an operation that knows what kind of content it is receiving.
 
@@ -24,7 +24,7 @@ What that looks like in practice: expressions never run as code, dangerous sinks
 
 ## Secure by construction
 
-The source language is deliberately less powerful than JavaScript. The compiler does not accept arbitrary executable markup and hope an application configures it safely later; it classifies every dynamic value by destination and emits only the operation permitted for that destination.
+The source language is deliberately less powerful than JavaScript. The compiler classifies every dynamic value by destination and emits only the operation permitted for that destination, so safety is settled when the component is built.
 
 | Input or destination | Required handling |
 | --- | --- |
@@ -33,7 +33,7 @@ The source language is deliberately less powerful than JavaScript. The compiler 
 | Markup via `$html` | Parse as an inert HTML fragment in a `<template>` context and apply the versioned HTML Sanitizer safe-default policy before nodes become live. Do not dispatch to native `setHTML()`, whose parsing currently differs between engines. |
 | URL-valued attribute | Parse and validate for that attribute's URL policy. Reject executable schemes and fail closed on an unparseable value. |
 | DOM property binding | Resolve through the generated allowlist for the element interface. Raw-code and raw-markup sinks are not bindable. |
-| Literal executable syntax | Reject inline `on*` handlers and target-framework directives rather than copying them through. |
+| Literal executable syntax | Reject inline `on*` handlers and target-framework directives. |
 | Controller module | Accept only the definition carrier's explicit `controller` specifier. Resolve URL-like values from the definition and bare values through the application-owned import map, then use the standard module loader so CSP, CORS, and import-map integrity apply. |
 | Declared script | Accept only `<script src>` in `<defs>`. Resolve `src` as a controller specifier is resolved, without the live-scope check, then insert one new, ordinary `<script>` element into `document.head` so CSP, CORS, mixed-content blocking, and `integrity` apply. |
 | Head declaration | Accept only the [listed elements and `rel` keywords](/declarative-components/components#head-elements). Create new elements in the document, never insert the definition's nodes, and ignore an imported component's page-wide head entries. |
@@ -63,7 +63,7 @@ The source language is deliberately less powerful than JavaScript. The compiler 
 
 ## Component imports use the existing module loader
 
-Importing a component with imperative behavior means trusting that behavior. HTML Next keeps the imported definition constrained and declarative, then loads its optional controller through the platform's existing ES module system. This provides a smaller, explicit format and one execution model; it does not make controller code less authoritative than other page JavaScript.
+Importing a component with imperative behavior means trusting that behavior. HTML Next keeps the imported definition constrained and declarative, then loads its optional controller through the platform's existing ES module system. This provides a smaller, explicit format and one execution model; controller code keeps the full authority of other page JavaScript.
 
 |  | HTML Imports | HTML Next component import |
 | --- | --- | --- |
@@ -75,7 +75,7 @@ Importing a component with imperative behavior means trusting that behavior. HTM
 
 The old HTML Imports proposal was [explicit that scripting was enabled in imported documents](https://www.w3.org/TR/html-imports/); it has since been [retired by W3C](https://www.w3.org/standards/history/html-imports/). Its difficulty was broader than “too many script tags”: an HTML-document dependency graph also needed rules for parsing, parser blocking, transitive script order, style order, deduplication, `document.currentScript`, and custom-element upgrades. It created a second loading and execution model alongside JavaScript modules, while a content import still carried page-authority code.
 
-HTML Next keeps the defensible parts without claiming a security boundary that is not there. A definition cannot hide arbitrary executable syntax among its markup: it has a closed declarative grammar and, when imperative behavior is necessary, one visible `controller` specifier on the carrier and visible `src` URLs for any third-party scripts. That module uses the existing JavaScript loader and its CSP, CORS, caching, import-map resolution, and integrity behavior. There is no imported-document global, parser-blocking script lifecycle, or second script-ordering system.
+HTML Next keeps the defensible parts and claims only the boundaries that exist. A definition cannot hide arbitrary executable syntax among its markup: it has a closed declarative grammar and, when imperative behavior is necessary, one visible `controller` specifier on the carrier and visible `src` URLs for any third-party scripts. That module uses the existing JavaScript loader and its CSP, CORS, caching, import-map resolution, integrity behavior, and script ordering.
 
 > [!norm] Trust the root, constrain the closure
 > An application approves a component root, not a hand-copied list of everything below it. That is the useful trust boundary shared by ES-module, package, and iframe imports. The component definition only declares dependencies; it cannot carry consumer approval or change the application's map. Requiring approval for every transitive controller would add ceremony without creating a sandbox.
@@ -121,11 +121,11 @@ Content-Security-Policy:
 > [!note] The controller redirect check needs browser integration
 > The final-target rule above is a requirement on a native implementation. The current polyfill can check a component response's final URL before registration and can reject an out-of-scope controller entry before calling `import()`. Native module loading does not expose the controller's final response URL before evaluation, so a polyfill cannot independently reject a redirect after the browser accepts that entry. CORS, CSP, and applicable integrity metadata still govern the module request; enforcing the live-scope redirect rule itself requires integration with the browser's module loader.
 >
-> This is an affirmative reason to standardize Declarative Components in browsers, not merely a polyfill limitation. A native implementation can enforce the final-target rule inside module fetching, before controller evaluation, and provide a consistent security guarantee that userland code cannot reproduce.
+> This is an affirmative reason to standardize Declarative Components in browsers. A native implementation can enforce the final-target rule inside module fetching, before controller evaluation, and provide a consistent security guarantee that userland code cannot reproduce.
 
 | Distribution | Resolution and security |
 | --- | --- |
-| Installed package | Package exports resolve concrete files. The lockfile and build own the resulting graph; no browser import map or live approval ceremony is required. |
+| Installed package | Package exports resolve concrete files. The lockfile and build own the resulting graph and its approval. |
 | First-party source | Relative or root-relative references resolve inside the application and remain under its ordinary CSP. |
 | Live cross-origin source | The application maps one prefix to the remote tree, imports a concrete root, and allows the necessary origins through CSP. CORS must succeed. Optional generated integrity can pin selected or complete static graph bytes. |
 
@@ -140,7 +140,7 @@ This follows the useful shape of [iframe embedded policy](https://www.w3.org/TR/
 | [Subresource Integrity](https://www.w3.org/TR/sri-2/) | Detects changed bytes, especially useful for a live CDN or independently hosted dependency. | Does not protect against code that was malicious when selected, and adds little when an attacker can also rewrite the application document and its hashes. |
 | Worker or sandboxed iframe | Creates an actual authority boundary for code that is not trusted with the page. | Does not provide direct DOM access; integration must use messages. |
 
-A normal packaged application may reasonably rely on its lockfile, same-origin HTTPS deployment, CSP, and content-hashed build assets. Live cross-origin entry points may carry generated integrity metadata and must satisfy CORS. Authors should never calculate hashes by hand. A high-assurance deployment—not the general default—can pin more of the graph and adopt [`Integrity-Policy`](https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Integrity-Policy) as browser support matures.
+A normal packaged application may reasonably rely on its lockfile, same-origin HTTPS deployment, CSP, and content-hashed build assets. Live cross-origin entry points may carry generated integrity metadata and must satisfy CORS. Build tooling calculates the hashes. A high-assurance deployment can pin more of the graph and adopt [`Integrity-Policy`](https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Integrity-Policy) as browser support matures.
 
 ## Head declarations and declared scripts {#head-declarations}
 
@@ -151,7 +151,7 @@ A component can add a title, metadata, links, and JSON-LD to the document head, 
 3. **No borrowed authority.** Importing a component does not give it control of the application's document. Policy elements are invalid everywhere, and [page-wide head entries](/declarative-components/components#page-wide-head-entries) apply only from the application's own components.
 {.algo}
 
-**Using a component is trusting it.** This is the position the rest of this chapter takes for controllers: the application approves a root, not every edge. A declared script has page authority once it runs, so a definition that declares one is trusted application code, exactly like one with a controller. No second approval step applies to scripts, whichever component declares them, from the application, an installed package, or a live import. The platform's control over which code runs is CSP, and builds and developer tools list every declared script URL.
+**Using a component is trusting it.** This is the position the rest of this chapter takes for controllers: the application approves a root, not every edge. A declared script has page authority once it runs, so a definition that declares one is trusted application code, exactly like one with a controller. The same approval covers scripts, whichever component declares them, from the application, an installed package, or a live import. The platform's control over which code runs is CSP, and builds and developer tools list every declared script URL.
 
 Browsers have no default CSP. Without one, a declared script loads like any other code the page includes. Application tooling [should]{.kw} generate a CSP from the declared graph: the controllers and declared script URLs it already lists.
 
@@ -171,7 +171,7 @@ The one allowlist in this design is the [`component-src` list](/declarative-comp
 | A script runs twice. | The head holds one element per script URL and type, never removed and never reinserted. Server rendering writes an eager script only as a `preload` link, never as a `<script>`, and the client inserts the real element once. |
 | A component declares a script the application did not expect. | Using the component is trusting it, as with its controller. The document's CSP decides whether the script loads, and builds and developer tools list every declared script URL for review. |
 
-**What is not new.** A `<data>` resource already fetches from declared URLs, and images and CSS already request any origin. A controller already has page authority, including the power to insert any script it likes. Head declarations make the common cases declarative and visible; they do not widen what a trusted component can do. They narrow what an imported one can do, because its page-wide head entries are ignored, where a controller's DOM writes would not be.
+**What already exists.** A `<data>` resource already fetches from declared URLs, and images and CSS already request any origin. A controller already has page authority, including the power to insert any script it likes. Head declarations make the common cases declarative and visible; they do not widen what a trusted component can do. They narrow what an imported one can do, because its page-wide head entries are ignored, where a controller's DOM writes would not be.
 
 ### Declared scripts under a Content Security Policy
 

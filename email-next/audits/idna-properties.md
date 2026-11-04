@@ -21,11 +21,11 @@ Join controls have their own rules: ZWJ requires a preceding virama; ZWNJ permit
 
 Registration and lookup have different contextual requirements, as described in the protocol audit. Email/2's full validated-label contract must not be weakened to whichever inputs a resolver happens to accept.
 
-## Data that still needs a pinned validation profile
+## Selected data and validation evidence
 
 A complete validator needs consistent versions of general category, default-ignorable, whitespace, noncharacter, block, join-control, Hangul-syllable-type, canonical-combining-class, joining-type, script and bidi-class properties, together with normalization and case-fold definitions. The derived-property rules, contextual rules and applicable compatibility exceptions also need identified revisions.
 
-The RFC's large Appendix B is an illustrative Unicode5.2 result, not a normative current table. The [Unicode review procedure](idna-unicode-review.md) explains how later versions are handled. This audit selects no IDNA data release and changes no runtime normalization or current experimental refusal of A-label hosts. [Punycode](punycode.md) and the [Unicode6](idna-unicode6.md)/[Unicode12](idna-unicode12.md) review records are reviewed separately. The selected Unicode normalization/property sources and any later applicable review decisions remain open.
+The RFC's large Appendix B is an illustrative Unicode5.2 result, not a normative current table. The [Unicode review procedure](idna-unicode-review.md) explains how later versions are handled. The current profile selects Unicode17 and the published RFC5892/RFC8753 rules. Its [configured provider evidence](../evidence/IDNA17.md) records pinned normalization, full folding, property and derived-table comparisons. The source review here did not itself run those tests. A configured coherent provider can validate A-labels; consumers without one continue to hold or reject them. [Punycode](punycode.md) and the [Unicode6](idna-unicode6.md)/[Unicode12](idna-unicode12.md) records have separate source reviews. Formal review of later new-character safety is not established by these implementation checks.
 
 ## Coverage and source qualifications
 

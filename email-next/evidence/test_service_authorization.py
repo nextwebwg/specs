@@ -22,9 +22,10 @@ class ServiceAuthorization(unittest.TestCase):
         def make(store,tls,**kwargs):return make_authorization_server(store,tls,drop_link_response=lambda:self.drop[0],simulated_account=getattr(self,'simulated_account',None))
         with patch.object(joined,'ServiceStore',LinkedServiceStore),patch.object(joined,'make_server',make):self.f.setup_flow()
         self.root=Path(self.f.temp.name);self.now=int(self.f.time['earliest']);origin=self.f.registration['service']
-        self.reg=encode_event(dict(version='0',purpose='service-authorization-registration',registration='1'*32,generation='1',issuer=origin,service=origin,clientId='native-mail',authorization=origin+'/authorize',token=origin+'/token',linkChallenge=origin+'/link/challenge',linkComplete=origin+'/link/complete',redirectPath='/email-next/oauth/callback',scopes=['email-next.link','email-next.status','email-next.submit']))
+        self.reg=encode_event(dict(version='0',purpose='service-authorization-registration',registration='1'*32,generation='1',issuer=origin,service=origin,clientId='native-mail',authorization=origin+'/authorize',token=origin+'/token',linkChallenge=origin+'/link/challenge',linkComplete=origin+'/link/complete',redirectPath='/mail/oauth/callback',scopes=['mail.service.link','mail.service.status','mail.service.submit']))
         self.auth=AuthorizationStore(self.root/'oauth.sqlite',self.reg,clock=lambda:self.now);self.addCleanup(self.auth.close)
         self.f.store.authorization_config=(self.root/'oauth.sqlite',self.reg,lambda:self.now)
+        self.auth.provision_action_account(self.f.store.action(),self.f.peer['principal'],'simulated-account-A')
         self.key=fresh_key(self.root/'vault.sqlite');self.client=NativeAuthorization(self.root/'vault.sqlite',self.reg,key=self.key,clock=lambda:self.now);self.addCleanup(self.client.close)
         port=urlsplit(origin).port
         self.https=AuthorizationHTTPS(self.reg,ca_file=str(joined.certificates.ServiceTLSTest.ca_file),address=('127.0.0.1',port))
@@ -103,16 +104,58 @@ class ServiceAuthorization(unittest.TestCase):
         changed=NativeAuthorization(self.root/'vault.sqlite',encode_event(revised),key=self.key,clock=lambda:self.now);self.addCleanup(changed.close)
         def forbidden(*args):raise AssertionError('No exchange after registration change')
         with self.assertRaisesRegex(ValueError,'binding'):changed.callback(state,redirect+'?'+urlencode(response),forbidden)
-    def test_signed_known_device_revocation_blocks_resource(self):
-        token=self.login();self.link(token);d=self.f.peer;bundle=json.loads(encode_event(self.f.f.bundles[d['principal']]));head=self.auth.identity.current_state(d['principal'])['head']
+    def accept_changed_binding(self,roles):
+        d=self.f.peer;bundle=json.loads(encode_event(self.f.f.bundles[d['principal']]));head=self.auth.identity.current_state(d['principal'])['head']
         state=json.loads(base64.b64decode(next(s['payload'] for s in bundle['states'] if digest(base64.b64decode(s['payload']))==head)))
         old=next(b for b in bundle['bindings'] if digest(base64.b64decode(b['payload']))==next(b['digest'] for b in state['bindings'] if b['device']==d['device']))
-        binding=json.loads(base64.b64decode(old['payload']));binding.update(record='f'*32,roles=['receive','enroll','revoke'],authority=dict(kind='state',digest=head));raw=encode_event(binding)
+        binding=json.loads(base64.b64decode(old['payload']));binding.update(record='f'*32,roles=roles,authority=dict(kind='state',digest=head));raw=encode_event(binding)
         state.update(record='9'*32,revision=str(int(state['revision'])+1),previous=[head],bindings=[dict(b,digest=digest(raw)) if b['device']==d['device'] else b for b in state['bindings']]);payload=encode_event(state)
         bundle['states'].append(dict(payload=base64.b64encode(payload).decode(),signature=sign(self.f.f.binary,d,'email-next/identity-state/v0',payload)));bundle['bindings'].append(dict(payload=base64.b64encode(raw).decode(),authorization=sign(self.f.f.binary,d,'email-next/device-binding/v0',raw),possession=sign(self.f.f.binary,d,'email-next/device-possession/v0',raw)))
         self.assertEqual(self.auth.identity.accept_successor(encode_event(bundle),candidate_digest=digest(payload),time=self.f.time)['status'],'accepted-unverified')
+        return bundle
+    def test_signed_known_device_revocation_blocks_resource(self):
+        token=self.login();self.link(token);self.accept_changed_binding(['receive','enroll','revoke'])
         self.assertEqual(self.auth.authorize_service(token,self.f.store.action(),'submit'),(None,403))
         self.f.credential[0]=token;self.assertEqual(self.f.flow.activate(*self.f.args,time=self.f.time)['http'],403);self.assertEqual(self.f.count(),0)
+
+    def test_unchanged_binding_advance_preserves_link_and_missing_action_denies(self):
+        token=self.login();self.link(token);d=self.f.peer
+        bundle=json.loads(encode_event(self.f.f.bundles[d['principal']]))
+        head=self.auth.identity.current_state(d['principal'])['head']
+        state=json.loads(base64.b64decode(next(s['payload'] for s in bundle['states'] if digest(base64.b64decode(s['payload']))==head)))
+        state.update(record='c'*32,revision=str(int(state['revision'])+1),previous=[head])
+        raw=encode_event(state)
+        bundle['states'].append(dict(payload=base64.b64encode(raw).decode(),signature=sign(self.f.f.binary,d,'email-next/identity-state/v0',raw)))
+        self.assertEqual(self.auth.identity.accept_successor(encode_event(bundle),candidate_digest=digest(raw),time=self.f.time)['status'],'accepted-unverified')
+        self.assertEqual(self.auth.authorize_service(token,self.f.store.action(),'submit'),(d['principal'],200))
+        other=dict(self.f.store.action(),action='e'*32)
+        self.assertEqual(self.auth.authorize_service(token,other,'submit'),(None,403))
+        self.f.credential[0]=token
+        self.assertEqual(self.f.flow.activate(*self.f.args,time=self.f.time)['state'],'confirmed')
+        self.assertEqual(self.f.count(),1)
+
+    def test_changed_binding_with_send_role_still_requires_fresh_link(self):
+        token=self.login();self.link(token)
+        self.accept_changed_binding(['send','receive','enroll','revoke'])
+        self.assertEqual(self.auth.authorize_service(token,self.f.store.action(),'submit'),(None,403))
+        self.f.credential[0]=token
+        self.assertEqual(self.f.flow.activate(*self.f.args,time=self.f.time)['http'],403)
+        self.assertEqual(self.f.count(),0)
+
+    def test_same_principal_in_different_account_cannot_read_or_repeat_effect(self):
+        first=self.login();self.link(first);self.f.credential[0]=first
+        self.assertEqual(self.f.flow.activate(*self.f.args,time=self.f.time)['state'],'confirmed')
+        other=self.login('account-B');self.link(other)
+        for scope in ('status','submit'):
+            self.assertEqual(self.auth.authorize_service(other,self.f.store.action(),scope),(None,403))
+        self.f.credential[0]=other
+        self.assertEqual(self.f.flow.activate(*self.f.args,time=self.f.time,status=True)['http'],403)
+        self.assertEqual(self.f.count(),1)
+        with self.assertRaisesRegex(ValueError,'Immutable action account'):
+            self.auth.provision_action_account(self.f.store.action(),self.f.peer['principal'],'account-B')
+        again=self.login();self.link(again);self.f.credential[0]=again
+        self.assertEqual(self.f.flow.activate(*self.f.args,time=self.f.time,status=True)['state'],'confirmed')
+        self.assertEqual(self.f.count(),1)
 
 class BearerParsing(unittest.TestCase):
     def test_scheme_case_and_error_boundaries(self):

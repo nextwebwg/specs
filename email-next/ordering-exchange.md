@@ -48,9 +48,9 @@ Retain the first complete valid public candidate under stable decision identity.
 
 ## Explicit unsupported and terminal outcomes
 
-Context7 continues selected membership and certified ordering-policy changes. It does not silently enable administrator changes, application/delivery changes, ReInit or subgroup admission. An unsupported requested transition produces an explicit unsupported-operation outcome without publishing a vote or mutating the group. Incoming unsupported MLS proposals/Commits remain held with their exact bytes; they do not become a partial membership transition.
+Context7, and context8 managed mode through its explicit suite binding, continue selected membership and certified ordering-policy changes. It does not silently enable administrator changes, application/delivery changes, ReInit or subgroup admission. An unsupported requested transition produces an explicit unsupported-operation outcome without publishing a vote or mutating the group. Incoming unsupported MLS proposals/Commits remain held with their exact bytes; they do not become a partial membership transition.
 
-Designated-writer profiles do not acquire quorum takeover semantics. Permanent writer/admin loss prevents those privileged transitions; ordinary application use continues only while its existing current authorization permits it. A user may close the local conversation or authorize a separately identified new conversation with fresh admission. Such a conversation is not an authenticated continuation, does not inherit old history access and cannot be represented as successful ReInit. Quorum coordinator succession is supported only while the configured fault bound, available honest quorum and required current authority permit it. Prepared-but-revoked candidates may block progress; ordinary view change does not override that authority veto.
+Designated-writer profiles do not acquire quorum takeover semantics. Permanent writer/admin loss prevents those privileged transitions; ordinary application use continues only while its existing current authorization permits it. A user may [retire the local membership instance](group-conversations.md#when-a-group-cannot-change) or authorize a separately identified new conversation with fresh admission. Local retirement is terminal for that exact instance, not a group-wide closure, archive action or recall of previously submitted mail. Such a conversation is not an authenticated continuation, does not inherit old history access and cannot be represented as successful ReInit. Quorum coordinator succession is supported only while the configured fault bound, available honest quorum and required current authority permit it. Prepared-but-revoked candidates may block progress; ordinary view change does not override that authority veto.
 
 
 ## Implementation evidence
@@ -69,3 +69,18 @@ Legacy local staged rows without validated observation provenance fail closed. A
 ## Combined suite binding
 
 The separately versioned [required conversation suite](suite-profile.md) defines its new assertion, context, invitation, ordering-wrapper and payload selections. It does not change any older version defined here. Its design is specified separately from implementation and acceptance evidence.
+
+
+The current suite's [ordinary-stream branch](suite-profile.md#ordinary-protected-conversations) has its own exact source and recipient-update records. This chapter's managed quorum votes, proofs and coordinator behavior do not apply to that branch. Neither receiving a source control nor losing a quorum permits mode conversion of an established managed conversation.
+
+
+## Reply-aware successor boundary
+
+The [reply-aware protected agreement](reply-intent.md#reply-aware-protected-agreement) defines separately versioned assertion/context/admission and control selections for envelope5. Its original new signatures and exact tuple are required; older records here are not widened. Complete authority, package, receiving-window, ordering and atomicity checks remain in force. Component parsing/selection does not establish joined successor admission or automatic provider/mailbox acquisition.
+
+
+## Current asynchronous managed binding
+
+The current [mail-conversation-v2 agreement](suite-profile.md#asynchronous-protected-agreement) selects managed exchange4/final5 and original assertion10 when managed quorum mode is offered. Its exact signed wrapper and path-edge inventories are inherited through that owning binding; the ordering scopes, candidate commitments, proof graphs, vote safety and durable installation rules here retain their defined meanings. Earlier exchange1/assertion7 and reply-aware encodings remain exact retained agreements, not current support.
+
+Current selected devices share the fixed readable application and declare their interactions independently. Neither a missing optional interaction nor a newly ready intended recipient changes a certified quorum or permits a different prepared value. Ordinary owner-bound streams continue under their separate control rules. A format parser or historical quorum fixture does not establish current managed support.

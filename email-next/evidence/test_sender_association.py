@@ -58,6 +58,57 @@ class SenderAssociationTests(SenderPreparationTests):
                 finally:other.close()
         with SenderWorker(self.sender) as worker:result=worker.submit('selected1',port=server.port,time=self.time,crash=disable)
         server.done();self.assertEqual(result['state'],'aborted-before-data');self.assertIsNone(server.wire)
+    def test_association_disabled_while_waiting_for_data_sends_no_body(self):
+        self.selected_prepare()
+        def disable():
+            other=IdentityStore(self.path)
+            try:self.decision('disable',self.b['principal'],'1',MailboxAssociationStore(other))
+            finally:other.close()
+        server=LocalSMTP(before_data=disable,allow_empty_abort=True)
+        with SenderWorker(self.sender) as worker:
+            result=worker.submit('selected1',port=server.port,time=self.time)
+        server.done()
+        self.assertEqual(result['state'],'aborted-before-data')
+        self.assertEqual(result['result']['phase'],'body-not-released')
+        self.assertIsNone(server.wire)
+
+    def test_policy_changed_while_waiting_for_data_sends_no_body(self):
+        self.selected_prepare()
+        def change():
+            from sender_release import SenderRelease
+            other=IdentityStore(self.path)
+            try:SenderRelease(other,self.binary).configure(expected_revision=1,trust_policy='require-verification')
+            finally:other.close()
+        server=LocalSMTP(before_data=change,allow_empty_abort=True)
+        with SenderWorker(self.sender) as worker:
+            result=worker.submit('selected1',port=server.port,time=self.time)
+        server.done()
+        self.assertEqual(result['state'],'aborted-before-data')
+        self.assertIsNone(server.wire)
+
+    def test_successful_body_release_retains_advanced_authorization_time(self):
+        wire=self.selected_prepare();elapsed=[0]
+        def advance():elapsed[0]=1000000000
+        server=LocalSMTP(before_data=advance)
+        with patch('time.monotonic_ns',side_effect=lambda:elapsed[0]):
+            with SenderWorker(self.sender) as worker:
+                result=worker.submit('selected1',port=server.port,time=self.time)
+        server.done();self.assertEqual(result['state'],'accepted');self.assertEqual(server.wire,wire)
+        retained=json.loads(self.identity.db.execute('SELECT result FROM sender_attempts').fetchone()[0])
+        self.assertEqual(retained['bodyAuthorization']['time'],dict(earliest=str(int(self.time['earliest'])+1),latest=str(int(self.time['latest'])+1)))
+        self.assertEqual(retained['bodyAuthorization']['recipients'],[self.mailbox])
+
+    def test_assertion_expires_while_waiting_for_data_sends_no_body(self):
+        self.selected_prepare();elapsed=[0]
+        def expire():elapsed[0]=601*1000000000
+        server=LocalSMTP(before_data=expire,allow_empty_abort=True)
+        with patch('time.monotonic_ns',side_effect=lambda:elapsed[0]):
+            with SenderWorker(self.sender) as worker:
+                result=worker.submit('selected1',port=server.port,time=self.time)
+        server.done()
+        self.assertEqual(result['state'],'aborted-before-data')
+        self.assertIsNone(server.wire)
+
     def test_second_connection_disable_before_release_blocks_socket(self):
         self.selected_prepare();other=IdentityStore(self.path)
         try:self.decision('disable',self.b['principal'],'1',MailboxAssociationStore(other))

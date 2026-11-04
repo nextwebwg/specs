@@ -20,6 +20,8 @@ class ContributionJournal:
             conversation TEXT NOT NULL, principal TEXT NOT NULL, event TEXT NOT NULL,
             octets BLOB NOT NULL,
             PRIMARY KEY(conversation, principal, event, octets))''')
+        # Conversation is a reference check, not another event namespace.
+        self.db.execute('CREATE INDEX IF NOT EXISTS contribution_event_namespace ON contributions(principal,event)')
         self.db.execute('''CREATE TABLE IF NOT EXISTS derived_views (
             conversation TEXT NOT NULL, name TEXT NOT NULL,
             source_token TEXT NOT NULL, payload TEXT NOT NULL,
@@ -50,28 +52,35 @@ class ContributionJournal:
                 value.get(k) != reference[k] for k in fields)):
             raise ValueError('Validated reference does not match stored bytes')
         identity = tuple(reference[k] for k in fields)
-        found = self.db.execute('SELECT octets FROM contributions WHERE conversation=? AND principal=? AND event=?', identity).fetchall()
-        duplicate = any(row[0] == octets for row in found)
+        found = self.db.execute('SELECT conversation,octets FROM contributions WHERE principal=? AND event=?', identity[1:]).fetchall()
+        duplicate = any(row == (identity[0],octets) for row in found)
         if not duplicate:
             self.db.execute('INSERT INTO contributions VALUES(?,?,?,?)', (*identity, octets))
         count = len(found) + int(not duplicate)
         return {'state': 'conflict' if count > 1 else 'duplicate' if duplicate else 'stored'}
 
     def snapshot_with_token(self, conversation):
-        # One SELECT supplies a consistent snapshot; callers evaluate it without
-        # further live reads, then serialize any later durable effects separately.
-        rows = self.db.execute('SELECT principal,event,octets FROM contributions WHERE conversation=? ORDER BY principal,event,octets', (conversation,)).fetchall()
-        digest = hashlib.sha256(b'email-next/local-journal-snapshot/v0\0')
+        # One statement observes all known variants of this conversation's local
+        # event keys. Foreign-conversation bytes affect conflicts/token only;
+        # they are never returned as that conversation's readable content.
+        rows = self.db.execute("""SELECT local.principal,local.event,variant.conversation,variant.octets
+            FROM (SELECT DISTINCT principal,event FROM contributions WHERE conversation=?) AS local
+            JOIN contributions AS variant ON variant.principal=local.principal AND variant.event=local.event
+            ORDER BY local.principal,local.event,variant.conversation,variant.octets""",(conversation,)).fetchall()
+        # v1 invalidates old caches whose tokens ignored cross-conversation reuse.
+        digest = hashlib.sha256(b'email-next/local-journal-snapshot/v1\0')
         for value in [conversation.encode('utf-8')]:
             digest.update(len(value).to_bytes(8,'big')); digest.update(value)
         grouped = {}
-        for principal, event, octets in rows:
-            for value in (principal.encode('utf-8'), event.encode('utf-8'), octets):
+        for principal,event,source_conversation,octets in rows:
+            for value in (principal.encode('utf-8'),event.encode('utf-8'),source_conversation.encode('utf-8'),octets):
                 digest.update(len(value).to_bytes(8,'big')); digest.update(value)
-            grouped.setdefault((principal,event), []).append(octets)
+            item=grouped.setdefault((principal,event),dict(count=0,local=[]))
+            item['count']+=1
+            if source_conversation==conversation:item['local'].append(octets)
         records = [dict(reference=dict(conversation=conversation,principal=principal,event=event),
-                     state='conflict' if len(variants)>1 else 'recorded', octets=variants)
-                for (principal,event), variants in grouped.items()]
+                     state='conflict' if item['count']>1 else 'recorded', octets=item['local'])
+                for (principal,event),item in grouped.items()]
 
         return {'token':digest.hexdigest(), 'records':records}
 

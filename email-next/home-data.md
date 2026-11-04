@@ -578,6 +578,15 @@ permission; it cannot reassign old custody to another account or create native k
 Account-incarnation reset retains old history privately, not as a grant to the new
 incarnation. Independently authorized mailbox history remains separate.
 
+A continuation may name a renewed READ authorization instead of the original
+role only within the scan's unchanged module, descriptor, owner, account
+incarnation, credential family, link, principal and Device scope. Check that
+requested role's complete current permission. The earlier role need not remain
+active, but its original interval still caps the scan; renewal cannot extend the
+cursor, add references or move the scan to another family/link. A client names
+the renewed role in a new request without rewriting a retained earlier request.
+A role from a newly linked session starts a new cut and deduplicates independently.
+
 :::
 
 ::: {.details summary="Inbox page"}
@@ -593,6 +602,21 @@ All listed members are required. No member has an implicit default.
 | `cursor` | String | Exact opaque continuation or empty only when this cut is exhausted. |
 | `notBefore` | Uint string | Inclusive original interval start. |
 | `notAfter` | Uint string | Exclusive original interval end. |
+
+The app asks its own service for a bounded batch of stored packet references,
+then fetches their contents separately. A page preserves original receipt bytes;
+its authenticated transport establishes the account-private enumeration, while
+sender and conversation authentication belong to the fetched packet's reader.
+
+The entire encoded page MUST fit `maxRequestBytes`, including base64 expansion,
+JSON framing, cursor and interval. `pageSize` is an entry-count ceiling, not a
+required batch length. A page may contain fewer eligible entries to fit that byte
+bound. It MUST NOT truncate a receipt or skip an otherwise eligible reference
+because its complete entry cannot fit. Each positive destination admission must
+retain a receipt that can fit a one-entry page under its descriptor's advertised
+bounds. Refuse incompatible admission/configuration through its owning checks.
+If an existing eligible receipt cannot fit the current scan's bounded page,
+return 503 without successful advancement; do not report an exhausted cut.
 
 This reader uses the following complete scan contract, not rendezvous's
 per-entry source-inspection rule. The first empty-cursor read freezes the ordered
@@ -614,7 +638,59 @@ and next cursor durably before advancing and deduplicates qualified custody
 references. A lost first page permits a new empty-cursor cut, not a reconstructed
 old scan. Unknown/expired/foreign/reset/lost cursors return the same authenticated
 404. No cursor enters a URL or peer request. Payload fetch is separate and its
-complete packet digest/length is checked against the retained receipt.
+complete packet digest/length is checked against the retained receipt. A malformed
+page, invalid receipt encoding or failed required verification cannot advance the
+client's saved continuation.
+
+:::
+
+::: {.details summary="What an inbox receipt establishes"}
+
+### Recipient receipt observation
+
+A recipient can use an inbox entry to locate a packet without receiving the
+sender's complete Upload or the source service's private Release. Those objects
+MUST NOT be disclosed merely to make enumeration possible. Reading the receipt
+therefore has a different verification scope from admitting custody at a service
+or inspecting an own-source Upload already retained by its sender.
+
+The recipient applies the exact signed-wrapper encoding and custody-payload
+schema, canonical types and finite bounds, and requires destination stage and its
+nonempty release digest. The claimed commit interval must be ordered
+(`acceptedFrom` <= `acceptedUntil`) and precede the claimed `retainUntil`.
+These self-consistency checks do not establish original admission containment.
+It preserves the complete original wrapper. It checks that the claimed account
+equals its independently selected actual data account;
+it does not choose an account from the receipt. The custody id is a locator in
+that account/service namespace. Packet length and digests remain byte claims to
+compare with the fetched packet, not authenticated sender or conversation facts.
+Matching those claims does not replace MIME, native/cohort or application admission.
+
+Without the exact Upload, the recipient cannot verify `uploadDigest`, original
+home digests or original admission/retention containment against that request.
+Without the exact Release, it cannot verify that proof's signature or compare its
+payload to `releaseDigest`. Preserve those canonical claimed values without
+reporting their bindings as verified. This recipient observation MUST NOT be
+accepted where the service/source contracts require exact originals.
+
+A retained receipt may name a historical descriptor digest. The current selected
+service key is not automatically that original issuer. If independent admitted
+historical descriptor evidence is available, verify the receipt signature against
+that exact descriptor in the same independently selected service/module context,
+and check that its claimed commit interval fits that descriptor's original
+interval. The account claim still has the separate own-account comparison above;
+that comparison and a valid signature do not establish the missing original
+home delegation. This establishes only that issuer's signed historical claim,
+with the original-binding limits above. It grants no current packet access or endpoint acceptance. A failed such
+verification is a refusal, not a reason to downgrade it to an unverified result.
+Missing historical issuer evidence may leave a bounded lookup candidate under
+an authenticated own-account page; a policy requiring verified issuer evidence
+holds it. Neither case may install a key or issuer trust from the receipt itself.
+
+The service still admits, retains and rechecks its custody resources using the
+complete original Upload, Release and delegated authority. The recipient's limited
+observation mode does not weaken those owning checks or make a receipt proof of
+present storage, reading or durable native/application acceptance.
 
 :::
 

@@ -728,6 +728,21 @@ The recipient uploads it through its current own acceptance route; the service
 returns the exact original only through the sharing-gated peer custody observation.
 The upload acknowledgment alone does not assert that the source received it.
 
+The acceptance interval records the authority-qualified logical application
+Accepted decision that the receiving transaction commits. Sample it for the
+exact original carrier and selected own account, and retain it with that
+decision under the same durability and recovery owner. Final authority checks
+still apply before commit. Only a successful durable decision can support the
+receipt; an aborted or held transition supplies none.
+
+Decoder selection, later signing, network output and recovery time cannot
+replace this interval. An older Accepted record without its original interval
+or exact accepted carrier/account binding cannot acquire those facts from the
+current clock. A later physical wrapper or another account needs its own actual
+acceptance observation. Deduplicating the same protected contribution does not
+let that observation borrow another wrapper's interval or account; it also does
+not require applying the contribution's effects again.
+
 :::
 
 ::: {.details summary="Common representation and signature rules"}

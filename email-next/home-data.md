@@ -325,6 +325,23 @@ Both are canonical padded base64. Possession allows only bounded exact replay of
 this original packet, not new content, another destination or a changed deadline.
 This is not sender-constrained HTTP or proof against the authorized homes.
 
+The source retains one original signed release for an upload before any peer
+output. Later eligible local attempts reuse that release and the frozen forward;
+they do not mint a new release-time statement. Current local permission is checked
+again for each attempt. The retained statement describes its original
+release-authorization time, while the upload's original `notAfter` remains the
+admission deadline.
+
+At the destination, compare the complete decoded upload original and the release's
+exact signed payload and signature bytes. A different valid upload or signed
+release in the same qualified namespace is a 409 conflict; it cannot replace the
+first custody proof or receipt. Validate issuer policy, signatures and bindings
+before treating a record as an authorized collision. Formatting differences in
+the unsigned release-wrapper JSON or outer Forward JSON do not create a new
+operation. An otherwise eligible replay with identical signed children returns
+the first retained receipt and preserves its original proof bytes. Canonical
+base64 and the common exact-member rules still apply.
+
 :::
 
 ::: {.details summary="Custody receipt payload"}

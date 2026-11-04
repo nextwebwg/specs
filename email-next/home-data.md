@@ -684,6 +684,18 @@ authentication, signature or parser never falls through to another owner.
 | `GET /inbox/{custody}` | Current own read role for the actual account/Device; 200 exact original packet as application/octet-stream, not a naked MLS object. No charset/newline transformation. |
 | `PUT /inbox/{custody}/acceptance` | Same own read authority, enabled privacy policy and exact actual Device acceptance; 201 commit, 200 identical retry, 409 different valid record. |
 
+For `GET /inbox/{custody}`, the authenticated actual account and custody id select
+the retained recipient principal and Device. The service selects an installed
+READ role in that same account and current credential family whose principal and
+Device match the retained recipient, and verifies its current Receive authority.
+No additional role header, query parameter or GET body is used. A renewed role may
+authorize this read without changing the original upload or custody receipt.
+If multiple roles match, selection MUST be deterministic. Each selected role must
+pass the complete current checks; a failed role cannot be treated as accepted
+evidence for another. No eligible role gives 404; unavailable current evidence
+gives 503. The chosen role and retained packet remain dependencies of each bounded
+physical response action. Their selection alone is not later output permission.
+
 Account/link/reset routes retain their exact inherited methods and scopes under
 this data prefix. No management credential is sent to a peer path. Any Authorization
 or cookie on peer routes is a closed 400; it never retries management admission.

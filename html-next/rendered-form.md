@@ -153,7 +153,7 @@ A [`<slot of>`](/declarative-components/components#slot-of) outlet renders a chi
 ```
 
 - `of` marks the range as a child's slot. Its value is the index, from 0, of the child's entry in the parent's `as` list at serialization. `slot` names the child's slot, and `fallback` and `scoped` mean what they mean on any range.
-- The child's content for that slot is held in the child's own carrier, inside the child's root, as for any content its own outlets do not render.
+- A child's `<template slot>` for that slot is held in the child's own carrier, inside the child's root, as for any content its own outlets do not render. Plain content renders at one outlet, so its range holds it, as a range holds any plain projected content.
 - Attaching a range needs only the entry order, which hydration reads from the children's roots in content order. Rebuilding each entry's props depends on [explicit prop recovery](#open-questions).
 - When the parent collects its own slot ranges, it skips ranges with `of` and their contents. Walking its template, each `<slot of>` outlet adopts the next such range and attaches it to the child at that index, whose carrier supplies the content.
 

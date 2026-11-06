@@ -43,7 +43,7 @@ A structural directive is a `$`-prefixed attribute. It goes on the element it ap
 
 ## $each: iteration
 
-`$each="item of $items"` binds the named item for each rendered row. The optional second alias in `$each="item, index of $items"` binds its zero-based position after `$where`, `$sort`, and `$limit` have shaped the list. These aliases form a lexical scope for the row and its descendants. Nested iterations can read enclosing aliases; each alias must have a distinct name in its scope.
+`$each="item of $items"` binds the named item for each rendered row. The optional second alias in `$each="item, index of $items"` binds its zero-based position after `$where`, `$sort`, and `$limit` have shaped the list. These aliases form a lexical scope for the row and its descendants. Nested iterations can read enclosing aliases or shadow them with their own names. The item and index aliases within one iteration must differ.
 
 ```html
 <ol>

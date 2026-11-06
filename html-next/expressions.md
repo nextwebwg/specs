@@ -51,7 +51,7 @@ A component's own declarations, `<prop>`, `<state>`, `<computed>`, `<data>`, `<c
 
 | Element | Adds to scope |
 | --- | --- |
-| `$each="item, i of $items"` | `item`, `i`, and `loop` (`.index`/`.first`/`.last`/`.count`) |
+| `$each="item, i of $items"` | `item` and `i` when explicitly named |
 | `$with="expr as owner"` | `owner`, a single alias |
 | `$match="expr as plan"` | `plan`, one alias, available to every arm |
 | scoped `<slot>` | the slot's declared props (e.g. `item`, `index`) |

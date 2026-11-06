@@ -60,7 +60,7 @@ Constraints narrow a declared type. They apply to `<prop>` declarations, includi
 | `minlength`, `maxlength` | `string`, `keyword`, `url`, `email` | A nonempty value outside the inclusive length bounds sets `tooShort` or `tooLong`. Length counts UTF-16 code units, as in HTML.[^17] |
 | `min`, `max` | `integer`, `number`, `date`, `month`, `week`, `time`, `datetime-local`, `datetime` | A nonempty value outside the inclusive bounds sets `rangeUnderflow` or `rangeOverflow`. Bounds use the declared type's written form. |
 
-An omitted optional prop without a default resolves to `null`; constraints other than `required` do not reject it. An empty string also skips those constraints. A constraint that does not apply to its declared type, or has an invalid value, is ignored by the live parser with a declaration warning; build tools report a declaration error. A `default` must satisfy every applicable constraint. See [Validation](/declarative-components/validation) for the resulting validity state.
+An omitted prop without a default resolves to `null`. `required` makes that value invalid; other constraints do not reject it. An empty string also skips those other constraints. A constraint that does not apply to its declared type, or has an invalid value, is ignored by the live parser with a declaration warning; build tools report a declaration error. A `default` must satisfy every applicable constraint. See [Validation](/declarative-components/validation) for the resulting validity state.
 
 ### Finite choices
 
@@ -74,7 +74,7 @@ The `values` attribute limits a prop to a comma-separated set of values of its d
 <x-meter level="3"></x-meter>
 ```
 
-Whitespace around commas is ignored. An item that does not conform to `type` invalidates the whole `values` constraint, as though `values` were absent. Build tools, including the unplugin, report this as a declaration error. The live browser parser warns and ignores the constraint. A bound result must have the declared JavaScript type to be written; a result outside `values` is still written and sets `typeMismatch`. For `type="integer" values="1, 2, 3"`, `level="3"` and `from:level="3"` produce the number `3`; a bound result of `4` becomes `4` with `typeMismatch`, while `from:level="'3'"` skips its write because the expression produces a string. All declared props still accept `null` unless required.
+Whitespace around commas is ignored. An item that does not conform to `type` invalidates the whole `values` constraint, as though `values` were absent. Build tools, including the unplugin, report this as a declaration error. The live browser parser warns and ignores the constraint. A bound result must have the declared JavaScript type to be written; a result outside `values` is still written and sets `typeMismatch`. For `type="integer" values="1, 2, 3"`, `level="3"` and `from:level="3"` produce the number `3`; a bound result of `4` becomes `4` with `typeMismatch`, while `from:level="'3'"` skips its write because the expression produces a string. All declared props accept `null`, which restores the declared default or resolves to `null` without one. `required` affects validity, as [Null and missing values](/declarative-components/types#null-and-missing-values) describes.
 
 ### Text patterns and lengths
 

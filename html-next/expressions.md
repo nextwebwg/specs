@@ -93,6 +93,8 @@ array     := "[" (expr ("," expr)* ","?)? "]"
 
 A `$`-prefixed name reads a declared value. A literal list index can be dotted or bracketed: `$items.0.name` and `$items[0].name` both read the first item's `name` and have the dependency path `items.0.name`, without the expression's `$` reference marker. Directly written integer keys retain their exact spelling in either form, so `$byId.9007199254740993` and `$byId[9007199254740993]` read the same object key without rounding it. Brackets also accept a computed key, such as `$items[$index]`, or a quoted object key that cannot be written as a dot segment.
 
+A list's `.length` returns its item count as a non-negative integer. An empty list has length `0`. This member follows the same missing-data and declared-type checks as other reference reads.
+
 `test ? yes : no` tests the same truthiness as `$if`, evaluates only the selected branch, and returns that branch's value without coercion. It is for a small inline value choice, such as `from:aria-current="$activeStep = $index ? 'step' : null"`; use `$match` when whole markup differs. All three branches participate in static name and dependency checks.
 
 Equality and string matching are spelled the way **CSS attribute selectors** already spell them. The language is assignment-free, so a single `=` means *equal* with nothing to disambiguate it from, and the selector match family carries over directly:

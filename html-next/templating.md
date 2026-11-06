@@ -41,6 +41,23 @@ A structural directive is a `$`-prefixed attribute. It goes on the element it ap
 > [!note] Structural directives survive HTML parsing
 > An attribute on a context-valid element survives HTML parsing, and a group can use a `<template>`, which is valid everywhere and preserves its direct children (a `<tr>` stays a `<tr>`). A hyphenless wrapper such as `<for>` or `<match>` is instead foster-parented out of a `<table>` and dropped in a `<select>` (verified against the reference parser). Angular's structural directives `*ngIf`/`*ngFor` follow the same element-level approach.[^7] The `$` marks the attribute as a directive and stays clear of the native `for`/`as` attributes a bare name would shadow.
 
+## $each: iteration
+
+`$each="item of $items"` binds the named item for each rendered row. The optional second alias in `$each="item, index of $items"` binds its zero-based position after `$where`, `$sort`, and `$limit` have shaped the list. These aliases form a lexical scope for the row and its descendants. Nested iterations can read enclosing aliases; each alias must have a distinct name in its scope.
+
+```html
+<ol>
+  <li $each="product, index of $products" $key="$product.id">
+    { $index + 1 }: {$product.name}
+  </li>
+</ol>
+<p>{$products.length} products</p>
+```
+
+A list's `.length` gives the number of items in that list, including zero for an empty list. It counts the referenced list, so `$products.length` still counts all products when an iteration filters or limits its rows. See [Expressions](/declarative-components/expressions).
+
+For presentation of the first or last rendered child, use CSS structural selectors such as `:first-child` and `:last-child` on the resulting markup.
+
 ## Inline text expressions
 
 Authored template text inserts a value with `{expression}`. Every insertion has explicit opening and closing braces, including a simple path such as `{$user.name}`. Each expression uses the same scope, reactive dependencies, escaped-text conversion, absent-value behavior, and invalid-result retention as `$value`. Surrounding text and elements stay as written. For a sole read, `<td>{$r.name}</td>` and `<td $value="$r.name"></td>` have the same observable output.
@@ -360,7 +377,7 @@ Modifiers
 : `$where`, `$sort` (`p.a,-p.b`), `$limit`, `$key`
 
 Scope
-: binds the alias (and index) in a lexical layer; `loop.index/first/last/count`
+: binds only the named item alias and optional named index alias in a lexical layer
 
 Level
 : [L1]{.pill .l1}

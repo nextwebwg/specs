@@ -714,7 +714,7 @@ A slot that owns iteration gives each row's props the same way. Here the outlet 
     <prop name="index" type="number" required>The row's position.</prop>
   </slot>
 </defs>
-<table><tr $each="row of $rows" $key="$row.id"><template $slot="row" kind="person" from:item="$row" from:index="$loop.index"></template></tr></table>
+<table><tr $each="row, index of $rows" $key="$row.id"><template $slot="row" kind="person" from:item="$row" from:index="$index"></template></tr></table>
 
 <!-- use: the template's scope is { kind, item, index } -->
 <x-list from:rows="$people">

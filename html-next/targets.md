@@ -16,9 +16,9 @@ Whatever the target, a generator turns one HTML Next source into that target's i
 
 - use the contract's PascalCase name for the exported component;
 - preserve the native root element;
-- pass through native consumer attributes;
+- preserve explicit [`$attributes` forwarding](/declarative-components/components#attribute-forwarding), including its destination, consumed-prop exclusions, and authored-order precedence;
 - apply the contract's declared defaults;
-- serialize each prop to its target per the contract;
+- apply prop values through the bindings authored in the template;
 - project children into the default slot;
 - import or reference the generated CSS exactly once; and
 - produce deterministic output for deterministic input.

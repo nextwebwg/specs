@@ -516,9 +516,9 @@ A generated React, Vue, or Svelte component [must]{.kw} produce the same head co
 
 ## Native lowering and explicit root branches
 
-A component [should]{.kw} lower to the native element named by `nativeElement`: a button component *is* a real `<button>`, so form association, focus, and accessibility are the browser's. Undeclared invocation attributes pass through to that root; owned template attributes and prop targets take precedence.
+A component [should]{.kw} lower to the native element named by `nativeElement`: a button component *is* a real `<button>`, so form association, focus, and accessibility are the browser's. Invocation attributes not assigned to declared props are forwarded only where the definition writes [`$attributes`](#attribute-forwarding). The directive's position determines precedence with the destination's authored attributes.
 
-A polymorphic component declares `as` as a keyword prop constrained to its supported roots and selects between explicit native roots with `$match`. The prop selects a branch: the definition contains the actual `<button>` and `<a>` branches that it may render, each with its own tag. Like any `$match`, the selection follows the prop: when it changes, the newly selected branch's element takes the previous root's place, keeping the instance's state, the consumer's projected content, and the attributes the consumer supplied.
+A polymorphic component declares `as` as a keyword prop constrained to its supported roots and selects between explicit native roots with `$match`. The prop selects a branch: the definition contains the actual `<button>` and `<a>` branches that it may render, each with its own tag. Like any `$match`, the selection follows the prop: when it changes, the newly selected branch's element takes the previous root's place, keeping the instance's state and the consumer's projected content. Each branch places `$attributes` where it forwards the remaining invocation attributes.
 
 ```html
 <template component="x-button">
@@ -528,8 +528,8 @@ A polymorphic component declares `as` as a keyword prop constrained to its suppo
 
   <!-- Both possible native roots are visible in the definition. -->
   <template $match>
-    <a $when="$as = 'a'"><slot></slot></a>
-    <button $else><slot></slot></button>
+    <a $when="$as = 'a'" $attributes><slot></slot></a>
+    <button $else $attributes><slot></slot></button>
   </template>
 </template>
 
@@ -540,21 +540,73 @@ A polymorphic component declares `as` as a keyword prop constrained to its suppo
 > [!note] Conformance
 > The selected branch [must]{.kw} produce exactly one significant root. Each branch carries its own native attribute surface, so generated framework types can narrow attributes from the `as` value: `href` belongs to the `a` branch, for example.
 
+### Explicit attribute forwarding: $attributes {#attribute-forwarding}
+
+`$attributes` is a **valueless directive** on a rendered native element or component invocation. It forwards this component invocation's attributes that are **not assigned to declared props** to that destination. It may be written on the root or on an element inside the component.
+
+Declared props are consumed before forwarding. A prop's name and its attribute-name mapping identify its input; whether the template reads that prop does not change consumption. An attribute assigned to a prop [must not]{.kw} also be forwarded by `$attributes`. A prop reaches a rendered attribute only through a binding the template writes.
+
+```html
+<template component="x-button">
+  <defs>
+    <prop name="label" type="string">Button text.</prop>
+  </defs>
+  <button $attributes>{$label}</button>
+</template>
+
+<x-button label="Save" id="save" aria-label="Save changes"></x-button>
+
+<!-- label is a prop input; id and aria-label are forwarded attributes -->
+<button component="x-button" id="save" aria-label="Save changes">Save</button>
+```
+
+Forwarding is **opt-in**. Without `$attributes`, remaining invocation attributes are not copied into the component's rendered markup. There are no always-forward exceptions for `id`, `class`, `style`, or `aria-*`. The directive supplies no expression variable or attribute object.
+
+**Order matters.** Attribute writes are applied in authored order. `$attributes` applies the forwarded attributes at its position among the destination's attributes. A later write to the same attribute wins, including a later binding or a forwarded value. The same order applies on initial rendering, hydration, and later updates; existing absent-value and invalid-result rules still apply. A literal paired with a `from:` binding remains that binding's fallback, wherever the literal is written. The binding writes at the `from:` attribute's position; the fallback literal is not a separate competing write.
+
+```html
+<!-- Given an undeclared invocation attribute title="Caller": -->
+
+<!-- The explicit template attribute comes later, so title is "Template". -->
+<button $attributes title="Template">Save</button>
+
+<!-- Forwarding comes later, so title is "Caller". -->
+<button title="Template" $attributes>Save</button>
+```
+
+This is ordered attribute application, not an automatic merge of `class` or `style` across the component boundary. Whole `class` and `style` attributes and individual class/style bindings retain their ordinary authored-order behavior. Forwarded attributes use the same namespace, URL, and security rules as other attribute writes.
+
+**The author chooses the destination.** An input's attributes can go on the input while its wrapper remains the component root:
+
+```html
+<template component="x-field">
+  <div class="field"><input $attributes></div>
+</template>
+
+<x-field id="email" type="email" aria-label="Email"></x-field>
+
+<div class="field" component="x-field">
+  <input id="email" type="email" aria-label="Email">
+</div>
+```
+
+On a component invocation, forwarded attributes become inputs to that component. It consumes its own declared props first and forwards any remaining attributes only where its own definition writes `$attributes`. Delegation does not implicitly forward an attribute through another boundary.
+
 ## Lowering, provenance & hydration
 
-Lowering is **destructive and directional**. The `<template component>` is the definition and renders nothing; `<x-button>` is the *invocation* the author writes; lowering **replaces** the invocation with the definition's native root. `<x-button>` becomes a real `<button>`. Children land where the `<slot>` was, declared props map to their targets, and undeclared attributes pass through.
+Lowering is **destructive and directional**. The `<template component>` is the definition and renders nothing; `<x-button>` is the *invocation* the author writes; lowering **replaces** the invocation with the definition's native root. `<x-button>` becomes a real `<button>`. Children land where the `<slot>` was, declared props reach the bindings the template writes, and `$attributes` explicitly forwards the remaining invocation attributes.
 
 ```html
 <!-- definition: written once, inert, renders nothing -->
 <template component="x-button">
-  <button><slot></slot></button>
+  <button $attributes><slot></slot></button>
 </template>
 
 <!-- invocation: what you write on the page -->
 <x-button variant="solid">Save</x-button>
 
 <!-- output: identical whether lowered on the server or in the browser -->
-<button component="x-button">Save</button>
+<button component="x-button" variant="solid">Save</button>
 ```
 
 > [!norm] Determinism: one DOM, either path
@@ -572,7 +624,7 @@ Polyfills [must]{.kw} accept `data-component` when `component` is absent. When b
 
 Implementations [must not]{.kw} synchronize the attributes automatically. Hydration adopts the existing root using its effective identity without rewriting its identity attribute. Serialization writes only the selected spelling with that effective token list. The fallback carries the same ordered tokens as the canonical spelling. Native implementations use `component`; the compatibility read rule is for polyfills.
 
-The root's visible attributes come from the template, its bindings, and invocation attributes that pass through. A prop is input to that rendering; it reaches the root's attributes only through a binding the template writes. The reference runtime may carry prop data for hydration, in a storage format internal to the runtime. Recovering explicit prop values after server rendering remains a [rendered-form question](/declarative-components/rendered-form). See [Types](/declarative-components/types) for how authored values are parsed.
+The root's visible attributes come from the template, its bindings, and any invocation attributes explicitly forwarded there with `$attributes`. A prop is input to that rendering; it reaches the root's attributes only through a binding the template writes. The reference runtime may carry prop data for hydration, in a storage format internal to the runtime. Recovering explicit prop values after server rendering remains a [rendered-form question](/declarative-components/rendered-form). See [Types](/declarative-components/types) for how authored values are parsed.
 
 A literal attribute on the invocation supplies the prop's **initial configuration**. Afterwards a prop changes through a parent template's `from:name` binding or the props a framework passes. Such a change updates bindings and state derived from that prop.
 
@@ -786,7 +838,7 @@ A column's root is the header cell it renders. It declares a `cell` slot, which 
 
 ```html title="x-column.html"
 <template component="x-column" summary="One column of x-datatable.">
-  <th scope="col"><slot name="header">{$header}</slot></th>
+  <th $attributes scope="col"><slot name="header">{$header}</slot></th>
   <defs>
     <prop name="field" type="string">The row field a cell shows when no cell content is given.</prop>
     <prop name="header" type="string">The header text.</prop>
@@ -895,7 +947,7 @@ A page writes the columns as the table's children:
 
 ### Columns render where they are written {#columns-render}
 
-Each column's root `<th>` is placed by the table's default outlet, in the header row. A column is therefore a real, connected component instance, with its own events, controller, `:host` styles, an `aria-sort` binding when it declares one, and pass-through attributes such as `class`. Its cell content is the one part the table places elsewhere.
+Each column's root `<th>` is placed by the table's default outlet, in the header row. A column is therefore a real, connected component instance, with its own events, controller, `:host` styles, an `aria-sort` binding when it declares one, and attributes such as `class` explicitly forwarded by its `$attributes` directive. Its cell content is the one part the table places elsewhere.
 
 ### A child's slot, placed by its parent: <slot of> {#slot-of}
 
@@ -913,7 +965,7 @@ Each column's root `<th>` is placed by the table's default outlet, in the header
 
 - [Context](#component-ancestry-for-shared-state) for the cell content runs from the cell content to the `x-column`, then to the `x-datatable`.
 - [Requests](/declarative-components/javascript#requests) follow the DOM event path, from the cell up through the table.
-- Styles reach the cell content from the page, which wrote it, and from the table, which owns its `<td>`. A column's own styles and its pass-through `class` reach its `<th>`. A column that styles its cells declares a prop that the table binds on the `<td>`, such as `class:end="$column.align == 'end'"`.
+- Styles reach the cell content from the page, which wrote it, and from the table, which owns its `<td>`. A column's own styles and the `class` forwarded to its `<th>` with `$attributes` reach that header. A column that styles its cells declares a prop that the table binds on the `<td>`, such as `class:end="$column.align == 'end'"`.
 
 **In a controller.** The table's `host.slots.default` lists the columns' roots in list order, and `host.state.columns` is the read-only list of entries. A column's `host.slots.cell` lists every rendered instance of its cell content, in document order. See the [JavaScript layer](/declarative-components/javascript).
 
@@ -1117,8 +1169,15 @@ Delegation still resolves to a single native element, transitively through the c
 
 ```html
 <!-- delegation: a preset built from another component -->
+<template component="x-button">
+  <defs>
+    <prop name="variant" type="keyword" values="solid, outline" default="outline">Variant.</prop>
+  </defs>
+  <button $attributes><slot></slot></button>
+</template>
+
 <template component="x-primary">
-  <x-button variant="solid"><slot></slot></x-button>
+  <x-button $attributes variant="solid"><slot></slot></x-button>
 </template>
 
 <x-primary>Save</x-primary>
@@ -1127,7 +1186,7 @@ Delegation still resolves to a single native element, transitively through the c
 <button component="x-primary x-button">Save</button>
 ```
 
-A delegating component forwards like any other lowering: its own declared props are applied through the bindings in its markup, template-owned attributes (here `variant="solid"`) take precedence, and any undeclared invocation attributes pass through to the delegated root and continue down the chain. Its `nativeElement` and native attribute surface are whatever the chain ultimately resolves to, so its generated types inherit that surface.
+A delegating component forwards explicitly with `$attributes`, like any other component. In this example, `x-button` declares `variant` as a prop. The preset writes `variant="solid"` after `$attributes`, so that written input wins a collision. Each component consumes its own declared props; any remaining attributes continue only through an authored `$attributes` directive at the next boundary. Its `nativeElement` remains the native root the chain resolves to.
 
 > [!note] The Level 1 single-root boundary
 > A component that emits sibling `<li>`, `<tr>`, or `<option>` elements would have no single native element for invocation attributes, the provenance stamp, `:host`, controller `host.root`, or element events and methods. The source syntax also fails in a key case: when HTML parses an `<x-rows>` invocation inside `<tbody>`, it moves the custom element outside the table while keeping the `<tr>` elements inside. A browser runtime cannot reliably recover that invocation-to-output relationship from the parsed DOM. A `<template>` carrier survives there, but would be a different invocation form, not a fragment variant of the current component contract.

@@ -8,7 +8,7 @@ status: Stage 0 · Level 1 proposal
 
 # Templating
 
-Control flow is a family of **marked directives on ordinary elements**: `$each`, `$if`, `$match`, `$await`, `$with`, `$value`. A leading `$` marks a *structural* directive, it controls whether, how many times, or in what scope markup is produced, distinct from the `:` binding family that sets values. Control flow is written as **attributes**: each directive goes on an ordinary element or a `<template>`, so it survives every parser context, including tables, and lowering removes it from the output.
+Control flow is a family of **marked directives on ordinary elements**: `$each`, `$if`, `$match`, `$await`, `$with`, `$value`. A leading `$` marks a template directive: structural control flow, content output, or explicit attribute forwarding. The `:` binding family sets individual values. Control flow is written as **attributes**: each directive goes on an ordinary element or a `<template>`, so it survives every parser context, including tables, and lowering removes it from the output.
 
 `$slot` is also a `$` directive: it turns a `<template>` into a slot outlet for places such as tables, where the HTML parser keeps a `<template>` in place (see [Outlets in tables](/declarative-components/components#parser-safe-outlets)).
 
@@ -36,6 +36,7 @@ A structural directive is a `$`-prefixed attribute. It goes on the element it ap
 | `$await="$product"` · `$error` · `$else` | Show an accepted value, a loading failure, or the unresolved fallback. An optional `binding of $product` names status. |
 | `$with="expr as name"` | Bind `expr` to `name` in scope for the children. |
 | `$value="expr"` · `$html="expr"` | Set the content to escaped text, or to sanitized HTML. |
+| `$attributes` | Forward invocation attributes not assigned to declared props at this authored position (see [attribute forwarding](/declarative-components/components#attribute-forwarding)). |
 | `$where` `$sort` `$limit` `$key` | Iteration modifiers on `$each`. |
 
 > [!note] Structural directives survive HTML parsing

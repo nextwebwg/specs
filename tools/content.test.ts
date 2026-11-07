@@ -98,8 +98,8 @@ test("polymorphic roots use explicit native branches", () => {
   const components = chapter("components");
 
   assert.match(components, /<prop name="as" type="keyword" values="button, a" default="button">/);
-  assert.match(components, /<a \$when="\$as = 'a'">/);
-  assert.match(components, /<button \$else>/);
+  assert.match(components, /<a \$when="\$as = 'a'" \$attributes>/);
+  assert.match(components, /<button \$else \$attributes>/);
   assert.doesNotMatch(components, /<button as="button \| a">/);
   assert.match(components, /The prop selects a branch: the definition contains the actual `<button>` and `<a>` branches/);
 });

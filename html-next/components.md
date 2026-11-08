@@ -516,7 +516,7 @@ A generated React, Vue, or Svelte component [must]{.kw} produce the same head co
 
 ## Native lowering and explicit root branches
 
-A component [should]{.kw} lower to the native element named by `nativeElement`: a button component *is* a real `<button>`, so form association, focus, and accessibility are the browser's. Undeclared invocation attributes pass through to that root; owned template attributes and prop targets take precedence.
+A component [should]{.kw} lower to the native element named by `nativeElement`: a button component *is* a real `<button>`, so form association, focus, and accessibility are the browser's. Undeclared invocation attributes pass through to that root according to [attribute forwarding](#attribute-forwarding); owned template attributes and prop targets take precedence over automatic forwarding.
 
 A polymorphic component declares `as` as a keyword prop constrained to its supported roots and selects between explicit native roots with `$match`. The prop selects a branch: the definition contains the actual `<button>` and `<a>` branches that it may render, each with its own tag. Like any `$match`, the selection follows the prop: when it changes, the newly selected branch's element takes the previous root's place, keeping the instance's state, the consumer's projected content, and the attributes the consumer supplied.
 
@@ -540,9 +540,55 @@ A polymorphic component declares `as` as a keyword prop constrained to its suppo
 > [!note] Conformance
 > The selected branch [must]{.kw} produce exactly one significant root. Each branch carries its own native attribute surface, so generated framework types can narrow attributes from the `as` value: `href` belongs to the `a` branch, for example.
 
+## Attribute forwarding {#attribute-forwarding}
+
+By default, a component [must]{.kw} apply its unconsumed invocation attributes as though a valueless `$attributes` directive appeared **first** on its rendered root, before every authored attribute and binding. This applies to a native root, a delegated component root, and the selected native arm of a root `$match`.
+
+Only attributes that do not supply a declared prop belong to `$attributes`. A declared prop is consumed by its component's input contract, even when the supplied value is rejected; forwarding [must not]{.kw} expose it on the root as an extra attribute. At a delegated component boundary, forwarded attributes pass through that receiving component's prop contract in the same way as authored invocation attributes.
+
+```html
+<template component="x-button">
+  <button title="Template"><slot></slot></button>
+</template>
+
+<x-button id="save" title="Caller">Save</x-button>
+<!-- The root receives id="save" and title="Caller" first.
+     Its authored title then replaces "Caller" with "Template". -->
+```
+
+The boolean `noforward` attribute on the defining `<template component>` disables automatic root forwarding. Its presence controls this behavior. With `noforward`, attributes are forwarded only where the author places `$attributes`; omitting `$attributes` leaves them unapplied. This setting controls invocation attributes independently of CSS inheritance.
+
+```html
+<template component="x-field" noforward>
+  <div class="field">
+    <input $attributes>
+  </div>
+</template>
+
+<x-field id="email" aria-label="Email"></x-field>
+<!-- id and aria-label reach the input. -->
+```
+
+An explicit `$attributes` directive [must]{.kw} apply attributes at its authored position, in source order with the element's other attributes and bindings. Later writes to the same attribute take precedence. An explicit placement does not itself disable the default root placement; use `noforward` when directing attributes elsewhere.
+
+```html
+<template component="x-caller-title" noforward>
+  <button title="Template" $attributes><slot></slot></button>
+</template>
+<!-- The caller's title wins. -->
+
+<template component="x-template-title" noforward>
+  <button $attributes title="Template"><slot></slot></button>
+</template>
+<!-- The template's title wins. -->
+```
+
+> [!note] Attribute name
+> `noforward` names automatic attribute forwarding without suggesting a change to CSS inheritance. Its spelling follows HTML's existing `no` attributes, such as `novalidate` and `nomodule`.
+
 ## Lowering, provenance & hydration
 
-Lowering is **destructive and directional**. The `<template component>` is the definition and renders nothing; `<x-button>` is the *invocation* the author writes; lowering **replaces** the invocation with the definition's native root. `<x-button>` becomes a real `<button>`. Children land where the `<slot>` was, declared props map to their targets, and undeclared attributes pass through.
+Lowering is **destructive and directional**. The `<template component>` is the definition and renders nothing; `<x-button>` is the *invocation* the author writes; lowering **replaces** the invocation with the definition's native root. `<x-button>` becomes a real `<button>`. Children land where the `<slot>` was, declared props map to their targets, and unconsumed attributes follow the [forwarding rules](#attribute-forwarding).
 
 ```html
 <!-- definition: written once, inert, renders nothing -->
@@ -1127,7 +1173,7 @@ Delegation still resolves to a single native element, transitively through the c
 <button component="x-primary x-button">Save</button>
 ```
 
-A delegating component forwards like any other lowering: its own declared props are applied through the bindings in its markup, template-owned attributes (here `variant="solid"`) take precedence, and any undeclared invocation attributes pass through to the delegated root and continue down the chain. Its `nativeElement` and native attribute surface are whatever the chain ultimately resolves to, so its generated types inherit that surface.
+A delegating component follows the same [attribute forwarding rules](#attribute-forwarding): its declared props are applied through the bindings in its markup, and unconsumed invocation attributes apply first on the delegated root unless `noforward` selects explicit placement. Template-owned attributes (here `variant="solid"`) therefore take precedence over automatic forwarding. Its `nativeElement` and native attribute surface are whatever the chain ultimately resolves to, so its generated types inherit that surface.
 
 > [!note] The Level 1 single-root boundary
 > A component that emits sibling `<li>`, `<tr>`, or `<option>` elements would have no single native element for invocation attributes, the provenance stamp, `:host`, controller `host.root`, or element events and methods. The source syntax also fails in a key case: when HTML parses an `<x-rows>` invocation inside `<tbody>`, it moves the custom element outside the table while keeping the `<tr>` elements inside. A browser runtime cannot reliably recover that invocation-to-output relationship from the parsed DOM. A `<template>` carrier survives there, but would be a different invocation form, not a fragment variant of the current component contract.
@@ -1138,7 +1184,7 @@ A delegating component forwards like any other lowering: its own declared props 
 
 ::: {.entry name="<template component>" role="component definition"}
 Attributes
-: `component`: the invocation tag (hyphenated, collision-safe) · optional `controller`: one relative, URL-like, or bare ES-module specifier · optional `status`, `summary`.
+: `component`: the invocation tag (hyphenated, collision-safe) · optional `controller`: one relative, URL-like, or bare ES-module specifier · optional boolean `noforward`: disables automatic [attribute forwarding](#attribute-forwarding) · optional `status`, `summary`.
 
 Children
 : an optional `<defs>` region, one markup root, optional `<style>`.

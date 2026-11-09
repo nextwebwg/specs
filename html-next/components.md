@@ -668,6 +668,8 @@ Conditional and repeated content goes to the slot its `slot` attribute names whe
 
 ### Content that renders on demand {#content-that-renders-on-demand}
 
+Framework converters follow the [conversion lifecycle contract](/declarative-components/targets#framework-lifecycle): exact lifecycle and node identity are not requirements for conversion. They use their framework’s normal reconciliation and hydration while preserving the user experience. The ownership rules below define native projection behavior; they do not require converters to reproduce internal lifecycle mechanics with no effect on the user.
+
 Projected elements belong to the consumer, so they exist as soon as the consumer renders. They load their resources and bind even while their slot is not rendered, for example under a false `$if`. Only a component invoked among them waits: it is set up when a slot first places it. To defer the elements themselves until their slot renders, wrap them in a `<template slot="name">`:
 
 ```html

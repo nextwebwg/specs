@@ -47,16 +47,26 @@ Docs
 
 ## The equivalence contract
 
-This is what makes "many backends" trustworthy: pick any two targets and their output must be the **same program**, observably. Two executions are equivalent when their lowered native roots share:
+Conversion requires an **identical user experience**. Each framework target uses its framework’s normal rendering, reconciliation and hydration behavior. Exact component lifecycle is not a conversion requirement.
+
+Two executions are equivalent when their lowered native roots share:
 
 - the same namespace and tag name;
 - the same effective attributes (order-independent);
 - the same assigned property values for explicit property bindings;
-- equivalent child order, text, and identity;
+- equivalent visible child order and text;
 - the same native focus, form, and accessibility semantics; and
 - the same validation failures for invalid source.
 
 Hydration markers and development-only attributes are excluded from the comparison, but an adapter [must not]{.kw} add semantic wrapper elements.
+
+### Framework lifecycle {#framework-lifecycle}
+
+A framework target [may]{.kw} create new DOM nodes or component instances during reconciliation, hydration or outlet changes, as its framework normally does. It does not have to reproduce the native implementation’s setup, mount, unmount or effect timing, or preserve exact DOM or framework instance identity. These internal differences are not conformance failures by themselves.
+
+The user experience remains the requirement: rendered content and placement, interactions, focus, form behavior and accessibility must agree. Tests [must]{.kw} check those outcomes rather than require matching lifecycle counts, private ownership trees or object identity with no effect on the user.
+
+Converters [should]{.kw} use supported framework primitives. An adapter [must not]{.kw} patch framework internals or introduce custom event or view-retention machinery solely to reproduce lifecycle mechanics that have no effect on the user. Integration code that addresses a demonstrated difference in user experience must preserve the framework’s normal event and rendering behavior.
 
 > [!ex] CLI
 > A generator's command line takes a source and an output directory, for example:

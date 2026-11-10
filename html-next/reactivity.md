@@ -10,6 +10,14 @@ status: Stage 0 · Level 1 proposal
 
 Reactivity is a **declared dependency graph in markup**: mutable state, computed state, and external resources, each with a distinct lifecycle. The graph is statically analyzable, so it lowers to React state, Vue refs, Svelte runes, or a signal-based browser runtime: one semantics, many backends.
 
+## Host-independent dataflow
+
+This section is non-normative.
+
+Bindings and computed expressions name values declared by the component. Their dependency relationships belong to the component language, independently of the host application's programming language. Different hosts can therefore evaluate the same declared dataflow. For example, a server host written in C# can evaluate initial values, and a browser host written in JavaScript can continue evaluating dependencies from the same component definition. [Rendered-form adoption](/declarative-components/rendered-form) preserves the declared initialization and ownership behavior.
+
+Host-specific modules remain an explicit boundary. Their code keeps its own language and capabilities; executing it requires support for that language or an application adapter. The portable part is the declared component dataflow.
+
 ## Reactive values and resources
 
 HTML Next keeps a few concepts separate, because their lifecycles differ. All of them are declarations: they live in the definition's `<defs>` region (see [Components](/declarative-components/components)).

@@ -271,6 +271,12 @@ class Compiler {
         case "span_close": out += "</span>"; break;
         case "inline_element": out += t.content; break;
         case "footnote_ref": out += `<sup class="ref"><a href="#r${t.info}">${t.info}</a></sup>`; break;
+        case "image": {
+          const src = this.resolveHref(t.attrGet("src")!);
+          const title = t.attrGet("title");
+          out += `<img src="${escapeText(src)}" alt="${escapeText(plainText(t))}"${title === null ? "" : ` title="${escapeText(title)}"`}>`;
+          break;
+        }
         case "link_open": {
           const href = this.resolveHref(t.attrGet("href")!);
           // Chapter routes navigate client-side; file assets need browser

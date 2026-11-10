@@ -25,6 +25,12 @@ A short introduction.
 The guide body.
 `;
 
+test("Markdown images retain accessible text, escaped attributes and surrounding links", () => {
+  const { sfc } = compileChapter(source + '\n[![Native **C#** & "rendering"](/charts/native.svg?x=1&y=2 "Time & output")](https://example.com/results)\n');
+  assert.ok(sfc.includes('<a href="https://example.com/results"><img src="/charts/native.svg?x=1&amp;y=2" alt="Native C# &amp; &quot;rendering&quot;" title="Time &amp; output"></a>'));
+  assert.ok(compileChapter(source + '\n![Chart](/charts/native.svg)\n').sfc.includes('<img src="/charts/native.svg" alt="Chart">'));
+});
+
 test("chapter outlines use rendered heading IDs and exclude examples and disclosure details", () => {
   const { outline, sfc } = compileChapter(`${source}
 ### Paragraphs {#prose}

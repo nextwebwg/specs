@@ -176,7 +176,7 @@ and its shared owning transactions, with this profile and these exact selections
 The challenge request, challenge, completion and result have exactly the same
 member inventories and types as that string-time matrix, with the profile and
 purpose selections above. Reset request/preparation/current-account/retained-state
-use exactly the [association reset member inventories](mailbox-registration.md#reset-this-connection-without-replacing-a-contacts-identity)
+use exactly the [association reset member inventories](mailbox-registration.md#reset-this-connection-without-replacing-a-contact-s-identity)
 with these package purposes and scopes. Apply original-family completion,
 continuing-owner inspection, separate fresh account-UI approval, atomic incarnation
 rotation, retained negative state and uncertainty rules. A reset disables this

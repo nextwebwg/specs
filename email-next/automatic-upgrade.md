@@ -41,7 +41,7 @@ A ready direction can progress while another waits under the [delivery plan](del
 
 Automatic responses require trustworthy direct-delivery and source-authentication evidence. A valid DKIM signature does not authenticate the SMTP envelope, prove mailbox-local-part ownership or independently identify a human. Arbitrary Return-Path or Authentication-Results headers downloaded over an authenticated mailbox connection are not enough.
 
-Some legacy account interfaces do not expose the required evidence. The person can still read the ordinary email, but automatic setup remains unavailable on that input. This chapter does not claim broad provider interoperability from a MIME or cryptographic experiment. [The source and target gates](#4-source-and-target-gates-before-automatic-answering) define the exact supported-input boundary.
+Some legacy account interfaces do not expose the required evidence. The person can still read the ordinary email, but automatic setup remains unavailable on that input. This chapter does not claim broad provider interoperability from a MIME or cryptographic experiment. [The source and target gates](#section-4-source-and-target-gates-before-automatic-answering) define the exact supported-input boundary.
 
 ## Relation to the other setup paths
 

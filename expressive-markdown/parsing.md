@@ -17,10 +17,10 @@ HTML conversion recommendations are informative.
 ## Parsing order
 
 1. Normalize CRLF/CR to LF; retained positions refer to original input.
-2. Recognize optional opening frontmatter, then Markdown blocks by the [Markdown rules](#markdown-rules), [HTML elements](#html-elements), containers, leaf directives, footnote definitions, definition lists, tables and line blocks in their enclosing block context.
+2. Recognize optional opening frontmatter, then Markdown blocks by the [Markdown rules](#markdown-rules), [HTML elements](#html-elements), containers, leaf directives, footnote definitions, [display math](#math), definition lists, tables and line blocks in their enclosing block context.
 3. Parse inline content and titles after block boundaries, once every footnote label is known.
 
-Code spans, fenced code and raw-text HTML retain their lexical boundaries;
+Code spans, fenced code, math and raw-text HTML retain their lexical boundaries;
 their contents do not open directives or line blocks. GFM tables take precedence
 over leading-pipe line blocks. Escaped structural punctuation stays literal.
 Apply the [safe HTML policy](#safe-html) when importing HTML and before writing it.
@@ -1307,6 +1307,91 @@ in place of the paragraph:
   not rendered as attributes.
 - Writers write the link as authored and never write the file's text into the
   document.
+
+## Math
+
+Math is read in both `standard` and `compatible` syntax. GFM's specification
+has no math, but GitHub and GitLab read these spellings, so documents written
+for them keep their meaning.
+
+**Inline math.** A `$` is a *math delimiter* unless a backslash escapes it or
+another unescaped `$` sits directly before or after it. A delimiter opens
+inline math when the next character is not whitespace. It closes at the nearest
+following delimiter that:
+
+- has a non-whitespace character directly before it;
+- is not directly followed by an ASCII digit; and
+- is not escaped. Inside math, `\$` is notation and never closes.
+
+The math is the characters between the two delimiters, read literally, with
+each line ending read as a space, as in a code span. It is an `inlineMath` node.
+A `$` that opens nothing, or finds no closing delimiter in its paragraph, is
+text. Inline math and code spans are read left to right: whichever opens first
+holds its content literally, so a `$` in a code span and a backtick in math are
+both content. Link labels, emphasis and other inline syntax cannot divide math.
+
+The rules are Pandoc's `tex_math_dollars` rules. The space rules make `$5 and
+$10` text, and the digit rule makes `$5–$10` text, so ordinary prose about money
+needs no escapes. Two dollar signs together are never inline delimiters,
+because `$$` is display math on its own line and text anywhere else.
+
+**Display math.** Two forms open a `math` block in any block context, after the
+block-relative indentation that a code fence allows:
+
+1. A line that is `$$`, optionally followed by spaces or tabs. The block holds
+   the lines up to the next such line in the same block context, which closes
+   it. Remove the opening line's indentation from each content line, as for a
+   fence. Without a closing line, the opening line is paragraph text.
+2. A line that starts with `$$`, ends with `$$` and holds non-whitespace
+   between them, such as `$$x^2$$`. The value is the text between the
+   delimiters, trimmed of spaces and tabs.
+
+Either form may interrupt a paragraph. A closing line is required because an
+unclosed `$$` is more often prose than math; a code fence's run to the end of
+its container would turn the rest of a document into notation.
+
+A fenced code block whose info string's first word is `math` is also a `math`
+block. Read the remaining info string as a code block's
+[presentation metadata](#code-presentation): `id`, `attributes`, `title` and
+`meta`. This is GitHub's spelling, and the only one that carries an ID or
+caption.
+
+**Writing.**
+
+- Write `inlineMath` as `$value$`. Reading that source must give back the same
+  value: a value that is empty, starts or ends with whitespace, holds a line
+  ending, or holds a `$` that would close it is an unsupported conversion.
+- Two adjacent `inlineMath` nodes are an unsupported conversion, since their
+  delimiters would touch.
+- Escape a literal `$` that would become a delimiter next to inline math, such
+  as text ending in `$` before it. Write a literal digit directly after inline
+  math as a numeric character reference, such as `&#49;` for `1`.
+- Write `math` in its recorded form. Without one, write `$$` lines around the
+  value. Use a `math` fence when the node has an ID, attributes, a caption or
+  `meta`, or when a line of the value is `$$`. Choose the fence's length as for
+  code. The one-line form holds only a value with no line ending.
+- Protect a literal `$` that would pair with another delimiter in the written
+  source, and a line of text that would open a display block.
+- Math has no safe HTML mapping that reads back as math. Inside content that
+  must be written as HTML, it is an unsupported conversion.
+
+**Recommended HTML.** Escape the notation in code, which keeps it readable
+where nothing typesets it:
+
+```html
+<p>The energy is <code class="language-math">E = mc^2</code>.</p>
+<pre><code class="language-math">x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}</code></pre>
+```
+
+A renderer that typesets math replaces these elements. Typeset inline math as
+`<math>` and display math as `<math display="block">`, in the
+[MathML Core](https://www.w3.org/TR/mathml-core/) that browsers render without
+scripts or fonts. Keep the notation in an
+`<annotation encoding="application/x-tex">` inside `<semantics>`, so it can be
+copied and reread. A `math` block with a caption renders inside a `<figure>`
+with a `<figcaption>`, as captioned code does. Notation that the renderer cannot
+read renders as the escaped code above and recommends a `math-notation`
+diagnostic.
 
 ## HTML elements
 

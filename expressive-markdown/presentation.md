@@ -510,8 +510,8 @@ When Markdown shorthand cannot express supported content, use supported safe
 HTML or report the conversion limitation.
 
 Fonts, themes, toolbar placement and highlighting engines are renderer choices.
-Diagram/math extensions should retain their literal notation for editing and
-fallback display. No JavaScript runtime or CSS framework is required.
+Diagram extensions and [math](/expressive-markdown/language#math) retain their
+literal notation for editing and fallback display. No JavaScript runtime or CSS framework is required.
 
 For exact syntax and defaults, see [Language & Semantics](/expressive-markdown/language).
 For data structures, open the AST disclosures beside the [feature examples](/expressive-markdown/language).

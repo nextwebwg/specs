@@ -1514,6 +1514,74 @@ readers choose between sources of the same example.
 
 See the [embedding rules](/expressive-markdown/parsing#embedded-files).
 
+## Math
+
+Write math in TeX notation. Put inline math between single dollar signs, and
+display math between `$$` lines or in a `math` code fence:
+
+````md
+The energy is $E = mc^2$, and a price of $5 stays text.
+
+$$
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$
+
+```math
+e^{i\pi} + 1 = 0
+```
+````
+
+:::: {.render title="Inline and display math, rendered as MathML" height="200"}
+```html
+<p>The energy is <math><mi>E</mi><mo>=</mo><mi>m</mi><msup><mi>c</mi><mn>2</mn></msup></math>, and a price of $5 stays text.</p>
+<math display="block"><mi>x</mi><mo>=</mo><mfrac><mrow><mo>−</mo><mi>b</mi><mo>±</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mi>a</mi><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></math>
+<math display="block"><msup><mi>e</mi><mrow><mi>i</mi><mi>π</mi></mrow></msup><mo>+</mo><mn>1</mn><mo>=</mo><mn>0</mn></math>
+```
+
+::: {.details #math-ast summary="AST"}
+```json
+[
+  {
+    "type": "paragraph",
+    "children": [
+      { "type": "text", "value": "The energy is " },
+      { "type": "inlineMath", "value": "E = mc^2" },
+      { "type": "text", "value": ", and a price of $5 stays text." }
+    ]
+  },
+  { "type": "math", "value": "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}" },
+  { "type": "math", "value": "e^{i\\pi} + 1 = 0", "source": { "fence": "```" } }
+]
+```
+
+| Type | Required fields/content | Additional fields and constraints |
+| --- | --- | --- |
+| `inlineMath` | String `value`. | Inline. The notation between the dollar signs, with each line ending read as a space. |
+| `math` | String `value`. | Block. Optional `id`, `attributes`, literal string caption `title` and string `meta`, read from a `math` fence's info string as for [code](#code-blocks-and-presentation-metadata). |
+:::
+::::
+
+The value is the TeX notation exactly as written, backslashes included.
+Expressive Markdown stores the notation and does not interpret it, so any TeX
+dialect a renderer reads, such as KaTeX's or MathJax's, works.
+
+| Situation | Result |
+| --- | --- |
+| `$5 and $10` | Text. An opening `$` needs a non-space after it, and a closing `$` a non-space before it. |
+| `$x$5` | Text. A closing `$` is never followed by a digit, so prices such as `$5–$10` stay text. |
+| `$$` inside a paragraph | Text. Two or more dollar signs together never open or close inline math. |
+| `\$` | A literal dollar sign, in text. Inside math, `\$` is TeX's dollar sign and does not close the math. |
+| `$$x^2$$` alone on a line | Display math, the one-line form. |
+| `$$` with no closing `$$` line | Text. |
+| Code spans and math | Whichever opens first wins; a `$` inside a code span is text, and a backtick inside math is notation. |
+
+These are the spellings GitHub, GitLab, Pandoc, Jupyter and Obsidian share, so
+documents move between them unchanged and render on GitHub. The digit and
+spacing rules are Pandoc's: they keep currency amounts as text without an
+escape. A renderer may typeset the notation, for example as
+[MathML](https://www.w3.org/TR/mathml-core/), which browsers render natively.
+Otherwise math renders as escaped code, so the notation stays readable. See the
+[math parser and writer rules](/expressive-markdown/parsing#math).
 
 ## Tables
 
@@ -3368,18 +3436,17 @@ consistent and report unresolved targets. Recommend `<nav>` labelled by its
 authored title, or `aria-label="Table of contents"` when absent, without imposing
 a heading rank.
 
-### Text styling, diagrams and math
+### Text styling and diagrams
 
 Keep supported classes/styles on images, cells and HTML; report filtered or
 unsupported presentation. No CSS framework is prescribed.
 
-Extensions can use `mermaid`/`math` code fences or inline notation such as
-``:math[`x_1^2`]``. Retain the notation for editing and escaped fallback. These
-are extension contracts, not additional core semantic types. A `mermaid` or
-`math` fence uses the [code AST](#code-ast) with that `language`; the inline
-example uses `{"type":"inline","subType":"math","children":[{"type":"inlineCode","value":"x_1^2"}]}`.
-Its HTML fallback is escaped code; an extension can additionally render a
-diagram or equation. The visual result depends on that extension.
+Extensions can use `mermaid` code fences. Retain the notation for editing and
+escaped fallback. This is an extension contract, not an additional core
+semantic type. A `mermaid` fence uses the [code AST](#code-ast) with that
+`language`. Its HTML fallback is escaped code; an extension can additionally
+render a diagram. The visual result depends on that extension. Math is part of
+the core: see [Math](#math).
 
 ## Recommended output anchors
 
@@ -3414,7 +3481,7 @@ and preservation form the contract; HTML output is informative.
 
 ### Parsing order
 
-Parse blocks before inline content. Code/HTML retain their lexical boundaries;
+Parse blocks before inline content. Code, math and HTML retain their lexical boundaries;
 their contents do not open directives. GFM tables take precedence over line
 blocks. See [parser order](/expressive-markdown/parsing#parsing-order).
 
